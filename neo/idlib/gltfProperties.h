@@ -807,7 +807,7 @@ public:
 
 		if( create && index == -1 )
 		{
-			index = dataList.Num( );
+			index = dataList.Num();
 			dataList.AssureSizeAlloc( index + 1, idListNewElement<gltfData> );
 			dataList[index]->FileName( fileName, key );
 			fileDataHash.Add( key , index );
@@ -886,7 +886,7 @@ public:
 	gltfNode* GetNode( idStr sceneName,  int id, idStr* name = nullptr )
 	{
 		int sceneId = GetSceneId( sceneName );
-		if( sceneId < 0 || sceneId > scenes.Num( ) )
+		if( sceneId < 0 || sceneId > scenes.Num() )
 		{
 			return nullptr;
 		}

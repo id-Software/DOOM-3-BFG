@@ -3373,7 +3373,7 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 				joints.SetNum( num );
 				jointParents.SetNum( num );
 				channelJoints[0].SetNum( num );
-				md5joints = modelHandle->GetJoints( );
+				md5joints = modelHandle->GetJoints();
 				md5joint = md5joints;
 				for( i = 0; i < num; i++, md5joint++ )
 				{

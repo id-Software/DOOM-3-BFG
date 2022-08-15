@@ -39,7 +39,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	gltfData* data = bv->parent;
 
 	// files import as y-up. Use this transform to change the model to z-up.
-	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3();
 	idMat4 axisTransform( rotation, vec3_origin );
 
 	gltfMaterial* mat = NULL;
@@ -66,9 +66,9 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		}
 	}
 
-	int polyCount = accessor->count /3;
+	int polyCount = accessor->count / 3;
 
-	mesh->polygons.AssureSize(polyCount );
+	mesh->polygons.AssureSize( polyCount );
 	mesh->polygons.SetNum( polyCount );
 
 	int cnt = 0;
@@ -90,7 +90,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		polygon.AddIndex( indices[i + 0] );
 	}
 
-	assert(cnt == polyCount );
+	assert( cnt == polyCount );
 
 	Mem_Free( indices );
 	bool sizeSet = false;
@@ -311,7 +311,7 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, glt
 	origin.z = node->translation.z;
 
 	// files import as y-up. Use this transform to change the model to z-up.
-	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3();
 	idMat4 axisTransform( rotation, vec3_origin );
 
 	origin *= axisTransform;
@@ -326,7 +326,7 @@ void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfD
 
 	if( _Node->mesh != -1 )
 	{
-		for( auto prim : _Data->MeshList( )[_Node->mesh]->primitives )
+		for( auto prim : _Data->MeshList()[_Node->mesh]->primitives )
 		{
 			_Entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, _Data, curTrans ) );
 		}
@@ -334,7 +334,7 @@ void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfD
 
 	for( auto& child : _Node->children )
 	{
-		Map_AddMeshes( _Entity, _Data->NodeList( )[child], curTrans, _Data );
+		Map_AddMeshes( _Entity, _Data->NodeList()[child], curTrans, _Data );
 	}
 };
 

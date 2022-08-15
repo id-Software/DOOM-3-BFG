@@ -2339,7 +2339,7 @@ void gltfData::ClearData( idStr& fileName )
 	}
 	else
 	{
-		common->DWarning( " tried to clear GLTF data while no data was loaded for %s", fileName.c_str( ) );
+		common->DWarning( " tried to clear GLTF data while no data was loaded for %s", fileName.c_str() );
 	}
 
 }

@@ -228,9 +228,9 @@ bool idMD5Anim::LoadAnim( const char* filename )
 			// for resource gathering write this anim to the preload file for this map
 			fileSystem->AddAnimPreload( name );
 		}
-		if( doWrite && binaryLoadAnim.GetBool( ) )
+		if( doWrite && binaryLoadAnim.GetBool() )
 		{
-			idLib::Printf( "Writing %s\n", generatedFileName.c_str( ) );
+			idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
 			fileptr->Seek( 0, FS_SEEK_SET );
 			idFile_Memory* memFile = static_cast<idFile_Memory*>( fileptr );
 			fileSystem->WriteFile( generatedFileName, memFile->GetDataPtr(), memFile->GetAllocated(), "fs_basepath" );

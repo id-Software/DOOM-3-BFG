@@ -49,7 +49,7 @@ static const byte GLMB_VERSION = 100;
 static const unsigned int GLMB_MAGIC = ( 'M' << 24 ) | ( 'L' << 16 ) | ( 'G' << 8 ) | GLMB_VERSION;
 static const char* GLTF_SnapshotName = "_GLTF_Snapshot_";
 static const idAngles axisTransformAngels = idAngles( 0.0f, 0.0f, 90 );
-static const idMat4 axisTransform( axisTransformAngels.ToMat3( ), vec3_origin );
+static const idMat4 axisTransform( axisTransformAngels.ToMat3(), vec3_origin );
 static idRenderModelGLTF* lastMeshFromFile = nullptr;
 
 bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
@@ -59,8 +59,8 @@ bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 
 void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data )
 {
-	auto& meshList = data->MeshList( );
-	auto& nodeList = data->NodeList( );
+	auto& meshList = data->MeshList();
+	auto& nodeList = data->NodeList();
 
 	gltfData::ResolveNodeMatrix( modelNode );
 
@@ -90,9 +90,9 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 			gltfMaterial* mat = NULL;
 			if( prim->material != -1 )
 			{
-				mat = data->MaterialList( )[prim->material];
+				mat = data->MaterialList()[prim->material];
 			}
-			if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool( ) )
+			if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool() )
 			{
 				surf.shader = declManager->FindMaterial( mat->name );
 			}
@@ -100,20 +100,20 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 			{
 				surf.shader = declManager->FindMaterial( "textures/base_wall/snpanel2rust" );
 			}
-			surf.id = this->NumSurfaces( );
+			surf.id = this->NumSurfaces();
 
-			srfTriangles_t* tri = R_AllocStaticTriSurf( );
-			tri->numIndexes = mesh->GetNumPolygons( ) * 3;
-			tri->numVerts = mesh->GetNumVertices( );
+			srfTriangles_t* tri = R_AllocStaticTriSurf();
+			tri->numIndexes = mesh->GetNumPolygons() * 3;
+			tri->numVerts = mesh->GetNumVertices();
 
 			R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
 			R_AllocStaticTriSurfVerts( tri, tri->numVerts );
 
 			int indx = 0;
-			for( int i = 0; i < mesh->GetNumPolygons( ); i++ )
+			for( int i = 0; i < mesh->GetNumPolygons(); i++ )
 			{
 				auto& face = mesh->GetFace( i );
-				auto& faceIdxs = face.GetIndexes( );
+				auto& faceIdxs = face.GetIndexes();
 				tri->indexes[indx] = faceIdxs[0];
 				tri->indexes[indx + 1] = faceIdxs[1];
 				tri->indexes[indx + 2] = faceIdxs[2];
@@ -122,7 +122,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 
 			for( int i = 0; i < tri->numVerts; ++i )
 			{
-				tri->verts[i] = mesh->GetDrawVerts( )[i];
+				tri->verts[i] = mesh->GetDrawVerts()[i];
 				tri->bounds.AddPoint( tri->verts[i].xyz );
 			}
 
@@ -155,7 +155,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	name = fileName;
 	currentSkin = nullptr;
 
-	PurgeModel( );
+	PurgeModel();
 
 	//FIXME FIXME FIXME
 	maxJointVertDist = 10;
@@ -200,8 +200,8 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	if( !root )
 	{
-		common->Warning( "Couldn't find model: '%s'", name.c_str( ) );
-		MakeDefaultModel( );
+		common->Warning( "Couldn't find model: '%s'", name.c_str() );
+		MakeDefaultModel();
 		return;
 	}
 
@@ -210,7 +210,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	data->GetAllMeshes( root, MeshNodeIds );
 
 	//find all animations and bones
-	bones.Clear( );
+	bones.Clear();
 	int totalAnims = 0;
 	for( int meshID : MeshNodeIds )
 	{
@@ -221,7 +221,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		//if not but it has an anim, create a bone from the target mesh-node as origin.
 		if( tmpNode->skin >= 0 )
 		{
-			currentSkin = data->SkinList( )[tmpNode->skin];
+			currentSkin = data->SkinList()[tmpNode->skin];
 			assert( currentSkin );
 			if( currentSkin->joints.Num() )
 			{
@@ -243,10 +243,10 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	ProcessNode( root, mat4_identity, data );
 
-	if( surfaces.Num( ) <= 0 )
+	if( surfaces.Num() <= 0 )
 	{
-		common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
-		MakeDefaultModel( );
+		common->Warning( "Couldn't load model: '%s'", name.c_str() );
+		MakeDefaultModel();
 		return;
 	}
 
@@ -291,7 +291,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	if( animCnt > 0 )
 	{
 		animIds.Resize( animCnt, 1 );
-		file->ReadBigArray( animIds.Ptr( ), animCnt );
+		file->ReadBigArray( animIds.Ptr(), animCnt );
 		animIds.SetNum( animCnt );
 	}
 	hasAnimations = animCnt > 0;
@@ -299,14 +299,14 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	int tempNum;
 	file->ReadBig( tempNum );
 	md5joints.SetNum( tempNum );
-	for( int i = 0; i < md5joints.Num( ); i++ )
+	for( int i = 0; i < md5joints.Num(); i++ )
 	{
 		file->ReadString( md5joints[i].name );
 		int offset;
 		file->ReadBig( offset );
 		if( offset >= 0 )
 		{
-			md5joints[i].parent = md5joints.Ptr( ) + offset;
+			md5joints[i].parent = md5joints.Ptr() + offset;
 		}
 		else
 		{
@@ -319,21 +319,21 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	if( boneCnt > 0 )
 	{
 		bones.Resize( boneCnt, 1 );
-		file->ReadBigArray( bones.Ptr( ), boneCnt );
+		file->ReadBigArray( bones.Ptr(), boneCnt );
 		bones.SetNum( boneCnt );
 	}
 	else
 	{
 		if( hasAnimations && !bones.Num() )
 		{
-			bones.Clear( );
+			bones.Clear();
 			bones.Append( rootID );
 		}
 	}
 
 	file->ReadBig( tempNum );
 	defaultPose.SetNum( tempNum );
-	for( int i = 0; i < defaultPose.Num( ); i++ )
+	for( int i = 0; i < defaultPose.Num(); i++ )
 	{
 		file->ReadBig( defaultPose[i].q.x );
 		file->ReadBig( defaultPose[i].q.y );
@@ -344,11 +344,11 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 
 	file->ReadBig( tempNum );
 	invertedDefaultPose.SetNum( tempNum );
-	for( int i = 0; i < invertedDefaultPose.Num( ); i++ )
+	for( int i = 0; i < invertedDefaultPose.Num(); i++ )
 	{
-		file->ReadBigArray( invertedDefaultPose[i].ToFloatPtr( ), JOINTMAT_TYPESIZE );
+		file->ReadBigArray( invertedDefaultPose[i].ToFloatPtr(), JOINTMAT_TYPESIZE );
 	}
-	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr( ), md5joints.Num( ) );
+	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr(), md5joints.Num() );
 
 	model_state = hasAnimations ? DM_CONTINUOUS : DM_STATIC;
 
@@ -356,7 +356,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	return true;
 }
 
-void idRenderModelGLTF::UpdateMd5Joints( )
+void idRenderModelGLTF::UpdateMd5Joints()
 {
 	md5joints.Clear();
 	md5joints.Resize( bones.Num() );
@@ -415,7 +415,7 @@ void idRenderModelGLTF::UpdateMd5Joints( )
 		}
 	}
 
-	if( bones.Num( ) == 1 )
+	if( bones.Num() == 1 )
 	{
 		//patch bone indices
 		for( auto& surf : surfaces )
@@ -444,35 +444,35 @@ void idRenderModelGLTF::DrawJoints( const struct renderEntity_s* ent, const view
 	md5Joint = md5joints.Ptr();
 	for( i = 0; i < num; i++, joint++, md5Joint++ )
 	{
-		pos = ent->origin + joint->ToVec3( ) * ent->axis;
+		pos = ent->origin + joint->ToVec3() * ent->axis;
 		if( md5Joint->parent )
 		{
-			parentNum = md5Joint->parent - md5joints.Ptr( );
-			common->RW( )->DebugLine( colorWhite, ent->origin + ent->joints[parentNum].ToVec3( ) * ent->axis, pos );
+			parentNum = md5Joint->parent - md5joints.Ptr();
+			common->RW()->DebugLine( colorWhite, ent->origin + ent->joints[parentNum].ToVec3() * ent->axis, pos );
 		}
 
-		common->RW( )->DebugLine( colorRed, pos, pos + joint->ToMat3( )[0] * 2.0f * ent->axis );
-		common->RW( )->DebugLine( colorGreen, pos, pos + joint->ToMat3( )[1] * 2.0f * ent->axis );
-		common->RW( )->DebugLine( colorBlue, pos, pos + joint->ToMat3( )[2] * 2.0f * ent->axis );
+		common->RW()->DebugLine( colorRed, pos, pos + joint->ToMat3()[0] * 2.0f * ent->axis );
+		common->RW()->DebugLine( colorGreen, pos, pos + joint->ToMat3()[1] * 2.0f * ent->axis );
+		common->RW()->DebugLine( colorBlue, pos, pos + joint->ToMat3()[2] * 2.0f * ent->axis );
 	}
 
 	idBounds bounds;
 
 	bounds.FromTransformedBounds( ent->bounds, vec3_zero, ent->axis );
-	common->RW( )->DebugBounds( colorMagenta, bounds, ent->origin );
+	common->RW()->DebugBounds( colorMagenta, bounds, ent->origin );
 
-	if( ( r_jointNameScale.GetFloat( ) != 0.0f ) && ( bounds.Expand( 128.0f ).ContainsPoint( view->renderView.vieworg - ent->origin ) ) )
+	if( ( r_jointNameScale.GetFloat() != 0.0f ) && ( bounds.Expand( 128.0f ).ContainsPoint( view->renderView.vieworg - ent->origin ) ) )
 	{
-		idVec3	offset( 0, 0, r_jointNameOffset.GetFloat( ) );
+		idVec3	offset( 0, 0, r_jointNameOffset.GetFloat() );
 		float	scale;
 
-		scale = r_jointNameScale.GetFloat( );
+		scale = r_jointNameScale.GetFloat();
 		joint = ent->joints;
 		num = ent->numJoints;
 		for( i = 0; i < num; i++, joint++ )
 		{
-			pos = ent->origin + joint->ToVec3( ) * ent->axis;
-			common->RW( )->DrawText( md5joints[i].name, pos + offset, scale, colorWhite, view->renderView.viewaxis, 1 );
+			pos = ent->origin + joint->ToVec3() * ent->axis;
+			common->RW()->DrawText( md5joints[i].name, pos + offset, scale, colorWhite, view->renderView.viewaxis, 1 );
 		}
 	}
 }
@@ -508,7 +508,7 @@ bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfN
 
 	//create jointInfo
 	jointInfo.SetGranularity( 1 );
-	jointInfo.SetNum( bones.Num( ) );
+	jointInfo.SetNum( bones.Num() );
 	for( auto& joint : jointInfo )
 	{
 		joint.animBits = 0;
@@ -521,9 +521,9 @@ bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfN
 idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 {
 	idList<idJointQuat> ret;
-	ret.AssureSize( bones.Num( ) );
+	ret.AssureSize( bones.Num() );
 
-	for( int i = 0; i < bones.Num( ); i++ )
+	for( int i = 0; i < bones.Num(); i++ )
 	{
 		auto* node = &bones[i];
 
@@ -536,22 +536,22 @@ idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 		}
 
 		idJointQuat& pose = ret[i];
-		pose.q = ( trans.ToMat3( ).Transpose().ToQuat( ) );
+		pose.q = ( trans.ToMat3().Transpose().ToQuat() );
 		pose.t = idVec3( trans[0][3], trans[1][3], trans[2][3] );
-		pose.w = pose.q.CalcW( );
+		pose.w = pose.q.CalcW();
 	}
 
-	for( int i = 0; i < bones.Num( ); i++ )
+	for( int i = 0; i < bones.Num(); i++ )
 	{
 		const gltfNode* joint = &bones[i];
 		idJointQuat* pose = &ret[i];
-		poseMat[i].SetRotation( pose->q.ToMat3( ) );
+		poseMat[i].SetRotation( pose->q.ToMat3() );
 		poseMat[i].SetTranslation( pose->t );
 		if( joint->parent )
 		{
 			int parentNum = bones.FindIndex( *joint->parent );
-			pose->q = ( poseMat[i].ToMat3( ) * poseMat[parentNum].ToMat3( ).Transpose( ) ).ToQuat( );
-			pose->t = ( poseMat[i].ToVec3( ) - poseMat[parentNum].ToVec3( ) ) * poseMat[parentNum].ToMat3( ).Transpose( );
+			pose->q = ( poseMat[i].ToMat3() * poseMat[parentNum].ToMat3().Transpose() ).ToQuat();
+			pose->t = ( poseMat[i].ToVec3() - poseMat[parentNum].ToVec3() ) * poseMat[parentNum].ToMat3().Transpose();
 		}
 	}
 
@@ -573,7 +573,7 @@ int copyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>& out )
 	for( auto& bone : out )
 	{
 		bool found = false;
-		for( int i = 0; i < out.Num( ); i++ )
+		for( int i = 0; i < out.Num(); i++ )
 		{
 			if( bone.parent && bone.parent->name == out[i].name )
 			{
@@ -607,8 +607,8 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	gltf.Load( gltfFileName );
 
 	gltfData* data = gltf.currentAsset;
-	auto& accessors = data->AccessorList( );
-	auto& nodes = data->NodeList( );
+	auto& accessors = data->AccessorList();
+	auto& nodes = data->NodeList();
 
 	gltfNode* nodeRoot = nodes[lastMeshFromFile->rootID];
 	int boneRootNode = lastMeshFromFile->rootID;
@@ -716,7 +716,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	frameRate = gltf_AnimSampleRate.GetInteger();
 	INT animLength = ( ( numFrames - 1 ) * 1000 + frameRate - 1 ) / frameRate;
 
-	for( int i = 0; i < jointInfo.Num( ); i++ )
+	for( int i = 0; i < jointInfo.Num(); i++ )
 	{
 		jointAnimInfo_t& j = jointInfo[i];
 		idStr jointName = animationLib.JointName( j.nameIndex );
@@ -728,13 +728,13 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	}
 
 	baseFrame.SetGranularity( 1 );
-	baseFrame.SetNum( bones.Num( ) );
+	baseFrame.SetNum( bones.Num() );
 
 	gltfSkin* skin = data->GetSkin( gltfAnim );;
 	gltfAccessor* acc = nullptr;
 	if( skin != nullptr )
 	{
-		acc = data->AccessorList( )[skin->inverseBindMatrices];
+		acc = data->AccessorList()[skin->inverseBindMatrices];
 	}
 	else
 	{
@@ -743,12 +743,12 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 		idMat4 trans = mat4_identity;
 		data->ResolveNodeMatrix( root, &trans );
 		trans *= axisTransform.Inverse();
-		acc = new gltfAccessor( );
+		acc = new gltfAccessor();
 		acc->matView = new idList<idMat4>( 1 );
-		acc->matView->AssureSize( 1, trans.Inverse( ).Transpose( ) );
+		acc->matView->AssureSize( 1, trans.Inverse().Transpose() );
 	}
 
-	idJointMat* poseMat = ( idJointMat* ) _alloca16( bones.Num( ) * sizeof( poseMat[0] ) );
+	idJointMat* poseMat = ( idJointMat* ) _alloca16( bones.Num() * sizeof( poseMat[0] ) );
 	baseFrame = GetPose( animBones[0], poseMat );
 
 	componentFrames.SetGranularity( 1 );
@@ -780,7 +780,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				case gltfAnimation_Channel_Target::rotation:
 				{
 					idList<idQuat*>& values = data->GetAccessorView<idQuat>( output );
-					if( values.Num( ) > i )
+					if( values.Num() > i )
 					{
 						animBones[i][boneIndex].rotation = *values[i];
 					}
@@ -789,7 +789,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				case gltfAnimation_Channel_Target::translation:
 				{
 					idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
-					if( values.Num( ) > i )
+					if( values.Num() > i )
 					{
 						animBones[i][boneIndex].translation = *values[i];
 					}
@@ -797,14 +797,14 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				break;
 				case gltfAnimation_Channel_Target::scale:
 					idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
-					if( values.Num( ) > i )
+					if( values.Num() > i )
 					{
 						animBones[i][boneIndex].scale = *values[i] ;
 					}
 					break;
 			}
 		}
-		for( int b = 0; b < bones.Num( ); b++ )
+		for( int b = 0; b < bones.Num(); b++ )
 		{
 			auto* node = &animBones[i][b];
 			jointAnimInfo_t* joint = &( jointInfo[b] );
@@ -828,7 +828,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 				if( node->parent == nullptr )
 				{
-					q = axisTransformAngels.ToQuat( ) * animBones[i][b].rotation;
+					q = axisTransformAngels.ToQuat() * animBones[i][b].rotation;
 					if( animBones[i].Num() == 1 )
 					{
 						q = -animBones[i][b].rotation;
@@ -846,19 +846,19 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 		}
 	}
 
-	assert( componentFrames.Num( ) == ( componentFrameIndex + 1 ) );
+	assert( componentFrames.Num() == ( componentFrameIndex + 1 ) );
 
 	bounds.SetGranularity( 1 );
 	bounds.AssureSize( numFrames );
 	bounds.SetNum( numFrames );
 
 	//do software skinning to determine bounds.
-	idJointMat* currJoints = ( idJointMat* ) _alloca16( bones.Num( ) * sizeof( poseMat[0] ) );
+	idJointMat* currJoints = ( idJointMat* ) _alloca16( bones.Num() * sizeof( poseMat[0] ) );
 	for( int i = 0; i < numFrames; i++ )
 	{
-		bounds[i].Clear( );
+		bounds[i].Clear();
 
-		for( int b = 0; b < animBones[i].Num( ); b++ )
+		for( int b = 0; b < animBones[i].Num(); b++ )
 		{
 			if( animBones[i][b].parent == nullptr )
 			{
@@ -868,11 +868,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 		idList<idJointMat> joints;
 		GetPose( animBones[i], currJoints );
-		for( int b = 0; b < animBones[i].Num( ); b++ )
+		for( int b = 0; b < animBones[i].Num(); b++ )
 		{
 			idJointMat mat = poseMat[b];
-			mat.Invert( );
-			idJointMat::Multiply( joints.Alloc( ), currJoints[b], mat );
+			mat.Invert();
+			idJointMat::Multiply( joints.Alloc(), currJoints[b], mat );
 		}
 
 		// an mesh entry _should_ always be before an anim entry!
@@ -927,8 +927,8 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 
 
-	file->WriteBig( bounds.Num( ) );
-	for( int i = 0; i < bounds.Num( ); i++ )
+	file->WriteBig( bounds.Num() );
+	for( int i = 0; i < bounds.Num(); i++ )
 	{
 		idBounds& b = bounds[i];
 		file->WriteBig( b[0] );
@@ -936,8 +936,8 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	}
 
 	//namestr list
-	file->WriteBig( jointInfo.Num( ) );
-	for( int i = 0; i < jointInfo.Num( ); i++ )
+	file->WriteBig( jointInfo.Num() );
+	for( int i = 0; i < jointInfo.Num(); i++ )
 	{
 		jointAnimInfo_t& j = jointInfo[i];
 		idStr jointName = animationLib.JointName( j.nameIndex );
@@ -949,8 +949,8 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	}
 
 	//base frame
-	file->WriteBig( baseFrame.Num( ) );
-	for( int i = 0; i < baseFrame.Num( ); i++ )
+	file->WriteBig( baseFrame.Num() );
+	for( int i = 0; i < baseFrame.Num(); i++ )
 	{
 		idJointQuat& j = baseFrame[i];
 		file->WriteBig( j.q.x );
@@ -961,8 +961,8 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	}
 
 	//per joint timestamp values, T R
-	file->WriteBig( componentFrames.Num( ) - 1 );
-	for( int i = 0; i < componentFrames.Num( ); i++ )
+	file->WriteBig( componentFrames.Num() - 1 );
+	for( int i = 0; i < componentFrames.Num(); i++ )
 	{
 		file->WriteFloat( componentFrames[i] );
 	}
@@ -972,7 +972,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	// get total move delta
 	if( !numAnimatedComponents )
 	{
-		totaldelta.Zero( );
+		totaldelta.Zero();
 	}
 	else
 	{
@@ -1037,32 +1037,32 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 	file->WriteBig( rootID );
 	file->WriteString( file->GetName() );
 
-	file->WriteBig( animIds.Num( ) );
-	if( animIds.Num( ) )
+	file->WriteBig( animIds.Num() );
+	if( animIds.Num() )
 	{
 		file->WriteBigArray( animIds.Ptr(), animIds.Num() );
 	}
 
-	file->WriteBig( md5joints.Num( ) );
-	for( int i = 0; i < md5joints.Num( ); i++ )
+	file->WriteBig( md5joints.Num() );
+	for( int i = 0; i < md5joints.Num(); i++ )
 	{
 		file->WriteString( md5joints[i].name );
 		int offset = -1;
 		if( md5joints[i].parent != NULL )
 		{
-			offset = md5joints[i].parent - md5joints.Ptr( );
+			offset = md5joints[i].parent - md5joints.Ptr();
 		}
 		file->WriteBig( offset );
 	}
 
-	file->WriteBig( bones.Num( ) );
-	if( bones.Num( ) )
+	file->WriteBig( bones.Num() );
+	if( bones.Num() )
 	{
-		file->WriteBigArray( bones.Ptr( ), bones.Num( ) );
+		file->WriteBigArray( bones.Ptr(), bones.Num() );
 	}
 
-	file->WriteBig( defaultPose.Num( ) );
-	for( int i = 0; i < defaultPose.Num( ); i++ )
+	file->WriteBig( defaultPose.Num() );
+	for( int i = 0; i < defaultPose.Num(); i++ )
 	{
 		file->WriteBig( defaultPose[i].q.x );
 		file->WriteBig( defaultPose[i].q.y );
@@ -1071,18 +1071,18 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 		file->WriteVec3( defaultPose[i].t );
 	}
 
-	file->WriteBig( invertedDefaultPose.Num( ) );
-	for( int i = 0; i < invertedDefaultPose.Num( ); i++ )
+	file->WriteBig( invertedDefaultPose.Num() );
+	for( int i = 0; i < invertedDefaultPose.Num(); i++ )
 	{
-		file->WriteBigArray( invertedDefaultPose[i].ToFloatPtr( ), JOINTMAT_TYPESIZE );
+		file->WriteBigArray( invertedDefaultPose[i].ToFloatPtr(), JOINTMAT_TYPESIZE );
 	}
 }
 
 void idRenderModelGLTF::PurgeModel()
 {
 	purged = true;
-	md5joints.Clear( );
-	defaultPose.Clear( );
+	md5joints.Clear();
+	defaultPose.Clear();
 	invertedDefaultPose.Clear();
 
 	animIds.Clear();
@@ -1099,8 +1099,8 @@ void idRenderModelGLTF::PurgeModel()
 void idRenderModelGLTF::LoadModel()
 {
 	int			num;
-	auto& accessors = data->AccessorList( );
-	auto& nodes = data->NodeList( );
+	auto& accessors = data->AccessorList();
+	auto& nodes = data->NodeList();
 	gltfNode* meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
 
 	gltfSkin* skin = nullptr;
@@ -1108,7 +1108,7 @@ void idRenderModelGLTF::LoadModel()
 	if( currentSkin != nullptr )
 	{
 		skin = currentSkin;
-		acc = data->AccessorList( )[skin->inverseBindMatrices];
+		acc = data->AccessorList()[skin->inverseBindMatrices];
 	}
 	else
 	{
@@ -1132,12 +1132,12 @@ void idRenderModelGLTF::LoadModel()
 	defaultPose.SetGranularity( 1 );
 	defaultPose.SetNum( num );
 
-	for( int i = 0; i < bones.Num( ); i++ )
+	for( int i = 0; i < bones.Num(); i++ )
 	{
 		gltfNode* node = nodes[bones[i]];
 
 		//check for TRS anim and its artficial root bone
-		if( bones.Num( ) == 0 && node->mesh != -1 )
+		if( bones.Num() == 0 && node->mesh != -1 )
 		{
 			md5joints[i].name = "origin";
 		}
@@ -1162,7 +1162,7 @@ void idRenderModelGLTF::LoadModel()
 	};
 
 
-	for( int i = 0; i < bones.Num( ); i++ )
+	for( int i = 0; i < bones.Num(); i++ )
 	{
 		auto* node = nodes[bones[i]];
 
@@ -1172,7 +1172,7 @@ void idRenderModelGLTF::LoadModel()
 		}
 	}
 
-	idJointMat* poseMat = ( idJointMat* ) _alloca16( bones.Num( ) * sizeof( poseMat[0] ) );
+	idJointMat* poseMat = ( idJointMat* ) _alloca16( bones.Num() * sizeof( poseMat[0] ) );
 	idList<gltfNode> animBones;
 	int totalCopied = copyBones( data, bones, animBones );
 	defaultPose = GetPose( animBones, poseMat );
@@ -1190,16 +1190,16 @@ void idRenderModelGLTF::LoadModel()
 	// vertex * joints * inverseJoints == vertex when joints is the base pose
 	// When the joints are in another pose, it gives the animated vertex position
 	//-----------------------------------------
-	invertedDefaultPose.SetNum( SIMD_ROUND_JOINTS( md5joints.Num( ) ) );
-	for( int i = 0; i < md5joints.Num( ); i++ )
+	invertedDefaultPose.SetNum( SIMD_ROUND_JOINTS( md5joints.Num() ) );
+	for( int i = 0; i < md5joints.Num(); i++ )
 	{
 		invertedDefaultPose[i] = poseMat[i];
-		invertedDefaultPose[i].Invert( );
+		invertedDefaultPose[i].Invert();
 	}
-	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr( ), md5joints.Num( ) );
+	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr(), md5joints.Num() );
 
-	//auto deformInfo = R_BuildDeformInfo( texCoords.Num( ), basePose, tris.Num( ), tris.Ptr( ),
-	//	shader->UseUnsmoothedTangents( ) );
+	//auto deformInfo = R_BuildDeformInfo( texCoords.Num(), basePose, tris.Num(), tris.Ptr(),
+	//	shader->UseUnsmoothedTangents() );
 
 	model_state = hasAnimations ? DM_CACHED : DM_STATIC;
 
@@ -1208,14 +1208,14 @@ void idRenderModelGLTF::LoadModel()
 
 	purged = false;
 
-	common->UpdateLevelLoadPacifier( );
+	common->UpdateLevelLoadPacifier();
 }
 
 void idRenderModelGLTF::TouchData()
 {
-	for( int i = 0; i < surfaces.Num( ); i++ )
+	for( int i = 0; i < surfaces.Num(); i++ )
 	{
-		declManager->FindMaterial( surfaces[i].shader->GetName( ) );
+		declManager->FindMaterial( surfaces[i].shader->GetName() );
 	}
 }
 
@@ -1271,15 +1271,15 @@ idList<int> TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int n
 		idJointMat::Mad( accum, j3, w3 );
 
 		targetVerts[i].xyz = accum * idVec4( base.xyz.x, base.xyz.y, base.xyz.z, 1.0f );
-		targetVerts[i].SetNormal( accum * base.GetNormal( ) );
-		targetVerts[i].SetTangent( accum * base.GetTangent( ) );
+		targetVerts[i].SetNormal( accum * base.GetNormal() );
+		targetVerts[i].SetTangent( accum * base.GetTangent() );
 		targetVerts[i].tangent[3] = base.tangent[3];
 
 	}
 	return jointIds;
 }
 
-void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf,const modelSurface_t & sourceSurf )
+void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf, const modelSurface_t& sourceSurf )
 {
 #if defined(USE_INTRINSICS_SSE)
 	static const __m128 vector_float_posInfinity = { idMath::INFINITUM, idMath::INFINITUM, idMath::INFINITUM, idMath::INFINITUM };
@@ -1293,7 +1293,7 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	}
 	else
 	{
-		surf->geometry = R_AllocStaticTriSurf( );
+		surf->geometry = R_AllocStaticTriSurf();
 	}
 
 	srfTriangles_t* tri = surf->geometry;
@@ -1317,7 +1317,7 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 
 	idList<int> jointIds;
 
-	if( r_useGPUSkinning.GetBool( ) && glConfig.gpuSkinningAvailable )
+	if( r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable )
 	{
 		if( tri->verts != NULL && tri->verts != verts )
 		{
@@ -1353,9 +1353,9 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	for( int i = 0; i < jointIds.Num(); i++ )
 	{
 		const idJointMat& joint = entJoints[i];
-		__m128 x = _mm_load_ps( joint.ToFloatPtr( ) + 0 * 4 );
-		__m128 y = _mm_load_ps( joint.ToFloatPtr( ) + 1 * 4 );
-		__m128 z = _mm_load_ps( joint.ToFloatPtr( ) + 2 * 4 );
+		__m128 x = _mm_load_ps( joint.ToFloatPtr() + 0 * 4 );
+		__m128 y = _mm_load_ps( joint.ToFloatPtr() + 1 * 4 );
+		__m128 z = _mm_load_ps( joint.ToFloatPtr() + 2 * 4 );
 		minX = _mm_min_ps( minX, x );
 		minY = _mm_min_ps( minY, y );
 		minZ = _mm_min_ps( minZ, z );
@@ -1370,19 +1370,19 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	maxX = _mm_add_ps( maxX, expand );
 	maxY = _mm_add_ps( maxY, expand );
 	maxZ = _mm_add_ps( maxZ, expand );
-	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 0, _mm_splat_ps( minX, 3 ) );
-	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 1, _mm_splat_ps( minY, 3 ) );
-	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 2, _mm_splat_ps( minZ, 3 ) );
-	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 3, _mm_splat_ps( maxX, 3 ) );
-	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 4, _mm_splat_ps( maxY, 3 ) );
-	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 5, _mm_splat_ps( maxZ, 3 ) );
+	_mm_store_ss( tri->bounds.ToFloatPtr() + 0, _mm_splat_ps( minX, 3 ) );
+	_mm_store_ss( tri->bounds.ToFloatPtr() + 1, _mm_splat_ps( minY, 3 ) );
+	_mm_store_ss( tri->bounds.ToFloatPtr() + 2, _mm_splat_ps( minZ, 3 ) );
+	_mm_store_ss( tri->bounds.ToFloatPtr() + 3, _mm_splat_ps( maxX, 3 ) );
+	_mm_store_ss( tri->bounds.ToFloatPtr() + 4, _mm_splat_ps( maxY, 3 ) );
+	_mm_store_ss( tri->bounds.ToFloatPtr() + 5, _mm_splat_ps( maxZ, 3 ) );
 
 #else
-	bounds.Clear( );
-	for( int i = 0; i < jointIds.Num( ); i++ )
+	bounds.Clear();
+	for( int i = 0; i < jointIds.Num(); i++ )
 	{
 		const idJointMat& joint = entJoints[i];
-		bounds.AddPoint( joint.GetTranslation( ) );
+		bounds.AddPoint( joint.GetTranslation() );
 	}
 	bounds.ExpandSelf( maxJointVertDist );
 
@@ -1398,9 +1398,9 @@ TransformJoints
 static void TransformJointsFast( idJointMat* __restrict outJoints, const int numJoints, const idJointMat* __restrict inJoints1, const idJointMat* __restrict inJoints2 )
 {
 
-	float* outFloats = outJoints->ToFloatPtr( );
-	const float* inFloats1 = inJoints1->ToFloatPtr( );
-	const float* inFloats2 = inJoints2->ToFloatPtr( );
+	float* outFloats = outJoints->ToFloatPtr();
+	const float* inFloats1 = inJoints1->ToFloatPtr();
+	const float* inFloats2 = inJoints2->ToFloatPtr();
 
 	assert_16_byte_aligned( outFloats );
 	assert_16_byte_aligned( inFloats1 );
@@ -1512,13 +1512,13 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 
 	if( !ent->joints )
 	{
-		common->Printf( "idRenderModelGLTF::InstantiateDynamicModel: NULL joints on renderEntity for '%s'\n", Name( ) );
+		common->Printf( "idRenderModelGLTF::InstantiateDynamicModel: NULL joints on renderEntity for '%s'\n", Name() );
 		delete cachedModel;
 		return NULL;
 	}
-	else if( ent->numJoints != md5joints.Num( ) )
+	else if( ent->numJoints != md5joints.Num() )
 	{
-		common->Printf( "idRenderModelGLTF::InstantiateDynamicModel: renderEntity has different number of joints than model for '%s'\n", Name( ) );
+		common->Printf( "idRenderModelGLTF::InstantiateDynamicModel: renderEntity has different number of joints than model for '%s'\n", Name() );
 		delete cachedModel;
 		return NULL;
 	}
@@ -1527,7 +1527,7 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	if( cachedModel != NULL )
 	{
 		assert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
-		assert( idStr::Icmp( cachedModel->Name( ), GLTF_SnapshotName ) == 0 );
+		assert( idStr::Icmp( cachedModel->Name(), GLTF_SnapshotName ) == 0 );
 		staticModel = static_cast< idRenderModelStatic* >( cachedModel );
 	}
 	else
@@ -1539,15 +1539,15 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 
 	staticModel->bounds.Clear();
 
-	if( r_showSkel.GetInteger( ) )
+	if( r_showSkel.GetInteger() )
 	{
-		if( ( view != NULL ) && ( !r_skipSuppress.GetBool( ) || !ent->suppressSurfaceInViewID || ( ent->suppressSurfaceInViewID != view->renderView.viewID ) ) )
+		if( ( view != NULL ) && ( !r_skipSuppress.GetBool() || !ent->suppressSurfaceInViewID || ( ent->suppressSurfaceInViewID != view->renderView.viewID ) ) )
 		{
 			// only draw the skeleton
 			DrawJoints( ent, view );
 		}
 
-		if( r_showSkel.GetInteger( ) > 1 )
+		if( r_showSkel.GetInteger() > 1 )
 		{
 			// turn off the model when showing the skeleton
 			staticModel->InitEmpty( GLTF_SnapshotName );
@@ -1572,9 +1572,9 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 
 	if( !staticModel->surfaces.Num() )
 	{
-		for (int i =0 ; i<surfaces.Num(); i++)
+		for( int i = 0 ; i < surfaces.Num(); i++ )
 		{
-			modelSurface_t *newSurf = &staticModel->surfaces.Alloc( );
+			modelSurface_t* newSurf = &staticModel->surfaces.Alloc();
 			newSurf->geometry = NULL;
 			newSurf->shader = surfaces[i].shader;
 		}
@@ -1587,13 +1587,13 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 		const idMaterial* shader = surf.shader;
 		shader = R_RemapShaderBySkin( shader, ent->customSkin, ent->customShader );
 
-		if( !shader || ( !shader->IsDrawn( ) && !shader->SurfaceCastsShadow( ) ) )
+		if( !shader || ( !shader->IsDrawn() && !shader->SurfaceCastsShadow() ) )
 		{
 			staticModel->DeleteSurfaceWithId( surfIdx++ );
 			continue;
 		}
 
-		UpdateSurface( ent, ent->joints, staticModel->jointsInverted, &surf,surfaces[surfIdx++] );
+		UpdateSurface( ent, ent->joints, staticModel->jointsInverted, &surf, surfaces[surfIdx++] );
 		assert( surf.geometry != NULL );
 		surf.geometry->staticModelWithJoints = staticModel;
 		staticModel->bounds.AddBounds( surf.geometry->bounds );
@@ -1624,10 +1624,10 @@ const idMD5Joint* idRenderModelGLTF::GetJoints() const
 
 jointHandle_t idRenderModelGLTF::GetJointHandle( const char* name ) const
 {
-	const idMD5Joint* joint = md5joints.Ptr( );
-	for( int i = 0; i < md5joints.Num( ); i++, joint++ )
+	const idMD5Joint* joint = md5joints.Ptr();
+	for( int i = 0; i < md5joints.Num(); i++, joint++ )
 	{
-		if( idStr::Icmp( joint->name.c_str( ), name ) == 0 )
+		if( idStr::Icmp( joint->name.c_str(), name ) == 0 )
 		{
 			return ( jointHandle_t ) i;
 		}
@@ -1638,7 +1638,7 @@ jointHandle_t idRenderModelGLTF::GetJointHandle( const char* name ) const
 
 const char* idRenderModelGLTF::GetJointName( jointHandle_t handle ) const
 {
-	if( ( handle < 0 ) || ( handle >= md5joints.Num( ) ) )
+	if( ( handle < 0 ) || ( handle >= md5joints.Num() ) )
 	{
 		return "<invalid joint>";
 	}
@@ -1697,7 +1697,7 @@ int idRenderModelGLTF::NearestJoint( int surfaceNum, int a, int b, int c ) const
 		}
 	}
 
-	common->Warning( "Couldn't find NearestJoint for : '%s'", name.c_str( ) );
+	common->Warning( "Couldn't find NearestJoint for : '%s'", name.c_str() );
 	return 0;
 }
 

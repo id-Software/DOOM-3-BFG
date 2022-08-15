@@ -442,15 +442,15 @@ idBrushList idAASBuild::AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMe
 		const MapPolygon& face = mapMesh->GetFace( p );
 
 		mat = declManager->FindMaterial( face.GetMaterial() );
-		contents = ContentsForAAS( mat->GetContentFlags( ) );
+		contents = ContentsForAAS( mat->GetContentFlags() );
 
 		if( !contents )
 		{
 			return brushList;
 		}
 
-		const idList<idDrawVert>& verts = mapMesh->GetDrawVerts( );
-		const idList<int>& indices = face.GetIndexes( );
+		const idList<idDrawVert>& verts = mapMesh->GetDrawVerts();
+		const idList<int>& indices = face.GetIndexes();
 
 		idVec3 triNormal;
 		int v1 = 0;
@@ -465,16 +465,16 @@ idBrushList idAASBuild::AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMe
 		d1 = verts[indices[1]].xyz - verts[indices[0]].xyz;
 		d2 = verts[indices[2]].xyz - verts[indices[0]].xyz;
 		plane.SetNormal( d1.Cross( d2 ) );
-		if( plane.Normalize( ) != 0.0f )
+		if( plane.Normalize() != 0.0f )
 		{
 			plane.FitThroughPoint( verts[indices[2]].xyz );
 
-			w.Clear( );
+			w.Clear();
 			w += verts[indices[0]].xyz;
 			w += verts[indices[1]].xyz;
 			w += verts[indices[2]].xyz;
 
-			brush = new idBrush( );
+			brush = new idBrush();
 			brush->SetContents( contents );
 			if( brush->FromWinding( w, plane ) )
 			{
@@ -494,16 +494,16 @@ idBrushList idAASBuild::AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMe
 		//Back face
 		triNormal = plane.Normal();
 		plane.SetNormal( d2.Cross( d1 ) );
-		if( plane.Normalize( ) != 0.0f )
+		if( plane.Normalize() != 0.0f )
 		{
 			plane.FitThroughPoint( verts[indices[0]].xyz );
 
-			w.Clear( );
+			w.Clear();
 			w += verts[indices[2]].xyz + triNormal;
 			w += verts[indices[1]].xyz + triNormal;
 			w += verts[indices[0]].xyz + triNormal;
 
-			brush = new idBrush( );
+			brush = new idBrush();
 			brush->SetContents( contents );
 			if( brush->FromWinding( w, plane ) )
 			{
@@ -725,7 +725,7 @@ idBrushList idAASBuild::AddBrushesForMapEntity( const idMapEntity* mapEnt, int e
 			continue;
 		}
 		//HVG: Map polygon mesh support
-		if( mapPrim->GetType( ) == idMapPrimitive::TYPE_MESH )
+		if( mapPrim->GetType() == idMapPrimitive::TYPE_MESH )
 		{
 			brushList = AddBrushesForMapPolygonMesh( static_cast< MapPolygonMesh* >( mapPrim ), origin, axis, entityNum, i, brushList );
 		}

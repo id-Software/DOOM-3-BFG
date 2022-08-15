@@ -307,7 +307,7 @@ public:
 
 	int				operator[]( const int index ) const;
 	uint8& operator[]( const int index );
-	idVec4i			operator-( ) const;
+	idVec4i			operator-() const;
 	uint8			operator*( const idVec4i& a ) const;
 	idVec4i			operator*( const uint8 a ) const;
 	idVec4i			operator/( const uint8 a ) const;
@@ -375,7 +375,7 @@ ID_INLINE uint8& idVec4i::operator[]( int index )
 	return ( &x )[index];
 }
 
-ID_INLINE idVec4i idVec4i::operator-( ) const
+ID_INLINE idVec4i idVec4i::operator-() const
 {
 	return idVec4i( -x, -y, -z, -w );
 }
