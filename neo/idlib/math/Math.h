@@ -360,6 +360,8 @@ public:
 
 	static void					Init();
 
+	static float				RSqrt( float x );			// reciprocal square root, returns huge number when x == 0.0
+
 	static float				InvSqrt( float x );			// inverse square root with 32 bits precision, returns huge number when x == 0.0
 	static float				InvSqrt16( float x );		// inverse square root with 16 bits precision, returns huge number when x == 0.0
 
@@ -501,6 +503,21 @@ ID_INLINE byte CLAMP_BYTE( int x )
 {
 	return ( ( x ) < 0 ? ( 0 ) : ( ( x ) > 255 ? 255 : ( byte )( x ) ) );
 }
+
+
+ID_INLINE float idMath::RSqrt( float x )
+{
+	int i;
+	float y, r;
+
+	y = x * 0.5f;
+	i = *reinterpret_cast< int* >( &x );
+	i = 0x5f3759df - ( i >> 1 );
+	r = *reinterpret_cast< float* >( &i );
+	r = r * ( 1.5f - r * r * y );
+	return r;
+}
+
 
 /*
 ========================

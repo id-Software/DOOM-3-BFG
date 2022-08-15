@@ -633,7 +633,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 		int id;
 		idStr tmp;
 		idStr file = fileName;
-		gltfManager::ExtractMeshIdentifier( file, id, tmp );
+		gltfManager::ExtractIdentifier( file, id, tmp );
 
 		currentTimeStamp = fileSystem->GetTimestamp( file );
 	}

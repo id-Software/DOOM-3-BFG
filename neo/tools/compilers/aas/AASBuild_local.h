@@ -3,6 +3,8 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Harrie van Ginneken
+Copyright (C) 2022 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -104,6 +106,7 @@ private:	// map loading
 	int						ContentsForAAS( int contents );
 	idBrushList				AddBrushesForMapBrush( const idMapBrush* mapBrush, const idVec3& origin, const idMat3& axis, int entityNum, int primitiveNum, idBrushList brushList );
 	idBrushList				AddBrushesForMapPatch( const idMapPatch* mapPatch, const idVec3& origin, const idMat3& axis, int entityNum, int primitiveNum, idBrushList brushList );
+	idBrushList				AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMesh, const idVec3& origin, const idMat3& axis, int entityNum, int primitiveNum, idBrushList brushList );
 	idBrushList				AddBrushesForMapEntity( const idMapEntity* mapEnt, int entityNum, idBrushList brushList );
 	idBrushList				AddBrushesForMapFile( const idMapFile* mapFile, idBrushList brushList );
 	bool					CheckForEntities( const idMapFile* mapFile, idStrList& entityClassNames ) const;
