@@ -115,7 +115,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	}
 	else
 	{
-		vertexBufferDesc.initialState = nvrhi::ResourceStates::Common;
+		vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		vertexBufferDesc.keepInitialState = true;
 		vertexBufferDesc.debugName = "Static idDrawVert vertex buffer";
 	}
@@ -128,7 +128,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	}
 
 	// copy the data
-	if( data != NULL )
+	if( data )
 	{
 		Update( data, allocSize, 0, true, commandList );
 	}
@@ -196,9 +196,9 @@ void idVertexBuffer::Update( const void* data, int updateSize, int offset, bool 
 	{
 		if( initialUpdate )
 		{
-			commandList->beginTrackingBufferState( bufferHandle, nvrhi::ResourceStates::Common );
+			commandList->beginTrackingBufferState( bufferHandle, nvrhi::ResourceStates::CopyDest );
 			commandList->writeBuffer( bufferHandle, data, numBytes, GetOffset() + offset );
-			commandList->setPermanentBufferState( bufferHandle, nvrhi::ResourceStates::ShaderResource | nvrhi::ResourceStates::VertexBuffer );
+			commandList->setPermanentBufferState( bufferHandle, nvrhi::ResourceStates::VertexBuffer );
 		}
 		else
 		{
@@ -309,21 +309,20 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	nvrhi::BufferDesc indexBufferDesc;
 	indexBufferDesc.byteSize = numBytes;
 	indexBufferDesc.isIndexBuffer = true;
-	indexBufferDesc.initialState = nvrhi::ResourceStates::Common;
+	indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 	indexBufferDesc.canHaveRawViews = true;
 	indexBufferDesc.canHaveTypedViews = true;
 	indexBufferDesc.format = nvrhi::Format::R16_UINT;
 
 	if( _usage == BU_STATIC )
 	{
-		indexBufferDesc.debugName = "VertexCache Static Index Buffer";
 		indexBufferDesc.keepInitialState = true;
+		indexBufferDesc.debugName = "VertexCache Static Index Buffer";
 	}
 	else if( _usage == BU_DYNAMIC )
 	{
-		indexBufferDesc.debugName = "VertexCache Mapped Index Buffer";
-		indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		indexBufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
+		indexBufferDesc.debugName = "VertexCache Mapped Index Buffer";
 	}
 
 	bufferHandle  = deviceManager->GetDevice()->createBuffer( indexBufferDesc );
@@ -396,9 +395,9 @@ void idIndexBuffer::Update( const void* data, int updateSize, int offset, bool i
 	{
 		if( initialUpdate )
 		{
-			commandList->beginTrackingBufferState( bufferHandle, nvrhi::ResourceStates::Common );
+			commandList->beginTrackingBufferState( bufferHandle, nvrhi::ResourceStates::CopyDest );
 			commandList->writeBuffer( bufferHandle, data, numBytes, GetOffset() + offset );
-			commandList->setPermanentBufferState( bufferHandle, nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource );
+			commandList->setPermanentBufferState( bufferHandle, nvrhi::ResourceStates::IndexBuffer );
 			commandList->commitBarriers();
 		}
 		else

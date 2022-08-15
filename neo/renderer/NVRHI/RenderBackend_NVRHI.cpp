@@ -160,7 +160,7 @@ void idRenderBackend::Init()
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
 
-	fhImmediateMode::Init();
+	fhImmediateMode::Init( commandList );
 
 	// allocate the frame data, which may be more if smp is enabled
 	R_InitFrameData();
