@@ -60,7 +60,8 @@ public:
 	static void				Shutdown();
 	static void				CheckFramebuffers();
 	static Framebuffer*		Find( const char* name );
-	static void				ResizeFramebuffers();
+	static void				ResizeFramebuffers( bool reloadImages = true );
+	static void				ReloadImages();
 
 	void					Bind();
 	bool					IsBound();

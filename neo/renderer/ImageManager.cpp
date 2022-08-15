@@ -77,6 +77,9 @@ void R_ReloadImages_f( const idCmdArgs& args )
 	globalImages->ReloadImages( all, tr.commandList );
 	tr.commandList->close();
 	deviceManager->GetDevice()->executeCommandList( tr.commandList );
+
+	// Images (including the framebuffer images) were reloaded, reinitialize the framebuffers.
+	Framebuffer::ResizeFramebuffers();
 #else
 	globalImages->ReloadImages( all );
 #endif
@@ -655,6 +658,8 @@ void idImageManager::ReloadImages( bool all, nvrhi::ICommandList* commandList )
 	{
 		images[ i ]->Reload( all, commandList );
 	}
+
+	LoadDeferredImages( commandList );
 }
 
 /*
