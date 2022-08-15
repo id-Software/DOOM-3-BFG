@@ -1101,7 +1101,11 @@ void idRenderModelGLTF::LoadModel()
 	int			num;
 	auto& accessors = data->AccessorList( );
 	auto& nodes = data->NodeList( );
-	gltfNode* meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
+	gltfNode* meshRoot = root;
+	if ( !fileExclusive )
+	{
+		meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
+	}
 
 	gltfSkin* skin = nullptr;
 	gltfAccessor* acc = nullptr;
