@@ -120,6 +120,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 				indx += 3;
 			}
 
+			tri->bounds.Clear();
 			for( int i = 0; i < tri->numVerts; ++i )
 			{
 				tri->verts[i] = mesh->GetDrawVerts()[i];
@@ -1102,7 +1103,7 @@ void idRenderModelGLTF::LoadModel()
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
 	gltfNode* meshRoot = root;
-	if ( !fileExclusive )
+	if( !fileExclusive )
 	{
 		meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
 	}
