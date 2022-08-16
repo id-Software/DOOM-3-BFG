@@ -235,22 +235,47 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 			}
 			case gltfMesh_Primitive_Attribute::Type::Indices:
 			{
-				idVec4i vec;
-				for( int i = 0; i < attrAcc->count; i++ )
+				if( attrAcc->typeSize == 2 )
 				{
-					bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
-					bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
-					bin.Read( ( void* )( &vec.z ), attrAcc->typeSize );
-					bin.Read( ( void* )( &vec.w ), attrAcc->typeSize );
-					if( attrBv->byteStride )
+					uint16_t vec[4];
+					for( int i = 0; i < attrAcc->count; i++ )
 					{
-						bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-					}
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
 
-					mesh->verts[i].color[0] = vec.x;
-					mesh->verts[i].color[1] = vec.y;
-					mesh->verts[i].color[2] = vec.z;
-					mesh->verts[i].color[3] = vec.w;
+						mesh->verts[i].color[0] = vec[0];
+						mesh->verts[i].color[1] = vec[1];
+						mesh->verts[i].color[2] = vec[2];
+						mesh->verts[i].color[3] = vec[3];
+					}
+				}
+				else
+				{
+					uint8_t vec[4];
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						assert( sizeof( vec ) == attrAcc->typeSize );
+
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = vec[0];
+						mesh->verts[i].color[1] = vec[1];
+						mesh->verts[i].color[2] = vec[2];
+						mesh->verts[i].color[3] = vec[3];
+					}
 				}
 				break;
 
