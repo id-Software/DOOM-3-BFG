@@ -73,11 +73,13 @@ void R_ReloadImages_f( const idCmdArgs& args )
 	}
 
 #if defined( USE_NVRHI )
-	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
-	commandList->open();
-	globalImages->ReloadImages( all, commandList );
-	commandList->close();
-	deviceManager->GetDevice()->executeCommandList( commandList );
+	tr.commandList->open();
+	globalImages->ReloadImages( all, tr.commandList );
+	tr.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.commandList );
+
+	// Images (including the framebuffer images) were reloaded, reinitialize the framebuffers.
+	Framebuffer::ResizeFramebuffers();
 #else
 	globalImages->ReloadImages( all );
 #endif
@@ -656,6 +658,8 @@ void idImageManager::ReloadImages( bool all, nvrhi::ICommandList* commandList )
 	{
 		images[ i ]->Reload( all, commandList );
 	}
+
+	LoadDeferredImages( commandList );
 }
 
 /*

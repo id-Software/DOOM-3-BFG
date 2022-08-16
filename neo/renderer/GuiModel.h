@@ -56,7 +56,7 @@ public:
 	void		ReadFromDemo( idDemoFile* demo );
 
 	// allocates memory for verts and indexes in frame-temporary buffer memory
-	void		BeginFrame( nvrhi::ICommandList* commandList );
+	void		BeginFrame();
 
 	void		EmitToCurrentView( float modelMatrix[16], bool depthHack );
 	void		EmitFullScreen( textureStage_t* textureStage = nullptr );

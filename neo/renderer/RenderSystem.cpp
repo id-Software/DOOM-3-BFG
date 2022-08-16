@@ -908,7 +908,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	}
 
 	// prepare the new command buffer
-	guiModel->BeginFrame( commandList );
+	guiModel->BeginFrame();
 
 	//------------------------------
 	// Make sure that geometry used by code is present in the buffer cache.

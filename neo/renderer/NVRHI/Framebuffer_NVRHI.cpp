@@ -97,7 +97,7 @@ void Framebuffer::Shutdown()
 	framebuffers.DeleteContents( true );
 }
 
-void Framebuffer::ResizeFramebuffers()
+void Framebuffer::ResizeFramebuffers( bool reloadImages )
 {
 	tr.backend.ClearCaches();
 
@@ -108,35 +108,10 @@ void Framebuffer::ResizeFramebuffers()
 	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );
 	globalFramebuffers.swapFramebuffers.SetNum( backBufferCount );
 
-	tr.backend.commandList->open();
-	globalImages->ldrImage->Reload( false, tr.backend.commandList );
-	globalImages->currentRenderImage->Reload( false, tr.backend.commandList );
-	globalImages->currentDepthImage->Reload( false, tr.backend.commandList );
-	globalImages->currentRenderHDRImage->Reload( false, tr.backend.commandList );
-	globalImages->currentRenderHDRImage64->Reload( false, tr.backend.commandList );
-	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
+	if( reloadImages )
 	{
-		globalImages->ambientOcclusionImage[i]->Reload( false, tr.backend.commandList );
+		ReloadImages();
 	}
-	globalImages->hierarchicalZbufferImage->Reload( false, tr.backend.commandList );
-	globalImages->gbufferNormalsRoughnessImage->Reload( false, tr.backend.commandList );
-	globalImages->taaMotionVectorsImage->Reload( false, tr.backend.commandList );
-	globalImages->taaResolvedImage->Reload( false, tr.backend.commandList );
-	globalImages->taaFeedback1Image->Reload( false, tr.backend.commandList );
-	globalImages->taaFeedback2Image->Reload( false, tr.backend.commandList );
-	globalImages->smaaEdgesImage->Reload( false, tr.backend.commandList );
-	globalImages->smaaBlendImage->Reload( false, tr.backend.commandList );
-	globalImages->shadowAtlasImage->Reload( false, tr.backend.commandList );
-	for( int i = 0; i < MAX_SHADOWMAP_RESOLUTIONS; i++ )
-	{
-		globalImages->shadowImage[i]->Reload( false, tr.backend.commandList );
-	}
-	for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
-	{
-		globalImages->bloomRenderImage[i]->Reload( false, tr.backend.commandList );
-	}
-	tr.backend.commandList->close();
-	deviceManager->GetDevice()->executeCommandList( tr.backend.commandList );
 
 	for( uint32_t index = 0; index < backBufferCount; index++ )
 	{
@@ -231,6 +206,39 @@ void Framebuffer::ResizeFramebuffers()
 	}
 
 	Framebuffer::Unbind();
+}
+
+void Framebuffer::ReloadImages()
+{
+	tr.backend.commandList->open();
+	globalImages->ldrImage->Reload( false, tr.backend.commandList );
+	globalImages->currentRenderImage->Reload( false, tr.backend.commandList );
+	globalImages->currentDepthImage->Reload( false, tr.backend.commandList );
+	globalImages->currentRenderHDRImage->Reload( false, tr.backend.commandList );
+	globalImages->currentRenderHDRImage64->Reload( false, tr.backend.commandList );
+	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
+	{
+		globalImages->ambientOcclusionImage[i]->Reload( false, tr.backend.commandList );
+	}
+	globalImages->hierarchicalZbufferImage->Reload( false, tr.backend.commandList );
+	globalImages->gbufferNormalsRoughnessImage->Reload( false, tr.backend.commandList );
+	globalImages->taaMotionVectorsImage->Reload( false, tr.backend.commandList );
+	globalImages->taaResolvedImage->Reload( false, tr.backend.commandList );
+	globalImages->taaFeedback1Image->Reload( false, tr.backend.commandList );
+	globalImages->taaFeedback2Image->Reload( false, tr.backend.commandList );
+	globalImages->smaaEdgesImage->Reload( false, tr.backend.commandList );
+	globalImages->smaaBlendImage->Reload( false, tr.backend.commandList );
+	globalImages->shadowAtlasImage->Reload( false, tr.backend.commandList );
+	for( int i = 0; i < MAX_SHADOWMAP_RESOLUTIONS; i++ )
+	{
+		globalImages->shadowImage[i]->Reload( false, tr.backend.commandList );
+	}
+	for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
+	{
+		globalImages->bloomRenderImage[i]->Reload( false, tr.backend.commandList );
+	}
+	tr.backend.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.backend.commandList );
 }
 
 void Framebuffer::Bind()

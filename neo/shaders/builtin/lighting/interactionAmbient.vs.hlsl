@@ -28,49 +28,32 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global_inc.hlsl"
 
+// *INDENT-OFF*
 #if USE_GPU_SKINNING
-cbuffer CB :
-register( b1 )
-{
-	float4 matrices[408];
-};
+StructuredBuffer<float4> matrices: register(t11);
 #endif
 
 struct VS_IN
 {
-float4 position :
-	POSITION;
-float2 texcoord :
-	TEXCOORD0;
-float4 normal :
-	NORMAL;
-float4 tangent :
-	TANGENT;
-float4 color :
-	COLOR0;
-float4 color2 :
-	COLOR1;
+	float4 position : POSITION;
+	float2 texcoord : TEXCOORD0;
+	float4 normal :	NORMAL;
+	float4 tangent : TANGENT;
+	float4 color : COLOR0;
+	float4 color2 :	COLOR1;
 };
 
 struct VS_OUT
 {
-float4 position		:
-	SV_Position;
-	//float4 texcoord0	: TEXCOORD0_centroid;
-float4 texcoord1	:
-	TEXCOORD1_centroid;
-float4 texcoord2	:
-	TEXCOORD2_centroid;
-float4 texcoord3	:
-	TEXCOORD3_centroid;
-float4 texcoord4	:
-	TEXCOORD4_centroid;
-float4 texcoord5	:
-	TEXCOORD5_centroid;
-float4 texcoord6	:
-	TEXCOORD6_centroid;
-float4 color		:
-	COLOR0;
+	float4 position		: SV_Position;
+		//float4 texcoord0	: TEXCOORD0_centroid;
+	float4 texcoord1	: TEXCOORD1_centroid;
+	float4 texcoord2	: TEXCOORD2_centroid;
+	float4 texcoord3	: TEXCOORD3_centroid;
+	float4 texcoord4	: TEXCOORD4_centroid;
+	float4 texcoord5	: TEXCOORD5_centroid;
+	float4 texcoord6	: TEXCOORD6_centroid;
+	float4 color		: COLOR0;
 };
 
 // *INDENT-ON*

@@ -347,7 +347,6 @@ void idImage::AllocImage()
 		return;
 	}
 
-	int compressedSize = 0;
 	uint originalWidth = opts.width;
 	uint originalHeight = opts.height;
 
@@ -436,8 +435,6 @@ void idImage::AllocImage()
 
 	if( opts.isRenderTarget )
 	{
-		//textureDesc.keepInitialState = true;
-		//textureDesc.setKeepInitialState( true );
 		textureDesc.setInitialState( nvrhi::ResourceStates::RenderTarget )
 		.setClearValue( nvrhi::Color( 0.f ) )
 		.setIsRenderTarget( true )
@@ -449,7 +446,7 @@ void idImage::AllocImage()
 			.setClearValue( nvrhi::Color( 1.f ) );
 		}
 
-		if( opts.format == FMT_R32F || opts.format == FMT_R8 )
+		if( opts.isUAV )
 		{
 			// TODO(Stephen): Probably make this an image option.
 			// This is a hack to make cszBuffer and ambient occlusion uav work.

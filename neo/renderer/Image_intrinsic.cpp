@@ -324,7 +324,7 @@ static void R_SMAAImage_ResNative( idImage* image, nvrhi::ICommandList* commandL
 
 static void R_AmbientOcclusionImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_R8F, nullptr, true );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_R8F, nullptr, true, true );
 }
 
 static void R_GeometryBufferImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
@@ -341,7 +341,7 @@ static void R_SSAOImage_ResHalf( idImage* image, nvrhi::ICommandList* commandLis
 
 static void R_HierarchicalZBufferImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F, nullptr, true );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F, nullptr, true, true );
 }
 
 static void R_R8Image_ResNative_Linear( idImage* image, nvrhi::ICommandList* commandList )

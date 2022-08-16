@@ -1049,15 +1049,13 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			// discard anything currently on the list (this triggers SwapBuffers)
 			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-			int pix = captureSize * captureSize;
-			const int bufferSize = pix * 3 * 2;
-
-			byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
-
 #if defined( USE_VULKAN )
 			// TODO
 #elif defined( USE_NVRHI )
-			R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, floatRGB16F, captureSize, captureSize );
+
+			byte* floatRGB16F = NULL;
+
+			R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, &floatRGB16F, captureSize, captureSize );
 
 #if 0
 			idStr testName;
@@ -1066,6 +1064,11 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 #endif
 
 #else
+			int pix = captureSize * captureSize;
+			const int bufferSize = pix * 3 * 2;
+
+			byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
+
 
 			glFinish();
 

@@ -31,13 +31,11 @@ If you have questions concerning this license or the applicable additional terms
 
 // *INDENT-OFF*
 #if USE_GPU_SKINNING
-cbuffer CB : register( b1 VK_DESCRIPTOR_SET( 0 ))
-{
-	float4 matrices[408];
-};
+StructuredBuffer<float4> matrices: register(t11);
 #endif
 
-struct VS_IN {
+struct VS_IN 
+{
 	float4 position : POSITION;
 #if USE_GPU_SKINNING
 	float4 color : COLOR0;
@@ -45,7 +43,8 @@ struct VS_IN {
 #endif
 };
 
-struct VS_OUT {
+struct VS_OUT 
+{
 	float4 position : SV_Position;
 };
 // *INDENT-ON*

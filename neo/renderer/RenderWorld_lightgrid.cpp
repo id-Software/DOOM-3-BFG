@@ -1275,18 +1275,15 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							// discard anything currently on the list (this triggers SwapBuffers)
 							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-							int pix = captureSize * captureSize;
-							const int bufferSize = pix * 3 * 2;
-
-							byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
-
 #if defined( USE_VULKAN )
 							// TODO
 #elif defined( USE_NVRHI )
 							// make sure that all frames have finished rendering
 							//deviceManager->GetDevice()->waitForIdle();
 
-							R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, floatRGB16F, captureSize, captureSize );
+							byte* floatRGB16F = NULL;
+
+							R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, &floatRGB16F, captureSize, captureSize );
 
 							// release all in-flight references to the render targets
 							//deviceManager->GetDevice()->runGarbageCollection();
@@ -1298,6 +1295,11 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 #endif
 
 #else
+							int pix = captureSize * captureSize;
+							const int bufferSize = pix * 3 * 2;
+
+							byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
+
 							glFinish();
 
 							glReadBuffer( GL_BACK );

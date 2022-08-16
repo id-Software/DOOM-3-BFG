@@ -6738,6 +6738,16 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		}
 	}
 
+#if defined( USE_NVRHI )
+	// SP: reset the graphics state for validation layers
+	currentVertexBuffer = nullptr;
+	currentIndexBuffer = nullptr;
+	currentJointBuffer = nullptr;
+	currentVertexOffset = 0;
+	currentIndexOffset = 0;
+	currentJointOffset = 0;
+#endif
+
 	//-------------------------------------------------
 	// RB_BeginDrawingView
 	//
@@ -6753,17 +6763,15 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 	bool useHDR = r_useHDR.GetBool() && !_viewDef->is2Dgui;
 	bool clearColor = false;
-	if( useHDR )
+
+	if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
 	{
-		if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
-		{
-			globalFramebuffers.envprobeFBO->Bind();
-			clearColor = true;
-		}
-		else
-		{
-			globalFramebuffers.hdrFBO->Bind();
-		}
+		globalFramebuffers.envprobeFBO->Bind();
+		clearColor = true;
+	}
+	else if( useHDR )
+	{
+		globalFramebuffers.hdrFBO->Bind();
 	}
 	else if( viewDef->targetRender )
 	{
@@ -7228,6 +7236,11 @@ void idRenderBackend::DrawView( const void* data, const int stereoEye )
 	// if there aren't any drawsurfs, do nothing
 	if( !viewDef->numDrawSurfs )
 	{
+		if( viewDef->renderView.rdflags & RDF_IRRADIANCE )
+		{
+			nvrhi::utils::ClearColorAttachment( commandList, globalFramebuffers.envprobeFBO->GetApiObject(), 0, nvrhi::Color( 0.f ) );
+		}
+
 		return;
 	}
 
@@ -7451,8 +7464,7 @@ void idRenderBackend::PostProcess( const void* data )
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = globalFramebuffers.smaaBlendFBO->GetApiObject();
 
-		// RB: add + 1 to dimensions so filtering works
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth() + 1, renderSystem->GetHeight() + 1 );
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		GL_SelectTexture( 0 );
