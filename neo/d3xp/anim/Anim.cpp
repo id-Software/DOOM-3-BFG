@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "../Game_local.h"
+//should go before release?
+#include "renderer/Model_gltf.h"
 
 idCVar binaryLoadAnim( "binaryLoadAnim", "1", 0, "enable binary load/write of idMD5Anim" );
 
@@ -177,18 +179,47 @@ idMD5Anim::LoadAnim
 */
 bool idMD5Anim::LoadAnim( const char* filename )
 {
-
 	idLexer	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS | LEXFL_NOSTRINGCONCAT );
 	idToken	token;
+	idStr extension;
+	idStr filenameStr = idStr( filename );
+	filenameStr.ExtractFileExtension( extension );
 
 	idStr generatedFileName = "generated/anim/";
 	generatedFileName.AppendPath( filename );
 	generatedFileName.SetFileExtension( ".bMD5anim" );
 
-	// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
-	ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( filename );
+	idStr gltfFileName = idStr( filename );
+	int gltfAnimId = -1;
+	idStr gltfAnimName;
 
-	idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
+
+	// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
+	ID_TIME_T sourceTimeStamp;
+
+	bool isGLTF = ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) ;
+
+	if( isGLTF )
+	{
+		gltfManager::ExtractIdentifier( gltfFileName, gltfAnimId, gltfAnimName );
+
+		sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );
+	}
+	else
+	{
+		sourceTimeStamp = fileSystem->GetTimestamp( filename );
+	}
+
+	idFile* fileptr = fileSystem->OpenFileReadMemory( generatedFileName );
+	bool doWrite = false;
+	if( fileptr == nullptr && isGLTF )
+	{
+		fileptr = idRenderModelGLTF::GetAnimBin( filenameStr , sourceTimeStamp );
+		doWrite = fileptr != nullptr;
+	}
+
+	idFileLocal file( fileptr );
+
 	if( binaryLoadAnim.GetBool() && LoadBinary( file, sourceTimeStamp ) )
 	{
 		name = filename;
@@ -197,6 +228,14 @@ bool idMD5Anim::LoadAnim( const char* filename )
 			// for resource gathering write this anim to the preload file for this map
 			fileSystem->AddAnimPreload( name );
 		}
+		if( doWrite && binaryLoadAnim.GetBool() )
+		{
+			idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
+			fileptr->Seek( 0, FS_SEEK_SET );
+			idFile_Memory* memFile = static_cast<idFile_Memory*>( fileptr );
+			fileSystem->WriteFile( generatedFileName, memFile->GetDataPtr(), memFile->GetAllocated(), "fs_basepath" );
+		}
+
 		return true;
 	}
 

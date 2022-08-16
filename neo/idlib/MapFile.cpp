@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015-2022 Robert Beckebans
 Copyright (C) 2020 Admer (id Tech Fox)
+Copyright (C) 2022 Harrie van Ginneken
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1673,13 +1674,9 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	}
 	else if( isGTLF )
 	{
-		gltfParser->Load( fullName );
-		idMapEntity::GetEntities( gltfParser->currentAsset, entities, 0 );
-	}
-	else if( isGTLF )
-	{
-		gltfParser->Load( fullName );
-		idMapEntity::GetEntities( gltfParser->currentAsset, entities, gltfParser->currentAsset->GetSceneId( gltf_MapSceneName.GetString() ) );
+		GLTF_Parser gltf;
+		gltf.Load( fullName );
+		idMapEntity::GetEntities( gltf.currentAsset, entities, gltf.currentAsset->GetSceneId( gltf_MapSceneName.GetString() ) );
 	}
 	else
 	{

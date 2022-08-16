@@ -134,6 +134,11 @@ public:
 	gltfNode() : camera( -1 ), skin( -1 ), matrix( mat4_zero ),
 		mesh( -1 ), rotation( 0.f, 0.f, 0.f, 1.f ), scale( 1.f, 1.f, 1.f ),
 		translation( vec3_zero ), parent( nullptr ), dirty( true ) { }
+	//Only checks name!
+	bool operator == ( const gltfNode& rhs )
+	{
+		return name == rhs.name;
+	}
 	int						camera;
 	idList<int>				children;
 	int						skin;
@@ -760,7 +765,7 @@ const inline idList<gltf##name*> & ##name##List() { return target; }
 class gltfData
 {
 public:
-	gltfData() : fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) {  };
+	gltfData() : fileName( "" ), fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) { };
 	~gltfData();
 	byte* AddData( int size, int* bufferID = nullptr );
 	byte* GetJsonData( int& size )
@@ -772,10 +777,10 @@ public:
 	{
 		return data[index];
 	}
-	void FileName( const idStr& file )
+	void FileName( const idStr& file, int hash )
 	{
 		fileName = file;
-		fileNameHash = fileDataHash.GenerateKey( file.c_str() );
+		fileNameHash = hash;
 	}
 	int FileNameHash()
 	{
@@ -788,27 +793,39 @@ public:
 
 	static idHashIndex			fileDataHash;
 	static idList<gltfData*>	dataList;
-	//add data from filename
-	static gltfData* Data( idStr& fileName )
+	//add data for filename
+	static gltfData* Data( idStr& fileName, bool create = false )
 	{
-		dataList.AssureSizeAlloc( dataList.Num() + 1, idListNewElement<gltfData> );
-		dataList[dataList.Num() - 1]->FileName( fileName );
-		fileDataHash.Add( fileDataHash.GenerateKey( fileName ), dataList.Num() - 1 );
-		return dataList[dataList.Num() - 1];
-	}
-	//find data;
-	static gltfData* Data( const char* filename )
-	{
-		return dataList[fileDataHash.First( fileDataHash.GenerateKey( filename ) )];
+		static bool intialized = false;
+		if( ! intialized )
+		{
+			dataList.SetGranularity( 1 );
+			intialized = true;
+		}
+		int key = fileDataHash.GenerateKey( fileName );
+		int index = fileDataHash.GetFirst( key );
+
+		if( create && index == -1 )
+		{
+			index = dataList.Num();
+			dataList.AssureSizeAlloc( index + 1, idListNewElement<gltfData> );
+			dataList[index]->FileName( fileName, key );
+			fileDataHash.Add( key , index );
+		}
+
+		if( !create && index < 0 )
+		{
+			return nullptr;
+		}
+
+		return dataList[index];
 	}
 	static const idList<gltfData*>& DataList()
 	{
 		return dataList;
 	}
-	static void ClearData()
-	{
-		idLib::Warning( "TODO! DATA NOT FREED" );
-	}
+
+	static void ClearData( idStr& fileName );
 
 	//return the GLTF nodes that control the given camera
 	//return TRUE if the camera uses 2 nodes (like when blender exports gltfs with +Y..)
@@ -866,27 +883,10 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( gltfScene* scene, idStr name )
-	{
-		assert( scene );
-		assert( name[0] );
-
-		auto& nodeList = scene->nodes;
-		for( auto& nodeId : nodeList )
-		{
-			if( nodes[nodeId]->name == name )
-			{
-				return nodes[nodeId];
-			}
-		}
-
-		return nullptr;
-	}
-
 	gltfNode* GetNode( idStr sceneName,  int id, idStr* name = nullptr )
 	{
 		int sceneId = GetSceneId( sceneName );
-		if( sceneId < 0 || sceneId > scenes.Num( ) )
+		if( sceneId < 0 || sceneId > scenes.Num() )
 		{
 			return nullptr;
 		}
@@ -913,7 +913,30 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr )
+	gltfNode* GetNode( idStr name, int* id = nullptr, bool caseSensitive = false )
+	{
+		assert( name[0] );
+
+		auto& nodeList = NodeList();
+		for( auto* node : nodes )
+		{
+			int nodeId = GetNodeIndex( node );
+			if( caseSensitive ? nodes[nodeId]->name.Cmp( name ) : nodes[nodeId]->name.Icmp( name ) == 0 )
+			{
+				if( id != nullptr )
+				{
+					*id = nodeId;
+				}
+
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+
+	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr , bool caseSensitive = false )
 	{
 		int sceneId =  GetSceneId( sceneName );
 		if( sceneId < 0 || sceneId > scenes.Num() )
@@ -927,9 +950,9 @@ public:
 		assert( name[0] );
 
 		auto& nodeList = scene->nodes;
-		for( auto& nodeId : nodeList )
+		for( auto nodeId : nodeList )
 		{
-			if( nodes[nodeId]->name.Icmp( name ) == 0 )
+			if( caseSensitive ? nodes[nodeId]->name.Cmp( name ) : nodes[nodeId]->name.Icmp( name ) == 0 )
 			{
 				if( id != nullptr )
 				{
@@ -941,6 +964,20 @@ public:
 		}
 
 		return nullptr;
+	}
+
+	int GetNodeIndex( gltfNode* node )
+	{
+		int index = -1;
+		for( auto& it : nodes )
+		{
+			index++;
+			if( it == node )
+			{
+				return index;
+			}
+		}
+		return -1;
 	}
 
 	bool HasAnimation( int nodeID )
@@ -958,16 +995,140 @@ public:
 		return false;
 	}
 
-	int GetSceneId( idStr sceneName ) const
+	gltfAnimation* GetAnimation( idStr animName, int target )
+	{
+		for( auto* anim : animations )
+		{
+			if( anim->name == animName )
+			{
+				bool hasTarget = false;
+				for( auto* channel : anim->channels )
+				{
+					if( channel->target.node == target )
+					{
+						hasTarget = true;
+						break;
+					}
+				}
+				if( hasTarget )
+				{
+					return anim;
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	int GetSceneId( idStr sceneName , gltfScene* result = nullptr ) const
 	{
 		for( int i = 0; i < scenes.Num(); i++ )
 		{
 			if( scenes[i]->name == sceneName )
 			{
+				if( result != nullptr )
+				{
+					result = scenes[i];
+				}
+
 				return i;
 			}
 		}
 		return -1;
+	}
+
+	void GetAllMeshes( gltfNode* node, idList<int>& meshIds )
+	{
+		if( node->mesh != -1 )
+		{
+			meshIds.Append( GetNodeIndex( node ) );
+		}
+
+		for( auto child : node->children )
+		{
+			GetAllMeshes( nodes[child], meshIds );
+		}
+	}
+
+	gltfSkin* GetSkin( int boneNodeId )
+	{
+		for( auto skin : skins )
+		{
+			if( skin->joints.Find( boneNodeId ) )
+			{
+				return skin;
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfSkin* GetSkin( gltfAnimation* anim )
+	{
+		auto animTargets = GetAnimTargets( anim );
+
+		if( !animTargets.Num() )
+		{
+			return nullptr;
+		}
+
+		for( int nodeID : animTargets )
+		{
+			gltfSkin* foundSkin = GetSkin( nodeID );
+			if( foundSkin != nullptr )
+			{
+				return foundSkin;
+			}
+		}
+
+		return nullptr;
+	}
+
+	idList<int> GetAnimTargets( gltfAnimation* anim ) const
+	{
+		idList<int> result;
+		for( auto channel : anim->channels )
+		{
+			result.AddUnique( channel->target.node );
+		}
+		return result;
+	}
+
+	idList<int> GetChannelIds( gltfAnimation* anim , gltfNode* node ) const
+	{
+		idList<int> result;
+		int channelIdx = 0;
+		for( auto channel : anim->channels )
+		{
+			if( channel->target.node >= 0 && nodes[channel->target.node] == node )
+			{
+				result.Append( channelIdx );
+				break;
+			}
+			channelIdx++;
+		}
+		return result;
+	}
+
+	int GetAnimationIds( gltfNode* node , idList<int>& result )
+	{
+
+		int animIdx = 0;
+		for( auto anim : animations )
+		{
+			for( auto channel : anim->channels )
+			{
+				if( channel->target.node >= 0 && nodes[channel->target.node] == node )
+				{
+					result.AddUnique( animIdx );
+				}
+			}
+			animIdx++;
+		}
+		for( int nodeId : node->children )
+		{
+			GetAnimationIds( nodes[nodeId], result );
+		}
+		return result.Num();
 	}
 
 	idMat4 GetViewMatrix( int camId ) const

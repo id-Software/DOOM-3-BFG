@@ -303,6 +303,10 @@ private:
 class GLTF_Parser
 {
 public:
+	~GLTF_Parser()
+	{
+		Shutdown();
+	}
 	GLTF_Parser();
 	void Shutdown();
 	bool Parse();
@@ -349,7 +353,5 @@ private:
 class gltfManager
 {
 public:
-	static bool ExtractMeshIdentifier( idStr& filename , int& meshId, idStr& meshName );
+	static bool ExtractIdentifier( idStr& filename , int& id, idStr& name );
 };
-
-extern GLTF_Parser* gltfParser;

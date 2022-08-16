@@ -39,7 +39,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	gltfData* data = bv->parent;
 
 	// files import as y-up. Use this transform to change the model to z-up.
-	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3();
 	idMat4 axisTransform( rotation, vec3_origin );
 
 	gltfMaterial* mat = NULL;
@@ -55,6 +55,8 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
 										  ( const char* )( ( data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset ) ), bv->byteLength );
 
+
+
 	for( int i = 0; i < accessor->count; i++ )
 	{
 		idxBin.Read( ( void* )( &indices[i] ), accessor->typeSize );
@@ -64,9 +66,15 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		}
 	}
 
+	int polyCount = accessor->count / 3;
+
+	mesh->polygons.AssureSize( polyCount );
+	mesh->polygons.SetNum( polyCount );
+
+	int cnt = 0;
 	for( int i = 0; i < accessor->count; i += 3 )
 	{
-		MapPolygon& polygon = mesh->polygons.Alloc();
+		MapPolygon& polygon = mesh->polygons[cnt++];
 
 		if( mat != NULL )
 		{
@@ -81,6 +89,8 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		polygon.AddIndex( indices[i + 1] );
 		polygon.AddIndex( indices[i + 0] );
 	}
+
+	assert( cnt == polyCount );
 
 	Mem_Free( indices );
 	bool sizeSet = false;
@@ -204,30 +214,72 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				}
 				break;
 			}
-				//case gltfMesh_Primitive_Attribute::Type::Weight:
-				//{
-				//	for ( int i = 0; i < attrAcc->count; i++ ) {
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.x ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.y ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.z ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.w ), attrAcc->typeSize );
-				//		if ( attrBv->byteStride )
-				//			bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-				//	}
-				//	break;
-				//}
-				//case gltfMesh_Primitive_Attribute::Type::Indices:
-				//{
-				//	for ( int i = 0; i < attrAcc->count; i++ ) {
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.x ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.y ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.z ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.w ), attrAcc->typeSize );
-				//		if ( attrBv->byteStride )
-				//			bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-				//	}
-				//	break;
-				//}
+			case gltfMesh_Primitive_Attribute::Type::Weight:
+			{
+				idVec4 vec;
+				for( int i = 0; i < attrAcc->count; i++ )
+				{
+					bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.z ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.w ), attrAcc->typeSize );
+					if( attrBv->byteStride )
+					{
+						bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+					}
+
+					mesh->verts[i].SetColor2( PackColor( vec ) );
+
+				}
+				break;
+			}
+			case gltfMesh_Primitive_Attribute::Type::Indices:
+			{
+				if( attrAcc->typeSize == 2 )
+				{
+					uint16_t vec[4];
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = vec[0];
+						mesh->verts[i].color[1] = vec[1];
+						mesh->verts[i].color[2] = vec[2];
+						mesh->verts[i].color[3] = vec[3];
+					}
+				}
+				else
+				{
+					uint8_t vec[4];
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						assert( sizeof( vec ) == attrAcc->typeSize );
+
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = vec[0];
+						mesh->verts[i].color[1] = vec[1];
+						mesh->verts[i].color[2] = vec[2];
+						mesh->verts[i].color[3] = vec[3];
+					}
+				}
+				break;
+
+			}
 		}
 
 	}
@@ -256,9 +308,9 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, glt
 		ProcessSceneNode( newEntity, nodeList[child], curTrans, data, isFuncStaticMesh );
 	}
 
-	if( isFuncStaticMesh && node->mesh != -1 )
+	if( node->mesh != -1 )
 	{
-		for( auto prim : data->MeshList()[node->mesh]->primitives )
+		for( auto* prim : data->MeshList()[node->mesh]->primitives )
 		{
 			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data , curTrans ) );
 		}
@@ -284,7 +336,7 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, glt
 	origin.z = node->translation.z;
 
 	// files import as y-up. Use this transform to change the model to z-up.
-	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3();
 	idMat4 axisTransform( rotation, vec3_origin );
 
 	origin *= axisTransform;
@@ -299,7 +351,7 @@ void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfD
 
 	if( _Node->mesh != -1 )
 	{
-		for( auto prim : _Data->MeshList( )[_Node->mesh]->primitives )
+		for( auto prim : _Data->MeshList()[_Node->mesh]->primitives )
 		{
 			_Entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, _Data, curTrans ) );
 		}
@@ -307,7 +359,7 @@ void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfD
 
 	for( auto& child : _Node->children )
 	{
-		Map_AddMeshes( _Entity, _Data->NodeList( )[child], curTrans, _Data );
+		Map_AddMeshes( _Entity, _Data->NodeList()[child], curTrans, _Data );
 	}
 };
 
