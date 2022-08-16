@@ -1261,7 +1261,7 @@ idList<int> TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int n
 
 		for( int j = 0; j < 4; j++ )
 		{
-			jointIds.AddUnique( base.color[0] );
+			jointIds.AddUnique( base.color[j] );
 		}
 
 		const float w0 = base.color2[0] * ( 1.0f / 255.0f );
@@ -1355,7 +1355,7 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	__m128 maxX = vector_float_negInfinity;
 	__m128 maxY = vector_float_negInfinity;
 	__m128 maxZ = vector_float_negInfinity;
-	for( int i = 0; i < jointIds.Num(); i++ )
+	for( int i = 0; i < md5joints.Num(); i++ )
 	{
 		const idJointMat& joint = entJoints[i];
 		__m128 x = _mm_load_ps( joint.ToFloatPtr() + 0 * 4 );

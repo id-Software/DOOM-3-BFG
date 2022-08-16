@@ -239,7 +239,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				{
 					uint16_t vec[4];
 
-					assert( sizeof( vec ) == (attrAcc->typeSize * 4) );
+					assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
 
 					for( int i = 0; i < attrAcc->count; i++ )
 					{
@@ -263,7 +263,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					uint8_t vec[4];
 					for( int i = 0; i < attrAcc->count; i++ )
 					{
-						assert( sizeof( vec ) == (attrAcc->typeSize * 4) );
+						assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
 
 						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
 						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
