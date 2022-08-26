@@ -1,0 +1,1133 @@
+namespace map_delta2a {
+	#define NEG_ROT		'0 -120 0'
+	#define POS_ROT		'0 120 0'
+	#define HEAD_TIME	3
+	#define LIFT_TIME   3
+	#define JET_VENT_TIME	1.5			// How long do we want the lock vents to fire ?
+
+	float	rotmult;					// Matt's lift	
+	float	lift_state_updown;
+	float	crate_number;				// Stored from identify_crate(slot);		
+	float	deconPosition = 0;
+	//***
+	// Given the cranes position in front of a cage slot, find out which crate is in that space
+	// Returns the cage number. bind "cage_" + value to the hand
+	//***
+
+	void set_crate_in_slot( float slot, float crate ) {
+		$world.setKey( "slot_" + slot, crate );
+	}
+	
+	float identify_crate (float slot) {
+		float value;
+
+		value = $world.getFloatKey( "slot_" + slot );
+		//sys.print ("IDENTIFY_CRATE:: Found crate #" + value + " @ slot # " + slot + "\n");
+
+		return value;
+	}
+
+	void setup_objects()
+	{
+		sys.trigger ($speaker_131);			// Turn this speaker in the tube off
+											// Was screwing up the fadeout for teleport_end
+
+		$mister1.bind ($mister1_anchor);
+		$mister2.bind ($mister2_anchor);
+		
+		$tp_leftarm.bind ($tp_shoulder);
+		$tp_rightarm.bind ($tp_shoulder);
+
+		// name of array, index number, data
+		set_crate_in_slot( 1, 1 );		// Cage 1 is occupied
+		set_crate_in_slot( 2, 2 );
+		set_crate_in_slot( 3, 3 );
+		set_crate_in_slot( 4, 4 );
+		set_crate_in_slot( 5, 5 );
+		set_crate_in_slot( 6, 0 );		// Cage 6 is empty
+		set_crate_in_slot( 7, 7 );
+		set_crate_in_slot( 8, 0 );		// Cage 8 is empty
+		set_crate_in_slot( 9, 9 );
+		
+		$crane_control.setGuiParm ("gui_parm11", 1 );
+		$crane_control.setGuiParm ("gui_parm12", 1 );
+		$crane_control.setGuiParm ("gui_parm13", 1 );
+		$crane_control.setGuiParm ("gui_parm14", 1 );
+		$crane_control.setGuiParm ("gui_parm15", 1 );
+		$crane_control.setGuiParm ("gui_parm16", 0 );
+		$crane_control.setGuiParm ("gui_parm17", 1 );
+		$crane_control.setGuiParm ("gui_parm18", 0 );
+		$crane_control.setGuiParm ("gui_parm19", 1 );
+		
+		$cagecrane_base.time (1);
+		$crane_base.time (1);
+		$teeth_anchor.time (1);
+		$cagecrane_rod.time (1);	
+		$cagecrane_teeth_teeth.time (0.5);
+		
+		$teeth_anchor.rotateOnce ('0 0 -90');
+		$cagecrane_teeth_teeth.move (LEFT, 64);
+		
+		$cagecrane_armsupport.time (1);
+	}
+
+	void open_fingers() {
+		sys.trigger ($finger_speaker_1);
+		$finger_1b_anchor.rotateOnce (POS_ROT);
+		$finger_1a_anchor.rotateOnce (NEG_ROT);
+		sys.wait (0.75);
+		//sys.waitFor ($finger_1a_anchor);
+		
+		sys.trigger ($finger_speaker_2);
+		$finger_2a_anchor.rotateOnce (POS_ROT);
+		$finger_2b_anchor.rotateOnce (NEG_ROT);
+		sys.waitFor ($finger_2b_anchor);
+	}
+	
+	void close_fingers() {
+		sys.trigger ($finger_speaker_2);
+		$finger_2a_anchor.rotateOnce (NEG_ROT);
+		$finger_2b_anchor.rotateOnce (POS_ROT);
+		sys.wait (0.75);
+		//sys.waitFor ($finger_2b_anchor);
+		
+		sys.trigger ($finger_speaker_1);
+		$finger_1b_anchor.rotateOnce (NEG_ROT);
+		$finger_1a_anchor.rotateOnce (POS_ROT);
+		sys.waitFor ($finger_1a_anchor);
+	}
+
+	void unlock_cage (float cage) {
+		entity	ent;
+		ent = sys.getEntity ("cagelock_" + cage);
+		ent.time (0.5);
+		ent.move (RIGHT, 16);
+		sys.waitFor (ent);
+	}
+
+	void lock_cage (float cage) {
+		entity	ent;
+		ent = sys.getEntity ("cagelock_" + cage);
+		ent.time (0.5);
+		ent.move (LEFT, 16);
+		sys.waitFor (ent);
+	}
+
+	void disable_crane_control() {
+		$crane_control.setGuiParm ("gui_parm10", 1);
+	}
+
+	void enable_crane_control() {
+		$crane_control.setGuiParm ("gui_parm10", 0);
+	}
+
+	void crane_alarm_on() {
+		sys.trigger ($clight_1);
+		sys.trigger ($clight_2);
+		$crane_alarm_anchor.rotate ('0 270 0');
+	}
+
+	void crane_alarm_off() {
+		sys.trigger ($clight_1);
+		sys.trigger ($clight_2);
+		$crane_alarm_anchor.stopRotating();
+	}
+
+
+	void init_claw() {
+	
+		disable_crane_control();
+	
+		$body.time (3);
+		$shoulder_anchor.time (1);		
+		// Compress fingers
+
+		$finger_1a_anchor.time (1.5);
+		$finger_1b_anchor.time (1.5);
+		$finger_2a_anchor.time (1.5);
+		$finger_2b_anchor.time (1.5);
+		
+		
+		$finger_1b_anchor.rotateOnce ('0 -180 0');
+		$finger_2b_anchor.rotateOnce ('0 180 0');
+		
+		$finger_1a_anchor.rotateOnce ('0 180 0');
+		$finger_2a_anchor.rotateOnce ('0 -180 0');
+
+		// rotate hand up
+		$hand_anchor.time (1);
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-80 0 0');
+		
+		// rotate arm in
+		$arm_anchor.time (1);
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('30 0 0');
+		
+		// Face the proper direction
+		
+		$body.rotateOnce ('0 -90 0');
+		sys.waitFor ($body);
+		$head.time (HEAD_TIME);
+		$head.accelTime (0.5);
+		$head.decelTime (0.5);
+		
+		$body.rotateOnce ('0 180 0');
+		sys.trigger ($head_speaker);
+		$head.move (LEFT, 100);
+		
+		crate_number = 0;
+		
+		enable_crane_control();
+		
+	}
+
+/*
+
+ M a t t ' s  L i f t  f r o m  C o m m O u t s i d e 
+
+*/
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift down
+	//
+	////////////////////////////////////////////////////
+	void lift_down ()
+	{
+		vector rot11, rot12;
+		vector rot21, rot22;
+		
+		rot11_x = 0;
+		rot11_y = 0;
+		rot11_z = rotmult;
+
+		rot12_x = 0;
+		rot12_y = 0;
+		rot12_z = (-1 * rotmult);
+
+		rot21_x = 0;
+		rot21_y = 0;
+		rot21_z = (2 * rotmult);
+
+		rot22_x = 0;
+		rot22_y = 0;
+		rot22_z = (-2 * rotmult);
+
+		if ( lift_state_updown == 0 ){ 
+			sys.trigger ($lift_speaker_down);
+			$lift_leg_11.rotateOnce ( rot11 );
+			$lift_leg_12.rotateOnce ( rot22 );
+			$lift_leg_13.rotateOnce ( rot21 );
+			$lift_connection_top_move.rotateOnce ( rot12 );
+
+			$lift_leg_21.rotateOnce ( rot22 );
+			$lift_connection_bottom_move.rotateOnce ( rot11 );
+			$lift_leg_22.rotateOnce ( rot21 );
+			$lift_leg_23.rotateOnce ( rot22 );
+			$lift_connection_top_static.rotateOnce ( rot11 );
+			
+			sys.waitFor ($lift_leg_23);
+			lift_state_updown = 1;
+		}
+		// else sys.print ( "lift is already up\n" );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift up
+	//
+	////////////////////////////////////////////////////
+	void lift_up ()
+	{
+		vector rot11, rot12;
+		vector rot21, rot22;
+
+		rot11_x = 0;
+		rot11_y = 0;
+		rot11_z = rotmult;
+
+		rot12_x = 0;
+		rot12_y = 0;
+		rot12_z = (-1 * rotmult);
+
+		rot21_x = 0;
+		rot21_y = 0;
+		rot21_z = (2 * rotmult);
+
+		rot22_x = 0;
+		rot22_y = 0;
+		rot22_z = (-2 * rotmult);
+
+		if ( lift_state_updown == 1 ){ 
+			sys.trigger ($lift_speaker_up);
+			$lift_leg_11.rotateOnce ( rot12 );
+			$lift_leg_12.rotateOnce ( rot21 );
+			$lift_leg_13.rotateOnce ( rot22 );
+			$lift_connection_top_move.rotateOnce ( rot11 );
+
+			$lift_leg_21.rotateOnce ( rot21 );
+			$lift_connection_bottom_move.rotateOnce ( rot12 );
+			$lift_leg_22.rotateOnce ( rot22 );
+			$lift_leg_23.rotateOnce ( rot21 );
+			$lift_connection_top_static.rotateOnce ( rot12 );
+
+			sys.waitFor ($lift_leg_23);
+			lift_state_updown = 0;
+		} 
+		//else sys.print ( "lift is already down\n" );
+	}
+
+	void init_lift() {
+		lift_state_updown = 0;
+		rotmult = 40;
+
+		//Lift binds, times, and speeds
+		//$lift_leg_11.bind ($lift_bottom);
+		//$lift_light1.bind ($lift_bottom);
+		
+		$lift_axle1.bind ($lift_leg_11);
+		$lift_axle2.bind ($lift_leg_11);
+		$lift_leg_12.bind ($lift_axle2);
+		$lift_axle4.bind ($lift_leg_12);
+		$lift_axle6.bind ($lift_leg_12);
+		$lift_leg_13.bind ($lift_axle6);
+		$lift_axle7.bind ($lift_leg_13);
+
+		$lift_leg_23.bind ($lift_axle7);
+		$lift_axle5.bind ($lift_leg_23);
+		$lift_leg_22.bind ($lift_axle5);
+		$lift_axle3.bind ($lift_leg_22);
+		$lift_leg_21.bind ($lift_axle3);
+
+		$lift_connection_top_move.bind ($lift_leg_13);
+		$lift_connection_top_static.bind ($lift_leg_23);
+		$lift_connection_bottom_move.bind ($lift_leg_21);
+
+		$lift_cage.bind ($lift_connection_top_static);
+
+		$lift_bottom.accelTime ( .5 );
+		$lift_bottom.decelTime ( .5 );
+
+		$lift_leg_11.time ( LIFT_TIME );
+		$lift_leg_12.time ( LIFT_TIME );
+		$lift_leg_13.time ( LIFT_TIME );
+		$lift_connection_top_move.time ( LIFT_TIME );
+		$lift_leg_21.time ( LIFT_TIME );
+		$lift_connection_bottom_move.time ( LIFT_TIME );
+		$lift_leg_22.time ( LIFT_TIME );
+		$lift_leg_23.time ( LIFT_TIME );
+		$lift_connection_top_static.time ( LIFT_TIME );
+
+		$lift_leg_11.accelTime ( .25 );
+		$lift_leg_12.accelTime ( .25 );
+		$lift_leg_13.accelTime ( .25 );
+		$lift_connection_top_move.accelTime ( .25 );
+		$lift_leg_21.accelTime ( .25 );
+		$lift_connection_bottom_move.accelTime ( .25);
+		$lift_leg_22.accelTime ( .25 );
+		$lift_leg_23.accelTime ( .25 );
+		$lift_connection_top_static.accelTime ( .25 );
+
+		$lift_leg_11.decelTime ( .25 );
+		$lift_leg_12.decelTime ( .25 );
+		$lift_leg_13.decelTime ( .25 );
+		$lift_connection_top_move.decelTime ( .25 );
+		$lift_leg_21.decelTime ( .25 );
+		$lift_connection_bottom_move.decelTime ( .25 );
+		$lift_leg_22.decelTime ( .25 );
+		$lift_leg_23.decelTime ( .25 );
+		$lift_connection_top_static.decelTime ( .25 );
+	}
+
+/*
+
+	End CommOutside code.
+
+*/
+	
+	//***
+	// Kinda ugly, need to find the proper jet pair for the accompanying slot
+	// I'd give my left nut for switch(value) functionality...
+	//***
+	
+	float trigger_steamjets(float slot) {
+		entity	ent1, ent2;
+		entity  speaker1, speaker2;
+		float	jet1, jet2;
+		
+		if ( slot == 1) {
+			jet1 = 1;
+			jet2 = 2;
+		}
+		if ( slot == 2) {
+			jet1 = 2;
+			jet2 = 3;
+		}
+		if ( slot == 3) {
+			jet1 = 3;
+			jet2 = 4;
+		}
+		if ( slot == 4) {
+			jet1 = 5;
+			jet2 = 6;
+		}
+		if ( slot == 5) {
+			jet1 = 6;
+			jet2 = 7;
+		}
+		if ( slot == 6) {
+			jet1 = 7;
+			jet2 = 8;
+		}
+		if ( slot == 7) {
+			jet1 = 9;
+			jet2 = 10;
+		}
+		if ( slot == 8) {
+			jet1 = 10;
+			jet2 = 11;
+		}
+		if ( slot == 9) {
+			jet1 = 11;
+			jet2 = 12;
+		}
+		ent1 = sys.getEntity ("steamjet_" + jet1);
+		ent2 = sys.getEntity ("steamjet_" + jet2);
+		speaker1 = sys.getEntity ("steamspeaker_" + jet1);
+		speaker2 = sys.getEntity ("steamspeaker_" + jet2);
+		
+		// Turn 'em on
+		sys.trigger (ent1);
+		sys.trigger (ent2);
+		
+		sys.trigger (speaker1);
+		sys.trigger (speaker2);
+		
+		sys.wait (JET_VENT_TIME);
+		
+		// Turn 'em off
+		sys.trigger (ent1);
+		sys.trigger (ent2);	
+	}
+	
+	void update_control_gui (float slot, float status) {
+		//sys.print ("Enterint update_control_gui :: Setting slot " + slot + " to " + status + "\n");
+		
+		if ( slot == 1 )
+			$crane_control.setGuiParm ( "gui_parm11", status );
+		if ( slot == 2 )
+			$crane_control.setGuiParm ( "gui_parm12", status );
+		if ( slot == 3 )
+			$crane_control.setGuiParm ( "gui_parm13", status );
+		if ( slot == 4 )
+			$crane_control.setGuiParm ( "gui_parm14", status );
+		if ( slot == 5 )
+			$crane_control.setGuiParm ( "gui_parm15", status );
+		if ( slot == 6 )
+			$crane_control.setGuiParm ( "gui_parm16", status );
+		if ( slot == 7 )
+			$crane_control.setGuiParm ( "gui_parm17", status );
+		if ( slot == 8 )
+			$crane_control.setGuiParm ( "gui_parm18", status );
+		if ( slot == 9 )
+			$crane_control.setGuiParm ( "gui_parm19", status );
+
+	
+	}
+	
+	
+	//***
+	// Find the target vertical rung given a slot position.
+	// Need for moving the crane vertically
+	//***
+	
+	float find_rung (float slot) {
+		if ( slot <= 3 )
+			return 1;
+		if ( slot <= 6 )
+			return 2;
+		if ( slot <= 9 )
+			return 3;
+	}
+
+	//***
+	// Workhorse #2
+	// Pick up the crate off the platform and move it back into a slot
+	//***
+
+	void insert_crate (float slot) {
+		entity	ent;
+		entity  crate;
+		float	thread1, thread2;
+		vector	vec, vec2, diff;
+		float	target_rung;		
+//		sys.print ("*** ENTERING insert_crate (" + slot + ")\n");
+		
+		crane_alarm_on();
+
+		sys.trigger ($movement_alarm);
+		sys.wait (2);
+		
+		sys.trigger ($shoulder_speaker);
+		$shoulder_anchor.move (DOWN, 64);
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('110 0 0');
+		sys.waitFor ($hand_anchor);
+		
+		// Gameplay stuff here... delays so that the player can jump onto the crate
+		// in time...
+		
+		sys.wait (0.5);
+		
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor ($arm_anchor);
+
+		sys.wait (0.5);
+
+		lift_up();
+		
+		open_fingers();	
+		
+		// ****
+		// Get the cage on the platform
+		// Remember, that crate_number is stored as a global still from the removal function...
+		// ****
+		
+//		sys.print ("Trying to bind cage_" + crate_number + " to $hand\n");
+		ent = sys.getEntity ( "cage_" + crate_number );
+		crate = ent;
+		ent.bind ($hand);								// Bind crate to hand
+
+		thread map_delta2a::lift_down();
+		sys.waitFor ($shoulder_anchor);
+		
+		// Break here and sync up original rotation values.
+
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-50 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('50 0 0');
+
+		sys.waitFor ($arm_anchor);
+
+		
+		sys.trigger ($head_speaker);
+		$head.move (RIGHT, 100);
+		sys.trigger ($shoulder_speaker);	
+		$shoulder_anchor.move (UP, 64);
+		$body.time (5);
+		sys.trigger ($body_speaker_5);
+		$body.rotateOnce ('0 180 0');
+		sys.waitFor ($body);
+		$body.time (3);
+
+		// Need to find vertical here...		
+
+		target_rung = find_rung (slot);
+		if ( target_rung == 3 ) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (DOWN, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (DOWN, 128);
+			sys.waitFor ($body);
+		}
+		if ( target_rung == 2) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (DOWN, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (DOWN, 32);
+			sys.waitFor ($body);
+		}
+
+		// Need lateral movement here.		
+	
+		ent = sys.getEntity ("pos" + slot);
+		vec = ent.getWorldOrigin ();
+		
+		vec2 = $crane_guide.getWorldOrigin ();
+
+		// ---
+		// Calculate movement vectors and move accordingly
+		// ---
+		
+		diff_x = ( vec2_x - vec_x );
+		if ( diff_x < 0 ) {
+			diff_x = abs ( diff_x );
+			sys.trigger ($head_speaker);
+			$head.move (FORWARD, diff_x);
+		}
+		else {
+			sys.trigger ($head_speaker);
+			 $head.move (BACK, diff_x);
+		}
+
+		sys.waitFor ($head);
+	
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('60 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('-60 0 0');
+		
+		trigger_steamjets(slot);
+		thread1 = thread map_delta2a::unlock_cage(slot);
+		sys.waitFor ($arm_anchor);
+		
+		trigger_steamjets(slot);
+		
+		sys.waitForThread (thread1);
+		
+		//thread map_delta2a::lock_cage(slot);
+		
+		lock_cage(slot);
+		
+		crate.unbind();									// Unbind the crate
+		
+		// ***
+		// Paranoia case to ensure that the crate gets bound to it's absolute starting position
+		// after it has been manipulated
+		// ***
+		
+		crate.setOrigin (ent.getWorldOrigin () );
+//		sys.print ("fixed the crate\n");
+		
+		close_fingers();
+		
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-60 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('60 0 0');
+		sys.waitFor ($hand_anchor);
+
+		// ***
+		// Lateral movement to center
+		// ***
+		
+		ent = sys.getEntity ("pos5");
+		vec = ent.getWorldOrigin ();
+		vec2 = $crane_guide.getWorldOrigin ();
+		diff_x = ( vec2_x - vec_x );
+		if ( diff_x < 0 ) {
+			diff_x = abs ( diff_x );
+			sys.trigger ($head_speaker);
+			$head.move (FORWARD, diff_x);
+		}
+		else {
+			sys.trigger ($head_speaker);
+			$head.move (BACK, diff_x);
+		}
+
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('50 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('-50 0 0');		
+		sys.waitFor ($arm_anchor);
+
+		sys.waitFor ($head);
+
+		// Reset rungs
+		
+		if ( target_rung == 3 ) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (UP, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (UP, 128);
+			sys.waitFor ($body);
+		}
+		if ( target_rung == 2) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (UP, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (UP, 32);
+			sys.waitFor ($body);
+		}
+
+		// Rotate around
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-110 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('60 0 0');
+		sys.trigger ($head_speaker);
+		$head.move (LEFT, 100);
+		sys.trigger ($body_speaker_3);
+		$body.rotateOnce ('0 180 0');
+		sys.waitFor ($arm_anchor);
+		sys.waitFor ($head);
+
+		crane_alarm_off();
+
+		// Ok, find my way back to the reset point...
+
+		set_crate_in_slot( slot, crate_number );	
+		crate_number = 0;											// All crates accounted for
+//		sys.print ("*** EXITING insert_crate (" + slot + ")\n");
+		update_control_gui (slot, 1);
+	}
+	
+	//***
+	// (In his best Ian Astbury voice... Xian bellows...)
+	// "Talking 'bout crates ! CRATE REMOVAL MACHINE !!!"
+	//
+	// Workhorse #1
+	// Grabs a crate from the desired slot, and moves it onto the platform.
+	//***
+	
+	void remove_crate (float slot) {
+		entity	ent;
+		entity  crate;
+		float	thread1, thread2;
+		vector	vec, vec2, diff;
+		float	target_rung;		
+//		sys.print ("*** ENTERING insert_crate (" + slot + ")\n");
+
+		crane_alarm_on();
+
+		sys.trigger ($movement_alarm);
+		sys.wait (2);
+		
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('110 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('-60 0 0');
+
+		sys.trigger ($head_speaker);
+		$head.move (RIGHT, 100);
+		sys.trigger ($body_speaker_3);
+		$body.rotateOnce ('0 180 0');
+		sys.waitFor ($head);
+		sys.waitFor ($body);
+
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-50 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('50 0 0');
+
+		sys.waitFor ($hand_anchor);
+
+		// Need to find vertical here...		
+
+		target_rung = find_rung (slot);
+		if ( target_rung == 3 ) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (DOWN, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (DOWN, 128);
+			sys.waitFor ($body);
+		}
+		if ( target_rung == 2) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (DOWN, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (DOWN, 32);
+			sys.waitFor ($body);
+		}
+
+		// Need lateral movement here.		
+	
+		ent = sys.getEntity ("pos" + slot);
+		vec = ent.getWorldOrigin ();
+		
+		vec2 = $crane_guide.getWorldOrigin ();
+
+		// ---
+		// Calculate movement vectors and move accordingly
+		// ---
+		
+		diff_x = ( vec2_x - vec_x );
+		if ( diff_x < 0 ) {
+			diff_x = abs ( diff_x );
+			sys.trigger ($head_speaker);
+			$head.move (FORWARD, diff_x);
+		}
+		else {
+			sys.trigger ($head_speaker);
+			$head.move (BACK, diff_x);
+		}
+
+		sys.waitFor ($head);
+	
+		// This should put us in front of the crate we want to snag
+		
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('60 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor ($arm_anchor);
+		open_fingers();
+		
+		thread1 = thread map_delta2a::unlock_cage (slot);
+		trigger_steamjets(slot);
+		
+		// Get the cage on the platform
+		
+		crate_number = identify_crate(slot);
+		
+//		sys.print ("Trying to bind cage_" + crate_number + " to $hand\n");
+		crate = sys.getEntity ( "cage_" + crate_number );
+		crate.bind ($hand);								// Bind crate to hand
+		
+		sys.waitForThread (thread1);
+		thread map_delta2a::lock_cage(slot);
+		
+		// Ok, the crate is now bound to the crane
+		
+		sys.wait (0.5);
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-60 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('60 0 0');
+		
+		sys.waitFor ($arm_anchor);
+		
+		// ***
+		// Lateral movement to center
+		// ***
+		
+		ent = sys.getEntity ("pos5");
+		vec = ent.getWorldOrigin ();
+		vec2 = $crane_guide.getWorldOrigin ();
+		diff_x = ( vec2_x - vec_x );
+		if ( diff_x < 0 ) {
+			diff_x = abs ( diff_x );
+			sys.trigger ($head_speaker);
+			$head.move (FORWARD, diff_x);
+		}
+		else {
+			sys.trigger ($head_speaker);
+			$head.move (BACK, diff_x);
+		}
+			
+		sys.waitFor ($head);
+
+		// Crane should be centered and ready to move toward the platform.		
+	
+		if ( target_rung == 3 ) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (UP, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (UP, 128);
+		}
+		if ( target_rung == 2) {
+			sys.trigger ($shoulder_speaker);	
+			$shoulder_anchor.move (UP, 64);
+			sys.trigger ($body_vert_speaker);
+			$body.move (UP, 32);
+		}
+		sys.waitFor ($body);
+	
+		// Ok, now it's centered and on the top rung...
+		// Move toward the platform... for real this time...
+		
+		thread lift_up();
+		
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('50 0 0');
+		sys.trigger ($shoulder_speaker);	
+		$shoulder_anchor.move (DOWN, 64);
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('-50 0 0');
+		sys.trigger ($head_speaker);
+		$head.move (LEFT, 100);
+		sys.trigger ($body_speaker_3);
+		$body.rotateOnce ('0 180 0');
+		sys.waitFor ($head);
+
+		// woop ! It's on the platform now...
+		
+		thread map_delta2a::close_fingers();
+		
+		crate.unbind();
+		crate.bind ($lift_cage);
+		sys.wait (0.5);
+		
+		thread map_delta2a::lift_down();
+		
+		sys.trigger ($hand_speaker);
+		$hand_anchor.rotateOnce ('-110 0 0');
+		sys.trigger ($arm_speaker);
+		$arm_anchor.rotateOnce ('60 0 0');
+		sys.trigger ($shoulder_speaker);	
+		$shoulder_anchor.move (UP, 64);
+		sys.waitFor ($shoulder_anchor);
+		
+		crane_alarm_off();
+		// 
+		set_crate_in_slot( slot, 0 );			// Set the cage as empty
+		update_control_gui (slot, 0);
+	}
+
+	void process_cage (float slot) {
+		float	value;
+		entity	ent, ent2;
+		vector  deb;
+		vector	vec, vec2, diff;
+		float	rod_rotation;
+		float	shoulder_diff;
+		float	body_diff;
+		float	desired_rung;
+		float	rung_thread;
+		
+		rotmult = 41;
+		
+		disable_crane_control();
+		
+		deb = $hand_anchor.getWorldOrigin ();
+//		sys.print ("ENTER: process_cage: $hand_anchor @ (" + deb_x + ", " + deb_y + ", "+ deb_z + ")\n");
+		
+		// Load the state of the slot into value
+		value = identify_crate(slot);
+		
+//		sys.print ("Target Slot Value :: " + value + "\n");
+		
+		// ---
+		// First, check to see if there is anything on the platform. If there is,
+		// we are going to move it to a slot instead of extracting a slot
+		// ---
+		
+		if ( ( crate_number != 0) ) {				// No crate on the platform ?
+//			sys.print ("Crate #" + crate_number + " is currently on the platform\n");
+			if ( value == 0 ) {
+//				sys.print ("It wants to go to position " + slot + ", which is free\n");
+				insert_crate (slot);
+			}
+//			else {
+//				sys.print ("It wants to go to position " + slot + ", which is *NOT* free\n");
+//			}
+		}
+		// Nope, nothing on the platform, lets go get it...
+		else {
+//			sys.print ("Nothing on the platform. lets proceed with possible movement...\n");
+			// Is there anything at the slot we are interested in ?
+			if ( value > 0 ) {	
+				remove_crate (slot);
+			}
+//			else if ( value == -1 ) {
+//				sys.print ("That slot is broken\n");	
+//			}
+//			else
+//				sys.print ("There is nothing at that location to move...\n");
+		} 
+			
+		deb = $hand_anchor.getWorldOrigin ();
+//		sys.print ("BEFORE: $hand_anchor @ (" + deb_x + ", " + deb_y + ", "+ deb_z + ")\n");
+		enable_crane_control();
+//		sys.print ("Leaving process_cage()\n");
+		
+	}
+	
+	// ---
+	// Bumper functions for map gui calls
+	// ---
+	
+	void proc_cage1() {
+		process_cage (1);
+	}
+
+	void proc_cage2() {
+		process_cage (2);
+	}
+
+	void proc_cage3() {
+		process_cage (3);
+	}
+
+	void proc_cage4() {
+		process_cage (4);
+	}
+
+	void proc_cage5() {
+		process_cage (5);
+	}
+
+	void proc_cage6() {
+		process_cage (6);
+	}
+
+	void proc_cage7() {
+		process_cage (7);
+	}
+	
+	void proc_cage8() {
+		process_cage (8);
+	}
+
+	void proc_cage9() {
+		process_cage (9);
+	}
+	
+	// ---
+	// **** End bumper functions
+	// ---
+
+	//************************
+	// Decon Chamber 
+ 	//************************
+
+	void decon_cycle1()
+	{
+		$decon_trigger1.enable ();
+		deconPosition = 1;
+	}
+	
+	void decon_cycle2()
+	{
+		$decon_trigger1.enable ();
+		deconPosition = 0;
+	}
+	
+	void mister_move ()
+	{
+		$decondoor1.lock (1);
+		$decondoor2.lock (1);
+		
+		//start decon1 computer voice
+		sys.trigger ($decon1_start_speaker);
+		sys.wait (1.5);
+		
+		thread crossFadeEnt ($misterlight_white, '.5 .5 .5', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decontop_fade, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decon_toplight_red, '0 0 0', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe1, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe1_light, '.5 .5 .5', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe2, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe2_light, '.5 .5 .5', '.5 0 0', 1.0);
+		
+			
+		sys.trigger ($decon1_mister1start_spkr);
+		sys.trigger ($decon1_mister2start_spkr);
+		sys.wait (.15);
+		sys.trigger ($decon1_mister1loop_spkr);
+		sys.trigger ($decon1_mister2loop_spkr);
+		
+		$mister1_anchor.moveTo ($mister1_spot2);
+		$mister2_anchor.moveTo ($mister2_spot2);
+		sys.waitFor ($mister1_anchor);
+		
+		$mister1_anchor.rotateOnce ('60 0 0');
+		$mister2_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor ($mister1_anchor);
+		
+		$mister1_anchor.rotateOnce ('-60 0 0');
+		$mister2_anchor.rotateOnce ('60 0 0');
+		sys.waitFor ($mister1_anchor);
+		
+		$mister1_anchor.moveTo ($mister1_spot1);
+		$mister2_anchor.moveTo ($mister2_spot1);
+		sys.waitFor ($mister1_anchor);
+		
+		sys.trigger ($decon1_mister1stop_spkr);
+		sys.trigger ($decon1_mister2stop_spkr);
+		//trigger looping speaker again to turn off
+		sys.trigger ($decon1_mister1loop_spkr);
+		sys.trigger ($decon1_mister2loop_spkr);
+		
+		//turn off emitter
+		sys.trigger($mister1_emitter);
+		sys.trigger($mister2_emitter);
+		
+		sys.wait (.5);
+		thread crossFadeEnt ($misterlight_white, '.5 0 0', '.5 .5 .5', 1.0);
+		thread crossFadeEnt ($decontop_fade, '1 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decon_toplight_red, '.5 0 0', '0 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe1, '1 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe1_light, '.5 0 0', '.5 .5 .5', 1.0);
+		thread crossFadeEnt ($decondoorframe2, '1 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe2_light, '.5 0 0', '.5 .5 .5', 1.0);
+	}
+
+	void mister1()
+	{
+		$decondoor1.close ();
+		$decondoor2.close ();
+		$decon_trigger1.disable ();
+		
+		$decondoorframe1.setShaderParm (7, 0);
+		$decondoorframe2.setShaderParm (7, 0);
+		
+		//turn on emitter
+		sys.trigger($mister1_emitter);
+		sys.trigger($mister2_emitter);
+		
+		float i;
+			i = thread mister_move();
+			sys.waitForThread (i);
+		
+		//complete decon1 computer voice
+		sys.trigger ($decon1_complete_speaker);
+		
+		sys.wait (.25);
+		if (deconPosition == 0)
+		{
+			$decondoorframe1.setShaderParm (7, 1);
+			$decondoor1.lock (0);
+		}
+		if (deconPosition == 1)
+		{
+			$decondoorframe2.setShaderParm (7, 1);
+			$decondoor2.lock (0);
+		}
+	}
+		
+	
+	void tp_1 ()
+	{
+		$tp_guard.time (2);
+		$tp_guard.decelTime (1);
+		$tp_guard.rotateOnce ('0 0 -67');
+		sys.waitFor ($tp_guard);
+
+		$tp_shoulder.time (1.5);
+		$tp_shoulder.rotateOnce ('0 0 -30');
+		sys.waitFor ($tp_shoulder);
+
+		$tp_leftarm.rotateOnce ('0 35 0');
+		$tp_rightarm.rotateOnce ('0 -35 0');
+		sys.wait(5);
+
+		$tp_shoulder.rotateOnce ('0 0 30');
+		$tp_leftarm.rotateOnce ('0 -35 0');
+		$tp_rightarm.rotateOnce ('0 35 0');
+		sys.waitFor ($tp_shoulder);
+
+		$tp_guard.rotateOnce ('0 0 67');
+	}
+
+	void show_chair ()
+	{
+	$delta2a_chair_2.show();
+	$char_scientist_old_sitting_1.setBoneMod( false );
+	}
+
+	void set_scientist_skin ()
+	{
+		$char_scientist_old_sitting_1.setSkin( "skins/models/chars/labcoat/labcoat3nochair.skin");
+	}
+
+	void drag_corpse ()
+	{
+		$corpse_mover.time (6);
+		$corpse_mover.move (WEST,352);
+		sys.waitFor ($corpse_mover);
+		$env_ragdoll_lab1_1.remove ();
+	}
+
+	void tproom_fadeout() {
+		$speaker_79.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$speaker_130.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$speaker_77.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$speaker_116.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$speaker_115.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$speaker_1.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+	}
+	
+	void main ()
+	{
+		setup_objects ();
+		thread map_delta2a::init_claw();
+		init_lift();
+		lift_down();
+		$delta2a_chair_2.hide();
+	}
+}

@@ -1,0 +1,580 @@
+/***********************************************************************
+
+ai_monster_demon_trite.script
+
+monster_demon_trite
+
+***********************************************************************/
+
+#define TRITE_RUNDISTANCE		192
+#define TRITE_WALKTURN			65
+#define TRITE_LEAP_RATE			2
+#define TRITE_DODGE_RATE		2
+#define TRITE_LEAP_RANGE_MIN	64
+#define TRITE_LEAP_RANGE_MAX	1024
+#define TRITE_LEAP_SPEED		650
+#define TRITE_LEAP_MAXHEIGHT	48
+
+#define TRITE_EXPLOSION_RADIUS	200		// based on value in entitydef damage_trite_explode
+
+object monster_demon_trite : monster_base {
+	boolean		explode;
+	float		nextDodge;
+	float		nextLeap; 			// don't do a range attack until this time
+	vector		jumpVelocity;
+	entity		combat_node;
+	
+	// States
+	void		state_Begin();
+	void		state_Idle();
+	void		state_Killed();
+	void		state_LostCombat();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_explode();
+	void		combat_leap();
+	void		combat_melee();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+	void		path_jump();
+
+	void		init();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_LeapAttack();
+	void		Torso_Walk();
+	void		Torso_Run();
+	void		Torso_DodgeLeft();
+	void		Torso_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_trite::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( AI_PAIN )				{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Run", 4 ); }
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_TORSO, "Torso_Walk", 4 ); }
+	}
+}
+
+void monster_demon_trite::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_demon_trite::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_trite::Torso_LeapAttack() {
+	overrideAnim( ANIMCHANNEL_LEGS );
+	disablePain();
+	playAnim( ANIMCHANNEL_TORSO, "jump_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "leap_attack_start" );
+
+	attackBegin( "melee_triteLeapAttack" );
+	setLinearVelocity( jumpVelocity );
+	
+	playCycle( ANIMCHANNEL_TORSO, "jump_loop" );
+	do {
+		waitFrame();
+	} while( !AI_ONGROUND );
+	
+	attackEnd();
+	playAnim( ANIMCHANNEL_TORSO, "jump_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "leap_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_trite::Torso_Walk() {
+	playCycle( ANIMCHANNEL_TORSO, "walk" );
+	
+	eachFrame {
+		if ( AI_PAIN )				{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Run", 4 ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 ); }
+	}
+}
+
+void monster_demon_trite::Torso_Run() {
+	playCycle( ANIMCHANNEL_TORSO, "run" );
+	
+	eachFrame {
+		if ( AI_PAIN )				{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( !run && AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Walk", 4 ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 ); }
+	}
+}
+
+void monster_demon_trite::Torso_DodgeLeft() {
+	playAnim( ANIMCHANNEL_TORSO, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_trite::Torso_DodgeRight() {
+	playAnim( ANIMCHANNEL_TORSO, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_trite::init
+=====================
+*/
+void monster_demon_trite::init() {
+	explode = !getIntKey( "no_explode" );
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_trite::state_Killed
+=====================
+*/
+void monster_demon_trite::state_Killed() {
+	stopMove();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+	
+	waitAction( "dead" );
+	setState( "state_Dead" );
+}
+
+/*
+=====================
+monster_demon_trite::state_Begin
+=====================
+*/
+void monster_demon_trite::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );	
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_trite::state_Idle
+=====================
+*/
+void monster_demon_trite::state_Idle() {
+	wait_for_enemy();
+
+	nextLeap		= RandomTime( TRITE_LEAP_RATE );
+	nextDodge		= RandomTime( TRITE_DODGE_RATE );
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_trite::do_attack
+=====================
+*/
+void monster_demon_trite::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_LEAP ) {
+		combat_leap();
+	}
+}
+
+/*
+=====================
+monster_demon_trite::check_attacks
+=====================
+*/
+float monster_demon_trite::check_attacks() {
+	float range;
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	float checkLeap;
+	vector vel;
+	float t;
+	vector jumpTarget;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+	
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	if ( AI_ENEMY_IN_FOV ) {
+		range = enemyRange();
+
+		if ( ( range >= TRITE_LEAP_RANGE_MIN ) && ( range < TRITE_LEAP_RANGE_MAX ) && ( currentTime >= nextLeap ) ) {
+			if ( canHitEnemy() ) {
+				t = animLength( ANIMCHANNEL_TORSO, "jump_start" );
+				jumpTarget = predictEnemyPos( t );
+				jumpVelocity = getJumpVelocity( jumpTarget, TRITE_LEAP_SPEED, TRITE_LEAP_MAXHEIGHT );
+				if ( jumpVelocity != '0 0 0' ) {
+					attack_flags |= ATTACK_LEAP;
+				} else {
+					// check if we can leap again in 2 seconds
+					nextLeap = DelayTime( 2 );
+				}
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_trite::combat_explode
+=====================
+*/
+void monster_demon_trite::combat_explode() {
+	float	t;
+	vector	org;
+	vector	vel;
+	vector	enemyOrg;
+	float	maxHeight;
+	
+	t = animLength( ANIMCHANNEL_TORSO, "jump_start" );
+
+	enemyOrg = predictEnemyPos( t );
+	org = getOrigin();
+
+	maxHeight = enemyOrg_z;
+	if ( maxHeight < org_z + 32 ) {
+		maxHeight = org_z + 32;
+	}
+	vel = enemyOrg - org;
+	vel = sys.vecNormalize( vel ) * 320;
+	vel_z = sys.sqrt( 2 * ( maxHeight - org_z ) * 1066 );
+	jumpVelocity = vel;
+
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );	
+	waitAction( "leap_attack_start" );
+	while( inAnimState( ANIMCHANNEL_TORSO, "Torso_LeapAttack" ) ) {
+		org = getOrigin();
+		enemyOrg = getEnemyPos();
+		vel = getLinearVelocity();
+		if ( ( org_z > enemyOrg_z ) || ( org_z > maxHeight ) || ( vel_z <= -10 ) ) {
+			setState( "state_Explode" );
+		}
+
+		waitFrame();
+	}
+
+	setState( "state_Explode" );
+}
+
+/*
+=====================
+monster_demon_trite::combat_leap
+=====================
+*/
+void monster_demon_trite::combat_leap() {
+	stopMove();
+	turnToPos( getOrigin() + jumpVelocity );
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );	
+	waitAction( "leap_attack" );
+	nextLeap = DelayTime( TRITE_LEAP_RATE );
+}
+
+/*
+=====================
+monster_demon_trite::combat_melee
+=====================
+*/
+void monster_demon_trite::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}
+
+/*
+=====================
+monster_demon_trite::combat_dodge_left
+=====================
+*/
+void monster_demon_trite::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_DodgeLeft", 2 );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( TRITE_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_trite::combat_dodge_right
+=====================
+*/
+void monster_demon_trite::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_DodgeRight", 2 );	
+	waitAction( "strafe" );
+	nextDodge = DelayTime( TRITE_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_trite::path_jump
+=====================
+*/
+void monster_demon_trite::path_jump() {
+	entity target;
+	vector dir;
+	vector jumpTarget;
+
+	// walk to the path entity first
+	path_corner();
+
+	if ( checkForEnemy( true ) ) {
+		return;
+	}
+
+	target = current_path.randomPath();
+	if ( !target ) {
+		sys.error( "missing target for '" + current_path.getName() + "'" );
+	}
+	jumpTarget = target.getOrigin();
+	if ( !current_path.getKey( "up" ) ) {
+		jumpVelocity = getJumpVelocity( jumpTarget, TRITE_LEAP_SPEED, 1024 );
+		if ( jumpVelocity == '0 0 0' ) {
+			sys.error( "Monster '" + getName() + "' couldn't make jump from '" + current_path.getName() + "' to '" + target.getName() + "'" );
+		}
+	} else {
+		float forward = current_path.getFloatKey( "forward" );
+		if ( forward <= 0 ) {
+			sys.error( "Invalid forward velocity on path_jump entity '" + current_path.getName() + "'\n" );
+		}
+		dir = jumpTarget - getOrigin();
+		dir_z = 0;
+		dir = sys.vecNormalize( dir );
+		dir = dir * forward;
+		dir_z = current_path.getFloatKey( "up" );
+		jumpVelocity = dir;
+	}
+	
+	stopMove();
+	turnToPos( jumpTarget );
+	while( !facingIdeal() ) {
+		if ( checkForEnemy( true ) ) {
+			return;
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );	
+	waitAction( "leap_attack" );
+
+	stopMove();
+}
+
+/*
+=====================
+monster_demon_trite::state_LostCombat
+=====================
+*/
+void monster_demon_trite::state_LostCombat() {
+	float attack_flags;
+	float endtime;
+
+	if ( !explode ) {
+		monster_base_lost_combat();
+		return;
+	}
+
+	moveToEnemy();
+	while( !AI_MOVE_DONE ) {
+		if ( canReachEnemy() ) {
+			setState( "state_Combat" );
+		}
+
+		if ( enemyRange() < TRITE_EXPLOSION_RADIUS ) {
+			combat_explode();
+		}
+
+		attack_flags = check_attacks();
+		if ( attack_flags & ATTACK_LEAP ) {
+			combat_explode();
+		} else if ( attack_flags ) {
+			setState( "state_Combat" );
+		}
+
+		waitFrame();
+	}
+
+	endtime = sys.getTime() + 1.5;
+	wander();
+
+	// this helps prevent infinite loops since we can actually wind up rapidly switching between combat and lost
+	waitFrame();
+
+	while( sys.getTime() < endtime ) {
+		if ( canReachEnemy() ) {
+			setState( "state_Combat" );
+		}
+
+		if ( enemyRange() < TRITE_EXPLOSION_RADIUS ) {
+			combat_explode();
+			setState( "state_Combat" );
+		}
+
+		attack_flags = check_attacks();
+		if ( attack_flags & ATTACK_LEAP ) {
+			combat_explode();
+		} else if ( attack_flags ) {
+			setState( "state_Combat" );
+		}
+
+		waitFrame();
+	}
+
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_demon_trite::state_Explode
+=====================
+*/
+void monster_demon_trite::state_Explode() {
+	string fx;
+	string damageName;
+	entity ent;
+
+	// spawn the explosion
+	fx = getKey( "model_explode" );
+	sys.setSpawnArg( "model", fx );
+	ent = sys.spawn( "func_emitter" );
+	ent.show();
+	ent.setOrigin( getOrigin() );
+	ent.setShaderParm( SHADERPARM_TIMEOFFSET, -sys.getTime() );
+	ent.setShaderParm( SHADERPARM_DIVERSITY, sys.random( 1 ) );
+
+	damageName = getKey( "def_explode_damage" );
+	sys.radiusDamage( getOrigin(), self, self, self, damageName, 1.0 );
+
+	startSound( "snd_explode", SND_CHANNEL_BODY, false );
+
+	// disappear and activate any targets
+	activateTargets( self );
+	hide();
+
+	// wait a bit for sounds to finish, then go away
+	sys.wait( 5 );
+	ent.remove();
+	remove();
+}

@@ -1,0 +1,969 @@
+/***********************************************************************
+
+ai_monster_boss_guardian.script
+
+monster_boss_guardian
+
+***********************************************************************/
+
+#define	SPAWNER_PAIN_FADEOUT			2.5
+#define	SPAWNER_FADEOUT					1
+#define SPAWNER_FADEIN_TIME				0.25
+
+#define	GUARDIAN_PAIN_DELAY				0.25
+#define GUARDIAN_RANGE_ATTACK_RANGE		1024
+#define GUARDIAN_RANGE_ATTACK_DELAY		7
+#define GUARDIAN_CHARGE_ATTACK_RANGE	680
+#define GUARDIAN_NUM_PROJECTILES		12
+
+// anim blend times
+#define	GUARDIAN_PAIN_TO_IDLE			3
+#define GUARDIAN_PAIN_TO_PAIN			3
+#define GUARDIAN_SIGHT_TO_IDLE			8
+#define	GUARDIAN_MELEE_TO_IDLE			12
+#define GUARDIAN_IDLE_TO_PAIN			3
+#define GUARDIAN_IDLE_TO_WALK			12
+#define GUARDIAN_IDLE_TO_CHARGE			12
+#define GUARDIAN_IDLE_TO_MELEE			12
+#define	GUARDIAN_IDLE_TO_RANGE			12
+#define GUARDIAN_IDLE_TO_SIGHT			12
+#define GUARDIAN_IDLE_TO_LOST			12
+#define GUARDIAN_WALK_TO_IDLE			12
+#define GUARDIAN_WALK_TO_PAIN			3
+#define	GUARDIAN_WALK_TO_CHARGE			8
+#define	GUARDIAN_CHARGE_TO_WALK			0
+#define GUARDIAN_CHARGE_TO_IDLE			12
+#define GUARDIAN_CHARGE_TO_PAIN			3
+#define GUARDIAN_LOST_TO_IDLE			10
+#define GUARDIAN_LOST_TO_PAIN			3
+#define GUARDIAN_LOST_TO_WALK			24
+#define GUARDIAN_LOST_TO_CHARGE			24
+#define GUARDIAN_RANGEATTACK_TO_IDLE	4
+#define GUARDIAN_SPAWN_TO_IDLE			4
+#define	GUARDIAN_IDLE_TO_SPAWN			4
+
+object seeker_base : monster_base {
+	boolean			isAlive()						{ return !AI_DEAD; }
+	void			respawnSeeker( entity enemy )	{ 0; }
+};
+
+object monster_boss_guardian_spawner : monster_base {
+	entity			lightning;
+	entity			guardianEnt;
+	entity			light;
+	entity			beam;
+	entity			beam_target;
+
+	vector			beam_offset;
+	vector			rotation;
+	vector			beam_pain_color;
+	vector			beam_color;
+	vector			lightning_pain_color;
+	vector			lightning_color;
+
+	float			pain_time;
+	float			inactive_time;
+	float			active_time;
+
+	void 			init();
+	void 			destory();
+	void 			setGuardian( entity owner );
+	void			update_effects();
+	void 			state_Inactive();
+	void 			state_Active();
+	void 			state_Killed();
+};
+
+object monster_boss_guardian : monster_base {
+	float			nextAttack;
+	seeker_base		seeker1;
+	seeker_base		seeker2;
+	seeker_base		seeker3;
+	float			sightEnemyTime;
+	boolean			in_melee;
+	boolean			rightfoot;
+	boolean			charge;
+
+	entity			light1;
+	entity			light2;
+
+	monster_boss_guardian_spawner spawner;
+
+	void 			Legs_Sight();
+	void 			Legs_Death();
+	void 			Legs_Pain();
+	void			Legs_RangeAttack();
+	void 			Legs_MeleeAttack();
+	void 			Legs_Walk_Melee_Left();
+	void 			Legs_Walk_Melee_Right();
+	void 			Legs_Walk();
+	void 			Legs_Run_Melee_Left();
+	void 			Legs_Run_Melee_Right();
+	void 			Legs_Charge();
+	void 			Legs_Lost();
+	void 			Legs_Idle();
+	void 			Legs_SpawnSeeker();
+
+	void 			init();
+	void 			destory();
+	void 			addSeeker( entity seeker );
+	void 			sightEnemy();
+	boolean 		seekersAreDead();
+	boolean 		spawnSeeker();
+	void 			state_Idle();
+	void 			state_Killed();
+	void 			state_Combat();
+	void 			combat_melee();
+	void			combat_range();
+	void			combat_charge();
+};
+
+void monster_boss_guardian_spawner::init() {
+	active_time		= 0;
+	inactive_time	= 0;
+	pain_time		= 0;
+
+	beam_offset				= getVectorKey( "beam_offset" );
+	rotation				= getVectorKey( "rotate" );
+	beam_pain_color 		= getVectorKey( "beam_pain_color" );
+	beam_color				= getVectorKey( "beam_color" );
+	lightning_pain_color	= getVectorKey( "lightning_pain_color" );
+	lightning_color			= getVectorKey( "lightning_color" );
+
+	sys.setSpawnArg( "_color", beam_color );
+	sys.setSpawnArg( "name", getName() + "light" );
+	sys.setSpawnArg( "light", "1024" );
+	sys.setSpawnArg( "texture", getKey( "mtr_beam_light_shader" ) );
+	sys.setSpawnArg( "start_off", "1" );
+	sys.setSpawnArg( "noshadows", "1" );
+	light = sys.spawn( "light" );
+	light.setOrigin( getWorldOrigin() );
+	light.bind( self );
+	
+	sys.setSpawnArg( "name", getName() + "beam_target" );
+	beam_target = sys.spawn( "func_beam" );
+	beam_target.setOrigin( getWorldOrigin() );
+	beam_target.bind( self );
+
+	sys.setSpawnArg( "_color", beam_color );
+	sys.setSpawnArg( "name", getName() + "beam" );
+	sys.setSpawnArg( "skin", getKey( "mtr_beam_skin" ) );
+	sys.setSpawnArg( "target", getName() + "beam_target" );
+	sys.setSpawnArg( "start_off", "1" );
+	beam = sys.spawn( "func_beam" );
+	beam.setOrigin( getWorldOrigin() + beam_offset );
+	beam.bind( self );
+
+	setMoveType( MOVETYPE_STATIC );
+	setState( "state_Inactive" );
+}
+
+void monster_boss_guardian_spawner::destory() {
+	light.remove();
+	beam.remove();
+	beam_target.remove();
+}
+
+void monster_boss_guardian_spawner::setGuardian( entity owner ) {
+	vector offset;
+
+	guardianEnt = owner;
+	setOwner( owner );
+
+	offset = getVectorKey( "offset" );
+	setOrigin( guardianEnt.getWorldOrigin() + offset );
+
+	sys.setSpawnArg( "name", getName() + "_lightning" );
+	sys.setSpawnArg( "nopush", "1" );
+	sys.setSpawnArg( "solid", "0" );
+	sys.setSpawnArg( "model", getKey( "lightning_model" ) );
+	lightning = sys.spawn( "func_mover_amodel" );
+	lightning.setOrigin( guardianEnt.getWorldOrigin() + offset );
+
+	bindToJoint( guardianEnt, "origin", false );
+	lightning.bind( self );
+}
+
+void monster_boss_guardian_spawner::update_effects() {
+	vector	c;
+	float	pain_frac;
+	float	normal_frac;
+	float	hide_frac;
+
+	if ( active_time <= inactive_time ) {
+		hide_frac = ( inactive_time + SPAWNER_FADEOUT - sys.getTime() ) / SPAWNER_FADEOUT;
+	} else {
+		hide_frac = ( sys.getTime() - active_time ) / SPAWNER_FADEIN_TIME;
+		if ( hide_frac > 1 ) {
+			hide_frac = 1;
+		}
+	}
+
+	if ( hide_frac < 0 ) {
+		hide();
+		beam.hide();
+		lightning.hide();
+		return;
+	}
+
+	lightning.show();
+	show();
+	beam.show();
+
+	lightning.setAngles( rotation * sys.getTime() );
+
+	pain_frac = ( pain_time + SPAWNER_PAIN_FADEOUT - sys.getTime() ) / SPAWNER_PAIN_FADEOUT;
+	if ( pain_frac < 0 ) {
+		pain_frac = 0;
+	}
+
+	normal_frac = 1 - pain_frac;
+	pain_frac *= hide_frac;
+	normal_frac *= hide_frac;
+
+	c = beam_pain_color * pain_frac + beam_color * normal_frac;
+	setColor( c_x, c_y, c_z );
+	beam.setColor( c_x, c_y, c_z );
+	light.setColor( c_x, c_y, c_z );
+
+	c = lightning_pain_color * pain_frac + lightning_color * normal_frac;
+	lightning.setColor( c_x, c_y, c_z );
+}
+
+void monster_boss_guardian_spawner::state_Inactive() {
+	inactive_time = sys.getTime();
+	while( 1 ) {
+		update_effects();
+		waitFrame();
+	}
+}
+
+void monster_boss_guardian_spawner::state_Active() {
+	monster_boss_guardian guardian;
+
+	active_time = sys.getTime();
+	guardian = guardianEnt;
+
+	lightning.show();
+	show();
+	light.fadeInLight( 0.5 );
+	beam.show();
+
+	while( 1 ) {
+		if ( AI_DAMAGE ) {
+			guardian.AI_PAIN = true;
+			guardian.startSound( "snd_pain", SND_CHANNEL_VOICE, false );
+			pain_time = sys.getTime();
+			AI_DAMAGE = false;
+		}
+		update_effects();
+		waitFrame();
+	}
+}
+
+void monster_boss_guardian_spawner::state_Killed() {
+	guardianEnt.setState( "state_Killed" );
+	remove();
+/*
+	setMoveType( MOVETYPE_STATIC );
+	inactive_time = sys.getTime();
+	pain_time = sys.getTime();
+
+	update_effects();
+	while( !isHidden() ) {
+		update_effects();
+		waitFrame();
+	}
+	stopThinking();
+*/
+}
+
+/***********************************************************************
+
+	animation control
+
+***********************************************************************/
+
+void monster_boss_guardian::Legs_Sight() {
+	rightfoot = true;
+	playAnim( ANIMCHANNEL_LEGS, "sight" );
+	while( !animDone( ANIMCHANNEL_LEGS, GUARDIAN_SIGHT_TO_IDLE ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "sight" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_SIGHT_TO_IDLE );
+}
+
+void monster_boss_guardian::Legs_Death() {
+	seeker1.kill();
+	seeker2.kill();
+	seeker3.kill();
+	playAnim( ANIMCHANNEL_LEGS, "death" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void monster_boss_guardian::Legs_Pain() {
+	float nextpain;
+	float currenttime;
+
+	rightfoot = true;
+	playAnim( ANIMCHANNEL_LEGS, "pain" );
+
+	nextpain = sys.getTime() + GUARDIAN_PAIN_DELAY;
+	
+	while( !animDone( ANIMCHANNEL_LEGS, GUARDIAN_PAIN_TO_IDLE ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Pain", GUARDIAN_PAIN_TO_PAIN );
+			}
+		}
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_PAIN_TO_IDLE );
+}
+
+void monster_boss_guardian::Legs_RangeAttack() {
+	rightfoot = true;
+	playAnim( ANIMCHANNEL_LEGS, "range_attack" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, GUARDIAN_RANGEATTACK_TO_IDLE ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	
+	preventPain( 1 );
+	waitFrame();
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_RANGEATTACK_TO_IDLE );
+}
+
+void monster_boss_guardian::Legs_MeleeAttack() {
+	rightfoot = true;
+	playAnim( ANIMCHANNEL_LEGS, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, GUARDIAN_MELEE_TO_IDLE ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	
+	preventPain( 1 );
+	waitFrame();
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_MELEE_TO_IDLE );
+}
+
+void monster_boss_guardian::Legs_Walk_Melee_Left() {
+	in_melee = true;
+	rightfoot = false;
+	playAnim( ANIMCHANNEL_LEGS, "walk_attack_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	
+	preventPain( 1 );
+	in_melee = false;
+
+	if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk_Melee_Left", 0 );
+	} else {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk", 0 );
+	}
+}
+
+void monster_boss_guardian::Legs_Walk_Melee_Right() {
+	in_melee = true;
+	rightfoot = true;
+	playAnim( ANIMCHANNEL_LEGS, "walk_attack_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	
+	in_melee = false;
+	preventPain( 1 );
+
+	if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk_Melee_Right", 0 );
+	} else {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk", 0 );
+	}
+}
+
+void monster_boss_guardian::Legs_Walk() {
+	if ( rightfoot ) {
+		if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Walk_Melee_Right", 0 );
+		}
+		playAnim( ANIMCHANNEL_LEGS, "walk_right" );
+	} else {
+		if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Walk_Melee_Left", 0 );
+		}
+		playAnim( ANIMCHANNEL_LEGS, "walk_left" );
+	}
+	eachFrame {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Pain", GUARDIAN_WALK_TO_PAIN );
+		}
+		if ( !AI_FORWARD ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_WALK_TO_IDLE );
+		}
+
+		if ( animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+			if ( charge ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Charge", GUARDIAN_WALK_TO_CHARGE );
+			}
+			rightfoot = !rightfoot;
+			if ( rightfoot ) {
+				if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+					animState( ANIMCHANNEL_LEGS, "Legs_Walk_Melee_Right", 0 );
+				}
+				playAnim( ANIMCHANNEL_LEGS, "walk_right" );
+			} else {
+				if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+					animState( ANIMCHANNEL_LEGS, "Legs_Walk_Melee_Left", 0 );
+				}
+				playAnim( ANIMCHANNEL_LEGS, "walk_left" );
+			}
+
+		}
+	}
+}
+
+void monster_boss_guardian::Legs_Run_Melee_Left() {
+	in_melee = true;
+	rightfoot = false;
+	attackBegin( "damage_guardianCharge" );
+	playAnim( ANIMCHANNEL_LEGS, "run_attack_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	
+	attackEnd();
+	preventPain( 1 );
+	in_melee = false;
+
+	boolean canMelee = testMeleeAttack() && AI_ENEMY_IN_FOV;
+	if ( canMelee || testAnimAttack( "run_attack_left" ) ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Run_Melee_Left", 0 );
+	} else {
+		animState( ANIMCHANNEL_LEGS, "Legs_Charge", 0 );
+	}
+}
+
+void monster_boss_guardian::Legs_Run_Melee_Right() {
+	in_melee = true;
+	rightfoot = true;
+	attackBegin( "damage_guardianCharge" );
+	playAnim( ANIMCHANNEL_LEGS, "run_attack_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	
+	attackEnd();
+	in_melee = false;
+	preventPain( 1 );
+
+	boolean canMelee = testMeleeAttack() && AI_ENEMY_IN_FOV;
+	if ( canMelee || testAnimAttack( "run_attack_right" ) ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Run_Melee_Right", 0 );
+	} else {
+		animState( ANIMCHANNEL_LEGS, "Legs_Charge", 0 );
+	}
+}
+
+void monster_boss_guardian::Legs_Charge() {
+	boolean canMelee = testMeleeAttack() && AI_ENEMY_IN_FOV;
+
+	if ( rightfoot ) {
+		if ( canMelee || testAnimAttack( "run_attack_right" ) ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Run_Melee_Right", 0 );
+		}
+		playAnim( ANIMCHANNEL_LEGS, "run_right" );
+	} else {
+		if ( canMelee || testAnimAttack( "run_attack_left" ) ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Run_Melee_Left", 0 );
+		}
+		playAnim( ANIMCHANNEL_LEGS, "run_left" );
+	}
+
+	eachFrame {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Pain", GUARDIAN_CHARGE_TO_PAIN );
+		}
+		if ( animDone( ANIMCHANNEL_LEGS, GUARDIAN_CHARGE_TO_WALK ) ) {
+			charge = false;
+			animState( ANIMCHANNEL_LEGS, "Legs_Walk", GUARDIAN_CHARGE_TO_WALK );
+		}
+	}
+}
+
+void monster_boss_guardian::Legs_Lost() {
+	rightfoot = true;
+	idleAnim( ANIMCHANNEL_LEGS, "lost_enemy" );
+
+	eachFrame {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Pain", GUARDIAN_LOST_TO_PAIN );
+		}
+		if ( AI_FORWARD ) {
+			if ( charge ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Charge", GUARDIAN_LOST_TO_CHARGE );
+			} else {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", GUARDIAN_LOST_TO_WALK );
+			}
+		}
+		if ( sightEnemyTime >= sys.getTime() ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_LOST_TO_IDLE );
+		}
+	}
+}
+
+void monster_boss_guardian::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Pain", GUARDIAN_IDLE_TO_PAIN );
+		}
+		if ( AI_FORWARD ) {
+			if ( charge ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Charge", GUARDIAN_IDLE_TO_CHARGE );
+			} else {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", GUARDIAN_IDLE_TO_WALK );
+			}
+		}
+		if ( getEnemy() ) {
+			if ( sightEnemyTime < sys.getTime() ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Lost", GUARDIAN_IDLE_TO_LOST );
+			}
+		}
+	}
+}
+
+void monster_boss_guardian::Legs_SpawnSeeker() {
+	rightfoot = true;
+	playAnim( ANIMCHANNEL_LEGS, "spawn_seeker" );
+	while( !animDone( ANIMCHANNEL_LEGS, GUARDIAN_SPAWN_TO_IDLE ) ) {
+		preventPain( 1 );
+		waitFrame();
+	}
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", GUARDIAN_SPAWN_TO_IDLE );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_guardian::init
+=====================
+*/
+void monster_boss_guardian::init() {
+	vector color;
+
+	color = getVectorKey( "light_color" );
+
+	sys.setSpawnArg( "name", getName() + "_light1" );
+	light1 = sys.spawn( "light" );
+	light1.setShader( getKey( "mtr_light_shader" ) );
+	light1.setRadius( getFloatKey( "light_radius" ) );
+	light1.bindToJoint( self, "Rhand", true );
+	light1.setOrigin( getVectorKey( "light_offset_right" ) );
+	light1.setColor( color_x, color_y, color_z );
+
+	sys.setSpawnArg( "name", getName() + "_light2" );
+	light2 = sys.spawn( "light" );
+	light2.setShader( getKey( "mtr_light_shader" ) );
+	light2.setRadius( getFloatKey( "light_radius" ) );
+	light2.bindToJoint( self, "Lhand", true );
+	light2.setOrigin( getVectorKey( "light_offset_left" ) );
+	light2.setColor( color_x, color_y, color_z );
+
+	rightfoot = true;
+	charge = false;
+
+	setMoveType( MOVETYPE_ANIM );
+
+	ignoreDamage();
+
+	sightEnemyTime = -1;
+
+	sys.setSpawnArg( "name", getName() + "_spawn" );
+	spawner = sys.spawn( "monster_boss_guardian_spawner" );
+	spawner.setGuardian( self );
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_boss_guardian::destory
+=====================
+*/
+void monster_boss_guardian::destory() {
+	spawner.remove();
+	light1.remove();
+	light2.remove();
+}
+
+/*
+=====================
+monster_boss_guardian::addSeeker
+=====================
+*/
+void monster_boss_guardian::addSeeker( entity seeker ) {
+	if ( !seeker1 ) {
+		seeker1 = seeker;
+	} else if ( !seeker2 ) {
+		seeker2 = seeker;
+	} else if ( !seeker3 ) {
+		seeker3 = seeker;
+	} else {
+		sys.error( "'" + getName() + "' was targeted by more than 3 seekers" );
+	}
+}
+
+/*
+=====================
+monster_boss_guardian::sightEnemy
+=====================
+*/
+void monster_boss_guardian::sightEnemy() {
+	sightEnemyTime = sys.getTime() + 0.5;
+	locateEnemy();
+
+	// all seeker's now know the location
+	seeker1.locateEnemy();
+	seeker2.locateEnemy();
+	seeker3.locateEnemy();
+}
+
+/*
+=====================
+monster_boss_guardian::seekersAreDead
+=====================
+*/
+boolean monster_boss_guardian::seekersAreDead() {
+	if ( seeker1.isAlive() ) {
+		return false;
+	}
+
+	if ( seeker2.isAlive() ) {
+		return false;
+	}
+
+	if ( seeker3.isAlive() ) {
+		return false;
+	}
+
+	return true;
+}
+
+
+/*
+=====================
+monster_boss_guardian::spawnSeeker
+=====================
+*/
+boolean monster_boss_guardian::spawnSeeker() {
+	entity enemy;
+
+	// don't go into lost anim for a bit
+	sightEnemyTime = sys.getTime() + 20;
+	stopMove();
+
+	spawner.setState( "state_Active" );
+	sys.wait( 1 );
+
+	animState( ANIMCHANNEL_LEGS, "Legs_SpawnSeeker", GUARDIAN_IDLE_TO_SPAWN );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_SpawnSeeker" ) ) {
+		waitFrame();
+	}
+
+	enemy = getEnemy();
+	if ( !( !seeker1 ) && !seeker1.isAlive() ) {
+		seeker1.respawnSeeker( enemy );
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_SpawnSeeker", GUARDIAN_IDLE_TO_SPAWN );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_SpawnSeeker" ) ) {
+		waitFrame();
+	}
+
+	if ( !( !seeker2 ) && !seeker2.isAlive() ) {
+		seeker2.respawnSeeker( enemy );
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_SpawnSeeker", GUARDIAN_IDLE_TO_SPAWN );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_SpawnSeeker" ) ) {
+		waitFrame();
+	}
+
+	if ( !( !seeker3 ) && !seeker3.isAlive() ) {
+		seeker3.respawnSeeker( enemy );
+	}
+
+	sys.wait( 0.5 );
+	sightEnemyTime = sys.getTime() - 0.1;
+	spawner.setState( "state_Inactive" );
+}
+
+/*
+=====================
+monster_boss_guardian::state_Idle
+=====================
+*/
+void monster_boss_guardian::state_Idle() {
+	if ( getIntKey( "hide" ) ) {
+		//
+		// hide until triggered
+		//
+		hide();
+		waitUntil( AI_ACTIVATED );
+		if ( getIntKey( "hide" ) == 1 ) {
+			AI_ACTIVATED = false;
+			clearEnemy();
+		}
+		waitUntil( canBecomeSolid() );
+		show();
+		ignoreDamage();
+	}
+
+	wait_for_enemy();
+
+	faceEnemy();
+
+	// don't go into lost anim for a bit
+	sightEnemyTime = sys.getTime() + 20;
+	animState( ANIMCHANNEL_LEGS, "Legs_Sight", GUARDIAN_IDLE_TO_SIGHT );
+	waitAction( "sight" );
+
+	nextAttack = RandomTime( GUARDIAN_RANGE_ATTACK_DELAY );
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_boss_guardian::state_Killed
+=====================
+*/
+void monster_boss_guardian::state_Killed() {
+	activateTargets( $world );
+
+	light1.fadeOutLight( 0.5 );
+	light2.fadeOutLight( 0.5 );
+
+	AI_DEAD = true;
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+	waitAction( "dead" );
+	
+	stopThinking();
+}
+
+/*
+=====================
+monster_boss_guardian::state_Combat
+=====================
+*/
+void monster_boss_guardian::state_Combat() {
+	while( 1 ) {
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+			continue;
+		}
+		while( sightEnemyTime < sys.getTime() ) {
+			stopMove();
+			if ( seekersAreDead() ) {
+				spawnSeeker();
+			}
+			waitFrame();
+		}
+
+		while( sightEnemyTime >= sys.getTime() ) {
+			if ( in_melee ) {
+				waitFrame();
+				continue;
+			}
+			if ( seekersAreDead() ) {
+				spawnSeeker();
+			}
+			moveToEnemy();
+			if ( !inAnimState( ANIMCHANNEL_TORSO, "Legs_Pain" ) ) {
+				if ( AI_DEST_UNREACHABLE || ( sys.getTime() >= nextAttack ) ) {
+					if ( enemyRange() < GUARDIAN_RANGE_ATTACK_RANGE ) {
+						if ( canHitEnemy() ) {
+							combat_range();
+							waitFrame();
+							continue;
+						}
+					}
+				} else if ( enemyRange() > GUARDIAN_CHARGE_ATTACK_RANGE ) {
+					if ( canHitEnemy() ) {
+						combat_charge();
+						waitFrame();
+						continue;
+					}
+				}
+			}
+
+			if ( testMeleeAttack() && AI_ENEMY_IN_FOV ) {
+				combat_melee();
+			} 
+			waitFrame();
+		}
+	}
+}
+
+/*
+=====================
+monster_boss_guardian::combat_melee
+=====================
+*/
+void monster_boss_guardian::combat_melee() {
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_MeleeAttack", GUARDIAN_IDLE_TO_MELEE );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_MeleeAttack" ) ) {
+		waitFrame();
+	}
+}
+
+/*
+=====================
+monster_boss_guardian::combat_range
+=====================
+*/
+void monster_boss_guardian::combat_range() {
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_RangeAttack", GUARDIAN_IDLE_TO_RANGE );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_RangeAttack" ) ) {
+		waitFrame();
+	}
+
+	nextAttack = DelayTime( GUARDIAN_RANGE_ATTACK_DELAY );
+}
+
+/*
+=====================
+monster_boss_guardian::combat_charge
+=====================
+*/
+void monster_boss_guardian::combat_charge() {
+	charge = true;
+	moveToEnemy();
+	while( charge ) {
+		waitFrame();
+	}
+	stopMove();
+	charge = false;
+}
+
+/*
+=====================
+monster_boss_guardian::pound_impact
+=====================
+*/
+void monster_boss_guardian::pound_impact( string joint ) {
+	string	entname;
+	entity	explosion;
+	float	handJoint;
+	vector	org;
+
+	handJoint = getJointHandle( joint );
+	org = getJointPos( handJoint );
+
+	sys.radiusDamage( org, self, self, spawner, "damage_guardianPoundGround", 1.0 );
+
+	entname = getKey( "def_poundground" );
+	explosion = sys.spawn( entname );
+	explosion.setOrigin( org - '0 0 32');
+	explosion.setShaderParm( 4, -sys.getTime() );	
+	sys.wait( 0.75 );
+	explosion.remove();
+}
+
+/*
+=====================
+monster_boss_guardian::pound_attack
+=====================
+*/
+void monster_boss_guardian::pound_attack( string joint ) {
+	float	handJoint;
+	vector	org;
+	vector	ang;
+	float	i;
+
+	handJoint = getJointHandle( joint );
+	org = getJointPos( handJoint );
+
+	sys.radiusDamage( org, self, self, spawner, "damage_guardianPoundGround", 1.0 );
+
+	ang = getAngles();
+	for( i = 0; i < GUARDIAN_NUM_PROJECTILES; i++ ) {
+		ang_y += 360 / GUARDIAN_NUM_PROJECTILES;
+		launchMissile( org, ang );
+	}
+
+	thread pound_impact( joint );
+}
+
+/*
+=====================
+monster_boss_guardian::pound_attack_left
+=====================
+*/
+void monster_boss_guardian::pound_attack_left() {
+	pound_attack( "lhand" );
+}
+
+/*
+=====================
+monster_boss_guardian::pound_attack_right
+=====================
+*/
+void monster_boss_guardian::pound_attack_right() {
+	pound_attack( "rhand" );
+}
+
+/*
+=====================
+monster_boss_guardian::smash_ground
+=====================
+*/
+void monster_boss_guardian::smash_ground() {
+	float	handJoint;
+	vector	org1, org2, org;
+	vector	ang;
+	float	i;
+	
+	thread pound_impact( "lhand" );
+	thread pound_impact( "rhand" );
+
+	handJoint = getJointHandle( "lhand" );
+	org1 = getJointPos( handJoint );
+	handJoint = getJointHandle( "rhand" );
+	org2 = getJointPos( handJoint );
+	org = ( org1 + org2 ) * 0.5;
+
+	ang = getAngles();
+	for( i = 0; i < GUARDIAN_NUM_PROJECTILES; i++ ) {
+		ang_y += 360 / GUARDIAN_NUM_PROJECTILES;
+		launchMissile( org, ang );
+	}
+}

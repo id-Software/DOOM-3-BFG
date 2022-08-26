@@ -1,0 +1,183 @@
+/***********************************************************************
+
+ai_monster_zombie_bernie.script
+
+***********************************************************************/
+
+object monster_zombie_bernie : monster_zombie_base {
+	void		state_Begin();
+	void		state_Idle();
+	void		combat_melee();
+	void		init();
+		
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_zombie_bernie::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+}
+
+void monster_zombie_bernie::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+void monster_zombie_bernie::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_zombie_bernie::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_FORWARD )					{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 ); }
+	}
+}
+
+void monster_zombie_bernie::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )					{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_bernie::init
+=====================
+*/
+void monster_zombie_bernie::init() {
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_zombie_bernie::state_Begin
+=====================
+*/
+void monster_zombie_bernie::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );		
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_zombie_bernie::state_Idle
+=====================
+*/
+void monster_zombie_bernie::state_Idle() {
+	wait_for_enemy();
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_bernie::do_attack
+=====================
+*/
+void monster_zombie_bernie::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	}
+}
+
+/*
+=====================
+monster_zombie_bernie::check_attacks
+=====================
+*/
+float monster_zombie_bernie::check_attacks() {
+	float attack_flags;
+
+	attack_flags = 0;
+	if ( testMeleeAttack() ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_zombie_bernie::combat_melee
+=====================
+*/
+void monster_zombie_bernie::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 8 );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}

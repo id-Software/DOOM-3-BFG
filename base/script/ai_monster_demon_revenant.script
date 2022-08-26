@@ -1,0 +1,370 @@
+/***********************************************************************
+
+ai_monster_demon_revenant.script
+
+monster_demon_revenant
+
+***********************************************************************/
+
+#define REV_WALKTURN		65
+#define REV_ATTACK_RATE		1.2
+#define REV_DODGE_RATE		8
+#define REV_NOFOVTIME		4
+
+object monster_demon_revenant : monster_base {
+	float		nextDodge;
+	float		nextAttack;
+	float		nextNoFOVAttack;
+	entity		combat_node;
+	string		range_attack_anim;
+
+	// States
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+
+	void		init();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_TurretAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_DodgeLeft();
+	void		Legs_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_revenant::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( AI_PAIN ) { animState( ANIMCHANNEL_TORSO, "Torso_Pain", 2 ); }
+	}
+}
+
+void monster_demon_revenant::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 7 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 7 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 7 );
+}
+
+void monster_demon_revenant::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_demon_revenant::Torso_RangeAttack() {
+	string anim;
+	
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, range_attack_anim );
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		lookAtEnemy( 1 );	
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_demon_revenant::Torso_TurretAttack() {
+	allowMovement( false );
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "turret_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "turret_attack" );
+	allowMovement( true );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_demon_revenant::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 2 ); }
+	}
+}
+
+void monster_demon_revenant::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 ); }
+	}
+}
+
+void monster_demon_revenant::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 2 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 );
+}
+
+void monster_demon_revenant::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 2 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_revenant::init
+=====================
+*/
+void monster_demon_revenant::init() {
+	walk_turn = REV_WALKTURN;
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_revenant::state_Begin
+=====================
+*/
+void monster_demon_revenant::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );	
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_revenant::state_Idle
+=====================
+*/
+void monster_demon_revenant::state_Idle() {
+	wait_for_enemy();
+	
+	nextAttack		= 0;
+	nextNoFOVAttack = 0;
+	nextDodge		= RandomTime( REV_DODGE_RATE );
+	
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_revenant::do_attack
+=====================
+*/
+void monster_demon_revenant::do_attack( float attack_flags ) {
+	nextNoFOVAttack = sys.getTime() + REV_NOFOVTIME;
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_demon_revenant::check_attacks
+=====================
+*/
+float monster_demon_revenant::check_attacks() {
+	float	currentTime;
+	float	canMelee;
+	float	attack_flags;
+	float	range;
+	string	anim;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+	
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	if ( ( ( sys.getTime() > nextNoFOVAttack ) && AI_ENEMY_VISIBLE ) || AI_ENEMY_IN_FOV ) {
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			range_attack_anim = chooseAnim( ANIMCHANNEL_LEGS, "turret_attack" );
+			if ( canHitEnemyFromAnim( range_attack_anim ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+
+			anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+			if ( testAnimMoveTowardEnemy( anim ) ) {
+				if ( canHitEnemyFromAnim( anim ) ) {
+					range_attack_anim = anim;
+					attack_flags |= ATTACK_MISSILE;
+				}
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_revenant::combat_range
+=====================
+*/
+void monster_demon_revenant::combat_range() {
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 2 );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( REV_ATTACK_RATE );
+	nextNoFOVAttack = sys.getTime() + REV_NOFOVTIME;
+}
+
+/*
+=====================
+monster_demon_revenant::combat_melee
+=====================
+*/
+void monster_demon_revenant::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}
+
+/*
+=====================
+monster_demon_revenant::combat_dodge_left
+=====================
+*/
+void monster_demon_revenant::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", 2 );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( REV_DODGE_RATE );
+	moveToEnemy();
+}
+
+/*
+=====================
+monster_demon_revenant::combat_dodge_right
+=====================
+*/
+void monster_demon_revenant::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", 2 );	
+	waitAction( "strafe" );
+	nextDodge = DelayTime( REV_DODGE_RATE );
+	moveToEnemy();
+}

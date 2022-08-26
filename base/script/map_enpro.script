@@ -1,0 +1,994 @@
+namespace map_enpro {
+
+	// Set up exit room sounds for after the battle sequence. Trigger all this stuff when the player
+	// swaps out the rod.
+	
+	void xianstuff() {
+		sys.trigger ($speaker_burn_1);			// flame1 in exit room
+		sys.trigger ($speaker_burn_2);			// flame2 in exit room
+		sys.trigger ($speaker_alarm_1);			// alarm sound in exit room
+		sys.trigger ($speaker_badgen_1);		// Red sound for damaged core :: Turns it off
+		sys.trigger ($speaker_goodgen_1);		// Blue sound for fixed core :: Turns it on 
+		sys.trigger ($rflames);					// Turns off flame sounds for fixed rod 2
+		sys.trigger ($speaker_fixed_rod);		// Turns on good sound for fixed rod 2
+	}
+
+	
+	void setup_objects()
+	{       
+                //  ceiling room
+                  $ceiling_cover.bind ($ceiling_cover_anchor);
+                  $ceilingroom_pipe.bind ($ceilingroom_pipe_anchor);
+              
+                  $ceiling_cover_anchor.accelTime (.5);
+                  $ceiling_cover_anchor.time (.5);
+                  $ceilingroom_pipe_anchor.accelTime (.3);                  
+                  $ceilingroom_pipe_anchor.time (.6);
+                  
+                  $ceiling_cover_anchor.rotateOnce ('120 0 0');
+   
+                //  bridge setup
+                $bridge_toprailing_left.bind ($bridge_toprailing_left_anchor);
+                $bridge_toprailing_left_anchor.bind ($bridge_floor);                 
+                $bridge_toprailing_right.bind ($bridge_toprailing_right_anchor);
+                $bridge_toprailing_right_anchor.bind ($bridge_floor);
+                $bridge_btmrailing_left.bind ($bridge_btmrailing_left_anchor);
+                $bridge_btmrailing_left_anchor.bind ($bridge_floor);                 
+                $bridge_btmrailing_right.bind ($bridge_btmrailing_right_anchor);
+                $bridge_btmrailing_right_anchor.bind ($bridge_floor);
+
+                $bridge_toprailing_left_anchor.accelTime (.4);
+                $bridge_toprailing_left_anchor.decelTime (.4);
+                $bridge_toprailing_left_anchor.time (1);
+                $bridge_toprailing_right_anchor.accelTime (.4);
+                $bridge_toprailing_right_anchor.decelTime (.4);
+                $bridge_toprailing_right_anchor.time (1);
+                $bridge_btmrailing_left_anchor.accelTime (.4);
+                $bridge_btmrailing_left_anchor.decelTime (.4);
+                $bridge_btmrailing_left_anchor.time (1);
+                $bridge_btmrailing_right_anchor.accelTime (.4);
+                $bridge_btmrailing_right_anchor.decelTime (.4);
+                $bridge_btmrailing_right_anchor.time (1);
+             
+                $bridge_toprailing_left_anchor.rotateOnce ('0 0 -88');
+                $bridge_btmrailing_left_anchor.rotateOnce ('0 0 -45');
+                $bridge_toprailing_right_anchor.rotateOnce ('0 0 88');
+                $bridge_btmrailing_right_anchor.rotateOnce ('0 0 45');
+                $bridge_floor.moveTo ($bridge_spot1);               
+
+		// hall 1 emergency light
+		$light_tunnel_1.bind ($tunnel_anchor_1);
+		$light_tunnel_1_spin.bind ($tunnel_anchor_1);
+		$tunnel_anchor_1.rotate ('0 -300 0');
+
+		// chamber 2: spinny things
+                $accelswayL.rotate ('0 -20 0');
+		$accelspinL.rotate ('0 45 0');		
+		$accelspinM.rotate ('0 -35 0');	
+		$accelspinR.rotate ('0 50 0');
+		$c2_spin_2.rotate ('0 -40 0');
+		$c2_spin_3.rotate ('0 20 0');
+				
+		//  rod replacement setup 
+                $rod_door.bind ($rod_replacer);
+                $rod_door.time (1);
+                $rod_door.accelTime (.3);
+                $rod_door.decelTime (.5);
+
+                $rod_fire_emitter1.bind ($rod);
+                $rod_fire_emitter2.bind ($rod);     
+		$rod_redlight1.bind ($rod);
+                $rod_emitter3.bind ($rod);
+                $rod_emitter4.bind ($rod);
+                
+                $rod_emitter1.bind ($rod_2);
+                $rod_emitter2.bind ($rod_2);		
+		$rod_2_bluelight1.bind ($rod_2);
+		$rod_2_bluelight2.bind ($rod_2);
+		$rod_2.hide ();
+
+		$rod_replacer.time (1);
+		$rod_replacer.decelTime (.5);
+                $rod.time (.5);
+		$rod.decelTime (.3);
+                $rod_2.time (.5);
+		$rod_2.decelTime (.3);
+
+		//  machineroom binds
+		$machineclaw1_carrier.bind ($machineclaw1_carrier_anchor);
+		$machineclaw1_upperarm.bind ($machineclaw1_carrier);
+		$machineclaw1_forearm.bind ($machineclaw1_upperarm);
+		$machineclaw1_hand.bind ($machineclaw1_forearm);
+		$machineclaw1_revolver.bind ($machineclaw1_hand);
+		$machineclaw1_steam1.bind ($machineclaw1_hand);
+		$machineclaw1_steam2.bind ($machineclaw1_hand);
+
+		$reloader_light.bind ($reloader);
+
+		$chamberpivot2.bind ($chamberpivot1);
+		$filterchamber.bind ($chamberpivot1);
+
+		$canspot1.bind ($machineclaw1_revolver);
+		$canspot2.bind ($machineclaw1_revolver);
+		$canspot3.bind ($machineclaw1_revolver);
+		$canspot4.bind ($machineclaw1_revolver);
+
+		$can_dirty1.bind ($filterchamber);
+		$can_dirty2.bind ($filterchamber);
+		$chamber_filterspot1.bind ($filterchamber);
+		$chamber_filterspot2.bind ($filterchamber);
+
+		$can_dirty4.bind ($cradle4);
+		$can_dirty5.bind ($cradle5);
+		$can_dirty6.bind ($cradle6);
+
+                $cradle4_x.bind ($cradle4);
+		$cradle5_x.bind ($cradle5);
+		$cradle6_x.bind ($cradle6);
+
+	//	setup mover times for machineroom
+                
+                
+		$machineclaw1_carrier.time (2);	
+		$machineclaw1_upperarm.time (1);
+		$machineclaw1_forearm.time (1);
+		$machineclaw1_hand.time (1);
+		$machineclaw1_revolver.time (1);
+
+		$machineclaw1_carrier.accelTime (.50);	
+		$machineclaw1_upperarm.accelTime (.1);
+		$machineclaw1_forearm.accelTime (.1);
+		$machineclaw1_hand.accelTime (.1);
+		$machineclaw1_revolver.accelTime (.1);
+
+		$machineclaw1_carrier.decelTime (.50);	
+		$machineclaw1_upperarm.decelTime (.1);
+		$machineclaw1_forearm.decelTime (.1);
+		$machineclaw1_hand.decelTime (.1);
+		$machineclaw1_revolver.decelTime (.1);
+
+		$reloader.time (.25);
+
+               	//airlock door2 times
+		$airlock_door2_left.time (1.2);
+		$airlock_door2_right.time (1.2);
+		$airlock_door2_left.accelTime (.2);
+		$airlock_door2_left.decelTime (1);
+		$airlock_door2_right.accelTime (.2);
+		$airlock_door2_right.decelTime (1);
+
+		$airlock_door2_top_lock.time (.25);
+		$airlock_door2_bottom_lock.time (.25);
+		
+		$airlock_door2_left_lock.time (.75);
+		$airlock_door2_right_lock.time (.75);
+		$airlock_door2_left_lock.accelTime (.1);
+		$airlock_door2_left_lock.decelTime (.65);
+		$airlock_door2_right_lock.accelTime (.1);
+		$airlock_door2_right_lock.decelTime (.65);
+       
+
+	}
+
+        ///////////////////////////////////////////////
+	//
+	//  ceilingroom
+	//
+	//////////////////////////////////////////////
+
+        void ceilingroom_start ()
+	{         
+                 sys.trigger ($explosion_1);
+                $ceilingroom_pipe_anchor.rotateOnce ('-15 0 0');
+                $ceilingroom_pipe_anchor.move (DOWN ,28);
+                $ceilingroom_pipe_anchor.startSoundShader ("metalcrash_01", SND_CHANNEL_VOICE);
+                
+                  sys.waitFor ($ceilingroom_pipe_anchor);
+
+                $ceilingroom_pipe_anchor.accelTime (.1);
+                $ceilingroom_pipe_anchor.decelTime (.1);
+                $ceilingroom_pipe_anchor.time (.2);
+                
+                $ceilingroom_pipe_anchor.move (UP ,4);
+                $ceilingroom_pipe_anchor.rotateOnce ('3 0 0');
+
+                  sys.waitFor ($ceilingroom_pipe_anchor);
+
+                $ceilingroom_pipe_anchor.move (DOWN ,2);
+                $ceilingroom_pipe_anchor.rotateOnce ('-3 0 0');
+               
+                $bloodsplat1.show ();
+                 sys.wait (.1);
+                $bloodsplat2.show ();
+                 sys.wait (.1);
+                $bloodsplat3.show ();
+                 sys.wait (.1);
+                $bloodsplat4.show ();
+                 sys.wait (.05);
+                $bloodsplat5.show ();
+                 sys.wait (.1);
+                $bloodsplat6.show ();
+                 sys.wait (.05);
+
+              $ceiling_cover_anchor.rotateOnce ('-120 0 0');
+                sys.wait (.3);
+
+                sys.trigger ($func_fracture_6);
+                sys.trigger ($func_forcefield_6);
+                $func_forcefield_6.startSoundShader ("glasscrash_01", SND_CHANNEL_VOICE);
+                   sys.wait (.3);
+                sys.trigger ($func_fracture_9);
+                sys.trigger ($func_forcefield_12);
+                $func_forcefield_6.startSoundShader ("glasscrash_01", SND_CHANNEL_VOICE);
+                  sys.wait (.1);
+                sys.trigger ($breakglass_again);           
+        }
+
+
+        ///////////////////////////////////////////////
+	//
+	//  bridge
+	//
+	//////////////////////////////////////////////
+
+	void bridge_open ()
+	{               
+				$bridge_floor.time (2);
+				
+				$bridge_floor.startSoundShader ("enpro_bridge_2s", SND_CHANNEL_VOICE);
+                
+                $bridge_floor.moveTo ($bridge_spot2);
+                 sys.waitFor ($bridge_floor);
+                $bridge_toprailing_left_anchor.rotateOnce ('0 0 88');                
+                $bridge_toprailing_right_anchor.startSoundShader ("enpro_bridge_rails_1s", SND_CHANNEL_VOICE);
+                $bridge_toprailing_right_anchor.rotateOnce ('0 0 -88');
+                 sys.waitFor ($bridge_toprailing_right_anchor);
+                 
+                $bridge_btmrailing_left_anchor.startSoundShader ("enpro_bridge_rails_2_1s", SND_CHANNEL_VOICE);
+                $bridge_btmrailing_left_anchor.rotateOnce ('0 0 45');
+                $bridge_btmrailing_right_anchor.rotateOnce ('0 0 -45');
+                
+        }
+
+        ///////////////////////////////////////////////
+	//
+	//  zombie drop
+	//
+	//////////////////////////////////////////////
+
+	void zombie_drop ()
+	{        sys.trigger ($zombie_explosion_1);
+                 sys.wait (.5);
+                 sys.trigger ($zombie_explosion_2);
+                 sys.wait (.2);
+                 $zombie1.unbind ();                 
+                 sys.wait (1);
+               $zombie_splat.show ();                        
+        }
+      
+
+	/////////////////////////////////////////////////
+	//
+	//  coolant rod replacement stuff
+	//
+	/////////////////////////////////////////////////
+
+	void rod_replace ()
+	{                              
+			thread xianstuff();				// Swap out sounds during this sequence
+			
+			// grab red rod
+            sys.wait (1);
+			$rod_replacer.moveTo ($rod_replacer_spot2);
+			sys.waitFor ($rod_replacer);
+			sys.wait (1);
+			$rod.bind ($rod_replacer);
+			$rod_replacer.moveTo ($rod_replacer_spot1);
+			sys.waitFor ($rod_replacer);
+			$rod.unbind ();			
+
+            $rod_door.rotateOnce ('0 180 0');
+            
+			sys.wait (.5);
+             $rod_shimmer.hide ();
+			$rod_fire_emitter1.hide ();
+            $rod_fire_emitter2.hide ();
+            $rod_emitter3.hide ();
+            $rod_emitter4.hide ();
+            sys.trigger ($cyl_smoke);
+
+			sys.waitFor ($rod_door);
+            sys.wait (1);
+
+            $rod.moveTo ($rod_spot1);
+            sys.waitFor ($rod);
+	        
+			// switch
+			$rod.hide (); 
+			$rod_2.show ();
+
+            $rod_fire_emitter1.hide ();
+            $rod_fire_emitter2.hide ();
+            $rod_emitter3.hide ();
+            $rod_emitter4.hide ();
+            $cyl_smoke.hide ();           
+
+			sys.trigger ($rod_redlight1);
+			sys.trigger ($rod_2_bluelight1);
+			sys.trigger ($rod_2_bluelight2);
+
+			// blue rod
+
+            $rod_2.moveTo ($rod_spot2);
+            sys.waitFor ($rod_2);
+
+			$rod_2.bind ($rod_replacer);
+			$rod_replacer.moveTo ($rod_replacer_spot2);
+			sys.waitFor ($rod_replacer);
+            $rod_door.rotateOnce ('0 -180 0');
+            sys.waitFor ($rod_door);
+			$rod_2.unbind ();
+			sys.wait (1);
+	        
+			$rod_replacer.moveTo ($rod_replacer_spot1);
+			sys.waitFor ($rod_replacer);
+	            
+			// switch out colors by hazarddoor up on level 2
+
+			sys.trigger ($hazard_redlight);
+			sys.trigger ($hazard_bluelight);
+                          
+            $hazard_redemitter1.hide ();
+            $hazard_redemitter2.hide ();
+            $hazard_redemitter3.hide ();
+            $hazard_redemitter4.hide ();
+
+            $hazard_redtube1.hide ();
+			$hazard_redtube2.hide ();
+
+            $hazard_blueemitter1.show ();
+            $hazard_blueemitter2.show ();
+            $hazard_blueemitter3.show ();
+            $hazard_blueemitter4.show ();
+
+			$hazard_bluetube1.show ();
+			$hazard_bluetube2.show ();
+
+            sys.trigger ($cyl_lightrelay);
+            sys.trigger ($cyltop_on);
+            sys.trigger ($cyltop_off);
+            sys.trigger ($cylbottom_on);
+            sys.trigger ($cylbottom_off);
+            sys.trigger ($func_emitter_68);
+            sys.trigger ($func_emitter_69);
+			
+			sys.trigger ($hazdoortrigger);
+                  
+            sys.trigger ($obj1complete_trigger);                              
+			//sys.trigger ($obj1complete);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Rotate a cradle (machine room thing that -
+	//	accepts dirty filters) around the ends
+	//
+	////////////////////////////////////////////////////
+	void cradle_rotate( entity ent )
+	{
+		//whole thing (up, around, and down 
+		//takes 1 second like almost all the moves
+		ent.time ( .33 );
+		ent.move ( UP, 16 );
+		sys.waitFor (ent);
+		
+		ent.rotateOnce ( '0 0 180');
+		sys.waitFor (ent);
+
+		ent.move ( DOWN, 16 );
+		ent.time (1);
+	}
+
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("rec1_steamchuff");
+		sys.cacheSoundShader ("metalcrash_01");
+		sys.cacheSoundShader ("glasscrash_01");
+		sys.cacheSoundShader ("enpro_bridge_2s");
+		sys.cacheSoundShader ("enpro_bridge_rails_1s");
+		sys.cacheSoundShader ("enpro_bridge_rails_2_1s");
+		sys.cacheSoundShader ("dc3_gui_panel_1");
+		sys.cacheSoundShader ("tb_m3_loop");
+		sys.cacheSoundShader ("tb_m4_stop");
+		sys.cacheSoundShader ("mach_1s");
+		sys.cacheSoundShader ("rotor_1s");
+		sys.cacheSoundShader ("tb_m4_stop");
+		sys.cacheSoundShader ("tb_arm1");
+		sys.cacheSoundShader ("tb_arm2");
+		sys.cacheSoundShader ("tb_arm3");
+		sys.cacheSoundShader ("tb_whomp");
+		sys.cacheSoundShader ("tb_whompout");
+		sys.cacheSoundShader ("tb_reloader1");
+		sys.cacheSoundShader ("tb_reloader2");
+		sys.cacheSoundShader ("al4_welder_armrot_1s");		
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Machineclaw movement
+	//
+	////////////////////////////////////////////////////
+	void machineclaw1_move()
+	{
+
+	//	move machineclaw1 from initial position down and around track to filter pick up spot
+		//1
+		
+		$sp_m2_carrier.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );
+		
+		$sp_m2_carrier.startSoundShader ("tb_m3_loop", SND_CHANNEL_VOICE );		// Start mover
+		
+		$machineclaw1_carrier_anchor.rotateOnce ( '0 -90 0' );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		//2
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint2 );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		//3
+		
+		$sp_m2_carrier.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );
+		$machineclaw1_carrier_anchor.rotateOnce ( '0 -90 0' );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+
+		//4
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint1 );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+	//	position machineclaw1 to receive filters
+		//5
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint12 );
+		
+		$sp_m2_arm.startSoundShader ("mach_1s", SND_CHANNEL_VOICE2 );
+		$machineclaw1_upperarm.rotateOnce ( '-30 0 35' );
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE2 );
+		$machineclaw1_forearm.rotateOnce ( '80 0 0' );
+		sys.waitFor ($machineclaw1_forearm);
+		
+		
+		$sp_m2_carrier.startSoundShader ("tb_m4_stop", SND_CHANNEL_VOICE );				// Stop Mover
+		
+		
+		//6
+		
+		$sp_m2_rev.startSoundShader ("tb_arm3", SND_CHANNEL_BODY );
+		
+		$machineclaw1_hand.rotateOnce ( '142.5 10 -90' );
+		sys.waitFor ($machineclaw1_hand);
+		sys.waitFor ($machineclaw1_upperarm);
+
+		//7	
+		
+		$sp_m2_arm.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '-10 0 -43' );
+		sys.wait (1);
+
+	//	get 1st new filter
+		
+		//8
+		
+		$can_clean1.startSoundShader ("tb_whomp", SND_CHANNEL_VOICE );
+		
+		$can_clean1.moveTo ($canspot1);
+		sys.waitFor ($can_clean1);
+		$can_clean1.bind ($machineclaw1_revolver);
+
+		//steam
+		//9 
+		
+		$machineclaw1_steam1.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+
+		//	swing machineclaw1 away from receive position
+		
+		//10
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '0 0 48' );
+		
+		$sp_m2_rev.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_forearm.rotateOnce ( '10 0 0' );
+		sys.waitFor ($machineclaw1_upperarm);
+
+	//	reload 2
+		//11
+		
+		$sp_m2_reloader.startSoundShader ("tb_reloader1", SND_CHANNEL_VOICE );
+		$reloader.move ( DOWN, 32 );
+		sys.waitFor ($reloader);
+		
+		//12
+		
+		$sp_m2_reloader.startSoundShader ("tb_reloader2", SND_CHANNEL_VOICE2 );
+		$reloader.move ( UP, 32 );
+
+		$can_clean2.time (.25);
+		$can_clean3.time (.25);
+		
+		//13
+		
+		$can_clean2.move ( UP, 32 );
+		$can_clean3.move ( UP, 32 );
+		
+		//14
+		$can_clean2.time (1);
+		$can_clean3.time (1);
+
+	//	swing machineclaw1 back into receive position
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '0 0 -48' );
+		
+		$sp_m2_rev.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_forearm.rotateOnce ( '-10 0 0' );
+		sys.wait (.5);
+		
+	//	get 2nd new filter	
+		//15
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_BODY );
+		
+		$machineclaw1_revolver.rotateOnce ( '0 -450 0');
+		sys.waitFor ($machineclaw1_revolver);
+
+		//steam
+		//16
+		
+		$machineclaw1_steam2.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+
+		$can_clean2.startSoundShader ("tb_whomp", SND_CHANNEL_VOICE );
+		
+		$can_clean2.moveTo ($canspot2);
+		sys.waitFor ($can_clean2);
+		
+		$can_clean2.bind ($machineclaw1_revolver);
+
+	//	machineclaw1 movement out of receive position
+
+		//17
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		$machineclaw1_upperarm.rotateOnce ( '0 0 38' );
+		sys.waitFor ($machineclaw1_upperarm);
+
+
+		//18
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		$machineclaw1_hand.rotateOnce ( '-142.5 -10 90' );
+		sys.waitFor ($machineclaw1_hand);
+
+		//19
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		$machineclaw1_upperarm.rotateOnce ( '0 0 -20' );
+		
+		$sp_m2_carrier.startSoundShader ("tb_m3_loop", SND_CHANNEL_VOICE );		// Start mover
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint1 );
+		sys.waitFor ($machineclaw1_upperarm);
+		
+		$sp_m2_carrier.startSoundShader ("tb_m4_stop", SND_CHANNEL_VOICE );				// Stop Mover
+		
+		//20
+		
+		$sp_m2_arm.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE );
+		$machineclaw1_forearm.rotateOnce ( '25 0 0' );
+		sys.wait (.5);
+		
+		//21
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		$machineclaw1_upperarm.rotateOnce ( '0 0 -10' );
+		
+	//	sys.waitFor ($machineclaw1_upperarm);
+
+	//	reload 3
+		$sp_m2_reloader.startSoundShader ("tb_reloader1", SND_CHANNEL_VOICE );
+		$reloader.move ( DOWN, 32 );
+		sys.waitFor ($reloader);
+		
+		//22
+		$sp_m2_reloader.startSoundShader ("tb_reloader2", SND_CHANNEL_VOICE2 );
+		$reloader.move ( UP, 32 );
+		$can_clean3.time (.25);
+		$can_clean3.move ( UP, 32 );
+		$can_clean3.time (1);
+
+	//	move machineclaw1 from filter pick up spot to filterpoint1
+		//23
+		
+		$sp_m2_carrier.startSoundShader ("tb_m3_loop", SND_CHANNEL_VOICE );		// Start mover
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint2 );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+
+		//24
+		
+		$machineclaw1_carrier_anchor.rotateOnce ( '0 90 0' );
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '0 -45 0' );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		//25
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_filterpoint1 );
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '-5 -45 -15' );
+		
+		$sp_m2_rev.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_forearm.rotateOnce ( '-15 0 0' );
+		
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		$sp_m2_carrier.startSoundShader ("tb_m4_stop", SND_CHANNEL_VOICE );				// Stop Mover
+		
+	//	filterchamber movement up and rotate 45 degrees for filter removal
+		//26
+		
+		$chamberpivot1.startSoundShader ("tb_arm3", SND_CHANNEL_VOICE2 );
+		$chamberpivot1.move ( UP, 42 );
+		sys.waitFor ($chamberpivot1);
+
+		//26a
+		
+		$filterchamber.startSoundShader ("tb_arm3", SND_CHANNEL_VOICE2 );
+		$filterchamber.rotateOnce ( '45 0 0');
+		sys.waitFor ($filterchamber);
+			
+	//	exchange filter 1
+		
+		//27
+		
+		$sp_m2_arm.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '30 0 0' );
+		
+		$sp_m2_rev.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_forearm.rotateOnce ( '-20 0 0' );
+
+	//	$machineclaw1_hand.rotateOnce ( '-5 0 0' );
+		$machineclaw1_hand.rotateOnce ( '-12 0 0' );
+
+		sys.waitFor ($machineclaw1_upperarm);
+		
+		//28
+		
+		$sp_m2_arm.startSoundShader ("tb_arm3", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '0 0 15' );
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		
+		$machineclaw1_revolver.rotateOnce ( '0 90 0');
+		
+		sys.waitFor ($machineclaw1_upperarm);
+
+		//get old filter
+		//29
+		
+		$can_dirty1.startSoundShader ("tb_whomp", SND_CHANNEL_VOICE );
+		$can_dirty1.moveTo ( $canspot3 );
+		
+		$machineclaw1_steam1.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+		
+		sys.waitFor ($can_dirty1);
+		$can_dirty1.unbind ();
+		$can_dirty1.bind ( $machineclaw1_revolver );
+
+		
+		sys.wait (.5);
+
+		//30
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		$machineclaw1_revolver.rotateOnce ( '0 180 0');
+		sys.waitFor ($machineclaw1_revolver);
+
+		//steam
+		sys.trigger ( $machineclaw1_steam1 );
+                sys.trigger ( $machineclaw1_steam2 );
+		$machineclaw1_steam2.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		
+		
+		//insert new filter
+		//31
+		
+		$can_clean1.startSoundShader ("tb_whompout", SND_CHANNEL_VOICE2 );
+		
+		$can_clean1.moveTo ( $chamber_filterspot1 );
+		sys.waitFor ($can_clean1);
+		$can_clean1.unbind ();
+		
+		$can_clean1.bind ( $chamber_filterspot1 );
+		
+	//	move machineclaw1 from filterpoint1 to filterpoint2
+		
+		//32
+		$sp_m2_carrier.startSoundShader ("tb_m3_loop", SND_CHANNEL_VOICE );		// Start mover
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_filterpoint2 );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		$sp_m2_carrier.startSoundShader ("tb_m4_stop", SND_CHANNEL_VOICE );				// Stop Mover
+
+	//	exchange filter 2
+		//33
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE2 );
+		$machineclaw1_revolver.rotateOnce ( '0 -270 0');
+		sys.waitFor ($machineclaw1_revolver);
+
+		//steam
+		
+		//34
+		
+		$machineclaw1_steam1.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+
+		//get old filter
+		$can_ditry2.startSoundShader ("tb_whomp", SND_CHANNEL_VOICE );
+		$can_dirty2.moveTo ( $canspot4 );
+		sys.waitFor ($can_dirty2);
+		$can_dirty2.unbind ();
+		$can_dirty2.bind ( $machineclaw1_revolver );
+
+		sys.wait (.5);
+		
+		//35
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		$machineclaw1_revolver.rotateOnce ( '0 180 0');
+		sys.waitFor ($machineclaw1_revolver);
+
+		//steam
+		$machineclaw1_steam2.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+		
+		//insert new filter
+		//36
+		
+		$can_clean2.startSoundShader ("tb_whompout", SND_CHANNEL_VOICE2 );
+		
+		$can_clean2.moveTo ( $chamber_filterspot2 );
+		sys.waitFor ($can_clean2);
+		$can_clean2.unbind ();
+		$can_clean2.bind ( $chamber_filterspot2 );
+		
+		
+		sys.wait (1);
+
+		//	move machineclaw1 from filterpoint2 to dump spot
+		//37
+		
+		$sp_m2_carrier.startSoundShader ("tb_m3_loop", SND_CHANNEL_VOICE );		// Start mover
+		
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint3 );
+		
+		$sp_m2_arm.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE );
+		
+		$machineclaw1_forearm.rotateOnce ( '40 0 0' );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		//38
+		
+		$machineclaw1_carrier_anchor.rotateOnce ( '0 90 0' );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		//39
+		
+		$machineclaw1_carrier.rotateOnce ( '0 -90 0' );
+		$machineclaw1_carrier_anchor.moveTo ( $machineclaw1_movepoint4 );
+		
+		$sp_m2_rev.startSoundShader ("tb_arm1", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_forearm.rotateOnce ( '-17 0 0' );
+		
+		$sp_m2_arm.startSoundShader ("tb_arm2", SND_CHANNEL_VOICE2 );
+		
+		$machineclaw1_upperarm.rotateOnce ( '-15 0 -18' );
+		sys.waitFor ($machineclaw1_carrier_anchor);
+		
+		$sp_m2_carrier.startSoundShader ("tb_m4_stop", SND_CHANNEL_VOICE );				// Stop Mover
+
+		//40
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		
+		$machineclaw1_hand.rotateOnce ( '39 16 0' );
+		sys.waitFor ($machineclaw1_hand);
+
+		//	dump old filters
+		//move cradles up,down and around
+		
+		//41
+		
+		$cradle4.startSoundShader ("al4_welder_armrot_1s", SND_CHANNEL_VOICE );
+		
+		$cradle4.rotateOnce ( '0 0 180' );
+		$cradle5.move ( DOWN, 32 );
+		$cradle6.move ( DOWN, 32 );
+		thread cradle_rotate ( $cradle1 );
+		$cradle2.move ( UP, 32 );
+		$cradle3.move ( UP, 32 );
+		sys.waitFor ($cradle2);
+		sys.killthread ( "map_enpro::cradle_rotate" );
+		
+		$can_dirty4.unbind ();
+		$can_dirty4.remove ();
+
+		//put dirty1 on cradle1
+		//42
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		$machineclaw1_revolver.rotateOnce ( '0 -90 0' );
+		sys.waitFor ($machineclaw1_revolver);
+
+		//steam
+		//42a
+		
+		$machineclaw1_steam1.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+		
+		$can_dirty1.startSoundShader ("tb_whomp", SND_CHANNEL_VOICE );
+		$can_dirty1.moveTo ( $cradlespot );
+		
+		sys.waitFor ($can_dirty1);
+		$can_dirty1.unbind ();
+		$can_dirty1.bind ( $cradle1 );
+
+		
+		//move cradles around again
+		//43
+		
+		$cradle5.startSoundShader ("al4_welder_armrot_1s", SND_CHANNEL_VOICE );
+		
+		$cradle5.rotateOnce ( '0 0 180' );
+		$cradle6.move ( DOWN, 32 );
+		$cradle1.move ( DOWN, 32 );
+		thread cradle_rotate ( $cradle2 );
+		$cradle3.move ( UP, 32 );
+		$cradle4.move ( UP, 32 );
+		sys.waitFor ($cradle3);
+		sys.killthread ( "map_enpro::cradle_rotate" );
+
+		$can_dirty5.unbind ();
+		$can_dirty5.remove ();
+
+		//put dirty2 on cradle2
+		//44
+		
+		$sp_m2_rev.startSoundShader ("rotor_1s", SND_CHANNEL_VOICE );
+		$machineclaw1_revolver.rotateOnce ( '0 630 0' );
+		sys.waitFor ($machineclaw1_revolver);
+			
+		//steam
+		//44a
+		
+		$machineclaw1_steam2.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+		sys.trigger ( $machineclaw1_steam1 );
+		sys.trigger ( $machineclaw1_steam2 );
+		
+		$can_dirty.startSoundShader ("tb_whomp", SND_CHANNEL_VOICE );
+		$can_dirty2.moveTo ( $cradlespot );
+		
+		sys.waitFor ($can_dirty2);
+		$can_dirty2.unbind ();
+		$can_dirty2.bind ( $cradle2 );
+
+		//move cradles around again - last time
+		
+		//45
+		
+		$cradle6.startSoundShader ("al4_welder_armrot_1s", SND_CHANNEL_VOICE );
+		
+		$cradle6.rotateOnce ( '0 0 180' );
+		$cradle1.move ( DOWN, 32 );
+		$cradle2.move ( DOWN, 32 );
+		thread cradle_rotate ( $cradle3 );
+		$cradle4.move ( UP, 32 );
+		$cradle5.move ( UP, 32 );
+		sys.waitFor ($cradle4);
+		sys.killthread ( "map_enpro::cradle_rotate" );
+
+		$can_dirty6.unbind ();
+		$can_dirty6.remove ();
+		
+
+	//	filterchamber rotate 45 degrees and  movement down back to original position
+		//46
+		
+		$filterchamber.startSoundShader ("tb_arm3", SND_CHANNEL_VOICE );
+		
+		$filterchamber.rotateOnce ( '-45 0 0');
+		sys.waitFor ($filterchamber);
+
+		//47
+		
+		$chamberpivot1.startSoundShader ("tb_arm3", SND_CHANNEL_VOICE );
+		
+		$chamberpivot1.move ( DOWN, 42 );
+		sys.waitFor ($chamberpivot1);
+                
+        sys.trigger ($tube_particle_3);
+        sys.trigger ($tube_particle_4);
+        sys.trigger ($tube_particle_5);
+        sys.trigger ($tube_particle_6);
+        sys.trigger ($plasmacontrol_light2);
+        sys.trigger ($plasmacontrol_light3);
+	}
+
+/////////////////////////////////////
+/////////// exit airlock door
+/////////////////////////////////////
+
+        void exit_open()
+
+        {       //disable the gui on door2		
+		$airlock_door2_gui.setGuiParm ( "gui_parm1" , 0);
+
+		//move the 4 locks to unlock position
+		$airlock_door2_top_lock.move ( UP, 15 );
+		
+		sys.trigger ($speaker_airlock_door2_bottom_lock);				// sound
+		
+		$airlock_door2_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock_door2_bottom_lock);
+
+		sys.trigger ($speaker_airlock_door2_left_lock);
+		$airlock_door2_left_lock.move ( NORTH, 16 );
+		sys.trigger ($speaker_airlock_door2_right_lock);
+		$airlock_door2_right_lock.move ( NORTH, 16 );
+		sys.waitFor ($airlock_door2_right_lock);
+
+		//open doors
+		sys.trigger ($speaker_airlock_door2_open);
+		
+		$airlock_door2_left.rotateOnce ( '0 45 0' );
+		$airlock_door2_right.rotateOnce ( '0 -45 0' );
+
+		sys.waitFor ($airlock_door2_right);
+		sys.waitFor ($airlock_door2_left);		
+        }
+                
+	void main()
+	{
+		cache_sounds();
+		setup_objects();
+		
+
+	}
+}

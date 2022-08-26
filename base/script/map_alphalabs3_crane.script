@@ -1,0 +1,510 @@
+namespace map_alphalabs3 {
+
+#define CRANE_NONE		0
+#define CRANE_FORWARD	1
+#define CRANE_BACK		2
+#define CRANE_LEFT		3
+#define CRANE_RIGHT		4
+#define CRANE_UP		5
+#define CRANE_DOWN		6
+#define CRANE_DROP		7
+#define CRANE_PICKUP	8
+#define CRANE_TRANSFER	9
+
+vector	crane_mins = '2072 -56 -184';
+vector	crane_maxs = '2352 296 -48';
+vector	crane_pos;
+
+float	command				= CRANE_NONE;
+float	bad_object_count	= 0;			// How many bad objects have we disposed of so far ?
+float	crane_have_object	= false;		// Is the crane currently holding an object ?
+float	crane_light_state	= false;
+
+entity	bindEntity;
+entity	laserEntity;
+entity	tracestopEntity;
+
+/***********************************************************************
+
+	Sounds
+
+***********************************************************************/
+
+void cache_crane_sounds() {
+	sys.cacheSoundShader( "al3_crane_fingers_open" );
+	sys.cacheSoundShader( "al3_crane_fingers_close" );
+	sys.cacheSoundShader( "al3_crane_loop" );
+	sys.cacheSoundShader( "al3_crane_end" );
+	sys.cacheSoundShader( "al3_crane_updown_loop" );
+	sys.cacheSoundShader( "al3_crane_updown_end" );
+}
+
+void sound_crane_fingers_open() {
+	$crane.startSoundShader ("al3_crane_fingers_open", SND_CHANNEL_VOICE2 );
+}
+
+void sound_crane_fingers_close() {
+	$crane.startSoundShader ("al3_crane_fingers_close", SND_CHANNEL_VOICE2 );
+}
+
+void sound_crane_loop() {
+	$crane_carrier.startSoundShader ("al3_crane_loop", SND_CHANNEL_VOICE2 );
+}
+
+void sound_crane_stop() {
+	$crane_carrier.startSoundShader ("al3_crane_end", SND_CHANNEL_VOICE2 );
+}
+
+void sound_crane_updown_loop() {
+	$crane_carrier.startSoundShader ("al3_crane_updown_loop", SND_CHANNEL_VOICE2 );
+}
+
+void sound_crane_updown_end() {
+	$crane_carrier.startSoundShader ("al3_crane_updown_end", SND_CHANNEL_VOICE2 );
+}
+
+/***********************************************************************
+
+	Crane
+
+***********************************************************************/
+
+/*
+============
+update_laser
+
+updates laser color and checks if we can pick up an object
+============
+*/
+void update_laser() {
+	vector begin = $crane_trace_start.getWorldOrigin();
+	vector send = $crane_stoptrace_end.getWorldOrigin();
+	vector lend = $laser_trace_end.getWorldOrigin();
+
+	sys.trace( begin, send, '0 0 0', '0 0 0', MASK_SOLID|CONTENTS_RENDERMODEL, $crane_hang );
+	tracestopEntity = sys.getTraceEntity();
+	
+	sys.trace( begin, lend, '0 0 0', '0 0 0', MASK_SOLID|CONTENTS_RENDERMODEL, $crane_hang );
+	laserEntity = sys.getTraceEntity();
+	if ( !( !laserEntity ) && ( laserEntity != $world ) ) {
+		// can't move down further once the laser detects an object
+		if ( !( !tracestopEntity ) && ( tracestopEntity != $world ) && ( command == CRANE_DOWN ) ) {
+			command = CRANE_NONE;
+		}
+
+		if ( !crane_light_state ) {
+			$crane_light.setColor( .9, .25, .25 );
+			$cg_right.setGuiParm ( "gui_parm1" , 1);
+			$cg_left.setGuiParm ( "gui_parm1" , 1);
+
+			sys.trigger( $crane_speaker );
+			crane_light_state = true;
+		}
+	
+	} else if ( crane_light_state ) {
+		$crane_light.setColor( .2, .8, .9 );
+		$cg_right.setGuiParm ( "gui_parm1" , 0);
+		$cg_left.setGuiParm ( "gui_parm1" , 0);
+
+		sys.trigger( $crane_speaker );
+		crane_light_state = false;
+	}
+}
+
+/*
+============
+crane_move
+============
+*/
+void crane_move( entity part, float dir, float amount, float stopOnCommand ) {
+	float cmd;
+
+	if ( amount < 0.01 ) {
+		return;
+	}
+
+	if ( ( dir == UP ) || ( dir == DOWN ) ) {
+		sound_crane_updown_loop();
+	} else {
+		sound_crane_loop();
+	}
+	
+	part.move( dir, amount );
+
+	if ( !stopOnCommand ) {
+		sys.waitFor( part );
+	} else {
+		cmd = command;
+		while( command == cmd ) {
+			sys.waitFrame();
+			update_laser();
+			if ( !part.isMoving() ) {
+				break;
+			}
+		}
+		part.stopMoving();
+	}
+
+	if ( ( dir == UP ) || ( dir == DOWN ) ) {
+		sound_crane_updown_end();
+	} else {
+		sound_crane_stop();
+	}
+
+	crane_pos = $crane_position.getWorldOrigin();
+}
+
+/*
+============
+crane_cmd_drop
+
+unbind and open the claw
+============
+*/
+void crane_cmd_drop() {
+	sound_crane_fingers_open();
+	
+	$crane.setFingerAngle( -60 );
+
+	bindEntity.unbind();
+	bindEntity = $null_entity;
+	crane_have_object = false;
+
+	update_laser();
+
+	$main_control_gui.setGuiParm ( "gui_parm1" , 0);
+}
+
+/*
+============
+crane_pickup
+
+close the claw and bind
+============
+*/
+void crane_cmd_pickup() {
+	vector begin, end;
+	string bindJoint, bindBody;
+
+	if ( !( !bindEntity ) ) {
+		return;
+	}
+
+	crane_have_object = false;
+	bindJoint = bindBody = "";
+
+	sound_crane_fingers_close();
+	
+	$crane.setFingerAngle( 20 );
+	sys.wait( 2.0f );
+	$crane.stopFingers();
+
+	begin = $crane_trace_start.getWorldOrigin();
+	end = $crane_trace_end.getWorldOrigin();
+
+	sys.trace( begin, end, '0 0 0', '0 0 0', MASK_SOLID|CONTENTS_RENDERMODEL, $crane_hang );
+	bindEntity = sys.getTraceEntity();
+	if ( !( !bindEntity ) && ( bindEntity != $world ) && ( bindEntity != $crane_hang ) && ( bindEntity != $crane ) ) {
+		bindJoint = sys.getTraceJoint();
+
+		if ( bindJoint ) {
+			bindBody = sys.getTraceBody();
+			if ( bindBody ) {
+				bindEntity.setKey( "bindConstraint bind1", "fixed " + bindBody + " " + bindJoint );
+				bindEntity.bindToJoint( $crane, "crane", 1 );
+				crane_have_object = true;
+			}
+		} else {
+			bindEntity.bindToJoint( $crane, "crane", 1 );
+			crane_have_object = true;
+		}
+	}
+
+	// automatically move up
+	crane_move( $crane_hang, UP, crane_maxs_z - crane_pos_z, false );
+
+	if ( !crane_have_object ) {
+		sound_crane_fingers_open();
+		$crane.setFingerAngle( -60 );
+		bindEntity = $null_entity;
+	} else {
+		$main_control_gui.setGuiParm ( "gui_parm1" , 1);
+	}
+}
+
+/*
+============
+kill_lastobject
+============
+*/
+void kill_lastobject( entity lastobject ) {
+	$main_control_gui.setGuiParm( "gui_parm1" , 1 );
+
+	//sys.print( "kill_lastobject: " + lastobject.getName() + "\n" );
+
+	if ( ( lastobject != $bad_object_1 ) && ( lastobject != $bad_object_2 ) ) {
+		// deleting the player != smart
+		if ( lastobject.getKey( "spawnclass" ) != "idPlayer" ) {
+			lastobject.remove();
+		}
+		return;
+	}
+
+	lastobject.remove();
+	bad_object_count++;
+
+	if ( bad_object_count == 1 ) {
+
+		thread crossFadeEnt ($puke_light, '0 0.52 0.07', '0 0.26 0.035', 5.0);
+		sys.wait (5);
+		sys.trigger ($cranewarning_2);
+	
+	} else if ( bad_object_count == 2 ) {
+
+		sys.trigger ($crane_fog);
+		thread crossFadeEnt ($puke_light, '0 0.26 0.035', '0 0 0', 5.0);
+		sys.wait (5);
+		sys.trigger ($cranewarning_3);
+
+		// Get rid of the trigger_once for the computer voice, if they
+		// haven't triggered it yet.
+		$toxin_trigger.remove();
+		
+		sys.trigger ($disposal_door);
+		sys.trigger ($disposal_setshaderparm);
+		sys.trigger ($cgdoors_setshaderparm);
+		sys.trigger ($clear_colorchange);
+
+		$disposal_outer_gui.setGuiParm( "gui_parm1", 1 );
+		$disposal_inner_gui.setGuiParm( "gui_parm1", 1 );
+
+		$dd_light1.setColor (0.0, 0.5, 0.0);
+		$dd_light2.setColor (0.0, 0.5, 0.0);
+
+		$dd_green_dec.show ();
+		$dd_red_dec.hide ();
+
+		sys.trigger ($trigger_relay_262);
+		sys.wait (5);
+		sys.trigger ($alpha3_sarge1);
+		sys.wait (7);
+		sys.trigger ($trigger_relay_264);
+	}
+}
+
+/*
+============
+crane_cmd_transfer
+
+move crane to the drop off point
+only if it has an object bound 
+drop the bound object
+
+eventually this will send the object to the new area
+============
+*/
+void crane_cmd_transfer() {
+	float move_x, move_y, move_z;
+	float xdir, ydir, zdir;
+	float xrdir, yrdir, zrdir;
+	vector drop_point;
+
+	if ( !crane_have_object ) {
+		return;
+	}
+
+	$crane_carrier.speed( 40 );
+	$crane_top.speed( 40 );
+
+	//
+	// How are we going to get to the receptible ?
+	//
+	drop_point = $crane_drop.getWorldOrigin();
+
+	// Calculate X movement
+	if ( crane_pos_x >= drop_point_x ) {
+		move_x = crane_pos_x - drop_point_x;
+		xdir = WEST;
+		xrdir = EAST;
+	} else {
+		move_x = drop_point_x - crane_pos_x;
+		xdir = EAST;
+		xrdir = WEST;
+	}
+
+	// Calculate Y movement
+	if ( crane_pos_y >= drop_point_y ) {
+		move_y = crane_pos_y - drop_point_y;
+		ydir = SOUTH;
+		yrdir = NORTH;
+	} else {
+		move_y = drop_point_y - crane_pos_y; 
+		ydir = NORTH;
+		yrdir = SOUTH;
+	}
+
+	sound_crane_loop();
+	$crane_carrier.move( ydir, move_y );
+	sys.waitFor( $crane_carrier );
+	sound_crane_stop();
+	
+	sound_crane_loop();
+	$crane_top.move( xdir, move_x );
+	sys.waitFor( $crane_top );
+	sound_crane_stop();
+
+	sys.wait( 1 );
+	crane_cmd_drop();
+
+	sys.wait( 0.5 );
+
+	sound_crane_loop();
+	$crane_top.move( xrdir, move_x );
+	sys.waitFor( $crane_top );
+	sound_crane_stop();
+
+	sound_crane_loop();
+	$crane_carrier.move( yrdir, move_y );
+	sys.waitFor( $crane_carrier );
+	sound_crane_stop();
+
+	$crane_top.speed( 30 );
+	$crane_carrier.speed( 30 );
+}
+
+/*
+============
+crane_update_loop
+============
+*/
+void crane_update_loop() {
+	while( 1 ) {
+		command = CRANE_NONE;
+		while( command == CRANE_NONE ) {
+			update_laser();
+			sys.waitFrame();
+		}
+
+		if ( command == CRANE_FORWARD ) {
+			if ( crane_pos_x > crane_mins_x ) {
+				crane_move( $crane_top, WEST, crane_pos_x - crane_mins_x, true );
+			}
+
+		} else if ( command == CRANE_BACK ) {
+			if ( crane_pos_x < crane_maxs_x ) {
+				crane_move( $crane_top, EAST, crane_maxs_x - crane_pos_x, true );
+			}
+
+		} else if ( command == CRANE_LEFT ) {
+			if ( crane_pos_y > crane_mins_y ) {
+				crane_move( $crane_carrier, SOUTH, crane_pos_y - crane_mins_y, true );
+			}
+
+		} else if ( command == CRANE_RIGHT ) {
+			if ( crane_pos_y < crane_maxs_y ) {
+				crane_move( $crane_carrier, NORTH, crane_maxs_y - crane_pos_y, true );
+			}
+		} else if ( command == CRANE_UP ) {
+			if ( crane_pos_z < crane_maxs_y ) {
+				crane_move( $crane_hang, UP, crane_maxs_z - crane_pos_z, true );
+			}
+
+		} else if ( command == CRANE_DOWN ) {
+			if ( ( crane_pos_z > crane_mins_z ) && !bindEntity && ( !tracestopEntity || ( tracestopEntity == $world ) ) ) {
+				crane_move( $crane_hang, DOWN, crane_pos_z - crane_mins_z, true );
+			}
+		} else if ( command == CRANE_DROP ) {
+			crane_cmd_drop();
+
+		} else if ( command == CRANE_PICKUP ) {
+			crane_cmd_pickup();
+
+		} else if ( command == CRANE_TRANSFER ) {
+			crane_cmd_transfer();
+		}
+	}
+}
+
+/***********************************************************************
+
+	User interface
+
+***********************************************************************/
+
+void crane_forward() {
+	command = CRANE_FORWARD;
+}
+
+void crane_back() {
+	command = CRANE_BACK;
+}
+
+void crane_left() {
+	command = CRANE_LEFT;
+}
+
+void crane_right() {
+	command = CRANE_RIGHT;
+}
+
+void crane_up() {
+	command = CRANE_UP;
+}
+
+void crane_down() {
+	command = CRANE_DOWN;
+}
+
+void crane_stop() {
+	command = CRANE_NONE;
+}
+
+void crane_drop() {
+	command = CRANE_DROP;
+}
+
+void crane_pickup() {
+	command = CRANE_PICKUP;
+}
+
+void crane_transfer() {
+	command = CRANE_TRANSFER;
+}
+
+/***********************************************************************
+
+	initialization
+
+***********************************************************************/
+
+/*
+============
+init_crane
+============
+*/
+void init_crane() {
+	cache_crane_sounds();
+
+	crane_pos = $crane_position.getWorldOrigin();
+
+	$crane_light.bindToJoint( $crane, "crane", 1 );
+
+	// crane_position
+	$crane_trace_start.bindToJoint( $crane, "crane", 1 );
+	$crane_trace_end.bindToJoint( $crane, "crane", 1 );
+	$crane_stoptrace_end.bindToJoint( $crane, "crane", 1 );
+	$laser_trace_end.bindToJoint( $crane, "crane", 1 );
+
+	$crane_carrier.speed( 30 );
+	$crane_top.speed( 30 );
+	$crane_hang.speed( 45 );
+	$crane_top.bind( $crane_carrier );
+	$crane_hang.bind( $crane_top );
+
+	$crane.bind( $crane_hang );
+	$crane.setFingerAngle( -60 );
+
+	thread crane_update_loop();
+}
+
+/* namespace map_alphalabs3 */ }

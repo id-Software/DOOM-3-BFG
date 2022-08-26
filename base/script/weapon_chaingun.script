@@ -1,0 +1,234 @@
+/***********************************************************************
+
+weapon_chaingun.script
+
+***********************************************************************/
+
+#define CHAINGUN_FIRE_SHOTS_PER_SEC	8
+#define CHAINGUN_FIRE_SKIPFRAMES	( GAME_FPS / CHAINGUN_FIRE_SHOTS_PER_SEC )
+#define CHAINGUN_LOWAMMO			10
+#define CHAINGUN_NUMPROJECTILES		1
+#define	CHAINGUN_BARREL_SPEED		480
+#define	CHAINGUN_BARREL_ACCEL_TIME	0.4
+#define CHAINGUN_BARREL_DECCEL_TIME	1.0
+#define	CHAINGUN_BARREL_ACCEL		( CHAINGUN_BARREL_SPEED / CHAINGUN_BARREL_ACCEL_TIME )
+#define CHAINGUN_BARREL_DECCEL		( CHAINGUN_BARREL_SPEED / CHAINGUN_BARREL_DECCEL_TIME )
+
+// blend times
+#define CHAINGUN_IDLE_TO_LOWER		4
+#define CHAINGUN_IDLE_TO_FIRE		0
+#define	CHAINGUN_IDLE_TO_RELOAD		4
+#define CHAINGUN_RAISE_TO_IDLE		0
+#define CHAINGUN_WINDDOWN_TO_IDLE	0
+#define CHAINGUN_RELOAD_TO_IDLE		0
+
+object weapon_chaingun : weapon_base {
+	entity		world_model;
+	float		world_barrel_joint;
+	float		barrel_joint;
+	float		barrel_angle;
+	float		current_rate;
+	float		start_rate;
+	float		end_rate;
+	float		spin_start;
+	float		spin_end;
+	float		spread;
+	
+	void		init();
+	
+	void		UpdateBarrel();
+	void		SpinUp();
+	void		SpinDown();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		Reload();
+	void		ExitCinematic();
+};
+
+void weapon_chaingun::init() {
+	world_model		= getWorldModel();
+	world_barrel_joint = world_model.getJointHandle( "toob" );
+	barrel_joint	= getJointHandle( "spinner" );
+	barrel_angle	= 0;
+	current_rate	= 0;
+	start_rate		= 0;
+	end_rate		= 0;
+	spin_start		= 0;
+	spin_end		= 0;
+	spread			= getFloatKey( "spread" );
+
+	weaponState( "Raise", 0 );
+}
+
+void weapon_chaingun::destroy() {
+	stopSound( SND_CHANNEL_BODY3, false );
+}
+
+void weapon_chaingun::UpdateBarrel() {
+	float currentTime;
+	float t;
+	vector ang;
+	
+	currentTime = sys.getTime();
+	if ( currentTime < spin_end ) {
+		t = ( currentTime - spin_start ) / ( spin_end - spin_start );
+		current_rate = start_rate + t * ( end_rate - start_rate );
+	} else {
+		current_rate = end_rate;
+	}
+	
+	if ( current_rate ) {
+		barrel_angle = barrel_angle + current_rate * GAME_FRAMETIME;
+		
+		ang_x = 0;
+		ang_y = 0;
+		ang_z = barrel_angle;	
+		setJointAngle( barrel_joint, JOINTMOD_LOCAL, ang );
+
+		ang_y = barrel_angle;
+		ang_z = 0;
+		world_model.setJointAngle( world_barrel_joint, JOINTMOD_LOCAL, ang );	
+	}
+}
+
+void weapon_chaingun::SpinUp() {
+	start_rate = current_rate;
+	end_rate = CHAINGUN_BARREL_SPEED;
+	spin_start = sys.getTime();
+	spin_end = spin_start + ( end_rate - current_rate ) / CHAINGUN_BARREL_ACCEL;
+	startSound( "snd_windup", SND_CHANNEL_BODY3, false );
+}
+
+void weapon_chaingun::SpinDown() {
+	start_rate = current_rate;
+	end_rate = 0;
+	spin_start = sys.getTime();
+	spin_end = spin_start + ( current_rate - end_rate ) / CHAINGUN_BARREL_DECCEL;
+	startSound( "snd_winddown", SND_CHANNEL_BODY3, false );
+}
+
+void weapon_chaingun::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, CHAINGUN_RAISE_TO_IDLE ) );
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	weaponState( "Idle", CHAINGUN_RAISE_TO_IDLE );
+}
+
+void weapon_chaingun::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	
+	while( !animDone( ANIMCHANNEL_ALL, 0 ) ) {
+		UpdateBarrel();
+		waitFrame();
+	}
+	
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_chaingun::Idle() {
+	float ammoClip;
+	float avail;
+	float clip_size;
+	
+	clip_size = clipSize();	
+	
+	
+	if( !( WEAPON_ATTACK || WEAPON_NETFIRING ) ) {
+		SpinDown();
+	} 
+
+	if ( !ammoInClip() ) {
+		weaponOutOfAmmo();
+	} else {
+		weaponReady();
+	}
+
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", CHAINGUN_IDLE_TO_LOWER );
+		}
+		ammoClip = ammoInClip();
+		if ( WEAPON_ATTACK ) {
+			if ( ammoClip > 0 ) {
+				weaponState( "Fire", CHAINGUN_IDLE_TO_FIRE );
+			} else if ( ammoAvailable() > 0 ) {
+				if ( autoReload() ) {
+					netReload();
+					weaponState( "Reload", CHAINGUN_IDLE_TO_RELOAD );
+				}
+			}
+		}
+		if ( WEAPON_RELOAD && ( ammoAvailable() > ammoClip ) && ( ammoClip < clip_size ) ) {
+			netReload();
+			weaponState( "Reload", CHAINGUN_IDLE_TO_RELOAD );
+		}
+		if ( WEAPON_NETRELOAD ) {
+			WEAPON_NETRELOAD = false;
+			weaponState( "Reload", CHAINGUN_IDLE_TO_RELOAD );
+		}
+		UpdateBarrel();
+		waitFrame();
+	}
+}
+
+void weapon_chaingun::Fire() {
+	float ammoClip;
+	float currentTime;
+	float skip;
+	SpinUp();
+	ammoClip = ammoInClip();
+	while( ( current_rate < end_rate ) && WEAPON_ATTACK && !WEAPON_RELOAD && ( ammoClip > 0 ) ) {
+		UpdateBarrel();
+		waitFrame();
+		ammoClip = ammoInClip();
+	}
+		
+	startSound( "snd_spin", SND_CHANNEL_BODY3, false );
+	ammoClip = ammoInClip();
+	while( WEAPON_ATTACK && !WEAPON_RELOAD && ( ammoClip > 0 ) ) {
+		launchProjectiles( CHAINGUN_NUMPROJECTILES, spread, 0, 1.0, 1.0 );
+		startSound( "snd_fire", SND_CHANNEL_WEAPON, false );
+		ammoClip = ammoInClip();
+		if ( ammoClip == CHAINGUN_LOWAMMO ) {
+			startSound( "snd_lowammo", SND_CHANNEL_ITEM, false );
+		}
+
+		// skip frames
+		for( skip = 0; skip < CHAINGUN_FIRE_SKIPFRAMES; skip++ ) {
+			UpdateBarrel();
+			waitFrame();
+		}
+	}
+
+	SpinDown();
+	weaponState( "Idle", CHAINGUN_WINDDOWN_TO_IDLE );
+}
+
+void weapon_chaingun::Reload() {
+	weaponReloading();
+	playAnim( ANIMCHANNEL_ALL, "reload" );
+	while( !animDone( ANIMCHANNEL_ALL, CHAINGUN_RELOAD_TO_IDLE ) ) {
+		UpdateBarrel();
+		waitFrame();
+	}
+	addToClip( clipSize() );
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	weaponState( "Idle", CHAINGUN_RELOAD_TO_IDLE );
+}
+
+void weapon_chaingun::ExitCinematic() {
+	current_rate	= 0;
+	start_rate		= 0;
+	end_rate		= 0;
+	spin_start		= 0;
+	spin_end		= 0;
+
+	weaponState( "Idle", 0 );
+}

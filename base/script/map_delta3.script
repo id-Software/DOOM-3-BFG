@@ -1,0 +1,1095 @@
+namespace map_delta3 
+{
+	
+	// Sound precache stuff for script calls.
+	
+	void precache() {
+		//sys.cacheSoundShader ("m5_start");
+		//sys.cacheSoundShader ("m5_loop");
+		//sys.cacheSoundShader ("m5_stop");
+		sys.cacheSoundShader ("dc3_gui_panel_1");
+		sys.cacheSoundShader ("dc3_gui_panel_2");
+	}
+
+
+	void bind_objects()
+	{
+		$mister1.bind ($mister1_anchor);
+		$mister2.bind ($mister2_anchor);
+		$mister3.bind ($mister3_anchor);
+		$mister4.bind ($mister4_anchor);
+		$mister5.bind ($mister5_anchor);
+		$mister6.bind ($mister6_anchor);
+/*
+		$mister1_anchor.accelTime (0.25);
+		$mister1_anchor.decelTime (0.25);
+		$mister2_anchor.accelTime (0.25);
+		$mister2_anchor.decelTime (0.25);
+		$mister3_anchor.accelTime (0.25);
+		$mister3_anchor.decelTime (0.25);
+		$mister4_anchor.accelTime (0.25);
+		$mister4_anchor.decelTime (0.25);
+		$mister5_anchor.accelTime (0.25);
+		$mister5_anchor.decelTime (0.25);
+		$mister6_anchor.accelTime (0.25);
+		$mister6_anchor.decelTime (0.25);
+*/
+	}
+
+
+	void init_world()
+	{
+		float	i;
+		entity	ent1, ent2;
+
+		for ( i = 1; i <= 9; i++ )
+		{
+			ent1 = sys.getEntity ("lred_0" + i);
+			ent1.Off();
+		}
+
+		for ( i = 1; i <= 6; i++ )
+		{
+			ent1 = sys.getEntity ("lleft_0" + i);
+			ent2 = sys.getEntity ("lright_0" + i);
+			ent1.Off();
+			ent2.Off();
+		}
+		
+		$teleporter1_controlpanel_gui.hide();
+		$teleporter2_controlpanel_gui.hide();
+		
+		$teleport1_controlpanelarms.time (1.0);
+		$teleport1_controlpanelarms.accelTime (.5 );
+		$teleport1_controlpanelarms.decelTime (.5 );
+		$teleport1_controlpanel.time (.75);
+		$teleport1_controlpanel.accelTime (.25 );
+		$teleport1_controlpanel.decelTime (.5 );
+		$teleport1_shoulder.time (2.0);
+		$teleport1_shoulder.accelTime (1.0 );
+		$teleport1_shoulder.decelTime (1.0 );
+		$teleport1_arm1.time (2.0);
+		$teleport1_arm1.accelTime (1.25 );
+		$teleport1_arm1.decelTime (.75 );
+		$teleport1_arm2.time (2.0);
+		$teleport1_arm2.accelTime (1.25 );
+		$teleport1_arm2.decelTime (.75 );
+
+		$teleport2_controlpanelarms.time (1.0);
+		$teleport2_controlpanelarms.accelTime (.5 );
+		$teleport2_controlpanelarms.decelTime (.5 );
+		$teleport2_controlpanel.time (.75);
+		$teleport2_controlpanel.accelTime (.25 );
+		$teleport2_controlpanel.decelTime (.5 );
+		$teleport2_shoulder.time (2.0);
+		$teleport2_shoulder.accelTime (1.0 );
+		$teleport2_shoulder.decelTime (1.0 );
+		$teleport2_arm1.time (2.0);
+		$teleport2_arm1.accelTime (1.25 );
+		$teleport2_arm1.decelTime (.75 );
+		$teleport2_arm2.time (2.0);
+		$teleport2_arm2.accelTime (1.25 );
+		$teleport2_arm2.decelTime (.75 );
+		
+		$teleport3_controlpanelarms.time (1.0);
+		$teleport3_controlpanelarms.accelTime (.5 );
+		$teleport3_controlpanelarms.decelTime (.5 );
+		$teleport3_controlpanel.time (.75);
+		$teleport3_controlpanel.accelTime (.25 );
+		$teleport3_controlpanel.decelTime (.5 );
+		$teleport3_shoulder.time (2.0);
+		$teleport3_shoulder.accelTime (1.0 );
+		$teleport3_shoulder.decelTime (1.0 );
+		$teleport3_arm1.time (2.0);
+		$teleport3_arm1.accelTime (1.25 );
+		$teleport3_arm1.decelTime (.75 );
+		$teleport3_arm2.time (2.0);
+		$teleport3_arm2.accelTime (1.25 );
+		$teleport3_arm2.decelTime (.75 );
+
+	}
+	
+	//*************************
+	// Teleporter 1
+	//*************************
+	void teleport1_machine_ready()
+	{
+		sys.wait (.5);
+		//trigger tp sounds
+		sys.trigger ($teleport1_machine_poweron);
+		sys.trigger ($teleport1_machine_idle_delay);
+		//turn on electrical lightning effect
+		sys.trigger ($teleport1_lightningfx);
+		sys.wait (1.95);
+		$teleport1_shoulder.rotateOnce ('0 0 -35');
+		//trigger sound for arms
+		sys.trigger ($teleport1_shoulder_operate);
+		sys.wait(.75);
+		$teleport1_arm1.rotateOnce ('0 -30 0');
+		$teleport1_arm2.rotateOnce ('0 30 0');
+		sys.waitFor ($teleport1_arm2);
+		sys.wait (.5);
+		sys.trigger ($select_speaker);
+		$klaxxon_speaker1.setKey ("klaxxon1_status", "0");
+	}
+		
+	void teleport1_klaxxon_on()
+	{
+		if ($klaxxon_speaker1.getFloatKey ("klaxxon1_status") == 0) 
+		{
+			sys.wait (.25);
+			$klaxxon1_light1.setColor(0.77,0.49,0.00);
+			$klaxxon1_light2.setColor(0.77,0.49,0.00);
+			$klaxxon1_light_base.setColor(0.77,0.49,0.00);
+			$klaxxon1_light_base.rotate ('0 360 0');
+			sys.wait ( .5 );
+			sys.trigger ($klaxxon_speaker1);
+			$klaxxon_speaker1.setKey ("klaxxon1_status", "1");
+			
+			//trigger sounds for fx
+			sys.trigger ($t1_teleporterfx_startup);
+			sys.wait ( 1.5 );
+			sys.trigger ($t1_teleporterfx_loop);
+			
+			//turn on blinking blue tp light
+			sys.trigger ($teleport1_blightblink);
+			sys.wait (.25 );
+			//turn on floor and arm fx
+			sys.trigger ($teleport1_arm1_fx);
+			sys.trigger ($teleport1_arm2_fx);
+			sys.wait ( .5 );
+			sys.trigger ($teleport1_warpfx);
+			sys.trigger ($teleport1_floorfx);
+		}
+	}
+	
+	void teleport1_klaxxon_off()
+	{
+		if ($klaxxon_speaker1.getFloatKey ("klaxxon1_status") == 1) 
+		{
+			//reset teleport trigger
+			$teleport_trigger1.setGuiParm ( "gui_parm1" , 0);
+			//turn off blinking blue tp light
+			sys.trigger ($teleport1_blightblink);
+			
+			//trigger off loop sound for fx
+			sys.trigger ($t1_teleporterfx_loop);
+			
+			//turn off floor and arm fx
+			sys.trigger ($teleport1_arm1_fx);
+			sys.trigger ($teleport1_arm2_fx);
+			sys.trigger ($teleport1_warpfx);
+			sys.trigger ($teleport1_floorfx);
+			//turn of klaxxon speaker
+			sys.trigger ($klaxxon_speaker1);
+			//fade klaxxon light off; player can see it winding down after tp
+			thread crossFadeEnt ($klaxxon1_light1, $klaxxon1_light1.getColor(), '0 0 0', 6.0);
+			thread crossFadeEnt ($klaxxon1_light2, $klaxxon1_light2.getColor(), '0 0 0', 6.0);
+			thread crossFadeEnt ($klaxxon1_light_base, $klaxxon1_light_base.getColor(), '0 0 0', 6.0);
+			sys.wait ( 6 );
+			//stop klaxxon rotation
+			$klaxxon1_light_base.rotate ('0 0 0');
+			//reset klaxxon1 light and speaker
+			$klaxxon_speaker1.setKey ("klaxxon1_status", "0");
+			//trigger gui to make useable after teleportation
+			sys.trigger ($teleporter1_controlpanel_gui);
+		}
+	}
+	
+	// NOTE: All teleport destinations work via a specifically named trigger_relay entity in the gui
+	void teleport1_destination1()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad1select_speaker);
+		
+		thread crossFadeEnt ($destination1_floorlight1, $destination1_floorlight1.getColor(), '1 1 1', 2.0);
+		thread crossFadeEnt ($destination1_floorlight2, $destination1_floorlight2.getColor(), '1 1 1', 2.0);
+		sys.trigger ($dest1_fadein_1);
+		sys.trigger($dest1_redlight_on);
+		
+		// turn off pad 2
+		$teleport1_pad2_rotate.rotateOnce ('0 0 0');
+		thread crossFadeEnt ($teleport1_pad1_light1a, $teleport1_pad1_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport1_pad1_light1b, $teleport1_pad1_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport1_pad1_light2a, $teleport1_pad1_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport1_pad1_light2b, $teleport1_pad1_light2b.getColor(), '0 0 0', 2.0);
+		
+		//$destination2_redlight_base.rotateOnce ('0 0 0');
+		//$destination2_redlight_flare.setColor (0,0,0);
+		//$destination2_redlight.setColor (0,0,0);
+	}
+	
+	void teleport1_destination2()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad2select_speaker);
+		$teleport1_pad2_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport1_pad1_light1a, $teleport1_pad1_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport1_pad1_light1b, $teleport1_pad1_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport1_pad1_light2a, $teleport1_pad1_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport1_pad1_light2b, $teleport1_pad1_light2b.getColor(), '.5 0 0', 2.0);
+		
+		//$destination2_redlight_base.rotate ('0 360 0');
+		//$destination2_redlight_flare.setColor (1,0,0);
+		//$destination2_redlight.setColor (1,0,0);
+		
+		// turn off pad 1
+		sys.trigger($dest1_redlight_off);
+		sys.trigger ($dest1_fadeout_1);
+		thread crossFadeEnt ($destination1_floorlight1, $destination1_floorlight1.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($destination1_floorlight2, $destination1_floorlight2.getColor(), '0 0 0', 2.0);
+		
+	}
+	
+	//*************************
+	// Teleporter 2
+	//*************************
+	void teleport2_machine_ready()
+	{
+		sys.wait (.25);
+		sys.trigger ($teleport2_machine_poweron);
+		sys.trigger ($teleport2_machine_idle_delay);
+		//turn on electrical lightning effect
+		sys.trigger ($teleport2_lightningfx);
+		sys.wait (1.95);
+		$teleport2_shoulder.rotateOnce ('0 0 -35');
+		//trigger sound for arms
+		sys.trigger($teleport2_shoulder_operate);
+		sys.wait(.75);
+		$teleport2_arm1.rotateOnce ('0 -30 0');
+		$teleport2_arm2.rotateOnce ('0 30 0');
+		sys.waitFor ($teleport2_arm2);
+		sys.wait (.5);
+		sys.trigger ($select_speaker2);
+		$klaxxon_speaker2.setKey ("klaxxon2_status", "0");
+	}
+	
+	void teleport2_klaxxon_on()
+	{
+		if ($klaxxon_speaker2.getFloatKey ("klaxxon2_status") == 0) 
+		{
+			sys.wait (.25);
+			$klaxxon2_light1.setColor(0.77,0.49,0.00);
+			$klaxxon2_light2.setColor(0.77,0.49,0.00);
+			$klaxxon2_light_base.setColor(0.77,0.49,0.00);
+			$klaxxon2_light_base.rotate ('0 360 0');
+			sys.wait ( .5 );
+			sys.trigger ($klaxxon_speaker2);
+			$klaxxon_speaker2.setKey ("klaxxon2_status", "1");
+			
+			//trigger sounds for fx
+			sys.trigger ($t2_teleporterfx_startup);
+			sys.wait ( 1.5 );
+			sys.trigger ($t2_teleporterfx_loop);
+			
+			//turn on blinking blue tp light
+			sys.trigger ($teleport2_blightblink);
+			sys.wait ( .25 );
+			//turn on floor and arm fx
+			sys.trigger ($teleport2_arm1_fx);
+			sys.trigger ($teleport2_arm2_fx);
+			sys.wait ( .5 );
+			sys.trigger ($teleport2_warpfx);
+			sys.trigger ($teleport2_floorfx);
+		}
+	}
+	
+	void teleport2_klaxxon_off()
+	{
+		if ($klaxxon_speaker2.getFloatKey ("klaxxon2_status") == 1) 
+		{
+			//reset teleport trigger
+			$teleport_trigger2.setGuiParm ( "gui_parm1" , 0);
+			//turn off blinking blue tp light
+			sys.trigger ($teleport2_blightblink);
+			
+			//trigger off loop sound for fx
+			sys.trigger ($t2_teleporterfx_loop);
+			
+			//turn off floor and arm fx
+			sys.trigger ($teleport2_arm1_fx);
+			sys.trigger ($teleport2_arm2_fx);
+			sys.trigger ($teleport2_warpfx);
+			sys.trigger ($teleport2_floorfx);
+			
+			sys.trigger ($klaxxon_speaker2);
+			//fade klaxxon off; player can see it winding down after tp
+			thread crossFadeEnt ($klaxxon2_light1, $klaxxon2_light1.getColor(), '0 0 0', 6.0);
+			thread crossFadeEnt ($klaxxon2_light2, $klaxxon2_light2.getColor(), '0 0 0', 6.0);
+			thread crossFadeEnt ($klaxxon2_light_base, $klaxxon2_light_base.getColor(), '0 0 0', 6.0);
+			sys.wait ( 6 );
+			//stop klaxxon rotation
+			$klaxxon2_light_base.rotate ('0 0 0');
+			//reset klaxxon light and speaker
+			$klaxxon_speaker2.setKey ("klaxxon2_status", "0");
+			//trigger gui to make useable after teleportation
+			sys.trigger ($teleporter2_controlpanel_gui);
+		}
+	}
+	
+	void teleport2_destination1()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad1select_speaker2);
+		thread crossFadeEnt ($tp2_dest1_floorlight1, $tp2_dest1_floorlight1.getColor(), '1 1 1', 2.0);
+		thread crossFadeEnt ($tp2_dest1_floorlight2, $tp2_dest1_floorlight2.getColor(), '1 1 1', 2.0);
+		thread crossFadeEnt ($tp2_dest1_roomlight1, $tp2_dest1_roomlight1.getColor(), '.6 .6 .6', 2.0);
+		sys.trigger ($tp2_dest1_fadein_1);
+		sys.trigger($tp2_dest1_redlight_on);
+		//turn off ambient room light while main light is on; for performance
+		thread crossFadeEnt ($tp2_dest1_roomlightambient, $tp2_dest1_roomlightambient.getColor(), '0 0 0', 2.0);
+		
+		// turn off pad 2
+		$teleport2_pad2_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport2_pad2_light1a, $teleport2_pad2_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light1b, $teleport2_pad2_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light2a, $teleport2_pad2_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light2b, $teleport2_pad2_light2b.getColor(), '0 0 0', 2.0);
+		
+		// turn off pad 3
+		$teleport2_pad3_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport2_pad3_light1a, $teleport2_pad3_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light1b, $teleport2_pad3_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light2a, $teleport2_pad3_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light2b, $teleport2_pad3_light2b.getColor(), '0 0 0', 2.0);
+	}
+	
+	void teleport2_destination2()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad2select_speaker2);
+		
+		$teleport2_pad2_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport2_pad2_light1a, $teleport2_pad2_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light1b, $teleport2_pad2_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light2a, $teleport2_pad2_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light2b, $teleport2_pad2_light2b.getColor(), '.5 0 0', 2.0);
+		
+		// turn off pad 3
+		$teleport2_pad3_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport2_pad3_light1a, $teleport2_pad3_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light1b, $teleport2_pad3_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light2a, $teleport2_pad3_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light2b, $teleport2_pad3_light2b.getColor(), '0 0 0', 2.0);
+		
+		// turn off pad 1
+		sys.trigger($tp2_dest1_redlight_off);
+		sys.trigger ($tp2_dest1_fadeout_1);
+		thread crossFadeEnt ($tp2_dest1_floorlight1, $tp2_dest1_floorlight1.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($tp2_dest1_floorlight2, $tp2_dest1_floorlight2.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($tp2_dest1_roomlight1, $tp2_dest1_roomlight1.getColor(), '0 0 0', 2.0);
+		// turn on room ambient light
+		thread crossFadeEnt ($tp2_dest1_roomlightambient, $tp2_dest1_roomlightambient.getColor(), '.39 .39 .39', 2.0);
+	}
+	
+	void teleport2_destination3()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad3select_speaker2);
+		
+		$teleport2_pad3_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport2_pad3_light1a, $teleport2_pad3_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light1b, $teleport2_pad3_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light2a, $teleport2_pad3_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad3_light2b, $teleport2_pad3_light2b.getColor(), '.5 0 0', 2.0);
+		
+		// turn off pad 1
+		sys.trigger($tp2_dest1_redlight_off);
+		sys.trigger ($tp2_dest1_fadeout_1);
+		thread crossFadeEnt ($tp2_dest1_floorlight1, $tp2_dest1_floorlight1.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($tp2_dest1_floorlight2, $tp2_dest1_floorlight2.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($tp2_dest1_roomlight1, $tp2_dest1_roomlight1.getColor(), '0 0 0', 2.0);
+		// turn on room ambient light
+		thread crossFadeEnt ($tp2_dest1_roomlightambient, $tp2_dest1_roomlightambient.getColor(), '.39 .39 .39', 2.0);
+		
+		// turn off pad 2
+		$teleport2_pad2_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport2_pad2_light1a, $teleport2_pad2_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light1b, $teleport2_pad2_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light2a, $teleport2_pad2_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport2_pad2_light2b, $teleport2_pad2_light2b.getColor(), '0 0 0', 2.0);
+	}
+	
+	//*************************
+	// Teleporter 3
+	//*************************
+	void teleport3_machine_ready()
+	{
+		sys.wait (.25);
+		//trigger tp sounds
+		sys.trigger ($teleport3_machine_poweron);
+		sys.trigger ($teleport3_machine_idle_delay);
+		//turn on electrical lightning effect
+		sys.trigger ($teleport3_lightningfx);
+		sys.wait (1.95);
+		$teleport3_shoulder.rotateOnce ('0 0 -35');
+		//trigger sound for arms
+		sys.trigger($teleport3_shoulder_operate);
+		sys.wait(.75);
+		$teleport3_arm1.rotateOnce ('0 -30 0');
+		$teleport3_arm2.rotateOnce ('0 30 0');
+		sys.waitFor ($teleport3_arm2);
+		sys.wait (.5);
+		sys.trigger ($select_speaker3);
+		$klaxxon_speaker3.setKey ("klaxxon3_status", "0");
+	}
+	
+	void teleport3_klaxxon_on()
+	{
+		if ($klaxxon_speaker3.getFloatKey ("klaxxon3_status") == 0) 
+		{
+			sys.wait (.25);
+			$klaxxon3_light1.setColor(0.77,0.49,0.00);
+			$klaxxon3_light2.setColor(0.77,0.49,0.00);
+			$klaxxon3_light_base.setColor(0.77,0.49,0.00);
+			$klaxxon3_light_base.rotate ('0 360 0');
+			sys.wait ( .5 );
+			sys.trigger ($klaxxon_speaker3);
+			$klaxxon_speaker3.setKey ("klaxxon3_status", "1");
+			//turn on blinking blue tp light
+			sys.trigger ($teleport3_blightblink);
+			sys.wait ( .25 );
+			
+			//trigger sounds for fx
+			sys.trigger ($t3_teleporterfx_startup);
+			sys.wait ( 1.5 );
+			sys.trigger ($t3_teleporterfx_loop);
+			
+			//turn on floor and arm fx
+			sys.trigger ($teleport3_arm1_fx);
+			sys.trigger ($teleport3_arm2_fx);
+			sys.wait ( .5 );
+			sys.trigger ($teleport3_warpfx);
+			sys.trigger ($teleport3_floorfx);
+		}
+	}
+	
+	void teleport3_klaxxon_off()
+	{
+		if ($klaxxon_speaker3.getFloatKey ("klaxxon3_status") == 1) 
+		{
+			//reset teleport trigger
+			$teleport_trigger3.setGuiParm ( "gui_parm1" , 0);
+			
+			//turn off blinking blue tp light
+ 			sys.trigger ($teleport3_blightblink);
+			
+			//trigger off loop sound for fx
+			sys.trigger ($t3_teleporterfx_loop);
+			
+			//turn off floor and arm fx
+			sys.trigger ($teleport3_arm1_fx);
+			sys.trigger ($teleport3_arm2_fx);
+			sys.trigger ($teleport3_warpfx);
+			sys.trigger ($teleport3_floorfx);
+			//turn off klaxxon speaker
+			sys.trigger ($klaxxon_speaker3);
+			//fade klaxxon off; player can see it winding down after tp
+			thread crossFadeEnt ($klaxxon3_light1, $klaxxon3_light1.getColor(), '0 0 0', 6.0);
+			thread crossFadeEnt ($klaxxon3_light2, $klaxxon3_light2.getColor(), '0 0 0', 6.0);
+			thread crossFadeEnt ($klaxxon3_light_base, $klaxxon3_light_base.getColor(), '0 0 0', 6.0);
+			sys.wait ( 6 );
+			//stop klaxxon rotation
+			$klaxxon3_light_base.rotate ('0 0 0');
+			//reset klaxxon light and speaker
+			$klaxxon_speaker3.setKey ("klaxxon3_status", "0");
+			//trigger gui to make useable after teleportation
+			sys.trigger ($teleporter3_controlpanel_gui);
+		}
+	}
+	
+	void betruger_teleport_init()
+	{
+		teleport3_machine_ready();
+		teleport3_klaxxon_on();
+	}
+	
+	void betruger_teleport()
+	{	
+		//trigger engulf warp fx and remove betruger
+		sys.wait (.75);
+		sys.trigger ($teleport3_blackholefx);
+		sys.wait (.75);
+		sys.trigger ($teleport_betrugar_out);
+		sys.wait (.5);
+		sys.trigger ($teleport3_blackholefx);
+		sys.wait (.25);
+	
+		thread teleport3_klaxxon_off();
+	}
+	
+	void teleport3_destination1()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad1select_speaker3);
+		$teleport3_pad1_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport3_pad1_light1a, $teleport3_pad1_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light1b, $teleport3_pad1_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2a, $teleport3_pad1_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2b, $teleport3_pad1_light2b.getColor(), '.5 0 0', 2.0);
+		// turn off pad 2
+		$teleport3_pad2_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad2_light1a, $teleport3_pad2_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light1b, $teleport3_pad2_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2a, $teleport3_pad2_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2b, $teleport3_pad2_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 3
+		$teleport3_pad3_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad3_light1a, $teleport3_pad3_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light1b, $teleport3_pad3_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2a, $teleport3_pad3_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2b, $teleport3_pad3_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 4
+		$teleport3_pad4_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad4_light1a, $teleport3_pad4_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light1b, $teleport3_pad4_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2a, $teleport3_pad4_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2b, $teleport3_pad4_light2b.getColor(), '0 0 0', 2.0);
+	}
+	
+	void teleport3_destination2()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad2select_speaker3);
+		$teleport3_pad2_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport3_pad2_light1a, $teleport3_pad2_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light1b, $teleport3_pad2_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2a, $teleport3_pad2_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2b, $teleport3_pad2_light2b.getColor(), '.5 0 0', 2.0);
+		// turn off pad 1
+		$teleport3_pad1_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad1_light1a, $teleport3_pad1_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light1b, $teleport3_pad1_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2a, $teleport3_pad1_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2b, $teleport3_pad1_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 3
+		$teleport3_pad3_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad3_light1a, $teleport3_pad3_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light1b, $teleport3_pad3_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2a, $teleport3_pad3_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2b, $teleport3_pad3_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 4
+		$teleport3_pad4_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad4_light1a, $teleport3_pad4_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light1b, $teleport3_pad4_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2a, $teleport3_pad4_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2b, $teleport3_pad4_light2b.getColor(), '0 0 0', 2.0);
+	}
+	
+	void teleport3_destination3()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad3select_speaker3);
+		sys.trigger ($tele3_pad3_swapdoortrigger);
+		$teleport3_pad3_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport3_pad3_light1a, $teleport3_pad3_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light1b, $teleport3_pad3_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2a, $teleport3_pad3_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2b, $teleport3_pad3_light2b.getColor(), '.5 0 0', 2.0);
+		// turn off pad 1
+		$teleport3_pad1_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad1_light1a, $teleport3_pad1_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light1b, $teleport3_pad1_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2a, $teleport3_pad1_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2b, $teleport3_pad1_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 2
+		$teleport3_pad2_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad2_light1a, $teleport3_pad2_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light1b, $teleport3_pad2_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2a, $teleport3_pad2_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2b, $teleport3_pad2_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 4
+		$teleport3_pad4_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad4_light1a, $teleport3_pad4_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light1b, $teleport3_pad4_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2a, $teleport3_pad4_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2b, $teleport3_pad4_light2b.getColor(), '0 0 0', 2.0);
+	}
+	
+	void teleport3_destination4()
+	{
+		sys.wait (.25);
+		sys.trigger ($pad4select_speaker3);
+		sys.trigger ($tele3_pad4_swapdoortrigger);
+		$teleport3_pad4_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport3_pad4_light1a, $teleport3_pad4_light1a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light1b, $teleport3_pad4_light1b.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2a, $teleport3_pad4_light2a.getColor(), '.5 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad4_light2b, $teleport3_pad4_light2b.getColor(), '.5 0 0', 2.0);
+		// turn off pad 1
+		$teleport3_pad1_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad1_light1a, $teleport3_pad1_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light1b, $teleport3_pad1_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2a, $teleport3_pad1_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad1_light2b, $teleport3_pad1_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 2
+		$teleport3_pad2_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad2_light1a, $teleport3_pad2_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light1b, $teleport3_pad2_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2a, $teleport3_pad2_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2b, $teleport3_pad2_light2b.getColor(), '0 0 0', 2.0);
+		// turn off pad 3
+		$teleport3_pad3_rotate.rotate ('0 0 0');
+		thread crossFadeEnt ($teleport3_pad3_light1a, $teleport3_pad3_light1a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light1b, $teleport3_pad3_light1b.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2a, $teleport3_pad3_light2a.getColor(), '0 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad3_light2b, $teleport3_pad3_light2b.getColor(), '0 0 0', 2.0);
+	}
+	
+	//*********************
+	// Teleport Control panels
+	//*********************
+	void teleport1_control_up()
+	{
+		$teleporter1_controlpanel_gui.show();
+		$teleport1_controlpanelarms.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE );
+		$teleporter1_controlpanel_gui.show();
+		$teleport1_controlpanelarms.move (UP, 33);
+		sys.waitFor ($teleport1_controlpanelarms);
+		$teleport1_controlpanelarms.startSoundShader ("dc3_gui_panel_2", SND_CHANNEL_VOICE2 );
+		$teleport1_controlpanel.rotateOnce ('-20 0 0');
+		sys.waitFor ($teleport1_controlpanel);
+	}
+	
+	void teleport2_control_up()
+	{
+		$teleporter2_controlpanel_gui.show();
+		$teleporter2_controlpanel_gui.show();
+		$teleport2_controlpanelarms.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE );
+		$teleport2_controlpanelarms.move (UP, 33);
+		sys.waitFor ($teleport2_controlpanelarms);
+		$teleport2_controlpanelarms.startSoundShader ("dc3_gui_panel_2", SND_CHANNEL_VOICE2 );
+		$teleport2_controlpanel.rotateOnce ('0 0 -20');
+		sys.waitFor ($teleport2_controlpanel);
+	}
+	
+	void teleport3_control_up()
+	{
+		//$teleport3_controlpanelarms.move (UP, 33);
+		//sys.waitFor ($teleport3_controlpanelarms);
+		//$teleport3_controlpanel.rotateOnce ('20 0 0');
+		//sys.waitFor ($teleport3_controlpanel);
+		sys.wait (.05);
+	}
+	
+	//********************
+	// Lock and unlock doors in area after second decon chamber
+	//********************
+	void lock_door1()
+	{
+		$func_door_214.close ();
+		$func_door_214.lock (1);
+		$func_static_2576.setShaderParm (7, 0);
+		$func_door_216.lock (1);
+		$func_static_2577.setShaderParm (7, 0);
+	}
+	
+	void unlock_door1()
+	{
+		$func_door_214.lock (0);
+		$func_static_2576.setShaderParm (7, 1);
+		$func_door_216.lock (0);
+		$func_static_2577.setShaderParm (7, 1);
+	}
+	
+	void lock_door2()
+	{
+		$door_lock2_playerclip.show();
+		$func_door_220.close ();
+		$func_door_220.lock (1);
+		$func_static_2604.setShaderParm (7, 0);
+	}
+	
+	void unlock_door2()
+	{
+		$door_lock2_playerclip.remove();
+		$func_door_220.lock (0);
+		$func_static_2604.setShaderParm (7, 1);
+		$func_static_2604.setColor (1.0,1.0,1.0);
+		$light_1768.setColor (1.0,1.0,1.0);
+		$light_1752.setColor (1.0,1.0,1.0);
+	}
+
+	//************************
+	// Decon Chamber #1
+	//************************
+	void decon_cycle_door1()
+	{
+		//initiate decon chamber computer voice
+		sys.trigger ($decon_initiate_speaker);
+		$decondoor1.lock (0);
+		$decondoorframe1.setShaderParm (7, 1);
+		$decondoorframe2.setShaderParm (7, 1);
+		$decondoorframe4.setShaderParm (7, 1);
+		sys.trigger($decon1_setcolor_green);
+		
+		//reset decon chamber stuff
+		$decondoor3.lock (0);
+		$decondoorframe3.setShaderParm (7, 1);
+		$decondoor2_trigger.enable();
+		$decondoor4_trigger.enable();
+	}
+		
+	void decon_cycle()
+	{
+		$decon_trigger1.enable ();
+	}
+	
+	void mister_move ()
+	{
+		$decondoor1.lock (1);
+		$decondoor2.lock (1);
+		
+		//start decon1 computer voice
+		sys.trigger ($decon1_start_speaker);
+		sys.wait (1.5);
+		
+		thread crossFadeEnt ($misterlight_white, '.6 .6 .6 ', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decontop_fade, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decon_toplight_red, '0 0 0', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe1, '.6 .6 .6', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe1_light, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe2, '.6 .6 .6', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe2_light, '1 1 1', '.5 0 0', 1.0);
+		
+		sys.trigger ($decon1_mister1start_spkr);
+		sys.trigger ($decon1_mister2start_spkr);
+		sys.wait (.15);
+		sys.trigger ($decon1_mister1loop_spkr);
+		sys.trigger ($decon1_mister2loop_spkr);
+		
+		$mister1_anchor.moveTo ($mister1_spot2);
+		$mister2_anchor.moveTo ($mister2_spot2);
+		sys.waitFor ($mister1_anchor);
+		
+		$mister1_anchor.rotateOnce ('60 0 0');
+		$mister2_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor ($mister1_anchor);
+		
+		$mister1_anchor.rotateOnce ('-60 0 0');
+		$mister2_anchor.rotateOnce ('60 0 0');
+		sys.waitFor ($mister1_anchor);
+		
+		$mister1_anchor.moveTo ($mister1_spot1);
+		$mister2_anchor.moveTo ($mister2_spot1);
+		sys.waitFor ($mister1_anchor);
+		
+		sys.trigger ($decon1_mister1stop_spkr);
+		sys.trigger ($decon1_mister2stop_spkr);
+		//trigger looping speaker again to turn off
+		sys.trigger ($decon1_mister1loop_spkr);
+		sys.trigger ($decon1_mister2loop_spkr);
+		
+		//turn off emitter
+		sys.trigger($mister1_emitter);
+		sys.trigger($mister2_emitter);
+		
+		sys.wait (.5);
+		thread crossFadeEnt ($misterlight_white, '.4 0 0', '.6 .6 .6', 1.0);
+		thread crossFadeEnt ($decontop_fade, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decon_toplight_red, '.5 0 0', '0 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe1, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe1_light, '.4 0 0', '.6 .6 .6', 1.0);
+		thread crossFadeEnt ($decondoorframe2, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe2_light, '.4 0 0', '.6 .6 .6', 1.0);
+	}
+
+	void mister1()
+	{
+		$decondoor1.close ();
+		$decondoor2.close ();
+		$decon_trigger1.disable ();
+		
+		//turn on emitter
+		sys.trigger($mister1_emitter);
+		sys.trigger($mister2_emitter);
+			
+		$decondoorframe1.setShaderParm (7, 0);
+		$decondoorframe2.setShaderParm (7, 0);
+		float i;
+			i = thread mister_move();
+			sys.waitForThread (i);
+		
+		//complete decon1 computer voice
+		sys.trigger ($decon1_complete_speaker);
+		
+		sys.wait (.25);
+		$decondoorframe2.setShaderParm (7, 1);
+		$decondoor2.lock (0);
+		
+		//turn off emitter
+		//sys.trigger($mister1_emitter);
+		//sys.trigger($mister2_emitter);
+	}
+	
+	void decon_cycle_door2()
+	{
+		$decondoor2_trigger.disable();
+		$decondoor2.close();
+		$decondoor2.lock(1);
+		$decondoorframe2.setShaderParm (7, 0);
+		sys.trigger($decon1_setcolor_red);
+		
+		//reset decon chamber trigger
+		sys.trigger ($func_static_2885);
+	}
+		
+	//***********************
+	// Decon Chamber #2 //2nd chamber - not actual chamber #
+	//***********************
+	void decon_cycle2 ()
+	{
+		$decon_trigger2.enable ();
+	}
+	
+	void mister_move2()
+	{
+		$decondoor3.lock (1);
+		$decondoor4.lock (1);
+		
+		//start decon2 computer voice
+		sys.trigger ($decon2_start_speaker);
+		sys.wait (1.5);
+		
+		thread crossFadeEnt ($misterlight_white2, '.6 .6 .6', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decontop_fade2, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decon_toplight_red2, '0 0 0', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe3, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe3_light, '.6 .6 .6', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe4, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe4_light, '.6 .6 .6', '.4 0 0', 1.0);
+		
+		sys.trigger ($decon2_mister3start_spkr);
+		sys.trigger ($decon2_mister4start_spkr);
+		sys.wait (.15);
+		sys.trigger ($decon2_mister3loop_spkr);
+		sys.trigger ($decon2_mister4loop_spkr);
+		
+		$mister3_anchor.moveTo ($mister3_spot2);
+		$mister4_anchor.moveTo ($mister4_spot2);
+		sys.waitFor ($mister4_anchor);
+		
+		$mister3_anchor.rotateOnce ('60 0 0');
+		$mister4_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor ($mister4_anchor);
+		
+		$mister3_anchor.rotateOnce ('-60 0 0');
+		$mister4_anchor.rotateOnce ('60 0 0');
+		sys.waitFor ($mister4_anchor);
+		
+		$mister3_anchor.moveTo ($mister3_spot1);
+		$mister4_anchor.moveTo ($mister4_spot1);
+		sys.waitFor ($mister4_anchor);
+		
+		sys.trigger ($decon2_mister3stop_spkr);
+		sys.trigger ($decon2_mister4stop_spkr);
+		//trigger looping speaker again to turn off
+		sys.trigger ($decon2_mister3loop_spkr);
+		sys.trigger ($decon2_mister4loop_spkr);
+		
+		//turn off emitter
+		sys.trigger($mister3_emitter);
+		sys.trigger($mister4_emitter);
+		
+		sys.wait (.5);
+		thread crossFadeEnt ($misterlight_white2, '.4 0 0', '.6 .6 .6', 1.0);
+		thread crossFadeEnt ($decontop_fade2, '.4 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decon_toplight_red2, '.5 0 0', '0 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe3, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe3_light, '.4 0 0', '.6 .6 .6', 1.0);
+		thread crossFadeEnt ($decondoorframe4, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe4_light, '.4 0 0', '.6 .6 .6', 1.0);
+	}
+	
+	void mister2()
+	{
+		$decondoor3.close ();
+		$decondoor4.close ();
+		$decon_trigger2.disable ();
+		
+		//turn on emitter
+		sys.trigger($mister3_emitter);
+		sys.trigger($mister4_emitter);
+		
+		$decondoorframe3.setShaderParm (7, 0);
+		$decondoorframe4.setShaderParm (7, 0);
+		float i;
+			i = thread mister_move2();
+			sys.waitForThread (i);
+		
+		//complete decon2 computer voice
+		sys.trigger ($decon2_complete_speaker);
+		
+		sys.wait (.25);
+		$decondoorframe4.setShaderParm (7, 1);
+		$decondoor4.lock (0);
+	}
+		
+	void decon_cycle_door4()
+	{
+		$decondoor4.close();
+		$decondoor4.lock (1);
+		$decondoorframe4.setShaderParm (7, 0);
+		$decondoor4_trigger.disable();
+	}
+		
+	//***********************
+	// Decon Chamber #3
+	//***********************
+	 
+	void decon_cycle_door5()
+	{
+		//initiate decon chamber #3 computer voice
+		sys.trigger ($decon_initiate_speaker3);
+		$decondoor5.lock (0);
+		$decondoorframe5.setShaderParm (7, 1);
+	}
+	
+	void mister_move3()
+	{
+		//start decon1 computer voice
+		$decon_trigger3.disable ();
+		sys.trigger ($decon3_start_speaker);
+		$decondoor5.lock (1);
+		$decondoor6.lock (1);
+		sys.wait (1.5);
+		
+		thread crossFadeEnt ($misterlight_white3, '.6 .6 .6', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decontop_fade3, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decon_toplight_red3, '0 0 0', '.5 0 0', 1.0);
+		
+		thread crossFadeEnt ($decondoorframe5, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe5_light, '.6 .6 .6', '.4 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe6, '1 1 1', '.5 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe6_light, '.6 .6 .6', '.4 0 0', 1.0);
+		
+		$mister5_anchor.time (1);
+		$mister5_anchor.accelTime (.5 );
+		$mister5_anchor.decelTime (.5);
+		sys.trigger ($decon3_cycle_speaker);
+		$mister5_anchor.moveTo ($mister5_spot1_broke);
+		$mister6_anchor.moveTo ($mister6_spot1_broke);
+		sys.waitFor ($mister6_anchor);
+		sys.trigger($mister5_emitter);
+		sys.trigger($mister6_emitter);
+		sys.wait (1.5);
+		sys.trigger ($decon3_malfunction_speaker);
+		sys.wait (1.85);
+		sys.trigger ($decon3_shutdown_speaker);
+		sys.wait (1.75);
+		sys.trigger ($decon3_backup_speaker);
+/*
+		$mister5_anchor.moveTo ($mister5_spot2);
+		$mister6_anchor.moveTo ($mister6_spot2);
+		sys.waitFor ($mister6_anchor);
+		
+		$mister5_anchor.rotateOnce ('-60 0 0');
+		$mister6_anchor.rotateOnce ('60 0 0');
+		sys.waitFor ($mister6_anchor);
+		
+		$mister5_anchor.rotateOnce ('60 0 0');
+		$mister6_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor ($mister6_anchor);
+		
+		$mister5_anchor.moveTo ($mister5_spot1);
+		$mister6_anchor.moveTo ($mister6_spot1);
+		sys.waitFor ($mister6_anchor);
+*/		
+		sys.wait (1.5);
+		
+		thread crossFadeEnt ($misterlight_white3, '.4 0 0', '.6 .6 .6', 1.0);
+		thread crossFadeEnt ($decontop_fade3, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decon_toplight_red3, '.5 0 0', '0 0 0', 1.0);
+		
+		thread crossFadeEnt ($decondoorframe5, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe5_light, '.4 0 0', '.6 .6 .6', 1.0);
+		thread crossFadeEnt ($decondoorframe6, '.5 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decondoorframe6_light, '.4 0 0', '.6 .6 .6', 1.0);
+	}
+	
+	void mister3()
+	{
+		$decondoor5.close ();
+		$decondoor6.close ();
+		$decon_trigger3.disable ();
+		$decondoorframe5.setShaderParm (7, 0);
+		$decondoorframe6.setShaderParm (7, 0);
+		float i;
+			i = thread mister_move3();
+			sys.waitForThread (i);
+		
+		// complete decon computer voice
+		//sys.trigger ($decon3_complete_speaker);
+		sys.wait (.5);
+		$decondoorframe5.setShaderParm (7, 1);
+		$decondoor5.lock (0);
+		$decondoorframe6.setShaderParm (7, 1);
+		$decondoor6.lock (0);
+		//sys.trigger($mister5_emitter);
+		//sys.trigger($mister6_emitter);
+	}
+	
+	void decon_cycle_door6()
+	{
+		//$decondoor6.close();
+		//$decondoor6.lock(1);
+		//$decondoorframe6.setShaderParm (7, 0);
+		//sys.trigger($decon3_setcolor_red);
+		//thread decon_cycle3();							//trigger enabled; inside chamber
+		$decondoor6_trigger.disable();
+		sys.wait (3);
+		sys.trigger ($decon3_maint_need_speaker);
+	}
+
+	void scroll_red_lights()
+	{
+		float	i;
+		entity	ent;
+		while (1)
+		{
+			for ( i = 1; i <= 9; i++ )
+			{
+				ent = sys.getEntity ("lred_0" + i);
+				ent.On();
+				sys.wait ( 0.10 );
+				ent.Off();
+				sys.wait ( 0.10 );
+			}
+		}
+	}
+
+	void scroll_blue_lights()
+	{
+		float	i;
+		entity	ent1, ent2;
+		while (1)
+		{
+			for ( i = 1; i <= 6; i++ )
+			{
+				ent1 = sys.getEntity ("lleft_0" + i);
+				ent2 = sys.getEntity ("lright_0" + i);
+				ent1.On();
+				ent2.On();
+				sys.wait ( 0.2 );
+				ent1.Off();
+				ent2.Off();
+				sys.wait ( 0.2 );
+			}
+		}
+	}
+	
+	void start_world()
+	{
+		thread scroll_red_lights();
+		thread scroll_blue_lights();
+		thread betruger_teleport_init();
+	}
+	
+	void main()
+	{
+		precache();
+		bind_objects();
+		init_world();
+		start_world();
+	}
+}

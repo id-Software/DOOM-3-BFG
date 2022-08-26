@@ -1,0 +1,323 @@
+namespace map_site3 {
+
+	void setup_objects ()
+	{	
+		// Cache the sounds... -Xian
+
+		sys.cacheSoundShader ("train_door_close");
+		sys.cacheSoundShader ("train_door_open");
+		
+		$transport.accelTime (.5);
+		$transport.decelTime (.5);
+
+        $transport_door.accelTime (.2);
+		$transport_door.decelTime (.1);
+        $transport_door.time (.5);
+		$transport_door.bind ($transport);
+        $transport_door_open1.bind ($transport);
+        $transport_door_close1.bind ($transport);
+        $transport_door_close2.bind ($transport);
+		$transport_activator_2.bind ($transport);
+
+		$pistrod1.bind ($piston1);
+		$pistrod2.bind ($piston2);
+		$pistrod3.bind ($piston3);
+ 
+		$piston1.time (.125);
+		$pistrod1.time (.125);
+		$piston2.time (.125);
+		$pistrod2.time (.125);
+		$piston3.time (.125);
+		$pistrod3.time (.125);
+		$crankshaft.time (.125);
+
+        $arm_base.time (1);
+        $arm_base.accelTime (.5);
+        $arm_base.decelTime (.1);
+
+        $metaldoor.time (.05);
+
+        $finger1.bind ($hand);
+        $finger2.bind ($hand);
+        $hand.bind ($arm);
+        $arm.bind ($arm_anchor);
+        $arm_anchor.bind ($arm_base);
+
+		$pipe_crash.bind ($pipe_crash_anchor);
+		$pipe_crash_anchor.accelTime (.4);
+		$pipe_crash_anchor.time (1);
+		$skcube_crash.bind ($skcube_crash_anchor);
+		$skcube_crash_anchor.accelTime (.4);
+		$skcube_crash_anchor.time (.8);
+
+        $walkway1_anchor.time (.5); 
+        $walkway1_anchor.accelTime (.5);
+        $walkway2_anchor.time (.5); 
+        $walkway2_anchor.accelTime (.5);
+        $walkway1edge_anchor.time (.3); 
+        $walkway1edge_anchor.accelTime (.3);
+        $walkway2edge_anchor.time (.3); 
+        $walkway2edge_anchor.accelTime (.3);
+
+        $walkway1.bind ($walkway1_anchor);
+        $walkway1edge.bind ($walkway1edge_anchor);
+        $walkway1edge_anchor.bind ($walkway1);
+        $walkway2.bind ($walkway2_anchor);
+        $walkway2edge.bind ($walkway2edge_anchor);
+        $walkway2edge_anchor.bind ($walkway2);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	transport
+	//
+	////////////////////////////////////////////////////
+
+	void call_transport ()
+	{
+        sys.trigger ($door_block_trigger);
+        sys.trigger ($trigger_objectivecomplete_2);
+		$transport.time (10);
+		$transport.moveTo ($transport_spot1);
+		sys.waitFor ($transport);
+		$transport_activator_2.unbind ();
+		$transport_activator_1.bind ($transport);       
+		$transport_door.unbind ();
+        sys.trigger ($trans_trigger);
+        sys.trigger ($trigger_objective_3);
+	}
+
+	void move_transport ()
+	{
+		sys.trigger ($airdoor1_lf);
+		$transport.time (4);
+		$transport.moveTo ($transport_spot1a);
+		sys.waitFor ($transport);
+		sys.wait (.5);
+		sys.trigger ($airdoor1_lf);
+		sys.wait (2);
+		sys.trigger ($airdoor2_lf);
+		sys.waitFor ($airdoor2_lf);
+		sys.trigger ($airdoor2_relay);
+		sys.trigger ($airdoor3_relay);
+		$transport.time (7);
+		$transport.moveTo ($transport_spot2);
+		sys.waitFor ($transport);
+		sys.trigger ($airdoor3_lf);
+                sys.trigger ($trans_trigger2);
+	}
+
+    void transport_door_close ()
+	{			
+		$transport_door.startSoundShader ("train_door_close", SND_CHANNEL_VOICE);
+		$transport_door.moveTo ($transport_door_close1);
+		sys.waitFor ($transport_door);
+                $transport_door.moveTo ($transport_door_close2);
+                sys.waitFor ($transport_door);
+                $transport_door.bind ($transport);
+	}
+
+    void transport_door_open ()
+	{
+		$transport_door.unbind ();	
+		$transport_door.startSoundShader ("train_door_open", SND_CHANNEL_VOICE);
+		$transport_door.moveTo ($transport_door_close1);
+		sys.waitFor ($transport_door);
+                $transport_door.moveTo ($transport_door_open1);
+                sys.waitFor ($transport_door);
+	}
+
+	void airdoor1_open ()
+	{
+		sys.trigger ($airdoor1_lf);
+	}
+	void airdoor2_open ()
+	{
+		sys.trigger ($airdoor2_lf);
+	}
+	void airdoor3_open ()
+	{
+		sys.trigger ($airdoor3_lf);
+	}
+	void airdoor1_close ()
+	{
+		sys.trigger ($airdoor1_lf);
+	}
+	void airdoor2_close ()
+	{
+		sys.trigger ($airdoor2_lf);
+	}
+	void airdoor3_close ()
+	{
+		sys.trigger ($airdoor3_lf);
+	}
+
+    ////////////////////////////////////////////////////
+	//
+	//	archvile room
+	//
+	////////////////////////////////////////////////////
+
+
+
+	void archvile_start ()
+	{
+        sys.trigger ($blight_trigger1);
+        sys.wait (.7);
+        sys.trigger ($blight_trigger3);
+        sys.wait (.2);
+        sys.trigger ($blight_trigger2);
+        sys.wait (.6);
+        sys.trigger ($alight_trigger1);
+        sys.trigger ($alight_trigger2);
+        sys.trigger ($alight_trigger3);
+        sys.trigger ($alight_trigger4);
+        sys.trigger ($alight_trigger5);
+        sys.trigger ($alight_trigger6);       
+                 
+	    $walkway1_anchor.rotateOnce ('-88 0 0');
+        $walkway1edge_anchor.rotateOnce ('84 0 0');
+        $walkway2_anchor.rotateOnce ('0 0 -88');
+        $walkway2edge_anchor.rotateOnce ('0 0 84');
+        sys.waitFor ($walkway1_anchor);
+        sys.wait (1);
+
+        sys.trigger ($candles_trigger);
+        sys.wait (.5);
+		sys.trigger ($archvile_trigger);
+        sys.wait (.5);
+        sys.trigger ($fire_trigger);
+        sys.trigger ($speaker_flames_1);
+		sys.trigger ($speaker_flames_2);
+		sys.trigger ($speaker_av_mood);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	misc
+	//
+	////////////////////////////////////////////////////
+	 
+	void pipe_crash_trigger ()
+	{
+		$pipe_crash_anchor.rotateOnce ('-20 0 25');
+		$skcube_crash_anchor.rotateOnce ('0 10 90');
+	}
+
+	////////////////////////////////////////////////////
+	//
+	// crane arm movement
+	//
+	////////////////////////////////////////////////////
+	void crane_move ()
+	{
+		while (1) {
+			
+			$arm_base.startSoundShader ("s3_arm_back", SND_CHANNEL_ANY );
+			$arm_base.move ( SOUTH, 256 );
+			sys.waitFor ($arm_base);
+			sys.trigger ($doorbang);
+			sys.trigger ($doorspark);
+			$metaldoor.move (SOUTH,1);
+
+			$arm_anchor.time (.1);                
+			$arm_anchor.decelTime (.05);
+
+			$arm_anchor.rotateOnce ('0 0 -4');
+			sys.waitFor ($arm_anchor);
+			$metaldoor.move (NORTH,1);
+
+			$arm_anchor.rotateOnce ('0 0 5');
+			sys.waitFor ($arm_anchor);
+			$arm_anchor.time (.08);                                
+			$arm_anchor.rotateOnce ('0 0 -1.5');
+			sys.waitFor ($arm_anchor);
+			$arm_anchor.time (.04);
+			$arm_anchor.rotateOnce ('0 0 0.5');
+			sys.waitFor ($arm_anchor);
+
+			// need sound here
+			
+			sys.trigger ($armsound1);
+			$arm_base.move ( NORTH, 256 );
+			sys.waitFor ($arm_base);
+
+			$arm_anchor.time (.2);                
+			$arm_anchor.decelTime (.1);
+
+			$arm_anchor.rotateOnce ('0 0 6');
+			sys.waitFor ($arm_anchor);
+			$arm_anchor.rotateOnce ('0 0 -7');
+			sys.waitFor ($arm_anchor);
+			$arm_anchor.time (.15);                
+			$arm_anchor.rotateOnce ('0 0 2');
+			sys.waitFor ($arm_anchor);
+			$arm_anchor.time (.08);
+			$arm_anchor.rotateOnce ('0 0 -1');
+			sys.waitFor ($arm_anchor);
+		} 
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	piston movement
+	//
+	////////////////////////////////////////////////////
+	void piston_move ()
+	{
+		while (1) 
+		{
+		
+		$piston1.move ( DOWN, 6 );
+		$pistrod1.rotateOnce ( '0 0 -26.56' );
+		$piston2.move ( UP, 6 );
+		$pistrod2.rotateOnce ( '0 0 26.56' );
+		$piston3.move ( DOWN, 6 );
+		$pistrod3.rotateOnce ( '0 0 -26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( DOWN, 6 );
+		$pistrod1.rotateOnce ( '0 0 26.56' );
+		$piston2.move ( UP, 6 );
+		$pistrod2.rotateOnce ( '0 0 -26.56' );
+		$piston3.move ( DOWN, 6 );
+		$pistrod3.rotateOnce ( '0 0 26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( UP, 6 );
+		$pistrod1.rotateOnce ( '0 0 26.56' );
+		$piston2.move ( DOWN, 6 );
+		$pistrod2.rotateOnce ( '0 0 -26.56' );
+		$piston3.move ( UP, 6 );
+		$pistrod3.rotateOnce ( '0 0 26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( UP, 6 );
+		$pistrod1.rotateOnce ( '0 0 -26.56' );
+		$piston2.move ( DOWN, 6 );
+		$pistrod2.rotateOnce ( '0 0 26.56' );
+		$piston3.move ( UP, 6 );
+		$pistrod3.rotateOnce ( '0 0 -26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		} 
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main ()
+	{
+		sys.cacheSoundShader ("s3_arm_back");
+		setup_objects ();
+        piston_move ();               
+ 
+	}
+}
+

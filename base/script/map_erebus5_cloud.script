@@ -1,0 +1,56 @@
+namespace map_erebus5_cloud {
+
+	void artifact_scanner_beam1() {
+//		sys.print("beam1 go\n"); //adam
+		$scanner_beam1.startSoundShader ( "e5_bluescanner", SND_CHANNEL_VOICE );	// :: Xian
+		$scanner_beam1.time( 2.5 );
+		$scanner_beam1.move( WEST, 13 );
+		sys.waitFor( $scanner_beam1 );
+		$scanner_beam1.time( 2.5 );
+		$scanner_beam1.move( EAST, 13 );
+		sys.waitFor( $scanner_beam1 );
+		$scanner_beam1.hide();
+		$scanner_beam1.stopSound ( SND_CHANNEL_VOICE, false );					// :: Xian
+	}
+
+	void artifact_scanner_beam2() {
+//		sys.print("beam2 go\n");
+		$scanner_beam2.time( 2.25 );
+		$scanner_beam2.move( SOUTH, 20 );
+		sys.waitFor( $scanner_beam2 );
+		$scanner_beam2.time( .5 );
+		$scanner_beam2.rotateOnce('0 180 0');
+		$scanner_beam2.time( 2.25 );
+		$scanner_beam2.move( NORTH, 20 );
+		sys.waitFor( $scanner_beam2 );
+		$scanner_beam2.hide();
+	}
+
+	void artifact_scanner_beam3() {
+//		sys.print("beam3 go\n");
+		$scanner_beam3.time( 2.25 );
+		$scanner_beam3.move( NORTH, 20 );
+		sys.waitFor( $scanner_beam3 );
+		$scanner_beam3.time( .5 );
+		$scanner_beam3.rotateOnce('0 -180 0');
+		$scanner_beam3.time( 2.25 );
+		$scanner_beam3.move( SOUTH, 20 );
+		sys.waitFor( $scanner_beam3 );
+		$scanner_beam3.hide();
+		sys.wait( .5 );
+		$scanner_light.Off();
+//		sys.print("scanning beams off\n");
+	}
+
+	void artifact_scanner_start() {
+//		sys.print("scanning beams active...\n");
+		$scanner_beam1.show();
+		$scanner_beam2.show();
+		$scanner_beam3.show();
+		$scanner_light.On();
+
+		thread artifact_scanner_beam1();
+		thread artifact_scanner_beam2();
+		thread artifact_scanner_beam3();
+	}
+}

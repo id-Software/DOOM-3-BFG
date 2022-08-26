@@ -1,0 +1,314 @@
+namespace map_phobos4 {
+
+	float 	power_level = 0;
+	float	envirosuit_on = 0;
+	float 	tp3_power = 0;
+
+	void tp_disable() {
+		$player1.disableWeapon();
+	}
+
+	// Alarm Speakers
+
+	void alarm_speakers() {
+		sys.trigger( $alarm_speaker1 );
+		sys.trigger( $alarm_speaker3 );
+		sys.trigger( $alarm_speaker5 );
+		sys.wait( .9465 );
+		sys.trigger( $alarm_speaker2 );
+		sys.trigger( $alarm_speaker4 );
+		sys.trigger( $alarm_speaker6 );
+	}
+
+	void mcneil_warning() {
+		sys.trigger( $mcneil_warning );
+		sys.wait( 28 );
+		sys.trigger( $p4_objective );
+	}
+
+	// Computer Warnings
+
+	void comp_warnings() {
+		float ranWait;
+		float voNum;
+		while( 1 ) {
+			voNum = sys.randomInt( 3 ) + 1;
+			if( voNum == 1 ) {
+				sys.trigger( $comp_warning1a );
+				sys.trigger( $comp_warning1b );
+				sys.trigger( $comp_warning1c );
+				sys.trigger( $comp_warning1d );
+			}
+			if( voNum == 2 ) {
+				sys.trigger( $comp_warning2a );
+				sys.trigger( $comp_warning2b );
+				sys.trigger( $comp_warning2c );
+				sys.trigger( $comp_warning2d );
+			}
+			if( voNum == 3 ) {
+				sys.trigger( $comp_warning3a );
+				sys.trigger( $comp_warning3b );
+				sys.trigger( $comp_warning3c );
+				sys.trigger( $comp_warning3d );
+			}
+			ranWait = (sys.random( 10 ) + 10);
+			sys.wait( ranWait );
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	POWER FLUXIN' LIGHT RAMP
+	//
+	////////////////////////////////////////////////////
+
+	void light_ramp( float rgb_start, float rgb_end, float time_val )
+	{
+		float i, t, v;
+
+		t = time_val * GAME_FPS;
+		for ( i = 0; i < t; i++ ) {
+			v = rgb_start + ( rgb_end - rgb_start ) * ( i / t );
+			sys.setShaderParm( 0, v );
+			sys.setShaderParm( 1, v );
+			sys.setShaderParm( 2, v );
+			sys.waitFrame();
+		}
+		sys.setShaderParm( 0, rgb_end );
+		sys.setShaderParm( 1, rgb_end );
+		sys.setShaderParm( 2, rgb_end );
+	}
+
+	void t3_powerflux() {
+		float i;
+		float ran_loop, ran_new, ran_time;
+		float old;
+
+		old = .25;
+		ran_loop = ( sys.random( 10 ) + 3 );
+
+		for (i=1; i<=ran_loop; i++) {
+			ran_new = ( sys.random( 1.5 ) + .2 );
+			ran_time = ( sys.random( 1 ) + .2 );
+			light_ramp( old, ran_new, ran_time );
+			old = ran_new;
+		}
+		// how dark to go once cycle is complete
+		light_ramp( old, .4, .3 );
+	}
+
+	void t3_lightramp2() {
+		while( 1 ) {
+			light_ramp( .4, .9, 1.5 );
+			sys.wait( 1.5 );
+			light_ramp( .9, .4, 1.5 );
+			sys.wait( 1.5 );
+		}
+	}
+
+	void t3_lightramp1() {
+		float ran;
+		ran = sys.random( 3 );
+		sys.wait( ran );
+		while( power_level == 0 ) {
+			// wait between power surges
+			//sys.print( "FLUX BEGIN!\n" );
+			ran = ( sys.random( 3 ) + 2 );
+			sys.wait( ran );
+			t3_powerflux();
+		}
+		t3_lightramp2();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Teleporter Startup
+	//
+	////////////////////////////////////////////////////
+
+	void teleport3_machine_ready()
+	{
+		sys.wait (.25);
+		//trigger tp sounds
+		sys.trigger ($teleport3_machine_poweron);
+		//sys.trigger ($teleport3_machine_idle_delay);
+		//turn on electrical lightning effect
+		sys.trigger ($teleport3_lightningfx);
+		sys.wait (1.95);
+		$teleport3_shoulder.rotateOnce ('0 0 -35');
+		//trigger sound for arms
+		sys.trigger($teleport3_shoulder_operate);
+		sys.wait(.75);
+		$teleport3_arm1.rotateOnce ('0 -30 0');
+		$teleport3_arm2.rotateOnce ('0 30 0');
+		sys.waitFor ($teleport3_arm2);
+		sys.trigger( $p4_objcomplete );
+		sys.wait (.5);
+		//$teleport3_blackholefx.show();
+	}
+
+	void teleport3_klaxxon_on()
+	{
+		sys.wait ( .5 );
+		//turn on blinking blue tp light
+		sys.trigger ($teleport3_blightblink);
+		//sys.wait ( .25 );
+		sys.wait( 3 );
+		//trigger sounds for fx
+		sys.trigger ($t3_teleporterfx_startup);
+		sys.wait ( 1.5 );
+		sys.trigger ($t3_teleporterfx_loop);
+
+		//turn on floor and arm fx
+		sys.trigger ($teleport3_arm1_fx);
+		sys.trigger ($teleport3_arm2_fx);
+		sys.wait ( .5 );
+		sys.trigger ($teleport3_warpfx);
+		sys.trigger ($teleport3_floorfx);
+
+		sys.wait(1);
+		sys.trigger ($select_speaker3);
+	}
+
+	void false_start() {
+		sys.trigger( $pad1select_speaker3 );
+		//$t3_door1.lock( 1 );
+		//sys.wait( 1 );
+		//thread t3_influence();
+		//teleport3_klaxxon_on();
+		//teleport3_machine_ready();
+		//sys.wait( 6 );
+		//$t3_door1.lock( 0 );
+	}
+
+	void select_destination()
+	{
+		sys.wait(.25);
+		thread teleport3_klaxxon_on();
+		sys.trigger( $end_bruiser );
+		teleport3_machine_ready();
+	}
+
+	void teleporter_startup()
+	{
+		if( tp3_power == 0 ) {
+			power_level = 1;
+			tp3_power = 1;
+			false_start();
+			$teleporter_gui.setGui(1, "guis/transfer/exit_phobos4.gui");
+			return;
+		}
+		if( tp3_power == 1 ) {
+			return;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN AIRLOCK ACTIVATION
+	//
+	////////////////////////////////////////////////////
+	void airlock1_activate ()
+	{
+		sys.trigger( $phobos4_airlock1_clipper );
+		thread airlock_main_activate(1 , 2);
+
+		sys.wait(2);
+
+		// Turn on or off the enviroment suit
+		//if ( envirosuit_on == 0 )
+		//{
+		//	$player1.setPowerupTime( ENVIROSUIT, 999999999 );
+		//	envirosuit_on = 1;
+		//}
+		//else
+		//{
+		//	$player1.setPowerupTime( ENVIROSUIT, 0 );
+		//	envirosuit_on = 0;
+		//}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK EXTERNAL DOORS
+	//
+	////////////////////////////////////////////////////
+	void airlock1_door1_open ()
+	{
+		airlock_door_activate(1 , 1 , 2 , 1);
+	}
+
+	void airlock1_door2_open ()
+	{
+		airlock_door_activate(1 , 2 , 2 , 1);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup
+	//
+	////////////////////////////////////////////////////
+	void setup_objects()
+	{
+		//sys.print( "SETTING UP OBJECTS!\n" );
+		//Set airlock door guis initial state to 1
+		$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 1);
+
+		//override the states of the airlocks so the lights will cooperate
+		$airlock1_door1_portal.setKey ("state", "2");
+
+		//Precache Guis
+		$teleporter_gui.precacheGui("guis/transfer/exit_phobos4.gui");
+		//sys.print( "SET UP OBJECTS!\n" );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	TELEPORTER3 SETUP
+	//
+	////////////////////////////////////////////////////
+
+	void setup_teleporter3() {
+		sys.print( "SETTING UP TP3!\n" );
+		$teleport3_controlpanelarms.time (1.0);
+		$teleport3_controlpanelarms.accelTime (.5 );
+		$teleport3_controlpanelarms.decelTime (.5 );
+		$teleport3_controlpanel.time (.75);
+		$teleport3_controlpanel.accelTime (.25 );
+		$teleport3_controlpanel.decelTime (.5 );
+		$teleport3_shoulder.time (2.0);
+		$teleport3_shoulder.accelTime (1.0 );
+		$teleport3_shoulder.decelTime (1.0 );
+		$teleport3_arm1.time (2.0);
+		$teleport3_arm1.accelTime (1.25 );
+		$teleport3_arm1.decelTime (.75 );
+		$teleport3_arm2.time (2.0);
+		$teleport3_arm2.accelTime (1.25 );
+		$teleport3_arm2.decelTime (.75 );
+		$klaxxon3_light1.setColor(0.77,0.49,0.00);
+		$klaxxon3_light2.setColor(0.77,0.49,0.00);
+		$klaxxon3_light_base.setColor(0.77,0.49,0.00);
+		$klaxxon3_light_base.rotate ('0 360 0');
+		sys.trigger ($klaxxon_speaker3);
+		sys.print( "SET UP TELEPORTER3!\n" );
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main ()
+	{
+		thread alarm_speakers();
+		thread comp_warnings();
+		setup_objects();
+		setup_teleporter3();
+		t3_lightramp1();
+
+	}
+
+}// namespace

@@ -1,0 +1,130 @@
+namespace map_delta5 
+{
+	void init_world()
+	{
+		float	i;
+		entity	ent1, ent2;
+
+		for ( i = 1; i <= 9; i++ )
+		{
+			ent1 = sys.getEntity ("lred_0" + i);
+			ent1.Off();
+		}
+
+		for ( i = 1; i <= 6; i++ )
+		{
+			ent1 = sys.getEntity ("lleft_0" + i);
+			ent2 = sys.getEntity ("lright_0" + i);
+			ent1.Off();
+			ent2.Off();
+		}
+	}
+	
+	void scroll_red_lights()
+	{
+		float	i;
+		entity	ent;
+		while (1)
+		{
+			for ( i = 1; i <= 9; i++ )
+			{
+				ent = sys.getEntity ("lred_0" + i);
+				ent.On();
+				sys.wait ( 0.10 );
+				ent.Off();
+				sys.wait ( 0.10 );
+			}
+		}
+	}
+
+	void scroll_blue_lights()
+	{
+		float	i;
+		entity	ent1, ent2;
+		while (1)
+		{
+			for ( i = 1; i <= 6; i++ )
+			{
+				ent1 = sys.getEntity ("lleft_0" + i);
+				ent2 = sys.getEntity ("lright_0" + i);
+				ent1.On();
+				ent2.On();
+				sys.wait ( 0.2 );
+				ent1.Off();
+				ent2.Off();
+
+				sys.wait ( 0.2 );
+			}
+		}
+	}
+	
+	void open_vent_ladder()
+	{
+		$vent_panel.time (1);
+		$vent_panel.accelTime (.5);
+		$vent_panel.decelTime (.5);
+		$vent_panel.startSoundShader ("dc5_panel_1s", SND_CHANNEL_VOICE);
+		$vent_panel.moveTo ($vent_panel_pos1);
+		sys.waitFor ($vent_panel);
+		sys.wait (.5);
+		$vent_panel.time (1.5);
+		$vent_panel.accelTime (.75);
+		$vent_panel.decelTime (.75);
+		$vent_panel.startSoundShader ("dc5_panel_1_5s", SND_CHANNEL_VOICE2);
+		$vent_panel.moveTo ($vent_panel_pos2);
+		sys.waitFor ($vent_panel);
+		sys.wait (.5);
+		$vent_ladder.time (4);
+		$vent_ladder.accelTime (1.25);
+		$vent_ladder.decelTime (2.75);
+		$vent_ladder.startSoundShader ("ladder_4s", SND_CHANNEL_VOICE );
+		$vent_ladder.moveTo ($ladder_extended_pos);
+	}
+
+	void close_vent_ladder()
+	{
+		$vent_ladder_brush.remove();
+		$vent_ladder.time (2);
+		$vent_ladder.accelTime (1.25);
+		$vent_ladder.decelTime (.75);
+		$vent_ladder.startSoundShader ("ladder_4s", SND_CHANNEL_VOICE );
+		$vent_ladder.moveTo ($ladder_retracted_pos);
+		sys.waitFor ($vent_ladder);
+		
+		$vent_panel.time (1);
+		$vent_panel.accelTime (.5);
+		$vent_panel.decelTime (.5);
+		$vent_panel.startSoundShader ("dc5_panel_1_5s", SND_CHANNEL_VOICE);
+		$vent_panel.moveTo ($vent_panel_pos1);
+		sys.waitFor ($vent_panel);
+		
+		sys.wait (.5);
+		$vent_panel.time (1.5);
+		$vent_panel.accelTime (.75);
+		$vent_panel.decelTime (.75);
+		$vent_panel.startSoundShader ("dc5_panel_1s", SND_CHANNEL_VOICE2);
+		$vent_panel.moveTo ($vent_panel_startpos);
+		sys.waitFor ($vent_panel);
+		sys.wait (.5);
+	}
+
+	void start_world()
+	{
+		thread scroll_red_lights();
+		thread scroll_blue_lights();
+	}
+	
+	void cache_sounds() {
+		sys.cacheSoundShader ("dc5_panel_1s");
+		sys.cacheSoundShader ("dc5_panel_1_5s");
+		sys.cacheSoundShader ("ladder_4s");
+	}
+
+	
+	void main()
+	{
+		cache_sounds();
+		init_world();
+		start_world();
+	}
+}

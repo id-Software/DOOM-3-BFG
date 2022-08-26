@@ -1,0 +1,2693 @@
+namespace map_mc_underground {
+
+	// global state variables
+	float saftey_bridge_state = 1;
+	float underarm_work_state = 1;
+	float underarm_fingers_state = -64;
+
+	// variable to track crane movement state
+	float crane_main_state = 0;
+	float crane_dir = 0;
+	
+	// Start Xian Stuff
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("mset1_movement");
+		sys.cacheSoundShader ("mset1_stop");
+		sys.cacheSoundShader ("mset2_movement");
+		sys.cacheSoundShader ("mset2_stop");
+
+		sys.cacheSoundShader ("m1_start");
+		sys.cacheSoundShader ("m1_loop");
+		sys.cacheSoundShader ("m1_stop");		
+		
+		sys.cacheSoundShader ("mcu_support_2s");
+		sys.cacheSoundShader ("mcu_safteybridge_02");
+		sys.cacheSoundShader ("mcu_safteybridge_01");
+		sys.cacheSoundShader ("msmall_pounder");
+		sys.cacheSoundShader ("servo_1s_01");
+		sys.cacheSoundShader ("servo_1s_02");
+		sys.cacheSoundShader ("mech_fingers_1_5s");
+		sys.cacheSoundShader ("airwhomp");
+		sys.cacheSoundShader ("something_interesting");
+		sys.cacheSoundShader ("something_interesting_2");
+		sys.cacheSoundShader ("metalbounce_1");
+		sys.cacheSoundShader ("metalbounce_2");
+		sys.cacheSoundShader ("guisounds_pingup");
+	
+		sys.cacheSoundShader ("steelswing_01");
+		sys.cacheSoundShader ("steelswing_02");
+		sys.cacheSoundShader ("steelswing_03");
+		sys.cacheSoundShader ("steelswing_04");
+		sys.cacheSoundShader ("steelswing_05");
+		sys.cacheSoundShader ("wiresnap");
+		sys.cacheSoundShader ("mc_hellblast_explosion");
+		sys.cacheSoundShader ("mc_leatherface");
+		sys.cacheSoundShader ("mc_invasion_stuff");
+		sys.cacheSoundShader ("mc_substing_01");
+		sys.cacheSoundShader ("mc_substing_02");
+	}
+	
+	// This function triggers sounds to alter the soundscape after the invasion
+	void post_invasion_sounds() {
+		sys.trigger ($hspeaker_1);
+		sys.trigger ($hspeaker_2);
+		sys.trigger ($hspeaker_3);
+		sys.trigger ($hspeaker_4);
+		sys.trigger ($hspeaker_5);
+		sys.trigger ($hspeaker_6);
+		sys.trigger ($hspeaker_7);
+		sys.trigger ($hspeaker_8);
+	}
+
+	void mover_startsound (entity ent) {
+		ent.startSoundShader ("m1_start", SND_CHANNEL_VOICE);
+		sys.wait (0.75);
+		ent.startSoundShader ("m1_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound (entity ent) {
+		ent.startSoundShader ("m1_stop", SND_CHANNEL_VOICE2);
+	}
+
+	// End Xian Stuff
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup binds and times etc...
+	//
+	////////////////////////////////////////////////////
+	void setup_objects()
+	{
+		//rotate crane initially
+		$crane_main.rotateOnce('0 80 0');
+
+		//set initial crane times
+		$crane_main.time (6);
+		$crane_main.accelTime (3);
+		$crane_main.decelTime (2);
+
+		$crane_carrier.bind ($crane_main);
+		$crane_carrier_load.bind ($crane_carrier);
+		$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+		$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+		$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+
+		//rotate the two klaxon lights
+		$emrredlight1_mover.rotateOnce('0 0 45');
+		$emrredlight2_mover.rotateOnce('0 0 45');
+
+		//set airlock door guis initial states to 1
+		$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 1);
+
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+
+		//underarm setup
+		$underarm_top.bind ($underarm_carrier);
+		$underarm_upper.bind ($underarm_top);
+		$underarm_lower.bind ($underarm_upper);
+		$underarm_fingers.bind ($underarm_lower);
+		$underarm_tube.bind ($underarm_lower);
+		$underarm_tube_light.bind ($underarm_tube);
+
+		$underarm_upper.accelTime (.2);
+		$underarm_lower.accelTime (.2);
+		$underarm_upper.decelTime (.2);
+		$underarm_lower.decelTime (.2);
+
+		$underarm_carrier.speed (150);
+		$underarm_carrier.accelTime (.25);
+		$underarm_carrier.decelTime (.25);
+
+		$underarm_fingers.time (.01);
+
+		$underarm_tube.setColor ( 1, 0, 0 );
+		$underarm_tube_light.setColor ( 1, 0, 0 );
+		$underarm_can_1.setColor ( 1, 0, 0 );
+		$underarm_can_1_light.setColor ( 1, 0, 0 );
+		$underarm_can_2.setColor ( 1, 0, 0 );
+		$underarm_can_2_light.setColor ( 1, 0, 0 );
+
+		//fingers to up pose
+		while ( underarm_fingers_state < 0 ){
+			$underarm_fingers.move ( UP, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state += 1;
+		}
+		
+		//arm to storage pose
+		$underarm_upper.rotateOnce ( '0 0 90' );
+		$underarm_lower.rotateOnce ( '0 0 -90' );
+		sys.waitFor ($underarm_lower);
+
+
+		//howitzer setup
+		$how1_barrel.bind ($how1_base);
+		$how1_recep.bind ($how1_base);
+		$how1_catcher.bind ($how1_base);
+		$how1_base.rotateOnce ( '0 0 45' );
+
+		$how2_barrel.bind ($how2_base);
+		$how2_recep.bind ($how2_base);
+		$how2_catcher.bind ($how2_base);
+		$how2_base.rotateOnce ( '0 0 45' );
+
+		$how3_barrel.bind ($how3_base);
+		$how3_recep.bind ($how3_base);
+		$how3_catcher.bind ($how3_base);
+		$how3_base.rotateOnce ( '0 0 45' );
+
+		sys.waitFor($how1_base);
+
+		//crankshaft initial bind and rotate
+		$mc_pistrod1.bind ($mc_assembly_midpoint);
+		$mc_pistrod2.bind ($mc_assembly_midpoint);
+		$mc_pistrod3.bind ($mc_assembly_midpoint);
+
+		$mc_piston1.bind ($mc_assembly_midpoint);
+		$mc_piston2.bind ($mc_assembly_midpoint);
+		$mc_piston3.bind ($mc_assembly_midpoint);
+
+		$mc_crankshaft.bind ($mc_assembly_midpoint);
+
+		$mc_assembly_midpoint.rotateOnce ( '-135 0 0' );
+		sys.waitFor ($mc_assembly_midpoint);
+
+		//crankshaft binds and times 
+		$mc_pistrod1.bind ($mc_piston1);
+		$mc_pistrod2.bind ($mc_piston2);
+		$mc_pistrod3.bind ($mc_piston3);
+
+		$mc_piston1.time (.125);
+		$mc_pistrod1.time (.125);
+		$mc_piston2.time (.125);
+		$mc_pistrod2.time (.125);
+		$mc_piston3.time (.125);
+		$mc_pistrod3.time (.125);
+		$mc_crankshaft.time (.125);
+
+		//little piston machine binds and times
+		$pistrod1.bind ($piston1);
+		$pistrod2.bind ($piston2);
+		$pistrod3.bind ($piston3);
+
+		$piston1.time (.125);
+		$pistrod1.time (.125);
+		$piston2.time (.125);
+		$pistrod2.time (.125);
+		$piston3.time (.125);
+		$pistrod3.time (.125);
+		$crankshaft.time (.125);
+	}
+
+
+	void safety_rails_down ()
+	{
+		//set rail 1 times
+		$safety_rail_1.time( 1 );
+		$safety_rail_1.accelTime( .25 );
+		$safety_rail_1.decelTime( .25 );
+
+		//rails down
+		$safety_rail_1.move( DOWN, 40 );
+	}
+
+	void safety_rails_up ()
+	{
+		//set rail 1 times
+		$safety_rail_1.time( 1 );
+		$safety_rail_1.accelTime( .25 );
+		$safety_rail_1.decelTime( .25 );
+
+		//rails up
+		$safety_rail_1.move( UP, 40 );
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Saftey Bridge AWAY PAIR
+	//	this will put the bridge piece and it's partner
+	//	in the away position
+	//
+	////////////////////////////////////////////////////
+	void saftey_bridge_away_pair(float bridge_number)
+	{
+		entity bh1, bh2, bf1, bf2;
+
+		bh1=sys.getEntity ("saftey_bridge_holder_" + bridge_number );
+		bh2=sys.getEntity ("saftey_bridge_holder_" + (bridge_number+1) );
+
+		bf1=sys.getEntity ("saftey_bridge_floorpiece_" + bridge_number );
+		bf2=sys.getEntity ("saftey_bridge_floorpiece_" + (bridge_number+1) );
+
+		bf1.bind (bh1);
+		bf2.bind (bh2);
+		
+		bh1.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2);
+	
+		bh1.rotateOnce ( '45 0 0' );
+		bh2.rotateOnce ( '-45 0 0' );
+		sys.waitFor (bh1);
+			
+		bf1.unbind ();
+		bf2.unbind ();
+		
+		bf1.startSoundShader ("mcu_safteybridge_02", SND_CHANNEL_VOICE2 );
+		
+		bf1.move ( REL_FORWARD, 256 );
+		bf2.move ( REL_BACK, 256 );
+		sys.waitFor (bf1);
+
+		bh1.startSoundShader ("mcu_safteybridge_01", SND_CHANNEL_VOICE );
+		bh1.rotateOnce ( '-135 0 0' );
+		bh2.rotateOnce ( '135 0 0' );
+		sys.waitFor (bh1);
+
+		if (bridge_number==7){
+			//sys.print( "\nlast bridge is done\n" );
+			saftey_bridge_state = 0;
+			$saftey_bridge_gui.setGuiParm ( "gui_parm1" , 1);
+			//sys.print( "setting bridge gui parm \n" );
+			$underarm_centralight2.fadeInLight (1);
+			$underarm_centralight1.fadeInLight (1);
+		}
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Saftey Bridge FORTH_PAIR
+	//	this will put the bridge piece and it's partner
+	//	in the traversable position
+	//
+	////////////////////////////////////////////////////
+	void saftey_bridge_forth_pair(float bridge_number)
+	{
+		entity bh1, bh2, bf1, bf2;
+
+		bh1=sys.getEntity ("saftey_bridge_holder_" + bridge_number );
+		bh2=sys.getEntity ("saftey_bridge_holder_" + (bridge_number+1) );
+
+		bf1=sys.getEntity ("saftey_bridge_floorpiece_" + bridge_number );
+		bf2=sys.getEntity ("saftey_bridge_floorpiece_" + (bridge_number+1) );
+
+		
+		
+		bh1.startSoundShader ("mcu_safteybridge_01", SND_CHANNEL_VOICE );
+		bh1.rotateOnce ( '135 0 0' );
+		bh2.rotateOnce ( '-135 0 0' );
+		sys.waitFor (bh1);
+
+		bf1.unbind ();
+		bf2.unbind ();
+				
+		bf1.startSoundShader ("mcu_safteybridge_02", SND_CHANNEL_VOICE2 );
+		bf1.move ( REL_BACK, 256 );
+		bf2.move ( REL_FORWARD, 256 );
+		
+		sys.waitFor (bf1);
+
+		bf1.bind (bh1);
+		bf2.bind (bh2);
+		bh1.time ( 2 );
+		bh2.time ( 2 );
+		bh1.accelTime ( 1 );
+		bh2.accelTime ( 1 );
+		bh1.decelTime ( 0 );
+		bh2.decelTime ( 0 );
+		
+		bh1.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2);
+		
+		bh1.rotateOnce ( '-45 0 0' );
+		bh2.rotateOnce ( '45 0 0' );
+		sys.waitFor (bh1);
+			
+		//bounce it
+		bh1.time( .15 );
+		bh2.time( .15 );
+		bh1.accelTime( 0 );
+		bh2.accelTime( 0 );
+		bh1.decelTime( .15 );
+		bh2.decelTime( .15 );
+		bh1.startSoundShader ("metalbounce_1", SND_CHANNEL_VOICE );
+		bh1.rotateOnce( '.75 0 0' );
+		bh2.rotateOnce( '-.75 0 0' );
+		sys.waitFor (bh1);
+
+		bh1.time( .15 );
+		bh2.time( .15 );
+		bh1.accelTime( .15 );
+		bh2.accelTime( .15 );
+		bh1.decelTime( 0 );
+		bh2.decelTime( 0 );
+		//bh1.startSoundShader ("metalbounce_2", SND_CHANNEL_VOICE2 );
+		bh1.rotateOnce( '-.75 0 0' );
+		bh2.rotateOnce( '.75 0 0' );
+		sys.waitFor (bh1);
+
+		bh1.time ( 2 );
+		bh2.time ( 2 );
+		bh1.accelTime ( .5 );
+		bh2.accelTime ( .5 );
+		bh1.decelTime ( .5 );
+		bh2.decelTime ( .5 );
+		bf1.unbind ();
+		bf2.unbind ();
+
+		if (bridge_number==1){
+			saftey_bridge_state = 1;
+			$saftey_bridge_gui.setGuiParm ( "gui_parm1" , 2);
+			$underarm_centralight2.fadeOutLight (1);
+			$underarm_centralight1.fadeOutLight (1);
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Saftey Bridge AWAY
+	//	this will put the bridge in the away position
+	//
+	////////////////////////////////////////////////////
+	void saftey_bridge_away()
+	{
+		float thread1;
+
+		if (saftey_bridge_state == 1){
+			//set the bridge state to prevent reuse
+			$saftey_bridge_gui.setGuiParm ( "gui_parm1" , 0);
+			saftey_bridge_state = 9;
+
+			thread saftey_bridge_away_pair(1);
+			sys.wait (1);
+
+			thread saftey_bridge_away_pair(3);
+			sys.wait (1);
+
+			thread saftey_bridge_away_pair(5);
+			sys.wait (1);
+
+			thread1 = thread saftey_bridge_away_pair(7);
+			sys.waitForThread( thread1);
+
+			//trigger the aas
+			sys.trigger ($bridge_aas);
+
+			//rails up
+			safety_rails_up ();
+
+		}	else {
+			  //sys.print ("bridge already away\n");
+			;
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Saftey Bridge FORTH
+	//	this will put the bridge in the traversalbe position
+	//
+	////////////////////////////////////////////////////
+	void saftey_bridge_forth()
+	{
+		float thread1;
+		//sys.print( "saftey_bridge_state = " + saftey_bridge_state + "\n" );
+		if (saftey_bridge_state == 0){
+
+			//rails down
+			safety_rails_down ();
+
+			//set the bridge state to prevent reuse
+			$saftey_bridge_gui.setGuiParm ( "gui_parm1" , 0);
+			saftey_bridge_state = 9;
+
+			thread saftey_bridge_forth_pair(7);
+			sys.wait (1);
+			
+			thread saftey_bridge_forth_pair(5);
+			sys.wait (1);
+			
+			thread saftey_bridge_forth_pair(3);
+			sys.wait (1);
+
+			thread1 = thread saftey_bridge_forth_pair(1);
+			sys.waitForThread( thread1);
+			
+			//trigger the aas
+			sys.trigger ($bridge_aas);
+			//sys.print ("bridge aas should be on\n");
+
+		}	else {
+			  //sys.print ("bridge already out\n");
+			;
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Rotary movement - the two big rotating
+	//  light chambers
+	//
+	////////////////////////////////////////////////////
+	void rotary()
+	{
+		$fly_around_light.bind ($fly_around_main);
+		$fly_around_speaker.bind ($fly_around_main);
+		$fly_around_end.bind ($fly_around_main);
+
+		$fly_around_main.rotate ( '0 100 0' );
+		$fly_around_middle.rotate ( '0 100 0' );
+
+		$fly_around2_light.bind ($fly_around2_main);
+		$fly_around2_speaker.bind ($fly_around2_main);
+		$fly_around2_end.bind ($fly_around2_main);
+
+		$fly_around2_main.rotate ( '0 -100 0' );
+		$fly_around2_middle.rotate ( '0 -100 0' );
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	howitzer #1 movement ... this is the 1st of 
+	//  the big piston like rods 
+	//
+	////////////////////////////////////////////////////
+	void howitzer_1()
+	{
+		//random numbers to keep howitzers unsynced
+		float ran1,ran2;
+		ran1=sys.random(1);
+		ran2=sys.random(1);
+
+		while (1){
+			//move the catcher up 8 for the recoil action
+			$how1_catcher.time (.4);
+			$how1_catcher.accelTime (.2);
+			$how1_catcher.decelTime (.2);
+
+			$how1_barrel.time (.4);
+			$how1_barrel.accelTime (.2);
+			$how1_barrel.decelTime (.2);
+			
+			$how1_barrel.move ( UP, 10 );
+			$how1_catcher.move ( UP, 10 );
+			sys.waitFor ($how1_barrel);
+			sys.wait (ran1+1);
+
+			//move the barrel upwards slowly
+			$how1_barrel.time (3+ran2);
+			$how1_barrel.accelTime (0);
+			$how1_barrel.decelTime (2);
+
+			$how1_barrel.startSoundShader ("mset2_movement", SND_CHANNEL_VOICE);
+			$how1_barrel.move ( UP, 128 );
+			sys.waitFor ($how1_barrel);
+			$how1_barrel.stopSound ( SND_CHANNEL_VOICE, false );
+			$how1_barrel.startSoundShader ("mset2_stop", SND_CHANNEL_VOICE2);
+
+			//fire the barrel backwards quickly
+			$how1_barrel.time (.25);
+			$how1_barrel.accelTime (.2);
+			$how1_barrel.decelTime (0);
+
+			
+			$how1_barrel.move ( DOWN, 128 );
+			sys.waitFor ($how1_barrel);
+
+			$how1_barrel.startSoundShader ("msmall_pounder", SND_CHANNEL_ANY);
+
+
+			//catch the barrel in the catcher... down 8
+			$how1_catcher.time (.1);
+			$how1_catcher.accelTime (0);
+			$how1_catcher.decelTime (.1);
+
+			$how1_barrel.time (.1);
+			$how1_barrel.accelTime (0);
+			$how1_barrel.decelTime (.1);
+
+			$how1_barrel.move ( DOWN, 10 );
+			$how1_catcher.move ( DOWN, 10 );
+			//sys.trigger ($how1_steam_1);
+			sys.waitFor ($how1_barrel);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	howitzer #2 movement ... this is the 2nd of 
+	//  the big piston like rods 
+	//
+	////////////////////////////////////////////////////
+	void howitzer_2()
+	{
+		//random numbers to keep howitzers unsynced
+		float ran1,ran2;
+		ran1=sys.random(1);
+		ran2=sys.random(1);
+
+		while (1){
+			//move the catcher up 8 for the recoil action
+			$how2_catcher.time (.4);
+			$how2_catcher.accelTime (.2);
+			$how2_catcher.decelTime (.2);
+
+			$how2_barrel.time (.4);
+			$how2_barrel.accelTime (.2);
+			$how2_barrel.decelTime (.2);
+
+			$how2_barrel.move ( UP, 10 );
+			$how2_catcher.move ( UP, 10 );
+			sys.waitFor ($how2_barrel);
+			sys.wait (ran1+1);
+
+			//move the barrel upwards slowly
+			$how2_barrel.time (3+ran2);
+			$how2_barrel.accelTime (0);
+			$how2_barrel.decelTime (2);
+
+			$how2_barrel.startSoundShader ("mset1_movement", SND_CHANNEL_VOICE);
+			$how2_barrel.move ( UP, 128 );
+			sys.waitFor ($how2_barrel);
+			$how2_barrel.stopSound ( SND_CHANNEL_VOICE, false );
+			$how2_barrel.startSoundShader ("mset1_stop", SND_CHANNEL_VOICE2);
+
+			//fire the barrel backwards quickly
+			$how2_barrel.time (.25);
+			$how2_barrel.accelTime (.2);
+			$how2_barrel.decelTime (0);
+
+			$how2_barrel.startSoundShader ("msmall_pounder", SND_CHANNEL_ANY);
+			$how2_barrel.move ( DOWN, 128 );
+			sys.waitFor ($how2_barrel);
+
+			//catch the barrel in the catcher... down 8
+			$how2_catcher.time (.1);
+			$how2_catcher.accelTime (0);
+			$how2_catcher.decelTime (.1);
+
+			$how2_barrel.time (.1);
+			$how2_barrel.accelTime (0);
+			$how2_barrel.decelTime (.1);
+
+			$how2_barrel.move ( DOWN, 10 );
+			$how2_catcher.move ( DOWN, 10 );
+			//sys.trigger ($how2_steam_1);
+			sys.waitFor ($how2_barrel);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	howitzer #3 movement ... this is the 3rd of 
+	//  the big piston like rods 
+	//
+	////////////////////////////////////////////////////
+	void howitzer_3()
+	{
+		//random numbers to keep howitzers unsynced
+		float ran1,ran2;
+		ran1=sys.random(.5);
+		ran2=sys.random(.35);
+
+		while (1){
+			//move the catcher up 8 for the recoil action
+			$how3_catcher.time (.4);
+			$how3_catcher.accelTime (.2);
+			$how3_catcher.decelTime (.2);
+
+			$how3_barrel.time (.4);
+			$how3_barrel.accelTime (.2);
+			$how3_barrel.decelTime (.2);
+
+			$how3_barrel.move ( UP, 10 );
+			$how3_catcher.move ( UP, 10 );
+			sys.waitFor ($how3_barrel);
+			sys.wait (ran1+1);
+
+			//move the barrel upwards slowly
+			$how3_barrel.time (3+ran2);
+			$how3_barrel.accelTime (0);
+			$how3_barrel.decelTime (2);
+
+			$how3_barrel.startSoundShader ("mset2_movement", SND_CHANNEL_VOICE);
+			$how3_barrel.move ( UP, 128 );
+			sys.waitFor ($how3_barrel);
+			$how3_barrel.stopSound ( SND_CHANNEL_VOICE, false );
+			$how3_barrel.startSoundShader ("mset2_stop", SND_CHANNEL_VOICE2);
+
+			//fire the barrel backwards quickly
+			$how3_barrel.time (.25);
+			$how3_barrel.accelTime (.2);
+			$how3_barrel.decelTime (0);
+
+			$how3_barrel.startSoundShader ("msmall_pounder", SND_CHANNEL_ANY);
+			$how3_barrel.move ( DOWN, 128 );
+			sys.waitFor ($how3_barrel);
+
+			//catch the barrel in the catcher... down 8
+			$how3_catcher.time (.1);
+			$how3_catcher.accelTime (0);
+			$how3_catcher.decelTime (.1);
+
+			$how3_barrel.time (.1);
+			$how3_barrel.accelTime (0);
+			$how3_barrel.decelTime (.1);
+
+			$how3_barrel.move ( DOWN, 10 );
+			$how3_catcher.move ( DOWN, 10 );
+			//sys.trigger ($how3_steam_1);
+			sys.waitFor ($how3_barrel);
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	point to point pipe piston movement
+	//
+	////////////////////////////////////////////////////
+	void pipe_piston_move()
+	{
+		//setup 
+		$pipe_piston_p2p.time (.4);
+		$pipe_piston_p2p.accelTime (.1);
+		$pipe_piston_p2p.decelTime (.15);
+		$pipe_piston_p1p.time (.7);
+		$pipe_piston_p1p.accelTime (.1);
+		$pipe_piston_p1p.decelTime (.15);
+		$pipe_piston_p3p.time (.35);
+		$pipe_piston_p3p.accelTime (.1);
+		$pipe_piston_p3p.decelTime (.15);
+
+		while (1){
+			$pipe_piston_p1p.moveTo ( $p1p1 );
+			$pipe_piston_p2p.moveTo ( $p2p2 );
+			$pipe_piston_p3p.moveTo ( $p3p1 );
+			sys.waitFor($pipe_piston_p2p);
+
+			$pipe_piston_p1p.moveTo ( $p1p2 );
+			$pipe_piston_p2p.moveTo ( $p2p1 );
+			$pipe_piston_p3p.moveTo ( $p3p2 );
+			sys.waitFor($pipe_piston_p2p);
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	piston movement
+	//
+	////////////////////////////////////////////////////
+	void crankshaft_move ()
+	{
+		while (1) //begin while
+		{
+		$mc_piston1.move ( REL_UP, 30 );
+		$mc_pistrod1.rotateOnce ( '26.56 0 0' );
+		$mc_piston2.move ( REL_DOWN, 30 );
+		$mc_pistrod2.rotateOnce ( '-26.56 0 0' );
+		$mc_piston3.move ( REL_UP, 30 );
+		$mc_pistrod3.rotateOnce ( '26.56 0 0' );
+		$mc_crankshaft.rotateOnce ( '90 0 0' );
+		sys.waitFor ($mc_piston1);
+
+		$mc_piston1.move ( REL_UP, 30 );
+		$mc_pistrod1.rotateOnce ( '-26.56 0 0' );
+		$mc_piston2.move ( REL_DOWN, 30 );
+		$mc_pistrod2.rotateOnce ( '26.56 0 0' );
+		$mc_piston3.move ( REL_UP, 30 );
+		$mc_pistrod3.rotateOnce ( '-26.56 0 0' );
+		$mc_crankshaft.rotateOnce ( '90 0 0' );
+		sys.waitFor ($mc_piston1);
+
+		$mc_piston1.move ( REL_DOWN, 30 );
+		$mc_pistrod1.rotateOnce ( '-26.56 0 0' );
+		$mc_piston2.move ( REL_UP, 30 );
+		$mc_pistrod2.rotateOnce ( '26.56 0 0' );
+		$mc_piston3.move ( REL_DOWN, 30 );
+		$mc_pistrod3.rotateOnce ( '-26.56 0 0' );
+		$mc_crankshaft.rotateOnce ( '90 0 0' );
+		sys.waitFor ($mc_piston1);
+
+		$mc_piston1.move ( REL_DOWN, 30 );
+		$mc_pistrod1.rotateOnce ( '26.56 0 0' );
+		$mc_piston2.move ( REL_UP, 30 );
+		$mc_pistrod2.rotateOnce ( '-26.56 0 0' );
+		$mc_piston3.move ( REL_DOWN, 30 );
+		$mc_pistrod3.rotateOnce ( '26.56 0 0' );
+		$mc_crankshaft.rotateOnce ( '90 0 0' );
+		sys.waitFor ($mc_pistrod1);
+		} //end while
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	little first room machine
+	//
+	////////////////////////////////////////////////////
+	void lilfrm_move ()
+	{
+		$lilfrm_part1.time (.25);
+		$lilfrm_part2.time (.4);
+		$lilfrm_part3.time (.3);
+		$lilfrm_part4.time (.35);
+		$lilfrm_part5.time (.4);
+
+		while (1) //begin main while
+		{
+		$lilfrm_part1.rotateOnce ( '0 0 2' );
+		$lilfrm_part2.rotateOnce ( '0 0 2' );
+		$lilfrm_part3.rotateOnce ( '0 0 -2' );
+		$lilfrm_part4.rotateOnce ( '0 0 -2' );
+		$lilfrm_part5.rotateOnce ( '0 0 -2' );
+		sys.waitFor ($lilfrm_part1);
+		$lilfrm_part1.rotateOnce ( '0 0 -2' );
+		$lilfrm_part2.rotateOnce ( '0 0 -2' );
+		$lilfrm_part3.rotateOnce ( '0 0 2' );
+		$lilfrm_part4.rotateOnce ( '0 0 2' );
+		$lilfrm_part5.rotateOnce ( '0 0 2' );
+		sys.waitFor ($lilfrm_part1);
+		} //end main while
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	red light thing 
+	//
+	////////////////////////////////////////////////////
+	void redthing_move ()
+	{
+		$redthing_mover.time ( 1 );
+		$redthing_mover.accelTime ( .25 );
+		$redthing_mover.decelTime ( .25 );
+
+		float ran1;
+
+		while (1) //begin main while
+		{
+		ran1=sys.random(3);
+		
+		if (ran1<1){
+			$redthing_mover.moveTo ($redlightpoint_1);
+			sys.waitFor ($redthing_mover);
+		} else if (ran1<2) {
+			$redthing_mover.moveTo ($redlightpoint_2);
+			sys.waitFor ($redthing_mover);
+		} else {
+			$redthing_mover.moveTo ($redlightpoint_3);
+			sys.waitFor ($redthing_mover);
+		}
+
+		} //end main while
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	underarm_can_1_manip
+	//
+	////////////////////////////////////////////////////
+	void underarm_can_1_manip()
+	{
+		if (underarm_work_state == 0){
+			return;
+		}
+
+		//move to sopt can 1
+		
+		thread mover_startsound ($underarm_carrier);
+		
+		$underarm_carrier.moveTo ($underarm_spot_can1);
+		sys.waitFor ($underarm_carrier);
+		mover_stopsound ($underarm_carrier);
+
+
+		if (underarm_work_state == 0){
+			return;
+		}
+
+		//arm down 
+		$underarm_upper.startSoundShader ("servo_1s_01", SND_CHANNEL_VOICE );
+		$underarm_upper.rotateOnce ( '0 0 -90' );
+		$underarm_lower.startSoundShader ("servo_1s_02", SND_CHANNEL_VOICE );
+		$underarm_lower.rotateOnce ( '0 0 90' );
+		sys.waitFor ($underarm_lower);
+
+		//fingers to down pose
+		$underarm_fingers.startSoundShader ("mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state > -64 ){
+			$underarm_fingers.move ( DOWN, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state -= 1;
+		}
+
+		//bind can 1 to fingers
+		$underarm_can_1.bind ($underarm_fingers);
+
+		//fingers to up pose
+		$underarm_tube.startSoundShader ("airwhomp", SND_CHANNEL_VOICE2 );
+		$underarm_fingers.startSoundShader ("mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state < 0 ){
+			$underarm_fingers.move ( UP, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state += 1;
+		}
+
+		//do something interesting
+		$underarm_tube.startSoundShader ("something_interesting", SND_CHANNEL_VOICE );
+		thread crossFadeEnt ($underarm_tube, '1 0 0', '.5 1 1', 1.75);
+		thread crossFadeEnt ($underarm_tube_light, '1 0 0', '.5 1 1', 1.75);
+		thread crossFadeEnt ($underarm_can_1, '1 0 0', '.5 1 1', 1.75);
+		thread crossFadeEnt ($underarm_can_1_light, '1 0 0', '.5 1 1', 1.75);
+		
+		sys.wait (2);
+
+		//fingers to down pose
+		$underarm_fingers.startSoundShader ("mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		$underarm_tube.startSoundShader ("something_interesting_2", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state > -64 ){
+			$underarm_fingers.move ( DOWN, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state -= 1;
+		}
+
+		//unbind can 1 from fingers
+		$underarm_can_1.unbind ();
+
+		
+		//fingers to up pose
+		
+		
+		$underarm_fingers.startSoundShader ("mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state < 0 ){
+			$underarm_fingers.move ( UP, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state += 1;
+		}
+
+		//turn tube back to red
+		
+		thread crossFadeEnt ($underarm_tube, '.5 1 1', '1 0 0', 1.75);
+		thread crossFadeEnt ($underarm_tube_light, '.5 1 1', '1 0 0', 1.75);
+		thread crossFadeEnt ($underarm_can_1, '.5 1 1', '1 0 0', 2);
+		thread crossFadeEnt ($underarm_can_1_light, '.5 1 1', '1 0 0', 2);
+		
+		//arm up
+		$underarm_upper.startSoundShader ("servo_1s_01", SND_CHANNEL_VOICE );
+		$underarm_upper.rotateOnce ( '0 0 90' );
+		$underarm_lower.startSoundShader ("servo_1s_02", SND_CHANNEL_VOICE );
+		$underarm_lower.rotateOnce ( '0 0 -90' );
+		sys.waitFor ($underarm_lower);
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	underarm_can_2_manip
+	//
+	////////////////////////////////////////////////////
+	void underarm_can_2_manip()
+	{
+		if (underarm_work_state == 0){
+			return;
+		}
+
+		//move to sopt can 2
+
+		thread mover_startsound ($underarm_carrier);
+
+		$underarm_carrier.moveTo ($underarm_spot_can2);
+		sys.waitFor ($underarm_carrier);
+		mover_stopsound ($underarm_carrier);
+		
+		if (underarm_work_state == 0){
+			return;
+		}
+
+		//arm down 
+		$underarm_upper.startSoundShader ("servo_1s_01", SND_CHANNEL_VOICE );
+		$underarm_upper.rotateOnce ( '0 0 -90' );
+		$underarm_lower.startSoundShader ("servo_1s_02", SND_CHANNEL_VOICE );
+		$underarm_lower.rotateOnce ( '0 0 90' );
+		sys.waitFor ($underarm_lower);
+
+		//fingers to down pose
+		while ( underarm_fingers_state > -64 ){
+			$underarm_fingers.move ( DOWN, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state -= 1;
+		}
+
+		//bind can 2 to fingers
+		$underarm_can_2.bind ($underarm_fingers);
+
+		//fingers to up pose
+		$underarm_tube.startSoundShader ("airwhomp", SND_CHANNEL_VOICE2 );
+		$underarm_fingers.startSoundShader ("mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state < 0 ){
+			$underarm_fingers.move ( UP, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state += 1;
+		}
+
+		//do something interesting
+		$underarm_tube.startSoundShader ("something_interesting", SND_CHANNEL_VOICE );
+		thread crossFadeEnt ($underarm_tube, '1 0 0', '.5 1 1', 1.75);
+		thread crossFadeEnt ($underarm_tube_light, '1 0 0', '.5 1 1', 1.75);
+		thread crossFadeEnt ($underarm_can_2, '1 0 0', '.5 1 1', 1.75);
+		thread crossFadeEnt ($underarm_can_2_light, '1 0 0', '.5 1 1', 1.75);
+
+		sys.wait (2);
+
+		//fingers to down pose
+		$underarm_fingers.startSoundShader ( "mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		$underarm_tube.startSoundShader ( "something_interesting_2", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state > -64 ){
+			$underarm_fingers.move ( DOWN, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state -= 1;
+		}
+
+		//unbind can 2 from fingers
+		$underarm_can_2.unbind ();
+
+		//fingers to up pose
+		
+		
+		$underarm_fingers.startSoundShader ("mech_fingers_1_5s", SND_CHANNEL_VOICE );
+		while ( underarm_fingers_state < 0 ){
+			$underarm_fingers.move ( UP, 1 );
+			sys.waitFor ($underarm_fingers);
+			underarm_fingers_state += 1;
+		}
+
+		//turn tube back to red
+		
+		thread crossFadeEnt ($underarm_tube, '.5 1 1', '1 0 0', 1.75);
+		thread crossFadeEnt ($underarm_tube_light, '.5 1 1', '1 0 0', 1.75);
+		thread crossFadeEnt ($underarm_can_2, '.5 1 1', '1 0 0', 2);
+		thread crossFadeEnt ($underarm_can_2_light, '.5 1 1', '1 0 0', 2);
+		
+		//arm up
+		$underarm_upper.startSoundShader ("servo_1s_01", SND_CHANNEL_VOICE );
+		$underarm_upper.rotateOnce ( '0 0 90' );
+		$underarm_lower.startSoundShader ("servo_1s_02", SND_CHANNEL_VOICE );
+		$underarm_lower.rotateOnce ( '0 0 -90' );
+		sys.waitFor ($underarm_lower);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	underarm_store
+	//	stops underarm from doing it's thing and
+	//	then moves it away to it's store spot
+	//
+	////////////////////////////////////////////////////
+	void underarm_store ()
+	{
+		//move to corner spot
+		$underarm_carrier.moveTo ($underarm_spot_corner);
+		sys.waitFor ($underarm_carrier);
+
+		//rotate around corner
+		$underarm_carrier.rotateOnce ( '0 90 0' );
+		sys.waitFor ($underarm_carrier);
+
+		//move to storage spot
+		$underarm_carrier.moveTo ($underarm_spot_store);
+		sys.waitFor ($underarm_carrier);
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	underarm_work
+	//	arm moves from spot to spot and does it's thing
+	//
+	////////////////////////////////////////////////////
+	void underarm_work ()
+	{
+		while ( underarm_work_state == 1 ){
+			map_mc_underground::underarm_can_1_manip();
+			sys.wait(.1);
+			map_mc_underground::underarm_can_2_manip();
+			sys.wait(.1);
+		}
+		//sys.print ("Underarm finishing it's work before storage...\n");
+
+		map_mc_underground::underarm_store ();
+		map_mc_underground::saftey_bridge_forth();
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	underarm_work_state_off
+	//	state that tells underarm to stop working
+	//
+	////////////////////////////////////////////////////
+	void underarm_work_state_off ()
+	{
+		sys.wait( 1 );
+		underarm_work_state = 0;
+
+		sys.wait( 2 );
+		sys.trigger( $computer_bridgeext7sec_speaker );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	underarm_work_state_on
+	//	state that tells underarm to stop working
+	//
+	////////////////////////////////////////////////////
+	void underarm_work_state_on ()
+	{
+		//bridge away
+		map_mc_underground::saftey_bridge_away ();
+
+		//bring arm back around the bend
+		//move to corner spot
+		$underarm_carrier.moveTo ($underarm_spot_corner);
+		sys.waitFor ($underarm_carrier);
+
+		//rotate around corner
+		$underarm_carrier.rotateOnce ( '0 -90 0' );
+		sys.waitFor ($underarm_carrier);
+
+		//underarm back to work
+		underarm_work_state = 1;
+		map_mc_underground::underarm_work();
+	}
+
+	
+	////////////////////////////////////////////////////
+	//
+	//	Crane load damage off
+	//
+	////////////////////////////////////////////////////
+	void crane_load_damage_off ()
+	{
+	//turn the damage off the movers
+		$crane_box1.enableDamage( 0 );
+		$crane_box2.enableDamage( 0 );
+		$crane_box3.enableDamage( 0 );
+		$crane_box4.enableDamage( 0 );
+		$crane_beam1.enableDamage( 0 );
+		$crane_beam2.enableDamage( 0 );
+		$crane_beam3.enableDamage( 0 );
+		$crane_beam4.enableDamage( 0 );
+		$crane_beam5.enableDamage( 0 );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane drop the load
+	//
+	////////////////////////////////////////////////////
+	void crane_drop ()
+	{
+		$platform.startSoundShader ("wiresnap", SND_CHANNEL_BODY );
+		$breaking_wires.remove();
+		
+		sys.trigger ($speaker_crane_fall);
+		
+		$platform.time( 1.0 );
+		$platform.accelTime( 0.1 );
+		$platform.decelTime( 0.5 );
+		
+		$platform.startSoundShader ("steelswing_01", SND_CHANNEL_VOICE );
+		
+		$platform.rotateOnce( '-150 0 0' );					// Swing Sound
+		sys.waitFor( $platform );
+
+		//trigger the rail to break
+		sys.trigger($pi_cave_rail);
+		
+		$wires.time( 1.5 );
+		$wires.accelTime( 0.25 );
+		$wires.decelTime( 0.25 );
+		$platform.time( 1.5 );
+		$platform.accelTime( 0.25 );
+		$platform.decelTime( 0.25 );
+		$wires.rotateOnce( '50 0 0' );
+		
+		$platform.startSoundShader ("steelswing_02", SND_CHANNEL_VOICE2 );
+		
+		$platform.rotateOnce( '105 0 0' );					// Swing Sound
+		sys.waitFor( $platform );
+
+		$wires.time( 1.1 );
+		$wires.accelTime( 0.2 );
+		$wires.decelTime( 0.2 );
+		$platform.time( 1.1 );
+		$platform.accelTime( 0.2 );
+		$platform.decelTime( 0.2 );
+		$wires.rotateOnce( '-30 0 0' );
+		
+		$platform.startSoundShader ("steelswing_03", SND_CHANNEL_BODY2 );
+		
+		$platform.rotateOnce( '-75 0 0' );					// Swing sound
+		
+		sys.waitFor( $platform );
+
+		$wires.time( 0.8 );
+		$wires.accelTime( 0.15 );
+		$wires.decelTime( 0.15 );
+		$platform.time( 0.6 );
+		$platform.accelTime( 0.1 );
+		$platform.decelTime( 0.1 );
+		$wires.rotateOnce( '10 0 0' );
+		
+		$platform.startSoundShader ("steelswing_04", SND_CHANNEL_VOICE );
+		
+		$platform.rotateOnce( '30 0 0' );					// Swing sound
+		sys.waitFor( $platform );
+
+		//turn the damage off the movers
+		thread map_mc_underground::crane_load_damage_off();
+
+		$platform.time( 1.0 );
+		$platform.accelTime( 0.2 );
+		$platform.decelTime( 0.2 );
+		
+		$platform.startSoundShader ("steelswing_05", SND_CHANNEL_VOICE );
+		
+		$platform.rotateOnce( '-30 0 0' );					// Swing sound
+		sys.waitFor( $platform );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Open airlock door
+	//
+	////////////////////////////////////////////////////
+	void airlock_door_open( float airlock, float doornum )
+	{
+		entity ent;
+		entity entdoorr, entdoorl;
+		entity speaker;
+		string door1;
+		string door2;
+		float  portalstate;
+		float  movedist;
+
+		if ( doornum == 2 ) {
+			door1 = "airlock" + airlock + "_door2";
+			door2 = "airlock" + airlock + "_door1";
+			portalstate = 2;
+			movedist = -16;
+		} else {
+			door1 = "airlock" + airlock + "_door1";
+			door2 = "airlock" + airlock + "_door2";
+			portalstate = 1;
+			movedist = 16;
+		}
+
+		//turn door1 light on and door2 light off
+		ent=sys.getEntity( door2 + "_light" );
+		thread crossFadeEnt( ent, '.84 .84 .9', '0.37 0.05 0.01', 1 );
+		
+		sys.wait(1);
+
+		ent=sys.getEntity( door1 + "_light" );
+		thread crossFadeEnt( ent, '0.37 0.05 0.01', '.84 .84 .9', 1 );
+
+		//move the 4 locks to unlock position
+		ent=sys.getEntity( door1 + "_top_lock" );
+		ent.time( 0.25 );
+		ent.move( UP, 15 );
+
+		speaker=sys.getEntity( "speaker_" + door1 + "_bottom_lock" );
+		sys.trigger( speaker );
+ 
+		ent=sys.getEntity( door1 + "_bottom_lock" );
+		ent.time( 0.25 );
+		ent.move( DOWN, 15 );
+
+		sys.waitFor( ent );
+
+		speaker=sys.getEntity( "speaker_" + door1 + "_left_lock" );
+		sys.trigger( speaker );
+
+		ent=sys.getEntity( door1 + "_left_lock" );
+		ent.time( 0.75 );
+		ent.move( SOUTH, movedist );
+
+		speaker=sys.getEntity( "speaker_" + door1 + "_right_lock" );
+		sys.trigger( speaker );
+
+		ent=sys.getEntity( door1 + "_right_lock" );
+		ent.time( 0.75 );
+		ent.move( SOUTH, movedist );
+
+		sys.waitFor( ent );
+
+		//open doors
+		speaker=sys.getEntity( "speaker_" + door1 + "_open" );
+		sys.trigger( speaker );
+
+		entdoorl=sys.getEntity( door1 + "_left" );
+		entdoorl.time( 1.2 );
+		entdoorl.rotateOnce( '0 45 0' );
+
+		entdoorr=sys.getEntity( door1 + "_right" );
+		entdoorr.time( 1.2 );
+		entdoorr.rotateOnce( '0 -45 0' );
+
+		//trigger the portal
+		ent=sys.getEntity( door1 + "_portal" );
+		sys.trigger( ent );
+
+		sys.waitFor( entdoorr );
+		sys.waitFor( entdoorl );
+
+		//set airlock state
+		ent=sys.getEntity( "airlock" + airlock + "_door1_portal" );
+		ent.setKey( "state", portalstate );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Close airlock door
+	//
+	////////////////////////////////////////////////////
+	void airlock_door_close(float airlock, float doornum )
+	{
+		entity ent;
+		entity entdoorr, entdoorl;
+		entity speaker;
+		string door;
+		float  movedist;
+
+		if ( doornum == 2 ) {
+			door = "airlock" + airlock + "_door2";
+			movedist = 16;
+		} else {
+			door = "airlock" + airlock + "_door1";
+			movedist = -16;
+		}
+
+		//close doors
+
+		speaker= sys.getEntity( "speaker_" + door + "_close" );
+		sys.trigger (speaker);
+
+		entdoorl=sys.getEntity ( door + "_left" );
+		entdoorl.time (1.2);
+		entdoorl.rotateOnce ( '0 -45 0' );
+
+		entdoorr=sys.getEntity ( door + "_right" );
+		entdoorr.time (1.2);
+		entdoorr.rotateOnce ( '0 45 0' );
+
+		sys.waitFor (entdoorr);
+		sys.waitFor (entdoorl);
+
+		//trigger the portal
+		ent=sys.getEntity ( door + "_portal" );
+		sys.trigger (ent);
+
+		//move the 4 locks to unlock position
+		ent=sys.getEntity ( door + "_top_lock" );
+		ent.time (0.25);
+		ent.move ( DOWN, 15 );
+
+		speaker=sys.getEntity ("speaker_" + door + "_bottom_lock");
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door + "_bottom_lock" );
+		ent.time (0.25);
+		ent.move ( UP, 15 );
+		
+		speaker=sys.getEntity ("speaker_" + door + "_left_lock" );
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door + "_left_lock" );
+		ent.time (0.75);
+		ent.move ( SOUTH, movedist );
+
+		speaker=sys.getEntity ("speaker_" + door + "_right_lock" );
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door + "_right_lock" );
+		ent.time (0.75);
+		ent.move ( SOUTH, movedist );
+
+		sys.waitFor (ent);
+
+}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Main Activate airlock
+	//	conditionally chooses based on entrance
+	//
+	////////////////////////////////////////////////////
+	void airlock_main_activate(float airlock)
+	{
+		entity ent;
+
+		//check to see which way the palyer entered by checking the airlock_state
+		//if 1 then close 1 and open 2
+
+		ent=sys.getEntity ("airlock" + airlock + "_door1_portal" );
+			
+		if (ent.getFloatKey ("state")==1) {
+			airlock_door_close( airlock, 1 );
+			airlock_door_open( airlock, 2 );
+
+		} else { //else close 2 and open 1
+			airlock_door_close( airlock, 2 );
+			airlock_door_open( airlock, 1 );
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK main activation
+	//	
+	////////////////////////////////////////////////////
+	void airlock1_activate()
+	{
+		//disable the guis on the doors
+		$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock1_innerguiholder.setGuiParm ( "gui_parm11" , 0);
+	
+		airlock_main_activate(1);
+
+		//check the airlock state and enable the guis on the closed door
+		if ($airlock1_door1_portal.getFloatKey ("state")==1) {
+			$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		} else { //else close 2 and open 1
+			$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		}
+
+		$airlock1_innerguiholder.setGuiParm ( "gui_parm11" , 1);
+	}
+	
+	void airlock2_activate()
+	{
+		//disable the guis on the doors
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock2_innerguiholder.setGuiParm ( "gui_parm11" , 0);
+
+		airlock_main_activate(2);
+
+		//check the airlock state and enable the guis on the closed door
+		if ($airlock2_door1_portal.getFloatKey ("state")==1) {
+			$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		} else { //else close 2 and open 1
+			$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		}
+
+		$airlock2_innerguiholder.setGuiParm ( "gui_parm11" , 1);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK doors opening
+	//	
+	////////////////////////////////////////////////////
+	void airlock1_door1_open()
+	{
+		airlock_door_open(1, 1);
+	}
+
+	void airlock1_door2_open()
+	{
+		airlock_door_open(1, 2);
+	}
+
+	void airlock2_door1_open()
+	{
+		airlock_door_open(2, 1);
+	}
+
+	void airlock2_door2_open()
+	{
+		airlock_door_open(2, 2);
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Break Zombie airlock door
+	//
+	////////////////////////////////////////////////////
+	void airlock1_break()
+	{
+		//unhide the clip that will prevent the player from getting outside
+		//once the gui is pressed
+		sys.trigger( $airlock_break_clip );
+
+		airlock_door_close( 1, 2 );
+		
+		//disable the gui on door1
+		$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 0);
+
+		//turn door1 light on and door2 light off
+		thread crossFadeEnt ($airlock1_door2_light, '.84 .84 .9', '0.37 0.05 0.01', 1);
+		sys.wait(1);
+		thread crossFadeEnt ($airlock1_door1_light, '0.37 0.05 0.01', '.84 .84 .9', 1);
+
+		//move the 4 locks to unlock position
+		$airlock1_door1_top_lock.time (0.25);
+		$airlock1_door1_top_lock.move ( UP, 15 );
+		
+		$airlock1_door1_bottom_lock.time (0.25);
+		sys.trigger ($speaker_airlock1_door1_bottom_lock);
+		$airlock1_door1_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock1_door1_bottom_lock);
+
+		$airlock1_door1_left_lock.time (0.75);
+		sys.trigger ($speaker_airlock1_door1_left_lock);
+		
+		$airlock1_door1_left_lock.move ( SOUTH, 16 );
+		$airlock1_door1_right_lock.time (0.75);
+		
+		sys.trigger ($speaker_airlock1_door1_right_lock);
+		$airlock1_door1_right_lock.move ( SOUTH, 16 );
+		
+		sys.waitFor ($airlock1_door1_right_lock);
+
+		//trigger the portal
+		sys.trigger ($airlock1_door1_portal);
+
+		//lightswitch to sound flicker light
+		sys.trigger ($airlock1_door1_light);
+		//sys.trigger ($airlockzombielight);
+
+		//trigger anim shit
+		sys.trigger ($airlockzombietrigger);
+
+		//spark
+		sys.trigger ($airlockzombiespark1);
+
+		//doors open a bit then stutter a bit leaving the crack in the door
+		$airlock1_door1_left.time(.4);
+		$airlock1_door1_right.time(.4);
+		sys.trigger ($speaker_malfunction_1);
+		$airlock1_door1_left.rotateOnce ( '0 4 0' );
+		$airlock1_door1_right.rotateOnce ( '0 -4 0' );
+		sys.waitFor ($airlock1_door1_right);
+		
+		$airlock1_door1_left.time(.3);
+		$airlock1_door1_right.time(.3);
+		sys.trigger ($speaker_malfunction_2);
+		$airlock1_door1_left.rotateOnce ( '0 -3 0' );
+		$airlock1_door1_right.rotateOnce ( '0 3 0' );
+		sys.waitFor ($airlock1_door1_right);
+		
+		$airlock1_door1_left.time(.3);
+		$airlock1_door1_right.time(.3);
+		sys.trigger ($speaker_malfunction_2a);
+		$airlock1_door1_left.rotateOnce ( '0 10 0' );
+		$airlock1_door1_right.rotateOnce ( '0 -3 0' );
+		sys.waitFor ($airlock1_door1_right);
+		
+		$airlock1_door1_left.time(.25);
+		$airlock1_door1_right.time(.25);
+		sys.trigger ($speaker_malfunction_3);
+		$airlock1_door1_left.rotateOnce ( '0 -5 0' );
+		$airlock1_door1_right.rotateOnce ( '0 -3 0' );
+		sys.waitFor ($airlock1_door1_right);
+
+		//spark
+		sys.trigger ($airlockzombiespark2);
+		sys.trigger ($airlockzombiespark1);
+
+		//trigger light to go off completely 
+		//sys.trigger ($airlockzombielight);
+
+		sys.wait( 2 );
+
+		//trigger garage skull fly through
+		sys.trigger( $garagelight_break_relay );
+		sys.trigger( $garageskulltrigger );
+
+		//wait 
+		sys.wait( 4 );
+
+		//spark
+		sys.trigger( $airlockzombiespark2 );
+		sys.trigger( $airlockzombiespark1 );
+
+		//wait 
+		sys.wait(1);
+
+		//open one door fully to allow the player to exit the airlock
+		$airlock1_door1_right.time(1.2);
+		sys.trigger ($speaker_airlock1_door1_open);
+		
+		$airlock1_door1_right.rotateOnce ( '0 -38 0' );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	piston movement
+	//
+	////////////////////////////////////////////////////
+	void piston_move ()
+	{
+		while (1) //begin while
+		{
+		
+		$piston1.move ( DOWN, 6 );
+		$pistrod1.rotateOnce ( '0 0 -26.56' );
+		$piston2.move ( UP, 6 );
+		$pistrod2.rotateOnce ( '0 0 26.56' );
+		$piston3.move ( DOWN, 6 );
+		$pistrod3.rotateOnce ( '0 0 -26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( DOWN, 6 );
+		$pistrod1.rotateOnce ( '0 0 26.56' );
+		$piston2.move ( UP, 6 );
+		$pistrod2.rotateOnce ( '0 0 -26.56' );
+		$piston3.move ( DOWN, 6 );
+		$pistrod3.rotateOnce ( '0 0 26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( UP, 6 );
+		$pistrod1.rotateOnce ( '0 0 26.56' );
+		$piston2.move ( DOWN, 6 );
+		$pistrod2.rotateOnce ( '0 0 -26.56' );
+		$piston3.move ( UP, 6 );
+		$pistrod3.rotateOnce ( '0 0 26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( UP, 6 );
+		$pistrod1.rotateOnce ( '0 0 -26.56' );
+		$piston2.move ( DOWN, 6 );
+		$pistrod2.rotateOnce ( '0 0 26.56' );
+		$piston3.move ( UP, 6 );
+		$pistrod3.rotateOnce ( '0 0 -26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		} //end while
+
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	canister mover
+	//
+	////////////////////////////////////////////////////
+	void canister_mover ()
+	{
+		sys.wait (2);
+		$canismover_rdoor.time (1);
+		$canismover_ldoor.time (1);
+
+		while (1) //begin while
+		{
+			//back into recess 192
+			sys.trigger ($speaker_can1_move);					// SOUND
+			$canismover_anchor.time (2);
+			$canismover_anchor.accelTime (2);
+			$canismover_anchor.decelTime (0);
+			
+			$canismover_anchor.move ( WEST, 192 );
+			sys.waitFor ($canismover_anchor);
+			
+			//close doors (move 24)
+			sys.trigger ($speaker_candoor1_close);				// SOUND
+			$canismover_rdoor.move (NORTH, -24);
+			$canismover_ldoor.move (NORTH, 24);
+			sys.waitFor ($canismover_ldoor);
+
+			//hide it all
+			$canismover.hide ();
+			$func_static_5240.hide ();
+			$func_static_5239.hide ();
+			$light_5120.Off ();
+			$func_static_5252.hide ();
+			$light_5121.Off ();
+			$func_static_5233.hide ();
+			$light_5118.Off ();
+			$light_5116.Off ();
+			$func_static_5248.hide ();
+
+			//wait after it goes behind the closed doors
+			sys.wait (3);
+
+			//bring it forward 192
+			$canismover_anchor.time (.1);
+			$canismover_anchor.accelTime (0);
+			$canismover_anchor.decelTime (0);
+			
+			$canismover_anchor.move ( WEST, -192 );
+			sys.waitFor ($canismover_anchor);
+			
+			//rotate it quickly 90 degs to down position
+			$canismover_anchor.time (.1);
+			$canismover_anchor.accelTime (0);
+			$canismover_anchor.decelTime (0);
+
+			
+			$canismover_anchor.rotateOnce ( '90 0 0' );
+			sys.waitFor ($canismover_anchor);
+
+			//unhide it all
+			$canismover.show ();
+			$func_static_5240.show ();
+			$func_static_5239.show ();
+			$light_5120.On ();
+			$func_static_5252.show ();
+			$light_5121.On ();
+			$func_static_5233.show ();
+			$light_5118.On ();
+			$light_5116.On ();
+			$func_static_5248.show ();
+
+			//open doors (move 24)
+			sys.trigger ($speaker_candoor2_open);				// SOUND
+
+			$canismover_rdoor.move (NORTH, 24);
+			$canismover_ldoor.move (NORTH, -24);
+			sys.waitFor ($canismover_ldoor);
+
+			//rotate it up -90 degs 
+			$canismover_anchor.time (2);
+			$canismover_anchor.accelTime (2);
+			$canismover_anchor.decelTime (0);
+			
+			sys.trigger ($speaker_can1_updown);					// SOUND
+			
+			$canismover_anchor.rotateOnce ( '-90 0 0' );
+			sys.waitFor ($canismover_anchor);
+	
+			//bounce
+			$canismover_anchor.time (.15);
+			$canismover_anchor.accelTime (.15);
+			$canismover_anchor.decelTime (0);
+			$canismover_anchor.rotateOnce ( '1.5 0 0' );
+			sys.waitFor ($canismover_anchor);
+
+			$canismover_anchor.time (.15);
+			$canismover_anchor.accelTime (0);
+			$canismover_anchor.decelTime (.15);
+			$canismover_anchor.rotateOnce ( '-1.5 0 0' );
+			sys.waitFor ($canismover_anchor);
+
+			$canismover_anchor.time (.10);
+			$canismover_anchor.accelTime (.10);
+			$canismover_anchor.decelTime (0);
+			$canismover_anchor.rotateOnce ( '.5 0 0' );
+			sys.waitFor ($canismover_anchor);
+
+			$canismover_anchor.time (.10);
+			$canismover_anchor.accelTime (0);
+			$canismover_anchor.decelTime (.10);
+			$canismover_anchor.rotateOnce ( '-.5 0 0' );
+			sys.waitFor ($canismover_anchor);
+					
+			//twist it up 
+			$canismover_anchor.time (4.5);
+			$canismover_anchor.accelTime (1.5);
+			$canismover_anchor.decelTime (1);
+
+			sys.trigger ($speaker_can1_rot);					// SOUND
+			$canismover_anchor.rotateOnce ( '0 0 540' );
+			sys.waitFor ($canismover_anchor);
+
+			sys.wait (0.5);
+
+			sys.trigger ($speaker_can1_rot);					// SOUND
+			$canismover_anchor.rotateOnce ( '0 0 -540' );
+			sys.waitFor ($canismover_anchor);
+
+		} //end while
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	canister2 mover 
+	//
+	////////////////////////////////////////////////////
+	void canister2_mover ()
+	{
+		sys.wait (6);
+		$canismover2_rdoor.time (1);
+		$canismover2_ldoor.time (1);
+		while (1) //begin while
+		{
+			//back into recess 192
+			$canismover2_anchor.time (2);
+			$canismover2_anchor.accelTime (2);
+			$canismover2_anchor.decelTime (0);
+			
+			sys.trigger ($speaker_can2_move);					// SOUND
+			$canismover2_anchor.move ( WEST, 192 );
+			sys.waitFor ($canismover2_anchor);
+			
+			//close doors (move 24)
+			sys.trigger ($speaker_candoor2_close);				// SOUND
+			$canismover2_rdoor.move (NORTH, -24);
+			$canismover2_ldoor.move (NORTH, 24);
+			sys.waitFor ($canismover2_ldoor);
+
+			//hide it all
+			$canismover2.hide ();
+			$func_static_52402.hide ();
+			$func_static_52392.hide ();
+			$light_51202.Off ();
+			$func_static_52522.hide ();
+			$light_51212.Off ();
+			$func_static_52332.hide ();
+			$light_51182.Off ();
+			$light_51162.Off ();
+			$func_static_52482.hide ();
+
+			//wait after it goes behind the closed doors
+			sys.wait (3);
+
+			//bring it forward 192
+			$canismover2_anchor.time (.1);
+			$canismover2_anchor.accelTime (0);
+			$canismover2_anchor.decelTime (0);
+			
+			$canismover2_anchor.move ( WEST, -192 );
+			sys.waitFor ($canismover2_anchor);
+			
+			//rotate it quickly 90 degs to down position
+			$canismover2_anchor.time (.1);
+			$canismover2_anchor.accelTime (0);
+			$canismover2_anchor.decelTime (0);
+
+			$canismover2_anchor.rotateOnce ( '90 0 0' );
+			sys.waitFor ($canismover2_anchor);
+
+			//unhide it all
+			$canismover2.show ();
+			$func_static_52402.show ();
+			$func_static_52392.show ();
+			$light_51202.On ();
+			$func_static_52522.show ();
+			$light_51212.On ();
+			$func_static_52332.show ();
+			$light_51182.On ();
+			$light_51162.On ();
+			$func_static_52482.show ();
+
+			//open doors (move 24)
+			$canismover2_rdoor.move (NORTH, 24);
+			$canismover2_ldoor.move (NORTH, -24);
+			sys.trigger ($speaker_candoor2_open);				// SOUND
+			
+			sys.waitFor ($canismover2_ldoor);
+
+			//rotate it up -90 degs 
+			$canismover2_anchor.time (2);
+			$canismover2_anchor.accelTime (2);
+			$canismover2_anchor.decelTime (0);
+			
+			sys.trigger ($speaker_can2_updown);					// SOUND
+			$canismover2_anchor.rotateOnce ( '-90 0 0' );
+			sys.waitFor ($canismover2_anchor);
+	
+			//bounce
+			$canismover2_anchor.time (.15);
+			$canismover2_anchor.accelTime (.15);
+			$canismover2_anchor.decelTime (0);
+			$canismover2_anchor.rotateOnce ( '1.5 0 0' );
+			sys.waitFor ($canismover2_anchor);
+
+			$canismover2_anchor.time (.15);
+			$canismover2_anchor.accelTime (0);
+			$canismover2_anchor.decelTime (.15);
+			$canismover2_anchor.rotateOnce ( '-1.5 0 0' );
+			sys.waitFor ($canismover2_anchor);
+
+			$canismover2_anchor.time (.10);
+			$canismover2_anchor.accelTime (.10);
+			$canismover2_anchor.decelTime (0);
+			$canismover2_anchor.rotateOnce ( '.5 0 0' );
+			sys.waitFor ($canismover2_anchor);
+
+			$canismover2_anchor.time (.10);
+			$canismover2_anchor.accelTime (0);
+			$canismover2_anchor.decelTime (.10);
+			$canismover2_anchor.rotateOnce ( '-.5 0 0' );
+			sys.waitFor ($canismover2_anchor);
+					
+			//twist it up 
+			
+			$canismover2_anchor.time (4.5);
+			$canismover2_anchor.accelTime (1.5);
+			$canismover2_anchor.decelTime (.3);
+
+			sys.trigger ($speaker_can2_rot);
+			$canismover2_anchor.rotateOnce ( '0 0 540' );
+			sys.waitFor ($canismover2_anchor);
+
+			sys.wait (0.5);
+
+			sys.trigger ($speaker_can2_rot);
+			$canismover2_anchor.rotateOnce ( '0 0 -540' );
+			sys.waitFor ($canismover2_anchor);
+
+		} //end while
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	After invasion
+	//  Things that are triggered after the invasion
+	//
+	////////////////////////////////////////////////////
+	void after_invasion ()
+	{
+		//unhide the exit elevator
+		$light_51518.show();
+        
+		//steps busted by steam
+		$preinvasion_steps.hide();
+		$postinvasion_steps.show();
+
+		$pi_steps_steamlight1.On();
+		$pi_steps_steamlight2.On();
+
+		sys.trigger ($pi_steps_steam1);
+		sys.trigger ($pi_steps_steam2);
+
+		sys.trigger($pi_stepsteamsound);
+
+		//turn on the hazard lights
+		$pi_hazlight_proj1.On();
+		$pi_hazlight_proj2.On();
+		$pi_hazlight_sml1.On();
+		$pi_hazlight_sml2.On();
+
+		$func_rotating_5.show();
+		$func_rotating_6.show();
+
+		sys.trigger($pi_hazspeaker);
+
+		//impclawdoors
+		$impclawdoor1.open();
+		$impclawdoor2.open();
+		$impclawdoor1.remove();
+		$impclawdoor2.remove();
+
+		$underground_impcrawl_door_3.show();
+		$impclawdoorclip.show();
+
+		//restore position of crane
+		$crane_main.restorePosition();
+		
+		//crane load unbind so it can fall
+		$crane_box1.unbind();
+		$crane_box2.unbind();
+		$crane_box3.unbind();
+		$crane_box4.unbind();
+		$crane_beam1.unbind();
+		$crane_beam2.unbind();
+		$crane_beam3.unbind();
+		$crane_beam4.unbind();
+		$crane_beam5.unbind();
+
+		//unhide the cave railing
+		$pi_cave_rail.show();
+
+		//enable the bridge gui
+		$saftey_bridge_gui.setGuiParm ( "gui_parm1" , 1);
+		
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Fred stuff
+	//
+	////////////////////////////////////////////////////
+	void guard_switch_head_to_zombie( entity self ) {
+		self.setModel( "underground_invasion_zsechead" );
+		//sys.print( "Swapping Head\n");
+	}
+
+	void sci_switch_head_to_stump( entity self ) {
+		self.setModel( "underground_crazy_stump" );
+		//sys.print( "Swapping Head\n");
+	}
+
+	void killzombie()
+	{
+		$monster_zombie_maint_1.kill();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	swing the swinglight
+	//
+	////////////////////////////////////////////////////
+	void swinglight_move ()
+	{
+		$swinglight_mover.sway( 120, 0, '0 0 60' );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	drop_floor
+	//
+	////////////////////////////////////////////////////
+	void drop_floor_down ()
+	{
+		//trigger the initial speaker
+		sys.trigger ($speaker_drop_floor);
+
+		$drop_floor.time(1);
+		$drop_floor.accelTime(1);
+		$drop_floor.decelTime(.2);
+
+		//move drop_floor down
+		$drop_floor.move (DOWN, 176);
+
+		//trigger the weird sound
+		sys.trigger($drop_floor_weird_speaker);
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	close security door
+	//
+	////////////////////////////////////////////////////
+	void close_secdoor ()
+	{
+		$func_door_46.close ();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	spooky_postinvasion1
+	//
+	//	Scenario that happens immediately after invasion
+	//  cinematic.
+	//
+	////////////////////////////////////////////////////
+	void postinvasion_spooky01_speakers_off ()
+	{
+		float j;
+		entity ent;
+		for (j=1; j<=11; j++)
+		{
+			ent = sys.getEntity ( "comm_speaker_" + j );
+			ent.fadeSound ( SND_CHANNEL_ANY, -60, 2.5 );
+		}
+	}
+
+	void postinvasion_spooky01_speakers_on ()
+	{
+		float j;
+		entity ent;
+		for (j=1; j<=11; j++)
+		{
+			ent = sys.getEntity ( "comm_speaker_" + j );
+			ent.fadeSound ( SND_CHANNEL_ANY, 0, 2.5 );
+		}
+	}
+
+	void postinvasion_spooky01_lights_off ()
+	{
+		float j;
+		entity ent;
+		for (j=1; j<=7; j++)
+		{
+			ent = sys.getEntity ( "comm_light_" + j );
+			ent.fadeOutLight ( 2.5 );
+		}
+	}
+
+	void postinvasion_spooky01_lights_on ()
+	{
+		float j;
+		entity ent;
+		for (j=1; j<=7; j++)
+		{
+			ent = sys.getEntity ( "comm_light_" + j );
+			ent.fadeInLight ( 2.5 );
+		}
+	}
+
+	void postinvasion_spooky01 ()
+	{
+		/* stuff I gotta trigger
+		invasion_spectrum_relay
+		invasion_floorskull_relay
+		underground_crazy_zombie
+		*/
+
+		// XIAN: Inserted speaker function here...
+		thread post_invasion_sounds();
+		
+		//close and lock the door
+        $func_door_74.close ();
+		sys.trigger ($invasion_door_lock_relay);
+
+		//power out
+		sys.trigger ($comm_speaker_powerout);
+		thread postinvasion_spooky01_speakers_off();
+		thread postinvasion_spooky01_lights_off();
+		
+		//wait for fades
+		sys.wait (2.5);
+
+		//trigger the suspense trigger
+		
+		sys.trigger ($comm_speaker_suspense);
+		
+		sys.wait (1);
+		
+		sys.trigger ($speaker_airush2);
+		
+		sys.wait (0.5);
+		
+		sys.trigger ($speaker_substing1);
+		sys.trigger ($speaker_seq_invasion);			// comm chatter stuff from other people
+														// on the base
+		sys.wait (1);
+
+		sys.trigger ($speaker_invasion_buildup);		// Trigger the 5 second buildup speaker
+		sys.wait (4.8);
+
+		// 5 second buildup here
+
+		//trigger the skull from the floor
+		sys.trigger ($invasion_floorskull_relay);
+		
+		sys.trigger ($speaker_appear);					// White column appearing in middle of room stinger
+		sys.trigger ($speaker_hellblast_stinger);
+		
+		sys.wait (0.5);
+		
+		$speaker_appear.startSoundShader ("mc_hellblast_explosion", SND_CHANNEL_VOICE2);
+		
+		sys.wait (0.5);
+		
+		sys.trigger ($speaker_hellwind);
+		
+		//trigger spectrum bang
+		sys.trigger ($invasion_spectrum_relay);
+		
+		sys.wait (2);					// Was 18 -Xian
+		
+		sys.trigger ($speaker_spookything);
+		
+		sys.wait (3);
+		
+		sys.trigger ($speaker_betruger_laugh);
+		
+		sys.wait (5);
+
+		//trigger transformation
+		//skull from wall transforms asian guy into zombie
+		sys.trigger ($crazysci_relay_nextthing);
+		
+		sys.trigger ($speaker_leatherface);
+		
+		sys.wait (2);
+		
+		sys.trigger ($speaker_substing2);
+		
+		sys.wait (1);
+		
+		sys.trigger ($speaker_stereothing);
+		
+		sys.wait (1);
+
+		//trigger the spooky looping sound that remains in the room after the invasion
+		sys.trigger ($invasionspookyremain_speaker);
+
+		//power back on
+		sys.trigger ($comm_speaker_poweron);
+		sys.wait (1);
+		thread postinvasion_spooky01_lights_on();
+		thread postinvasion_spooky01_speakers_on();	
+		
+
+		//trigger the gui that can be triggered on the middle desk
+		sys.trigger ($func_static_4730);
+
+		//trigger zombie security banging
+		sys.trigger ($zsec_bang);
+
+		//trigger first radio chatter
+		sys.trigger ($rchat_1);
+				
+		sys.wait (2);
+		
+		$speaker_spookything.startSoundShader ("mc_substing_02", SND_CHANNEL_VOICE2 );
+		
+		sys.wait(2);
+		sys.trigger ($rchat_7);
+		sys.wait(3);
+
+		//unlock and open door
+		sys.trigger ($invasion_door_unlock_relay);
+		
+		//trigger zombie to come on in
+		sys.trigger ($comm_zombie);
+
+		//break light near guis
+		sys.wait(3);
+		sys.trigger ($comm_light_6);
+	}
+
+	void init_howitzer() {
+		//howitzer setup
+		$how1_barrel.bind ($how1_base);
+		$how1_recep.bind ($how1_base);
+		$how1_catcher.bind ($how1_base);
+		$how1_base.rotateOnce ( '0 0 45' );
+
+		$how2_barrel.bind ($how2_base);
+		$how2_recep.bind ($how2_base);
+		$how2_catcher.bind ($how2_base);
+		$how2_base.rotateOnce ( '0 0 45' );
+
+		$how3_barrel.bind ($how3_base);
+		$how3_recep.bind ($how3_base);
+		$how3_catcher.bind ($how3_base);
+		$how3_base.rotateOnce ( '0 0 45' );
+
+		sys.waitFor($how1_base);
+
+		thread howitzer_1 ();
+		thread howitzer_2 ();
+		thread howitzer_3 ();
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	brooks gui triggers
+	//
+	////////////////////////////////////////////////////
+	void brooks_guitouch ()
+	{
+		sys.trigger ($secpanel1);
+	}
+
+	void brooks_guiopen ()
+	{
+		$secpanel1.setGuiParm ( "gui_parm1" , 2);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane start sound 
+	//
+	////////////////////////////////////////////////////
+	void crane_start_thread() {
+		sys.trigger ($crane_start_speaker);
+		sys.wait (1);
+		$crane_main_speaker.On();
+	}
+	
+	////////////////////////////////////////////////////
+	//
+	//	Crane Main Move Right
+	//
+	////////////////////////////////////////////////////
+	void crane_main_right()
+	{
+		vector	delta,deltatest;
+		vector	deltadif;
+
+		sys.killthread ( "map_mc_underground::crane_main_left" );
+
+		//set the dir state for correct stopping
+		crane_dir = 1;
+
+		//set crane times back to normal
+		$crane_main.time (6);
+		$crane_main.accelTime (3);
+		$crane_main.decelTime (2);
+
+		if ( crane_main_state < 90 ) {
+			//start sound
+			thread crane_start_thread();
+
+			//start movement
+			$crane_main.rotateOnce ( '0 -90 0' );
+		
+			while ( 1 ) {
+				delta = anglemod360( $crane_main.getAngles() );
+				deltatest = $crane_main.getAngles();
+				crane_main_state = (270 - (int( delta_y )));
+				//sys.print ("crane_main_state = " + crane_main_state + " " + deltatest +" \n");
+				$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+				$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+				$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+				if (crane_main_state >= 89) {
+					break;
+				}
+				sys.waitFrame();
+			}
+			
+			//*****
+			//stop movement
+			//*****
+
+			//stop sound
+			$crane_main_speaker.Off();
+			sys.trigger ($crane_end_speaker);
+
+			//set crane times to accomodate stopping
+			$crane_main.time (.5);
+			$crane_main.accelTime (0);
+			$crane_main.decelTime (.5);
+
+			//the final move
+			$crane_main.rotateOnce ( '0 -1 0' );
+			sys.waitFor ($crane_main);
+			
+			//set crane times back to normal
+			$crane_main.time (6);
+			$crane_main.accelTime (3);
+			$crane_main.decelTime (2);
+
+			//set crane status and update guis
+			crane_main_state = 90;
+			//sys.print ("crane_main_state = " + crane_main_state + " \n");
+			$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Main Move Left
+	//	this should be redone for smoother movement
+	//	especially since the player can remotely opperate
+	//	the crane and see the jerky movement easily
+	//
+	////////////////////////////////////////////////////
+	void crane_main_left()
+	{
+		vector	delta;
+		vector	deltadif;
+
+		sys.killthread ( "map_mc_underground::crane_main_right" );
+
+		//set the dir state for correct stopping
+		crane_dir = -1;
+
+		//set crane times back to normal
+		$crane_main.time (6);
+		$crane_main.accelTime (3);
+		$crane_main.decelTime (2);
+		
+		if ( crane_main_state > 0 ) {
+			//start sound
+			thread crane_start_thread();
+
+			//start movement
+			$crane_main.rotateOnce ( '0 90 0' );
+		
+			while ( 1 ) {
+				delta = anglemod360( $crane_main.getAngles() );
+				crane_main_state = (270 - (int( delta_y )));
+				//sys.print ("crane_main_state = " + crane_main_state + " \n");
+				$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+				$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+				$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+				if (crane_main_state <= 1) {
+					break;
+				}
+				sys.waitFrame();
+			}
+
+			//*****
+			//stop movement
+			//*****
+
+			//stop sound
+			$crane_main_speaker.Off();
+			sys.trigger ($crane_end_speaker);
+
+			//set crane times to accomodate stopping
+			$crane_main.time (.5);
+			$crane_main.accelTime (0);
+			$crane_main.decelTime (.5);
+
+			//the final move
+			$crane_main.rotateOnce ( '0 1 0' );
+			sys.waitFor ($crane_main);
+				
+			//set crane times back to normal
+			$crane_main.time (6);
+			$crane_main.accelTime (3);
+			$crane_main.decelTime (2);
+
+			//update guis
+			crane_main_state = 0;
+			//sys.print ("crane_main_state = " + crane_main_state + " \n");
+			$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane stop
+	//
+	////////////////////////////////////////////////////
+	void crane_main_stop()
+	{
+		//sys.print ("enter crane_main_stop \n");
+		vector	delta;
+
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_main_right" );
+		
+		//set crane times to accomodate stopping
+		$crane_main.time (.3);
+		$crane_main.accelTime (0);
+		$crane_main.decelTime (.3);
+		
+		//stop movement
+		if ( (crane_dir < 0) && (crane_main_state > 0) && (crane_main_state < 90) ) {
+			$crane_main.rotateOnce ( '0 1 0' );
+			sys.waitFor ($crane_main);
+			delta = anglemod360( $crane_main.getAngles() );
+			crane_main_state = (270 - (int( delta_y )));
+			//sys.print ("crane_main_state = " + crane_main_state + " \n");
+			$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+		} else if ( (crane_main_state > 0) && (crane_main_state < 90) ){
+			$crane_main.rotateOnce ( '0 -1 0' );
+			sys.waitFor ($crane_main);
+			delta = anglemod360( $crane_main.getAngles() );
+			crane_main_state = (270 - (int( delta_y )));
+			//sys.print ("crane_main_state = " + crane_main_state + " \n");
+			$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_remote_panel.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+		}
+
+		//stop sound
+		$crane_main_speaker.Off();
+		sys.trigger ($crane_end_speaker);
+
+		//set crane times back to normal
+		$crane_main.time (6);
+		$crane_main.accelTime (3);
+		$crane_main.decelTime (2);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	return radio chatter 1
+	//
+	////////////////////////////////////////////////////
+	void radio_chat_1()
+	{
+		float ran1;
+
+		ran1 = (3 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_8);
+		ran1 = (3 + sys.random(5));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_2);
+		ran1 = (8 + sys.random(6));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_3);
+		ran1 = (15 + sys.random(6));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_4);
+		ran1 = (8 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_5);
+		ran1 = (12 + sys.random(6));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_6);
+		ran1 = (8 + sys.random(8));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_7);
+		ran1 = (15 + sys.random(3));
+		sys.wait (ran1);
+	}
+
+	void radio_chat_2()
+	{
+		float ran1;
+
+		ran1 = (8 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_9);
+		ran1 = (8 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_10);
+		ran1 = (8 + sys.random(6));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_11);
+		ran1 = (8 + sys.random(8));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_12);
+		ran1 = (8 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_13);
+		ran1 = (8 + sys.random(5));
+		sys.wait (ran1);
+	}
+
+	void radio_chat_3()
+	{
+		float ran1;
+
+		ran1 = (0 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_14);
+		ran1 = (8 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_15);
+		ran1 = (8 + sys.random(5));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_2);
+		ran1 = (8 + sys.random(8));
+		sys.wait (ran1);
+	}
+	
+	void radio_chat_4()
+	{
+		float ran1;
+
+		ran1 = (4 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_1);
+		ran1 = (8 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_3);
+		ran1 = (8 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_4);
+		ran1 = (12 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_5);
+		ran1 = (15 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_6);
+		ran1 = (8 + sys.random(9));
+		sys.wait (ran1);
+	}
+
+	void radio_chat_5()
+	{
+		float ran1;
+
+		ran1 = (4 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_7);
+		ran1 = (4 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_8);
+		ran1 = (4 + sys.random(4));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_9);
+		ran1 = (8 + sys.random(5));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_10);
+		ran1 = (3 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_11);
+		ran1 = (8 + sys.random(3));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_12);
+		ran1 = (12 + sys.random(5));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_13);
+		ran1 = (8 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_14);
+		ran1 = (2 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_15);
+		ran1 = (12 + sys.random(5));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_1);
+		ran1 = (4 + sys.random(9));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_3);
+		ran1 = (8 + sys.random(4));
+		sys.wait (ran1);
+
+		sys.trigger ($rchat_4);
+		ran1 = (4 + sys.random(9));
+		sys.wait (ran1);
+	}
+
+	void radio_chat_stop()
+	{
+		sys.killthread ("map_mc_underground::radio_chat_1");
+		sys.killthread ("map_mc_underground::radio_chat_2");
+		sys.killthread ("map_mc_underground::radio_chat_3");
+		sys.killthread ("map_mc_underground::radio_chat_4");
+		sys.killthread ("map_mc_underground::radio_chat_5");
+	}
+
+	void fade_blinkypre_sound ()
+	{
+		$speaker_101.fadeSound ( SND_CHANNEL_ANY, -60, 3 );
+	}
+
+	void fade_scotty_sound ()
+	{
+		$scotty1.fadeSound ( SND_CHANNEL_ANY, -60, .1 );
+	}
+
+	void crazy_sci_becomeZombie( entity self ) {
+		self.setTalkState( TALK_NEVER );
+		self.setHealth( self.getFloatKey( "normal_health" ) );
+		self.setKey( "snd_chatter_combat", self.getKey( "snd_chatter_combat_precache" ) );
+
+		// causes the monster to reset his chatter sound.  hacky, but it does the job.
+		self.show();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main ()
+	{
+		thread cache_sounds();
+		thread canister_mover ();
+		thread canister2_mover ();
+
+		setup_objects ();
+		thread saftey_bridge_away ();
+		thread lilfrm_move ();
+		thread rotary ();
+		thread howitzer_1 ();
+		thread howitzer_2 ();
+		thread howitzer_3 ();
+		thread pipe_piston_move ();
+		thread crankshaft_move ();
+		thread redthing_move ();
+		thread underarm_work ();
+		thread piston_move ();
+		thread swinglight_move();
+
+		//setup the airlocks in the correct states
+		thread airlock1_door2_open();
+		thread airlock2_door2_open();
+
+		sys.wait(20);
+		//disable the bridge gui
+		$saftey_bridge_gui.setGuiParm ( "gui_parm1" , 0);
+
+	}
+
+}// namespace

@@ -1,0 +1,102 @@
+/***********************************************************************
+
+weapon_chainsaw.script
+
+***********************************************************************/
+
+#define CHAINSAW_FIRERATE			0.1
+
+// blend times
+#define CHAINSAW_IDLE_TO_LOWER		4
+#define CHAINSAW_IDLE_TO_FIRE		4
+#define CHAINSAW_RAISE_TO_IDLE		4
+#define CHAINSAW_FIRE_TO_IDLE		4
+
+object weapon_chainsaw : weapon_base {
+	float		next_attack;
+	
+	void		init();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		ExitCinematic();
+};
+
+void weapon_chainsaw::init() {
+	next_attack = 0;
+	weaponState( "Raise", 0 );
+}
+
+void weapon_chainsaw::destroy() {
+	stopSound( SND_CHANNEL_WEAPON, false );
+	startSound( "snd_putaway", SND_CHANNEL_ITEM, false );		
+}
+
+void weapon_chainsaw::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, CHAINSAW_RAISE_TO_IDLE ) );
+	weaponState( "Idle", CHAINSAW_RAISE_TO_IDLE );
+}
+
+void weapon_chainsaw::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_chainsaw::Idle() {
+	float currentTime;
+	float ammoClip;
+	float avail;
+	float clip_size;
+	
+	clip_size = clipSize();	
+	
+	weaponReady();
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", CHAINSAW_IDLE_TO_LOWER );
+		}
+		currentTime = sys.getTime();
+		if ( ( currentTime >= next_attack ) && WEAPON_ATTACK ) {
+			weaponState( "Fire", CHAINSAW_IDLE_TO_FIRE );
+		}
+		waitFrame();
+	}
+}
+
+void weapon_chainsaw::Fire() {
+	float currentTime;
+	playAnim( ANIMCHANNEL_ALL, "melee_start" );
+	melee();
+	startSound( "snd_startattack", SND_CHANNEL_WEAPON, false );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 3 ) );
+	startSound( "snd_attack", SND_CHANNEL_WEAPON, false );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	playCycle( ANIMCHANNEL_ALL, "melee_loop" );
+	next_attack = sys.getTime();
+	while ( WEAPON_ATTACK ) {
+		currentTime = sys.getTime();
+		if ( currentTime >= next_attack ) {
+			melee();
+			next_attack = currentTime + CHAINSAW_FIRERATE;
+		}
+		waitFrame();
+	}
+	startSound( "snd_stopattack", SND_CHANNEL_WEAPON, false );
+	playAnim( ANIMCHANNEL_ALL, "melee_end" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponState( "Idle", CHAINSAW_FIRE_TO_IDLE );
+}
+
+void weapon_chainsaw::ExitCinematic() {
+	next_attack = 0;
+	weaponState( "Idle", 0 );
+}

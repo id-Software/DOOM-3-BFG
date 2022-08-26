@@ -1,0 +1,409 @@
+/***********************************************************************
+
+ai_monster_demon_cherub.script
+
+monster_demon_cherub
+
+***********************************************************************/
+
+#define CHERUB_RUNDISTANCE		192
+#define CHERUB_WALKTURN			65
+#define CHERUB_LEAP_RATE		2
+#define CHERUB_DODGE_RATE		2
+#define CHERUB_LEAP_RANGE		1024
+#define CHERUB_LEAP_SPEED		650
+#define CHERUB_LEAP_MAXHEIGHT	48
+
+object monster_demon_cherub : monster_base {
+	float		nextDodge;
+	float		nextLeap; 			// don't do a range attack until this time
+	vector		jumpVelocity;
+	
+	// States
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		path_jump();
+	void		combat_leap();
+	void		combat_melee();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+	void		path_jump();
+
+	void		init();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_LeapAttack();
+	void		Torso_Walk();
+	void		Torso_Run();
+	void		Torso_DodgeLeft();
+	void		Torso_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_cherub::Torso_Idle() {
+	playCycle( ANIMCHANNEL_TORSO, "stand" );
+	
+	eachFrame {
+		if ( AI_PAIN )				{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Run", 4 ); }
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_TORSO, "Torso_Walk", 4 ); }
+	}
+}
+
+void monster_demon_cherub::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_demon_cherub::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_cherub::Torso_LeapAttack() {
+	overrideAnim( ANIMCHANNEL_LEGS );
+	disablePain();
+	playAnim( ANIMCHANNEL_TORSO, "jump_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	
+	attackBegin( "melee_cherubLeapAttack" );
+	setLinearVelocity( jumpVelocity );
+	
+	playCycle( ANIMCHANNEL_TORSO, "jump_loop" );
+	do {
+		waitFrame();
+	} while( !AI_ONGROUND );
+	
+	attackEnd();
+	playAnim( ANIMCHANNEL_TORSO, "jump_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "leap_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_cherub::Torso_Walk() {
+	playCycle( ANIMCHANNEL_TORSO, "walk" );
+	
+	eachFrame {
+		if ( AI_PAIN )				{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Run", 4 ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 ); }
+	}
+}
+
+void monster_demon_cherub::Torso_Run() {
+	playCycle( ANIMCHANNEL_TORSO, "run" );
+	
+	eachFrame {
+		if ( AI_PAIN )				{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( !run && AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Walk", 4 ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 ); }
+	}
+}
+
+void monster_demon_cherub::Torso_DodgeLeft() {
+	playAnim( ANIMCHANNEL_TORSO, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_cherub::Torso_DodgeRight() {
+	playAnim( ANIMCHANNEL_TORSO, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_cherub::init
+=====================
+*/
+void monster_demon_cherub::init() {
+	run_distance	= CHERUB_RUNDISTANCE;
+	walk_turn		= CHERUB_WALKTURN;
+
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_cherub::state_Begin
+=====================
+*/
+void monster_demon_cherub::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	monster_begin();	
+	setMoveType( MOVETYPE_ANIM );	
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_cherub::state_Idle
+=====================
+*/
+void monster_demon_cherub::state_Idle() {
+	wait_for_enemy();
+
+	nextLeap		= RandomTime( CHERUB_LEAP_RATE );
+	nextDodge		= RandomTime( CHERUB_DODGE_RATE );
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_cherub::do_attack
+=====================
+*/
+void monster_demon_cherub::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_LEAP ) {
+		combat_leap();
+	}
+}
+
+/*
+=====================
+monster_demon_cherub::check_attacks
+=====================
+*/
+float monster_demon_cherub::check_attacks() {
+	float range;
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	float checkLeap;
+	vector vel;
+	float t;
+	vector jumpTarget;
+	
+	attack_flags = 0;
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	}
+
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	if ( AI_ENEMY_IN_FOV ) {
+		range = enemyRange();
+		if ( ( range < CHERUB_LEAP_RANGE ) && ( currentTime >= nextLeap ) ) {
+			if ( canHitEnemy() ) {
+				t = animLength( ANIMCHANNEL_TORSO, "jump_start" );
+				jumpTarget = predictEnemyPos( t );
+				jumpVelocity = getJumpVelocity( jumpTarget, CHERUB_LEAP_SPEED, CHERUB_LEAP_MAXHEIGHT );
+				if ( jumpVelocity != '0 0 0' ) {
+					attack_flags |= ATTACK_LEAP;
+				} else {
+					// check if we can leap again in 2 seconds
+					nextLeap = DelayTime( 2 );
+				}
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_cherub::path_jump
+=====================
+*/
+void monster_demon_cherub::path_jump() {
+	entity target;
+	vector dir;
+	vector jumpTarget;
+
+	// walk to the path entity first
+	path_corner();
+
+	if ( checkForEnemy( true ) ) {
+		return;
+	}
+
+	target = current_path.randomPath();
+	if ( !target ) {
+		sys.error( "missing target for '" + current_path.getName() + "'" );
+	}
+	jumpTarget = target.getOrigin();
+	if ( !current_path.getKey( "up" ) ) {
+		jumpVelocity = getJumpVelocity( jumpTarget, CHERUB_LEAP_SPEED, 1024 );
+		if ( jumpVelocity == '0 0 0' ) {
+			sys.error( "Monster '" + getName() + "' couldn't make jump from '" + current_path.getName() + "' to '" + target.getName() + "'" );
+		}
+	} else {
+		float forward = current_path.getFloatKey( "forward" );
+		if ( forward <= 0 ) {
+			sys.error( "Invalid forward velocity on path_jump entity '" + current_path.getName() + "'\n" );
+		}
+		dir = jumpTarget - getOrigin();
+		dir_z = 0;
+		dir = sys.vecNormalize( dir );
+		dir = dir * forward;
+		dir_z = current_path.getFloatKey( "up" );
+		jumpVelocity = dir;
+	}
+	
+	stopMove();
+	turnToPos( jumpTarget );
+	while( !facingIdeal() ) {
+		if ( checkForEnemy( true ) ) {
+			return;
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );	
+	waitAction( "leap_attack" );
+
+	stopMove();
+}
+
+/*
+=====================
+monster_demon_cherub::combat_leap
+=====================
+*/
+void monster_demon_cherub::combat_leap() {
+	stopMove();
+	turnToPos( getOrigin() + jumpVelocity );
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );	
+	waitAction( "leap_attack" );
+	nextLeap = DelayTime( CHERUB_LEAP_RATE );
+}
+
+/*
+=====================
+monster_demon_cherub::combat_melee
+=====================
+*/
+void monster_demon_cherub::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}
+
+/*
+=====================
+monster_demon_cherub::combat_dodge_left
+=====================
+*/
+void monster_demon_cherub::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_DodgeLeft", 2 );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( CHERUB_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_cherub::combat_dodge_right
+=====================
+*/
+void monster_demon_cherub::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_DodgeRight", 2 );	
+	waitAction( "strafe" );
+	nextDodge = DelayTime( CHERUB_DODGE_RATE );
+}

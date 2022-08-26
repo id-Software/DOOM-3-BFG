@@ -1,0 +1,503 @@
+/***********************************************************************
+
+monster_demon_wraith.script
+
+monster_demon_wraith
+
+***********************************************************************/
+
+#define WRAITH_ATTACK_RATE			1.5
+#define WRAITH_DODGE_RATE			5
+#define	WRAITH_PAIN_DELAY			0.25
+#define WRAITH_RUNDISTANCE			192
+#define WRAITH_WALKTURN				65
+#define WRAITH_INVISIBLE_DIST_MIN	140
+#define WRAITH_INVISIBLE_DIST_MAX	256
+#define WRAITH_INVISIBLE_DELAY_MIN	0.6
+#define WRAITH_INVISIBLE_DELAY_MAX	1.5
+#define WRAITH_VISIBLE_DELAY_MIN	1.3
+#define WRAITH_VISIBLE_DELAY_MAX	2.2
+
+// anim blend times
+#define	WRAITH_PAIN_TO_IDLE			2
+#define WRAITH_PAIN_TO_PAIN			0
+#define WRAITH_SIGHT_TO_IDLE		4
+#define	WRAITH_MELEE_TO_IDLE		4
+#define WRAITH_DODGE_LEFT_TO_IDLE	4
+#define	WRAITH_DODGE_RIGHT_TO_IDLE	4
+#define WRAITH_WAIT_TO_OUT			4
+#define	WRAITH_IN_TO_WAIT			4
+#define	WRAITH_WALK_TO_WAIT			4
+#define WRAITH_WALK_TO_ACTION		4
+#define WRAITH_ACTION_TO_IDLE		4
+#define WRAITH_WALK_TO_DODGE_LEFT	4
+#define WRAITH_WALK_TO_DODGE_RIGHT	4
+#define WRAITH_IDLE_TO_PAIN			0
+#define WRAITH_IDLE_TO_WALK			4
+#define WRAITH_IDLE_TO_SIGHT		4
+#define WRAITH_WALK_TO_IDLE			4
+#define WRAITH_WALK_TO_MELEE		4
+#define WRAITH_IDLE_TO_RUN			4
+#define WRAITH_WALK_TO_RUN			4
+#define WRAITH_RUN_TO_WALK			4
+#define WRAITH_RUN_TO_IDLE			4
+
+#define	ATTACK_BECOME_INVISIBLE		ATTACK_SPECIAL1
+#define	ATTACK_BECOME_VISIBLE		ATTACK_SPECIAL2
+
+object monster_demon_wraith : monster_base {
+	float		nextDodge;
+	float		nextInvisible;
+	entity		combat_node;
+	entity		spawn_effect;
+
+	boolean		invisible;
+	
+	// States
+	void		state_Begin();
+	void		state_Idle();
+	void		state_LostCombat();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_melee();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+	void		combat_become_visible();
+	void		combat_become_invisible();
+
+	void		spawn_fx();
+
+	void		init();
+	void		destroy();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_Run();
+	void		Legs_DodgeLeft();
+	void		Legs_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_wraith::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", WRAITH_IDLE_TO_PAIN );
+}
+
+void monster_demon_wraith::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + WRAITH_PAIN_DELAY;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, WRAITH_PAIN_TO_IDLE ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", WRAITH_PAIN_TO_PAIN );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", WRAITH_PAIN_TO_IDLE );
+}
+
+void monster_demon_wraith::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, WRAITH_MELEE_TO_IDLE ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", WRAITH_MELEE_TO_IDLE );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_demon_wraith::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", WRAITH_IDLE_TO_RUN ); }
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", WRAITH_IDLE_TO_WALK ); }
+	}
+}
+
+void monster_demon_wraith::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", WRAITH_WALK_TO_RUN ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", WRAITH_WALK_TO_IDLE ); }
+	}
+}
+
+void monster_demon_wraith::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+	
+	eachFrame {
+		if ( !run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", WRAITH_RUN_TO_WALK ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", WRAITH_RUN_TO_IDLE ); }
+	}
+}
+
+void monster_demon_wraith::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, WRAITH_DODGE_LEFT_TO_IDLE ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", WRAITH_DODGE_LEFT_TO_IDLE );
+}
+
+void monster_demon_wraith::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, WRAITH_DODGE_RIGHT_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", WRAITH_DODGE_RIGHT_TO_IDLE );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_wraith::init
+=====================
+*/
+void monster_demon_wraith::init() {
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_demon_wraith::destroy
+=====================
+*/
+void monster_demon_wraith::destroy() {
+	if ( spawn_effect ) {
+		spawn_effect.remove();
+	}
+}
+
+/*
+=====================
+monster_demon_wraith::state_Begin
+=====================
+*/
+void monster_demon_wraith::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );		
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_wraith::state_Idle
+=====================
+*/
+void monster_demon_wraith::state_Idle() {
+	wait_for_enemy();
+
+	nextDodge		= RandomTime( WRAITH_DODGE_RATE );
+	nextInvisible	= 0;
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_wraith::do_attack
+=====================
+*/
+void monster_demon_wraith::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_BECOME_VISIBLE ) {
+		combat_become_visible();
+	} else if ( attack_flags & ATTACK_BECOME_INVISIBLE ) {
+		combat_become_invisible();
+	} else if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	}
+}
+
+/*
+=====================
+monster_demon_wraith::check_attacks
+=====================
+*/
+float monster_demon_wraith::check_attacks() {
+	float range;
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	
+	attack_flags = 0;
+	range = enemyRange();
+	currentTime = sys.getTime();
+
+	if ( invisible ) {
+		if ( ( range < WRAITH_INVISIBLE_DIST_MIN ) || ( currentTime >= nextInvisible ) ) {
+			if ( canBecomeSolid() ) {
+				attack_flags |= ATTACK_BECOME_VISIBLE;
+			}
+		}
+
+		return attack_flags;
+	}
+	
+	canMelee = testMeleeAttack();
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+	
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	range = enemyRange();
+	if ( AI_ONGROUND && ( range > WRAITH_INVISIBLE_DIST_MAX ) && ( currentTime >= nextInvisible ) ) {
+		attack_flags |= ATTACK_BECOME_INVISIBLE;
+	}
+	
+	return attack_flags;
+}
+
+/***********************************************************************
+
+	Combat
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_wraith::combat_melee
+=====================
+*/
+void monster_demon_wraith::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", WRAITH_WALK_TO_MELEE );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}
+
+/*
+=====================
+monster_demon_wraith::combat_dodge_left
+=====================
+*/
+void monster_demon_wraith::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", WRAITH_WALK_TO_DODGE_LEFT );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( WRAITH_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_wraith::combat_dodge_right
+=====================
+*/
+void monster_demon_wraith::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", WRAITH_WALK_TO_DODGE_RIGHT );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( WRAITH_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_wraith::spawn_fx
+=====================
+*/
+void monster_demon_wraith::spawn_fx() {
+	if ( !spawn_effect ) {
+		spawn_effect = sys.spawn( "wraith_spawneffect" );
+	}
+
+	spawn_effect.setOrigin( getOrigin() );
+	spawn_effect.show();
+	spawn_effect.setShaderParm( SHADERPARM_TIMEOFFSET, -sys.getTime() );
+}
+
+/*
+=====================
+monster_demon_wraith::combat_become_visible
+=====================
+*/
+void monster_demon_wraith::combat_become_visible() {
+	float endTime;
+
+	stopMove();
+
+	if ( invisible ) {
+		// don't allow movement so that he stays in the same place where we checked if he could become solid
+		allowMovement( false );
+
+		// check again just to make sure
+		while( !canBecomeSolid() ) {
+			waitFrame();
+		}
+
+		becomeSolid();
+		allowHiddenMovement( false );
+		allowMovement( true );
+
+		animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+
+		startSound( "snd_fade_in", SND_CHANNEL_VOICE2, false );
+		spawn_fx();
+		sys.wait( 0.65 );
+
+		show();
+		endTime = sys.getTime() + 0.5;
+		while( endTime > sys.getTime() ) {
+			setShaderParm( SHADERPARM_TIME_OF_DEATH, sys.getTime() - ( endTime - sys.getTime() ) * 8 );
+			waitFrame();
+		}
+
+		clearBurn();
+		sys.wait( 0.10 );
+		spawn_effect.hide();
+
+		invisible = false;
+	}
+
+	nextInvisible = RandomDelay( WRAITH_INVISIBLE_DELAY_MIN, WRAITH_INVISIBLE_DELAY_MAX );
+}
+
+/*
+=====================
+monster_demon_wraith::combat_become_invisible
+=====================
+*/
+void monster_demon_wraith::combat_become_invisible() {
+	float endTime;
+	float startTime;
+
+	stopMove();
+
+	if ( !invisible ) {
+		// wait a bit incase we're blending from a run/walk
+		sys.wait( 0.167 );
+
+		invisible = true;
+
+		startSound( "snd_fade_out", SND_CHANNEL_VOICE2, false );
+		spawn_fx();
+		sys.wait( 0.65 );
+
+		preBurn();
+		startTime = sys.getTime();
+		endTime = sys.getTime() + 0.5;
+		while( endTime > sys.getTime() ) {
+			setShaderParm( SHADERPARM_TIME_OF_DEATH, sys.getTime() - ( sys.getTime() - startTime ) * 8 );
+			waitFrame();
+		}
+
+		sys.wait( 0.10 );
+
+		hide();
+		spawn_effect.hide();
+	}
+
+	allowHiddenMovement( true );
+	setShaderParm( SHADERPARM_TIME_OF_DEATH, sys.getTime() - 100 );
+	nextInvisible = RandomDelay( WRAITH_VISIBLE_DELAY_MIN, WRAITH_VISIBLE_DELAY_MAX );
+}
+
+/*
+=====================
+monster_demon_wraith::state_LostCombat
+=====================
+*/
+void monster_demon_wraith::state_LostCombat() {
+	combat_become_invisible();
+	sys.wait( nextInvisible - sys.getTime() );
+
+	stopMove();
+	while( !canReachEnemy() ) {
+		waitFrame();
+	}
+
+	sys.wait( 2 );
+
+	combat_become_visible();
+	
+	setState( "state_Combat" );
+}

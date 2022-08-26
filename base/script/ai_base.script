@@ -1,0 +1,160 @@
+/***********************************************************************
+
+ai_base.script
+
+Base object for AI characters and player.  Contains variables required by game code.
+
+***********************************************************************/
+
+//
+// move types
+//
+#define MOVETYPE_DEAD					0				// no enemy tracking or steering.  just runs physics and script.
+#define MOVETYPE_ANIM					1				// movement based on animation deltas
+#define MOVETYPE_SLIDE					2				// movement based on velocity.  set speed using setFlySpeed.
+#define MOVETYPE_FLY					3				// flying monsters.
+#define MOVETYPE_STATIC					4				// no movement or gravity.
+
+//
+// move results
+//
+#define MOVE_STATUS_DONE				0				// move succeeded, or not moving
+#define MOVE_STATUS_MOVING				1				// move in progress
+#define MOVE_STATUS_WAITING				2				// 
+#define MOVE_STATUS_DEST_NOT_FOUND		3				// destination doesn't exist
+#define MOVE_STATUS_DEST_UNREACHABLE	4				// 
+#define MOVE_STATUS_BLOCKED_BY_WALL		5
+#define MOVE_STATUS_BLOCKED_BY_OBJECT	6
+#define MOVE_STATUS_BLOCKED_BY_ENEMY	7
+#define MOVE_STATUS_BLOCKED_BY_MONSTER	8
+
+//
+// talk states
+//
+#define TALK_NEVER						0
+#define TALK_DEAD						1
+#define TALK_OK							2
+#define TALK_BUSY						3
+
+/***********************************************************************
+
+	ai object
+
+***********************************************************************/
+
+object ai {
+	boolean		AI_TALK;
+	boolean		AI_DAMAGE;
+	boolean		AI_PAIN;
+	float		AI_SPECIAL_DAMAGE;		// value of "special_damage" on projectile
+	boolean		AI_DEAD;
+	boolean		AI_ENEMY_VISIBLE;
+	boolean		AI_ENEMY_IN_FOV;
+	boolean		AI_ENEMY_DEAD;
+	boolean		AI_MOVE_DONE;
+	boolean		AI_ONGROUND;
+	boolean		AI_ACTIVATED;
+	boolean		AI_FORWARD;
+	boolean		AI_JUMP;
+	boolean		AI_DEST_UNREACHABLE;
+	boolean		AI_BLOCKED;
+	boolean		AI_HIT_ENEMY;
+	boolean		AI_OBSTACLE_IN_PATH;
+	boolean		AI_PUSHED;
+};
+
+/***********************************************************************
+
+	player base object
+
+***********************************************************************/
+
+object player_base {
+	boolean		AI_FORWARD;
+	boolean		AI_BACKWARD;
+	boolean		AI_STRAFE_LEFT;
+	boolean		AI_STRAFE_RIGHT;
+	boolean		AI_ATTACK_HELD;
+	boolean		AI_WEAPON_FIRED;
+	boolean		AI_JUMP;
+	boolean		AI_DEAD;
+	boolean		AI_CROUCH;
+	boolean		AI_ONGROUND;
+	boolean		AI_ONLADDER;
+	boolean		AI_RUN;
+	boolean		AI_HARDLANDING;
+	boolean		AI_SOFTLANDING;
+	boolean		AI_RELOAD;
+	boolean		AI_PAIN;
+	boolean		AI_TELEPORT;
+	boolean		AI_TURN_LEFT;
+	boolean		AI_TURN_RIGHT;
+	
+				// called by game
+	void		EnterCinematic();
+	void		ExitCinematic();
+	void		LowerWeapon();
+	void		RaiseWeapon();
+	void		ReloadWeapon();
+	void		NetCatchup();
+};
+
+/*
+=====================
+player_base::EnterCinematic
+
+Required by game code for cinematics.  Implemented in subclasses.
+=====================
+*/
+void player_base::EnterCinematic() {
+}
+
+/*
+=====================
+player_base::ExitCinematic
+
+Required by game code for cinematics.  Implemented in subclasses.
+=====================
+*/
+void player_base::ExitCinematic() {
+}
+
+/*
+=====================
+player_base::LowerWeapon
+
+Required by game code for weapon switches.  Implemented in subclasses.
+=====================
+*/
+void player_base::LowerWeapon() {
+}
+
+/*
+=====================
+player_base::RaiseWeapon
+
+Required by game code for weapon switches.  Implemented in subclasses.
+=====================
+*/
+void player_base::RaiseWeapon() {
+}
+
+/*
+=====================
+player_base::ReloadWeapon
+
+Required by game code for weapon reloading.  Implemented in subclasses.
+=====================
+*/
+void player_base::ReloadWeapon() {
+}
+
+/*
+=====================
+player_base::NetCatchup
+
+Required by game code for networking.  Implemented in subclasses.
+=====================
+*/
+void player_base::NetCatchup() {
+}
