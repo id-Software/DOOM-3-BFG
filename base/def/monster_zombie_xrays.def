@@ -1,0 +1,69 @@
+/***********************************************************************
+
+XRAY versions for zombies
+
+***********************************************************************/
+
+entityDef monster_zombie_fat_xray {
+	"inherit"						"monster_zombie_fat"
+	"skin_xray"						"skins/monsters/zombies/zfat_xray"
+}
+
+entityDef monster_zombie_maint_xray {
+	"inherit"						"monster_zombie_maint"
+	"skin_xray"						"skins/monsters/zombies/zmaintb_xray"
+}
+
+entityDef monster_zombie_maint_fast_xray {
+	"inherit"						"monster_zombie_maint_xray"
+	"model"							"monster_zombie_maint_fast"
+}
+
+entityDef monster_zsec_machinegun_xray {
+	"inherit"						"monster_zsec_machinegun"
+	"skin_xray"						"skins/monsters/zombies/security_xray"
+	"skin_head_xray"				"skins/monsters/zombies/head_xray"
+}
+
+entityDef monster_zsec_shotgun_xray {
+	"inherit"						"monster_zsec_shotgun"
+	"skin_xray"						"skins/monsters/zombies/security_xray"
+	"skin_head_xray"				"skins/monsters/zombies/head_xray"
+}
+
+
+/***********************************************************************
+
+The SKIN definitions
+
+***********************************************************************/
+skin skins/monsters/zombies/zmaintb_xray {
+	models/monsters/zombie/zombie01/zhead02		textures/common/nodraw
+	models/characters/common/teethdead			textures/common/nodraw
+	models/monsters/zombie/zombie01/ztorso01	textures/common/nodraw
+	models/monsters/zombie/zombie01/zarms01		textures/common/nodraw
+	models/monsters/zombie/zombie01/zlegs01		textures/common/nodraw
+	models/monsters/zombie/zombie01/zback01		textures/common/nodraw
+	models/monsters/zombie/zombie01/eyes/dead	textures/common/nodraw
+	models/monsters/skeleton/skeleton01			texture/smf/skeleton
+}
+
+skin skins/monsters/zombies/zfat_xray {
+	models/monsters/zombie/fatty/fatty			textures/common/nodraw 
+	models/monsters/zombie/fatty/fattydamage	textures/common/nodraw
+	models/mapobjects/filler/monkeywrench		textures/common/nodraw
+	models/monsters/skeleton/skeleton01			texture/smf/skeleton
+}
+
+skin skins/monsters/zombies/head_xray {
+	*											texture/smf/skeleton
+}
+
+skin skins/monsters/zombies/security_xray {
+	models/characters/male_npc/security/dsecurity textures/common/nodraw
+	models/weapons/pistol/w_pistol textures/common/nodraw
+	models/weapons/shotgun/w_shotgun2 texture/smf/skeleton
+	models/weapons/machinegun/w_machinegun texture/smf/skeleton
+	models/monsters/zsecurity/zsheild textures/common/nodraw
+	models/monsters/zsecurity/zsheild_glass textures/common/nodraw
+}

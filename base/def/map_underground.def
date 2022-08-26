@@ -1,0 +1,1812 @@
+
+
+export fred {
+	options -prefix ENV_
+	mesh	maps/fred/underground/impstairs.mb -dest models/md5/cinematics/underground/impstairs
+	anim	maps/fred/underground/impstairs.mb -dest models/md5/cinematics/underground/impstairs
+}
+
+export james {
+		
+		addoptions -prefix PIPES_ -keep steam1 steam2 steam3 steam4
+		
+		mesh    maps/james/mc_underground/mcu_pipes.mb -dest models/md5/cinematics/underground/mcu_pipes
+		anim    maps/james/mc_underground/mcu_pipes.mb -dest models/md5/cinematics/underground/mcu_pipes
+}
+
+//CINEMATICS
+	
+export fred {
+
+	options -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	camera	choke.mb -range 14 45 -dest invasion_choke_cam_a
+	camera	choke.mb -range 46 103 -dest invasion_choke_cam_b
+	camera	choke.mb -range 104 180 -dest invasion_choke_cam_c
+	camera	impintro.mb -dest impintro_cam
+	camera	tele_invasion.mb -dest invasion_teleporter_cam
+	camera	invasion2.mb -dest hallway_invasioncam
+	camera	invasion3.mb -dest hallway_invasion2cam
+	camera	invasion4.mb -dest hallway_invasion3cam
+	camera	invasion5.mb -dest hallway_invasion4cam
+	camera	invasion6a.mb -range 25 85 -dest underground/hallway_invasion5cam
+	camera	newsec.mb -dest hallway_invasion6cam
+	camera	invasion6c.mb -dest hallway_invasion7cam
+	camera  crazysci.mb -range 1 114 -dest crazy_cam1
+	camera  crazysci.mb -range 115 224 -dest crazy_cam2	
+	camera  crazysci2.mb -range 200 648 -dest crazy_cam3
+	camera	crazysciend.mb -dest crazy_cam_end
+	camera  pentagram.mb -range 1 45 -dest pentagram_cam_a
+	camera  pentagram.mb -range 46 80 -dest pentagram_cam_b
+	camera  pentagram.mb -range 81 105 -dest pentagram_cam_c
+	camera  pentagram.mb -range 106 120 -dest pentagram_cam_d
+	camera  invasion_bathroom.mb
+	camera  zintro_reversed_new.mb -range 1 120 -dest invasion_zintro_cam1
+	camera  zintro_reversed_new.mb -range 121 230 -dest invasion_zintro_cam2
+	camera	headache.mb -dest headache_cam
+
+	addoptions -prefix PENT_
+	mesh	pentagram.mb
+	anim	pentagram.mb -range 1 45 -dest pentagram_a
+	anim	pentagram.mb -range 46 80 -dest pentagram_b
+	anim	pentagram.mb -range 81 105 -dest pentagram_c
+	anim	pentagram.mb -range 106 120 -dest pentagram_d
+
+	options	    -prefix DOOR_ -sourcedir maps/james/mc_underground -destdir models/md5/cinematics/underground
+	mesh	impcrawl_armdoor.mb -dest underground_impcrawl_door
+	anim	impcrawl_armdoor.mb -dest underground_impcrawl_door
+
+	options		-prefix RAIL_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	mesh	james_fall.mb -dest ledge
+	anim	james_fall.mb -dest ledge
+
+	options		-prefix LIGHT_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	mesh	invasion3.mb -dest lightattacher
+	anim	invasion2.mb -dest lightattacherrun
+	anim	invasion3.mb -dest lightattacher
+	anim	invasion4.mb -dest lightattacherwindow	
+	anim	invasion5.mb -dest lightattacher2
+	anim	invasion6a.mb -range 25 85 -dest lightattacher3
+	anim	newsec.mb -dest lightattacher4
+	anim	invasion6c.mb -dest lightattacher5
+	anim	tele_invasion.mb -dest lightattachertele
+
+	// ghost skulls
+	options -prefix SKULL_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	anim	invasion6c.mb -dest hallway_invasions1g
+
+	// ghost skulls
+	options -prefix SKULL_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	mesh	newsec.mb  -dest models/md5/cinematics/underground/chestskull
+	anim	newsec.mb -dest models/md5/cinematics/underground/hallway_invasions1f
+
+	anim	newsec.mb -dest hallway_invasions1f
+	options	-prefix SKULL1_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	anim	tele_invasion.mb -dest skullone
+	anim	invasion2.mb -dest hallway_invasions1
+	anim	invasion3.mb -dest hallway_invasions1b
+	anim	invasion4.mb -dest hallway_invasions1c
+	anim	invasion5.mb -dest hallway_invasions1d
+	anim	invasion6a.mb -range 25 85 -dest hallway_invasions1e
+
+	anim	skull_encounters.mb -dest garageskull
+
+	options	-prefix SKULL2_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	mesh	newsec.mb -dest newsecskull
+	mesh	tele_invasion.mb -dest littleskull
+	anim	tele_invasion.mb -dest skulltwo
+	anim	invasion2.mb -dest hallway_invasions2
+	anim	invasion3.mb -dest hallway_invasions2b
+	anim	invasion4.mb -dest hallway_invasions2c
+	anim	invasion5.mb -dest hallway_invasions2d
+	anim	invasion6a.mb -range 25 85 -dest hallway_invasions2e
+	
+	anim	newsec.mb -dest hallway_invasions2f
+	anim	invasion6c.mb -dest hallway_invasions2g
+
+	anim	skull_encounters.mb -dest boxesskull1
+
+	options		-prefix SKULL3_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	anim	tele_invasion.mb -dest skullthree
+	anim	invasion2.mb -dest hallway_invasions3
+	anim	invasion3.mb -dest hallway_invasions3b
+	anim	invasion4.mb -dest hallway_invasions3c
+
+	anim	skull_encounters.mb -dest boxesskull2
+
+	options		-prefix SKULL4_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	anim	tele_invasion.mb -dest skullfour
+	anim	skull_encounters.mb -dest flashlightskull1
+
+	options		-prefix SKULL5_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	anim	tele_invasion.mb -dest skullfive
+	anim	skull_encounters.mb -dest flashlightskull2
+
+	options		-prefix SKULL6_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	mesh	tele_invasion.mb -dest mediumskull
+	anim	tele_invasion.mb -dest skullsix
+	options -prefix SKULL8_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	anim	tele_invasion.mb -dest skulleight
+	options		-prefix SKULL9_ -sourcedir maps/fred/underground -destdir models/md5/cinematics/underground
+	mesh	tele_invasion.mb -dest bigskull
+	anim	tele_invasion.mb -dest skullseven
+	options -prefix SKULL_
+	anim	maps/fred/underground/crazy_into_zombie.mb -range 440 550 -dest models/md5/cinematics/underground/transformskull
+	options -prefix SKULL2_
+	anim	maps/fred/underground/crazy_into_zombie.mb -range 440 565 -dest models/md5/cinematics/underground/transformskull2
+
+}
+
+
+entityDef underground_invasion_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	
+	"anim crazy1"					"models/md5/cinematics/underground/crazy_cam1.md5camera"
+	"anim crazy2"					"models/md5/cinematics/underground/crazy_cam2.md5camera"
+	"anim crazy3"					"models/md5/cinematics/underground/crazy_cam3.md5camera"
+
+	"anim crazy"					"models/md5/cinematics/underground/crazy_cam.md5camera"
+	"anim end"						"models/md5/cinematics/underground/crazy_cam_end.md5camera"
+	"anim teleporter"				"models/md5/cinematics/underground/invasion_teleporter_cam.md5camera"
+	"anim hallway"					"models/md5/cinematics/underground/hallway_invasioncam.md5camera"
+	"anim hallway2"					"models/md5/cinematics/underground/hallway_invasion2cam.md5camera"
+	"anim hallway3"					"models/md5/cinematics/underground/hallway_invasion3cam.md5camera"
+	"anim hallway4"					"models/md5/cinematics/underground/hallway_invasion4cam.md5camera"
+	"anim hallway5"					"models/md5/cinematics/underground/hallway_invasion5cam.md5camera"
+	"anim hallway6"					"models/md5/cinematics/underground/hallway_invasion6cam.md5camera"
+	"anim hallway7"					"models/md5/cinematics/underground/hallway_invasion7cam.md5camera"
+	"anim pentagram_a"				"models/md5/cinematics/underground/pentagram_cam_a.md5camera"
+	"anim pentagram_b"				"models/md5/cinematics/underground/pentagram_cam_b.md5camera"
+	"anim pentagram_c"				"models/md5/cinematics/underground/pentagram_cam_c.md5camera"
+	"anim pentagram_d"				"models/md5/cinematics/underground/pentagram_cam_d.md5camera"
+	"anim bathroom"					"models/md5/cinematics/underground/invasion_bathroom.md5camera"
+	"anim choke_a"					"models/md5/cinematics/underground/invasion_choke_cam_a.md5camera"
+	"anim choke_b"					"models/md5/cinematics/underground/invasion_choke_cam_b.md5camera"
+	"anim choke_c"					"models/md5/cinematics/underground/invasion_choke_cam_c.md5camera"
+	"anim zintro_a"					"models/md5/cinematics/underground/invasion_zintro_cam1.md5camera"
+	"anim zintro_b"					"models/md5/cinematics/underground/invasion_zintro_cam2.md5camera"
+}
+
+model underground_invasion_pentagram {
+	mesh							models/md5/cinematics/underground/pentagram.md5mesh
+	anim pentagram_a				models/md5/cinematics/underground/pentagram_a.md5anim
+	anim pentagram_b				models/md5/cinematics/underground/pentagram_b.md5anim
+	anim pentagram_c				models/md5/cinematics/underground/pentagram_c.md5anim
+	anim pentagram_d				models/md5/cinematics/underground/pentagram_d.md5anim
+}
+
+entityDef underground_invasion_pentagram {
+	"inherit"					"cin_base"
+	"anim"						"pentagram_a"
+	"model"						"underground_invasion_pentagram"
+}
+
+
+
+model underground_invasion_lightattacher {
+	mesh						models/md5/cinematics/underground/lightattacher.md5mesh
+	anim tele					models/md5/cinematics/underground/lightattachertele.md5anim
+	anim first					models/md5/cinematics/underground/lightattacherrun.md5anim
+	anim movea					models/md5/cinematics/underground/lightattacher.md5anim {
+		frame 50				trigger implight1
+		frame 51				trigger impexplosion1
+		frame 54				trigger implight1
+	}
+	anim moveb					models/md5/cinematics/underground/lightattacher2.md5anim {
+		frame 15				trigger fredlightthing
+		frame 17				trigger frexplode1
+		frame 18				trigger fredlightthing
+		frame 18				trigger light_36
+		frame 18				trigger fredflare
+		frame 40				trigger fredlightthing2
+		frame 41				trigger frexplode2
+		frame 44				trigger fredlightthing2
+	}
+	anim movec					models/md5/cinematics/underground/lightattacher3.md5anim {
+	//	frame 7					trigger func_door_248
+	}
+	anim moved					models/md5/cinematics/underground/lightattacher4.md5anim
+	anim movee					models/md5/cinematics/underground/lightattacher5.md5anim
+	anim window					models/md5/cinematics/underground/lightattacherwindow.md5anim
+
+}
+
+entityDef underground_invasion_lightattacher {
+	"inherit"					"cin_base"
+	"anim"						"move"
+	"model"						"underground_invasion_lightattacher"
+}
+
+
+model underground_invasion_ledge {
+	mesh						models/md5/cinematics/underground/ledge.md5mesh
+	anim fall					models/md5/cinematics/underground/ledge.md5anim
+}
+
+entityDef underground_invasion_ledge {
+	"inherit"					"cin_base"
+	"anim"						"fall"
+	"model"						"underground_invasion_ledge"
+}
+
+model underground_invasion_bigskull {
+	mesh						models/md5/cinematics/underground/bigskull.md5mesh
+	anim teleportskull			models/md5/cinematics/underground/skullseven.md5anim {
+		frame 35				trigger explodelight1
+		frame 35				trigger explode1
+		frame 38				trigger explodelight1
+
+		frame 51				trigger explodelight2
+		frame 52				trigger explode2
+		frame 55				trigger explodelight2
+
+		frame 83				trigger explodelight3
+		frame 84				trigger explode3
+		frame 88				trigger explodelight3
+	}
+}
+
+entityDef underground_invasion_bigskull {
+	"inherit"					"cin_base"
+	"anim"						"teleportskull"
+	"model"						"underground_invasion_bigskull"
+}
+
+model underground_invasion_littleskulls {
+	mesh							models/md5/cinematics/underground/littleskull.md5mesh
+
+
+	anim skullone					models/md5/cinematics/underground/skullone.md5anim 
+	anim skulltwo					models/md5/cinematics/underground/skulltwo.md5anim 
+	anim skullthree					models/md5/cinematics/underground/skullthree.md5anim 
+	anim skullfour					models/md5/cinematics/underground/skullfour.md5anim 
+	anim skullfive					models/md5/cinematics/underground/skullfive.md5anim 
+	anim skullsix					models/md5/cinematics/underground/skullsix.md5anim
+	anim skullseven					models/md5/cinematics/underground/skulleight.md5anim
+	anim skulleight					models/md5/cinematics/underground/skulleight.md5anim
+	anim hallskull1					models/md5/cinematics/underground/hallway_invasions1.md5anim
+	anim hallskull1b				models/md5/cinematics/underground/hallway_invasions1b.md5anim	
+	anim hallskull1c				models/md5/cinematics/underground/hallway_invasions1c.md5anim
+	anim hallskull1d				models/md5/cinematics/underground/hallway_invasions1d.md5anim
+	anim hallskull1e				models/md5/cinematics/underground/hallway_invasions1e.md5anim
+	anim hallskull1g				models/md5/cinematics/underground/hallway_invasions1g.md5anim
+	anim hallskull2					models/md5/cinematics/underground/hallway_invasions2.md5anim
+	anim hallskull2b				models/md5/cinematics/underground/hallway_invasions2b.md5anim	
+	anim hallskull2c				models/md5/cinematics/underground/hallway_invasions2c.md5anim
+	anim hallskull2d				models/md5/cinematics/underground/hallway_invasions2d.md5anim
+	anim hallskull2e				models/md5/cinematics/underground/hallway_invasions2e.md5anim	
+	anim hallskull2g				models/md5/cinematics/underground/hallway_invasions2g.md5anim
+	anim hallskull3					models/md5/cinematics/underground/hallway_invasions3.md5anim
+	anim hallskull3b				models/md5/cinematics/underground/hallway_invasions3b.md5anim
+	anim hallskull3c				models/md5/cinematics/underground/hallway_invasions3c.md5anim
+	//anim hallskull3f				models/md5/cinematics/underground/hallway_invasions3f.md5anim
+	//anim hallskull4f				models/md5/cinematics/underground/hallway_invasions4f.md5anim
+}
+
+entityDef underground_invasion_littleskulls {
+	"inherit"						"cin_base"
+	"anim"							"skullone"
+	"model"							"underground_invasion_littleskulls"
+}
+
+model underground_invasion_smallerskulls {
+	mesh							models/md5/cinematics/underground/newsecskull.md5mesh
+ 
+	anim newtwo					models/md5/cinematics/underground/hallway_invasions2f.md5anim 
+}
+
+entityDef underground_invasion_smallerskulls {
+	"inherit"						"cin_base"
+	"anim"							"newtwo"
+	"model"							"underground_invasion_smallerskulls"
+}
+
+model underground_invasion_chestskull {
+	mesh						models/md5/cinematics/underground/chestskull.md5mesh
+ 
+	anim newone					models/md5/cinematics/underground/hallway_invasions1f.md5anim
+	anim transform				models/md5/cinematics/underground/transformskull.md5anim {
+		frame 50				sound_voice mc_skull_passby
+	}
+	anim floorskull				models/md5/cinematics/underground/transformskull2.md5anim {
+		frame 65				sound_voice2 mc_skull_shriek
+		frame 90				sound_voice mc_skull_passby
+		frame 95				trigger guisting_speaker
+		frame 113				trigger roq2_relay
+	}
+	anim garage					models/md5/cinematics/underground/garageskull.md5anim {
+		frame 48				trigger garageskull_whine_speaker
+		frame 73				trigger garageskull_end_speaker
+	}
+	anim boxes_a				models/md5/cinematics/underground/boxesskull1.md5anim {
+		frame 67				trigger boxskull_door_speaker
+	}
+	anim boxes_b				models/md5/cinematics/underground/boxesskull2.md5anim {
+		frame 60				trigger boxskull1_hole_speaker
+	}
+	anim flashlight_a			models/md5/cinematics/underground/flashlightskull1.md5anim
+	anim flashlight_b			models/md5/cinematics/underground/flashlightskull2.md5anim {
+		frame 75				trigger flashlightskull_goaway_speaker
+	}
+}
+
+entityDef underground_invasion_chestskull {
+	"inherit"						"cin_base"
+	"anim"							"newone"
+	"model"							"underground_invasion_chestskull"
+	//"smokeParticleSystem"			"ghostskull"
+}
+
+entityDef underground_hallway_skulls {
+	"inherit"						"cin_base"
+	"anim"							"newone"
+	"model"							"underground_invasion_chestskull"
+	//"smokeParticleSystem"			"ghostskull"
+}
+
+
+model underground_brooks_head {
+	inherit							head_security_goggles
+
+	anim talk_trigger				models/md5/heads/security_goggles/underground/brookswelcome.md5anim {
+		frame 1						sound_voice snd_window1
+	}
+	anim window_b					models/md5/heads/security_goggles/underground/brooksgonnaneed.md5anim {
+		frame 1						sound_voice snd_window2
+	}
+	anim window_c					models/md5/heads/security_goggles/underground/brooksgrabyourgear.md5anim {
+		frame 1						sound_voice snd_window3
+	}
+	anim window_d					models/md5/heads/security_goggles/underground/brooksletme.md5anim {
+		frame 1						sound_voice snd_window4
+	}
+	anim window_i					models/md5/heads/security_goggles/underground/brooksyouneedto.md5anim {
+		frame 1						sound_voice snd_window9
+	}
+	anim window_j					models/md5/heads/security_goggles/underground/brooksyourstuff.md5anim {
+		frame 1						sound_voice snd_window10
+	}
+	anim window_k					models/md5/heads/security_goggles/underground/brooksnowyouready.md5anim {
+		frame 1						sound_voice snd_window11
+	}
+	anim window_l 					models/md5/heads/security_goggles/underground/brooksyoudont.md5anim {
+		frame 1						sound_voice snd_window12
+	}
+	anim cower1						models/md5/heads/security_goggles/underground/brookswatchthe.md5anim {
+		frame 1						sound_voice snd_cower1
+	}
+	anim cower2						models/md5/heads/security_goggles/underground/brooksdontfire.md5anim {
+		frame 1						sound_voice snd_cower2
+	}
+	anim cower3						models/md5/heads/security_goggles/underground/brookswatchthe.md5anim {
+		frame 1						sound_voice snd_cower1
+	}
+}
+
+model underground_window_security {
+	inherit							npc_base
+	mesh							models/md5/chars/security.md5mesh
+	skin							skins/characters/npcs/regsec.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+ 	anim cower1						models/md5/chars/mcu_brooks/brookscowerwatch.md5anim 
+	anim cower2						models/md5/chars/mcu_brooks/brookscowerdontfire.md5anim 
+	anim cower3						models/md5/chars/mcu_brooks/brookscowerwatch.md5anim 
+
+	anim brooksidle					models/md5/chars/mcu_brooks/brooksidle.md5anim
+
+	anim talk_trigger				models/md5/chars/mcu_brooks/brooks01welcome.md5anim
+	anim window_b					models/md5/chars/mcu_brooks/brooks02imgonnaneed.md5anim {
+		frame 85					event disableEyeFocus
+		frame 98					trigger secpanel1
+	}
+	anim window_c					models/md5/chars/mcu_brooks/brooks03grabyourgear.md5anim {
+		frame 1						event disableEyeFocus
+		frame 25					event enableEyeFocus
+	}
+		
+	anim window_d					models/md5/chars/mcu_brooks/brooks04letmeradiotest.md5anim 
+	anim window_e					models/md5/chars/mcu_brooks/brooks05radiocheck.md5anim {
+		frame 5						trigger brooks05radiocheck_chatter
+		frame 5						sound_voice brooks05radiocheck
+	}
+	anim window_f					models/md5/chars/mcu_brooks/brooks06mission.md5anim {
+		frame 5						trigger brooks06mission_chatter
+		frame 5						sound_voice brooks06mission
+	}
+	anim window_g					models/md5/chars/mcu_brooks/brooks07allset.md5anim {
+		frame 1						trigger brooks07allset_chatter
+		frame 1						sound_voice brooks07allset
+		frame 1						trigger secpanel1
+		frame 1						trigger secpanel2
+		frame 1						trigger red2green_relay
+		frame 1						trigger trigger_relay_220
+	}
+	anim window_h					models/md5/chars/mcu_brooks/brooks08dontshootcivilians.md5anim {
+		frame 1						trigger brooks08dontshootcivilians_chatter
+		frame 1						sound_voice brooks08dontshootcivilians
+	}
+	anim window_i					models/md5/chars/mcu_brooks/brooks09re_secureyourgear.md5anim 
+	anim window_j					models/md5/chars/mcu_brooks/brooks13re_storagecabinet.md5anim 
+	anim window_k					models/md5/chars/mcu_brooks/brooks14readyforcombat.md5anim 
+	anim window_l					models/md5/chars/mcu_brooks/brooks18re_moveout.md5anim 
+}
+
+entityDef underground_window_security {
+	"inherit"						"npc_base"
+	"model"							"underground_window_security"
+	"size"							""
+	"talktime"						"0.5"
+	"talk_no_turn"					"1"
+	"copy_joint_world eyecontrol"	""
+
+	"def_head"						"underground_brooks_head"
+	"head_joint"					"Shoulders"
+
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_cower1"					"brooks_cowerwatch"
+	"snd_cower2"					"brooks_cowerdontfire"
+	"snd_hit"						""
+	"snd_window1"					"brooks01welcome"
+	"snd_window2"					"brooks02imgonnaneed"
+	"snd_window3"					"brooks03grabyourgear"
+	"snd_window4"					"brooks04letmeradiotest"
+	"snd_window9"					"brooks09re_secureyourgear"
+	"snd_window10"					"brooks13re_storagecabinet"
+	"snd_window11"					"brooks14readyforcombat"
+	"snd_window12"					"brooks18re_moveout"
+
+}									 
+
+model underground_maint_young_daniel_head {
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim blink						models/md5/characters/npcs/heads/h2blink.md5anim
+	anim idle						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim talk_primary				models/md5/characters/npcs/heads/underground/daniel_01.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/characters/npcs/heads/underground/daniel_02.md5anim {
+		frame 1						sound_voice snd_talk_secondary1
+	}
+	anim talk_secondary2			models/md5/characters/npcs/heads/underground/daniel_03.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim talk_excuseme				models/md5/characters/npcs/heads/underground/daniel_excuseme.md5anim {
+		frame 1						sound_voice snd_talk_excuseme
+	}
+	
+	anim talk_donttouchthat			models/md5/characters/npcs/heads/underground/daniel_donttouchthat.md5anim {
+		frame 1						sound_voice snd_talk_donttouchthat
+	}
+}
+
+model underground_maint_young_daniel {
+	inherit							npc_jumpsuit
+	anim idle						models/md5/chars/PDA_idle_daniel.md5anim
+	anim stand						models/md5/chars/PDA_idle_daniel.md5anim
+	anim gui_operate_daniel			models/md5/chars/gui_operate_daniel.md5anim
+	anim talk_primary				models/md5/chars/pda_talk.md5anim
+	anim talk_secondary1			models/md5/chars/pda_talk.md5anim
+	anim talk_secondary2			models/md5/chars/pda_talk.md5anim
+	anim talk_excuseme				models/md5/chars/pda_talk.md5anim
+	anim talk_donttouchthat			models/md5/chars/pda_talk.md5anim
+	anim gui_look					models/md5/chars/gui_look.md5anim
+	anim box_look					models/md5/chars/box_look.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim pda_idle_look				models/md5/chars/PDA_idle_look.md5anim
+}
+
+entityDef underground_maint_young_daniel {
+	"inherit"						"npc_base"
+	"model"							"underground_maint_young_daniel"
+	"def_head"						"underground_maint_young_daniel_head"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"384"
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.08"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"pda_underground_maint_young_daniel"
+	"def_dropDeathItem"				"pda_underground_maint_young_daniel"
+	"dropDeathItemJoint"			"RHANDCONNECTOR"
+	"dropDeathItemRotation"			"-90 0 0"
+	
+	"snd_talk_primary"				"daniel_mcu_primary"
+	"snd_talk_secondary1"			"daniel_mcu_secondary1"
+	"snd_talk_secondary2"			"daniel_mcu_secondary2"
+	"snd_talk_excuseme"				"daniel_mcu_excuseme"
+	"snd_talk_donttouchthat"		"daniel_mcu_donttouchthat"
+}
+
+model underground_maint_old_charles_head {
+	mesh							models/md5/characters/npcs/heads/h1.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim dead						models/md5/characters/npcs/heads/h1death.md5anim
+	anim blink						models/md5/characters/npcs/heads/h1blink.md5anim
+	anim idle						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim talk_trigger				models/md5/characters/npcs/heads/underground/charles_hey.md5anim {
+		frame 1						sound_voice snd_charleshey
+		frame 110					sound_voice snd_notsure
+	}
+	anim talk_primary				models/md5/characters/npcs/heads/underground/charles_dontlisten.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/characters/npcs/heads/underground/charles_shouldnttalk.md5anim {
+		frame 1						sound_voice snd_talk_secondary1
+	}
+	anim talk_secondary2			models/md5/characters/npcs/heads/underground/charles_notmybiz.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}				
+}
+
+model underground_maint_old_charles {
+	inherit							npc_jumpsuit
+	anim idle						models/md5/chars/idle_charles.md5anim
+	anim stand						models/md5/chars/look_in_hole.md5anim
+	anim look_in_hole				models/md5/chars/look_in_hole.md5anim
+	anim look_in_hole_scratch_head	models/md5/chars/look_in_hole_scratch_head.md5anim
+	anim talk_trigger				models/md5/chars/stand_point_forward_charles.md5anim
+	anim talk_primary				models/md5/chars/stand.md5anim
+	anim talk_secondary1			models/md5/chars/stand.md5anim
+	anim talk_secondary2			models/md5/chars/stand.md5anim		
+}
+
+entityDef underground_maint_old_charles {
+	"inherit"						"npc_base"
+	"model"							"underground_maint_old_charles"
+	"def_head"						"underground_maint_old_charles_head"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"384"
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"eye_verticle_offset"			"0"
+	"eye_horizontal_offset"			"-17"
+	
+	"head_focus_rate"				"0.08"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".5 .5 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	//"eye_turn_min"					"-20 -30 0"
+	//"eye_turn_max"					"20 30 0"
+
+	
+	"snd_talk_primary"				"charles_mcu_primary"
+	"snd_talk_secondary1"			"charles_mcu_secondary1"
+	"snd_talk_secondary2"			"charles_mcu_secondary2"
+	"snd_charleshey"				"charles_mcu_hey"
+	"snd_notsure"					"charles_mcu_notsure"
+}
+
+model underground_maint_bald_ross_head {
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim blink						models/md5/characters/npcs/heads/h3blink.md5anim
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim talk_primary				models/md5/characters/npcs/heads/underground/ross_primary.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/characters/npcs/heads/underground/ross_secondary1.md5anim {
+		frame 1						sound_voice snd_talk_secondary1
+	}
+	anim talk_secondary2			models/md5/characters/npcs/heads/underground/ross_secondary2.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}				
+	anim rosstalk1					models/md5/characters/npcs/heads/underground/ross_listenscotty.md5anim {
+		frame 1						sound_voice snd_rosstalk1
+	}
+	anim rosstalk2					models/md5/characters/npcs/heads/underground/ross_because.md5anim {
+		frame 1						sound_voice snd_rosstalk2
+	}
+	anim rosstalk3					models/md5/characters/npcs/heads/underground/ross_justfinish.md5anim {
+		frame 1						sound_voice snd_rosstalk3
+	}
+}
+
+model underground_maint_bald_ross {
+	inherit							npc_jumpsuit
+	
+	anim stand						models/md5/chars/look_in_hole.md5anim
+	anim look_in_hole				models/md5/chars/look_in_hole.md5anim
+	anim look_in_hole_scratch_head	models/md5/chars/look_in_hole_scratch_head.md5anim
+	anim talk_primary				models/md5/chars/talk_primary_ross.md5anim
+	anim talk_secondary1			models/md5/chars/talk_primary_ross.md5anim
+	anim talk_secondary2			models/md5/chars/talk_primary_ross.md5anim		
+	anim rosstalk1					models/md5/chars/talk_listen_scotty_ross.md5anim
+	anim rosstalk2					models/md5/chars/look_in_hole.md5anim
+	anim rosstalk3					models/md5/chars/talk_listen_scotty_ross.md5anim
+}
+
+entityDef underground_maint_bald_ross {
+	"inherit"						"npc_base"
+	"model"							"underground_maint_bald_ross"
+	"def_head"						"underground_maint_bald_ross_head"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"384"
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.08"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".5 .5 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"snd_talk_primary"				"ross_mcu_primary"
+	"snd_talk_secondary1"			"ross_mcu_secondary1"
+	"snd_talk_secondary2"			"ross_mcu_secondary2"
+	"snd_rosstalk1"					"ross_mcu_listenscotty"
+	"snd_rosstalk2"					"ross_mcu_because"
+	"snd_rosstalk3"					"ross_mcu_justfinish"
+}
+
+
+model underground_labcoat_young_todd {
+	inherit							npc_labcoat
+	anim toddtalk1					models/md5/chars/talk_primary_todd.md5anim {
+		frame 1						sound_voice snd_toddtalk1
+	}
+	anim toddtalk2					models/md5/chars/stand_point_forward.md5anim {
+		frame 1						sound_voice snd_toddtalk2
+	}
+	anim toddtalk3					models/md5/chars/talk_secondary2_todd.md5anim {
+		frame 1						sound_voice snd_toddtalk3
+	}
+}
+
+entityDef underground_labcoat_young_todd {
+	"inherit"						"npc_base"
+	"def_head"						"head_young"
+	"model"							"underground_labcoat_young_todd"
+	"head_joint"					"Shoulders"
+	"copy_joint_world eyecontrol"	""
+
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_toddtalk1"					"todd_mcu_talk1"
+	"snd_toddtalk2"					"todd_mcu_talk2"
+	"snd_toddtalk3"					"todd_mcu_talk3"
+}
+
+model underground_maint_asian_eric {
+	inherit							npc_jumpsuit
+	
+	anim stand						models/md5/chars/gui_operate_eric.md5anim
+	anim operate_computer6			models/md5/chars/gui_operate_eric.md5anim
+	anim worktalk1					models/md5/chars/operate_computer_eric_worktalk1.md5anim {
+		frame 1						sound_voice snd_ericworktalk1
+	}
+	anim worktalk2					models/md5/chars/operate_computer_eric_worktalk2.md5anim {
+		frame 1						sound_voice snd_ericworktalk2
+	}
+}
+
+entityDef underground_maint_asian_eric {
+	"inherit"						"npc_base"
+	"model"							"underground_maint_asian_eric"
+	"def_head"						"head_asian_young"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+
+
+	"size"							""
+	"ik_numlegs"					"0"
+	"talks"							"0"
+	"no_cower"						"1"
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_ericworktalk1"				"eric_mcu_worktalk1"
+	"snd_ericworktalk2"				"eric_mcu_worktalk2"
+}
+
+model underground_maint_asian_eric_head {
+	skin							skins/characters/npcs/head_asian_young.skin
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim talk_primary				models/md5/characters/npcs/heads/mcu_thanku.md5anim	{
+		frame 1						sound_voice snd_ericthankyou
+	}
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h5blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h5death.md5anim
+}
+
+
+model underground_maint_asian_eric2 {
+	inherit							npc_labcoat
+	
+	anim zombieattack				models/md5/cinematics/underground/npcbackup.md5anim {
+		frame 1							sound_voice snd_erichelp
+	}
+	anim zombiestart				models/md5/cinematics/underground/npcbackup_start.md5anim
+	anim zombiedeath				models/md5/cinematics/underground/npcbackup_death.md5anim {
+		frame 1							sound_item eric_mcu_die
+		frame 18						event kill
+    }
+	anim zombiecower				models/md5/chars/alphalabs4/freaked_out.md5anim
+	anim talk_primary				models/md5/chars/mcu_thanku.md5anim 
+}
+
+entityDef underground_maint_asian_eric2 {
+	"inherit"						"npc_base"
+	"model"							"underground_maint_asian_eric2"
+	"def_head"						"underground_maint_asian_eric_head"
+	"head_joint"					"Shoulders"
+	"size"							"8 8 8"
+
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numlegs"					"0"
+	"talks"							"0"
+	"no_cower"						"1"
+	"talktime"						"0"
+	"snd_talk_primary"				"eric_mcu_thankyou"
+	"snd_talk_secondary"			""
+	"snd_death"						""
+	"snd_erichelp"					"eric_mcu_zombieattack"
+	"snd_ericthankyou"				"eric_mcu_thankyou"
+	"velocityTime"					"10"
+}
+
+model underground_zombie_maint_bald {
+	inherit							monster_zombie_jumpy
+	
+	remove melee_attack
+	anim melee_attack2				models/md5/monsters/zombies/swing2.md5anim {
+		frame 8							trigger underground_maint_asian_1
+		frame 8							sound_weapon monster_zombie_maint_melee_hit
+	}
+}
+
+entityDef underground_zombie_maint_bald {
+	"inherit"						"monster_zombie_base"
+	"model"							"underground_zombie_maint_bald"
+
+	"def_head"						"head_bloodybald"
+	"head_joint"					"Shoulders"
+}
+
+model underground_invasion_labcoat_head {
+	skin 							skins/characters/npcs/prettyoldhead.skin
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim blink						models/md5/characters/npcs/heads/h2blink.md5anim
+	anim idle						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim talk_trigger				models/md5/characters/npcs/heads/underground/ian_trigger.md5anim {
+		frame 1							sound_voice snd_talk_trigger
+	}
+	anim talk_primary				models/md5/characters/npcs/heads/underground/ian_primary.md5anim {
+		frame 1							sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/characters/npcs/heads/underground/ian_secondary.md5anim {
+		frame 1							sound_voice snd_talk_secondary
+	}
+}
+
+model underground_invasion_labcoat {
+
+	inherit								npc_labcoat
+
+	anim idle							models/md5/chars/gui_operate.md5anim
+	anim cower							models/md5/chars/cower4_ian.md5anim
+	anim stand							models/md5/chars/gui_operate.md5anim {
+		frame 1								call headlook_off
+		frame 1		 						event disableEyeFocus
+	}
+	anim gui_look_right					models/md5/chars/gui_look_right.md5anim {
+		frame 1								call headlook_off
+		frame 1		 						event disableEyeFocus
+	}
+	anim gui_operate					models/md5/chars/gui_operate.md5anim
+	anim talk_trigger					models/md5/chars/startle_left.md5anim {
+		frame 1								call headlook_on
+		frame 1								event enableEyeFocus
+		frame 200							call headlook_off
+		frame 205							event disableEyeFocus
+	}
+	anim talk_primary					models/md5/chars/point_forward.md5anim {
+		frame 1								call headlook_on
+		frame 1								event enableEyeFocus
+		frame 85							call headlook_off
+		frame 90							event disableEyeFocus
+	}
+	anim talk_secondary1				models/md5/chars/gui_operate_iansecondary.md5anim {
+		frame 1								call headlook_off
+		frame 1		 						event disableEyeFocus
+	}
+	
+	anim rungetcover					models/md5/chars/invasion_runcover.md5anim {
+		frame 1							event ignoreDamage
+		frame 12						trigger halllight2
+		frame 13						trigger hallexplode2
+		frame 15						trigger halllight2
+		frame 20						trigger halllight1
+		frame 22						trigger hallexplode1
+		frame 25						trigger halllight1
+		frame 35						trigger halllight3
+		frame 36						trigger hallexplode3
+		frame 38						trigger halllight3
+	}
+	anim operate_computer6			models/md5/chars/operate_computer_loop3.md5anim
+	anim fall						models/md5/chars/invasion_ledgefall.md5anim {
+		frame 1		 						event disableEyeFocus
+		frame 1							event ignoreDamage
+	}
+}
+
+entityDef underground_invasion_labcoat {
+	"inherit"						"npc_base"
+	"model"							"underground_invasion_labcoat"
+	"anim"							"rungetcover"
+	"size"							"32 32 74"
+	"talkradius"					"400"
+	"def_head"						"underground_invasion_labcoat_head"
+	"head_joint"					"Shoulders"
+	"turn_rate"						"0"
+
+	"copy_joint_world eyecontrol"	""
+	"talktime"						"0"
+	"team"							"0"
+	"rank"							"0"
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Lfteye_Focus"
+	"bone_rightEye"					"Rteye_Focus"
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.08"
+	"mass"							"500"
+	"cinematic"						"1"
+	
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			".1 .1 0"
+	"look_joint headcontrol"		".6 .6 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"snd_talk_trigger"				"ian_mcu_trigger"
+	"snd_talk_primary"				"ian_mcu_primary"
+	"snd_talk_secondary"			"ian_mcu_secondary"
+	//"snd_chatter"					"ian_mcu_idle"
+	"snd_hit"						""
+}
+
+model underground_security_helmet_mark {
+	inherit							npc_security
+
+	anim stand						models/md5/chars/PDA_idle.md5anim
+	anim sitting					models/md5/chars/stand_sitting_idle.md5anim
+	anim talk_trigger				models/md5/chars/stand_sitting.md5anim {
+		frame 1						sound_voice snd_talk_trigger
+	}
+	anim talk_primary				models/md5/chars/stand_talk_primary_mark.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/chars/stand_talk_secondary_mark.md5anim {
+		frame 1						sound_voice snd_talk_secondary1
+	}
+	anim talk_secondary2			models/md5/chars/stand_talk_primary_mark.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim airlockdrag				models/md5/chars/airlockzdragged.md5anim {
+		frame 1						event ignoreDamage
+	}
+}
+
+entityDef underground_security_helmet_mark {
+	"inherit"						"npc_base"
+	"model"							"underground_security_helmet_mark"
+	"def_head"						"head_security_helmet"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"400"
+
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.08"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"pda_underground_security_helmet_mark"
+	"def_dropDeathItem"				"pda_underground_security_helmet_mark"
+	"dropDeathItemJoint"			"RHANDCONNECTOR"
+	"dropDeathItemRotation"			"-90 0 0"
+	
+	"snd_talk_trigger"				"mark_mcu_triggered"
+	"snd_talk_primary"				"mark_mcu_primary"
+	"snd_talk_secondary1"			"mark_mcu_secondary1"
+	"snd_talk_secondary2"			"mark_mcu_secondary2"
+	
+}
+
+
+model underground_invasion_security {
+	inherit							npc_security
+
+	anim runbackshoot				models/md5/cinematics/underground/invasion_runshoot.md5anim {
+		frame 1						event ignoreDamage
+		frame 11					launch_missile RHANDCONNECTOR
+		frame 23					launch_missile RHANDCONNECTOR
+	}
+	anim runfall					models/md5/cinematics/underground/invasion_runfall.md5anim
+	anim sec2zombiea				models/md5/cinematics/underground/hallway_sec2zombie.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim sec2zombieb				models/md5/cinematics/underground/hallway_sec2zombie2.md5anim
+}
+
+entityDef underground_invasion_security {
+	"inherit"						"npc_base"
+	"model"							"underground_invasion_security"
+	"anim"							"runbackshoot"
+	"size"							""
+	"def_head"						"underground_invasion_sechead"
+	"head_joint"					"Shoulders"
+	"def_projectile"				"projectile_bullet_zsec_pistol"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"cinematic"						"1"
+
+	"copy_joint_world eyecontrol"	""
+
+
+	"snd_chatter"					""
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_hit"						""
+}
+
+model underground_invasion_zsechead {
+	mesh							models/md5/characters/npcs/zheads/z5.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z5idle.md5anim
+	anim sec2zombiea				models/md5/characters/npcs/zheads/gogglesinvasion6b.md5anim
+	anim sec2zombieb				models/md5/characters/npcs/zheads/gogglesinvasion6c.md5anim
+}
+
+model underground_invasion_sechead {
+	mesh							models/md5/characters/npcs/heads/goggles.md5mesh
+	anim idle						models/md5/characters/npcs/heads/gogglesidle.md5anim
+	anim sec2zombiea					models/md5/characters/npcs/heads/gogglesinvasion6b.md5anim {
+		frame 187					skin skins/characters/npcs/secbloodygogs.skin
+		frame 241					call map_mc_underground::guard_switch_head_to_zombie
+	}
+	anim sec2zombieb				models/md5/characters/npcs/heads/gogglesinvasion6c.md5anim 
+	anim runfall					models/md5/characters/npcs/heads/gogglesinvasionrunfall.md5anim
+
+}
+
+model underground_invasion_labzombie {
+	inherit							monster_zombie_labcoat
+	
+	anim stand						models/md5/cinematics/underground/invasion_ledgeclimb_stand.md5anim
+	anim climb						models/md5/cinematics/underground/invasion_ledgeclimb.md5anim {
+		frame 1						sound_body2 mcu_zombiesting
+	}
+}
+
+entityDef underground_invasion_labzombie {
+	"inherit"						"monster_zombie_base"
+	"model"							"underground_invasion_labzombie"
+	"skin"							"skins/monsters/zombies/labcoat.skin"
+
+	"def_head"						"head_zombie4"
+	"head_joint"					"Shoulders"
+	"ik_numlegs"					"0"
+
+	"snd_chatter"					""
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_hit"						""
+}
+
+model underground_invasion_maintzombie {
+	inherit							monster_zombie_jumpy
+
+	anim stand						models/md5/cinematics/underground/invasion_ledgeclimb_stand.md5anim
+	anim climb						models/md5/cinematics/underground/invasion_ledgeclimb.md5anim {
+		frame 1						sound_body2 mcu_zombiesting
+	}
+}
+entityDef underground_invasion_maintzombie {
+	"inherit"						"monster_zombie_maint_no_jaw"
+	"model"							"underground_invasion_maintzombie"
+	"skin"							"skins/monsters/zombies/jumpsuit.skin"
+	"size"							""
+	"def_head"						"head_zombie2"
+	"head_joint"					"Shoulders"
+	"ik_numlegs"					"0"
+
+	"snd_chatter"					""
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_hit"						""
+}
+
+model underground_invasion_suit {
+	inherit							npc_labcoat
+
+	anim window						models/md5/cinematics/underground/invasion_window.md5anim {
+		frame 1						event ignoreDamage
+		frame 5						trigger backlight1
+		frame 7						trigger backexplode1
+		frame 9						trigger backlight1
+		frame 10					trigger walllight1
+
+		frame 25					trigger backlight2
+		frame 26					trigger backexplode2
+		frame 27					trigger walllight2
+		frame 28					trigger backlight2
+
+		frame 51					trigger windowlight1
+		frame 52					trigger windowexplode1
+		frame 53					trigger breakglass
+		frame 55					trigger windowlight1
+	}
+	anim runbackscared				models/md5/cinematics/underground/invasion_runbackscared.md5anim
+}
+
+entityDef underground_invasion_suit {
+	"inherit"						"npc_base"
+	"model"							"underground_invasion_suit"
+	"anim"							"window"
+	"size"							""
+	"ik_numlegs"					"0"
+	"cinematic"						"1"
+	"def_head"						"head_old"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+
+	"snd_chatter"					""
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_hit"						""
+}
+
+entityDef underground_impintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"anim impintro"					"models/md5/cinematics/underground/impintro_cam.md5camera"
+	"anim headache"					"models/md5/cinematics/underground/headache_cam.md5camera"
+
+}
+
+model underground_cin_pistol {
+	mesh 						models/md5/weapons/pistol_world/worldpistol.md5mesh
+	anim idle 					models/md5/weapons/pistol_world/pistol_idle.md5anim
+
+}
+
+entityDef underground_cin_pistol {
+	"inherit"						"cin_base"
+	"model"							"underground_cin_pistol"
+	"anim"							"idle"
+	"joint"							"PISTOL_ATTACHER"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+}
+
+model underground_cin_player2 {
+	skin							skins/player/noweapon.skin
+	mesh							models/md5/characters/player/mocap/player.md5mesh
+	anim impintro					models/md5/cinematics/underground/impintro_player.md5anim
+	anim headache					models/md5/cinematics/underground/headache_player.md5anim {
+		frame 1						skin skins/player/noweapon.skin
+	}
+		
+}
+
+entityDef underground_cin_player2 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"inherit"						"cin_base"
+	"model"							"underground_cin_player2"
+	"anim"							"impintro"
+}
+
+model underground_cin_player {
+	skin							skins/player/noweapon.skin
+
+	mesh							models/md5/characters/player/mocap/player.md5mesh
+
+	channel torso						(  )
+	channel legs						( *origin )
+
+	anim stand						models/md5/cinematics/underground/crazy_player1.md5anim
+	anim cower						models/md5/cinematics/underground/crazy_player1.md5anim
+	
+	anim idle						models/md5/cinematics/underground/crazy_player1.md5anim
+	anim crazy_a					models/md5/cinematics/underground/crazy_player1.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+	}
+	anim crazy_b					models/md5/cinematics/underground/crazy_player2.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+	}
+	anim crazy_c					models/md5/cinematics/underground/crazy_player3.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+	}
+	anim end						models/md5/cinematics/underground/crazy_player_end.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+	}
+	anim impintro					models/md5/cinematics/underground/impintro_player.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+	}
+
+}
+
+entityDef underground_cin_player {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"mass"							"5000"
+	"size"							""
+	"def_attach"					"underground_cin_pistol"
+
+	"inherit"						"character_default"
+	"model"							"underground_cin_player"
+	"anim"							"impintro"
+}
+
+entityDef underground_cin_player3 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"mass"							"5000"
+	"size"							""
+	"def_attach"					"underground_cin_pistol"
+
+	"inherit"						"character_default"
+	"model"							"underground_cin_player"
+	"anim"							"impintro"
+
+	"num_cinematics"				"3"
+	"anim1"							"crazy_a"
+	"anim2"							"crazy_b"
+	"anim3"							"crazy_c"
+
+
+
+}
+
+model underground_impintro_imp {
+	mesh							models/md5/monsters/imp/imp.md5mesh
+	anim impintro					models/md5/cinematics/underground/impintro_imp.md5anim {
+		frame 5						sound_body monster_demon_imp_sight
+		frame 95					sound_body snd_footstep
+		frame 100					sound_body snd_chatter
+		frame 105					sound_body snd_footstep
+		frame 115					sound_body snd_footstep
+		frame 123					sound_body snd_footstep
+		frame 125					sound_weapon snd_footstep
+		frame 128					sound_voice snd_sight
+		frame 164					sound_body snd_footstep
+		frame 167					sound_weapon snd_footstep
+		frame 182					sound_body snd_footstep
+		frame 185					sound_weapon snd_footstep
+		frame 188					sound_voice snd_footstep
+		frame 192					sound_body snd_footstep
+		frame 212					sound_body snd_thud
+	}
+
+	anim windowstart				models/md5/cinematics/underground/ending_impstart.md5anim
+	anim window						models/md5/cinematics/underground/ending_imp.md5anim {
+		frame 7						sound_voice2 mcu_imp_stinger
+		frame 7						sound_voice mc2_imp_hit_glass
+		frame 18					sound_body2 monster_demon_imp_chatter
+	}
+}
+
+entityDef underground_impintro_imp {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idAnimated"
+	"model"							"underground_impintro_imp"
+	"anim"							"impintro"
+	"snd_footstep"					"monster_demon_imp_footstep_cin"
+	"snd_sight"						"monster_demon_imp_sight_cin"
+	"snd_chatter"					"monster_demon_imp_chatter_cin"
+	"snd_thud"						"monster_demon_imp_thud_cin"
+}
+
+model underground_crazy_sci {
+	inherit							npc_labcoat
+	
+	anim start						models/md5/cinematics/underground/crazy_sci_start.md5anim
+	anim crazy_a					models/md5/cinematics/underground/crazy_sci1.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						sound_global guilt
+		frame 1						event ignoreDamage
+		frame 16					sound_voice snd_crazy1
+		}
+	anim crazy_b					models/md5/cinematics/underground/crazy_sci2.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+		}
+	anim crazy_c					models/md5/cinematics/underground/crazy_sci3.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						event ignoreDamage
+		frame 16					sound_voice snd_crazy2
+		frame 136					sound_voice snd_crazy3
+		frame 206					sound_voice snd_crazy4
+		frame 310					trigger roq1_relay
+		frame 361					sound_voice snd_crazy5
+		}
+	anim end_a						models/md5/cinematics/underground/crazy_sci_end1.md5anim {
+		frame 1						event disableEyeFocus
+		frame 1						skin skins/characters/npcs/labcoat_asian_pistol.skin
+		frame 1						sound_voice snd_crazy6
+		frame 132					event kill
+	}
+}
+
+entityDef underground_crazy_sci {
+	"inherit"						"npc_base"
+	"model"							"underground_crazy_sci"
+	"size"							""
+	"mass"							"5000"
+	"ik_numlegs"					"0"
+	"sound_bone"					"Chest"
+	"def_head"						"underground_crazy_scihead"
+	"head_joint"					"Shoulders"	
+	//"def_dropDeathItem9"			"moveable_item_pistol"
+	//"dropDeathItem9Joint"			"pistol"
+	//"skin_dropDeath"				"skins/characters/npcs/labcoat_asian.skin"
+
+	"copy_joint_world eyecontrol"	""
+
+	"snd_crazy1"					"scinuts1a"
+	"snd_crazy2"					"scinuts2a"
+	"snd_crazy3"					"scinuts3a"	
+	"snd_crazy4"					"scinuts4a"
+	"snd_crazy5"					"scinuts5a"
+	"snd_crazy6"					"scinutsend"
+}
+
+entityDef underground_crazy_sci_cin {
+	"inherit"						"npc_base"
+	"model"							"underground_crazy_sci"
+	"size"							""
+	"mass"							"5000"
+	"ik_numlegs"					"0"
+	"sound_bone"					"Chest"
+	"def_head"						"underground_crazy_scihead"
+	"head_joint"					"Shoulders"	
+
+	"copy_joint_world eyecontrol"	""
+
+	"snd_crazy1"					"scinuts1a"
+	"snd_crazy2"					"scinuts2a"
+	"snd_crazy3"					"scinuts3a"	
+	"snd_crazy4"					"scinuts4a"
+	"snd_crazy5"					"scinuts5a"
+	"snd_crazy6"					"scinutsend"
+
+	"num_cinematics"				"3"
+	"anim1"							"crazy_a"
+	"anim2"							"crazy_b"
+	"anim3"							"crazy_c"
+}
+
+model underground_crazy_scihead {
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim crazy_a					models/md5/characters/npcs/heads/underground/sci_crazy_start_a.md5anim	
+	anim crazy_b					models/md5/characters/npcs/heads/underground/sci_crazy_start_b.md5anim
+	anim crazy_c					models/md5/characters/npcs/heads/underground/sci_crazy_start_c.md5anim
+	anim end_a						models/md5/characters/npcs/heads/h5_sci_crazyend.md5anim {
+		frame 129					call map_mc_underground::sci_switch_head_to_stump
+		frame 129					sound_weapon player_pistol_fire	
+		frame 129					trigger headsplat
+	}
+}
+
+model underground_crazy_stump {
+	mesh							models/md5/characters/npcs/zheads/z7.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z7idle.md5anim
+
+}
+
+model underground_crazy_zombhead {
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim transform					models/md5/heads/asian_young/underground/crazy_transform.md5anim {
+		frame 65					sound_voice2 mc_leatherface
+		frame 65					trigger transformation_facelight
+		frame 80					call setShaderTime
+		frame 80					sound_voice zombiesting
+		frame 80					skin skins\characters\npcs\head_asian_zomb
+	}
+}
+
+entityDef underground_crazy_zombie {
+	"inherit"						"monster_zombie_maint_bald"
+	"model"							"underground_crazy_zombie"
+			
+	"def_head"						"underground_crazy_zombhead"
+	"head_joint"					"Shoulders"
+	
+	"health"						"1"
+	"normal_health"					"80"	// amount of health after turning into a zombie
+	"stay_on_attackpath"			"1"		// for him to finish his attack path since he's not a zombie until the end of it
+	
+	// clear the combat chatter .  we reenable the sound after he turns into a zombie by using a 
+	// framecommand to call a script function.
+	"snd_chatter_combat"			""
+	
+	// copied into "snd_chatter_combat" when he turns into a zombie
+	"snd_chatter_combat_precache"	"monster_zombie_fat_chatter_combat"
+}
+
+model underground_crazy_zombie {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/labcoatzombie.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	skin							skins/monsters/zombies/labcoat.skin
+	remove idle
+	anim idle						models/md5/monsters/zombies/crazyloop.md5anim
+	anim backup						models/md5/monsters/zombies/crazybackup.md5anim {
+		frame 1							sound_voice2 jonathan_aya
+		frame 40						sound_voice2 jonathan_lord_help_us
+	
+	}
+	anim transform					models/md5/monsters/zombies/crazytransform.md5anim {
+		frame 15						sound_voice jonathan_huh
+		frame 30						sound_voice2 jonathan_no
+		frame 80						call "map_mc_underground::crazy_sci_becomeZombie"
+	}
+}
+
+model underground_impcrawl_door {
+	mesh						    models/md5/cinematics/underground/underground_impcrawl_door.md5mesh
+	anim underground_impcrawl_door	models/md5/cinematics/underground/underground_impcrawl_door.md5anim {
+		frame 9							sound_body snd_tear1
+		frame 27						sound_body snd_tear2
+		frame 38						sound_body snd_tear3
+		frame 58						sound_body snd_tear4
+	}
+}
+
+entityDef underground_impcrawl_door {
+	"inherit"					"cin_base"
+	"anim"						"underground_impcrawl_door"
+	"model"						"underground_impcrawl_door"
+
+	"snd_tear1"					"mcu_impdoor_tear1"
+	"snd_tear2"					"mcu_impdoor_tear2"
+	"snd_tear3"					"mcu_impdoor_tear3"
+	"snd_tear4"					"mcu_impdoor_tear4"
+}
+
+model underground_zintro_victim {
+	inherit							npc_jumpsuit
+	
+	anim zbeat_a					models/md5/cinematics/underground/zintro_victim1.md5anim {
+		frame 1						event ignoreDamage
+	}
+
+	anim zbeat_b					models/md5/cinematics/underground/zintro_victim2.md5anim
+
+	anim zintrob					models/md5/cinematics/underground/zintro_eaten_loop.md5anim 
+	anim zintro3					models/md5/cinematics/underground/zintro_eaten_end.md5anim
+	anim zintro3loop				models/md5/cinematics/underground/zintro_eaten_end_loop.md5anim
+
+}
+
+entityDef underground_zintro_victim {
+	"inherit"						"npc_base"
+	"model"							"underground_zintro_victim"
+	"size"							"32 32 74"
+	"ik_numlegs"					"0"
+	"sound_bone"					"Chest"
+	"def_head"						"underground_zintro_pop"
+	"head_joint"					"Shoulders"
+	"anim"							"zbeat_a"
+	"skin"							"skins/monsters/zombies/jumpsuit.skin"
+	"cinematic"						"1"
+
+	"copy_joint_world eyecontrol"	""
+
+}
+
+model underground_zintro_zombie {
+	inherit							npc_marine
+	
+	anim zbeat_a					models/md5/cinematics/underground/zintro_beater1.md5anim {
+		frame 1						event ignoreDamage
+		frame 3						sound_weapon player_machinegun_fire	
+		frame 3						launch_missile RHANDCONNECTOR
+		frame 6						sound_weapon player_machinegun_fire	
+		frame 6						launch_missile RHANDCONNECTOR
+		frame 9						sound_weapon player_machinegun_fire	
+		frame 9						launch_missile RHANDCONNECTOR
+		frame 12					sound_weapon player_machinegun_fire	
+		frame 12					launch_missile RHANDCONNECTOR
+		frame 16					sound_weapon player_machinegun_fire	
+		frame 16					launch_missile RHANDCONNECTOR
+		frame 20					sound_weapon player_machinegun_fire	
+		frame 20					launch_missile RHANDCONNECTOR
+		frame 23					sound_weapon player_machinegun_fire	
+		frame 23					launch_missile RHANDCONNECTOR
+		frame 26					sound_weapon player_machinegun_fire	
+		frame 26					launch_missile RHANDCONNECTOR
+		frame 29					sound_weapon player_machinegun_fire	
+		frame 29					launch_missile RHANDCONNECTOR
+		frame 32					sound_weapon player_machinegun_fire	
+		frame 32					launch_missile RHANDCONNECTOR
+		frame 35					sound_weapon player_machinegun_fire	
+		frame 35					launch_missile RHANDCONNECTOR
+		frame 39					sound_weapon player_machinegun_fire	
+		frame 39					launch_missile RHANDCONNECTOR
+	}
+	anim zbeat_b					models/md5/cinematics/underground/zintro_beater2.md5anim 
+
+	anim zintro2					models/md5/cinematics/underground/zintro_eater_loop.md5anim
+	anim zintro3					models/md5/cinematics/underground/zintro_eater_getup.md5anim
+
+}
+
+entityDef underground_zintro_zombie {
+
+	"inherit"						"npc_base"
+	"model"							"underground_zintro_zombie"
+	"size"							""
+	"ik_numlegs"					"0"
+	"talks"							"0"
+	"sound_bone"					"Chest"
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+	"anim"							"zbeat_a"
+	"def_projectile"				"projectile_bullet_zsec_machinegun"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"def_attach"					"prop_machinegun"
+	"cinematic"						"1"
+
+}
+
+model underground_zintro_pop {
+	mesh							models/md5/characters/npcs/zheads/z4.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z4idle.md5anim
+	anim zbeat_a						models/md5/characters/npcs/zheads/zbeat2.md5anim {	
+		frame 98						trigger fredsplat2
+		frame 101						call map_mc_underground::sci_switch_head_to_stump
+	}
+	anim zbeat_b						models/md5/characters/npcs/zheads/zbeat3.md5anim 
+}
+
+
+
+model underground_choke_victim {
+	inherit							npc_tshirt
+	
+	anim choke_a						models/md5/cinematics/underground/invasion_choke_victim_a.md5anim {
+		frame 1							disableGravity
+	}
+	anim choke_b						models/md5/cinematics/underground/invasion_choke_victim_b.md5anim {
+		frame 1							disableGravity
+	}
+
+	anim choke_c						models/md5/cinematics/underground/invasion_choke_victim_c.md5anim {
+		frame 1							disableGravity
+	}
+
+
+}
+
+entityDef underground_choke_victim {
+	"inherit"						"npc_base"
+	"model"							"underground_choke_victim"
+	"def_head"						"head_bald"
+	"head_joint"					"Shoulders"
+	"size"							""
+	"ik_numlegs"					"0"
+	"talks"							"0"
+	"sound_bone"					"Chest"
+	"cinematic"						"1"
+
+	"copy_joint_world eyecontrol"	""
+
+	"anim"							"choke_a"
+}
+
+
+
+model underground_choke_zsechead {
+	mesh							models/md5/characters/npcs/zheads/z6.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z6idle.md5anim
+	anim stand						models/md5/characters/npcs/zheads/z6idle.md5anim
+	anim choke_a					models/md5/characters/npcs/zheads/z6choke_a.md5anim
+	anim choke_b					models/md5/characters/npcs/zheads/z6choke_b.md5anim
+	anim choke_c					models/md5/characters/npcs/zheads/z6choke_c.md5anim
+
+}
+
+
+
+model underground_choke_zombie {
+	inherit							npc_security
+	
+	anim choke_a					models/md5/cinematics/underground/invasion_choke_zombie_a.md5anim {
+		frame 1							disableGravity
+	}
+
+	anim choke_b					models/md5/cinematics/underground/invasion_choke_zombie_b.md5anim {
+		frame 1							disableGravity
+	}
+
+	anim choke_c					models/md5/cinematics/underground/invasion_choke_zombie_c.md5anim {
+		frame 1							disableGravity
+	}
+
+
+}
+
+entityDef underground_choke_zombie {
+	"inherit"						"npc_base"
+	"model"							"underground_choke_zombie"
+	//"skin"							"skins/characters/npcs/security_goggles.skin"
+	"size"							""
+	"ik_numlegs"					"0"
+	"talks"							"0"
+	"sound_bone"					"Chest"
+
+	"def_head"						"underground_choke_zsechead"
+	"head_joint"					"Shoulders"
+
+	"anim"							"choke_a"
+	"cinematic"						"1"
+
+}
+
+model underground_zsecshotgun {
+	inherit						model_monster_zsec_shotgun
+
+	anim windowstart 		models/md5/cinematics/underground/ending_zsecstart.md5anim {
+		ai_no_turn
+		frame 1					disableWalkIK
+		frame 1					sound_voice monster_zombie_security_melee
+	}
+	anim window				models/md5/cinematics/underground/ending_zsec.md5anim {
+		ai_no_turn
+		frame 1					disableWalkIK
+		frame 1					sound_voice2 monster_zombie_security_melee
+		frame 40				enableWalkIK
+	}
+}
+
+entityDef underground_zsecshotgun {
+	"inherit"					"monster_zsec_shotgun"
+	"model"						"underground_zsecshotgun"
+	"anim"						"windowstart"
+}
+
+model underground_fatty {
+	inherit						model_monster_zombie
+	mesh							models/md5/monsters/zombies/jumpsuitzombie.md5mesh
+	skin							skins/monsters/zombies/jumpsuit.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+
+	anim airlockdrag 			models/md5/cinematics/underground/airlockfdrag.md5anim {
+		frame 1					sound_voice mcu_zfat_bodydrag_01
+		frame 1					sound_body zombie_attack_1
+		//frame 5					sound_body2 monster_zombie_fat_chatter
+		frame 32				sound_voice2 mcu_zfat_bodydrag_02
+		frame 29				sound_voice zombie_attack_4
+		frame 61				sound_voice2 zombie_attack_5
+		frame 64				sound_voice mcu_zfat_bodydrag_03
+	
+	
+	}
+	anim airlockeat				models/md5/cinematics/underground/airlockfeatloop.md5anim {
+		frame 1					sound_body2 mcu_zfat_fleshrip
+		frame 38					sound_body2 mcu_zfat_fleshrip
+	
+	
+	}
+	anim airlockgetup			models/md5/cinematics/underground/airlockfgetup.md5anim {
+		frame 1					sound_voice	monster_zombie_fat_sight1
+	}
+}
+
+entityDef underground_fatty {
+	"inherit"					"monster_zombie_maint_bald"
+	"model"						"underground_fatty"
+	"def_head"					"head_bloodybald"
+	"head_joint"				"Shoulders"
+	"anim"						"airlockdrag"
+}
+
+model underground_tunnel_imp {
+	inherit						monster_demon_imp
+
+	anim tunnel				models/md5/cinematics/underground/tunnelscurry.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 6						sound_body snd_footstep
+		frame 11					sound_voice snd_sight
+		frame 10					sound_body snd_footstep
+		frame 13					sound_body snd_footstep
+		frame 20					sound_body snd_footstep
+		frame 26					sound_body snd_footstep
+		frame 30					sound_body snd_footstep
+		frame 35					sound_body snd_footstep
+		frame 37					sound_body snd_footstep
+		frame 41					sound_body snd_footstep
+		frame 45					trigger impush
+		frame 51					enableGravity
+		frame 51					enableWalkIK
+		frame 54					sound_body snd_footstep
+		frame 59					sound_body snd_footstep
+	}
+
+	anim stairs				models/md5/cinematics/underground/stairsimpcrawl.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 5						sound_voice snd_sight		
+		frame 5						sound_body snd_footstep
+		frame 7						sound_body snd_footstep
+		frame 15					sound_body snd_footstep
+		frame 18					sound_body snd_footstep
+		frame 23					sound_body snd_footstep
+		frame 28					sound_body snd_footstep
+		frame 28					enableGravity
+		frame 28					enableWalkIK
+	}
+}
+
+entityDef underground_tunnel_imp {
+	"inherit"					"monster_demon_imp"
+	"model"						"underground_tunnel_imp"
+	"anim"						"tunnel"
+}
+
+model underground_impstairs {
+	mesh						models/md5/cinematics/underground/impstairs.md5mesh
+	anim stairs					models/md5/cinematics/underground/impstairs.md5anim
+}
+
+entityDef underground_impstairs {
+	"inherit"					"cin_base"
+	"anim"						"stairs"
+	"model"						"underground_impstairs"
+}
+
+model underground_mcu_pipes {
+	mesh							models/md5/cinematics/underground/mcu_pipes.md5mesh
+	anim mcu_pipes					models/md5/cinematics/underground/mcu_pipes.md5anim {
+		frame 3			     		   trigger PIPES_steam1
+		frame 5				     	   trigger PIPES_steam2
+		frame 4				     	   trigger PIPES_steam3
+		frame 2				     	   trigger PIPES_steam4
+
+		}
+}
+
+entityDef underground_mcu_pipes {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAnimated"
+	"model"							"underground_mcu_pipes"
+	"anim"							"mcu_pipes"
+	"cinematic"						"1"
+}
+

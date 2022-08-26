@@ -1,0 +1,223 @@
+
+export fred {
+
+
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 237 340 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_camera_a
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 341 372 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_camera_b
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 429 548 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_camera_c
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 549 800 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_camera_d
+
+	options -prefix CB_ -keep Waist Rclavicle Lloleg cyber_barrel_smoke cyber_lfoot_dust cyber_rfoot_dust cyber_mouth_fire cyber_mouth_fire_L cyber_mouth_fire_R Lknee Rknee Barrel ROT fx cyber_backfire1 cyber_backfire2 cyber_backfire3 -parent fx Barrel -parent Barrel Rwrist -parent Lknee Hips -parent Rknee Hips -parent Waist ROT -parent ROT Body -parent cyber_lfoot_dust Ltoe_r -parent cyber_rfoot_dust Rtoe_r -parent cyber_barrel_smoke Rwrist -sourcedir models/monsters/cyberdemon/cycles -destdir models/md5/monsters/cyberdemon
+
+	anim	cyberdeath.mb -range 237 340 -dest cyberdeath_cyberdemon_a -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole/xbox -prefix CB_
+	anim	cyberdeath.mb -range 341 372 -dest cyberdeath_cyberdemon_b -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole/xbox -prefix CB_
+	anim	cyberdeath.mb -range 429 548 -dest cyberdeath_cyberdemon_c -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole/xbox -prefix CB_
+	anim	cyberdeath.mb -range 549 800 -dest cyberdeath_cyberdemon_d -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole/xbox -prefix CB_
+
+	options -prefix PLAYER_ -keep SPINNER camWaist camHead modelviewconnector camera PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER Lfteye_Focus Rteye_Focus Neck -parent Waist SPINNER -parent SPINNER Waist2 -parent Neck Shldrs -parent camera camHead -parent Lfteye_Focus Head -parent Rteye_Focus Head -parent Waist2 Hips -parent PISTOL_ATTACHER Rhand -parent SHOTGUN_ATTACHER Rhand -parent MGATTACHER Rhand -parent pgATTACHER Rhand -parent NADE_ATTACHER Rhand -parent CHAINSAW_ATTACHER Rhand -parent RL_ATTACHER Lhand -parent FL_ATTACHER Rhand -parent BFG_ATTACHER Lhand -parent camWaist modelviewconnector -parent CHAINGUN_ATTACHER Rhand
+
+	//addoptions -skipmesh pistolBarrel 
+	//addoptions -skipmesh pistolExtender 
+	//addoptions -skipmesh pistolTrigger 
+	//addoptions -skipmesh pistolBody
+	//addoptions -skipmesh pistolClip1
+	addoptions -skipmesh plasma_innerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_innerscopetop_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopetop_mesh1
+	addoptions -skipmesh plasma_innerflap1_mesh1
+	addoptions -skipmesh plasma_outerflap1_mesh1
+ 	addoptions -skipmesh plasma_bolt_mesh1
+ 	addoptions -skipmesh plasma_screen_mesh1
+	addoptions -skipmesh plasma_body_mesh1
+	addoptions -skipmesh plasma_handle_mesh1
+	addoptions -skipmesh plasma_outerflap2_mesh4
+	addoptions -skipmesh plasma_innerflap2_mesh4
+	addoptions -skipmesh plasma_uppermon_mesh4
+	addoptions -skipmesh shotgun_body_mesh
+	addoptions -skipmesh shotgun_handle_mesh
+	addoptions -skipmesh shotgun_trigger_mesh
+	addoptions -skipmesh shotgun_loflap_mesh
+	addoptions -skipmesh shotgun_extender_mesh
+	addoptions -skipmesh shotgun_upflap1_mesh
+	addoptions -skipmesh shotgun_upflap2_mesh
+	//addoptions -skipmesh mgdisplaymesh
+	//addoptions -skipmesh mgextendermesh 
+	//addoptions -skipmesh mgbodymesh
+	//addoptions -skipmesh mgclipmesh 
+	//addoptions -skipmesh mgtriggermesh 
+	addoptions -skipmesh nade_cap_mesh
+	addoptions -skipmesh nade_body_mesh
+	addoptions -skipmesh chainsawcordmesh
+	addoptions -skipmesh chainsawstartermesh
+	addoptions -skipmesh chainsawblademesh
+	addoptions -skipmesh chainsawhandlemesh
+	addoptions -skipmesh chainsawbodymesh
+	
+	addoptions -skipmesh rshell1
+	addoptions -skipmesh rshell2
+	addoptions -skipmesh rshell3
+	addoptions -skipmesh rshell4
+	addoptions -skipmesh reloader1
+	addoptions -skipmesh handle
+	addoptions -skipmesh aimer
+	addoptions -skipmesh body
+
+	addoptions -skipmesh flashlightmesh1
+	addoptions -skipmesh flashlightflaremesh
+	addoptions -skipmesh flashlightbeammesh
+	addoptions -skipmesh flashlightflare2mesh
+	
+	addoptions -skipmesh bfgmesh
+
+	addoptions -skipmesh w_pistolfire
+	addoptions -skipmesh w_pistolflash
+	addoptions -skipmesh w_pistolmesh
+	//addoptions -skipmesh w_shotgun2barrelmesh
+	//addoptions -skipmesh w_shotgun2mesh
+	addoptions -skipmesh w_machinegun_mesh
+	addoptions -skipmesh w_mgfx1
+	addoptions -skipmesh w_mgfx2
+	addoptions -skipmesh w_mgfx3
+	addoptions -skipmesh w_mgfx4
+	addoptions -skipmesh w_plasmagun_mesh
+	addoptions -skipmesh w_plasmagunfx1
+	addoptions -skipmesh w_plasmagunfx2
+	addoptions -skipmesh w_chainsaw_mesh
+	addoptions -skipmesh w_chainsaw_chain_mesh
+	addoptions -skipmesh w_rocketlauncher_mesh
+
+	addoptions -skipmesh chaingunfx1_model
+	addoptions -skipmesh chaingunfx2_model
+	addoptions -skipmesh chaingunnubmodel
+	addoptions -skipmesh chaingunbodymodel
+	addoptions -skipmesh chaingunbarrelmodel
+
+	addoptions -skipmesh polySurface1
+	addoptions -skipmesh polySurface2
+
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 237 340 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_player_a
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 341 372 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_player_b
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 429 548 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_player_c
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 549 800 -dest models/md5/cinematics/hellhole/xbox/cyberdeath_player_d
+
+}
+
+// CYBERDEMON INTRO
+
+
+entityDef xbox_hellhole_cam {
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+
+	
+	"spawnclass"				"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim cyberdeath_a"			"models/md5/cinematics/hellhole/xbox/cyberdeath_camera_a.md5camera"
+	"anim cyberdeath_b"			"models/md5/cinematics/hellhole/xbox/cyberdeath_camera_b.md5camera"
+	"anim cyberdeath_c"			"models/md5/cinematics/hellhole/xbox/cyberdeath_camera_c.md5camera"
+	"anim cyberdeath_d"			"models/md5/cinematics/hellhole/xbox/cyberdeath_camera_d.md5camera"
+}
+
+model xbox_hellhole_player {
+	mesh						models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin						skins/player/shotgun.skin
+
+	anim cyberdeath_a				models/md5/cinematics/hellhole/xbox/cyberdeath_player_a.md5anim 
+	anim cyberdeath_b				models/md5/cinematics/hellhole/xbox/cyberdeath_player_b.md5anim
+	anim cyberdeath_c				models/md5/cinematics/hellhole/xbox/cyberdeath_player_c.md5anim {
+		frame 1 					trigger func_static_52874
+	}
+	anim cyberdeath_d				models/md5/cinematics/hellhole/xbox/cyberdeath_player_d.md5anim
+}
+
+entityDef xbox_hellhole_player {
+	"inherit"					"cin_base"
+	"anim"						"cyberdeath"
+	"model"						"xbox_hellhole_player"
+	"cinematic"						"1"
+
+	"auto_advance"					"1"
+	"num_anims"						"4"
+	"anim1"							"cyberdeath_a"
+	"anim2"							"cyberdeath_b"
+	"anim3"							"cyberdeath_c"
+	"anim4"							"cyberdeath_d" 
+
+}
+
+model xbox_hellhole_cyberdemon {
+	mesh							models/md5/cinematics/hellhole/cyberdeath_cyberdemon.md5mesh
+
+	channel torso						(  )
+	channel legs						( *origin )
+	
+	anim stand						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	
+	anim idle						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+
+	anim bind							models/md5/cinematics/hellhole/cyberdeath_cyberdemon_bind.md5anim
+	anim cyberdeath_a					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim {
+		//frame 1							sound_global hh_music_cyberdeath
+		//frame 1							sound_global hh_sfx_cyberdeath
+		//frame 1							sound_global cyberdemon_death_music
+		//frame 1							sound_global cyberdemon_death_sfx
+		frame 33						trigger func_smoke_1
+	}
+	anim cyberdeath_b					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_b.md5anim
+	anim cyberdeath_c					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_c.md5anim
+	anim cyberdeath_d					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_d.md5anim {
+		//frame 1							trigger func_smoke_2
+		frame 226						trigger startrescue
+	}
+	
+	anim af_pose					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim ik_pose					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+
+	anim sight1						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim sight2						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim sight3						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim walk						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim pain						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim pain_chest					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim 
+	anim pain_head					models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim 
+	anim pain_left_arm				models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim 
+	anim pain_right_arm				models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim 
+	anim melee_attack1				models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim 
+	anim melee_attack2				models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+	anim range_attack				models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+ 
+	anim death						models/md5/cinematics/hellhole/xbox/cyberdeath_cyberdemon_a.md5anim
+
+
+}
+
+entityDef xbox_hellhole_cyberdemon {
+	//"inherit"					"cin_base"
+	"inherit"					"monster_boss_cyberdemon"
+	"anim"						"cyberdeath_a"
+	"model"						"xbox_hellhole_cyberdemon"
+	"team"						"0"
+	"ik_numLegs"				"0"
+	"turn_rate"					"0"
+	"head_look"					"0"
+	"head_focus_rate"				"0"
+	"bone_focus"					"Barrel"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Head"				"0 0 0"
+	"size"							""
+	"cinematic"						"1"
+	"ragdoll"						""
+
+	"num_cinematics"				"4"
+	"anim1"							"cyberdeath_a"
+	"anim2"							"cyberdeath_b"
+	"anim3"							"cyberdeath_c"
+	"anim4"							"cyberdeath_d"
+}

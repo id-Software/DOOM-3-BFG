@@ -1,0 +1,152 @@
+/***********************************************************************
+
+monster_zombie_fem.def
+
+***********************************************************************/
+
+export jay {
+	options		-prefix ZFEM_ -align ALL
+	addoptions	-keep LkneeVector RkneeVector Lball_r Rball_r HEAD_headcontrol HEAD_neckcontrol HEAD_loneckcontrol HEAD_Leyeaim HEAD_Reyeaim Body Body2
+	addoptions	-parent HEAD_Head HEAD_headcontrol -parent HEAD_Reyeaim HEAD_Head -parent HEAD_Leyeaim HEAD_Head -parent HEAD_headcontrol HEAD_neckcontrol
+	addoptions	-parent HEAD_neckcontrol HEAD_loneckcontrol -parent HEAD_Neck HEAD_neckcontrol -parent HEAD_Jaw HEAD_Head -parent HEAD_mouth12 HEAD_Head
+	addoptions	-parent HEAD_mouth1 HEAD_Head -parent HEAD_mouth2 HEAD_Head -parent HEAD_mouth3 HEAD_Head -parent HEAD_mouth4 HEAD_Jaw
+	addoptions	-parent HEAD_mouth5 HEAD_Jaw -parent HEAD_mouth6 HEAD_Jaw -parent HEAD_mouth7 HEAD_Jaw -parent HEAD_mouth8 HEAD_Jaw -parent HEAD_mouth9 HEAD_Head
+	addoptions	-parent HEAD_mouth10 HEAD_Head -parent HEAD_mouth11 HEAD_Head -parent HEAD_tongue1 HEAD_Jaw -parent HEAD_Lcheek HEAD_Head
+	addoptions	-parent HEAD_Rcheek HEAD_Head -parent HEAD_Rnostril HEAD_Head -parent HEAD_Lnostril HEAD_Head -parent HEAD_Lsmile HEAD_Head
+	addoptions	-parent HEAD_Rsmile HEAD_Head -parent HEAD_Rcheek HEAD_Head -parent HEAD_Lcheek HEAD_Head -parent HEAD_Lsneer HEAD_Head
+	addoptions	-parent HEAD_Rsneer HEAD_Head -parent HEAD_Lbrow1 HEAD_Head -parent HEAD_Lbrow2 HEAD_Head -parent HEAD_Lbrow3 HEAD_Head
+	addoptions	-parent HEAD_Rbrow1 HEAD_Head -parent HEAD_Rbrow2 HEAD_Head -parent HEAD_Rbrow3 HEAD_Head -parent HEAD_Ruplid HEAD_Head
+	addoptions	-parent HEAD_Rlolid HEAD_Head -parent HEAD_Luplid HEAD_Head -parent HEAD_Llolid HEAD_Head
+	addoptions	-parent Body2 Body
+	addoptions	-parent Waist Body2
+	addoptions 	-parent Hips Body2
+	addoptions	-sourcedir models/monsters/zombie/zfem2/cycles -destdir models/md5/monsters/zfem2
+
+	mesh		idle.mb 
+	anim		idle.mb //-xyzprecision .01 -dest idle
+	anim		initial.mb
+	anim		walk1.mb
+	anim		walk2.mb
+	anim		pain_chest.mb
+	anim		pain_head.mb
+	anim		pain_legs.mb
+	anim		pain_luparm.mb
+	
+	anim		sight.mb
+	anim		attack1.mb
+	anim		attack2.mb
+	anim		attack3.mb
+}
+
+
+model monster_zombie_zfem2 {
+	mesh						models/md5/monsters/zfem2/idle.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *Hips origin Body Body2 )
+
+	anim af_pose					models/md5/monsters/zfem2/initial.md5anim
+	anim ik_pose					models/md5/monsters/zfem2/initial.md5anim
+
+	anim initial					models/md5/monsters/zfem2/initial.md5anim
+	anim idle					models/md5/monsters/zfem2/idle.md5anim
+	anim stand					models/md5/monsters/zfem2/idle.md5anim
+	anim sight					models/md5/monsters/zfem2/sight.md5anim
+	
+	anim walk1					models/md5/monsters/zfem2/walk2.md5anim {
+		frame 18						rightfoot
+		frame 39						leftfoot
+		frame 60						rightfoot
+		frame 81						leftfoot
+	}
+	anim walk2					models/md5/monsters/zfem2/walk2.md5anim
+	
+//	anim run					models/md5/monsters/zfem2/run2.md5anim
+
+	anim pain					models/md5/monsters/zfem2/pain_chest.md5anim
+	anim pain_head					models/md5/monsters/zfem2/pain_head.md5anim
+	anim pain_chest					models/md5/monsters/zfem2/pain_chest.md5anim
+	anim pain_legs					models/md5/monsters/zfem2/pain_legs.md5anim	
+	anim pain_left_arm				models/md5/monsters/zfem2/pain_luparm.md5anim
+	
+	anim melee_attack1				models/md5/monsters/zfem2/attack1.md5anim {
+		frame 18					melee melee_zombie_zfem2_left
+	}
+	anim melee_attack2				models/md5/monsters/zfem2/attack2.md5anim {
+		frame 15					melee melee_zombie_zfem2_left
+	}
+	anim melee_attack3				models/md5/monsters/zfem2/attack3.md5anim {
+		frame 16					melee melee_zombie_zfem2_right
+	}
+}
+
+entityDef monster_zombie_zfem2 {
+	"inherit"					"zombie_default"
+	"scriptobject"					"monster_zombie"
+	"size"						"48 48 68"
+	"use_aas"					"aas48"
+	"team"						"1"
+	"rank"						"0"
+	"health"					"100"
+	"melee_range"					"32"
+	"mass"						"125"
+
+	"model"						"monster_zombie_zfem2"
+	"ragdoll"					"monster_zombie_zfem2"
+
+	"damage_zone head"				"*HEAD_Loneck"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*HEAD_Loneck"
+	"damage_zone left_arm"				"*Lshldr"
+	"damage_zone right_arm"				"*Rshldr"
+	"damage_zone legs"				"*Hips origin Lupleg Rupleg"
+
+	"damage_scale head"				"2"
+	
+	"snd_footstep"					"monster_zombie_maint_footstep"
+}
+
+entityDef melee_zombie_zfem2_left {
+	// melee specific parameters
+	"snd_hit"						"monster_zombie_fat_slap"
+	"snd_miss"						"monster_zombie_fat_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters			
+	"damage"						"20"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"350"
+	"kick_amplitude"					"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_zfem2_right {
+	"snd_hit"						"monster_zombie_fat_melee_hit"
+	"snd_miss"						"monster_zombie_fat_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"20"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"45"
+
+	"kick_time"						"350"
+	"kick_amplitude"					"1.1"
+
+	"dv_time"						"100"
+}
+

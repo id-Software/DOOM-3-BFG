@@ -1,0 +1,8 @@
+d3le_player_doommarine_enpro1 { 
+     "inherit"				"d3le_player_doommarine" 
+     "health"				"50" 
+     "weapon"				"weapon_fists,weapon_pda" 
+     "weapon_nightmare"		"weapon_fists,weapon_pda,weapon_soulcube" 
+     "current_weapon"		"0" 
+	 "ammo_bullets"			"0"
+}  

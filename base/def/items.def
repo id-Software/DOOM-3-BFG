@@ -1,0 +1,418 @@
+/***********************************************************************
+
+ items
+
+***********************************************************************/
+
+entityDef item_default {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"		"1"
+	
+	"inv_item"				"1"
+	"snd_acquire"			"sound_item_acquire"
+	"snd_respawn"			"sound_item_respawn"
+	
+	"editor_bool inv_item"			"if set to 1, show item acquisition gui when picked up"
+	"editor_var inv_name"			"name referenced for triggers etc.. requiring this to be in inventory to work"
+	"editor_var inv_icon"			"icon name for hud graphics"
+	"editor_bool inv_carry"			"if set to 1, is carried as opposed to instant use"
+	"editor_bool no_touch"			"trigger to give to player instead of picking up"
+	"editor_bool not_easy"			"set to 1 and item will not spawn in easy mode"
+	"editor_bool not_medium"		"set to 1 and item will not spawn in medium mode"
+	"editor_bool not_hard"			"set to 1 and item will not spawn in hard mode"
+	"editor_model model"				"visual model"
+	"editor_var triggersize"		"amount to expand the pickup trigger by"
+	"editor_var inv_id"				"id number as defined in guis/itemdefs.h"
+	"editor_copy3"			"inv_name"
+	"editor_copy4"			"inv_item"
+	"editor_copy5"			"inv_objective"
+	"editor_copy6"			"inv_icon"
+
+	"spawnclass"			"idItem"
+}
+
+entityDef item_generic {
+	"inherit"				"item_default"
+	"inv_item"				"1"
+	"inv_name"				"Item"
+}
+
+entityDef item_armor_security {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Security Armor"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/armor/armor.lwo"
+	"snd_acquire"			"sound_vest_acquire"
+	"size"					"32 32 32"
+	"inv_name"				"#str_02918"
+	"inv_armor" 			"50"
+}
+
+entityDef item_armor_shard {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Armor shard"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/armor/armor_shard.lwo"
+	"snd_acquire"			"sound_shard_acquire"
+	"size"					"32 32 32"
+	"inv_name"				"#str_02919"
+	"inv_armor" 			"5"
+}
+
+
+entityDef item_key_blue {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Blue Key"
+	"editor_model"			"models/items/keycard/keycard3.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/keycard/keycard3.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"Blue Key"
+	"inv_id_bluekey"		"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_item"
+}
+
+entityDef item_key_red {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Red Key"
+	"editor_model"			"models/items/keycard/keycard2.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/keycard/keycard2.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"Red Key"
+	"inv_id_redkey"			"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_item"
+}
+
+entityDef item_key_yellow {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Yellow Key"
+	"editor_model"			"models/items/keycard/keycard.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/keycard/keycard.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"Yellow Key"
+	"inv_id_redkey"			"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_item"
+}
+
+entityDef item_keycard_generic {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Keycard"
+	"editor_model"			"models/items/keycard/keycard.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/keycard/keycard.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"Keycard"
+	"inv_id_redkey"			"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_item"
+}
+
+entityDef item_keycard_aco {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"ACO Keycard"
+	"editor_model"			"models/items/keycard/keycard3.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/keycard/keycard3.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"ACO Keycard"
+	"inv_id_bluekey"		"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_item"
+}
+
+
+entityDef item_data_linker {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Data Linker"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/data_linker/data_linker.ase"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"Data Linker"
+	"inv_id_datalinker"		"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_item"
+}
+
+entityDef item_ssd_drive {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"SSD Drive"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/mapobjects/com/modconsole6cart.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"#str_item_ssd"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/icons/commcard.tga"
+	"snd_acquire"			"guisounds_item"
+}
+
+
+entityDef item_medkit {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Large Med Kit"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/medkit/medkit_large.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"#str_02917"
+	"inv_health"			"25"
+	"inv_item"				"2"
+	"snd_acquire"			"guisounds_health"
+}
+
+entityDef item_medkit_small {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Small Med Kit"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/medkit/medkit_small.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"#str_02917"
+	"inv_health"			"15"
+	"inv_item"				"2"
+	"snd_acquire"			"guisounds_health"
+}
+
+// The proper spelling is with 1 n, but a lot of the assets have it spelled with 2 so be aware when looking for media.
+entityDef item_aircannister {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Air Canister"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/aircannister/aircannister.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"Air Canister"
+	"inv_air"				"50"
+	"inv_item"				"6"
+	"snd_acquire"			"air_cannister_pickup"
+}
+
+entityDef item_battery {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Battery"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/battery/battery.ase"
+	"size"					"32 32 32"
+	"inv_name"				"Batteries"
+	"inv_battery"			"100"
+	"inv_item"				"7"
+	"snd_acquire"			"guisounds_item"
+}
+
+
+entityDef item_videocd {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Video Disk"
+	"editor_var video"		"name of the .video file to give to the player"
+
+	"spawnclass"			"idVideoCDItem"
+	"model" 				"models/items/videocd/videocd_world.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"Video Disk"
+	"video"					"pdas/video/testmap.video"
+	"inv_carry"				"1"
+	"inv_item"				"1"
+	"snd_acquire"			"videocd_pickup"
+	"editor_copy101"		"video"
+}	
+
+entityDef item_backpack {
+	"inherit"						"item_default"
+	"editor_color"					".3 .3 1"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 32"
+
+	"editor_usage"					"Backpack.  Gives player multiple items at once.  Empty by default, so designer must choose amounts."
+	
+	"editor_var inv_ammo_bullets"	"gives pistol ammo"
+	"editor_var inv_ammo_shells"	"gives shotgun ammo"
+	"editor_var inv_ammo_clip"		"gives machine gun ammo"
+	"editor_var inv_ammo_grenades"	"gives grenade ammo"
+	"editor_var inv_ammo_rockets"	"gives rocket launcher ammo"
+	"editor_var inv_ammo_cells"		"gives plasmagun ammo"
+	"editor_var inv_ammo_belt"		"gives chaingun ammo"
+	"editor_var inv_ammo_bfg"		"gives bfg ammo"
+	"editor_var inv_health"			"gives health"
+	"editor_var inv_armor" 			"gives armor"
+	"editor_var inv_air"			"gives air"
+
+	"spawnclass"					"idItem"
+	"model" 						"models/items/powerups/backpack.lwo"
+	"size"							"32 32 32"
+	"inv_name"						"Backpack"
+	"inv_item"						"4"
+	"snd_acquire"					"pack_pickup"
+
+	"editor_copy3"					""
+	"editor_copy4"					""
+	"editor_copy5"					""
+	"editor_copy6"					""
+
+	"inv_ammo_bullets"				"0"
+	"inv_ammo_shells"				"0"
+	"inv_ammo_clip"					"0"
+	"inv_ammo_grenades"				"0"
+	"inv_ammo_rockets"				"0"
+	"inv_ammo_cells"				"0"
+	"inv_ammo_belt"					"0"
+	"inv_ammo_bfg"					"0"
+	"inv_health"					"0"
+	"inv_armor" 					"0"
+	"inv_air"						"0"
+	
+	"editor_copy201"				"inv_ammo_bullets"
+	"editor_copy202"				"inv_ammo_shells"
+	"editor_copy203"				"inv_ammo_clip"
+	"editor_copy204"				"inv_ammo_grenades"
+	"editor_copy205"				"inv_ammo_rockets"
+	"editor_copy206"				"inv_ammo_cells"
+	"editor_copy207"				"inv_ammo_belt"
+	"editor_copy208"				"inv_ammo_bfg"
+	"editor_copy209"				"inv_health"
+	"editor_copy210"				"inv_armor"
+	"editor_copy211"				"inv_air"
+}
+
+// move to misc
+entityDef item_objective {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+
+	"editor_usage"			"Gives the player an objective, trigger it to give the objective."
+
+	"editor_bool inv_objective"	"1 means show objective window"
+	"editor_var camShot"		"name of the entity to take the screen shot from"
+	"editor_var screenShot"		"image name to save shot to"
+	"editor_var objectivetext"	"objective description"
+	"editor_var objectivetitle" "objective title"
+	"editor_var inv_name"		"name of inventory/objective item used for requirements"
+
+	"spawnclass"			"idObjective"
+	"inv_objective"   		"1"
+}
+
+// move to misc
+entityDef item_objectivecomplete {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+
+	"editor_usage"			"Completes a named objective, trigger it to complete the objective."
+
+	"editor_bool inv_objective"	"1 means show objective window"
+	"editor_var camShot"		"name of the entity to take the screen shot from"
+	"editor_var screenShot"		"image name to save shot to"
+	"editor_var objectivetext"	"objective description"
+	"editor_var objectivetitle" "objective title"
+	"editor_var remove"			"inventory object to remove if one was required"
+	"editor_var inv_name"		"name of inventory/objective item to be completed"
+
+	"spawnclass"			"idObjectiveComplete"
+	"inv_objective"   		"1"
+}
+
+entityDef item_pda {
+	"inherit"				"item_default"
+	"model" 				"models/items/pda/pda_world.lwo"
+	"size"					"32 32 32"
+
+	"editor_usage"			"PDA"
+	"editor_usage1"			"PDA's contain vidoes, audio, e-mail, and security clearances."
+	"editor_var inv_name"	"This name is used on trigger requires. It does not need to match the name as defined in the .pda file"
+	"editor_var	pda_name"	"name of pda as defined in the .pda file"
+
+	"inv_name"				"PDA"
+	"inv_carry"				"1"
+	"inv_pda"				"1"
+	"inv_item"				"1"
+	"snd_acquire"			"guisounds_compup"
+
+	"editor_color"			".0 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"spawnclass"			"idPDAItem"
+
+	"dropToFloor"			"1"
+}

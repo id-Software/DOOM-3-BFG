@@ -1,0 +1,58 @@
+
+model blooper_labcoat {
+	inherit							npc_base
+	mesh							models/md5/chars/labcoat.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim damn						models/md5/chars/betruger/damn.md5anim {
+		frame 10 					sound_voice betruger_oops
+	}
+
+}
+
+model blooper_betrugerhead {
+	mesh							models/md5/heads/betruger/betruger.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/betruger/betrugeridle.md5anim
+	anim stand						models/md5/heads/betruger/betrugeridle.md5anim
+	anim blink						models/md5/heads/betruger/betrugerblink.md5anim
+	anim damn						models/md5/heads/betruger/betruger_damn.md5anim
+}
+
+entityDef blooper_betruger {
+	"inherit"						"npc_base"
+	"size"							""
+	"model"							"blooper_labcoat"
+	"anim"							"betrugercin_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"blooper_betrugerhead"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+}
+
+model blooper_hazguy {
+	mesh							models/md5/characters/NPCS/hazmat.md5mesh
+	skin							skins/characters/npcs/hazmat.skin
+
+	anim blah						models/md5/cinematics/bloopers/haz_monsters.md5anim
+	anim monsters					models/md5/cinematics/bloopers/haz_monsters.md5anim {
+		frame 1						aviGame monsters
+		frame 15					sound_voice hazmat_monsters
+		frame 250					aviGame
+	}
+}
+
+entityDef blooper_hazguy {
+	"inherit"						"cin_base"
+	"model"							"blooper_hazguy"
+	"anim"							"monsters"
+	"cinematic"						"1"
+	"sound_bone"					"Chest"
+
+}
+
+
+

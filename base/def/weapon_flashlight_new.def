@@ -1,0 +1,158 @@
+/***********************************************************************
+
+	weapon_flashlight_new.def
+
+***********************************************************************/
+
+entityDef weapon_flashlight_new {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Flashlight"
+	"editor_rotatable"			"1"
+	"model"						"models/items/flashlight/flashlight2_world.lwo"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model_view"				"viewmodel_flashlight_new"
+	"model_world" 				"worldmodel_flashlight_new"
+	"joint_attach"				"FL_ATTACHER"
+
+	"inv_name"					"#str_00100187"
+	"inv_weapon"				"weapon_flashlight_new"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_10"
+
+	"inv_desc"					"#str_weapon_flashlight_desc"
+	"display_name"				"#str_02482"
+	"pdaIcon"					""
+	
+	"impact_damage_effect"		"1"
+	
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"weapon_scriptobject"		"weapon_flashlight"
+	"def_melee"					"damage_flashlight_new"
+	"melee_distance"			"48"
+	"ammoType"					""
+	"ammoRequired"				"0"
+	"clipSize"					"0"
+	"mtr_flashShader"			"lights/flashlight5"
+	"flashColor"				"1 1 1"
+	"flashTime"					"0.016"
+	"flashRadius"				"400"
+	"silent_fire"				"1"
+	"flashAngle"				"22.0"
+	"flashTarget"				"0 0 1280"
+	"flashUp"					"0 640 0"
+	"flashRight"				"-640 0 0"
+	"flashPointLight"			"0"
+
+	"snd_acquire"				"flashlight_pickup"
+
+	// MP
+	"skin_on"					"skins/models/weapons/flashlight_on"
+	"skin_on_invis"				"skins/models/weapons/flashlight_on_invis_new"
+	"skin_off"					"skins/models/weapons/flashlight_off"
+	"skin_off_invis"			"skins/models/weapons/flashlight_off_invis_new"
+
+	"start_off"					"1"
+}
+
+entityDef moveable_item_flashlight_new {
+	"inherit"					"weapon_flashlight_new"
+	"spawnclass"				"idMoveableItem"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"no_touch"				"1"
+}
+
+model worldmodel_flashlight_new {
+	mesh						models/md5/items/flashlight_world/worldflashlight.md5mesh
+
+	anim raise 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim idle 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim aim					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim fire					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim reload					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim noammo					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim putaway				models/md5/items/flashlight_world/flashlight_idle.md5anim
+}
+
+model viewmodel_flashlight_new {
+	mesh						models/md5/items/flashlight_world/worldflashlight.md5mesh
+	offset						( -7 2 16 )
+
+// 	anim raise					models/md5/items/flashlight_view/raise.md5anim {
+// 		frame	1				sound_weapon flashlight_raise
+// 	}
+//	anim idle 					models/md5/items/flashlight_view/idle.md5anim
+	anim fire1 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim fire2 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+//	anim putaway				models/md5/items/flashlight_view/lower.md5anim
+//	anim reload					models/md5/items/flashlight_view/pushbutton.md5anim
+//	anim noammo					models/md5/items/flashlight_view/idle.md5anim
+
+	anim raise 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim idle 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim aim					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim fire					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim reload					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim noammo					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim putaway				models/md5/items/flashlight_world/flashlight_idle.md5anim
+}
+
+entityDef	damage_flashlight_new {
+	"damage"			"40" //may31 -Tim may be too high
+	"kickDir"			"-1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"gib"				"1"
+	"smoke_wound_flesh"	"burstysquirt.prt"
+	
+	"knockback"			"20"
+	"push"				"15000"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+	
+	"snd_flesh"					"flashlight_impact"
+	"snd_metal"					"monster_zombie_fat_wrench"
+	"snd_ricochet"				"monster_zombie_fat_wrench"	// need this 
+	"snd_stone"					"monster_zombie_fat_wrench"
+	"snd_wood"					"flashlight_impact"
+	"snd_cardboard"				"flashlight_impact"
+	"snd_glass"					"monster_zombie_fat_wrench"
+//	"snd_liquid"				"bullet_impact_liquid"
+	"snd_plastic"				"flashlight_impact"
+	"snd_shatter"				"melee_impact_glass"	
+	
+	"snd_hit"			"flashlight_impact"		// TEMP
+	"snd_miss"			"fist_whoosh"			// TEMP
+	"snd_hit_berserk"	"fist_gorepunch"
+}
+
+skin skins/models/weapons/flashlight_off_invis_new {
+	models/items/flashlight/flashlight2 models/items/flashlight/flashlight2_invis
+	models/characters/player/arm2	models/characters/player/arm2_invis
+	models/items/flashlight/flare textures/common/nodraw
+	models/items/flashlight/beam1 textures/common/nodraw
+	models/items/flashlight/flare2 textures/common/nodraw
+	models/items/flashlight/beam2 textures/common/nodraw
+	models/items/flashlight/bulb textures/common/nodraw
+}
+
+skin skins/models/weapons/flashlight_on_invis_new {
+	models/items/flashlight/flashlight2 models/items/flashlight/flashlight2_invis
+	models/characters/player/arm2	models/characters/player/arm2_invis
+}
+
+

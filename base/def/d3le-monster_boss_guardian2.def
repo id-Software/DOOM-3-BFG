@@ -1,0 +1,361 @@
+/***********************************************************************
+
+	monster_boss_guardian.def
+
+***********************************************************************/
+
+export James {
+
+	
+ 	options -prefix GUARD_ -keep ik_foot1 ik_foot2 Lknee Rknee -keep ROT -keep teleporter_ctrl -parent ik_foot1 lankle -parent ik_foot2 rankle -parent spine_5 ROT -parent ROT spine_4 -sourcedir models/monsters/guardian/cycles -destdir models/md5/monsters/guardian
+	
+	anim	guardian_intro.mb
+	
+	addoptions -align movement
+
+	mesh	guardian_mesh.mb -dest guardian
+	anim	af_pose.mb -range 1 1
+	anim	idle1.mb		// used as lost_enemy
+	anim	idle2.mb
+	anim	walk1.mb
+	anim	walk1_R.mb
+	anim	walk1_L.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	walk_attack.mb
+	anim	walk_attack_R.mb
+	anim	walk_attack_L.mb
+	anim 	death.mb
+	anim 	death.mb -range 200 200 -dest death_pose
+
+	anim	sight1.mb
+	anim	range_attack1.mb
+	anim	pain_head.mb
+	anim 	run.mb
+    	anim 	run_R.mb
+    	anim 	run_L.mb
+    	anim 	run_R_headbutt.mb
+    	anim 	run_L_headbutt.mb
+
+//Lost Mission
+	anim	death_ew.mb	
+
+}
+
+model monster_boss_guardian2 {
+	mesh							models/md5/monsters/guardian/guardian.md5mesh
+
+	channel legs					( *origin )
+
+	anim idle						models/md5/monsters/guardian/idle2.md5anim {
+		frame 1							sound_voice snd_chatter
+	}
+	anim lost_enemy					models/md5/monsters/guardian/idle1.md5anim {
+		frame 1							sound_voice snd_chatter
+	}
+	
+	anim run_right					models/md5/monsters/guardian/run_R.md5anim {
+		frame 2							sound_body snd_footstep
+	}
+
+	anim run_attack_right			models/md5/monsters/guardian/run_R_headbutt.md5anim {
+		frame 8							sound_body snd_footstep
+		frame 19						sound_body snd_footstep
+	}
+
+	anim run_left					models/md5/monsters/guardian/run_L.md5anim {
+		frame 3							sound_body snd_footstep
+	}
+
+	anim run_attack_left			models/md5/monsters/guardian/run_L_headbutt.md5anim {
+		frame 12						sound_body snd_footstep
+		frame 20						sound_body snd_footstep
+	}
+
+	anim walk_right					models/md5/monsters/guardian/walk1_R.md5anim  {
+		frame 16						sound_body snd_footstep
+	}
+	anim walk_left					models/md5/monsters/guardian/walk1_L.md5anim {
+		frame 16						sound_body snd_footstep
+	}
+	anim walk_attack_left			models/md5/monsters/guardian/walk_attack_L.md5anim  {
+		frame 5							melee damage_guardian2HeadButt
+		frame 5							sound_voice snd_chatter_combat
+		frame 14						sound_body snd_footstep
+	}
+	anim walk_attack_right			models/md5/monsters/guardian/walk_attack_R.md5anim {
+		frame 5							melee damage_guardian2HeadButt
+		frame 5							sound_voice snd_chatter_combat
+		frame 13						sound_body snd_footstep
+	}
+	anim range_attack1				models/md5/monsters/guardian/attack1.md5anim {
+		frame 14						sound_body snd_attack
+		frame 15						sound_voice snd_chatter_combat
+		frame 16						object_call pound_attack_right
+	}
+	anim range_attack2				models/md5/monsters/guardian/attack2.md5anim {
+		frame 16						object_call pound_attack_left
+		frame 15						sound_body snd_attack
+		frame 17						sound_voice snd_chatter_combat
+	}
+	anim melee_attack				models/md5/monsters/guardian/attack3.md5anim {
+		frame 15						sound_voice snd_chatter_combat
+		frame 16						melee damage_guardian2HeadButt
+	}
+	
+	anim spawn_seeker				models/md5/monsters/guardian/range_attack1.md5anim {
+		frame 1							sound_item snd_spawn_seeker
+		frame 9							sound_body snd_pain
+		frame 11						object_call artillery_strike
+	}
+
+	anim pain 						models/md5/monsters/guardian/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim sight						models/md5/monsters/guardian/sight1.md5anim {
+		frame 17						sound_voice snd_sight
+	}
+
+	anim af_pose					models/md5/monsters/guardian/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/guardian/af_pose.md5anim
+
+//Lost Mission
+//
+	anim death_ew						models/md5/monsters/guardian/death_ew.md5anim {
+	}				
+
+}
+
+entityDef monster_boss_guardian2 {
+	"editor_mins"					"-100 -100 0"
+	"editor_maxs"					"100 100 200"
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_boss_guardian2"
+	"model"							"monster_boss_guardian2"
+	//"ragdoll"						"monster_boss_guardian2"
+	"size"							"200 200 200"
+	"use_aas"						"aas_guardian"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"3200"
+	"melee_range"					"150"
+	"bone_focus"					"neck_2"
+	"def_projectile"				"projectile_guardian2_smash"
+	"turn_rate"						"120"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint spine_4"			"0.4 0.4 0"
+	"look_joint neck_2"				"0.6 0.6 0"
+	
+	"mass"   						"1000000"
+
+	//"mtr_light_shader"				"lights/lanternglow"
+	//"light_radius"					"200"
+	//"light_color"					"1 0.2 0"
+	//"light_offset_right"			"0 32 32"
+	//"light_offset_left"				"0 32 -32"
+	//"light_noshadows"			"1"
+	
+	//"smokeParticleSystem"			"GflameBack"
+	"smokeParticleSystem"			"GflameRhand"
+	//"smokeParticleSystem3"			"head"
+	"smokeParticleSystem2"			"GflameLHand"
+	//"smokeParticleSystem5"			"tail_12"
+	//"smokeParticleSystem6"			"GflameReye"
+	//"smokeParticleSystem7"			"GflameLeye"
+	//"smokeParticleSystem8"			"GflameNose"
+	//"smokeParticleSystem3"			"tounge_2"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"8"
+	"ik_footDownTrace"				"64"
+	"ik_waist"						"Body"
+	"ik_hip1"						"lupleg"
+	"ik_hip2"						"rupleg"
+	"ik_knee1"						"lloleg"
+	"ik_knee2"						"rloleg"
+	"ik_ankle1"						"lleg"
+	"ik_ankle2"						"rleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"ik_foot1"
+	"ik_foot2"						"ik_foot2"
+
+	"snd_sight"						"monster_demon_guardian_sight"
+	"snd_chatter"					"monster_demon_guardian_chatter"
+	"snd_chatter_combat"			"monster_demon_guardian_chatter_combat"
+	"snd_pain"						"monster_demon_guardian_pain"
+	"snd_death"						"monster_demon_guardian_die"
+	"snd_footstep"					"monster_demon_guardian_footstep"
+	"snd_attack"					"monster_demon_guardian_attack"	
+	"snd_spawn_seeker"				"monster_demon_guardian_spawn"
+	"snd_kablam"					"monster_demon_guardian_death_impact"
+	
+	"def_poundgrounddamage"			"damage_guardian2PoundGround"
+	"def_poundground"				"guardian_poundground_explosion"
+	"def_charge"					"damage_guardian2Charge"
+}
+
+entityDef guardian2_poundground_explosion {
+	"spawnclass"					"idSpawnableEntity"
+	"model"							"guardian_poundground_b.prt"
+}
+
+entityDef damage_guardian2HeadButt {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"30"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"140"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef monster_boss_guardian2_spawner {
+	"scriptobject"					"monster_boss_guardian2_spawner"
+	"spawnclass"					"idAI"
+	"model"							"models/monsters/spawn/spawn.lwo"
+	"lightning_model"				"models/monsters/spawn/spawnlightning.lwo"
+	"model_pain"					"models/monsters/spawn/redspawn.lwo"
+	"use_combat_bbox"				"1"
+	"mins"							"-32 -32 -32"
+	"maxs"							"32 32 32"
+	"use_aas"						""
+	"team"							"1"
+	"rank"							"0"
+	"health"						"1360"
+	
+	"beam_color"					"0.1 0.7 1"
+	"beam_pain_color"				"1 0.0 0.0"
+	"lightning_color"				"0.5 0.5 1"
+	"lightning_pain_color"			"1 0.5 0.2"
+	"mtr_beam_skin"					"textures/sfx/flare"
+	"mtr_beam_light_shader"			"lights/lanternglow"
+	
+	"rotate"						"0 70 0"
+	"offset"						"0 0 236"
+	"beam_offset"					"0 0 -96"
+}
+
+entityDef projectile_guardian2_smash {
+	"spawnclass"					"idHomingProjectile"
+	"mins"							"-16 -16 -16"
+	"maxs"							"16 16 16"
+	"model" 						"guardian_fireball_b.prt"
+	
+	"noFloorCollision"				"1"
+
+	"def_damage"					"damage_guardian2_smash_direct"
+	"def_splash_damage"				"damage_guardian2_smash_splash"
+
+	"health"						"10000"
+	"velocity"						"450 0 0"
+	"angular_velocity"				"0 0 0"
+	"thrust"						"0"
+	"thrust_start"					"0"
+	"thrust_end"					"0"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0.9"
+	"mass"							"500"
+	"gravity"						"0"
+	"fuse"							"4"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"0"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"			"0"
+	"impact_gib"					"1"			
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75" 
+
+	"smoke_fly"						"spark_atom_c.prt"
+	"smoke_detonate"				""
+	"smoke_residue"					""
+	"smoke_bounce"					""
+	"smoke_fuse"					""
+	
+	//"model_detonate"				"rocketexplosion.prt"
+										
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+	
+	// temp removed while seneca works on it
+	//"mtr_light_shader"				"lights/impflyflash"
+	//"light_color"					"0.9 0.7 0.05"
+	//"light_radius"					"160"
+	//"light_offset"					"0 0 0"
+
+	//"mtr_explode_light_shader"		"lights/impflash"
+	//"explode_light_color"			"3.6 3.0 0.5"
+	//"explode_light_radius"			"320"
+	//"explode_light_fadetime"		"1.0"
+
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+	"snd_fly"						"monster_guardian_fireball_flight"
+}
+
+entityDef damage_guardian2_smash_direct {
+	"damage"			"20"
+	"push"				"1000"
+	"smoke_wound_flesh"	"bloodwound.smoke"
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+	"mtr_splat_flesh"	""
+}
+
+entityDef damage_guardian2_smash_splash {
+	"damage"			"20"
+	"radius"			"100"
+	"knockback"			"80"
+	"push"				"5000"
+	"smoke_wound_flesh"	"bloodwound.smoke"
+}
+
+entityDef damage_guardian2PoundGround {
+	"damage"						"20"
+	"radius"						"130"
+	"knockback"						"40"
+	"push"							"5000"
+}
+
+entityDef damage_guardian2Charge {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"1 0 0"
+
+	"damage"						"30"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"200"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}

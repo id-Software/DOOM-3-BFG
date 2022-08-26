@@ -1,0 +1,305 @@
+/***********************************************************************
+
+	monster_demon_pinky.def
+
+***********************************************************************/
+
+export fred {
+
+	options	-prefix PINKY_ -rename Waist Waist1 -rename LoNeck Waist -parent drool Mouth_Piece 
+
+	anim	maps/fred/caverns2/pinkywake.mb -rotate -90 -range 1 1 -dest models/md5/cinematics/caverns2/pinkywakeidle
+	anim	maps/fred/caverns2/pinkywake.mb -rotate -90 -dest models/md5/cinematics/caverns2/pinkywake
+	anim	maps/fred/intro/intro.mb -range 1 1220 -dest models/md5/cinematics/intro/pinky_intro
+
+	options	-prefix PINKY_ -align ALL -rename Waist Waist1 -rename LoNeck Waist -parent drool Mouth_Piece -sourcedir models/monsters/pinky/animation/cycles -destdir models/md5/monsters/pinky
+
+	mesh	pinky_mesh.mb -dest pinky
+	anim	teleportin.ma
+	anim	initial.ma
+	anim	idle1.ma
+	anim	roar.ma
+	anim	roar2.ma
+	anim	roar3.ma
+	anim	walk.ma
+	anim	run.ma -cycleStart 26
+	anim	evade_left.ma
+	anim	evade_right.ma
+	anim	leap_attack.ma
+	anim	attack.ma -range 1 17
+	anim	attack2.ma -range 1 17
+	anim	attack3.ma
+	anim	attack4.ma
+	anim	pain_head3.ma
+	anim	pain_luparm3.ma
+	anim	pain_ruparm3.ma
+	anim	misc1.ma -dest delta2a_awake
+	anim	stand.ma
+
+	anim	pipes_bust2.mb -range 1 151 -dest pipepinkanim -sourcedir maps/fred/wall
+	anim	pipes_bust2.mb -range 1 3 -dest pipepinkidle -sourcedir maps/fred/wall
+
+	anim	glassbreak.mb -rotate 90 -range 1 1 -dest glassbreak_idle -sourcedir models/monsters/pinky/animation/cinematics	
+	anim	glassbreak.mb -rotate 90 -range 1 85 -dest glassbreak -sourcedir models/monsters/pinky/animation/cinematics
+}
+
+model monster_demon_pinky {
+	mesh							models/md5/monsters/pinky/pinky.md5mesh
+
+	channel torso					( *Waist )
+	channel legs					( *Waist1 *Chest -*Waist Body origin )
+	
+	anim af_pose					models/md5/monsters/pinky/initial.md5anim
+
+	anim teleport					models/md5/monsters/pinky/teleportin.md5anim {
+		frame 1							sound_voice snd_sight1
+		frame 2							sound_voice snd_admin_handstep
+		frame 2							sound_voice snd_admin_handstep
+		frame 15						sound_voice snd_admin_handstep
+		frame 23						sound_voice snd_admin_handstep
+		frame 30						sound_voice snd_sight1
+	}
+	anim initial					models/md5/monsters/pinky/initial.md5anim
+	anim stand						models/md5/monsters/pinky/stand.md5anim
+	anim idle						models/md5/monsters/pinky/idle1.md5anim {
+		frame 1							sound_body snd_idle
+		frame 1							sound_item snd_breath
+	}
+	anim sight1						models/md5/monsters/pinky/roar.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+		frame 8							sound_voice snd_sight1
+	}
+	anim walk						models/md5/monsters/pinky/run.md5anim {
+		frame 1							sound_item snd_breath
+		frame 7							sound_body snd_gear
+		frame 10						sound_body2 snd_footstep
+		frame 11						sound_body snd_handstep
+		frame 17						sound_body snd_gear
+		frame 20						sound_body2 snd_footstep
+		frame 21						sound_body snd_handstep
+	}
+	anim run						models/md5/monsters/pinky/run.md5anim {
+		frame 1							sound_item snd_breath
+		frame 7							sound_body snd_gear
+		frame 10						sound_body2 snd_footstep
+		frame 11						sound_body snd_handstep
+		frame 17						sound_body snd_gear
+		frame 20						sound_body2 snd_footstep
+		frame 21						sound_body snd_handstep
+	}
+	anim evade_left1				models/md5/monsters/pinky/evade_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 9							sound_weapon snd_melee_4
+		frame 10						sound_body snd_handstep
+		frame 11						sound_body snd_handstep
+		frame 12						sound_body2 snd_footstep
+		frame 13						sound_body snd_footstep
+		frame 22						sound_body2 snd_footstep
+	}
+	anim evade_right1				models/md5/monsters/pinky/evade_right.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 1							sound_item snd_breath
+		frame 10						sound_body2 snd_handstep
+		frame 11						sound_body snd_handstep
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body2 snd_footstep
+		frame 19						sound_body snd_handstep
+		frame 21						sound_body snd_footstep
+	}
+	anim roar1						models/md5/monsters/pinky/roar2.md5anim {
+		frame 3							sound_voice snd_sight2
+	}
+	anim roar2						models/md5/monsters/pinky/roar3.md5anim {
+		frame 3							sound_voice snd_sight3
+	}
+	anim melee_attack1				models/md5/monsters/pinky/attack.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_weapon snd_melee_1
+		frame 6							sound_body snd_handstep		
+		frame 7							melee melee_pinky_back
+		frame 7							sound_body snd_handstep
+		frame 8							sound_body snd_gear
+		frame 11						sound_body snd_footstep
+		frame 15						sound_body2 snd_footstep		
+	}
+	anim melee_attack2				models/md5/monsters/pinky/attack2.md5anim {
+		frame 1							sound_weapon snd_melee_1
+		frame 6							sound_body snd_handstep		
+		frame 7							melee melee_pinky_back
+		frame 7							sound_body snd_handstep
+		frame 8							sound_body snd_gear
+		frame 11						sound_body snd_footstep
+		frame 15						sound_body2 snd_footstep		
+	}
+	anim melee_attack3				models/md5/monsters/pinky/attack3.md5anim {
+		frame 1							sound_weapon snd_melee_1
+		frame 4							melee melee_pinky_right
+	}
+	anim melee_attack4				models/md5/monsters/pinky/attack4.md5anim {
+		frame 1							sound_weapon snd_melee_1
+		frame 5							melee melee_pinky_left
+	}
+	anim pain						models/md5/monsters/pinky/pain_head3.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/pinky/pain_head3.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/pinky/pain_head3.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm				models/md5/monsters/pinky/pain_ruparm3.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	anim pain_left_arm				models/md5/monsters/pinky/pain_luparm3.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	anim pipes_idle					models/md5/monsters/pinky/pipepinkidle.md5anim {
+        frame 1							sound_body snd_idle
+		frame 1							sound_item snd_breath
+	}
+	anim pipes_bust					models/md5/monsters/pinky/pipepinkanim.md5anim {
+        frame 90                                                sound_voice snd_sight2
+        frame 130                                               sound_voice snd_sight3
+    }
+}
+	
+model monster_demon_pinky_pipes {
+	inherit							monster_demon_pinky
+	anim pipes_idle					models/md5/monsters/pinky/pipepinkidle.md5anim
+	anim pipes_bust					models/md5/monsters/pinky/pipepinkanim.md5anim
+}
+
+entityDef monster_demon_pinky {
+	"editor_mins"					"-48 -48 0"
+	"editor_maxs"					"48 48 96"
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_pinky"
+	"model"							"monster_demon_pinky"
+	"ragdoll"						"monster_demon_pink"
+	
+	"size"							"74 74 78"
+	"use_aas"						"aas96"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"220"
+	"melee_range"					"60"
+	"mass"							"300"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Head"				"0.4 0.4 0"
+	"look_joint Waist"				"0.1 0.1 0"
+
+	"bone_focus"					"Forehead_Flesh"
+	
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+
+	"smoke_particleSystem"			"pinkysmoke.prt"
+	"smoke_pain"					"pinkysmokepain.smoke"
+	"particleBone"					"Waist3"
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp_large.prt-waist"	
+
+	"offsetModel"					"-20 0 0"
+
+	"damage_zone head"				"*Chest"
+	"damage_zone chest"				"*Chest -*Rshldr -*Lshldr -*Waist"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Waist1"
+	"damage_scale head"				"1"
+
+	"snd_footstep"					"monster_demon_pinky_foot"
+	"snd_handstep"					"pinky_hand"
+	"snd_admin_handstep"			"admin_monster_demon_pinky_hand"
+	"snd_melee_1"					"monster_demon_pinky_attackmelee_1"
+	"snd_melee_4"					"monster_demon_pinky_attackmelee_4"
+	"snd_sight1"					"monster_demon_pinky_sight1"
+	"snd_sight2"					"monster_demon_pinky_sight2"
+	"snd_sight3"					"monster_demon_pinky_sight3"
+	"snd_idle"						"monster_demon_pinky_idle"
+	"snd_chatter"					"monster_demon_pinky_chatter"
+	"snd_chatter_combat"			"monster_demon_pinky_chatter_combat"
+	"snd_pain"						"monster_demon_pinky_pain"
+	"snd_death"						"monster_demon_pinky_die"
+	"snd_gear"						"pinky_gears"
+	"snd_breath"					"monster_demon_pinky_breath"
+	"snd_burn"						"monster_demon_tick_burn"
+}
+
+entityDef melee_pinky_back {
+	"snd_hit"						"monster_demon_pinky_melee_hit"
+	"snd_miss"						"monster_demon_pinky_melee_miss"
+	"kickDir"						"1 0 0"
+	"damage"						"10"
+	"mtr_blob"						"bite"
+	"blob_time"						"300"
+	"blob_x"						"0"
+	"blob_y"						"-125"
+	"blob_width"					"650"
+	"blob_height"					"650"
+	"knockback"						"100"
+	"kick_time"						"800"
+	"kick_amplitude"				"2"
+	"dv_time"						"400"
+}
+
+entityDef melee_pinky_right {
+	"snd_hit"						"monster_demon_pinky_melee_hit"
+	"snd_miss"						"monster_demon_pinky_melee_miss"
+	"kickDir"						"0 1 0"
+	"damage"						"10"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	
+	"knockback"						"60"
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+	"dv_time"						"150"
+}
+
+entityDef melee_pinky_left {
+	"snd_hit"						"monster_demon_pinky_melee_hit"
+	"snd_miss"						"monster_demon_pinky_melee_miss"
+	"kickDir"						"0 -1 0"
+	"damage"						"10"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"60"
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+	"dv_time"						"150"
+}
+
+sound pinky_gears {
+	minDistance		1
+	maxDistance		16
+	volume			-6
+	no_dups
+
+	sound/xian/sentry/gears/walk_01.wav
+	sound/xian/sentry/gears/walk_03.wav
+	sound/xian/sentry/gears/walk_04.wav
+	sound/xian/sentry/gears/walk_06.wav
+	sound/xian/sentry/gears/walk_07.wav
+	sound/xian/sentry/gears/walk_08.wav
+	sound/xian/sentry/gears/walk_09.wav
+	sound/xian/sentry/gears/walk_10.wav
+	sound/xian/sentry/gears/walk_11.wav
+	sound/xian/sentry/gears/walk_12.wav
+	sound/xian/sentry/gears/walk_13.wav
+}

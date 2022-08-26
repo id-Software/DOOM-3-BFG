@@ -1,0 +1,76 @@
+/***********************************************************************
+
+	item_pda.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix PDA_ -keep guilight -parent guilight pdabody -sourcedir models/items/pda/cycles -destdir models/md5/items/pda_view
+	mesh	idle.mb
+	anim	idle.mb
+	anim	idle2.mb
+	anim	idle3.mb
+	anim	raise.mb
+	anim	raise2.mb
+	anim	lower.mb
+	anim	lower2.mb
+}
+
+entityDef weapon_pda {
+	//"inherit"					"item_default"
+	"model" 					"models/items/pda/pda_world.lwo"
+	"model_view"				"viewmodel_pda"
+	"model_world" 				"worldmodel_pda"
+	"joint_attach"				"PDA_ATTACHER"
+
+	"size"						"32 32 32"
+
+	"inv_name"					"PDA"
+	"inv_weapon"				"weapon_pda"
+	"inv_item"					"1"
+	"snd_acquire"				"guisounds_compup"
+
+	"mtr_guiLightShader"		"lights/viewWeaponGuiLight"
+	"hudIcon"					"guis/assets/hud/icons/pda.tga"
+	
+	"hide_time"					"0"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"0"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"weapon_scriptobject"		"item_pda"
+
+	"spawnclass"				"idItem"
+	"ammoRequired"				"0"
+	"clipSize"					"0"
+}
+
+model viewmodel_pda {
+	mesh						models/md5/items/pda_view/idle.md5mesh
+	offset						( 12.5 -5 -12 )
+
+	anim cdraise 				models/md5/items/pda_view/raise.md5anim
+	anim raise 					models/md5/items/pda_view/raise2.md5anim {
+		frame 1					sound_body pda_raise
+	}
+	anim idle1 					models/md5/items/pda_view/idle.md5anim
+	anim idle2 					models/md5/items/pda_view/idle2.md5anim
+	anim putaway 				models/md5/items/pda_view/lower2.md5anim
+	anim fire1 					models/md5/items/pda_view/raise.md5anim
+	anim fire2 					models/md5/items/pda_view/idle3.md5anim
+}
+
+// world model pda
+
+export fred {
+
+	options -prefix PLAYER_PDA_ -keep ATTACHER -rename ATTACHER origin -clearorigin
+	addoptions -keepmesh PLAYER_polySurface1
+	addoptions -keepmesh PLAYER_polySurface2
+	
+	mesh	models/characters/male_npc/cycles/tweakedplayermoves/pda_idle.mb -dest models/md5/items/pda_world/worldpda
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pda_idle.mb -dest models/md5/items/pda_world/pda_idle
+}
+
+model worldmodel_pda {
+	mesh						models/md5/items/pda_world/worldpda.md5mesh
+	anim idle 					models/md5/items/pda_world/pda_idle.md5anim
+}

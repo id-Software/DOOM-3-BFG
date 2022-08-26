@@ -1,0 +1,34 @@
+/***********************************************************************
+
+	monster_demon_wraith_d3xp.def
+
+***********************************************************************/
+
+export Ronn {
+ 	options -prefix W_ -keep Lknee Rknee -keep fireball ROT  -parent fireball head_FK -parent spine_1 ROT -parent ROT root
+
+ 	addoptions -sourcedir models/monsters/wraith/cycles
+	addoptions -destdir models/md5/monsters/wraith
+
+
+ 	anim	ceiling_fall_256.mb -rotate 90
+ 	anim	e3_leap1.mb
+}
+
+model monster_demon_wraith_d3xp {
+	inherit								"monster_demon_wraith"
+
+	anim ceiling_fall_256				models/md5/monsters/wraith/ceiling_fall_256.md5anim {
+			frame 5						sound_voice snd_sight
+	}
+
+	anim e3_leap1					  	models/md5/monsters/wraith/e3_leap1.md5anim {
+			frame 5							sound_voice snd_sight
+	}
+}
+
+entityDef monster_demon_wraith_d3xp {
+	"inherit"						"monster_demon_wraith"
+	"model"						    "monster_demon_wraith_d3xp"
+}
+

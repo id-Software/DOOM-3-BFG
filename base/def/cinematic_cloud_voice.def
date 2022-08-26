@@ -1,0 +1,77 @@
+
+export james {
+
+//////////////////////////////////////////////
+// CLOUD EREBUS 5 EXPORTS
+//////////////////////////////////////////////
+
+	options -prefix CLOUD_
+	mesh	models/characters/cinematic_models/cloud_makemesh.mb	-dest models/md5/cinematics/erebus5/cloud
+
+	anim	models/characters/mocap/erebus5/cloud_triggered1.mb	-dest models/md5/cinematics/erebus5/cloud_triggered1
+	anim	models/characters/mocap/erebus5/cloud_triggered2.mb	-dest models/md5/cinematics/erebus5/cloud_triggered2
+	anim	models/characters/mocap/erebus5/cloud_triggered3.mb	-dest models/md5/cinematics/erebus5/cloud_triggered3
+	anim	models/characters/mocap/erebus5/cloud_triggered4.mb	-dest models/md5/cinematics/erebus5/cloud_triggered4
+	anim	models/characters/mocap/erebus5/cloud_triggered5.mb	-dest models/md5/cinematics/erebus5/cloud_triggered5
+	anim	models/characters/mocap/erebus5/cloud_triggered6.mb	-dest models/md5/cinematics/erebus5/cloud_triggered6
+	anim	models/characters/mocap/erebus5/cloud_triggered7.mb	-dest models/md5/cinematics/erebus5/cloud_triggered7
+	anim	models/characters/mocap/erebus5/cloud_triggered8.mb	-dest models/md5/cinematics/erebus5/cloud_triggered8
+	anim	models/characters/mocap/erebus5/cloud_master.mb		-dest models/md5/cinematics/erebus5/cloud_master
+}
+
+//////////////////////////////////////////////
+// CLOUD EREBUS 5
+//////////////////////////////////////////////
+
+model cloud {
+	mesh								models/md5/cinematics/erebus5/e5_cloud.md5mesh
+
+	anim triggered1						models/md5/cinematics/erebus5/cloud_triggered1.md5anim {
+		frame 1								sound_voice		snd_triggered1
+	}
+	anim triggered2						models/md5/cinematics/erebus5/cloud_triggered2.md5anim {
+		frame 1								sound_voice		snd_triggered2
+	}
+	anim triggered3						models/md5/cinematics/erebus5/cloud_triggered3.md5anim {
+		frame 1								sound_voice		snd_triggered3
+	}
+	anim triggered4						models/md5/cinematics/erebus5/cloud_triggered4.md5anim {
+		frame 1								sound_voice		snd_triggered4
+	}
+	anim triggered5						models/md5/cinematics/erebus5/cloud_triggered5.md5anim {
+		frame 1								sound_voice		snd_triggered5
+	}
+	anim triggered6						models/md5/cinematics/erebus5/cloud_triggered6.md5anim {
+		frame 1								sound_voice		snd_triggered6
+	}
+	anim triggered7						models/md5/cinematics/erebus5/cloud_triggered7.md5anim {
+		frame 1								sound_voice		snd_triggered7
+	}
+	anim triggered8						models/md5/cinematics/erebus5/cloud_triggered8.md5anim {
+		frame 1								sound_voice		snd_triggered8
+	}
+	anim cloud_master					models/md5/cinematics/erebus5/cloud_master.md5anim {
+		frame 90								sound_voice		snd_cloud_master
+	}
+
+}
+
+entityDef cloud {
+	"inherit"						"cin_base"
+	"anim"							"triggered1"
+	"model"							"cloud"
+	"cinematic"						"1"
+	"eye_verticle_offset"			"0"
+	"eye_horizontal_offset"			"0"
+
+	"snd_triggered1"				"e5_cloud_triggered1"
+	"snd_triggered2"				"e5_cloud_triggered2"
+	"snd_triggered3"				"e5_cloud_triggered3"
+	"snd_triggered4"				"e5_cloud_triggered4"
+	"snd_triggered5"				"e5_cloud_triggered5"
+	"snd_triggered6"				"e5_cloud_triggered6"
+	"snd_triggered7"				"e5_cloud_triggered7"
+	"snd_triggered8"				"e5_cloud_triggered8"
+	"snd_cloud_master"				"e5_cloud_master"
+
+}

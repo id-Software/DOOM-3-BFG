@@ -1,0 +1,289 @@
+/***********************************************************************
+
+monster_zombie_sawyer.def
+
+***********************************************************************/
+
+export fred {
+	options	-prefix SAW_ -keep gore Lknee Rknee Lbrow2 Lbrow3 Loneck Lfings3 -keep csmoke -parent csmoke Chainsaw -parent Chainsaw Lhand 
+
+	addoptions -skipmesh morguemesh
+	addoptions -skipmesh hipolychain
+	addoptions -skipmesh hipolychainsaw
+	addoptions -skipmesh hipolystarter
+	addoptions -skipmesh hipolycord
+
+	anim  maps/fred/commoutside/shot2.mb -dest models/md5/cinematics/commoutside/sawintro_sawyer2
+	anim  maps/fred/commoutside/shot3.mb -dest models/md5/cinematics/commoutside/sawintro_sawyer3
+	anim  maps/fred/commoutside/shot4.mb -dest models/md5/cinematics/commoutside/sawintro_sawyer4
+
+
+	addoptions -align ALL 
+	addoptions -sourcedir models/monsters/zombie/sawyer/cycles 
+	addoptions -destdir models/md5/monsters/zombies/sawyer
+	mesh	sawyer_mesh.mb -dest sawyer
+	anim	idle.mb
+	anim	run.mb
+	anim	walk.mb
+	//anim	startchainsaw_mocap.mb -dest startchainsaw
+	anim	startchainsaw.mb
+	anim	af_pose.mb
+	anim	melee1.mb
+	anim	melee2.mb
+	anim	pain_left.mb
+	anim	pain_right.mb
+	anim	pain_head.mb
+	anim	pain_chest.mb
+	anim	melee1_walk.mb
+	anim	melee2_walk.mb
+
+	options	-prefix SAW_ -keep gore Lknee Rknee Lbrow2 Lbrow3 Loneck Lfings3 -align ALL  -parent Chainsaw Lhand 
+	addoptions -keepmesh morguemesh
+	addoptions -keepmesh skeletonmesh 
+
+	anim	af_pose.mb -sourcedir models/monsters/zombie/sawyer/cycles -destdir models/md5/monsters/zombies/morgue
+	 
+	addoptions -destdir models/md5/monsters/zombies/morgue
+
+	mesh	sawyer_mesh.mb -dest morgue -sourcedir models/monsters/zombie/sawyer/cycles
+
+	addoptions -sourcedir models/monsters/zombie/morgue/cycles/
+
+	anim	idle.mb
+	anim	melee_left.mb
+	anim	melee_right.mb
+	anim	pain_chest.mb
+	anim	pain_head.mb
+	anim	pain_left.mb
+	anim	pain_right.mb
+	anim	run.mb
+	anim	sight.mb
+	anim	walk.mb
+
+	anim	mars_city2.mb -range 1 1 -dest morguesleep -sourcedir maps/fred/marscity_2/ -destdir models/md5/cinematics/marscity_2/
+	anim	mars_city2.mb -range 1 64 -dest morguewakeup -sourcedir maps/fred/marscity_2/ -destdir models/md5/cinematics/marscity_2/
+
+	}	
+
+model model_monster_zombie_sawyer {
+	mesh							models/md5/monsters/zombies/sawyer/sawyer.md5mesh
+
+	channel torso					( *Waist )
+	channel legs					( origin Body *Hips -*Waist )
+
+	anim stand						models/md5/monsters/zombies/sawyer/idle.md5anim {
+		frame 1						sound_weapon monster_zombie_chainsaw_idle
+		frame 50					sound_weapon monster_zombie_chainsaw_idle
+	}
+	anim idle						models/md5/monsters/zombies/sawyer/idle.md5anim
+	anim sight1 					models/md5/monsters/zombies/sawyer/startchainsaw.md5anim {
+		frame 7							sound_body monster_zombie_commando_footstep
+		frame 10						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 16						sound_body monster_zombie_commando_footstep
+		frame 24						sound_weapon monster_zombie_chainsaw_pull
+		frame 25						object_call start_smoke
+		frame 29						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 30						sound_voice monster_zombie_chainsaw_release
+		frame 32						sound_body monster_zombie_chainsaw_attack3
+	}
+
+	anim melee_attack1				models/md5/monsters/zombies/sawyer/melee1_walk.md5anim{
+		frame 9							sound_body monster_zombie_commando_footstep
+		frame 9							sound_body2 monster_zombie_commando_footstep_clinks
+		frame 14						sound_weapon monster_zombie_chainsaw_attack3
+		frame 15						object_call start_attack
+		frame 18						sound_body monster_zombie_commando_footstep
+		frame 18						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 29						sound_body monster_zombie_commando_footstep
+		frame 29						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 30						object_call end_attack
+		frame 37						sound_body monster_zombie_commando_footstep
+		frame 37						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	
+	anim melee_attack2				models/md5/monsters/zombies/sawyer/melee2_walk.md5anim{
+		frame 5							object_call start_attack
+		frame 7							object_call end_attack
+		frame 9							sound_body monster_zombie_commando_footstep
+		frame 9							sound_body2 monster_zombie_commando_footstep_clinks
+		frame 14						object_call start_attack
+		frame 14						sound_weapon monster_zombie_chainsaw_attack3
+		frame 18						sound_body monster_zombie_commando_footstep
+		frame 18						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 29						sound_body monster_zombie_commando_footstep
+		frame 29						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 34						object_call end_attack
+		frame 37						sound_body monster_zombie_commando_footstep
+		frame 37						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	
+	anim run						models/md5/monsters/zombies/sawyer/run.md5anim {
+		frame 1							sound_weapon monster_zombie_chainsaw_idle
+		frame 9							sound_body monster_zombie_commando_footstep
+		frame 9							sound_body2 monster_zombie_commando_footstep_clinks
+		frame 16						sound_body monster_zombie_commando_footstep
+		frame 16						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 25						sound_body monster_zombie_commando_footstep
+		frame 25						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 29						sound_body monster_zombie_commando_footstep
+		frame 29						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+
+	anim af_pose					models/md5/monsters/zombies/sawyer/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/zombies/sawyer/af_pose.md5anim
+
+	anim pain						models/md5/monsters/zombies/sawyer/pain_left.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice snd_pain
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 23						sound_body monster_zombie_commando_footstep
+		frame 23						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+
+	anim pain_chest					models/md5/monsters/zombies/sawyer/pain_chest.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice snd_pain
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 23						sound_body monster_zombie_commando_footstep
+		frame 23						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+
+	anim pain_head					models/md5/monsters/zombies/sawyer/pain_head.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice snd_pain
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 23						sound_body monster_zombie_commando_footstep
+		frame 23						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+
+	anim pain_right_arm				models/md5/monsters/zombies/sawyer/pain_right.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice snd_pain
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 23						sound_body monster_zombie_commando_footstep
+		frame 23						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+
+	anim pain_left_arm				models/md5/monsters/zombies/sawyer/pain_left.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice snd_pain
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+		frame 23						sound_body monster_zombie_commando_footstep
+		frame 23						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+}
+
+entityDef monster_zombie_sawyer {
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie_sawyer"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"250"
+	"melee_range"					"40"
+	"anim"							"idle"
+	"def_projectile"				""
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"mass"							"200"
+	
+	"chatter_min"					"2"
+	"chatter_max"					"6"
+	
+	"chatter_combat_min"			"2"
+	"chatter_combat_max"			"4"
+	
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+
+	"skin"							"skins/monsters/zombies/sawyer.skin"
+	"skin_dropGib"					"skins/monsters/zombies/sawyergib.skin"
+	
+	"dropGibItem9Joint"				"Head"
+
+	"model"							"model_monster_zombie_sawyer"
+	"ragdoll"						"monster_zombie_sawyer"
+
+	"burnaway"						"0.50"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle"
+	"ik_ankle2"						"Rankle"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball"
+	"ik_foot2"						"Rball"
+			
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Neck"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Hips origin Body"
+
+	"damage_scale head"				"2"
+	"smokeParticleSystem0"			"csmoke"
+	"smokeParticleSystem1"			"burstysquirt.prt-gore"
+
+	"channel torso"					"*Waist"
+	"channel legs"					"*origin -*Waist"
+
+	"def_dropDeathItem"				"moveable_item_chainsaw"
+	"dropDeathItemJoint"			"csmoke"
+	"skin_dropDeath"				"skins/monsters/zombies/sawyernocs.skin"
+	"dropDeathItemRotation"			"-90 0 0"
+
+	"def_attack"					"melee_zombie_chainsaw"
+
+	"snd_sight"						"bernie_sight"
+	"snd_footstep"					"monster_zombie_commando_footstep"
+	"snd_melee_attack_1"			"bernie_attack"
+	"snd_melee_attack_2"			"bernie_attack"
+	"snd_melee_attack_3"			"bernie_attack"
+	"snd_chatter"					"bernie_chatter"
+	"snd_chatter_combat"			"bernie_chatter_combat"
+	"snd_pain"						"bernie_pain"
+	"snd_thud"						"monster_zombie_maint_thud"
+	"snd_swipe"						"monster_zombie_maint_swipe"
+	"snd_cspull"					"monster_zombie_chainsaw_pull"
+	"snd_csrelease"					"monster_zombie_chainsaw_release"
+	"snd_csattack_1"				"monster_zombie_chainsaw_attack1"
+	"snd_csattack_2"				"monster_zombie_chainsaw_attack2"
+	"snd_csattack_3"				"monster_zombie_chainsaw_attack3"
+	"snd_csidle"					"monster_zombie_chainsaw_idle"
+	"snd_death"						"bernie_death"
+}
+
+entityDef melee_zombie_chainsaw {
+	"damage"			"1"
+	"kickDir"			"-0.25 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"800"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"10"
+	"push"				"20000"
+
+	"smoke_wound_flesh"	"bloodwound.smoke"
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+
+	"kick_time"			"100"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"10"
+	
+	"snd_hit"			"player_chainsaw_hit_flesh"		// TEMP
+}

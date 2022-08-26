@@ -1,0 +1,40 @@
+
+entityDef moveable_item_skelgib_skull {
+	"inherit"					"moveable_item_default"
+	"model"						"models/mapobjects/skeleton_gibs/skull_lo.lwo"
+	"clipmodel"					"models/mapobjects/skeleton_gibs/skull_c.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"model_precache"			"models/mapobjects/skeleton_gibs/skull_c.lwo"
+}
+
+entityDef moveable_item_skelgib_rib {
+	"inherit"					"moveable_item_default"
+	"model"						"models/mapobjects/skeleton_gibs/rib_gib_lo.lwo"
+	"clipmodel"					"models/mapobjects/skeleton_gibs/rib_gib_c.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"model_precache"			"models/mapobjects/skeleton_gibs/rib_gib_c.lwo"
+}
+
+entityDef moveable_item_skelgib_bone {
+	"inherit"					"moveable_item_default"
+	"model"						"models/mapobjects/skeleton_gibs/generibone_lo.lwo"
+	"clipmodel"					"models/mapobjects/skeleton_gibs/generibone_c.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"model_precache"			"models/mapobjects/skeleton_gibs/generibone_c.lwo"
+}
+
+skin skins/monsters/skeleton/skragdoll_gib {
+	models/monsters/skeleton/skeleton01 textures/common/nodraw
+}

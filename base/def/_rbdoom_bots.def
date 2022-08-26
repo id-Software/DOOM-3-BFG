@@ -1,0 +1,4 @@
+entityDef player_doommarine_mp_bot {
+	"inherit"		"player_doommarine_mp"
+	"spawnclass"		"rvmBot"
+}					

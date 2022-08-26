@@ -1,0 +1,208 @@
+export eric {
+	options -prefix SUIT_ -keep Lknee Rknee Body Body2 Lhand1 Rhand headcontrol neckcontrol loneckcontrol lanternlight SPINNER -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent tabletpc Lhand1 -parent flashlight Rhand1 -parent pda Rhand1 -parent lantern Rhand1 -parent lanternlight lantern -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent shield Lloarm -parent pistol Rhand1 -parent shotgun Rhand1 -parent machinegun Rhand1 -parent wrench Rhand1 -parent cola Rhand1 -parent foamcup Rhand1 -parent dufflebag Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER 
+	
+	addoptions -keepmesh labcoatnametagmesh
+	addoptions -keepmesh jumpsuitnametagmesh
+	addoptions -keepmesh labcoatmesh
+	addoptions -keepmesh soldiermesh
+	addoptions -keepmesh jumpsuitmesh
+	addoptions -keepmesh suitmesh
+	addoptions -keepmesh skeletonmesh
+	addoptions -keepmesh securitybodymesh
+	addoptions -keepmesh sec_rshldrmesh
+	addoptions -keepmesh sec_lshldrmesh
+	addoptions -keepmesh marinebodymesh 
+	addoptions -keepmesh tabletpcmesh
+	addoptions -keepmesh tabletpcguimesh
+	addoptions -keepmesh pdaguimodel
+	addoptions -keepmesh pdamodel
+	addoptions -keepmesh cola1_layer1
+	addoptions -keepmesh foamcup_layer1
+	addoptions -keepmesh secsheild_outerglass
+	addoptions -keepmesh secsheild_innerglass
+	addoptions -keepmesh secsheild_innermesh
+	addoptions -keepmesh secsheild_outermesh
+	addoptions -keepmesh w_shotgunmesh
+	addoptions -keepmesh w_shotgunloadermesh
+	addoptions -keepmesh w_machinegunmesh
+	addoptions -keepmesh w_pistolmesh
+	addoptions -keepmesh flashlightflaremodel
+	addoptions -keepmesh flashlightbeammodel
+	addoptions -keepmesh flashlightlensmodel
+	addoptions -keepmesh monkeywrench
+	addoptions -keepmesh flashlightmodel
+	addoptions -keepmesh metalloungechairframemesh
+	addoptions -keepmesh metalloungechairmesh
+	addoptions -keepmesh metalkitchenchairmesh
+	addoptions -keepmesh bigcushychairmesh
+	addoptions -keepmesh softdeskchairmesh2
+	addoptions -keepmesh softdeskchairmesh1
+	addoptions -keepmesh metaldeskchairmesh
+	addoptions -keepmesh dufflebagmesh
+
+	
+	//anim	maps/fred/monorail/rider_eric.mb -range 1 1 -dest models/md5/cinematics/monorail/rider_hidden 
+	//anim	maps/fred/monorail/rider_eric.mb -range 50 150 -dest models/md5/cinematics/monorail/rider_stand
+	//anim	maps/fred/monorail/rider_eric.mb -range 151 680 -dest models/md5/cinematics/monorail/rider_trigger
+	//anim	maps/fred/monorail/rider_eric.mb -range 680 780 -dest models/md5/cinematics/monorail/rider_sit
+	//anim	maps/fred/monorail/rider_eric.mb -range 780 890 -dest models/md5/cinematics/monorail/rider_primary
+	//anim	maps/fred/monorail/rider_eric.mb -range 890 995 -dest models/md5/cinematics/monorail/rider_secondary1
+	//anim	maps/fred/monorail/rider_eric.mb -range 995 1100 -dest models/md5/cinematics/monorail/rider_secondary2
+	//anim	maps/fred/monorail/rider_eric_suprise.mb -range 1 60 -dest models/md5/cinematics/monorail/rider_surprise
+	//anim	maps/fred/monorail/rider_eric_notrig.mb -range 150 256 -dest models/md5/cinematics/monorail/rider_notrig
+	//anim	maps/fred/monorail/rider_before_trigger.mb -dest models/md5/cinematics/monorail/before_trigger
+
+	//PLAYER_ Prefix
+
+	
+	//SUIT2_ Prefix
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 1 1 -dest models/md5/cinematics/marscity/sargecin_sarge_loop -prefix SUIT2_
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 556 810 -dest models/md5/cinematics/marscity/sargecin_sarge2 -prefix SUIT2_
+	
+	//SOL_ Prefix
+	////anim	maps/fred/marscity/sargecin_eric.mb -range 221 380 -dest models/md5/cinematics/marscity/sargecin_player2 -prefix SOL_	
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 381 555 -dest models/md5/cinematics/marscity/sargecin_player3 -prefix SOL_	
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 556 700 -dest models/md5/cinematics/marscity/sargecin_player4 -prefix SOL_	
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 701 814 -dest models/md5/cinematics/marscity/sargecin_player5 -prefix SOL_	
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 815 920 -dest models/md5/cinematics/marscity/sargecin_player6 -prefix SOL_	
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 921 960 -dest models/md5/cinematics/marscity/sargecin_player7 -prefix SOL_	
+	
+	
+	// SARGE prefix
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 120 555 -dest models/md5/cinematics/marscity/sargecin_sarge1 -prefix SARGE_
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 811 960 -dest models/md5/cinematics/marscity/sargecin_sarge3 -prefix SARGE_
+	
+	// MP prefix
+	//anim	maps/fred/marscity/sargecin_eric.mb -range 120 220 -dest sargecin_player1 -sourcedir maps/fred/marscity/ -destdir models/md5/cinematics/marscity/ -prefix MP_
+
+
+	addoptions -align ALL
+
+	//anim	models/characters/male_npc/cycles/runs/al2_run_anim_30.mb -rotate 90 -range 79 98 -dest models/md5/characters/npcs/mgrun
+	//anim	models/characters/male_npc/cycles/runs/al2_run_anim_30.mb -rotate 90 -range 99 207 -dest models/md5/characters/npcs/mgrunstoplookback
+	
+	anim	models/characters/male_npc/cycles/wounded/eric_hurt_loop.mb -range 0 29 -dest models/md5/characters/npcs/npc_stagger
+	anim	models/characters/male_npc/cycles/wounded/eric_hurt_loop_2.mb -range 0 60 -dest models/md5/characters/npcs/npc_stagger_loop
+
+	//anim	maps/eric/admin/typing.mb -range 1 60 -rotate 180 -dest models/md5/cinematics/admin/typingswann_loop -prefix SWANN_
+	//anim	maps/eric/admin/typing.mb -range 1 317 -rotate 180 -dest models/md5/cinematics/admin/typingswann -prefix SWANN_
+}
+
+/***********
+export zombie security pistol
+***********/
+
+export eric {
+
+	options -prefix SUIT_ -keep Lknee Rknee eject barrel flash Body Body2 headcontrol neckcontrol loneckcontrol SPINNER Lhand1 Rhand1 Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent shield Lloarm -parent pistol Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER  -rename peject eject -rename pbarrel barrel -rename pflash flash -parent eject pistol -parent flash pistol -parent barrel pistol
+	
+	addoptions -keepmesh securitybodymesh
+	addoptions -keepmesh sec_rshldrmesh
+	addoptions -keepmesh sec_lshldrmesh
+	addoptions -keepmesh w_pistolmesh
+	addoptions -keepmesh pflash1
+	addoptions -keepmesh pflash2
+	addoptions -keepmesh secsheild_outerglass
+	addoptions -keepmesh secsheild_innerglass
+	addoptions -keepmesh secsheild_innermesh
+	addoptions -keepmesh secsheild_outermesh
+	addoptions -keepmesh skeletonmesh
+	
+	addoptions -align ALL
+
+	anim	models/characters/male_npc/cycles/idles/af_pose.mb -dest models/md5/monsters/zombies/zsec_pistol/af_pose
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_right_pistol.mb -rotate 90 -range 28 28 -dest models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_A
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_right_pistol.mb -rotate 90 -range 31 49 -dest models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_B
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_right_pistol.mb -rotate 90 -range 50 59 -dest models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_C
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_right_pistol.mb -rotate 90 -range 68 84 -dest models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol_2.mb -rotate 90 -range 40 40 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_A
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol_2.mb -rotate 90 -range 46 64 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_B
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol_2.mb -rotate 90 -range 75 84 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_C
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol_2.mb -rotate 90 -range 91 107 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_left_pistol.mb -rotate 90 -range 1 1 -dest models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_A
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_left_pistol.mb -rotate 90 -range 2 20 -dest models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_B
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_left_pistol.mb -rotate 90 -range 21 29 -dest models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_C
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_step_left_pistol.mb -rotate 90 -range 36 55 -dest models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol.mb -rotate 90 -range 39 39 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_A
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol.mb -rotate 90 -range 43 65 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_B
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol.mb -rotate 90 -range 66 74 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_C
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_left_pistol.mb -rotate 90 -range 81 98 -dest models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol_2.mb -rotate 90 -range 43 43 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_A
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol_2.mb -rotate 90 -range 49 66 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_B
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol_2.mb -rotate 90 -range 76 85 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_C
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol_2.mb -rotate 90 -range 100 118 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol.mb -rotate 90 -range 36 36 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_A
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol.mb -rotate 90 -range 50 69 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_B
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol.mb -rotate 90 -range 75 84 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_C
+	anim	models/characters/male_npc/cycles/fsecattacks/wall_rotate_right_pistol.mb -rotate 90 -range 107 129 -dest models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_rotate_right.mb -rotate 90 -range 35 35 -dest models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_A
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_rotate_right.mb -rotate 90 -range 36 62 -dest models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_B
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_rotate_right.mb -rotate 90 -range 64 73 -dest models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_C
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_rotate_right.mb -rotate 90 -range 79 102 -dest models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_D
+
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_stand.mb -rotate 90 -range 49 49 -dest models/md5/monsters/zombies/zsec_pistol/cratestandpistol_A
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_stand.mb -rotate 90 -range 53 68 -dest models/md5/monsters/zombies/zsec_pistol/cratestandpistol_B
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_stand.mb -rotate 90 -range 72 80 -dest models/md5/monsters/zombies/zsec_pistol/cratestandpistol_C
+	anim	models/characters/male_npc/cycles/fsecattacks/crate_pistol_stand.mb -rotate 90 -range 85 98 -dest models/md5/monsters/zombies/zsec_pistol/cratestandpistol_D
+}
+
+/***********
+HK screenshot for gamepro
+***********/
+
+export eric {
+	options -prefix HK_ -keep lknee1 rknee1 SPINNER rmissile lmissile target forehead1 -parent rmissile rhand -parent lmissile lhand -parent waist SPINNER -parent SPINNER body2 -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+	
+	mesh	maps/eric/hk_pose_002.mb -dest models/md5/screenshots/hk_gp_pose1	
+	anim	maps/eric/hk_pose_002.mb -dest models/md5/screenshots/hk_gp_pose1	
+}
+
+model ss_hk_gamepro {
+	mesh							models/md5/monsters/hellknight/hellknight.md5mesh
+	anim hk_gp_pose1				models/md5/screenshots/hk_gp_pose1.md5anim
+}
+
+entityDef ss_hk_gamepro {
+	"inherit"						"cin_base"
+	"model"							"ss_hk_gamepro"
+	"anim"							"hk_gp_pose1"
+}
+
+/***********
+IMP screenshot for gamepro
+***********/
+
+export eric {
+	camera	models/monsters/imp/fred/eric/imp_for_ss.mb -dest models/md5/screenshots/gameprocamera1
+
+	options -prefix IMP_ -keep Lknee Rknee Lelbow Relbow camera Body -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent Hips Body -parent Waist Body -parent camera Head
+	
+	mesh	models/monsters/imp/fred/eric/imp_for_ss.mb -dest models/md5/screenshots/gamepropose1
+	anim	models/monsters/imp/fred/eric/imp_for_ss.mb -dest models/md5/screenshots/gamepropose1
+}
+
+entityDef ss_gameprocamera {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"anim cam1"						"models/md5/screenshots/gameprocamera1.md5camera"
+}
+
+model ss_imp_gamepro {
+	mesh							models/md5/monsters/imp/imp.md5mesh
+	anim pose1						models/md5/screenshots/gamepropose1.md5anim
+}
+
+entityDef ss_imp_gamepro {
+	"inherit"						"cin_base"
+	"model"							"ss_imp_gamepro"
+	"anim"							"pose1"
+}

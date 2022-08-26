@@ -1,0 +1,445 @@
+
+//CINEMATICS
+	
+export fred {
+
+	camera	maps/fred/alphalabs1/magintro.mb -range 1 342 -dest models/md5/cinematics/alphalabs1/magintro_cam1
+	camera	maps/fred/alphalabs1/magintro.mb -range 343 432 -dest models/md5/cinematics/alphalabs1/magintro_cam2
+	
+	options -prefix PENT_
+	mesh	models/mapobjects/pentagram/cycles/idle1.mb -dest models/md5/cinematics/alphalabs1/pentmesh
+	anim	models/mapobjects/pentagram/cycles/idle1.mb -dest models/md5/cinematics/alphalabs1/pentanim_rot
+	
+	options -prefix HELLDOLL_
+	mesh	maps/fred/alphalabs1/magintro.mb -dest models/md5/cinematics/alphalabs1/helldoll
+	anim	maps/fred/alphalabs1/magintro.mb -dest models/md5/cinematics/alphalabs1/helldoll
+	anim	maps/fred/alphalabs1/magintro_idle.mb -range 1 80 -dest models/md5/cinematics/alphalabs1/helldoll_idle
+
+	options -prefix PLAYER_ -keep SPINNER camWaist camHead modelviewconnector camera PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER Lfteye_Focus Rteye_Focus Neck -parent Waist SPINNER -parent SPINNER Waist2 -parent Neck Shldrs -parent camera camHead -parent Lfteye_Focus Head -parent Rteye_Focus Head -parent Waist2 Hips -parent PISTOL_ATTACHER Rhand -parent SHOTGUN_ATTACHER Rhand -parent MGATTACHER Rhand -parent pgATTACHER Rhand -parent NADE_ATTACHER Rhand -parent CHAINSAW_ATTACHER Rhand -parent RL_ATTACHER Lhand -parent FL_ATTACHER Rhand -parent BFG_ATTACHER Lhand -parent camWaist modelviewconnector -parent CHAINGUN_ATTACHER Rhand
+
+	//addoptions -skipmesh pistolBarrel 
+	//addoptions -skipmesh pistolExtender 
+	//addoptions -skipmesh pistolTrigger 
+	//addoptions -skipmesh pistolBody
+	//addoptions -skipmesh pistolClip1
+	addoptions -skipmesh plasma_innerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_innerscopetop_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopetop_mesh1
+	addoptions -skipmesh plasma_innerflap1_mesh1
+	addoptions -skipmesh plasma_outerflap1_mesh1
+ 	addoptions -skipmesh plasma_bolt_mesh1
+ 	addoptions -skipmesh plasma_screen_mesh1
+	addoptions -skipmesh plasma_body_mesh1
+	addoptions -skipmesh plasma_handle_mesh1
+	addoptions -skipmesh plasma_outerflap2_mesh4
+	addoptions -skipmesh plasma_innerflap2_mesh4
+	addoptions -skipmesh plasma_uppermon_mesh4
+	addoptions -skipmesh shotgun_body_mesh
+	addoptions -skipmesh shotgun_handle_mesh
+	addoptions -skipmesh shotgun_trigger_mesh
+	addoptions -skipmesh shotgun_loflap_mesh
+	addoptions -skipmesh shotgun_extender_mesh
+	addoptions -skipmesh shotgun_upflap1_mesh
+	addoptions -skipmesh shotgun_upflap2_mesh
+	//addoptions -skipmesh mgdisplaymesh
+	//addoptions -skipmesh mgextendermesh 
+	//addoptions -skipmesh mgbodymesh
+	//addoptions -skipmesh mgclipmesh 
+	//addoptions -skipmesh mgtriggermesh 
+	addoptions -skipmesh nade_cap_mesh
+	addoptions -skipmesh nade_body_mesh
+	addoptions -skipmesh chainsawcordmesh
+	addoptions -skipmesh chainsawstartermesh
+	addoptions -skipmesh chainsawblademesh
+	addoptions -skipmesh chainsawhandlemesh
+	addoptions -skipmesh chainsawbodymesh
+	
+	addoptions -skipmesh rshell1
+	addoptions -skipmesh rshell2
+	addoptions -skipmesh rshell3
+	addoptions -skipmesh rshell4
+	addoptions -skipmesh reloader1
+	addoptions -skipmesh handle
+	addoptions -skipmesh aimer
+	addoptions -skipmesh body
+
+	addoptions -skipmesh flashlightmesh1
+	addoptions -skipmesh flashlightflaremesh
+	addoptions -skipmesh flashlightbeammesh
+	addoptions -skipmesh flashlightflare2mesh
+	
+	addoptions -skipmesh bfgmesh
+
+	addoptions -skipmesh w_pistolfire
+	addoptions -skipmesh w_pistolflash
+	addoptions -skipmesh w_pistolmesh
+	//addoptions -skipmesh w_shotgun2barrelmesh
+	//addoptions -skipmesh w_shotgun2mesh
+	addoptions -skipmesh w_machinegun_mesh
+	addoptions -skipmesh w_mgfx1
+	addoptions -skipmesh w_mgfx2
+	addoptions -skipmesh w_mgfx3
+	addoptions -skipmesh w_mgfx4
+	addoptions -skipmesh w_plasmagun_mesh
+	addoptions -skipmesh w_plasmagunfx1
+	addoptions -skipmesh w_plasmagunfx2
+	addoptions -skipmesh w_chainsaw_mesh
+	addoptions -skipmesh w_chainsaw_chain_mesh
+	addoptions -skipmesh w_rocketlauncher_mesh
+
+	addoptions -skipmesh chaingunfx1_model
+	addoptions -skipmesh chaingunfx2_model
+	addoptions -skipmesh chaingunnubmodel
+	addoptions -skipmesh chaingunbodymodel
+	addoptions -skipmesh chaingunbarrelmodel
+
+	addoptions -skipmesh polySurface1
+	addoptions -skipmesh polySurface2
+
+	mesh	models/characters/player/mocap/idle_stand.mb -dest models/md5/characters/player/mocap/wepplayer
+	anim	maps/fred/alphalabs1/magintro.mb -range 343 432 -dest models/md5/cinematics/alphalabs1/magintro_player
+	anim	maps/fred/delta4/hkintro.mb -range 1 251 -dest models/md5/cinematics/delta4/hkintro_player
+	anim	maps/fred/delta4/hkintro.mb -range 252 384 -dest models/md5/cinematics/delta4/hkintro_player_b -prefix PLAYER2_
+	anim	maps/fred/cyberdemon/cyberintro_shot1.mb -xyzprecision .01 -range 30 104 -dest models/md5/cinematics/hellhole/cyberintro_player1
+	anim	maps/fred/cyberdemon/cyberintro.mb -xyzprecision .01 -range 105 220 -dest models/md5/cinematics/hellhole/cyberintro_player2
+	anim	maps/fred/cyberdemon/cyberintro_shot3.mb -xyzprecision .01 -range 221 252 -dest models/md5/cinematics/hellhole/cyberintro_player3
+	anim	maps/fred/cyberdemon/cyberintro.mb -xyzprecision .01 -range 253 337 -dest models/md5/cinematics/hellhole/cyberintro_player4
+	anim	maps/fred/cyberdemon/cyberintro.mb -xyzprecision .01 -range 338 492 -dest models/md5/cinematics/hellhole/cyberintro_player5
+	anim	maps/fred/cyberdemon/cyberintro_shot4.mb -xyzprecision .01 -range 493 542 -dest models/md5/cinematics/hellhole/cyberintro_player6
+	anim	maps/fred/cyberdemon/cyberintro.mb -xyzprecision .01 -range 543 654 -dest models/md5/cinematics/hellhole/cyberintro_player7
+	anim	maps/fred/cyberdemon/cyberintro.mb -xyzprecision .01 -range 655 732 -dest models/md5/cinematics/hellhole/cyberintro_player8
+	anim	maps/fred/cyberdemon/cyberintro.mb -xyzprecision .01 -range 733 765 -dest models/md5/cinematics/hellhole/cyberintro_player9
+
+	anim	maps/fred/alphalabs3/playershot1.mb -dest models/md5/cinematics/alphalabs3/vagintro_player1
+	anim	maps/fred/alphalabs3/vagaryintro2.mb -dest models/md5/cinematics/alphalabs3/vagintro_player2
+
+
+	//anim	maps/fred/cyberdemon/cyberdeath.mb -dest models/md5/cinematics/hellhole/cyberdeath_player
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 44 89 -dest models/md5/cinematics/hellhole/cyberdeath_player_a
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 90 199 -dest models/md5/cinematics/hellhole/cyberdeath_player_b
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 200 220 -dest models/md5/cinematics/hellhole/cyberdeath_player_c
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 221 275 -dest models/md5/cinematics/hellhole/cyberdeath_player_d
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 276 340 -dest models/md5/cinematics/hellhole/cyberdeath_player_e
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 341 372 -dest models/md5/cinematics/hellhole/cyberdeath_player_f
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 373 428 -dest models/md5/cinematics/hellhole/cyberdeath_player_g
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 429 548 -dest models/md5/cinematics/hellhole/cyberdeath_player_h
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 549 800 -dest models/md5/cinematics/hellhole/cyberdeath_player_i
+
+	mesh	maps/fred/delta4/hkintro.mb -range 1 1 -dest models/md5/characters/player/mocap/mgplayer
+	anim 	maps/fred/delta4/hkintro2.mb -range 617 644 -dest models/md5/cinematics/delta4/hkintro_player2
+
+	anim	maps/fred/monorail/crash.mb -range 1 285 -dest models/md5/cinematics/monorail/crash_player
+	
+	anim	models/monsters/guardian/cycles/guardian_intro.mb -dest models/md5/cinematics/hell1/guardianintro_teleport_player
+	
+	anim	maps/fred/enpro/monitor.mb -range 1 200 -dest models/md5/cinematics/enpro/monitor_player
+	anim	maps/fred/enpro/monitor2.mb -range 1 32 -dest models/md5/cinematics/enpro/monitor_player2
+	anim	maps/fred/enpro/lostsoulintro.mb -range 1 219 -dest models/md5/cinematics/enpro/player_lostintro1
+	anim	maps/fred/enpro/lostsoulintro.mb -range 284 320 -dest models/md5/cinematics/enpro/player_lostintro2
+
+	addoptions -align ALL
+	anim	models/characters/player/mocap/mgwalk2stop.mb -range 10 120 -dest models/md5/cinematics/monorail/walk2stopfull
+	anim	maps/fred/alphalabs1/playerwalk2stop.mb -range 63 138 -dest models/md5/characters/player/mocap/cinematics/magintrowalk2stop
+	
+	anim	maps/fred/delta2a/ian_shot1.mb -range 1 671 -rotate -90 -dest models/md5/cinematics/delta2a/scientistplayer_a
+	anim	maps/fred/delta2a/ian_shot1.mb -range 672 756 -rotate -90 -dest models/md5/cinematics/delta2a/scientistplayer_b
+	anim	maps/fred/delta2a/malteleporterroom.mb -rotate 180 -dest models/md5/cinematics/delta2a/teleporterplayer
+	
+}
+
+model alphalabs1_labcoat_bald_head {
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim pda_idle_look				models/md5/characters/npcs/heads/h3idle.md5anim
+	anim talk_trigger				models/md5/heads/bald/alphalabs1/maint_hyrdocon_trigger.md5anim {
+		frame 1							sound_voice alphalabs1_labcoat_trigger
+	}
+	anim talk_two					models/md5/heads/bald/alphalabs1/maint_hyrdocon_trigger2.md5anim {
+		frame 1							sound_voice alphalabs1_labcoat_trigger2
+	}
+	anim talk_primary				models/md5/heads/bald/alphalabs1/maint_hyrdocon_primary.md5anim {
+		frame 1							sound_voice alphalabs1_labcoat_primary
+	}
+	anim talk_secondary1			models/md5/heads/bald/alphalabs1/maint_hyrdocon_secondary.md5anim {
+		frame 1							sound_voice alphalabs1_labcoat_secondary
+	}
+	anim talk_secondary2			models/md5/heads/bald/alphalabs1/maint_hyrdocon_secondary2.md5anim {
+		frame 1							sound_voice alphalabs1_labcoat_secondary2
+	}
+}
+
+model alphalabs1_labcoat_bald {
+	inherit							npc_base
+	mesh							models/md5/chars/labcoat.md5mesh
+	
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER chair eyecontrol)
+	
+	anim cower						models/md5/chars/alphalabs1/cower4_hydrocon.md5anim	
+	anim idle						models/md5/chars/alphalabs1/pda_idle_look_hydrocon.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+	anim stand						models/md5/chars/alphalabs1/pda_idle_look_hydrocon.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+	anim talk_trigger				models/md5/chars/alphalabs1/startle.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+		frame 30						event enableEyeFocus
+		frame 30						call headlook_on
+		frame 340						event disableEyeFocus
+		frame 340						call headlook_off
+	}
+	anim talk_two					models/md5/chars/alphalabs1/pda_idle_look_hydrocon.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+	anim pda_idle_look				models/md5/chars/alphalabs1/pda_idle_look_hydrocon.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+	anim talk_primary				models/md5/chars/alphalabs1/pda_idle_look_hydrocon_talk.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+	anim talk_secondary1			models/md5/chars/alphalabs1/pda_idle_look_hydrocon_talk.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+	anim talk_secondary2			models/md5/chars/alphalabs1/pda_idle_look_hydrocon_talk.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							call headlook_off
+	}
+}
+
+entityDef alphalabs1_labcoat_bald {
+	"inherit"						"npc_base"
+	"model"							"alphalabs1_labcoat_bald"
+	"def_head"						"alphalabs1_labcoat_bald_head"
+	
+	"snd_talk_trigger"				"alphalabs1_labcoat_trigger"
+	"snd_talk_two"					"alphalabs1_labcoat_trigger2"
+	"snd_talk_primary"				"alphalabs1_labcoat_primary"
+	"snd_talk_secondary"			"alphalabs1_labcoat_secondary"
+	"snd_talk_secondary2"			"alphalabs1_labcoat_secondary2"
+	
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"turn_rate"						"0"
+	
+	"talktime"						"1"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+	
+	"team"							"0"
+	"rank"							"0"
+	
+	"bone_focus"					"headcontrol"
+	"bone_orientation"				"Body"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+	
+	"copy_joint_world eyecontrol"	""
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.1"
+	
+	"def_attach"					"pda_alphalabs1_labcoat_bald"
+	"def_dropDeathItem"				"pda_alphalabs1_labcoat_bald"
+	"dropDeathItemJoint"			"RHANDCONNECTOR"
+	"dropDeathItemRotation"			"-90 0 0"
+}
+
+// pentagram
+
+model alphalabs1_pentagramdood {
+	mesh							models/md5/cinematics/alphalabs1/pentmesh.md5mesh
+	anim pentagram					models/md5/cinematics/alphalabs1/pentanim_rot.md5anim 
+}
+
+entityDef alphalabs1_pentagramdood {
+	"inherit"						"cin_base"
+	"model"							"alphalabs1_pentagramdood"
+	"anim"							"pentagram"
+}
+
+// maggot intro
+
+model alphalabs1_helldoll {
+	mesh						models/md5/cinematics/alphalabs1/helldoll.md5mesh
+	anim idle					models/md5/cinematics/alphalabs1/helldoll_idle.md5anim
+	anim helldoll				models/md5/cinematics/alphalabs1/helldoll.md5anim {
+		frame 60					sound_voice snd_gasp
+		frame 180					sound_voice snd_scream
+	}
+}
+
+entityDef alphalabs1_helldoll {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"sound_bone"				"Jaw"
+	"inherit"					"cin_base"
+	"model"						"alphalabs1_helldoll"
+	"anim"						"helldoll"
+
+	"snd_gasp"					"alphalabs1_magintro_gasp"
+	"snd_scream"				"alphalabs1_magintro_scream"
+}
+
+model alphalabs1_player {
+	mesh						models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin						skins/player/shotgun.skin
+
+	anim magintro				models/md5/cinematics/alphalabs1/magintro_player.md5anim
+	anim walk2stop				models/md5/characters/player/mocap/cinematics/magintrowalk2stop.md5anim
+}
+
+entityDef alphalabs1_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"	
+
+	"model"						"alphalabs1_player"
+	"anim"						"magintro"
+}
+
+entityDef alphalabs1_cam {
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+
+	
+	"spawnclass"				"idCameraAnim"
+
+	"anim magintro_a"			"models/md5/cinematics/alphalabs1/magintro_cam1.md5camera"
+	"anim magintro_b"			"models/md5/cinematics/alphalabs1/magintro_cam2.md5camera"
+}
+
+model alphalabs1_imp {
+	mesh						models/md5/monsters/imp/imp.md5mesh
+	anim scare					models/md5/cinematics/alphalabs1/impscare.md5anim {
+		frame 6					sound_body	monster_demon_imp_footstep
+		frame 9					sound_weapon monster_demon_imp_footstep
+		frame 10				sound_voice monster_demon_imp_sight_scare
+		frame 16				sound_body	monster_demon_imp_footstep
+		frame 52				sound_weapon monster_demon_imp_footstep
+		frame 64				sound_body monster_demon_imp_footstep
+	}
+}
+
+entityDef alphalabs1_imp {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"sound_bone"				"Jaw"
+
+	"inherit"					"cin_base"
+	"model"						"alphalabs1_imp"
+	"anim"						"scare"
+}
+
+
+model alphalabs1_maggot1 {
+	mesh						models/md5/monsters/maggot3/maggot3.md5mesh
+	anim helldoll				models/md5/cinematics/alphalabs1/maggot1.md5anim {
+		frame 349					sound_body monster_demon_maggot_footstep
+		frame 354					sound_body monster_demon_maggot_footstep
+		frame 360					sound_body monster_demon_maggot_footstep
+		frame 360					sound_global monster_demon_maggot_sight
+		frame 366					sound_body monster_demon_maggot_footstep
+		frame 382					sound_body monster_demon_maggot_footstep
+		frame 397					sound_body monster_demon_maggot_footstep
+		frame 398					sound_body monster_demon_maggot_footstep
+		frame 409					sound_body monster_demon_maggot_footstep
+		frame 410					sound_body monster_demon_maggot_footstep
+		frame 415					sound_body monster_demon_maggot_footstep
+		frame 418					sound_body monster_demon_maggot_footstep
+	}
+}
+
+entityDef alphalabs1_maggot1 {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+
+	"inherit"					"cin_base"
+	"model"						"alphalabs1_maggot1"
+	"anim"						"helldoll"
+	"sound_bone"				"Shoulders"
+
+	"snd_sight"					"monster_demon_maggot_sight"
+	"snd_sight2"				"monster_demon_maggot_sight"
+	"snd_footstep"				"monster_demon_maggot_footstep"
+}
+
+model alphalabs1_maggot2 {
+	mesh						models/md5/monsters/maggot3/maggot3.md5mesh
+	anim helldoll				models/md5/cinematics/alphalabs1/maggot2.md5anim {
+		frame 212					sound_body monster_demon_maggot_footstep
+		frame 218					sound_body monster_demon_maggot_footstep
+		frame 222					sound_global monster_demon_maggot_sight
+		frame 230					sound_body monster_demon_maggot_footstep
+		frame 236					sound_body monster_demon_maggot_footstep
+		frame 253					sound_body monster_demon_maggot_footstep
+		frame 284					sound_body monster_demon_maggot_footstep
+	}
+}
+
+entityDef alphalabs1_maggot2 {
+	"editor_color"					"1 .5 .3"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 32"
+
+	"inherit"						"cin_base"
+	"model"							"alphalabs1_maggot2"
+	"anim"							"helldoll"
+	"sound_bone"					"Shoulders"
+
+	"snd_sight"						"monster_demon_maggot_sight"
+	"snd_sight2"					"monster_demon_maggot_sight"
+	"snd_footstep"					"monster_demon_maggot_footstep"
+}
+
+model alphalabs1_maggot3 {
+	inherit							monster_demon_maggot
+	anim hydromag					models/md5/cinematics/alphalabs1/hydromag.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 49						enableGravity
+		frame 49						enableWalkIK
+	}
+}
+
+entityDef alphalabs1_maggot3 {
+	"inherit"					"monster_demon_maggot"
+	"model"						"alphalabs1_maggot3"
+	"anim"						"hydromag"
+	"sound_bone"					"Shoulders"
+}

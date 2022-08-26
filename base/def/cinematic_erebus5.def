@@ -1,0 +1,380 @@
+
+
+
+//////////////////////////////////////////////
+// CLOUD E5 CINEMATIC EXPORTS
+//////////////////////////////////////////////
+export cloudcam {
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1 88			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_a
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 89 216			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_b
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 217 314			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_c
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 315 365			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_d
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 366 473			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_e
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 474 542			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_f
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 543 610			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_g
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 611 711			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_h
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 712 788			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_i
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 789 919			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_j
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 920 1021		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_k
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1022 1089		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_l
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1090 1168		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_m
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1169 1259		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_n
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1260 1338		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_o
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1339 1358		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_p
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1359 1476		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_q
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1477 1554		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_r
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1555 1617		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_s
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1618 1688		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_t
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1689 1900		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_u
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1901 1981		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_v
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 1982 2175		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_w
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 2176 2233		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_x
+	camera	models/characters/mocap/erebus5/cloud_cin_newcam.mb  -range 2234 2288		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_y
+}
+
+export james {
+	options -prefix PLAYER_
+	mesh	models/characters/cinematic_models/player_makemesh.mb				-dest models/md5/cinematics/erebus5/e5_player
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1 88			-dest models/md5/cinematics/erebus5/e5_player_cinematic_a
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 89 216			-dest models/md5/cinematics/erebus5/e5_player_cinematic_b
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 217 314		-dest models/md5/cinematics/erebus5/e5_player_cinematic_c
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 315 365		-dest models/md5/cinematics/erebus5/e5_player_cinematic_d
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 366 473		-dest models/md5/cinematics/erebus5/e5_player_cinematic_e
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 474 542		-dest models/md5/cinematics/erebus5/e5_player_cinematic_f
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 543 610		-dest models/md5/cinematics/erebus5/e5_player_cinematic_g
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 611 711		-dest models/md5/cinematics/erebus5/e5_player_cinematic_h
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 712 788		-dest models/md5/cinematics/erebus5/e5_player_cinematic_i
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 789 919		-dest models/md5/cinematics/erebus5/e5_player_cinematic_j
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 920 1021		-dest models/md5/cinematics/erebus5/e5_player_cinematic_k
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1022 1089		-dest models/md5/cinematics/erebus5/e5_player_cinematic_l
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1090 1168		-dest models/md5/cinematics/erebus5/e5_player_cinematic_m
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1169 1259		-dest models/md5/cinematics/erebus5/e5_player_cinematic_n
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1260 1338		-dest models/md5/cinematics/erebus5/e5_player_cinematic_o
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1339 1358		-dest models/md5/cinematics/erebus5/e5_player_cinematic_p
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1359 1476		-dest models/md5/cinematics/erebus5/e5_player_cinematic_q
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1477 1554		-dest models/md5/cinematics/erebus5/e5_player_cinematic_r
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1555 1617		-dest models/md5/cinematics/erebus5/e5_player_cinematic_s
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1618 1688		-dest models/md5/cinematics/erebus5/e5_player_cinematic_t
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1689 1900		-dest models/md5/cinematics/erebus5/e5_player_cinematic_u
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1901 1981		-dest models/md5/cinematics/erebus5/e5_player_cinematic_v
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1982 2175		-dest models/md5/cinematics/erebus5/e5_player_cinematic_w
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 2176 2233		-dest models/md5/cinematics/erebus5/e5_player_cinematic_x
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 2234 2288		-dest models/md5/cinematics/erebus5/e5_player_cinematic_y
+
+
+	options -prefix CLOUD_
+	mesh	models/characters/cinematic_models/cloud_makemesh.mb				-dest models/md5/cinematics/erebus5/e5_cloud
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1 88			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_a
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 89 216			-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_b
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 217 314		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_c
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 315 365		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_d
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 366 473		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_e
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 474 542		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_f
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 543 610		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_g
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 611 711		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_h
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 712 788		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_i
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 789 919		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_j
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 920 1021		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_k
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1022 1089		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_l
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1090 1168		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_m
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1169 1259		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_n
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1260 1338		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_o
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1339 1358		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_p
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1359 1476		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_q
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1477 1554		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_r
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1555 1617		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_s
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1618 1688		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_t
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1689 1900		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_u
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1901 1981		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_v
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 1982 2175		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_w
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 2176 2233		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_x
+	anim	models/characters/mocap/erebus5/cloud_cin.mb  -range 2234 2288		-dest models/md5/cinematics/erebus5/e5_cloud_cinematic_y
+
+}
+
+//////////////////////////////////////////////
+// E5 CINEMATIC CAMERA
+//////////////////////////////////////////////
+
+entityDef erebus5_cloud_cinematic_camera_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim e5_cloud_cinematic_camera_a"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_a.md5camera"
+	"anim e5_cloud_cinematic_camera_b"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_b.md5camera"
+	"anim e5_cloud_cinematic_camera_c"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_c.md5camera"
+	"anim e5_cloud_cinematic_camera_d"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_d.md5camera"
+	"anim e5_cloud_cinematic_camera_e"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_e.md5camera"
+	"anim e5_cloud_cinematic_camera_f"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_f.md5camera"
+	"anim e5_cloud_cinematic_camera_g"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_g.md5camera"
+	"anim e5_cloud_cinematic_camera_h"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_h.md5camera"
+	"anim e5_cloud_cinematic_camera_i"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_i.md5camera"
+	"anim e5_cloud_cinematic_camera_j"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_j.md5camera"
+	"anim e5_cloud_cinematic_camera_k"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_k.md5camera"
+	"anim e5_cloud_cinematic_camera_l"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_l.md5camera"
+	"anim e5_cloud_cinematic_camera_m"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_m.md5camera"
+	"anim e5_cloud_cinematic_camera_n"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_n.md5camera"
+	"anim e5_cloud_cinematic_camera_o"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_o.md5camera"
+	"anim e5_cloud_cinematic_camera_p"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_p.md5camera"
+	"anim e5_cloud_cinematic_camera_q"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_q.md5camera"
+	"anim e5_cloud_cinematic_camera_r"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_r.md5camera"
+	"anim e5_cloud_cinematic_camera_s"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_s.md5camera"
+	"anim e5_cloud_cinematic_camera_t"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_t.md5camera"
+	"anim e5_cloud_cinematic_camera_u"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_u.md5camera"
+	"anim e5_cloud_cinematic_camera_v"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_v.md5camera"
+	"anim e5_cloud_cinematic_camera_w"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_w.md5camera"
+	"anim e5_cloud_cinematic_camera_x"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_x.md5camera"
+	"anim e5_cloud_cinematic_camera_y"			"models/md5/cinematics/erebus5/e5_cloud_cinematic_camera_y.md5camera"
+}
+
+//////////////////////////////////////////////
+// E5 CLOUD CINEMATIC
+//////////////////////////////////////////////
+
+model erebus5_cloud_cinematic {
+	mesh								models/md5/cinematics/erebus5/e5_cloud.md5mesh
+	channel torso							()
+	channel legs							(*origin)
+	anim e5_cloud_cinematic_a			models/md5/cinematics/erebus5/e5_cloud_cinematic_a.md5anim {
+		frame 1										call map_erebus5::cloud_hide_primitive
+		frame 1										call map_erebus5::cloud_start_mcneil
+		frame 24									sound_voice2 marscity_reception_type
+	//	frame 63									sound_voice2	snd_mcneil_triggered_full
+	}
+	anim e5_cloud_cinematic_b			models/md5/cinematics/erebus5/e5_cloud_cinematic_b.md5anim {
+		frame 1										call map_erebus5::cloud_start_lockdoor
+		frame 2										sound_voice		snd_cloud_triggered1
+	}
+	anim e5_cloud_cinematic_c			models/md5/cinematics/erebus5/e5_cloud_cinematic_c.md5anim {
+		frame 9										sound_body		player_sounds_footstep
+		frame 25									sound_body		player_sounds_footstep
+	}
+	anim e5_cloud_cinematic_d			models/md5/cinematics/erebus5/e5_cloud_cinematic_d.md5anim {
+		frame 15									sound_body		snd_mcneil_triggered1
+	}
+	anim e5_cloud_cinematic_e			models/md5/cinematics/erebus5/e5_cloud_cinematic_e.md5anim {
+		frame 14									sound_voice		snd_cloud_triggered2
+	}
+	anim e5_cloud_cinematic_f			models/md5/cinematics/erebus5/e5_cloud_cinematic_f.md5anim {
+		frame 15									sound_body		snd_mcneil_triggered2
+	}
+	anim e5_cloud_cinematic_g			models/md5/cinematics/erebus5/e5_cloud_cinematic_g.md5anim {
+		frame 1										sound_voice2 marscity_reception_type
+		frame 18									call map_erebus5::CloudInfluence
+		frame 18									sound_body power_surge
+		frame 31									sound_body2		player_sounds_footstep
+		frame 50									sound_body2		player_sounds_footstep
+		frame 67									sound_body2		player_sounds_footstep
+
+	}
+	anim e5_cloud_cinematic_h			models/md5/cinematics/erebus5/e5_cloud_cinematic_h.md5anim {
+		frame 8										sound_voice		snd_cloud_triggered3
+		frame 19									sound_body		player_sounds_footstep
+		frame 40									sound_body		player_sounds_footstep
+		frame 77									sound_body		snd_mcneil_triggered3
+	}
+	anim e5_cloud_cinematic_i			models/md5/cinematics/erebus5/e5_cloud_cinematic_i.md5anim {
+		frame 1										call map_erebus5::cloud_show_primitive
+		frame 1										call map_erebus5_cloud::artifact_scanner_start
+		frame 1										call map_erebus5::EmittersOff
+		frame 68							sound_voice2 typing
+	}
+	anim e5_cloud_cinematic_j			models/md5/cinematics/erebus5/e5_cloud_cinematic_j.md5anim {
+		frame 1				 						call map_erebus5::cloud_viewer_start
+		frame 3										sound_voice		snd_cloud_triggered4
+		frame 60									call map_erebus5::cloud_viewer_done
+	}
+	anim e5_cloud_cinematic_k			models/md5/cinematics/erebus5/e5_cloud_cinematic_k.md5anim
+	anim e5_cloud_cinematic_l			models/md5/cinematics/erebus5/e5_cloud_cinematic_l.md5anim {
+		frame 8										sound_voice		snd_cloud_triggered5
+	}
+	anim e5_cloud_cinematic_m			models/md5/cinematics/erebus5/e5_cloud_cinematic_m.md5anim
+	anim e5_cloud_cinematic_n			models/md5/cinematics/erebus5/e5_cloud_cinematic_n.md5anim {
+		frame 23									sound_body		snd_mcneil_triggered4
+	}
+	anim e5_cloud_cinematic_o			models/md5/cinematics/erebus5/e5_cloud_cinematic_o.md5anim {
+		frame 5										sound_voice		snd_cloud_triggered6
+	}
+	anim e5_cloud_cinematic_p			models/md5/cinematics/erebus5/e5_cloud_cinematic_p.md5anim
+	anim e5_cloud_cinematic_q			models/md5/cinematics/erebus5/e5_cloud_cinematic_q.md5anim {
+		frame 61								sound_voice2 type
+		frame 63								sound_body2 type
+		frame 65								sound_body3 type
+	}
+	anim e5_cloud_cinematic_r			models/md5/cinematics/erebus5/e5_cloud_cinematic_r.md5anim
+	anim e5_cloud_cinematic_s			models/md5/cinematics/erebus5/e5_cloud_cinematic_s.md5anim
+	anim e5_cloud_cinematic_t			models/md5/cinematics/erebus5/e5_cloud_cinematic_t.md5anim {
+		frame 27										sound_body		snd_mcneil_triggered5
+	}
+	anim e5_cloud_cinematic_u			models/md5/cinematics/erebus5/e5_cloud_cinematic_u.md5anim {
+		frame 54									sound_voice		snd_cloud_triggered7
+		frame 98									sound_body		player_sounds_footstep
+		frame 151									sound_body		player_sounds_footstep
+	}
+	anim e5_cloud_cinematic_v			models/md5/cinematics/erebus5/e5_cloud_cinematic_v.md5anim
+	anim e5_cloud_cinematic_w			models/md5/cinematics/erebus5/e5_cloud_cinematic_w.md5anim {
+		frame 35									sound_body		player_sounds_footstep
+		frame 39									sound_body		player_sounds_footstep
+		frame 42									sound_body		player_sounds_footstep
+		frame 80									sound_body		player_sounds_footstep
+		frame 105									sound_body		player_sounds_footstep
+		frame 122									sound_body		player_sounds_footstep
+	}
+	anim e5_cloud_cinematic_x			models/md5/cinematics/erebus5/e5_cloud_cinematic_x.md5anim
+	anim e5_cloud_cinematic_y			models/md5/cinematics/erebus5/e5_cloud_cinematic_y.md5anim {
+		frame 1										call map_erebus5::cloud_end_opendoor
+		frame 43									sound_body		player_sounds_footstep
+		//frame 55									call map_erebus5::cloud_end_closedoor
+	}
+
+}
+
+entityDef erebus5_cloud_cinematic {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus5_cloud_cinematic"
+	"anim"							"e5_cloud_cinematic_a"
+
+	"num_cinematics"				"25"
+
+	"anim1"							"e5_cloud_cinematic_a"
+	"anim2"							"e5_cloud_cinematic_b"
+	"anim3"							"e5_cloud_cinematic_c"
+	"anim4"							"e5_cloud_cinematic_d"
+	"anim5"							"e5_cloud_cinematic_e"
+	"anim6"							"e5_cloud_cinematic_f"
+	"anim7"							"e5_cloud_cinematic_g"
+	"anim8"							"e5_cloud_cinematic_h"
+	"anim9"							"e5_cloud_cinematic_i"
+	"anim10"						"e5_cloud_cinematic_j"
+	"anim11"						"e5_cloud_cinematic_k"
+	"anim12"						"e5_cloud_cinematic_l"
+	"anim13"						"e5_cloud_cinematic_m"
+	"anim14"						"e5_cloud_cinematic_n"
+	"anim15"						"e5_cloud_cinematic_o"
+	"anim16"						"e5_cloud_cinematic_p"
+	"anim17"						"e5_cloud_cinematic_q"
+	"anim18"						"e5_cloud_cinematic_r"
+	"anim19"						"e5_cloud_cinematic_s"
+	"anim20"						"e5_cloud_cinematic_t"
+	"anim21"						"e5_cloud_cinematic_u"
+	"anim22"						"e5_cloud_cinematic_v"
+	"anim23"						"e5_cloud_cinematic_w"
+	"anim24"						"e5_cloud_cinematic_x"
+	"anim25"						"e5_cloud_cinematic_y"
+
+	"cinematic"						"1"
+	"health"						"1"
+
+	"snd_cloud_triggered1"			"e5_cloud_triggered1"
+	"snd_cloud_triggered2"			"e5_cloud_triggered2"
+	"snd_cloud_triggered3"			"e5_cloud_triggered3"
+	"snd_cloud_triggered4"			"e5_cloud_triggered4"
+	"snd_cloud_triggered5"			"e5_cloud_triggered5"
+	"snd_cloud_triggered6"			"e5_cloud_triggered6"
+	"snd_cloud_triggered7"			"e5_cloud_triggered7"
+
+	"snd_mcneil_triggered1"			"e5_mcneil_triggered1"
+	"snd_mcneil_triggered2"			"e5_mcneil_triggered2"
+	"snd_mcneil_triggered3"			"e5_mcneil_triggered3"
+	"snd_mcneil_triggered4"			"e5_mcneil_triggered4"
+	"snd_mcneil_triggered5"			"e5_mcneil_triggered5"
+
+	"snd_mcneil_triggered_full"		"e5_mcneil_triggered_full"
+
+}
+
+//////////////////////////////////////////////
+// E5 PLAYER CINEMATIC
+//////////////////////////////////////////////
+
+model erebus5_cloud_player_cinematic {
+	mesh								models/md5/cinematics/erebus5/e5_player.md5mesh
+	channel torso							()
+	channel legs							(*origin)
+	anim e5_player_cinematic_a			models/md5/cinematics/erebus5/e5_player_cinematic_a.md5anim
+	anim e5_player_cinematic_b			models/md5/cinematics/erebus5/e5_player_cinematic_b.md5anim
+	anim e5_player_cinematic_c			models/md5/cinematics/erebus5/e5_player_cinematic_c.md5anim
+	anim e5_player_cinematic_d			models/md5/cinematics/erebus5/e5_player_cinematic_d.md5anim
+	anim e5_player_cinematic_e			models/md5/cinematics/erebus5/e5_player_cinematic_e.md5anim
+	anim e5_player_cinematic_f			models/md5/cinematics/erebus5/e5_player_cinematic_f.md5anim
+	anim e5_player_cinematic_g			models/md5/cinematics/erebus5/e5_player_cinematic_g.md5anim
+	anim e5_player_cinematic_h			models/md5/cinematics/erebus5/e5_player_cinematic_h.md5anim
+	anim e5_player_cinematic_i			models/md5/cinematics/erebus5/e5_player_cinematic_i.md5anim
+	anim e5_player_cinematic_j			models/md5/cinematics/erebus5/e5_player_cinematic_j.md5anim
+	anim e5_player_cinematic_k			models/md5/cinematics/erebus5/e5_player_cinematic_k.md5anim
+	anim e5_player_cinematic_l			models/md5/cinematics/erebus5/e5_player_cinematic_l.md5anim
+	anim e5_player_cinematic_m			models/md5/cinematics/erebus5/e5_player_cinematic_m.md5anim
+	anim e5_player_cinematic_n			models/md5/cinematics/erebus5/e5_player_cinematic_n.md5anim
+	anim e5_player_cinematic_o			models/md5/cinematics/erebus5/e5_player_cinematic_o.md5anim
+	anim e5_player_cinematic_p			models/md5/cinematics/erebus5/e5_player_cinematic_p.md5anim
+	anim e5_player_cinematic_q			models/md5/cinematics/erebus5/e5_player_cinematic_q.md5anim
+	anim e5_player_cinematic_r			models/md5/cinematics/erebus5/e5_player_cinematic_r.md5anim
+	anim e5_player_cinematic_s			models/md5/cinematics/erebus5/e5_player_cinematic_s.md5anim
+	anim e5_player_cinematic_t			models/md5/cinematics/erebus5/e5_player_cinematic_t.md5anim
+	anim e5_player_cinematic_u			models/md5/cinematics/erebus5/e5_player_cinematic_u.md5anim
+	anim e5_player_cinematic_v			models/md5/cinematics/erebus5/e5_player_cinematic_v.md5anim
+	anim e5_player_cinematic_w			models/md5/cinematics/erebus5/e5_player_cinematic_w.md5anim {
+		frame 31							sound_body		player_sounds_footstep
+		frame 59							sound_body		player_sounds_footstep
+		frame 89							sound_body		player_sounds_footstep
+		frame 114							sound_body		player_sounds_footstep
+		frame 138							sound_body		player_sounds_footstep
+	}
+	anim e5_player_cinematic_x			models/md5/cinematics/erebus5/e5_player_cinematic_x.md5anim
+	anim e5_player_cinematic_y			models/md5/cinematics/erebus5/e5_player_cinematic_y.md5anim {
+		frame 47							sound_body		player_sounds_footstep
+	}
+
+}
+
+entityDef erebus5_cloud_player_cinematic {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus5_cloud_player_cinematic"
+	"anim"							"e5_player_cinematic_a"
+
+	"num_cinematics"				"25"
+
+	"anim1"							"e5_player_cinematic_a"
+	"anim2"							"e5_player_cinematic_b"
+	"anim3"							"e5_player_cinematic_c"
+	"anim4"							"e5_player_cinematic_d"
+	"anim5"							"e5_player_cinematic_e"
+	"anim6"							"e5_player_cinematic_f"
+	"anim7"							"e5_player_cinematic_g"
+	"anim8"							"e5_player_cinematic_h"
+	"anim9"							"e5_player_cinematic_i"
+	"anim10"						"e5_player_cinematic_j"
+	"anim11"						"e5_player_cinematic_k"
+	"anim12"						"e5_player_cinematic_l"
+	"anim13"						"e5_player_cinematic_m"
+	"anim14"						"e5_player_cinematic_n"
+	"anim15"						"e5_player_cinematic_o"
+	"anim16"						"e5_player_cinematic_p"
+	"anim17"						"e5_player_cinematic_q"
+	"anim18"						"e5_player_cinematic_r"
+	"anim19"						"e5_player_cinematic_s"
+	"anim20"						"e5_player_cinematic_t"
+	"anim21"						"e5_player_cinematic_u"
+	"anim22"						"e5_player_cinematic_v"
+	"anim23"						"e5_player_cinematic_w"
+	"anim24"						"e5_player_cinematic_x"
+	"anim25"						"e5_player_cinematic_y"
+
+	"cinematic"						"1"
+	"health"						"1"
+
+}

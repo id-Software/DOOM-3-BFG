@@ -1,0 +1,240 @@
+//////////////////////////////////////////
+// Custom Definitions for MP Map Sounds //
+//////////////////////////////////////////
+
+
+////////////////////
+// GENERAL SOUNDS //
+////////////////////
+
+entityDef 	sound_powerup_berserk {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"snd_berserkSpawn"		"sound_powerup_berserk"
+}
+
+
+
+/////////////////
+// Fragchamber //
+/////////////////
+
+entityDef 	sound_fragchamber_bridge {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"s_volume"			"0"
+	"s_mindistance"			"1"
+	"s_maxdistance"			"10"
+	"s_omni"			"0"
+	"s_occlusion"			"1"
+	"s_waitfortrigger"		"1"
+	"s_leadthrough"			"0.1"
+	"s_plain"			"0"
+	"s_looping"			"0"
+	"s_justVolume"			"0"
+
+	"snd_bridgeStart"		"fragchamber_bridge_start"
+	"snd_bridgeStop"		"fragchamber_bridge_stop"
+}
+
+entityDef 	sound_fragchamber_rod {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"s_volume"			"0"
+	"s_mindistance"			"1"
+	"s_maxdistance"			"10"
+	"s_omni"			"0"
+	"s_occlusion"			"1"
+	"s_waitfortrigger"		"1"
+	"s_leadthrough"			"0.1"
+	"s_plain"			"0"
+	"s_looping"			"0"
+	"s_justVolume"			"0"
+
+	"snd_rodStart"			"fragchamber_rod_start"
+	"snd_rodStop"			"fragchamber_rod_stop"
+}
+
+entityDef 	sound_fragchamber_socket {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"s_volume"			"0"
+	"s_mindistance"			"1"
+	"s_maxdistance"			"10"
+	"s_omni"			"0"
+	"s_occlusion"			"1"
+	"s_waitfortrigger"		"1"
+	"s_leadthrough"			"0.1"
+	"s_plain"			"0"
+	"s_looping"			"0"
+	"s_justVolume"			"0"
+
+	"snd_socketStart"		"fragchamber_socket_start"
+	"snd_socketStop"		"fragchamber_socket_stop"
+}
+
+entityDef 	sound_fragchamber_core {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"s_volume"			"0"
+	"s_mindistance"			"1"
+	"s_maxdistance"			"10"
+	"s_omni"			"0"
+	"s_occlusion"			"1"
+	"s_waitfortrigger"		"1"
+	"s_leadthrough"			"0.1"
+	"s_plain"			"0"
+	"s_looping"			"0"
+	"s_justVolume"			"0"
+
+	"snd_coreStart"			"fragchamber_core_start"
+	"snd_coreStop"			"fragchamber_core_stop"
+}
+
+entityDef 	sound_fragchamber_berserk {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"snd_berserkSpawn"		"fragchamber_sound_berserk_spawn"
+	"snd_berserkLoop"		"fragchamber_sound_berserk"
+}
+
+entityDef 	sound_fragchamber_klaxon {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+	
+	"s_volume"			"6"
+	"s_maxDistance"			"20"
+
+	"snd_klaxon"			"fragchamber_klaxon"
+}
+
+entityDef 	sound_fragchamber_lights {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"snd_lightsHum"			"fragchamber_lights_hum"
+	"snd_lightsFlicker"		"fragchamber_lights_flicker"
+}
+
+entityDef 	sound_fragchamber_generator {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"snd_generatorRun"		"fragchamber_generator_run"
+	"snd_generatorStop"		"fragchamber_generator_stop"
+	"snd_generatorSteam"		"fragchamber_generator_steam"
+	"snd_generatorSpin"		"fragchamber_generator_spin"
+	"snd_generatorSpinStop"		"fragchamber_generator_spin_stop"
+}
+
+entitydef	sound_fragchamber_steam {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"snd_steamUp"			"fragchamber_suck_out"
+	"snd_steamDown"			"fragchamber_suck_in"
+}
+
+entityDef	sound_fragchamber_secretSteam {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"spawnclass"			"idSound"
+
+	"snd_secretSteam1"		"fragchamber_secret_steam_01"
+	"snd_secretSteam2"		"fragchamber_secret_steam_02"
+}
+
+
+///////////////
+// Lightsout //
+///////////////
+
+entityDef sound_d3dm5_generator {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"editor_usage"			""
+
+	"spawnclass"			"idSound"
+
+	"snd_genOff"			"d3dm5_generator_off"
+	"snd_genOn"				"d3dm5_generator_on"
+
+}
+
+entityDef sound_d3dm5_wind {
+
+	"editor_color"			"0 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_material"		"textures/common/speaker"
+
+	"editor_usage"			""
+
+	"spawnclass"			"idSound"
+
+	"snd_wind"				"d3dm5_wind"
+}

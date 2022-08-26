@@ -1,0 +1,35 @@
+
+// NPCS
+
+export james {
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER 
+
+	addoptions -keepmesh marinebodymesh
+	
+	//MARSCITY CHARACTERS
+	
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_stand.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_stand
+	
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_idle1.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_idle1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_idle2.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_idle2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_idle3.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_idle3
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_talk1.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_talk1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_talk2.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_talk2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_talk3.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_talk3
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_convo1.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_convo1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_convo2.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_convo2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_convo3.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine1_convo3
+		
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_stand.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_stand	
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_idle1.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_idle1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_idle2.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_idle2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_idle3.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_idle3
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_talk1.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_talk1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_talk2.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_talk2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_talk3.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_talk3
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_convo1.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_convo1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_convo2.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_convo2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_convo3.mb -rotate 90 -dest models/md5/chars/marscity/marscity_marine2_convo3
+	
+}
+	

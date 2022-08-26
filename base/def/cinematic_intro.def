@@ -1,0 +1,126 @@
+
+export james {
+
+	mesh	models/characters/cinematic_models/stock_marine.mb -dest models/md5/cinematics/intro/stock_marine
+	mesh	models/characters/cinematic_models/stock_marine_gravitygun.mb -dest models/md5/cinematics/intro/stock_marine_gravitygun
+	mesh	models/characters/cinematic_models/stock_marine_pda.mb -dest models/md5/cinematics/intro/stock_marine_pda
+	mesh	models/characters/cinematic_models/stock_marine_flashlight.mb -dest models/md5/cinematics/intro/stock_marine_flashlight
+	mesh	models/characters/cinematic_models/stock_marine_detonator.mb -dest models/md5/cinematics/intro/stock_marine_detonator
+	mesh	models/characters/cinematic_models/mcneil.mb -dest models/md5/cinematics/intro/mcneil
+	mesh	models/characters/cinematic_models/marine_plasma.mb -dest models/md5/cinematics/intro/marine_plasma
+	mesh	models/characters/cinematic_models/marine_pda.mb -dest models/md5/cinematics/intro/marine_pda
+	mesh	models/characters/cinematic_models/marine_flashlight.mb -dest models/md5/cinematics/intro/marine_flashlight
+	mesh	models/characters/cinematic_models/marine_detonator.mb -dest models/md5/cinematics/intro/marine_detonator
+	mesh	models/characters/cinematic_models/player_plasma.mb -dest models/md5/cinematics/intro/player_plasma
+	mesh	models/characters/cinematic_models/player_heartartifact.mb -dest models/md5/cinematics/intro/player_heartartifact
+	mesh	models/characters/cinematic_models/player_rocketlauncher.mb -dest models/md5/cinematics/intro/player_rocketlauncher
+	mesh	models/characters/cinematic_models/player_helmet.mb -dest models/md5/cinematics/intro/player_helmet
+	mesh	models/characters/cinematic_models/betruger_head.mb -dest models/md5/cinematics/intro/betruger
+
+	anim	models/characters/mocap/maya/ggun_marine_intro.mb -dest models/md5/cinematics/intro/ggun_marine_intro
+	anim	models/characters/mocap/maya/ggun_marine_shoot.mb -dest models/md5/cinematics/intro/ggun_marine_shoot
+	anim	models/characters/mocap/maya/ggun_marine_look.mb -dest models/md5/cinematics/intro/ggun_marine_look
+	anim	models/characters/mocap/maya/ggun_imp_intro.mb -dest models/md5/cinematics/intro/ggun_imp_intro
+	anim	models/characters/mocap/maya/ggun_imp_death.mb -dest models/md5/cinematics/intro/ggun_imp_death
+	anim	models/characters/mocap/maya/intro_sm_walk1.mb -dest models/md5/cinematics/intro/intro_sm_walk1
+
+	anim	models/characters/mocap/intro/intro_marine_dammit.mb -dest models/md5/cinematics/intro/intro_marine_dammit
+	anim	models/characters/mocap/intro/intro_marine_intro.mb -dest models/md5/cinematics/intro/intro_marine_intro
+
+	anim	models/characters/mocap/intro/intro_mcneil_dammit.mb -dest models/md5/cinematics/intro/intro_mcneil_dammit
+	anim	models/characters/mocap/intro/intro_mcneil_intro.mb -dest models/md5/cinematics/intro/intro_mcneil_intro
+
+	anim	models/characters/mocap/intro/intro_pda_walk.mb -dest models/md5/cinematics/intro/intro_pda_walk
+
+	anim	models/characters/mocap/intro/intro_smar_walk1.mb -dest models/md5/cinematics/intro/intro_smar_walk1
+	anim	models/characters/mocap/intro/intro_smar_walk2.mb -dest models/md5/cinematics/intro/intro_smar_walk2
+	anim	models/characters/mocap/intro/intro_smar_walk3.mb -dest models/md5/cinematics/intro/intro_smar_walk3
+	anim	models/characters/mocap/intro/intro_smar_walk4.mb -dest models/md5/cinematics/intro/intro_smar_walk4
+	anim	models/characters/mocap/intro/intro_smar_walk5.mb -dest models/md5/cinematics/intro/intro_smar_walk5
+
+	options -prefix IMP_ -keep fireball
+	mesh	models/characters/cinematic_models/imp_makemesh.mb -dest models/md5/cinematics/intro/imp
+
+}
+
+// STOCK_MARINE_PLASMA
+model stock_marine_plasma {
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+	anim intro_sm_walk1					models/md5/cinematics/intro/intro_sm_walk1.md5anim
+}
+
+// STOCK_MARINE_GRAVITYGUN
+model stock_marine_gravitygun {
+	mesh								models/md5/cinematics/intro/stock_marine_gravitygun.md5mesh
+	anim ggun_marine_intro				models/md5/cinematics/intro/ggun_marine_intro.md5anim
+	anim ggun_marine_shoot				models/md5/cinematics/intro/ggun_marine_shoot.md5anim
+	anim ggun_marine_look				models/md5/cinematics/intro/ggun_marine_look.md5anim
+	anim intro_smar_walk1				models/md5/cinematics/intro/intro_smar_walk1.md5anim
+	anim intro_smar_walk2				models/md5/cinematics/intro/intro_smar_walk2.md5anim
+	anim intro_smar_walk3				models/md5/cinematics/intro/intro_smar_walk3.md5anim
+	anim intro_smar_walk4				models/md5/cinematics/intro/intro_smar_walk4.md5anim
+	anim intro_smar_walk5				models/md5/cinematics/intro/intro_smar_walk5.md5anim
+}
+
+// STOCK_MARINE_PDA
+model stock_marine_pda {
+	mesh								models/md5/cinematics/intro/stock_marine_pda.md5mesh
+	anim intro_pda_walk					models/md5/cinematics/intro/intro_pda_walk.md5anim
+}
+
+// STOCK_MARINE_FLASHLIGHT
+model stock_marine_flashlight {
+	mesh								models/md5/cinematics/intro/stock_marine_flashlight.md5mesh
+
+}
+
+// STOCK_MARINE_DETONATOR
+model stock_marine_detonator {
+	mesh								models/md5/cinematics/intro/stock_marine_detonator.md5mesh
+
+}
+
+// MARINE
+model marine {
+	mesh								models/md5/cinematics/intro/stock_marine_detonator.md5mesh
+	anim intro_marine_dammit			models/md5/cinematics/intro/intro_marine_dammit.md5anim
+	anim intro_marine_intro				models/md5/cinematics/intro/intro_marine_intro.md5anim
+}
+
+// IMP
+model imp {
+	mesh								models/md5/cinematics/intro/imp.md5mesh
+	anim ggun_imp_intro					models/md5/cinematics/intro/ggun_imp_intro.md5anim
+	anim ggun_imp_death					models/md5/cinematics/intro/ggun_imp_death.md5anim
+}
+
+// PLAYER_PLASMA
+model player_plasma {
+	mesh								models/md5/cinematics/intro/player_plasma.md5mesh
+
+}
+
+// PLAYER_HEARTARTIFACT
+model player_heartartifact {
+	mesh								models/md5/cinematics/intro/player_heartartifact.md5mesh
+
+}
+
+// PLAYER_ROCKETLAUNCHER
+model player_rocketlauncher {
+	mesh								models/md5/cinematics/intro/player_rocketlauncher.md5mesh
+
+}
+
+// PLAYER_HELMET
+model player_helmet {
+	mesh								models/md5/cinematics/intro/player_helmet.md5mesh
+
+}
+
+// MCNEIL
+model mcneil {
+	mesh								models/md5/cinematics/intro/mcneil.md5mesh
+	anim intro_mcneil_dammit				models/md5/cinematics/intro/intro_mcneil_dammit.md5anim
+	anim intro_mcneil_intro					models/md5/cinematics/intro/intro_mcneil_intro.md5anim
+}

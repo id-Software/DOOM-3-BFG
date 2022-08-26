@@ -1,0 +1,703 @@
+export fred {
+
+
+	camera	models/characters/player/poses/hero_shots.mb -range 1 1 -dest models/md5/screenshots/ss_player_cam1
+	camera	models/characters/player/poses/hero_shots.mb -range 2 2 -dest models/md5/screenshots/ss_player_cam2
+	camera	models/characters/player/poses/hero_shots.mb -range 3 3 -dest models/md5/screenshots/ss_player_cam3
+	camera	models/characters/player/poses/hero_shots.mb -range 4 4 -dest models/md5/screenshots/ss_player_cam4
+	camera	models/characters/player/poses/hero_shots.mb -range 5 5 -dest models/md5/screenshots/ss_player_cam5
+	camera	models/characters/player/poses/hero_shots.mb -range 6 6 -dest models/md5/screenshots/ss_player_cam6
+	camera	models/characters/player/poses/hero_shots.mb -range 7 7 -dest models/md5/screenshots/ss_player_cam7
+	camera	models/characters/player/poses/hero_shots.mb -range 8 8 -dest models/md5/screenshots/ss_player_cam8
+	camera	models/characters/player/poses/hero_shots.mb -range 9 9 -dest models/md5/screenshots/ss_player_cam9
+	camera	models/characters/player/poses/hero_shots.mb -range 10 10 -dest models/md5/screenshots/ss_player_cam10
+	camera	models/characters/player/poses/hero_shots.mb -range 11 11 -dest models/md5/screenshots/ss_player_cam11
+	camera	models/characters/player/poses/hero_shots.mb -range 12 12 -dest models/md5/screenshots/ss_player_cam12
+
+	camera models/characters/player/poses/shotgun_shots.mb -range 3 3 -dest models/md5/screenshots/ss_shotgun_cam1
+	camera models/characters/player/poses/shotgun_shots.mb -range 4 4 -dest models/md5/screenshots/ss_shotgun_cam2
+	camera models/characters/player/poses/shotgun_shots.mb -range 5 5 -dest models/md5/screenshots/ss_shotgun_cam3
+	camera models/characters/player/poses/shotgun_shots.mb -range 6 6 -dest models/md5/screenshots/ss_shotgun_cam4
+	camera models/characters/player/poses/shotgun_shots.mb -range 7 7 -dest models/md5/screenshots/ss_shotgun_cam5
+	camera models/characters/player/poses/shotgun_shots.mb -range 8 8 -dest models/md5/screenshots/ss_shotgun_cam6
+	camera models/characters/player/poses/shotgun_shots.mb -range 9 9 -dest models/md5/screenshots/ss_shotgun_cam7
+	camera models/characters/player/poses/shotgun_shots.mb -range 10 10 -dest models/md5/screenshots/ss_shotgun_cam8
+	camera models/characters/player/poses/shotgun_shots.mb -range 11 11 -dest models/md5/screenshots/ss_shotgun_cam9
+	camera models/characters/player/poses/shotgun_shots.mb -range 12 12 -dest models/md5/screenshots/ss_shotgun_cam10
+	camera models/characters/player/poses/shotgun_shots.mb -range 13 13 -dest models/md5/screenshots/ss_shotgun_cam11
+	camera models/characters/player/poses/shotgun_shots.mb -range 14 14 -dest models/md5/screenshots/ss_shotgun_cam12
+	camera models/characters/player/poses/shotgun_shots.mb -range 15 15 -dest models/md5/screenshots/ss_shotgun_cam13
+	camera models/characters/player/poses/shotgun_shots.mb -range 16 16 -dest models/md5/screenshots/ss_shotgun_cam14
+	camera models/characters/player/poses/shotgun_shots.mb -range 17 17 -dest models/md5/screenshots/ss_shotgun_cam15
+	camera models/characters/player/poses/shotgun_shots.mb -range 18 18 -dest models/md5/screenshots/ss_shotgun_cam16
+	camera models/characters/player/poses/shotgun_shots.mb -range 19 19 -dest models/md5/screenshots/ss_shotgun_cam17
+
+
+	options -prefix PLAYER_ -keep SPINNER camWaist camHead modelviewconnector camera PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER Lfteye_Focus Rteye_Focus Neck -parent Waist SPINNER -parent SPINNER Waist2 -parent Neck Shldrs -parent camera camHead -parent Lfteye_Focus Head -parent Rteye_Focus Head -parent Waist2 Hips -parent PISTOL_ATTACHER Rhand -parent SHOTGUN_ATTACHER Rhand -parent MGATTACHER Rhand -parent pgATTACHER Rhand -parent NADE_ATTACHER Rhand -parent CHAINSAW_ATTACHER Rhand -parent RL_ATTACHER Lhand -parent FL_ATTACHER Rhand -parent BFG_ATTACHER Lhand -parent camWaist modelviewconnector -parent CHAINGUN_ATTACHER Rhand
+
+
+	addoptions -skipmesh plasma_innerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_innerscopetop_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopetop_mesh1
+	addoptions -skipmesh plasma_innerflap1_mesh1
+	addoptions -skipmesh plasma_outerflap1_mesh1
+ 	addoptions -skipmesh plasma_bolt_mesh1
+ 	addoptions -skipmesh plasma_screen_mesh1
+	addoptions -skipmesh plasma_body_mesh1
+	addoptions -skipmesh plasma_handle_mesh1
+	addoptions -skipmesh plasma_outerflap2_mesh4
+	addoptions -skipmesh plasma_innerflap2_mesh4
+	addoptions -skipmesh plasma_uppermon_mesh4
+	addoptions -skipmesh shotgun_body_mesh
+	addoptions -skipmesh shotgun_handle_mesh
+	addoptions -skipmesh shotgun_trigger_mesh
+	addoptions -skipmesh shotgun_loflap_mesh
+	addoptions -skipmesh shotgun_extender_mesh
+	addoptions -skipmesh shotgun_upflap1_mesh
+	addoptions -skipmesh shotgun_upflap2_mesh
+
+	addoptions -skipmesh nade_cap_mesh
+	addoptions -skipmesh nade_body_mesh
+
+	addoptions -skipmesh rshell1
+	addoptions -skipmesh rshell2
+	addoptions -skipmesh rshell3
+	addoptions -skipmesh rshell4
+	addoptions -skipmesh reloader1
+	addoptions -skipmesh handle
+	addoptions -skipmesh aimer
+	addoptions -skipmesh body
+
+	addoptions -skipmesh flashlightmesh1
+	addoptions -skipmesh flashlightflaremesh
+	addoptions -skipmesh flashlightbeammesh
+	addoptions -skipmesh flashlightflare2mesh
+	
+	addoptions -skipmesh bfgmesh
+
+	addoptions -skipmesh w_pistolfire
+	addoptions -skipmesh w_pistolflash
+	addoptions -skipmesh w_pistolmesh
+	addoptions -skipmesh w_shotgun2barrelmesh
+	addoptions -skipmesh w_shotgun2mesh
+	addoptions -skipmesh w_machinegun_mesh
+	addoptions -skipmesh w_mgfx1
+	addoptions -skipmesh w_mgfx2
+	addoptions -skipmesh w_mgfx3
+	addoptions -skipmesh w_mgfx4
+	addoptions -skipmesh w_plasmagun_mesh
+	addoptions -skipmesh w_plasmagunfx1
+	addoptions -skipmesh w_plasmagunfx2
+	addoptions -skipmesh w_chainsaw_mesh
+	addoptions -skipmesh w_chainsaw_chain_mesh
+	addoptions -skipmesh w_rocketlauncher_mesh
+
+	addoptions -skipmesh chaingunfx1_model
+	addoptions -skipmesh chaingunfx2_model
+	addoptions -skipmesh chaingunnubmodel
+	addoptions -skipmesh chaingunbodymodel
+	addoptions -skipmesh chaingunbarrelmodel
+
+	addoptions -skipmesh pistolBarrel 
+	addoptions -skipmesh pistolExtender 
+	addoptions -skipmesh pistolTrigger 
+	addoptions -skipmesh pistolBody
+	addoptions -skipmesh pistolClip1
+
+
+	mesh	models/characters/player/poses/hero_shots.mb -dest models/md5/screenshots/ss_player
+	anim	models/characters/player/poses/hero_shots.mb -range 1 1 -dest models/md5/screenshots/ss_player_pistolpose1
+	anim	models/characters/player/poses/hero_shots.mb -range 2 2 -dest models/md5/screenshots/ss_player_pistolpose2
+	anim	models/characters/player/poses/hero_shots.mb -range 3 3 -dest models/md5/screenshots/ss_player_pistolpose3
+	anim	models/characters/player/poses/hero_shots.mb -range 4 4 -dest models/md5/screenshots/ss_player_shotgunpose1
+	anim	models/characters/player/poses/hero_shots.mb -range 5 5 -dest models/md5/screenshots/ss_player_shotgunpose2
+	anim	models/characters/player/poses/hero_shots.mb -range 6 6 -dest models/md5/screenshots/ss_player_shotgunpose3
+	anim	models/characters/player/poses/hero_shots.mb -range 12 12 -dest models/md5/screenshots/ss_player_shotgunpose4
+	anim	models/characters/player/poses/hero_shots.mb -range 7 7 -dest models/md5/screenshots/ss_player_chainsawpose1
+	anim	models/characters/player/poses/hero_shots.mb -range 8 8 -dest models/md5/screenshots/ss_player_chainsawpose2
+	anim	models/characters/player/poses/hero_shots.mb -range 9 9 -dest models/md5/screenshots/ss_player_machinegunpose1
+	anim	models/characters/player/poses/hero_shots.mb -range 10 10 -dest models/md5/screenshots/ss_player_machinegunpose2
+	anim	models/characters/player/poses/hero_shots.mb -range 11 11 -dest models/md5/screenshots/ss_player_machinegunpose3
+
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 3 3 -dest models/md5/screenshots/ss_shotgun_player1
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 4 4 -dest models/md5/screenshots/ss_shotgun_player2
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 5 5 -dest models/md5/screenshots/ss_shotgun_player3
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 6 6 -dest models/md5/screenshots/ss_shotgun_player4
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 7 7 -dest models/md5/screenshots/ss_shotgun_player5
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 8 8 -dest models/md5/screenshots/ss_shotgun_player6
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 9 9 -dest models/md5/screenshots/ss_shotgun_player7
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 10 10 -dest models/md5/screenshots/ss_shotgun_player8
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 11 11 -dest models/md5/screenshots/ss_shotgun_player9
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 12 12 -dest models/md5/screenshots/ss_shotgun_player10
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 13 13 -dest models/md5/screenshots/ss_shotgun_player11
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 14 14 -dest models/md5/screenshots/ss_shotgun_player12
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 15 15 -dest models/md5/screenshots/ss_shotgun_player13
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 16 16 -dest models/md5/screenshots/ss_shotgun_player14
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 17 17 -dest models/md5/screenshots/ss_shotgun_player15
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 18 18 -dest models/md5/screenshots/ss_shotgun_player16
+	anim 	models/characters/player/poses/shotgun_shots.mb -range 19 19 -dest models/md5/screenshots/ss_shotgun_player17
+
+
+}
+
+
+entityDef ss_hero_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim camera_a"					"models/md5/screenshots/ss_player_cam1.md5camera"
+	"anim camera_b"					"models/md5/screenshots/ss_player_cam2.md5camera"
+	"anim camera_c"					"models/md5/screenshots/ss_player_cam3.md5camera"
+	"anim camera_d"					"models/md5/screenshots/ss_player_cam4.md5camera"
+	"anim camera_e"					"models/md5/screenshots/ss_player_cam5.md5camera"
+	"anim camera_f"					"models/md5/screenshots/ss_player_cam6.md5camera"
+	"anim camera_g"					"models/md5/screenshots/ss_player_cam12.md5camera"
+	"anim camera_h"					"models/md5/screenshots/ss_player_cam7.md5camera"
+	"anim camera_i"					"models/md5/screenshots/ss_player_cam8.md5camera"
+	"anim camera_j"					"models/md5/screenshots/ss_player_cam9.md5camera"
+	"anim camera_k"					"models/md5/screenshots/ss_player_cam10.md5camera"
+	"anim camera_l"					"models/md5/screenshots/ss_player_cam11.md5camera"
+
+	"anim shotguncam_a"				"models/md5/screenshots/ss_shotgun_cam1.md5camera"
+	"anim shotguncam_b"				"models/md5/screenshots/ss_shotgun_cam2.md5camera"
+	"anim shotguncam_c"				"models/md5/screenshots/ss_shotgun_cam3.md5camera"
+	"anim shotguncam_d"				"models/md5/screenshots/ss_shotgun_cam4.md5camera"
+	"anim shotguncam_e"				"models/md5/screenshots/ss_shotgun_cam5.md5camera"
+	"anim shotguncam_f"				"models/md5/screenshots/ss_shotgun_cam6.md5camera"
+	"anim shotguncam_g"				"models/md5/screenshots/ss_shotgun_cam7.md5camera"
+	"anim shotguncam_h"				"models/md5/screenshots/ss_shotgun_cam8.md5camera"
+	"anim shotguncam_i"				"models/md5/screenshots/ss_shotgun_cam9.md5camera"
+	"anim shotguncam_j"				"models/md5/screenshots/ss_shotgun_cam10.md5camera"
+	"anim shotguncam_k"				"models/md5/screenshots/ss_shotgun_cam11.md5camera"
+	"anim shotguncam_l"				"models/md5/screenshots/ss_shotgun_cam12.md5camera"
+	"anim shotguncam_m"				"models/md5/screenshots/ss_shotgun_cam13.md5camera"
+	"anim shotguncam_n"				"models/md5/screenshots/ss_shotgun_cam14.md5camera"
+	"anim shotguncam_o"				"models/md5/screenshots/ss_shotgun_cam15.md5camera"
+	"anim shotguncam_p"				"models/md5/screenshots/ss_shotgun_cam16.md5camera"
+	"anim shotguncam_q"				"models/md5/screenshots/ss_shotgun_cam17.md5camera"
+
+
+}
+
+model ss_hero_player {
+	mesh							models/md5/screenshots/ss_player.md5mesh
+	anim pistol1					models/md5/screenshots/ss_player_pistolpose1.md5anim {
+		frame 1						skin skins/characters/player/ss_pistol
+	}
+	anim pistol2					models/md5/screenshots/ss_player_pistolpose2.md5anim {
+		frame 1						skin skins/characters/player/ss_pistol
+	}
+
+	anim pistol3					models/md5/screenshots/ss_player_pistolpose3.md5anim {
+		frame 1						skin skins/characters/player/ss_pistol
+	}
+
+	anim shotgun1					models/md5/screenshots/ss_player_shotgunpose1.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+
+	anim shotgun2					models/md5/screenshots/ss_player_shotgunpose2.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+
+	anim shotgun3					models/md5/screenshots/ss_player_shotgunpose3.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotgun4					models/md5/screenshots/ss_player_shotgunpose4.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+
+	anim chainsaw1					models/md5/screenshots/ss_player_chainsawpose1.md5anim {
+		frame 1						skin skins/characters/player/ss_chainsaw
+	}
+
+	anim chainsaw2					models/md5/screenshots/ss_player_chainsawpose2.md5anim {
+		frame 1						skin skins/characters/player/ss_chainsaw
+	}
+	anim machinegun1				models/md5/screenshots/ss_player_machinegunpose1.md5anim {
+		frame 1						skin skins/characters/player/ss_machinegun
+	}
+
+	anim machinegun2				models/md5/screenshots/ss_player_machinegunpose2.md5anim {
+		frame 1						skin skins/characters/player/ss_machinegun
+	}
+
+	anim machinegun3				models/md5/screenshots/ss_player_machinegunpose3.md5anim {
+		frame 1						skin skins/characters/player/ss_machinegun
+	}
+
+	anim shotty1					models/md5/screenshots/ss_shotgun_player1.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty2					models/md5/screenshots/ss_shotgun_player2.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty3					models/md5/screenshots/ss_shotgun_player3.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty4					models/md5/screenshots/ss_shotgun_player4.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty5					models/md5/screenshots/ss_shotgun_player5.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty6					models/md5/screenshots/ss_shotgun_player6.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty7					models/md5/screenshots/ss_shotgun_player7.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty8					models/md5/screenshots/ss_shotgun_player8.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty9					models/md5/screenshots/ss_shotgun_player9.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty10					models/md5/screenshots/ss_shotgun_player10.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty11					models/md5/screenshots/ss_shotgun_player11.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty12					models/md5/screenshots/ss_shotgun_player12.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty13					models/md5/screenshots/ss_shotgun_player13.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty14					models/md5/screenshots/ss_shotgun_player14.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty15					models/md5/screenshots/ss_shotgun_player15.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty16					models/md5/screenshots/ss_shotgun_player16.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+	anim shotty17					models/md5/screenshots/ss_shotgun_player17.md5anim {
+		frame 1						skin skins/characters/player/ss_shotgun
+	}
+
+
+}
+
+entityDef ss_hero_player {
+	"inherit"						"cin_base"
+	"model"							"ss_hero_player"
+	"anim"							"pistol1"
+	"skin"							"skins/characters/player/ss_pistol.skin"
+	"num_anims"						"11"
+	"anim1"							"pistol1"
+	"anim2"							"pistol2"
+	"anim3"							"pistol3"
+	"anim4"							"shotgun1"
+	"anim5"							"shotgun2"
+	"anim6"							"shotgun3"
+	"anim7"							"chainsaw1"
+	"anim8"							"chainsaw2"
+	"anim9"							"machinegun1"
+	"anim10"						"machinegun2"
+	"anim11"						"machinegun3"
+}
+
+entityDef ss_hero_player_pistol {
+	"inherit"						"cin_base"
+	"model"							"ss_hero_player"
+	"anim"							"pistol1"
+	"skin"							"skins/characters/player/ss_pistol.skin"
+	"num_anims"						"3"
+	"anim1"							"pistol1"
+	"anim2"							"pistol2"
+	"anim3"							"pistol3"
+}
+
+entityDef ss_hero_player_shotgun {
+	"inherit"						"cin_base"
+	"model"							"ss_hero_player"
+	"anim"							"pistol1"
+	"skin"							"skins/characters/player/ss_shotgun.skin"
+	"num_anims"						"4"
+	"anim1"							"shotgun1"
+	"anim2"							"shotgun2"
+	"anim3"							"shotgun3"
+	"anim4"							"shotgun4"
+}
+
+entityDef ss_hero_player_shotgun2 {
+	"inherit"						"cin_base"
+	"model"							"ss_hero_player"
+	"anim"							"shotty1"
+	"skin"							"skins/characters/player/ss_shotgun.skin"
+	"num_anims"						"17"
+	"anim1"							"shotty1"
+	"anim2"							"shotty2"
+	"anim3"							"shotty3"
+	"anim4"							"shotty4"
+	"anim5"							"shotty5"
+	"anim6"							"shotty6"
+	"anim7"							"shotty7"
+	"anim8"							"shotty8"
+	"anim9"							"shotty9"
+	"anim10"						"shotty10"
+	"anim11"						"shotty11"
+	"anim12"						"shotty12"
+	"anim13"						"shotty13"
+	"anim14"						"shotty14"
+	"anim15"						"shotty15"
+	"anim16"						"shotty16"
+	"anim17"						"shotty17"
+}
+
+
+
+entityDef ss_hero_player_chainsaw {
+	"inherit"						"cin_base"
+	"model"							"ss_hero_player"
+	"anim"							"pistol1"
+	"skin"							"skins/characters/player/ss_chainsaw.skin"
+	"num_anims"						"2"
+	"anim1"							"chainsaw1"
+	"anim2"							"chainsaw2"
+}
+
+entityDef ss_hero_player_machinegun {
+	"inherit"						"cin_base"
+	"model"							"ss_hero_player"
+	"anim"							"pistol1"
+	"skin"							"skins/characters/player/ss_machinegun.skin"
+	"num_anims"						"3"
+	"anim1"							"machinegun1"
+	"anim2"							"machinegun2"
+	"anim3"							"machinegun3"
+}
+
+
+entityDef ss_hk_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim cam_a"					"models/md5/screenshots/hk_cam1.md5camera"
+	"anim cam_b"					"models/md5/screenshots/hk_cam2.md5camera"
+	"anim cam_c"					"models/md5/screenshots/hk_cam3.md5camera"
+	"anim cam_d"					"models/md5/screenshots/hk_cam4.md5camera"
+	"anim cam_e"					"models/md5/screenshots/hk_cam5.md5camera"
+	"anim cam_f"					"models/md5/screenshots/hk_cam6.md5camera"
+	"anim cam_g"					"models/md5/screenshots/hk_cam7.md5camera"
+	"anim cam_h"					"models/md5/screenshots/hk_cam8.md5camera"
+	"anim cam_i"					"models/md5/screenshots/hk_cam9.md5camera"
+	"anim cam_j"					"models/md5/screenshots/hk_cam10.md5camera"
+	"anim cam_k"					"models/md5/screenshots/hk_cam11.md5camera"
+}
+
+model ss_hellknight {
+	mesh							models/md5/monsters/hellknight/hellknight.md5mesh
+	anim hk_a						models/md5/screenshots/hk_hk1.md5anim
+	anim hk_b						models/md5/screenshots/hk_hk2.md5anim
+	anim hk_c						models/md5/screenshots/hk_hk3.md5anim
+	anim hk_d						models/md5/screenshots/hk_hk4.md5anim
+	anim hk_e						models/md5/screenshots/hk_hk5.md5anim
+	anim hk_f						models/md5/screenshots/hk_hk6.md5anim
+	anim hk_g						models/md5/screenshots/hk_hk7.md5anim
+	anim hk_h						models/md5/screenshots/hk_hk8.md5anim
+	anim hk_i						models/md5/screenshots/hk_hk9.md5anim
+	anim hk_j						models/md5/screenshots/hk_hk10.md5anim
+	anim hk_k						models/md5/screenshots/hk_hk11.md5anim
+}
+
+entityDef ss_hellknight {
+	"inherit"						"cin_base"
+	"model"							"ss_hellknight"
+	"anim"							"hk_a"
+	"num_anims"						"11"
+	"anim1"							"hk_a"
+	"anim2"							"hk_b"
+	"anim3"							"hk_c"
+	"anim4"							"hk_d"
+	"anim5"							"hk_e"
+	"anim6"							"hk_f"
+	"anim7"							"hk_g"
+	"anim8"							"hk_h"
+	"anim9"							"hk_i"
+	"anim10"						"hk_j"
+	"anim11"						"hk_k"
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//CGW SCREENSHOT
+
+export fred {
+
+	camera	models/Fred/cgwpose.mb -dest models/md5/anims/ss/cgwcam
+
+	options	-prefix ZJUMP_ -parent Loneck Shoulders -parent chainsaw Rhand
+	mesh		models/monsters/zombie/jumpsuit/cycles/poses.mb -dest models/md5/anims/ss/zjumpmesh
+	//anim		models/Fred/cgwpose.mb -dest models/md5/anims/ss/cgwjump
+	anim		models/monsters/zombie/jumpsuit/cycles/poses.mb -range 1 1 -dest models/md5/anims/ss/zjumppose1
+	anim		models/monsters/zombie/jumpsuit/cycles/poses.mb -range 2 2 -dest models/md5/anims/ss/zjumppose2
+	anim		models/monsters/zombie/jumpsuit/cycles/poses.mb -range 3 3 -dest models/md5/anims/ss/zjumppose3
+	anim		models/monsters/zombie/jumpsuit/cycles/poses.mb -range 4 4 -dest models/md5/anims/ss/zjumppose4
+
+	options -prefix ZSCI_ -keep FOCUSPOINT SurgeFOCUSPOINT SurgeEyes Eyes -parent Rteye_Focus FOCUSPOINT -parent Lfteye_Focus FOCUSPOINT -parent SurgeRteye_Focus SurgeFOCUSPOINT -parent SurgeLfteye_Focus SurgeFOCUSPOINT -parent SurgeFOCUSPOINT SurgeEyes -parent FOCUSPOINT Eyes -parent SurgeEyes SurgeHead -parent Eyes Head -parent SurgeLoneck Shoulders -parent Loneck Shoulders 
+	anim		models/Fred/cgwpose.mb -dest models/md5/anims/ss/cgwzsci
+
+	options -prefix ZSCI2_ -keep FOCUSPOINT SurgeFOCUSPOINT SurgeEyes Eyes -parent Rteye_Focus FOCUSPOINT -parent Lfteye_Focus FOCUSPOINT -parent SurgeRteye_Focus SurgeFOCUSPOINT -parent SurgeLfteye_Focus SurgeFOCUSPOINT -parent SurgeFOCUSPOINT SurgeEyes -parent FOCUSPOINT Eyes -parent SurgeEyes SurgeHead -parent Eyes Head -parent SurgeLoneck Shoulders -parent Loneck Shoulders 
+	anim		models/Fred/cgwpose.mb -dest models/md5/anims/ss/cgwzsci2
+
+	
+	options -prefix GIBS_
+	mesh	models/Fred/cgwpose.mb -dest models/md5/meshes/cgwgibs_mesh	
+	anim	models/Fred/cgwpose.mb -dest models/md5/anims/ss/cgwgibs
+
+}
+
+entityDef ss_cgw_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim cgwcam"					"models/md5/anims/ss/cgwcam.md5camera"
+}
+
+model ss_cgw_zsci {
+	skin							skins/models/monsters/zsci2.skin
+	mesh							models/md5/meshes/zsci.md5mesh
+	anim cgwzsci					models/md5/anims/ss/cgwzsci.md5anim
+}
+
+entityDef ss_cgw_zsci {
+	"inherit"						"cin_base"
+	"model"							"ss_cgw_zsci"
+	"anim"							"cgwzsci"
+}
+
+model ss_cgw_zsci2 {
+	skin							skins/models/monsters/zsci1.skin
+	mesh							models/md5/meshes/zsci.md5mesh
+	anim cgw2zsci					models/md5/anims/ss/cgwzsci2.md5anim
+}
+
+entityDef ss_cgw_zsci2 {
+	"inherit"						"cin_base"
+	"model"							"ss_cgw_zsci2"
+	"anim"							"cgw2zsci"
+}
+
+model ss_cgw_jump {
+	skin							skins/models/monsters/zjumpcs.skin
+
+	mesh							models/md5/anims/ss/zjumpmesh.md5mesh
+	//anim cgwjump					models/md5/anims/ss/cgwjump.md5anim
+	anim pose1						models/md5/anims/ss/zjumppose1.md5anim
+	anim pose2						models/md5/anims/ss/zjumppose2.md5anim
+	anim pose3						models/md5/anims/ss/zjumppose3.md5anim
+	anim pose4						models/md5/anims/ss/zjumppose4.md5anim
+}
+
+entityDef ss_cgw_jump {
+	"inherit"						"cin_base"
+	"model"							"ss_cgw_jump"
+	"anim"							"cgwjump"
+}
+
+model ss_cgw_gibs {
+	mesh							models/md5/meshes/cgwgibs_mesh.md5mesh
+	anim cgwgibs					models/md5/anims/ss/cgwgibs.md5anim
+}
+
+entityDef ss_cgw_gibs {
+	"inherit"						"cin_base"
+	"model"							"ss_cgw_gibs"
+	"anim"							"cgwgibs"
+}
+
+//EW SCREENSHOT
+
+export fred {
+
+	camera		models/Fred/ewpose.mb -dest models/md5/anims/cinematics/ewcam
+
+	options		-prefix ZOMBIE1_
+	addoptions	-parent loneck shoulders	
+	addoptions	-parent Jaw head
+	addoptions	-parent Body2 Body
+	addoptions	-parent waist Body2
+	addoptions  -parent Hips Body2
+	addoptions	-parent Luparm Lshldr
+	addoptions	-parent Lloarm Luparm
+	addoptions	-parent Ruparm Rshldr
+	addoptions	-parent Rloarm Ruparm
+	addoptions	-keep loneck head R_cheek L_cheek Up_lip Lbrow1 Lbrow2 Rbrow1 Rbrow2 llolid luplid rlolid
+	addoptions	-keep ruplid waist chest shoulders Rshldr Lshldr L_shirt R_shirt Back_shirt Luparm loarm_reg
+	addoptions	loarm_stump lrip2 lrip3 lrip1 lrip4 Lloarm Lhand Lcarp Lindex1 Lindex2 Lthumb0
+	addoptions	Lthumb1 Lthumb2 Lthumb3 Lfings1 Lfings2 Lfings3 Lcarp1 Lindex1a Lindex2a Lcarp2
+	addoptions	Lindex1b Lindex2c Ruparm rloarm_reg rloarm_stump rrip1 rrip2 rrip3 rrip4 Rloarm
+	addoptions	Rhand Rcarp Rindex1 Rindex2 Rthumb0 Rthumb1 Rthumb2 Rthumb3 Rfings1 Rfings2 Rfings3
+	addoptions	Rcarp1 Rindex1a Rindex2a Rcarp2 Rindex1b Rindex2b Hips Lupleg Lloleg Lankle_r Lball_r
+	addoptions	Ltoe_r Rupleg Rloleg Rankle_r Rball_r Rtoe_r Jaw Lo_lip Body Body2
+	
+	addoptions -nomesh 
+
+	anim		models/Fred/ewpose.mb -dest models/fred/ewmaint
+
+	options		-prefix FATTY_ -parent pipe Rhand
+	anim		models/Fred/ewpose.mb -dest models/fred/ewfat
+
+	options		-prefix ZJUMP_ -parent Loneck Shoulders -parent chainsaw Rhand
+	anim		models/Fred/ewpose.mb -dest models/fred/ewjump
+}
+
+entityDef ss_ew_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim ewcam"					"models/md5/anims/cinematics/ewcam.md5camera"
+}
+
+model ss_ew_maint {
+	mesh							models/monsters/zombie/zombie01/cycles/ref_fullskin.md5mesh
+	anim ewmaint					models/fred/ewmaint.md5anim
+}
+
+entityDef ss_ew_maint {
+	"inherit"						"cin_base"
+	"model"							"ss_ew_maint"
+	"anim"							"ewmaint"
+}
+
+model ss_ew_fat {
+	skin							skins/models/monsters/fatty.skin
+	mesh							models/md5/meshes/zfat.md5mesh
+	anim ewfat						models/fred/ewfat.md5anim
+}
+
+entityDef ss_ew_fat {
+	"inherit"						"cin_base"
+	"sound_bone"					"Hips"
+	"model"							"ss_ew_fat"
+	"anim"							"ewfat"
+}
+
+model ss_ew_jump {
+	skin							skins/models/monsters/zjumpcs.skin
+	mesh							models/md5/meshes/zjumpsuit.md5mesh
+	anim ewjump						models/fred/ewjump.md5anim
+}
+
+entityDef ss_ew_jump {
+	"inherit"						"cin_base"
+	"model"							"ss_ew_jump"
+	"anim"							"ewjump"
+}
+
+
+//PCG SCREENSHOT
+
+export fred {
+
+	camera	models/Fred/hkp.mb -dest models/md5/anims/cinematics/pcgcam
+
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 0 0 -dest models/md5/screenshots/hk_cam1
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 1 1 -dest models/md5/screenshots/hk_cam2
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 2 2 -dest models/md5/screenshots/hk_cam3
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 3 3 -dest models/md5/screenshots/hk_cam4
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 4 4 -dest models/md5/screenshots/hk_cam5
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 5 5 -dest models/md5/screenshots/hk_cam6
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 6 6 -dest models/md5/screenshots/hk_cam7
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 7 7 -dest models/md5/screenshots/hk_cam8
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 8 8 -dest models/md5/screenshots/hk_cam9
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 9 9 -dest models/md5/screenshots/hk_cam10
+	camera models/monsters/hellknight/screenshots/screenshots.mb -range 10 10 -dest models/md5/screenshots/hk_cam11
+
+
+	options -prefix HK_ -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+	anim	models/Fred/hkp_orig.mb -dest models/md5/anims/cinematics/pcghkpose1 -range 1 1
+
+	options -prefix HK_ -keep lknee1 rknee1 SPINNER rmissile lmissile target forehead1 -parent rmissile rhand -parent lmissile lhand -parent waist SPINNER -parent SPINNER body2 -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+
+
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 0 0 -dest models/md5/screenshots/hk_hk1
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 1 1 -dest models/md5/screenshots/hk_hk2
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 2 2 -dest models/md5/screenshots/hk_hk3
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 3 3 -dest models/md5/screenshots/hk_hk4
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 4 4 -dest models/md5/screenshots/hk_hk5
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 5 5 -dest models/md5/screenshots/hk_hk6
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 6 6 -dest models/md5/screenshots/hk_hk7
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 7 7 -dest models/md5/screenshots/hk_hk8
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 8 8 -dest models/md5/screenshots/hk_hk9
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 9 9 -dest models/md5/screenshots/hk_hk10
+	anim models/monsters/hellknight/screenshots/screenshots.mb -range 10 10 -dest models/md5/screenshots/hk_hk11
+
+
+
+
+
+	options -prefix HK_ -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+	//anim	models/Fred/hkp.mb -dest models/md5/anims/cinematics/pcghkpose2 -range 2 2
+
+	options -prefix PLAYER_ -keep camera PISTOL MACHINEGUN SHOTGUN Lfteye_Focus Rteye_Focus Neck pgbarrel1 pgbarrel2 pgeject -parent Neck Shldrs -parent PISTOL Rhand -parent MACHINEGUN Rhand -parent SHOTGUN Rhand -parent pgbarrel1 pgbody2 -parent pgbarrel2 pgbody2 -parent pgeject pgbody2 -parent pgbody2 Rhand -parent camera Head -parent Lfteye_Focus Head -parent Rteye_Focus Head
+	anim	models/Fred/hkp_orig.mb -dest models/md5/anims/cinematics/pcgplayerpose1 -range 1 1
+
+	options -prefix PLAYER_ -keep camera PISTOL MACHINEGUN SHOTGUN Lfteye_Focus Rteye_Focus Neck pgbarrel1 pgbarrel2 pgeject -parent Neck Shldrs -parent PISTOL Rhand -parent MACHINEGUN Rhand -parent SHOTGUN Rhand -parent pgbarrel1 pgbody2 -parent pgbarrel2 pgbody2 -parent pgeject pgbody2 -parent pgbody2 Rhand -parent camera Head -parent Lfteye_Focus Head -parent Rteye_Focus Head
+	//anim	models/Fred/hkp.mb -dest models/md5/anims/cinematics/pcgplayerpose2 -range 2 2
+}
+
+entityDef ss_pcg_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim pcgcam"					"models/md5/anims/cinematics/pcgcam.md5camera"
+}
+
+model ss_pcg_hk {
+	mesh							models/monsters/hellknight/cycles/idle1.md5mesh
+	anim pcghk						models/md5/anims/cinematics/pcghkpose1.md5anim
+}
+
+entityDef ss_pcg_hk {
+	"inherit"						"cin_base"
+	"model"							"ss_pcg_hk"
+	"anim"							"pcghk"
+}
+
+model ss_pcg_player {
+	skin							skins/player/shotgun.skin
+	mesh							models/md5/meshes/player_full.md5mesh
+	anim pcgplayer					models/md5/anims/cinematics/pcgplayerpose1.md5anim
+}
+
+entityDef ss_pcg_player {
+	"inherit"						"cin_base"
+	"model"							"ss_pcg_player"
+	"sound_bone"					"Hips"
+	"anim"							"pcgplayer"
+}

@@ -1,0 +1,176 @@
+/***********************************************************************
+
+ powerups
+
+***********************************************************************/
+
+entityDef powerup_berserk {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Berserk"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/powerups/berserker.lwo"
+	"respawn"				"180"
+	"time"					"30"
+	"nopulse"				"1"
+	"spin"					"1"
+	"type"					"0"	// MUST MATCH ONE OF THE DEFINES IN PLAYER.H
+
+	"snd_respawn"			"sound_berserk_respawn"
+	"snd_aquire"			"berserker_pickup"
+	"size"					"32 32 32"
+	"inv_name"				"Beserk Powerup"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef powerup_invisibility {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Invisibility"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/powerups/invisibility.lwo"
+	"size"					"32 32 32"
+	"respawn"				"60"
+	"time"					"30"
+	"spin"					"1"
+	"type"					"1"	// MUST MATCH ONE OF THE DEFINES IN PLAYER.H
+	"snd_aquire"			"invisibility_pickup"
+}
+
+entityDef powerup_megahealth {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"MegaHealth"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/powerups/megasphere_world.lwo"
+	"respawn"				"180"
+	"time"					"30"
+	"nopulse"				"1"
+	"spin"					"1"
+	"inv_health"			"200"
+	"type"					"2"	// MUST MATCH ONE OF THE DEFINES IN PLAYER.H
+	"snd_acquire"			"megasphere_pickup"
+	"size"					"32 32 32"
+	"inv_name"				"Megahealth Powerup"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef powerup_adrenaline {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Adrenaline"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/powerups/adrenalin_world.lwo"
+	"respawn"				"0"
+	"time"					"60"
+	"nopulse"				"1"
+	"spin"					"0"
+	"type"					"3"	// MUST MATCH ONE OF THE DEFINES IN PLAYER.H
+	"size"					"32 32 32"
+	"inv_name"				"Adrenaline Powerup"
+	"snd_acquire"			"pickup_adrenaline"
+	"editor_copy100"		"inv_item"	
+}
+/*
+entityDef powerup_chronocaust {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Chronocaust"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/powerups/chronocaust_world.ase"
+	"size"					"32 32 32"
+	"inv_chronocaust"		"30"
+}
+
+entityDef powerup_invulnerability {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Invulnerability"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/powerups/invisibility.lwo"
+	"size"					"32 32 32"
+	"inv_invulnerability"	"30"
+}
+
+entityDef powerup_megasphere {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Megasphere"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/powerups/megasphere_world.lwo"
+	"size"					"32 32 32"
+
+	//FIXME: add effects
+}
+
+entityDef powerup_soulsphere {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Soulsphere"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/powerups/soulsphere_world.ase"
+	"size"					"32 32 32"
+
+	//FIXME: add effects
+}
+
+entityDef powerup_haste {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Haste"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/powerups/haste_world.ase"
+	"respawn"				"60"
+	"time"					"30"
+	"type"					"2"
+	"spin"					"1"
+	"size"					"32 32 32"
+}
+
+entityDef powerup_irgoggles {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"IR Goggles"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/powerups/invulnerability_world.ase"
+	"respawn"				"60"
+	"time"					"30"
+	"type"					"3"
+	"spin"					"1"
+	"size"					"32 32 32"
+}
+
+
+
+*/

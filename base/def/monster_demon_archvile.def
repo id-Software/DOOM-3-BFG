@@ -1,0 +1,314 @@
+/***********************************************************************
+
+	monster_demon_archvile.def
+
+***********************************************************************/
+
+export James {
+ 	options -prefix ARCH_ -keep Lknee Rknee -keep ROT -keep fireball -align movement -parent Waist ROT -parent ROT Body -parent fireball Rhand -sourcedir models/monsters/archvile/cycles -destdir models/md5/monsters/archvile
+
+
+	mesh	archvile_mesh.mb -dest archvile
+	anim	idle.mb
+	anim	stand.mb
+	anim	teleport.mb
+	anim	walk.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	range_attack1.mb
+	anim	range_attack2.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	pain_evade_left.mb
+	anim	pain_evade_right.mb
+	anim	pain_chest1.mb
+	anim	pain_chest2.mb
+	anim	pain_head1.mb
+	anim	pain_head2.mb
+	anim	pain_luparm1.mb
+	anim	pain_luparm2.mb
+	anim	pain_ruparm1.mb
+	anim	pain_ruparm2.mb
+	anim	sight2.mb
+	anim	resurrection.mb
+	anim	af_pose.mb -range 1 1
+}
+
+model monster_demon_archvile {
+	mesh							models/md5/monsters/archvile/archvile.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *Hips origin Body ROT )
+
+	anim idle						models/md5/monsters/archvile/idle.md5anim
+	anim stand						models/md5/monsters/archvile/stand.md5anim
+	anim walk						models/md5/monsters/archvile/walk.md5anim {
+		frame 14						sound_body snd_footstep
+		frame 27						sound_body snd_footstep
+	}
+	anim teleport					models/md5/monsters/archvile/teleport.md5anim {
+		frame 4							sound_body snd_footstep
+		frame 5							sound_body snd_footstep
+		frame 15						sound_voice snd_sight
+	}
+	anim turret_attack				models/md5/monsters/archvile/range_attack2.md5anim {
+		frame 6							sound_voice snd_sight2
+		frame 10						object_call incinerate
+	}
+	anim melee_attack1				models/md5/monsters/archvile/attack1.md5anim {
+		frame 9							sound_body snd_melee
+		frame 11						sound_body snd_footstep
+		frame 12						melee melee_archRightClaw
+		frame 30						sound_body snd_footstep
+	}
+	anim melee_attack2				models/md5/monsters/archvile/attack2.md5anim {
+		frame 7							sound_body snd_footstep
+		frame 9							sound_body snd_melee
+		frame 13						melee melee_archLeftClaw
+		frame 31						sound_body snd_footstep
+	}
+	anim melee_attack3				models/md5/monsters/archvile/attack3.md5anim {
+		frame 8							sound_body snd_melee
+		frame 11						melee melee_archRightClaw
+		frame 13						sound_body snd_footstep
+		frame 31						sound_body snd_footstep
+	}
+	// duplicated attack2 so we have an even # of left/right attacks
+	anim melee_attack4				models/md5/monsters/archvile/attack2.md5anim {
+		frame 7							sound_body snd_footstep
+		frame 9							sound_body snd_melee
+		frame 13						melee melee_archLeftClaw
+		frame 31						sound_body snd_footstep
+	}
+	anim evade_left					models/md5/monsters/archvile/evade_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 5							sound_body snd_footstep
+		frame 12						sound_body snd_footstep
+		frame 17						sound_body snd_footstep
+	}
+	anim evade_right				models/md5/monsters/archvile/evade_right.md5anim {
+		frame 1							sound_voice snd_pain		
+		frame 6							sound_body snd_footstep
+		frame 11						sound_body snd_footstep
+		frame 17						sound_body snd_footstep
+	}
+	anim flamewall_attack			models/md5/monsters/archvile/range_attack1.md5anim {
+		frame 7							sound_body snd_attack
+		frame 8							object_call flame_wall
+	}
+	anim incinerate_attack			models/md5/monsters/archvile/range_attack2.md5anim {
+		frame 5							sound_voice snd_sight2
+		frame 7							sound_body snd_attack
+		frame 10						object_call incinerate
+	}
+	anim pain 						models/md5/monsters/archvile/pain_chest1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest1				models/md5/monsters/archvile/pain_chest1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest2				models/md5/monsters/archvile/pain_chest2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head1					models/md5/monsters/archvile/pain_head1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head2					models/md5/monsters/archvile/pain_head2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm1				models/md5/monsters/archvile/pain_luparm1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm2				models/md5/monsters/archvile/pain_luparm2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm1			models/md5/monsters/archvile/pain_ruparm1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm2			models/md5/monsters/archvile/pain_ruparm2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim sight						models/md5/monsters/archvile/sight2.md5anim {
+		frame 1							sound_voice snd_sight
+	}
+	anim af_pose					models/md5/monsters/archvile/af_pose.md5anim
+		
+	anim ik_pose					models/md5/monsters/archvile/af_pose.md5anim
+	anim resurrection				models/md5/monsters/archvile/resurrection.md5anim {
+		frame 1							sound_body snd_resurrection
+		frame 9							sound_voice snd_sight
+		frame 10						object_call resurrection
+	}
+}
+
+entityDef monster_demon_archvile {
+	"inherit"						"monster_default"
+	"editor_usage"					"Target 1 or more monsters to act as minions.  Minions will remain hidden until they are spawned in by the archvile."
+	"editor_var keep_alive"			"Specifies the number of minions the archvile should keep spawned."
+	"editor_var num_start"			"Specifies the number of minions the archvile should initially spawn."
+	"editor_var target"				"Set to name of monster entity to act as a minion.  Archvile can have any # of targeted minion.  A minion will remain hidden until he is spawned in by the archvile."
+	"editor_var delay"				"How long to wait after minion dies to respawn a new one."
+	"scriptobject"					"monster_demon_archvile"
+	"model"							"monster_demon_archvile"
+	"ragdoll"						"monster_demon_archvile"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"425"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"melee_range"					"48"
+	"bone_focus"					"Head"
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"			"burn_imp.prt-chest"
+	"delay"							"2"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.4 0.4 0"
+	"look_joint Head"				"0.6 0.6 0"
+	
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_scale head"				"2"
+	"mass"   						"350"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Ltoe_r"
+	"ik_foot2"						"Rtoe_r"
+
+	"snd_sight"						"monster_demon_archvile_sight"
+	"snd_sight2"					"monster_demon_archvile_sight2"
+	"snd_chatter"					"monster_demon_archvile_chatter"
+	"snd_chatter_combat"			"monster_demon_archvile_chatter"
+	"snd_pain"						"monster_demon_archvile_pain"
+	"snd_attack"					"monster_demon_archvile_attack"
+	"snd_death"						"monster_demon_archvile_die"
+	"snd_createmissile"				"monster_demon_imp_fireball_create"
+	"snd_footstep"					"monster_demon_archvile_footstep"
+	"snd_resurrection"				"monster_demon_archvile_resurrection"
+	"snd_melee"					"monster_demon_archvile_melee"
+	"snd_burn"						"monster_demon_archvile_burn"
+
+	"smokeParticleSystem"			"rarchhand"
+	"smokeParticleSystem2"			"larchhand"
+
+	// these keys aren't actually used, but just for the game to precache the entitydefs	
+	"def_attack1"					"archvile_incinerate"
+	"def_attack2"					"archvile_flamewall"
+}
+
+entityDef melee_archLeftClaw {
+	// melee specific parameters
+	"snd_hit"					"monster_demon_imp_melee_hit"
+	"snd_miss"					"monster_demon_imp_melee_miss"
+	"kickDir"					"0 -1 0"
+
+
+	// damage parameters
+	"damage"					"12"
+
+	"mtr_blob"					"leftSlash"
+	"blob_time"					"300"
+	"blob_x"					"140"
+	"blob_y"					"-100"
+	"blob_width"				"600"
+	"blob_height"				"600"
+
+	"knockback"					"40"
+
+	"kick_time"					"400"
+	"kick_amplitude"			"2"
+
+	"dv_time"					"100"
+}
+
+entityDef melee_archRightClaw {
+	"snd_hit"					"monster_demon_imp_melee_hit"
+	"snd_miss"					"monster_demon_imp_melee_miss"
+	"kickDir"					"0 1 0"
+
+	"damage"					"12"
+
+	"mtr_blob"					"rightSlash"
+	"blob_time"					"300"
+	"blob_x"					"-100"
+	"blob_y"					"-100"
+	"blob_width"				"600"
+	"blob_height"				"600"
+
+	"knockback"					"30"
+
+	"kick_time"					"400"
+	"kick_amplitude"			"2"
+
+	"dv_time"					"100"
+}
+
+entityDef damage_archvilefirewall {
+	"damage"			"20"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"10"
+
+	"smoke_wound_flesh"	"bloodwound.smoke"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+}
+
+entityDef archvile_flamewall {
+	"spawnclass"				"idTrigger_Hurt"
+	"model"						"archvile_flamewall.prt"
+	"size"						"48 48 128"
+	"cylinder"					"6"
+	"def_damage"				"damage_archvilefirewall"
+	"snd_fly"					"archvile_fireloop"					
+}
+
+entityDef damage_archvileincinerate {
+	"damage"			"20"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"10"
+
+	"smoke_wound_flesh"	"bloodwound.smoke"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+}
+
+entityDef archvile_incinerate {
+	"spawnclass"				"idTrigger_Hurt"
+	"model"						"archvile_flamewall_2b.prt"
+	"size"						"48 48 128"
+	"cylinder"					"6"
+	"def_damage"				"damage_archvileincinerate"
+}

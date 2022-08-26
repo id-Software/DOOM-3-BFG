@@ -1,0 +1,37 @@
+export jay3 {
+
+	options -prefix ZOMBIE_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh Hazmatbeam
+	addoptions -keepmesh Hazmatbody
+	addoptions -keepmesh Hazmatflare
+	addoptions -keepmesh Hazmatlight
+	addoptions -keepmesh Hazmatvisor
+
+	mesh	models/monsters/zombie/hazmat_zombie/zombie_mesh.mb -rotate 90 -dest models/md5/monsters/zombies/hazmat_zombie/hazmat_zombie
+}
+
+entityDef monster_zombie_hazmat_exis {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_hazmat"
+	"anim"							"idle1"
+	"def_head"						"head_zombie_hazmat"
+	"head_joint"					"Shoulders"
+
+	"def_dropDeathItem"				"moveable_item_aircannister_exis"
+	"dropDeathItemJoint"			"Shoulders"
+
+	"skin_dropGib"					"skins/monsters/zombie/hazmat_zombie/hazmatdead.skin"
+
+	"snd_sight"						"zslime_sight"
+	"snd_sight1"					"zslime_sight"
+	"snd_footstep"					"monster_zombie_maint_footstep"
+	"snd_attack"					"zslime_attack"
+	"snd_chatter"					"zslime_chatter"
+	"snd_chatter_combat"			"zslime_chatter_combat"
+	"snd_pain"						"zslime_pain"
+	"snd_thud"						"monster_zombie_maint_thud"
+	"snd_swipe"						"monster_zombie_maint_swipe"
+	"snd_ambient"					"zslime_regulator"
+	"snd_death"						"zslime_death"
+}

@@ -1,0 +1,23 @@
+export seneca {
+
+	options -prefix GOO_
+	
+	mesh	models/mapobjects/commoutside/work/commo_hellgoo1_screwy.mb -dest models/md5/cinematics/commoutside/goo
+	//anim	models/mapobjects/commoutside/work/commo_hellgoo1_screwy.mb -range 1 1 -dest models/md5/cinematics/commoutside/goo_idle
+	anim	models/mapobjects/commoutside/work/commo_hellgoo1_screwy.mb -dest models/md5/cinematics/commoutside/goo
+}
+
+model commoutside_hellgoo1 {
+	mesh							models/md5/cinematics/commoutside/goo.md5mesh
+	anim dooropen					models/md5/cinematics/commoutside/goo.md5anim 
+}
+
+entityDef commoutside_hellgoo1 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idAnimated"
+	"model"							"commoutside_hellgoo1"
+}
+

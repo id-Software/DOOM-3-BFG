@@ -1,0 +1,362 @@
+/***********************************************************************
+
+	monster_demon_d3xp_bruiser.def
+
+***********************************************************************/
+
+export bmatt_test {
+ 	options -prefix B_ -keep Lknee Rknee -keep ROT -align movement -parent spine_1 ROT -parent ROT body -sourcedir models/monsters/d3xp_bruiser/cycles -destdir models/md5/monsters/d3xp_bruiser
+
+	mesh	d3xp_bruiser_mesh.mb -dest d3xp_bruiser
+	anim	af_pose.mb
+	anim	idle.mb
+	anim	sight.mb
+	anim	walk.mb
+	anim	pain_left.mb
+	anim	pain_right.mb
+	anim	range_attack1.mb
+	anim	range_attack2.mb
+	anim	range_attack3.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	teleport.mb
+}
+
+model monster_demon_d3xp_bruiser {
+	mesh							models/md5/monsters/d3xp_bruiser/d3xp_bruiser.md5mesh
+	channel torso					( *spine_1 )
+	channel legs					( *Hips origin body ROT )
+
+	anim af_pose					models/md5/monsters/d3xp_bruiser/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/d3xp_bruiser/af_pose.md5anim
+	anim idle						models/md5/monsters/d3xp_bruiser/idle.md5anim
+	anim stand						models/md5/monsters/d3xp_bruiser/idle.md5anim
+	anim sight						models/md5/monsters/d3xp_bruiser/sight.md5anim {
+		frame 11						sound_voice snd_sight
+	}
+
+	anim walk						models/md5/monsters/d3xp_bruiser/walk.md5anim {
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim run						models/md5/monsters/d3xp_bruiser/walk.md5anim {
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim pain						models/md5/monsters/d3xp_bruiser/pain_left.md5anim {
+		frame 3							sound_voice snd_pain
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim pain_left_arm				models/md5/monsters/d3xp_bruiser/pain_left.md5anim {
+		frame 3							sound_voice snd_pain
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim pain_right_arm				models/md5/monsters/d3xp_bruiser/pain_right.md5anim {
+		frame 3							sound_voice snd_pain
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim pain_legs					models/md5/monsters/d3xp_bruiser/pain_right.md5anim {
+		frame 3							sound_voice snd_pain
+		frame 11						sound_body snd_footstep
+		frame 26						sound_body snd_footstep
+	}
+
+	anim pain_chest					models/md5/monsters/d3xp_bruiser/pain_left.md5anim {
+		frame 3							sound_voice snd_pain
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim pain_head					models/md5/monsters/d3xp_bruiser/pain_left.md5anim {
+
+		frame 3							sound_voice snd_pain
+		frame 11						sound_body snd_footstep
+		frame 26						sound_body snd_footstep
+	}
+
+	anim melee_attack1				models/md5/monsters/d3xp_bruiser/attack1.md5anim {
+		frame 15							melee melee_bRightClaw
+		frame 11						sound_body snd_footstep
+		frame 12						sound_body2 snd_attackmelee_1
+		frame 13						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+	}
+
+	anim melee_attack2				models/md5/monsters/d3xp_bruiser/attack2.md5anim {
+		frame 15							melee melee_bLeftClaw
+		frame 11						sound_body snd_footstep
+		frame 12						sound_body2 snd_attackmelee_1
+		frame 13						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+	}
+
+	anim range_attack1				models/md5/monsters/d3xp_bruiser/range_attack1.md5anim {
+		frame 3							sound_weapon snd_attackmissile
+		frame 3								launch_missile flame_l
+		frame 20						sound_weapon snd_attackmissile
+		frame 20							launch_missile flame_r
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+	anim range_attack2				models/md5/monsters/d3xp_bruiser/range_attack2.md5anim {
+		frame 3							sound_weapon snd_attackmissile
+		frame 3								launch_missile flame_l
+		frame 8							sound_weapon snd_attackmissile
+		frame 8								launch_missile flame_r
+		frame 15						sound_weapon snd_attackmissile
+		frame 15							launch_missile flame_l
+		frame 20						sound_weapon snd_attackmissile
+		frame 20							launch_missile flame_l
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+	anim range_attack3				models/md5/monsters/d3xp_bruiser/range_attack3.md5anim {
+		frame 3							sound_weapon snd_attackmissile
+		frame 3								launch_missile flame_l
+		frame 8							sound_weapon snd_attackmissile
+		frame 8								launch_missile flame_r
+		frame 15						sound_weapon snd_attackmissile
+		frame 15							launch_missile flame_l
+		frame 20						sound_weapon snd_attackmissile
+		frame 20							launch_missile flame_l
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim turret_attack				models/md5/monsters/d3xp_bruiser/range_attack1.md5anim {
+		frame 3							sound_weapon snd_attackmissile
+		frame 3								launch_missile flame_l
+		frame 20						sound_weapon snd_attackmissile
+		frame 20							launch_missile flame_r
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 26						sound_body snd_footstep
+		frame 26						sound_body2 snd_deepfs
+	}
+
+	anim evade_left				models/md5/monsters/d3xp_bruiser/evade_left.md5anim {
+		frame 1							sound_voice snd_chatter_combat
+		frame 7							sound_body snd_footstep
+		frame 7							sound_body2 snd_deepfs
+		frame 14						sound_body snd_footstep
+		frame 14						sound_body2 snd_deepfs
+	}
+
+	anim evade_right				models/md5/monsters/d3xp_bruiser/evade_right.md5anim {
+		frame 1							sound_voice snd_chatter_combat
+		frame 7							sound_body snd_footstep
+		frame 7							sound_body2 snd_deepfs
+		frame 14						sound_body snd_footstep
+		frame 14						sound_body2 snd_deepfs
+	}
+
+	anim teleport					models/md5/monsters/d3xp_bruiser/teleport.md5anim {
+		frame 11						sound_voice snd_sight
+	}
+
+}
+
+entityDef monster_demon_d3xp_bruiser {
+	//"chatter_min"					"4"
+	//"chatter_max"					"10"
+	"chatter_combat_min"			"3"
+	"chatter_combat_max"			"7"
+	"inherit"						"monster_default"
+	"model"							"monster_demon_d3xp_bruiser"
+	"scriptobject"					"monster_demon_d3xp_bruiser"
+	"ragdoll"						"monster_demon_d3xp_bruiser"
+	"size"							"94 94 96"
+	"use_aas"						"aas96"
+	"team"						    "1"
+	"rank"						    "2"
+	"health"						"825"
+	"def_projectile"				"projectile_bruiser_rocket"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"melee_range"					"48"
+	//"bone_focus"					"neck_1"
+	"burnaway"					    "0.50"
+	"smoke_burnParticleSystem"	    "burn_imp.prt-spine_3"
+	"delay" 						"2"
+
+	//"look_min"						"-90 -125 0"
+	//"look_max"						"25 125 0"
+	//"look_joint spine_1"			"0.4 0.4 0"
+	//"look_joint neck_3"				"0.6 0.6 0"
+
+	"damage_zone head"				"*neck_2"
+	"damage_zone chest"				"*spine_1 -*r_clav -*l_clav -*neck_2"
+	"damage_zone left_arm"			"*r_clav"
+	"damage_zone right_arm"			"*l_clav"
+	"damage_scale head"				"2"
+	"mass"   						"1200"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_footDownTrace"				"64"
+	"ik_waist"						"body"
+	"ik_hip1"						"l_upleg"
+	"ik_hip2"						"r_upleg"
+	"ik_knee1"						"l_midleg"
+	"ik_knee2"						"r_midleg"
+	"ik_ankle1"						"l_loleg"
+	"ik_ankle2"						"r_loleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"l_balls"
+	"ik_foot2"						"r_balls"
+
+	"snd_sight"						"bruiser_sight"
+	//"snd_chatter"					"monster_demon_guardian_chatter"
+	"snd_chatter_combat"			"bruiser_chatter_combat"
+	"snd_pain"						"bruiser_pain"
+	"snd_deepfs"					"bruiser_deepfs"
+	"snd_attackmelee_1"				"bruiser_melee"
+	"snd_attackmissile"				"bruiser_fire"
+	"snd_death"						"bruiser_death"
+	"snd_footstep"					"bruiser_fs"
+	"snd_reload"					"bruiser_reload"
+	//"snd_burn"					"monster_demon_mancubus_burn"
+
+	"fx_teleport"					"fx/teleporter_96.fx"
+	"fx_teleport1"					"fx/teleporter1_96.fx"
+	"fx_teleport2"					"fx/teleporter2_96.fx"
+	"fx_teleport3"					"fx/teleporter3_96.fx"
+
+	"gui"							"guis/bruiser/bruiser.gui"
+}
+
+entityDef melee_bLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters
+	"damage"						"16"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_bRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"16"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"30"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef projectile_bruiser_rocket {
+	"spawnclass"					"idProjectile"
+	"mins"							"-8 -8 -8"
+	"maxs"							"8 8 8"
+	"cone"							"3"
+	"model" 						"manc_fireball.prt"
+
+	"bindOnImpact"					"0"
+
+	"def_damage"					"damage_mancubusblast"
+	"def_splash_damage"				"damage_mancubusSplash"
+
+	"launchFromBarrel"				"1"
+	"health"						"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"700 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_shader_spin"			"1"					// sets shader parm 5 which if appropriate the projectile shader will use this as an alternating spin
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"100"
+	"gravity"						"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"70"
+
+	"smoke_fly"						"plasmatrail.smoke"	// particle effect while in the air
+	"smoke_detonate"				""					// particle effect when detonates
+	"smoke_residue"					""					// particle effect while in the air
+	"smoke_bounce"					""					// particle effect when bounces
+	"smoke_fuse"					""					// particle effect when removed from fuse expiring
+
+	"model_detonate"				"manc_explosion.prt"
+
+	"mtr_light_shader"				""
+	"light_color"					"0.8 0.3 0"
+	"light_radius"					"160"
+	"light_offset"					"-8 0 0"
+
+	"mtr_explode_light_shader"		"muzzleflash"
+	"explode_light_color"			"1 0.4 0"
+	"explode_light_radius"			"160"
+	"explode_light_fadetime"		"0.25"
+
+	"snd_fly"						"monster_demon_imp_fireball_flight"					// sound effect while in the air
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+}

@@ -1,0 +1,530 @@
+//////////////////////////////////////////////
+//Gravity Gun Intro Cinematic
+//////////////////////////////////////////////
+
+
+//////////////////////////////////////////////
+//Exports
+//////////////////////////////////////////////
+
+export eric {
+
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 0 64			-dest models/md5/cinematics/gravgun_intro/gravgun_camera_a
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 65 148		-dest models/md5/cinematics/gravgun_intro/gravgun_camera_b
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 149 213		-dest models/md5/cinematics/gravgun_intro/gravgun_camera_c
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 214 278		-dest models/md5/cinematics/gravgun_intro/gravgun_camera_d
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 279 363	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_e
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 364 384	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_f
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 385 423	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_g
+	camera	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 442 530	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_h
+	//ending camera export
+	camera	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 0 50	 		-dest models/md5/cinematics/gravgun_intro/gravgun_camera_end_a
+	camera	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 51 175	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_end_b
+	camera	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 176 210	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_end_c
+	camera	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 211 250	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_end_d
+	camera	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 251 342	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_end_e
+	camera	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 343 430	 	-dest models/md5/cinematics/gravgun_intro/gravgun_camera_end_f
+	//start camera export
+	camera	models/characters/mocap/gravity/GGun_new_start.mb			-range 0 81	 		-dest models/md5/cinematics/gravgun_intro/gravgun_camera_start_a
+	camera	models/characters/mocap/gravity/GGun_new_fill.mb			-range 0 40	 		-dest models/md5/cinematics/gravgun_intro/gravgun_camera_fill
+
+	options -prefix IMP1_ -keep fireball
+
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 0 64			-dest models/md5/cinematics/gravgun_intro/imp_a
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 65 148		-dest models/md5/cinematics/gravgun_intro/imp_b
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 149 213		-dest models/md5/cinematics/gravgun_intro/imp_c
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 214 278		-dest models/md5/cinematics/gravgun_intro/imp_d
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 279 363		-dest models/md5/cinematics/gravgun_intro/imp_e
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 364 384		-dest models/md5/cinematics/gravgun_intro/imp_f
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 385 423		-dest models/md5/cinematics/gravgun_intro/imp_g
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 442 530		-dest models/md5/cinematics/gravgun_intro/imp_h
+
+
+	options -prefix GGUN1_ -keep Neck grabfx grabfx2 grabfx3 grabfx4 grabfx5 grabfx6 grabfx7 grabfx8 grabfx9 grabfx10 grabfx11 grabfx12 grabfx13
+	mesh	models/characters/cinematic_models/stock_marine_gravitygun_eric.mb	-dest models/md5/cinematics/gravgun_intro/marine_gravmesh
+
+	options -prefix GGUN1_ -keep Neck grabfx grabfx2 grabfx3 grabfx4 grabfx5 grabfx6 grabfx7 grabfx8 grabfx9 grabfx10 grabfx11 grabfx12 grabfx13
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 0 64 		-dest models/md5/cinematics/gravgun_intro/marine_a
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 65 148		-dest models/md5/cinematics/gravgun_intro/marine_b
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 149 213		-dest models/md5/cinematics/gravgun_intro/marine_c
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 214 278		-dest models/md5/cinematics/gravgun_intro/marine_d
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 279 363		-dest models/md5/cinematics/gravgun_intro/marine_e
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 364 384		-dest models/md5/cinematics/gravgun_intro/marine_f
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 385 423		-dest models/md5/cinematics/gravgun_intro/marine_g
+	anim	models/characters/mocap/gravity/GGun_whole_fix.mb		-range 442 530		-dest models/md5/cinematics/gravgun_intro/marine_h
+	//ggun ending animations
+	options -prefix ggun2_
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 0 50	 		-dest models/md5/cinematics/gravgun_intro/gravgun_marine_end_a
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 51 175	 	-dest models/md5/cinematics/gravgun_intro/gravgun_marine_end_b
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 176 210	 	-dest models/md5/cinematics/gravgun_intro/gravgun_marine_end_c
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 211 250	 	-dest models/md5/cinematics/gravgun_intro/gravgun_marine_end_d
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 251 342	 	-dest models/md5/cinematics/gravgun_intro/gravgun_marine_end_e
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 343 430	 	-dest models/md5/cinematics/gravgun_intro/gravgun_marine_end_f
+
+	options -prefix player2_
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 0 50	 		-dest models/md5/cinematics/gravgun_intro/gravgun_player_end_a
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 51 175	 	-dest models/md5/cinematics/gravgun_intro/gravgun_player_end_b
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 176 210	 	-dest models/md5/cinematics/gravgun_intro/gravgun_player_end_c
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 211 250	 	-dest models/md5/cinematics/gravgun_intro/gravgun_player_end_d
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 251 342	 	-dest models/md5/cinematics/gravgun_intro/gravgun_player_end_e
+	anim	models/characters/mocap/gravity/GGun_with_new_ending.mb		-range 343 430	 	-dest models/md5/cinematics/gravgun_intro/gravgun_player_end_f
+
+	options -prefix player1_
+	anim	models/characters/mocap/gravity/GGun_new_fill.mb			-range 0 40	 		-dest models/md5/cinematics/gravgun_intro/gravgun_player_fill
+
+	options -prefix player_
+	anim	models/characters/mocap/gravity/GGun_new_start.mb			-range 0 81	 		-dest models/md5/cinematics/gravgun_intro/gravgun_player_start_a
+
+}
+
+
+//////////////////////////////////////////////
+//Cameras
+//////////////////////////////////////////////
+
+entityDef erebus1_cinematic_camera {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim gravgun_camera_a"			"models/md5/cinematics/gravgun_intro/gravgun_camera_a.camera"
+	"anim gravgun_camera_b"			"models/md5/cinematics/gravgun_intro/gravgun_camera_b.camera"
+	"anim gravgun_camera_c"			"models/md5/cinematics/gravgun_intro/gravgun_camera_c.camera"
+	"anim gravgun_camera_d"			"models/md5/cinematics/gravgun_intro/gravgun_camera_d.camera"
+	"anim gravgun_camera_e"			"models/md5/cinematics/gravgun_intro/gravgun_camera_e.camera"
+	"anim gravgun_camera_f"			"models/md5/cinematics/gravgun_intro/gravgun_camera_f.camera"
+	"anim gravgun_camera_g"			"models/md5/cinematics/gravgun_intro/gravgun_camera_g.camera"
+	"anim gravgun_camera_h"			"models/md5/cinematics/gravgun_intro/gravgun_camera_h.camera"
+
+	"anim gravgun_camera_end_a"			"models/md5/cinematics/gravgun_intro/gravgun_camera_end_a.camera"
+	"anim gravgun_camera_end_b"			"models/md5/cinematics/gravgun_intro/gravgun_camera_end_b.camera"
+	"anim gravgun_camera_end_c"			"models/md5/cinematics/gravgun_intro/gravgun_camera_end_c.camera"
+	"anim gravgun_camera_end_d"			"models/md5/cinematics/gravgun_intro/gravgun_camera_end_d.camera"
+	"anim gravgun_camera_end_e"			"models/md5/cinematics/gravgun_intro/gravgun_camera_end_e.camera"
+	"anim gravgun_camera_end_f"			"models/md5/cinematics/gravgun_intro/gravgun_camera_end_f.camera"
+
+	"anim gravgun_camera_start_a"		"models/md5/cinematics/gravgun_intro/gravgun_camera_start_a.camera"
+	"anim gravgun_camera_fill"			"models/md5/cinematics/gravgun_intro/gravgun_camera_fill.camera"
+	"cinematic"						"1"
+
+}
+
+
+//////////////////////////////////////////////
+//Wounded Marine Mocap
+//////////////////////////////////////////////
+
+model erebus1_cinematic_marine_gravitygun {
+
+	mesh								models/md5/cinematics/gravgun_intro/marine_gravmesh.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim ggun_a							models/md5/cinematics/gravgun_intro/marine_a.md5anim {
+		frame 1								sound_voice grabber_cin_idle
+		frame 1								sound_voice2	grabber_marine_breathe
+		frame 1								sound_body snd_footstep
+		frame 14							sound_body snd_footstep
+		//frame 28							sound_body snd_footstep
+	}
+	anim ggun_b							models/md5/cinematics/gravgun_intro/marine_b.md5anim {
+		frame 64								sound_body grabber_marine_huh
+	}
+	anim ggun_c							models/md5/cinematics/gravgun_intro/marine_c.md5anim
+	anim ggun_d							models/md5/cinematics/gravgun_intro/marine_d.md5anim {
+		frame 28							sound_body	grabber_marine_grunt
+		frame 35							start_emitter gravgun_fx grabfx grabber_fx.prt
+		frame 35							sound_body	grabber_cin_mainfire
+		frame 35							sound_voice grabber_cin_electro
+		frame 35							sound_voice2 grabber_cin_fireloop
+		frame 35							start_emitter gravgun_fx_flash grabfx grabber_fx_flash.prt
+		frame 35							trigger_fx grabfx fx/grabber_fx.fx
+		frame 35							start_emitter beamfx1 grabfx grabber_fx_beam.prt
+		frame 36							start_emitter beamfx2 grabfx2 grabber_fx_beam.prt
+		frame 37							start_emitter beamfx3 grabfx3 grabber_fx_beam.prt
+		frame 36							start_emitter beamfx4 grabfx4 grabber_fx_beam.prt
+		frame 35							start_emitter beamfx5 grabfx5 grabber_fx_beam.prt
+		frame 36							start_emitter beamfx6 grabfx6 grabber_fx_beam.prt
+		frame 37							start_emitter beamfx7 grabfx7 grabber_fx_beam.prt
+		frame 36							start_emitter beamfx8 grabfx8 grabber_fx_beam.prt
+		frame 35							start_emitter beamfx9 grabfx9 grabber_fx_beam.prt
+		frame 37							start_emitter beamfx10 grabfx10 grabber_fx_beam.prt
+		frame 35							start_emitter beamfx11 grabfx11 grabber_fx_beam.prt
+		frame 36							start_emitter beamfx12 grabfx12 grabber_fx_beam.prt
+
+//		frame 35							start_emitter beamfx13 grabfx13 grabber_fx_beam.prt
+
+		frame 50							start_emitter beam_end grabfx13 grabber_fx2.prt
+
+	}
+	anim ggun_e							models/md5/cinematics/gravgun_intro/marine_e.md5anim
+	anim ggun_f							models/md5/cinematics/gravgun_intro/marine_f.md5anim {
+		frame 1								stop_emitter gravgun_fx_flash
+		frame 10							start_emitter gravgun_fx_flash2 grabfx grabber_fx_flash.prt
+		frame 10							sound_voice grabber_cin_release
+		frame 10							sound_voice2 grabber_cin_silent
+		frame 10							sound_body grabber_cin_silent
+		frame 15							stop_emitter gravgun_fx
+		frame 15							stop_emitter beamfx1
+		frame 15							stop_emitter beamfx2
+		frame 15							stop_emitter beamfx3
+		frame 15							stop_emitter beamfx4
+		frame 15							stop_emitter beamfx5
+		frame 15							stop_emitter beamfx6
+		frame 15							stop_emitter beamfx7
+		frame 15							stop_emitter beamfx8
+		frame 15							stop_emitter beamfx9
+		frame 15							stop_emitter beamfx10
+		frame 15							stop_emitter beamfx11
+		frame 15							stop_emitter beamfx12
+//		frame 15							stop_emitter beamfx13
+		frame 15							stop_emitter beam_end
+
+	}
+	anim ggun_g							models/md5/cinematics/gravgun_intro/marine_g.md5anim {
+		frame 1								stop_emitter gravgun_fx_flash2
+
+	}
+	anim ggun_h							models/md5/cinematics/gravgun_intro/marine_h.md5anim {
+		frame	14							sound_voice		e1_fall_01
+		frame	25							sound_voice2	e1_fall_02
+	}
+
+}
+
+entityDef erebus1_cinematic_marine_gravitygun {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_cinematic_marine_gravitygun"
+	"anim"							"ggun_a"
+
+	"skin"							"skins/characters/player/d3xp_cine_beatup"
+
+	"num_cinematics"				"8"
+	"anim1"							"ggun_a"
+	"anim2"							"ggun_b"
+	"anim3"							"ggun_c"
+	"anim4"							"ggun_d"
+	"anim5"							"ggun_e"
+	"anim6"							"ggun_f"
+	"anim7"							"ggun_g"
+	"anim8"							"ggun_h"
+
+
+	"cinematic"						"1"
+
+	"model_blah1"					"grabber_fx.prt"
+	"model_blah2"					"grabber_fx_flash.prt"
+	"model_blah3"					"grabber_fx_beam.prt"
+	"model_blah4"					"grabber_fx2.prt"
+
+	"snd_footstep"				"player_sounds_footstep"
+}
+
+//////////////////////////////////////////////
+//Wounded Marine Mocap Ending
+//////////////////////////////////////////////
+
+
+model erebus1_cinematic_marine_gravitygun_end {
+
+	mesh								models/md5/cinematics/intro/stock_marine_gravitygun.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim ggun_end_a							models/md5/cinematics/gravgun_intro/gravgun_marine_end_a.md5anim
+	anim ggun_end_b							models/md5/cinematics/gravgun_intro/gravgun_marine_end_b.md5anim {
+		frame 4									sound_voice e1_dying_marine_grabber
+	}
+	anim ggun_end_c							models/md5/cinematics/gravgun_intro/gravgun_marine_end_c.md5anim
+	anim ggun_end_d							models/md5/cinematics/gravgun_intro/gravgun_marine_end_d.md5anim {
+		frame	35								sound_body2	e1_push_grabber					// -Xian
+	}
+	anim ggun_end_e							models/md5/cinematics/gravgun_intro/gravgun_marine_end_e.md5anim
+	anim ggun_end_f							models/md5/cinematics/gravgun_intro/gravgun_marine_end_f.md5anim
+
+}
+
+entityDef erebus1_cinematic_marine_gravitygun_end {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_cinematic_marine_gravitygun_end"
+	"anim"							"ggun_end_a"
+	"skin"							"skins/characters/player/d3xp_cine_beatup"
+	"num_cinematics"				"6"
+	"anim1"							"ggun_end_a"
+	"anim2"							"ggun_end_b"
+	"anim3"							"ggun_end_c"
+	"anim4"							"ggun_end_d"
+	"anim5"							"ggun_end_e"
+	"anim6"							"ggun_end_f"
+
+	"cinematic"						"1"
+
+}
+
+//////////////////////////////////////////////
+//Player Mocap End
+//////////////////////////////////////////////
+
+model erebus1_cinematic_player_end {
+	mesh								models/md5/cinematics/erebus5/e5_player.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim plr_ggun_end_a					models/md5/cinematics/gravgun_intro/gravgun_player_end_a.md5anim {
+		frame	18						sound_body	player_sounds_footstep
+		frame	29						sound_body2	player_sounds_footstep
+	
+	}
+	anim plr_ggun_end_b					models/md5/cinematics/gravgun_intro/gravgun_player_end_b.md5anim
+	anim plr_ggun_end_c					models/md5/cinematics/gravgun_intro/gravgun_player_end_c.md5anim
+	anim plr_ggun_end_d					models/md5/cinematics/gravgun_intro/gravgun_player_end_d.md5anim
+	anim plr_ggun_end_e					models/md5/cinematics/gravgun_intro/gravgun_player_end_e.md5anim
+	anim plr_ggun_end_f					models/md5/cinematics/gravgun_intro/gravgun_player_end_f.md5anim
+
+}
+
+entityDef erebus1_cinematic_player_end {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_cinematic_player_end"
+	"anim"							"plr_ggun_end_a"
+
+	"num_cinematics"				"6"
+
+	"anim1"							"plr_ggun_end_a"
+	"anim2"							"plr_ggun_end_b"
+	"anim3"							"plr_ggun_end_c"
+	"anim4"							"plr_ggun_end_d"
+	"anim5"							"plr_ggun_end_e"
+	"anim6"							"plr_ggun_end_f"
+
+	"cinematic"						"1"
+
+}
+
+//////////////////////////////////////////////
+//Player Mocap Start
+//////////////////////////////////////////////
+
+model erebus1_cinematic_player_start {
+	mesh								models/md5/cinematics/erebus5/e5_player.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim plr_ggun_start_a				models/md5/cinematics/gravgun_intro/gravgun_player_start_a.md5anim {
+		frame	1			sound_voice		player_sounds_footstep		// -Xian
+		frame	12			sound_voice2	player_sounds_footstep		// -Xian
+		frame	26			sound_voice		player_sounds_footstep		// -Xian
+		frame	60			sound_global e1_grabber_transition
+	}
+
+}
+
+entityDef erebus1_cinematic_player_start {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_cinematic_player_start"
+	"anim"							"plr_ggun_start_a"
+
+	"num_cinematics"				"1"
+
+	"anim1"							"plr_ggun_start_a"
+
+	"cinematic"						"1"
+
+}
+
+
+//////////////////////////////////////////////
+//Player Mocap Fill
+//////////////////////////////////////////////
+
+model erebus1_cinematic_player_fill {
+	mesh								models/md5/cinematics/erebus5/e5_player.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim plr_ggun_fill					models/md5/cinematics/gravgun_intro/gravgun_player_fill.md5anim {
+		frame	1						sound_body	player_sounds_footstep				// -Xian
+		frame	18						sound_body2	player_sounds_footstep				// -Xian
+		frame	32						sound_body	player_sounds_footstep				// -Xian
+	}	
+
+}
+
+entityDef erebus1_cinematic_player_fill {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_cinematic_player_fill"
+	"anim"							"plr_ggun_start_a"
+
+	"num_cinematics"				"1"
+
+	"anim1"							"plr_ggun_fill"
+
+	"cinematic"						"1"
+
+}
+
+
+//////////////////////////////////////////////
+//IMP
+//////////////////////////////////////////////
+
+model erebus1_cinematic_imp {
+	mesh							models/md5/cinematics/intro/imp.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim idle						models/md5/cinematics/gravgun_intro/imp_a.md5anim
+
+	anim imp_a						models/md5/cinematics/gravgun_intro/imp_a.md5anim{
+		frame 1							call map_erebus1::InitImpLight
+	}
+	anim imp_b						models/md5/cinematics/gravgun_intro/imp_b.md5anim{
+		frame 20								sound_body grabber_imp_sight
+		//frame 50								sound_voice grabber_imp_sight2
+		frame 60								sound_voice2 grabber_imp_thud
+	}
+	anim imp_c						models/md5/cinematics/gravgun_intro/imp_c.md5anim {
+		frame 4								sound_voice2 grabber_imp_yell
+	//	frame 60							trigger_fx fireball fx/implight.fx
+		frame 60							call map_erebus1::ImpLightOn
+		frame 60							sound_voice grabber_imp_attack
+		frame 60							sound_body monster_demon_imp_fireball_create
+		frame 60							start_emitter impfireball fireball impfireball2.prt
+	}
+	anim imp_d						models/md5/cinematics/gravgun_intro/imp_d.md5anim {
+		frame 28							sound_body monster_demon_imp_fireball_throw
+		frame 28							sound_voice monster_demon_imp_fireball_flight
+	}
+	anim imp_e						models/md5/cinematics/gravgun_intro/imp_e.md5anim {
+		frame 10							sound_body 	grabber_imp_idle
+		frame 60							sound_voice2  grabber_imp_idle2
+	}
+	anim imp_f						models/md5/cinematics/gravgun_intro/imp_f.md5anim
+	anim imp_g						models/md5/cinematics/gravgun_intro/imp_g.md5anim {
+		frame 1							event preBurn
+		frame 2							event burn
+		frame 2							sound_voice2 monster_demon_imp_fireball_explode
+		frame 2							sound_voice monster_demon_imp_die
+		frame 2							sound_body monster_demon_archvile_burn
+		frame 5							stop_emitter impfireball
+		frame 5							call map_erebus1::ImpLightOff
+		//frame 5							start_emitter explosion Back_high burn_imp.prt
+	}
+	anim imp_h						models/md5/cinematics/gravgun_intro/imp_h.md5anim{
+		frame 1							stop_emitter explosion
+	}
+
+}
+
+entityDef erebus1_cinematic_imp {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_cinematic_imp"
+	"anim"							"imp_a"
+	"smoke_burnParticleSystem"			"burn_imp.prt-Back_high"
+
+	"num_cinematics"						"8"
+	"anim1"							"imp_a"
+	"anim2"							"imp_b"
+	"anim3"							"imp_c"
+	"anim4"							"imp_d"
+	"anim5"							"imp_e"
+	"anim6"							"imp_f"
+	"anim7"							"imp_g"
+	"anim8"							"imp_h"
+
+
+	"cinematic"						"1"
+
+	"lights_off"					"1"
+
+}
+
+
+
+
+//////////////////////////////////////////////
+//Ragdoll Marine Dying
+//////////////////////////////////////////////
+
+
+model erebus1_ggun_marine_die {
+	inherit						npc_marine
+	//anim die						models/md5/cinematics/gravgun_intro/marine_die.md5anim
+	anim af_pose					models/md5/chars/af_pose.md5anim
+
+}
+
+entityDef erebus1_ggun_marine_die {
+	"inherit"						"env_ragdoll_gibbable_base"
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+	//"skin"						"skins/characters/npcs/erebus1_marine_die"
+	"skin"							"skins/characters/player/d3xp_cine_beatup"
+	"editor_usage"					"Ragdoll dying marine"
+
+	"spawnclass"					"idAFEntity_WithAttachedHead"
+	"bleed"							"1"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"sleep"							"1"
+
+	// Added by BJ
+
+	"gib"							"1"
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_head"						"headXP_helmet"
+	"head_joint"					"Shoulders"
+	"model"							"env_ragdoll_marine_helmet"
+	"articulatedFigure"				"char_npc_misc.af"
+	"snd_bounce"					"bodyparts"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+}
+
+

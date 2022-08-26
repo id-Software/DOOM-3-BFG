@@ -1,0 +1,153 @@
+/***********************************************************************
+
+	monster_turret.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix TURRET_ -keep flash barrel-sourcedir models/mapobjects/turrets/cycles -destdir models/md5/items/turret1
+	mesh	idle.mb -dest turret
+	anim	idle.mb
+}
+
+entityDef monster_turret {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_turret"
+	"model"							"monster_turret"
+	"mins"							"-12 -12 -24"
+	"maxs"							"12 12 0"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"100"
+	"turn_rate"						"0"
+	"bleed"							"0"
+	"on_activate"					""
+	"fov"							"360"
+	"aas"							""
+
+	"def_projectile"				"projectile_bullet_turret"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"attack_cone"					"360"
+	"attack_accuracy"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+
+	"head_focus_rate"				"0.15"
+
+	"bone_focus"					"barrel"
+	"bone_leftEye"					""
+	"bone_rightEye"					""	
+	
+	"look_min"						"-12 -180 0"
+	"look_max"						"90 180 0"
+	"look_joint aim"				"1 1 0"
+
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+
+	"snd_wakeup"					"char_sentry_active"	//TEMP
+	"snd_shutdown"					"char_sentry_destroyed"	//TEMP
+	"snd_windup"					"monster_zombie_commando_windup"
+	"snd_winddown"					"monster_zombie_commando_winddown"
+	//"snd_fire"					"player_chaingun_fire"
+	"snd_fire"						"monster_turret_fire"
+}
+
+entityDef monster_turret_light {
+	"inherit"						"monster_turret"
+	
+	"light"							"1"
+	"light_distance"				"640"
+	"mtr_light"						"lights/flashlight5"
+	"skin_light_off"				""
+	"skin_light_on"					""
+}
+
+model monster_turret {
+	mesh						models/md5/items/turret1/turret.md5mesh
+	anim idle 					models/md5/items/turret1/idle.md5anim
+}
+
+entityDef damage_bullet_turret {
+	"damage"						"6"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"1"
+	
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				"textures/decals/dsplat2"
+	"mtr_splat_flesh2"				"textures/decals/dsplat5"
+	"mtr_splat_flesh3"				"textures/decals/dsplat7"
+	"mtr_splat_flesh4"				"textures/decals/dsplat11"
+	"snd_flesh"						"bullet_impact_flesh"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef projectile_bullet_turret {
+	"spawnclass"					"idProjectile"
+	"mins"							"-1 -1 -1"
+	"maxs"							"1 1 1"
+	"cone"							"3"
+	"scale"							"0.1"
+	"noshadows"						"1"
+	"tracers"						"1"
+	"model_tracer"					"models/particles/tracer/tracer.lwo"
+	"snd_tracer"					"bullet_flight"
+	"snd_ricochet"					"bullet_ricochet"
+	"snd_impact"					"bullet_impact_metal"
+
+	"def_damage"					"damage_bullet_turret"
+
+	"launchFromBarrel"				"1"
+	"health"						"0"
+	"velocity"						"2000 0 0"	// slowed down for tracer effect
+	"angular_velocity"				"0 0 0"
+	"thrust"						"0"
+	"thrust_start"					"0"
+	"thrust_end"					"0"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0.6"
+	"mass"							"2"
+	"gravity"						"0"
+	"fuse"							"4"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"0"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"			"1"
+	"impact_gib"					"1"
+
+	"mtr_detonate"					"textures/decals/bulleth02"
+	"decal_size"					"10"
+
+	"smoke_fly"						""
+	"smoke_detonate"				"smokeandspark.smoke"
+	"smoke_bounce"					""	//particles/bullet_sparks.particle"
+	"smoke_fuse"					""
+									
+	"mtr_light_shader"				""
+	"light_color"					"0 0 0"
+	"light_radius"					"0"
+	"light_offset"					"0 0 0"
+
+	"mtr_explode_light_shader"		""
+	"explode_light_color"			"0 0 0"
+	"explode_light_radius"			"0"
+	"explode_light_fadetime"		"0"
+}

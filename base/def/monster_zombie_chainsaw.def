@@ -1,0 +1,190 @@
+/***********************************************************************
+
+monster_zombie_chainsaw.def
+
+***********************************************************************/
+
+export fred {
+	options		-prefix ZJUMP_ -align ALL -parent Loneck Shoulders -parent chainsaw Rhand -sourcedir models/monsters/zombie/jumpsuit/cycles -destdir models/md5/monsters/zjump
+
+	mesh		zjump_mesh.mb -dest zjump
+	anim		af_pose.mb
+	anim		sight1.mb
+	anim		sight2.mb
+	anim		sight3.mb
+	anim		idle1.mb
+	anim		idle1cs.mb
+	anim		idle2cs.mb
+	anim		walk1.mb
+	anim		walk1cs.mb
+	anim		walk2cs.mb
+	anim		melee1.mb
+	anim		melee2.mb
+	anim		melee3.mb
+	anim		pain1_head.mb
+	anim		pain1_chest.mb
+	anim		pain1_luparm.mb
+	anim		pain1_ruparm.mb
+	anim		pain1_legs.mb
+	anim		death1.mb
+	anim		death1_getup_attempt1.mb
+	anim		death1_getup1.mb
+	anim		death1_twitch.mb
+
+	anim		maps/fred/chainsaw/chainsaw.mb -dest models/md5/cinematics/delta2a/chainsaw
+	
+	options		-prefix ZJUMP_ -parent Loneck Shoulders -parent chainsaw Rhand
+	anim		models/monsters/combos/hk_throws_chainsawzombie_withcams.mb -dest models/md5/monsters/zjump/thrownbyhk
+	anim		models/monsters/zombie/jumpsuit/mocap/start_chainsaw.mb -range 60 115 -dest models/md5/monsters/zjump/startchainsaw1
+	anim		models/monsters/zombie/jumpsuit/mocap/start_chainsaw.mb -range 60 144 -dest models/md5/monsters/zjump/startchainsaw2
+	anim		models/monsters/zombie/jumpsuit/mocap/start_chainsaw.mb -range 60 180 -dest models/md5/monsters/zjump/startchainsaw3
+	anim		models/monsters/zombie/jumpsuit/mocap/draglegrun.mb -dest models/md5/monsters/zjump/draglegrun
+	anim		models/monsters/zombie/jumpsuit/mocap/draglegrun2.mb -dest models/md5/monsters/zjump/draglegrun2
+	anim		models/monsters/zombie/jumpsuit/mocap/draglegrun3.mb -rotate 90 -dest models/md5/monsters/zjump/draglegrun3
+	//anim		maps/fred/delta1/d1e3.mb -range 1 241 -dest models/md5/monsters/zjump/standandcharge
+	mesh		models/characters/player/mocap/nadedrope3ending.mb -dest models/md5/monsters/zjump/d1mesh
+	anim		models/characters/player/mocap/nadedrope3ending.mb -range 1 370 -dest models/md5/monsters/zjump/standandcharge1
+}
+
+model monster_zombie_chainsaw {
+	mesh							models/md5/monsters/zjump/zjump.md5mesh
+	skin							skins/models/monsters/zjumpcs.skin
+	
+	channel torso					( *Waist )
+	channel legs					( *Hips origin Body2 )
+
+	anim af_pose					models/md5/monsters/zjump/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/zjump/af_pose.md5anim
+	anim initial					models/md5/monsters/zjump/af_pose.md5anim
+
+	anim sight1						models/md5/monsters/zjump/startchainsaw1.md5anim {
+		frame 1							sound_voice snd_sight1
+		frame 38						sound_weapon snd_pull
+		frame 41						fx fx/chainsawsmoke.fx
+		frame 50						sound_voice snd_melee_attack
+	}
+	anim "1pull"					models/md5/monsters/zjump/startchainsaw1.md5anim {
+		frame 1							sound_voice snd_sight1
+		frame 38						sound_weapon snd_pull
+		frame 50						sound_voice snd_melee_attack
+	}
+	anim sight2						models/md5/monsters/zjump/startchainsaw2.md5anim {
+		frame 1							sound_voice snd_sight1
+		frame 38						sound_weapon snd_pull
+		frame 41						fx fx/chainsawsmoke.fx
+		frame 64						sound_weapon snd_pull
+		frame 69						fx fx/chainsawsmoke.fx
+		frame 76						sound_voice snd_melee_attack
+	}
+	anim sight3						models/md5/monsters/zjump/startchainsaw3.md5anim {
+		frame 1							sound_voice snd_sight1
+		frame 38						sound_weapon snd_pull
+		frame 41						fx fx/chainsawsmoke.fx
+		frame 64						sound_weapon snd_pull
+		frame 69						fx fx/chainsawsmoke.fx
+		frame 90						sound_weapon snd_pull
+		frame 102						sound_voice snd_melee_attack
+		frame 93						fx fx/chainsawsmoke.fx
+		frame 100						fx fx/chainsawsmoke.fx
+		frame 110						fx fx/chainsawsmoke.fx
+		frame 120						fx fx/chainsawsmoke.fx
+	}	
+	anim idle						models/md5/monsters/zjump/idle1cs.md5anim
+	anim idle1						models/md5/monsters/zjump/idle1cs.md5anim {
+		frame 1							sound_body snd_idle
+	}
+	anim idle2						models/md5/monsters/zjump/idle2cs.md5anim {
+		frame 1							sound_body snd_idle
+	}
+	anim walk1						models/md5/monsters/zjump/draglegrun3.md5anim {
+		frame 1							sound_body snd_idle
+	}
+	anim melee_attack1				models/md5/monsters/zjump/melee1.md5anim {
+		frame 1							sound_voice snd_melee_attack
+		frame 16						attack_begin melee_zombie_chainsaw_Right
+		frame 23						attack_end
+	}
+	anim melee_attack2				models/md5/monsters/zjump/melee2.md5anim {
+		frame 1							sound_voice snd_melee_attack
+		frame 14						attack_begin melee_zombie_chainsaw_Left
+		frame 22						attack_end
+	}
+	anim pain						models/md5/monsters/zjump/pain1_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/zjump/pain1_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/zjump/pain1_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/zjump/pain1_luparm.md5anim {
+		frame 1							sound_voice snd_pain		
+	}
+	anim pain_right_arm				models/md5/monsters/zjump/pain1_ruparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_legs					models/md5/monsters/zjump/pain1_legs.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim death1_getup_attempt1		models/md5/monsters/zjump/death1_getup_attempt1.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+	}
+	anim death1_getup1				models/md5/monsters/zjump/death1_getup1.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+	}
+
+	anim death1_twitch				models/md5/monsters/zjump/death1_twitch.md5anim
+}
+
+entityDef monster_zombie_chainsaw {
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie"
+	"model"							"monster_zombie_chainsaw"
+	"ragdoll"						"monster_zombie_chainsaw"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"125"
+	"melee_range"					"40"
+	"smoke_particleSystem"			"pinkysmoke.smoke"
+	"smoke_pain"					"pinkysmokepain.smoke"
+	"particleBone"					"starter"
+	"smoke_wound_metal"				"bulletricochet.prt"
+
+	"skin_dropGib"					"skins/models/monsters/zjumpgib.skin"
+
+	"mass"							"150"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*loneckcontrol"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Hips origin Body2"
+
+	"damage_scale head"				"2"
+	
+	"snd_sight1"					"monster_zombie_fat_sight1"
+	"snd_sight2"					"monster_zombie_fat_sight2"
+	"snd_sight3"					"monster_zombie_fat_sight3"
+	"snd_sight4"					"monster_zombie_fat_sight4"
+	"snd_sight5"					"monster_zombie_fat_sight5"
+	"snd_sight6"					"monster_zombie_fat_sight6"
+	"snd_sight7"					"monster_zombie_fat_sight7"
+	
+	"snd_idle"						"monster_zombie_chainsaw_idle"
+	"snd_footstep"					"monster_zombie_fat_footstep"
+	"snd_chatter"					"monster_zombie_fat_chatter"
+	"snd_chatter_combat"			"monster_zombie_fat_chatter_combat"
+	"snd_pain"						"monster_zombie_fat_pain"
+	"snd_melee_attack"				"monster_zombie_chainsaw_attack1"
+	"snd_melee_attack_1"			"monster_zombie_fat_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_fat_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_fat_attackmelee_3"
+	"snd_thud"						"monster_zombie_fat_thud"
+	"snd_pull"						"monster_zombie_chainsaw_pull"
+	"snd_release"					"monster_zombie_chainsaw_release"
+}

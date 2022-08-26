@@ -1,0 +1,566 @@
+/***********************************************************************
+
+	monster_demon_vulgar.def
+
+***********************************************************************/
+
+export James {
+ 	options -prefix VUL_ -keep Lknee Rknee -keep r_fireball l_fireball ROT -align movement -parent r_fireball Rwrist -parent l_fireball Lwrist -parent spine_1 ROT -parent ROT root -sourcedir models/monsters/vulgar/cycles -destdir models/md5/monsters/vulgar
+
+	mesh	vulgar_mesh.mb -dest vulgar
+	anim	idle1.mb
+	anim	idle2.mb
+	anim	walk.mb
+	anim	run.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	af_pose.mb -range 1 1
+	anim	pain_chest.mb
+	anim	pain_head.mb
+	anim	pain_luparm.mb
+	anim	pain_ruparm.mb
+	anim	teleport.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	sight.mb
+	anim	range_attack1.mb
+	anim	range_attack2.mb
+	anim	run_evade_right.mb
+	anim	run_evade_left.mb
+	anim	run_pain_left.mb
+	anim	run_pain_right.mb
+	anim	leap_attack.mb -range 25 33 -dest jump_start
+	anim	leap_attack.mb -range 34 55 -dest jump_loop
+	anim	attack1.mb -range 8 14 -dest jump_end
+	
+	anim	ceilinghang.mb
+	anim	ceilingdrop128.mb
+	anim	ceilingdrop192.mb
+	anim	ceilingdrop256.mb
+	
+	anim	outofholeidle.mb
+	anim	outofhole.mb
+	
+	anim	offwall.mb
+	anim	offwallidle.mb
+	
+	anim	roofcrawl.mb 
+	anim	cornerhop.mb
+
+	anim	outofhole_leap.mb
+}
+
+export ronn {
+ 	options -prefix VUL_ -keep Lknee Rknee -keep r_fireball l_fireball ROT -align movement -parent r_fireball Rwrist -parent l_fireball Lwrist -parent spine_1 ROT -parent ROT root -sourcedir models/monsters/vulgar/cycles -destdir models/md5/monsters/vulgar
+
+	mesh	vulgar_mesh.mb -dest vulgar
+	anim	idle1.mb
+	anim	idle2.mb
+	anim	idle3.mb
+	anim	walk.mb
+	anim	run.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	af_pose.mb -range 1 1
+	anim	pain_chest.mb
+	anim	pain_head.mb
+	anim	pain_luparm.mb
+	anim	pain_ruparm.mb
+	anim	teleport.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	sight.mb
+	anim	range_attack1.mb
+	anim	range_attack2.mb
+	anim	run_evade_right.mb
+	anim	run_evade_left.mb
+	anim	run_pain_left.mb
+	anim	run_pain_right.mb
+	anim	leap_attack.mb -range 25 33 -dest jump_start
+	anim	leap_attack.mb -range 34 55 -dest jump_loop
+	anim	attack1.mb -range 8 14 -dest jump_end
+
+	anim	ceilinghang.mb
+	anim	ceilingdrop128.mb
+	anim	ceilingdrop192.mb
+	anim	ceilingdrop256.mb
+
+	anim	outofholeidle.mb
+	anim	outofhole.mb
+
+	anim	offwall.mb
+	anim	offwallidle.mb
+
+	anim	roofcrawl.mb
+	anim	roofcrawl_idle.mb
+	anim	cornerhop.mb
+
+	anim	outofhole_leap.mb
+
+	anim	e5_crawldrop.mb
+	anim	e2_intro.mb
+	anim	p1_pipeclimb.mb
+	anim	p1_pipeidle.mb
+
+	anim	hell_ambush_1.mb
+	anim	hell_bridge_1.mb
+	anim	hell_bridge_2.mb
+}
+export cine_erebus2 {
+ 	options -prefix VUL_ -keep Lknee Rknee -keep r_fireball l_fireball ROT -align movement -parent r_fireball Rwrist -parent l_fireball Lwrist -parent spine_1 ROT -parent ROT root -destdir models/md5/monsters/vulgar
+
+	anim	models/cinematics/erebus2/vulgarintro.mb
+}
+
+model monster_demon_vulgar {
+	mesh							models/md5/monsters/vulgar/vulgar.md5mesh
+
+	channel torso					( *spine_1 )
+	channel legs					( *origin -*spine_1 )
+
+	anim idle1						models/md5/monsters/vulgar/idle1.md5anim
+	anim idle2						models/md5/monsters/vulgar/idle2.md5anim
+
+	anim walk						models/md5/monsters/vulgar/run.md5anim {
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim run						models/md5/monsters/vulgar/run.md5anim {
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim evade_left				models/md5/monsters/vulgar/evade_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep
+		frame 11						sound_body snd_footstep
+	}
+
+	anim evade_right				models/md5/monsters/vulgar/evade_right.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep
+		frame 13						sound_body snd_footstep
+	}
+
+	anim pain						models/md5/monsters/vulgar/run_pain_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim pain_left					models/md5/monsters/vulgar/run_pain_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim pain_right					models/md5/monsters/vulgar/run_pain_right.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim pain_chest					models/md5/monsters/vulgar/run_pain_right.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim pain_head					models/md5/monsters/vulgar/run_pain_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							sound_body snd_footstep
+		frame 9							sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim melee_attack1				models/md5/monsters/vulgar/attack1.md5anim {
+		frame 1							call overrideLegs
+		frame 9							sound_voice2 snd_melee
+		frame 11						melee melee_vulgarRightClaw
+		frame 23						sound_weapon snd_melee
+		frame 28						melee melee_vulgarLeftClaw
+	}
+
+	anim melee_attack2				models/md5/monsters/vulgar/attack2.md5anim {
+		frame 1							call overrideLegs
+		frame 7							sound_voice snd_melee
+		frame 12						melee melee_vulgarRightClaw
+	}
+
+	anim melee_attack3				models/md5/monsters/vulgar/attack3.md5anim {
+		frame 1							call overrideLegs
+		frame 7							sound_weapon snd_melee
+		frame 12						melee melee_vulgarLeftClaw
+	}
+
+	anim teleport					models/md5/monsters/vulgar/teleport.md5anim {
+		frame 5							sound_voice snd_sight
+	}
+
+	anim sight						models/md5/monsters/vulgar/sight.md5anim {
+		frame 9							sound_body snd_sight
+	}
+
+	anim range_attack1				models/md5/monsters/vulgar/range_attack1.md5anim {
+		frame 1							call overrideLegs
+		frame 2							sound_weapon snd_createmissile
+		frame 2							create_missile r_fireball
+		frame 12						sound_voice snd_melee
+		frame 14						launch_missile r_fireball
+	}
+
+	anim range_attack2				models/md5/monsters/vulgar/range_attack2.md5anim {
+		frame 1							call overrideLegs
+		frame 2							create_missile l_fireball
+		frame 2							sound_body2 snd_createmissile
+		frame 12						sound_weapon snd_melee
+		frame 15						launch_missile l_fireball
+	}
+
+	anim jump_start					models/md5/monsters/vulgar/jump_start.md5anim {
+		frame 1							sound_voice snd_sight
+	}
+	anim jump_loop					models/md5/monsters/vulgar/jump_loop.md5anim
+	anim jump_end					models/md5/monsters/vulgar/jump_end.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice snd_melee
+		frame 2							melee melee_vulgarRightClaw
+	}
+
+	anim af_pose					models/md5/monsters/vulgar/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/vulgar/af_pose.md5anim
+
+	anim ceilinghang				models/md5/monsters/vulgar/ceilinghang.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim ceilingdrop128				models/md5/monsters/vulgar/ceilingdrop128.md5anim {
+		frame 1							sound_voice snd_sight
+		frame 55						enableGravity
+		frame 55						enableWalkIK
+	}
+	anim ceilingdrop192				models/md5/monsters/vulgar/ceilingdrop192.md5anim {
+		frame 1							sound_voice snd_sight
+		frame 55						enableGravity
+		frame 55						enableWalkIK
+	}
+	anim ceilingdrop256				models/md5/monsters/vulgar/ceilingdrop256.md5anim {
+		frame 1							sound_voice snd_sight
+		frame 31						enableGravity
+		frame 31						enableWalkIK
+	}
+
+	anim outofholeidle				models/md5/monsters/vulgar/outofholeidle.md5anim
+	anim outofhole					models/md5/monsters/vulgar/outofhole.md5anim
+
+	anim offwall					models/md5/monsters/vulgar/offwall.md5anim {
+		ai_no_turn
+		frame 1							sound_voice snd_sight
+	}
+	anim offwallidle				models/md5/monsters/vulgar/offwallidle.md5anim
+
+	anim outofhole_leap				models/md5/monsters/vulgar/outofhole_leap.md5anim {
+		frame 1						sound_voice snd_sight
+	}
+
+	anim roofcrawl					models/md5/monsters/vulgar/roofcrawl.md5anim {
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 105						enableGravity
+		frame 105						enableWalkIK
+	}
+
+	anim roofcrawl_idle				models/md5/monsters/vulgar/roofcrawl_idle.md5anim {
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+
+	anim cornerhop					models/md5/monsters/vulgar/cornerhop.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 9							sound_body snd_sight
+	}
+	anim e5_crawldrop				models/md5/monsters/vulgar/e5_crawldrop.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim e2_intro					models/md5/monsters/vulgar/e2_intro.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 8							sound_body snd_footstep
+		frame 35						sound_voice snd_sight
+	}
+	anim p1_pipeclimb				models/md5/monsters/vulgar/p1_pipeclimb.md5anim {
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim p1_pipeidle				models/md5/monsters/vulgar/p1_pipeidle.md5anim {
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim e4_trapped					models/md5/monsters/vulgar/cine_trapped.md5anim
+	anim hell_ambush_1				models/md5/monsters/vulgar/hell_ambush_1.md5anim
+	anim hell_bridge_1				models/md5/monsters/vulgar/hell_bridge_1.md5anim
+	anim hell_bridge_2				models/md5/monsters/vulgar/hell_bridge_2.md5anim
+
+	anim vulgarintro				models/md5/monsters/vulgar/vulgarintro.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 1							sound_voice vulgar_cine_chatter
+		frame 95							call map_erebus2::e2_bumplight
+		frame 95						sound_voice2 vulgar_cine_leap
+		frame 95						sound_body snd_footstep
+		frame 105						sound_body vulgar_cine_thud
+		frame 123						sound_body snd_footstep
+		frame 155						sound_voice vulgar_cine_thud
+		frame 155						sound_voice2 vulgar_cine_idle
+		frame 170						sound_body vulgar_cine_sight
+		//frame 178						sound_body snd_footstep
+		//frame 186						sound_body snd_footstep
+	}
+}
+
+entityDef monster_demon_vulgar {
+	"inherit"						"monster_default"
+	"fx_teleport1"						"fx/teleporter1_vulgar.fx"
+	"scriptobject"					"monster_demon_vulgar"
+	"model"							"monster_demon_vulgar"
+	"skin"							"skins/monsters/vulgar2"
+	"ragdoll"						"monster_demon_vulgar"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"150"
+	"def_projectile"				"projectile_vulgar_fireball"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"melee_range"					"84"
+	"anim"							"idle1"
+
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp.prt-root"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint spine_1"			"0.4 0.4 0"
+	"look_joint head_FK"			"0.6 0.6 0"
+
+	"damage_zone head"				"*spine_6"
+	"damage_zone chest"				"*spine_1 -*Rshldr -*Lshldr -*spine_6"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips origin root"
+	"damage_scale head"				"2"
+	"mass"   						"250"
+
+	//"ik_numLegs"					"2"
+	"ik_numLegs"					"0"
+	"ik_footSize"					"4"
+	"ik_waist"						"root"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle"
+	"ik_ankle2"						"Rankle"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball"
+	"ik_foot2"						"Rtoe"
+
+	"def_leapAttack"				"melee_vulgarLeapAttack"
+
+	"snd_footstep"					"vulgar_fs"
+	"snd_sight"						"vulgar_sight"
+	"snd_chatter"					"vulgar_idle"
+	"snd_chatter_combat"			"vulgar_combat_chatter"
+	"snd_pain"						"vulgar_pain"
+	"snd_melee"						"vulgar_melee"
+	"snd_death"						"vulgar_death"
+	"snd_thud"						"monster_demon_imp_thud"
+	"snd_createmissile"				"vulgar_fireball_create"
+	"snd_attackmissile"				"monster_demon_imp_fireball_throw"
+	"snd_burn"						"monster_demon_archvile_burn"
+}
+
+entityDef damage_vulgar_fireball {
+	"damage"						"10"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef damage_vulgar_fireball_splash {
+	"damage"						"5"
+	"radius"						"50"
+	"push"							"5000"
+}
+
+entityDef projectile_vulgar_fireball {
+	"spawnclass"					"idProjectile"
+	"mins"							"-4 -4 -4"
+	"maxs"							"4 4 4"
+	"cone"							"3"
+	"model" 						"hellknight_fireball2.prt"
+
+	"def_damage"					"damage_vulgar_fireball"
+	"def_splash_damage"				"damage_vulgar_fireball_splash"
+
+	"launchFromBarrel"				"1"
+	"health"						"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"475 0 -150"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"5"
+	"gravity"						"250"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75"
+
+	"smoke_fly"						"hellknight_trail.prt"									// particle effect while in the air
+	"smoke_detonate"				""			// particle effect when detonates
+	"smoke_residue"					""			// particle effect while in the air
+	"smoke_bounce"					""					// particle effect when bounces
+	"smoke_fuse"					""					// particle effect when removed from fuse expiring
+
+	// parametric particles -- temp
+	"model_detonate"				"hellknight_explosion.prt"
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	"mtr_light_shader"				"lights/impflyflash"
+	"light_color"					"0.1 0.6 0.9"
+	"light_radius"					"96"
+	"light_offset"					"0 0 0"
+
+
+
+	"mtr_explode_light_shader"		"lights/impflash"
+	"explode_light_color"			"0.1 0.6 0.9"
+	"explode_light_radius"			"128"
+	"explode_light_fadetime"		"1"
+
+
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+	"snd_fly"						"monster_demon_imp_fireball_flight"					// particle effect while in the air
+}
+
+entityDef melee_vulgarLeapAttack {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"10"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"100"
+
+	"kick_time"						"800"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"400"
+}
+
+entityDef melee_vulgarLeftClaw {
+	// melee specific parameters
+	"snd_hit"					"monster_demon_imp_melee_hit"
+	"snd_miss"					"monster_demon_imp_melee_miss"
+	"kickDir"					"0 -1 0"
+
+
+	// damage parameters
+	"damage"					"5"
+
+	"mtr_blob"					"leftSlash"
+	"blob_time"					"300"
+	"blob_x"					"140"
+	"blob_y"					"-100"
+	"blob_width"				"600"
+	"blob_height"				"600"
+
+	"knockback"					"40"
+
+	"kick_time"					"400"
+	"kick_amplitude"			"1"
+
+	"dv_time"					"100"
+}
+
+entityDef melee_vulgarRightClaw {
+	"snd_hit"					"monster_demon_imp_melee_hit"
+	"snd_miss"					"monster_demon_imp_melee_miss"
+	"kickDir"					"0 1 0"
+
+	"damage"					"5"
+
+	"mtr_blob"					"rightSlash"
+	"blob_time"					"300"
+	"blob_x"					"-100"
+	"blob_y"					"-100"
+	"blob_width"				"600"
+	"blob_height"				"600"
+
+	"knockback"					"30"
+
+	"kick_time"					"400"
+	"kick_amplitude"			"1"
+
+	"dv_time"					"100"
+}

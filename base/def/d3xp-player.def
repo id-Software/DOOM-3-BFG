@@ -1,0 +1,498 @@
+/***************************************
+export head stuff
+***************************************/
+
+
+export fred {
+	options -prefix XP_ -keep eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head  -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+
+	mesh models/characters/player_character/head/cycles/makemesh.mb -rotate 90 -dest models/md5/characters/player/head/d3xp_head
+	anim models/characters/player_character/head/cycles/idle.mb -rotate 90 -dest models/md5/characters/player/head/d3xp_head_idle
+	anim models/characters/player_character/head/cycles/blink.mb -xyzprecision .01 -rotate 90 -dest models/md5/characters/player/head/d3xp_head_blink
+
+}
+
+
+/***************************************
+export body stuff
+***************************************/
+
+export fredplayer {
+
+options -prefix MP_ -keep Loneck Head Lknee Rknee Lhand Lhand1 Rhand Body2 Body SPINNER PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER PDA_ATTACHER SOUL_ATTACHER loneckadjust headcontrol neckcontrol loneckcontrol eyecontrol jawcontrol jawadjust Jaw -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -parent PISTOL_ATTACHER Rhand1 -parent SHOTGUN_ATTACHER Rhand1 -parent MGATTACHER Rhand1 -parent pgATTACHER Rhand1 -parent NADE_ATTACHER Rhand1 -parent CHAINSAW_ATTACHER Rhand1 -parent RL_ATTACHER Lhand1 -parent FL_ATTACHER Rhand1 -parent BFG_ATTACHER Rhand1 -parent CHAINGUN_ATTACHER Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent PDA_ATTACHER Rhand -parent SOUL_ATTACHER Rhand
+
+
+	addoptions -keepmesh marinebodymesh
+	addoptions -keepmesh zippermesh
+	addoptions -keepmesh beltmesh
+
+	mesh	models/characters/player_character/cycles/makemesh.mb -rotate 90 -dest models/md5/characters/player/d3xp_spplayer
+}
+
+export fredplayer2 {
+
+options -prefix MP_ -keep Lknee Rknee Lhand Lhand1 Rhand Body2 Body SPINNER PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER PDA_ATTACHER SOUL_ATTACHER loneckadjust headcontrol neckcontrol loneckcontrol eyecontrol jawcontrol jawadjust Jaw -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -parent PISTOL_ATTACHER Rhand1 -parent SHOTGUN_ATTACHER Rhand1 -parent MGATTACHER Rhand1 -parent pgATTACHER Rhand1 -parent NADE_ATTACHER Rhand1 -parent CHAINSAW_ATTACHER Rhand1 -parent RL_ATTACHER Lhand1 -parent FL_ATTACHER Rhand1 -parent BFG_ATTACHER Rhand1 -parent CHAINGUN_ATTACHER Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent PDA_ATTACHER Rhand -parent SOUL_ATTACHER Rhand
+
+	addoptions -keepmesh head_skullmesh
+	addoptions -keepmesh skeletonmesh
+	addoptions -keepmesh marinehelmetmesh
+	addoptions -keepmesh head_uachelmetmesh
+	addoptions -keepmesh marinebodymesh
+	addoptions -keepmesh head_bfx1mesh
+	addoptions -keepmesh head_bfx2mesh
+	addoptions -keepmesh head_bfx3mesh
+	addoptions -keepmesh head_bfx4mesh
+	addoptions -keepmesh head_bfxflamemesh
+	addoptions -keepmesh head_bfxmodelmesh
+	addoptions -keepmesh head_stumpmesh
+	addoptions -keepmesh berserkbodyfxmesh
+//new anims
+
+	anim	models/characters/player_character/cycles/dbshotgun_idle_down.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbshotgun_idle_down
+	anim	models/characters/player_character/cycles/dbshotgun_idle.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbshotgun_idle
+	anim	models/characters/player_character/cycles/dbshotgun_idle_up.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbshotgun_idle_up
+
+	anim	models/characters/player_character/cycles/dbshotgun_aim_up.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbshotgun_aim_up
+	anim	models/characters/player_character/cycles/dbshotgun_aim.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbshotgun_aim
+	anim	models/characters/player_character/cycles/dbshotgun_aim_down.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbshotgun_aim_down
+
+	anim	models/characters/player_character/cycles/dbshotgun_fire.mb -rotate 90 -range 49 75 -dest models/md5/characters/npcs/playermoves/dbshotgun_fire1
+	anim	models/characters/player_character/cycles/dbshotgun_fire_up.mb -rotate 90 -range 49 75 -dest models/md5/characters/npcs/playermoves/dbshotgun_fire_up
+	anim	models/characters/player_character/cycles/dbshotgun_fire_down.mb -rotate 90 -range 49 75 -dest models/md5/characters/npcs/playermoves/dbshotgun_fire_down
+
+	anim	models/characters/player_character/cycles/dblower_raise.mb -rotate 90 -range 1 6 -dest models/md5/characters/npcs/playermoves/dblowerwep
+	anim	models/characters/player_character/cycles/dblower_raise.mb -rotate 90 -range 6 20 -dest models/md5/characters/npcs/playermoves/dbraisewep
+
+	anim	models/characters/player_character/cycles/dbshotgun_reload.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/dbreload
+
+
+}
+
+/***********************************************************************
+
+ d3xp player
+
+***********************************************************************/
+
+model model_d3xp_sp_head {
+	mesh							models/md5/characters/player/head/d3xp_head.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim idle						models/md5/characters/player/head/d3xp_head_idle.md5anim
+	anim stand						models/md5/characters/player/head/d3xp_head_idle.md5anim
+	anim blink						models/md5/characters/player/head/d3xp_head_blink.md5anim
+}
+
+model model_d3xp_sp_marine {
+	inherit model_sp_marine
+	skin								skins/characters/player/d3xp_sp.skin
+
+	offset								( 0 0 1 )
+
+	mesh								models/md5/characters/player/d3xp_spplayer.md5mesh
+
+	channel torso						( *Waist )
+	channel legs						( *origin -*Waist SPINNER eyecontrol)
+
+	anim shotgun_double_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim shotgun_double_idle					models/md5/characters/npcs/playermoves/shotgun_idle_down.md5anim, models/md5/characters/npcs/playermoves/shotgun_idle.md5anim, models/md5/characters/npcs/playermoves/shotgun_idle_up.md5anim
+	anim shotgun_double_aim						models/md5/characters/npcs/playermoves/shotgun_aim_down.md5anim, models/md5/characters/npcs/playermoves/shotgun_aim.md5anim, models/md5/characters/npcs/playermoves/shotgun_aim_up.md5anim
+	anim shotgun_double_fire1					models/md5/characters/npcs/playermoves/shotgun_fire_down.md5anim, models/md5/characters/npcs/playermoves/shotgun_fire1.md5anim, models/md5/characters/npcs/playermoves/shotgun_fire_up.md5anim
+	anim shotgun_double_reload					models/md5/characters/npcs/playermoves/dbreload.md5anim
+	anim shotgun_double_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim bloodstone_passive_raise				models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim bloodstone_passive_idle				models/md5/characters/npcs/playermoves/soulcube_idle_down.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle_up.md5anim
+	anim bloodstone_passive_aim					models/md5/characters/npcs/playermoves/soulcube_idle_down.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle_up.md5anim
+	anim bloodstone_passive_fire				models/md5/characters/npcs/playermoves/soulcube_fire.md5anim, models/md5/characters/npcs/playermoves/soulcube_fire.md5anim, models/md5/characters/npcs/playermoves/soulcube_fire.md5anim
+	anim bloodstone_passive_lower				models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim grabber_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim grabber_idle					models/md5/characters/npcs/playermoves/plasmagun_idle_down.md5anim, models/md5/characters/npcs/playermoves/plasmagun_idle.md5anim, models/md5/characters/npcs/playermoves/plasmagun_idle_up.md5anim
+	anim grabber_aim					models/md5/characters/npcs/playermoves/plasmagun_aim_down.md5anim, models/md5/characters/npcs/playermoves/plasmagun_aim.md5anim, models/md5/characters/npcs/playermoves/plasmagun_aim_up.md5anim
+	anim grabber_fire1					models/md5/characters/npcs/playermoves/plasmagun_fire_down.md5anim, models/md5/characters/npcs/playermoves/plasmagun_fire1.md5anim, models/md5/characters/npcs/playermoves/plasmagun_fire_up.md5anim
+	anim grabber_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+}
+
+entityDef player_id_base {
+	"spawnclass"						"idPlayer"
+	"scriptobject"						"player"
+	
+	"pda_name"							"d3xp_personal"
+	"player_expansion"					"d3xp"
+	
+	"hud"								"guis/d3xp-hud.gui"
+	"mphud"								"guis/mphud.gui"
+	"cursor"							"guis/cursor.gui"
+
+	"blink_min"							"2.5"
+	"blink_max"							"8.0"
+
+	"max_ammo_shells"					"320"
+	"max_ammo_bullets"					"360"
+	"max_ammo_rockets"					"96"
+	"max_ammo_cells"					"500"
+	"max_ammo_grenades"					"50"
+	"max_ammo_souls"					"5"							// number of kills required to charge the soul cube
+	"max_ammo_bfg"						"32"
+	"max_ammo_clip"						"600"
+	"max_ammo_belt"						"600"
+
+	// default weapons
+	// seperate multiple weapons with commas (no spaces).
+	// NOTE: default ammo must be specified explicitly.
+	"weapon"							"weapon_fists,weapon_pistol,weapon_flashlight,weapon_pda"
+	"weapon_nightmare"					"weapon_fists,weapon_pistol,weapon_flashlight,weapon_pda"
+
+	"pm_jumpheight"						"48"
+	"pm_stepsize"						"16"
+	"pm_crouchspeed"					"100"
+	"pm_walkspeed"						"175"
+	"pm_runspeed"						"275"
+	"pm_noclipspeed"					"300"
+	"pm_minviewpitch"					"-89"	// looking up
+	"pm_maxviewpitch"					"89"	// looking down
+	"pm_stamina"						"24"
+	"pm_staminathreshold"				"4"
+	"pm_staminarate"					"0.75"
+	"pm_crouchheight"					"38"
+	"pm_crouchviewheight"				"32"
+
+	"pm_normalheight"					"74"
+	"pm_normalviewheight"				"68"
+	"pm_deadheight"						"20"
+	"pm_deadviewheight"					"10"
+	"pm_crouchrate"						"0.87"
+	"pm_bboxwidth"						"32"
+	"pm_crouchbob"						"0.5"		// ducked characters bob much faster
+	"pm_walkbob"						"0.3"		// walking bobs slow
+	"pm_runbob"							"0.4"		// faster speeds bob faster
+	"pm_modelview"						"0"			// 0 == normal, 1 == view inside model, 2 == view inside model when dead
+	"pain_delay"						"0.5"		// how long to wait before playing pain sound
+	"respawn_delay"						"1.7"		// minimum delay for respawning after death
+
+	// stats
+	"health"							"100"
+	"maxhealth"							"100"
+	"stamina"							"120"
+	"armor"								"0"
+	"maxarmor"							"125"
+
+	// ammo
+	"ammo_shells"						"0"
+	"ammo_bullets"						"48"
+	"ammo_rockets"						"0"
+	"ammo_cells"						"0"
+	"ammo_grenades"						"0"
+	"ammo_bfg"							"0"
+	"ammo_clip"							"0"
+	"ammo_belt"							"0"
+
+	// inventory items
+	"key_blue"							"0"
+	"key_red"							"0"
+	"data_linker"						"0"
+	"pda"								"0"
+	"video"								""
+
+	"bleed"								"0"
+
+	"bone_focus"						"headcontrol"
+	"bone_leftEye"						"Leyeaim"
+	"bone_rightEye"						"Reyeaim"
+	"bone_hips"							"Hips"
+	"bone_chest"						"Shoulders"		// AI aim location
+	"bone_head"							"headcontrol"	// AI aim location
+
+	"damage_zone head"					"*loneckcontrol"
+	"damage_zone chest"					"*Waist -*loneckcontrol"
+	"damage_zone left_arm"				"*Luparm"
+	"damage_zone right_arm"				"*Ruparm"
+	"damage_zone legs"					"origin Body2"
+	"damage_scale head"					"1"
+
+	"ragdoll"							"player_npcs"
+
+	"gib"								"1"
+	"def_dropGibItem"					"moveable_item_head_pork"
+	"dropGibItemJoint"					"Head"
+	"skin_dropGib"						"skins/characters/player/marine_mp_death.skin"
+
+	"def_dropGibItem2"					"moveable_item_torso_pork"
+	"dropGibItem2Joint"					"Chest"
+
+	"def_dropGibItem3"					"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"					"Ruparm"
+
+	"def_dropGibItem4"					"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"					"Waist"
+
+	"def_dropGibItem5"					"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"					"Lupleg"
+
+	"def_dropItem6"						"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"					"Rupleg"
+
+	"def_dropGibItem7"					"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"					"Rloleg"
+
+	"def_dropGibItem8"					"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"					"Hips"
+
+	"ik_numLegs"						"2"
+	"ik_footSize"						"4"
+	"ik_minWaistAnkleDist"				"16"
+	"ik_waist"							"Body2"
+	"ik_hip1"							"Lupleg"
+	"ik_hip2"							"Rupleg"
+	"ik_knee1"							"Lloleg"
+	"ik_knee2"							"Rloleg"
+	"ik_ankle1"							"Lankle_r"
+	"ik_ankle2"							"Rankle_r"
+	"ik_dir1"							"Lknee"
+	"ik_dir2"							"Rknee"
+	"ik_foot1"							"Lball_r"
+	"ik_foot2"							"Rball_r"
+
+	"ik_numArms"						"0"
+	"ik_shoulder1"						"Ruparm"
+	"ik_shoulder2"						"Luparm"
+	"ik_elbow1"							"Rloarm"
+	"ik_elbow2"							"Lloarm"
+	"ik_hand1"							"Rfings2"
+	"ik_hand2"							"Lfings2"
+
+	"snd_stepladder"					"player_climb_ladder"
+	"snd_weapon_switch"					"player_sounds_weapon_switch"
+	"snd_footstep"						"player_sounds_footstep"
+	"snd_death"							"player_sounds_death"
+	"snd_fall"							"player_sounds_fall"
+	"snd_pain_small"					"player_sounds_pain_small"
+	"snd_pain_medium"					"player_sounds_pain_medium"
+	"snd_pain_large"					"player_sounds_pain_big"
+	"snd_pain_huge"						"player_sounds_pain_huge"
+	"snd_land_soft"						"player_sounds_fastlanding"
+	"snd_land_hard"						"player_sounds_thud"
+	"snd_objectiveup"					"player_sounds_objectiveup"
+	"snd_objectivedown"					"player_sounds_objectivedown"
+	"snd_doublevision"					"player_sounds_doublevision"
+	"snd_thud"							"player_sounds_thud"
+	"snd_heartbeat"						"player_sounds_heartbeat"
+	"snd_heartbeat_dying"				"player_sounds_heartbeat_dying"
+	"snd_skipcinematic"					"player_sounds_skipcinematic"
+	"snd_guienter"						"player_sounds_guienter"
+	"snd_guiexit"						"player_sounds_guiexit"
+	"snd_soulcube_ready"				"soulcube_energize"
+	"snd_healthpulse"					"soulcube_givehealth"
+	"snd_hitArmor"						"player_sounds_hitArmor"
+	"snd_hitFlesh"						"player_sounds_hitFlesh"
+	"snd_airGasp"						"player_sounds_airGasp"
+	"snd_noAir"							"player_sounds_noAir"
+	"snd_berserk_third"					"player_sounds_berserk"
+	"snd_teleport_exit"					"player_sounds_teleportExit"
+	"snd_teleport_start"				"player_sounds_teleportStart"
+	"snd_burn"							"sizzle"
+	"snd_invisibility"					"invisibility_pickup"
+	"snd_megahealth"					"megasphere_pickup"
+	"snd_healthtake"					"player_takehealth"
+}
+
+entityDef player_base_d3xp_sp {
+	"inherit"							"player_id_base"
+
+	"def_weapon0"						"weapon_fists"
+	"weapon0_best"						"0"					// whether weapon should be chosen when out of ammo
+	"weapon0_cycle"						"0"					// whether weapon should be selected when using next/prev weapon
+	"weapon0_toggle"					"0"					// whether selecting weapon twice switches between current and previous weapons
+	"weapon0_allowempty"				"1"
+	"weapon0_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon1"						"weapon_grabber"
+	"weapon1_best"						"0"
+	"weapon1_cycle"						"1"
+	"weapon1_toggle"					"0"
+	"weapon1_allowempty"				"1"
+	"weapon1_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon2"						"weapon_pistol"
+	"weapon2_best"						"1"
+	"weapon2_cycle"						"1"
+	"weapon2_toggle"					"0"
+	"weapon2_allowempty"				"1"
+	"weapon2_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon3"						"weapon_shotgun"
+	"weapon3_best"						"1"
+	"weapon3_cycle"						"1"
+	"weapon3_toggle"					"0"
+	"weapon3_allowempty"				"1"
+	"weapon3_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon4"						"weapon_shotgun_double"
+	"weapon4_best"						"1"
+	"weapon4_cycle"						"1"
+	"weapon4_toggle"					"0"
+	"weapon4_allowempty"				"1"
+	"weapon4_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon5"						"weapon_machinegun"
+	"weapon5_best"						"1"
+	"weapon5_cycle"						"1"
+	"weapon5_toggle"					"0"
+	"weapon5_allowempty"				"1"
+	"weapon5_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon6"						"weapon_chaingun"
+	"weapon6_best"						"1"
+	"weapon6_cycle"						"1"
+	"weapon6_toggle"					"0"
+	"weapon6_allowempty"				"1"
+	"weapon6_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon7"						"weapon_handgrenade"
+	"weapon7_best"						"0"
+	"weapon7_cycle"						"1"
+	"weapon7_toggle"					"0"
+	"weapon7_allowempty"				"0"
+	"weapon7_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon8"						"weapon_plasmagun"
+	"weapon8_best"						"1"
+	"weapon8_cycle"						"1"
+	"weapon8_toggle"					"0"
+	"weapon8_allowempty"				"1"
+	"weapon8_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon9"						"weapon_rocketlauncher"
+	"weapon9_best"						"0"
+	"weapon9_cycle"						"1"
+	"weapon9_toggle"					"0"
+	"weapon9_allowempty"				"1"
+	"weapon9_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon10"						"weapon_bfg"
+	"weapon10_best"						"0"
+	"weapon10_cycle"					"1"
+	"weapon10_toggle"					"0"
+	"weapon10_allowempty"				"1"
+	"weapon10_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon11"						""
+	"weapon11_best"						"0"
+	"weapon11_cycle"					"0"
+	"weapon11_toggle"					"0"
+	"weapon11_allowempty"				"0"
+	"weapon11_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon12"						"weapon_bloodstone_passive"
+	"weapon12_best"						"0"
+	"weapon12_cycle"					"1"
+	"weapon12_toggle"					"0"
+	"weapon12_allowempty"				"1"
+	"weapon12_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon13"						"weapon_bloodstone_active1"
+	"weapon13_best"						"0"
+	"weapon13_cycle"					"0"
+	"weapon13_toggle"					"0"
+	"weapon13_allowempty"				"1"
+	"weapon13_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon14"						"weapon_bloodstone_active2"
+	"weapon14_best"						"0"
+	"weapon14_cycle"					"0"
+	"weapon14_toggle"					"0"
+	"weapon14_allowempty"				"1"
+	"weapon14_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon15"						"weapon_bloodstone_active3"
+	"weapon15_best"						"0"
+	"weapon15_cycle"					"0"
+	"weapon15_toggle"					"0"
+	"weapon15_allowempty"				"1"
+	"weapon15_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon16"						"weapon_flashlight"
+	"weapon16_best"						"0"
+	"weapon16_cycle"					"0"
+	"weapon16_toggle"					"1"
+	"weapon16_allowempty"				"1"
+	"weapon16_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon17"						"weapon_flashlight_new"
+	"weapon17_best"						"0"
+	"weapon17_cycle"					"0"
+	"weapon17_toggle"					"0"
+	"weapon17_allowempty"				"0"
+	"weapon17_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon18"						"weapon_pda"
+	"weapon18_best"						"0"
+	"weapon18_cycle"					"0"
+	"weapon18_toggle"					"0"
+	"weapon18_allowempty"				"1"
+	"weapon18_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"current_weapon"					"1"
+
+	"weapontoggle0"						"0,1"
+	"weapontoggle3"						"3,4"
+
+	//D3XP Max ammo definitions
+	"max_ammo_bloodstone"				"3000"
+}
+
+
+entityDef d3xp_player_doommarine  {
+
+	"inherit"							"player_base_d3xp_sp"
+	"model"								"model_d3xp_sp_marine"
+	"snd_decompress"					"sound/air_and_vents/decompress.wav"
+	"snd_recompress"					"sound/air_and_vents/recompress.wav"
+	"snd_airless"						"player_sounds_noAir"
+	"def_head"							"model_d3xp_sp_head"
+	"head_joint"						"Shoulders"
+	"copy_joint neckcontrol"			"neckcontrol"
+	"copy_joint headcontrol"			"headcontrol"
+	"copy_joint_world eyecontrol"		"eyecontrol"
+	"text_infoTitle"					"#str_02908"
+	"text_noPDA"						"#str_02034"
+	"text_PDANeeded"					"#str_02909"
+	"text_firstPDA"						"#str_02035"
+
+	"slowmo"							"0"					// _D3XP
+
+	"snd_helltime_start"				"helltime_start"	// _D3XP
+	"snd_helltime_loop"					"helltime_loop"		// _D3XP
+	"snd_helltime_stop"					"helltime_stop"		// _D3XP
+
+	"def_ammo_bloodstone_normal"		"ammo_bloodstone_normal" // Precache here since it's given to the player via script
+}
+
+entityDef d3xp_player_doommarine_hell  {
+	"inherit"							"d3xp_player_doommarine"
+
+	"skin_player"						"skins/hell/player"
+	"skin_player_d3xp"					"skins/hell/player_d3xp"
+	"skin_playerteleportin"				"skins/hell/playerteleportin"
+}
+
+//
+// This is the light that is attached to your head in the envirosuit
+//
+entityDef envirosuit_light {
+	"spawnclass"				"idLight"
+	"_color"					"1.0 1.0 1.0"
+	"texture"					"lights/flashlight5"
+
+								// forward  left  up
+	"enviro_offset"				"0 -15 13"
+
+								// pitch(90==forward, positive==down)    yaw(positve==left)    roll
+	"enviro_angle_offset"		"94 6 0"
+
+	"light_target"				"0 0 1280"
+	"light_right"				"-640 0 0"
+	"light_up"					"0 640 0"
+}

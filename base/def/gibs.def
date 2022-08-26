@@ -1,0 +1,283 @@
+
+/***************************************************
+(GIBS) Right Upper Arm Stub
+***************************************************/
+
+export fred {
+	options -prefix GIB1_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/ruparmstubgib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/ruparmstubgib
+}
+
+model env_gibs_ruparmstub {
+	mesh							models/md5/gibs/ruparmstubgib.md5mesh
+	anim af_pose					models/md5/gibs/ruparmstubgib.md5anim
+	anim idle						models/md5/gibs/ruparmstubgib.md5anim
+	anim initial					models/md5/gibs/ruparmstubgib.md5anim
+}
+
+entityDef env_gibs_ruparmstub {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Right Upper Arm Stub Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_ruparmstub"
+	"articulatedFigure"				"env_gibs_ruparmstub.af"
+}
+
+/***************************************************
+(GIBS) Left Arm
+***************************************************/
+
+export fred {
+	options -prefix GIB2_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/leftarmgib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/leftarmgib
+}
+
+model env_gibs_leftarm {
+	mesh 							models/md5/gibs/leftarmgib.md5mesh
+	anim af_pose					models/md5/gibs/leftarmgib.md5anim
+	anim idle						models/md5/gibs/leftarmgib.md5anim
+	anim initial					models/md5/gibs/leftarmgib.md5anim
+}
+
+entityDef env_gibs_leftarm {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Left Full Arm Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_leftarm"
+
+	"articulatedFigure"				"env_gibs_leftarm.af"
+}
+
+/***************************************************
+(GIBS) Left Leg
+***************************************************/
+
+export fred {
+	options -prefix GIB3_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/leftleggib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/leftleggib
+}
+
+model env_gibs_leftleg {
+	mesh							models/md5/gibs/leftleggib.md5mesh
+	anim af_pose					models/md5/gibs/leftleggib.md5anim
+	anim idle						models/md5/gibs/leftleggib.md5anim
+	anim initial					models/md5/gibs/leftleggib.md5anim
+}
+
+entityDef env_gibs_leftleg {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Left Full Leg Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_leftleg"
+	"articulatedFigure"				"env_gibs_leftleg.af"
+}
+
+/***************************************************
+(GIBS) Right Lower Leg Stump
+***************************************************/
+
+export fred {
+	options -prefix GIB4_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/rtlolegstumpgib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/rtlolegstumpgib
+}
+
+model env_gibs_rtlolegstump {
+	mesh							models/md5/gibs/rtlolegstumpgib.md5mesh
+	anim af_pose					models/md5/gibs/rtlolegstumpgib.md5anim
+	anim idle						models/md5/gibs/rtlolegstumpgib.md5anim
+	anim initial					models/md5/gibs/rtlolegstumpgib.md5anim
+}
+
+entityDef env_gibs_rtlolegstump {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Right Lower Leg Stump Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_rtlolegstump"
+	"articulatedFigure"				"env_gibs_rtlolegstump.af"
+}
+
+/***************************************************
+(GIBS) Right Upper Leg Stump
+***************************************************/
+
+export fred {
+	options -prefix GIB5_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/rtuplegstumpgib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/rtuplegstumpgib
+}
+
+model env_gibs_rtuplegstump {
+	mesh							models/md5/gibs/rtuplegstumpgib.md5mesh
+	anim af_pose					models/md5/gibs/rtuplegstumpgib.md5anim
+	anim idle						models/md5/gibs/rtuplegstumpgib.md5anim
+	anim initial					models/md5/gibs/rtuplegstumpgib.md5anim
+}
+
+entityDef env_gibs_rtuplegstump {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Right Upper Leg Stump Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_rtuplegstump"
+	"articulatedFigure"				"env_gibs_rtuplegstump.af"
+}
+
+/***************************************************
+(GIBS) Torso
+***************************************************/
+
+export fred {
+	options -prefix GIB6_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/torsogib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/torsogib
+}
+
+model env_gibs_torso {
+	mesh							models/md5/gibs/torsogib.md5mesh
+	anim af_pose					models/md5/gibs/torsogib.md5anim
+	anim idle						models/md5/gibs/torsogib.md5anim
+	anim initial					models/md5/gibs/torsogib.md5anim
+}
+
+entityDef env_gibs_torso {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Torso Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_torso"
+	"articulatedFigure"				"env_gibs_torso.af"
+}
+
+/***************************************************
+(GIBS) Spinal Cord
+***************************************************/
+
+export fred {
+	options -prefix GIB7_
+	mesh	models/gibs/cycles/initial.mb -dest models/md5/gibs/spinegib
+	anim	models/gibs/cycles/initial.mb -dest models/md5/gibs/spinegib
+}
+
+model env_gibs_spine {
+	mesh							models/md5/gibs/spinegib.md5mesh
+	anim af_pose					models/md5/gibs/spinegib.md5anim
+	anim idle						models/md5/gibs/spinegib.md5anim
+	anim initial					models/md5/gibs/spinegib.md5anim
+}
+
+entityDef env_gibs_spine {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+
+	"editor_usage"					"Spinal Cord Gib."
+
+	"spawnclass"					"idAFEntity_Generic"
+	"snd_bounce"					"bodyparts"
+
+	"model"							"env_gibs_spine"
+	"articulatedFigure"				"env_gibs_spine.af"
+}
+
+/***************************************************
+ragdoll skeleton
+***************************************************/
+
+export fred {
+	options		-prefix SKEL_ -align ALL -parent Loneck Shoulders  -sourcedir models/monsters/skeleton/cycles -destdir models/md5/monsters/skeleton
+	mesh		skeleton_mesh.mb -dest skeleton
+	anim		idle.mb
+	anim		initial.mb
+}
+
+model env_ragdoll_skeleton {
+	mesh							models/md5/monsters/skeleton/skeleton.md5mesh
+	skin 							skins/monsters/skeleton/skragdoll.skin
+	anim af_pose					models/md5/monsters/skeleton/initial.md5anim
+	anim initial					models/md5/monsters/skeleton/initial.md5anim
+	anim idle						models/md5/monsters/skeleton/idle.md5anim
+}
+
+entityDef env_ragdoll_skeleton {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"editor_usage"					"Ragdoll for skeleton"
+
+	"spawnclass"					"idAFEntity_Generic"
+	"sleep"							"1"
+
+	"model"							"env_ragdoll_skeleton"
+	"articulatedFigure"				"env_skeleton"
+	
+	"gib"							"1"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_skelgib_skull"
+	"dropGibItem1Joint"				"Shoulders"
+
+	"def_dropGibItem2"				"moveable_item_skelgib_rib"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_skelgib_bone"
+	"dropGibItem3Joint"				"Luparm"
+
+	"def_dropGibItem4"				"moveable_item_skelgib_bone"
+	"dropGibItem4Joint"				"Rloarm"
+
+	"def_dropGibItem5"				"moveable_item_skelgib_bone"
+	"dropGibItem5Joint"				"Lloarm"
+
+	"skin_dropGib"					"skins/monsters/skeleton/skragdoll_gib"
+}
+
+model env_ragdoll_skeleton2 {
+	inherit							env_ragdoll_skeleton
+	skin 							skins/monsters/skeleton/skragdoll2.skin
+}
+
+entityDef env_ragdoll_skeleton2 {
+	"inherit"						"env_ragdoll_skeleton"
+
+	"model"							"env_ragdoll_skeleton2"
+}

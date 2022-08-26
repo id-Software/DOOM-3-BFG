@@ -1,0 +1,339 @@
+/***********************************************************************
+
+	monster_boss_cyberdemon.def
+
+***********************************************************************/
+
+export fred {
+
+	options -prefix CB_ -keep Waist Rclavicle Lloleg cyber_barrel_smoke cyber_lfoot_dust cyber_rfoot_dust cyber_mouth_fire cyber_mouth_fire_L cyber_mouth_fire_R Lknee Rknee Barrel ROT fx cyber_backfire1 cyber_backfire2 cyber_backfire3 -parent fx Barrel -parent Barrel Rwrist -parent Lknee Hips -parent Rknee Hips -parent Waist ROT -parent ROT Body -parent cyber_lfoot_dust Ltoe_r -parent cyber_rfoot_dust Rtoe_r -parent cyber_barrel_smoke Rwrist -sourcedir models/monsters/cyberdemon/cycles -destdir models/md5/monsters/cyberdemon
+
+	mesh	cyberdeath.mb -dest cyberdeath_cyberdemon -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 1 1 -dest cyberdeath_cyberdemon_bind -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 44 89 -dest cyberdeath_cyberdemon_a -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 90 199 -dest cyberdeath_cyberdemon_b -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 200 220 -dest cyberdeath_cyberdemon_c -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 221 275 -dest cyberdeath_cyberdemon_d -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 276 340 -dest cyberdeath_cyberdemon_e -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 341 372 -dest cyberdeath_cyberdemon_f -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 373 428 -dest cyberdeath_cyberdemon_g -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 429 548 -dest cyberdeath_cyberdemon_h -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberdeath.mb -range 549 800 -dest cyberdeath_cyberdemon_i -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+
+	options -prefix CD_ -keep Rclavicle cyber_barrel_smoke cyber_lfoot_dust cyber_rfoot_dust cyber_mouth_fire cyber_mouth_fire_R cyber_mouth_fire_L Lknee Rknee Barrel ROT fx cyber_backfire1 cyber_backfire2 cyber_backfire3 -parent fx Barrel -parent Barrel Rwrist -parent Lknee Hips -parent Rknee Hips -parent Waist ROT -parent ROT Body -parent cyber_lfoot_dust Ltoe_r -parent cyber_rfoot_dust Rtoe_r -parent cyber_barrel_smoke Rwrist -sourcedir models/monsters/cyberdemon/cycles -destdir models/md5/monsters/cyberdemon
+
+	//anim	cyberintro.mb -dest cyberintro_cyberdemon -range 30 765 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon1 -range 30 104 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon2 -range 105 220 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon3 -range 221 252 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon4 -range 253 337 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon5 -range 338 492 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon6 -range 493 542 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon7 -range 543 654 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon8 -range 655 732 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+	anim	cyberintro.mb -dest cyberintro_cyberdemon9 -range 733 765 -sourcedir maps/fred/cyberdemon -destdir models/md5/cinematics/hellhole -prefix CB_
+
+
+	addoptions -align ALL	
+
+	mesh	cyberdemon.mb
+	anim	idle.mb
+	anim	walk2.mb
+	anim	walk3.mb
+	anim	sight1.mb
+	anim	sight.mb
+	anim	turret.mb
+	anim	turret3.mb
+	anim	oneshot.mb
+	anim	twoshot.mb
+	anim	bite1.mb
+	anim	af_pose.mb
+	anim	ik_pose.mb
+	anim	stomp.mb -xyzprecision .01 -quatprecision 0.00006
+	anim	walkheadpain.mb
+	anim	walkleftarmpain.mb
+	anim	walkrightarmpain.mb
+	anim	bite1.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	death.mb -range 1 1
+	anim	pain_big1.mb
+	
+
+}
+
+model monster_boss_cyberdemon {
+	mesh							models/md5/monsters/cyberdemon/cyberdemon.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *Hips Body origin ROT -*Waist)
+
+	anim af_pose					models/md5/monsters/cyberdemon/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/cyberdemon/ik_pose.md5anim
+
+	anim stand						models/md5/monsters/cyberdemon/idle.md5anim
+	anim idle						models/md5/monsters/cyberdemon/idle.md5anim
+	anim sight1						models/md5/monsters/cyberdemon/sight.md5anim {
+
+		frame 16.5					sound_voice	snd_sight1
+
+	}
+	anim walk						models/md5/monsters/cyberdemon/walk3.md5anim {
+		frame 17					sound_body snd_footstep
+		frame 17					triggerSmokeParticle cyber_rfoot_dust
+		frame 37					sound_body snd_footstep
+		frame 37					triggerSmokeParticle cyber_lfoot_dust
+	}
+	anim pain						models/md5/monsters/cyberdemon/pain_big1.md5anim {
+		frame 1						call overrideLegs
+		frame 1						sound_voice	snd_pain
+		frame 16					sound_body snd_footstep
+		frame 49					sound_body snd_footstep
+	}
+
+	anim pain_chest					models/md5/monsters/cyberdemon/pain_big1.md5anim  {
+		frame 1						call overrideLegs
+		frame 1						sound_voice	snd_pain
+		frame 16					sound_body snd_footstep
+		frame 49					sound_body snd_footstep
+	}
+
+	anim pain_head					models/md5/monsters/cyberdemon/pain_big1.md5anim  {
+		frame 1						call overrideLegs
+		frame 1						sound_voice	snd_pain
+		frame 16					sound_body snd_footstep
+		frame 49					sound_body snd_footstep
+	}
+
+	anim pain_left_arm				models/md5/monsters/cyberdemon/pain_big1.md5anim  {
+		frame 1						call overrideLegs
+		frame 1						sound_voice	snd_pain
+		frame 16					sound_body snd_footstep
+		frame 49					sound_body snd_footstep
+	}
+
+	anim pain_right_arm				models/md5/monsters/cyberdemon/pain_big1.md5anim {
+		frame 1						call overrideLegs
+		frame 1						sound_voice	snd_pain
+		frame 16					sound_body snd_footstep
+		frame 49					sound_body snd_footstep
+	}
+
+	//anim melee_attack1				models/md5/monsters/cyberdemon/stomp.md5anim {
+	//	frame 18					melee melee_cyberdemon_kick
+	//	frame 18					sound_body snd_footstep
+	//	frame 19					sound_voice snd_footstep
+	//}
+	anim range_attack1				models/md5/monsters/cyberdemon/turret3.md5anim {
+		frame 19						sound_weapon snd_attackmissile
+		frame 19						launch_missile Barrel
+		frame 42						sound_weapon snd_attackmissile
+		frame 42						launch_missile Barrel
+		frame 66						sound_weapon snd_attackmissile
+		frame 66						launch_missile Barrel
+	}
+	anim range_attack2				models/md5/monsters/cyberdemon/oneshot.md5anim {
+		frame 19						sound_weapon snd_attackmissile
+		frame 19						launch_missile Barrel
+	}
+	anim range_attack3				models/md5/monsters/cyberdemon/twoshot.md5anim {
+		frame 19						sound_weapon snd_attackmissile
+		frame 19						launch_missile Barrel
+		frame 42						sound_weapon snd_attackmissile
+		frame 42						launch_missile Barrel
+	}
+
+	anim death						models/md5/monsters/cyberdemon/death.md5anim
+}
+
+entityDef monster_boss_cyberdemon {
+	"inherit"						"monster_default"
+	"editor_mins"					"-90 -90 0"
+	"editor_maxs"					"90 90 300"
+	"scriptobject"					"monster_boss_cyberdemon"
+	"model"							"monster_boss_cyberdemon"
+	"ragdoll"						"monster_boss_cyberdemon"
+	"size"							"100 100 300"
+	"use_aas"						"aas_cyberdemon"
+	"team"							"1"
+	"rank"							"3"
+	"health"						"4000"
+	"mass"							"1000"
+	"def_projectile"				"projectile_cyber_rocket"
+	"fov"							"120"
+	"attack_cone"					"120"
+	"attack_accuracy"				"2"
+	"melee_range"					"95"
+	"combat_chatter_min"			"2"
+	"combat_chatter_max"			"4"
+	"af_push_moveables"				"1"
+	
+	"def_kickdamage"				"melee_cyberdemon_kick"
+	
+	"big_monster"					"1"		// makes his bounding box non-solid to other monsters
+
+	"smokeParticleSystem1"			"cyber_barrel_smoke"
+	"smokeParticleSystem2"			"cyber_backfire1"
+	"smokeParticleSystem3"			"cyber_backfire2"
+	"smokeParticleSystem4"			"cyber_backfire3"
+	"smokeParticleSystem5"			"cyber_mouth_fire"
+	"smokeParticleSystem6"			"cyber_mouth_fire_L"
+	"smokeParticleSystem7"			"cyber_mouth_fire_R"
+	"smokeParticleSystem8"			"cyber_rfoot_dust"
+	"smokeParticleSystem9"			"cyber_lfoot_dust"
+	
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_scale head"				"1"
+
+	"pain_threshold"				"150"
+	"finalBoss"						"1"
+
+	"focus_align_time"				"0"
+	"head_focus_rate"				"0.05"
+	"head_look"						"1"
+	"bone_focus"					"Barrel"
+	"look_min"						"-90 -120 0"
+	"look_max"						"25 120 0"
+	"look_joint Waist"				"0.4 0.4 0.4"
+	"look_joint Chest"				"0.4 0.4 0.4"
+	"look_joint Head"				"0.2 0.2 0.2"
+	"look_joint Rshldr"				"0.1 0.2 0.1"
+	"look_joint Relbow"				"0.1 0.2 0.1"
+	"turn_rate"						"75"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"20"
+	"ik_minWaistAnkleDist"			"50"
+	"ik_footUpTrace"				"32"
+	"ik_footDownTrace"				"128"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"cyber_lfoot_dust"
+	"ik_foot2"						"cyber_rfoot_dust"
+
+	"snd_sight1"					"monster_boss_cyberdemon_sight1"
+	"snd_chatter"					"monster_boss_cyberdemon_chatter"
+	"snd_chatter_combat"			"monster_boss_cyberdemon_chatter_combat"
+	"snd_pain"						"monster_boss_cyberdemon_pain"
+	"snd_attackmissile"				"monster_boss_cyberdemon_attackmissile"
+	"snd_footstep"					"monster_boss_cyberdemon_step"
+}
+
+entityDef melee_cyberdemon_kick {
+	"damage"						"400"
+	"kickDir"						"1 0 1"
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"300"
+	"gib"							"1"
+	"blob_x"						"0"
+	"blob_y"						"-50"
+	"blob_width"					"650"
+	"blob_height"					"650"
+	"knockback"						"100"
+	"push"							"2000"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef projectile_cyber_rocket {
+	"spawnclass"				"idProjectile"
+	"mins"						"-6 -6 -9"
+	"maxs"						"6 6 9"
+	"cone"						"3"
+	"model"						"models/monsters/cyberdemon/cdrocket.lwo"
+
+	"def_damage"				"damage_CyberrocketDirect"
+	"def_splash_damage"			"damage_CyberRocketSplash"
+
+	"launchFromBarrel"			"1"					// launch from barrel
+	"health"					"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"900 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"4"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"300"
+	"gravity"					"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"		"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+								
+	"mtr_detonate"				"textures/decals/ballburn01"
+	"decal_size"				"75"
+
+	"smoke_fly"					"rockettrail.prt"		// particle effect while in the air
+	// parametric particles -- temp
+	"model_detonate"			"rocketExplosion.prt"
+	"smoke_detonate"			""						// particle effect when detonates
+	"smoke_residue"				""						// particle effect while in the air
+	"smoke_bounce"				""
+	"smoke_fuse"				""
+
+	"debris_count"				"6"
+	"def_debris"				"debris_largeshrapnel"
+	"def_shrapnel"				"debris_shrapnel"
+	
+	"mtr_light_shader"			""
+	"light_color"				"1 0.8 0.4"
+	"light_radius"				"160"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	"muzzleflash"
+	"explode_light_color"		"2 1.6 0.8"
+	"explode_light_radius"		"320"
+	"explode_light_fadetime"	"0.5"
+
+	"snd_fly"					"rocket_flight"					// sound effect while in the air
+	"snd_explode"				"rocket_impact"
+}
+
+entityDef damage_CyberrocketDirect {
+	"kickDir"			"1 0 0"
+	"damage"			"40"
+	"knockback"			"0"
+	"push"				"2000"
+	"smoke_wound_flesh"	"bloodwound.smoke"
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+	"mtr_splat_flesh"	""
+	"gib"				"1"
+	
+	"kick_time"			"600"
+	"kick_amplitude"	"4"
+
+	"dv_time"			"500"
+}
+
+entityDef damage_CyberRocketSplash {
+	"damage"			"40"
+	"radius"			"40"
+	"knockback"			"0"
+	"push"				"5000"
+	"gib"				"1"
+	"smoke_wound_flesh"	"bloodwound.smoke"
+
+	"kick_time"			"600"
+	"kick_amplitude"	"4"
+
+	"dv_time"			"500"
+}

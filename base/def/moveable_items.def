@@ -1,0 +1,177 @@
+
+/***********************************************************************
+
+ moveable items
+
+***********************************************************************/
+
+entityDef moveable_item_default {
+	"inherit"					"item_default"
+	"spawnclass"				"idMoveableItem"
+}
+
+entityDef moveable_item_shield {
+	"inherit"					"moveable_item_default"
+	"model"						"models/monsters/zsecurity/zsheild.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	"gib"						"1"
+	"model_gib"					""
+}
+
+entityDef moveable_item_lantern {
+	"inherit"					"moveable_item_default"
+	"model"						"models/items/lantern/lantern_world.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"skin"						"skins/models/mapobjects/lanternoff.skin"
+	"nopulse"					"1"
+	"snd_bounce"				"tray_impact"
+}
+
+entityDef moveable_item_tabletpc {
+	"inherit"					"moveable_item_default"
+	"model"						"models/items/tablet/tablet_world.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+}
+
+entityDef moveable_item_helmet {
+	"inherit"					"moveable_item_default"
+	"model"						"models/characters/sarge2/w_helmet.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_item_skull_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/skull_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_head_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/head_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_torso_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/torso_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_rup_arm_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/rup_arm_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_left_waist_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/left_waist_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_lup_leg_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/lup_leg_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_rup_leg_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/rup_leg_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_rup2_leg_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/rup2_leg_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_pelvis_pork {
+	"inherit"					"moveable_item_default"
+	"model"						"models/gibs/pelvis_pork.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0.1"
+	"smoke_trail"				"gibwound.prt"
+	"nopulse"					"1"
+	"snd_bounce"				"bodyparts"
+}
+
+entityDef moveable_item_armor_security {
+	"inherit"					"item_armor_security"
+	"spawnclass"				"idMoveableItem"
+	"model" 					"models/items/armor/d3xp_armor_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_item_medkit {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"item_medkit"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/medkit/d3xp_medkit_large.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}

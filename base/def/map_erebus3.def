@@ -1,0 +1,211 @@
+/***********************************************************************
+
+Erebus3_Dying_Marine
+
+***********************************************************************/
+
+model erebus3_dying_marine_head {
+	skin							skins/characters/npcs/head_bald_bloody.skin
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim talk_trigger				models/md5/characters/npcs/heads/h3trigger.md5anim
+	anim talk_secondary1			models/md5/characters/npcs/heads/h3secondary.md5anim
+	anim talk_primary				models/md5/characters/npcs/heads/h3primary.md5anim
+	anim dead						models/md5/characters/npcs/heads/h3dead.md5anim
+	anim pain						models/md5/characters/npcs/heads/h3secondary.md5anim
+}
+
+model erebus3_dying_marine {
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *origin )
+
+	skin							skins/characters/npcs/body_marine_bloody.skin
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim stand						models/md5/chars/wounded_marine_idle.md5anim
+	anim idle						models/md5/chars/wounded_marine_idle.md5anim
+	anim talk_trigger				models/md5/chars/wounded_marine_secondary.md5anim {
+		frame 1							sound_voice erebus3_dying_marine_death
+		frame 1							call headlook_off
+	}
+	/*
+	anim talk_primary				models/md5/chars/wounded_marine_primary.md5anim {
+		frame 1							sound_voice erebus3_dying_marine_there_are
+	}
+	anim talk_secondary1			models/md5/chars/wounded_marine_secondary.md5anim {
+		frame 1							sound_voice erebus3_dying_marine_death
+		frame 1							call headlook_off
+	}
+	*/
+	anim pain						models/md5/chars/wounded_marine_secondary.md5anim {
+		frame 1							sound_voice erebus3_dying_marine_death
+	}
+}
+
+entityDef erebus3_dying_marine {
+	//"inherit"						"character_default"
+	"inherit"						"npc_base"
+	"scriptobject"					"ai_character_erebus3"
+	"model"							"erebus3_dying_marine"
+	"anim"							"idle"
+	"size"							"64 20 32"
+	"use_aas"						""
+	"turn_rate"						"0"
+	"eye_height"					"28"
+	"die_after_speaking"			"1"
+	"copy_joint_world eyecontrol"	""
+	"gib"							"1"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"eye_turn_min"					"0 0 0"
+	"eye_turn_max"					"0 0 0"
+
+	"eye_focus_rate"				"0"
+
+	"talk0_blendin"					"20"
+	"talk0_blendout"				"20"
+	"talk1_blendin"					"20"
+	"talk1_blendout"				"20"
+	"talk2_blendin"					"20"
+	"talk2_blendout"				"20"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		".5 .5 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+
+	"head_focus_rate"				"0.5"
+	"def_head"						"erebus3_dying_marine_head"
+	"head_joint"					"Shoulders"
+
+	"ragdoll"						"char_wounded_marine"
+
+	// no damage zones needed
+	"damage_zone chest"				""
+	"damage_zone left_arm"			""
+	"damage_zone right_arm"			""
+	"damage_zone legs"				""
+
+	// Harvest on Death
+
+	"harvest_on_death"			"1"
+	"def_harvest_type"				"env_harvest_default"
+	"harvest_sound"				"snd_harvest_whisper"
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"skin_harvest"				"skins/characters/npcs/bloody_marine_body_harvest.skin"
+	"skin_harvest_head"			"skins/characters/npcs/head_bald_bloody_harvest.skin"
+	"skin_harvest_burn"			"skins/characters/npcs/bloody_marine_body_harvest_burn.skin"
+	"skin_harvest_burn_head"	"skins/characters/npcs/head_bald_bloody_harvest_burn.skin"
+
+	"snd_harvest_whisper"			"harvest_whisper"
+
+}
+
+/********************************************
+*
+*	TRANSFORMING NPC
+*
+********************************************/
+
+export cine_erebus3 {
+
+//TRANSFORM BODY
+	options -prefix ZOMBIE_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -align ALL
+	addoptions -keepmesh labcoatmesh
+
+	anim	models/cinematics/erebus3/cine_zombie.mb -dest models/md5/cinematics/erebus3/trans_zombie
+	anim	models/cinematics/erebus3/cine_zombie.mb -range 0 0 -dest models/md5/cinematics/erebus3/trans_zombie_idle
+
+//TRANSFORM HEAD
+	options -prefix H3_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	anim models/characters/heads/head03_bald/transform.mb -rotate 90 -dest models/md5/characters/npcs/heads/erebus3_transform
+}
+
+skin skins/erebus3_transfrom_npc_head_transform {
+	models/characters/scientist/head03/head03	models/characters/male_npc/zombified_npc_headfx1
+}
+
+skin skins/erebus3_transfrom_npc_head_zombie {
+	models/characters/scientist/head03/head03	models/characters/male_npc/zombified_npc_head
+}
+
+model erebus3_transform_npc_head {
+	inherit						head_bald
+	anim transform				models/md5/characters/npcs/heads/erebus3_transform.md5anim {
+		frame	24					skin skins/erebus3_transfrom_npc_head_transform
+		frame	24					call setShaderTime
+		frame	310					skin skins/erebus3_transfrom_npc_head_zombie
+	}
+}
+
+model erebus3_transform_npc {
+
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/labcoatzombie.md5mesh
+	skin							skins/monsters/zombies/labcoat.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim stand						models/md5/cinematics/erebus3/trans_zombie_idle.md5anim
+	anim transform					models/md5/cinematics/erebus3/trans_zombie.md5anim {
+		frame 12						sound_voice2 e3_transform_triggered1
+		frame 40						sound_voice2 e3_transform_triggered2
+		frame 107						sound_voice2 e3_transform_transform1
+	}
+}
+
+entityDef erebus3_transform_npc {
+
+	"inherit"						"monster_zombie_base"
+	"model"							"erebus3_transform_npc"
+	"skin"							"skins/monsters/zombies/labcoat.skin"
+	"def_head"						"erebus3_transform_npc_head"
+	"head_joint"					"Shoulders"
+	"health"						"1"
+	// Harvest on Death
+
+	"harvest_on_death"				"1"
+	"def_harvest_type"					"env_harvest_default"
+	"harvest_sound"					"snd_harvest_whisper"
+
+	"skin_harvest"					"skins/characters/npcs/labcoat_harvest.skin"
+	"skin_harvest_head"				"skins/characters/npcs/head_bald_bloody_harvest.skin"
+	"skin_harvest_burn"				"skins/characters/npcs/labcoat_harvest_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/head_bald_bloody_harvest_burn.skin"
+
+	"snd_harvest_whisper"			"harvest_whisper"
+}

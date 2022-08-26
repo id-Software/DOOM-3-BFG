@@ -1,0 +1,11 @@
+entityDef moveable_item_aircannister_exis {
+	"inherit"					"item_aircannister"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/mapobjects/phobos/envirotank.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"nopulse"					"1"
+
+	"snd_bounce"				"smallbox"
+}

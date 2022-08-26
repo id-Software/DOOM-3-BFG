@@ -1,0 +1,802 @@
+ /***********************************************************************
+
+Heads without bodies
+
+***********************************************************************/
+
+export fred {
+	
+options -prefix H1_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/characters/heads/head01_old/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h1
+	anim models/characters/heads/head01_old/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h1idle
+	anim models/characters/heads/head01_old/blink.mb -rotate 90 -dest models/md5/characters/npcs/heads/h1blink
+	anim models/characters/heads/head01_old/death.mb -rotate 90 -dest models/md5/characters/npcs/heads/h1death
+	
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_1.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_1	
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_2.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_2
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_3.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_3
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_4.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_4
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_5.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_5
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_6.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_6
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_7.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_7
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_8.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_8
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_9.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_9
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_10.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_10
+	anim models/characters/heads/head01_old/lantern_scientist_trigger_11.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_trigger_11
+	anim models/characters/heads/head01_old/lantern_scientist_primary_1.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_primary_1
+	anim models/characters/heads/head01_old/lantern_scientist_secondary_1.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_secondary_1
+	anim models/characters/heads/head01_old/lantern_scientist_secondary_2.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_secondary_2
+	anim models/characters/heads/head01_old/lantern_scientist_secondary_3.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_secondary_3
+	anim models/characters/heads/head01_old/lantern_scientist_secondary_4.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_secondary_4
+	anim models/characters/heads/head01_old/lantern_scientist_attacked_1.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_attacked_1
+	anim models/characters/heads/head01_old/lantern_scientist_attacked_2.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_attacked_2
+	anim models/characters/heads/head01_old/lantern_scientist_saved_1.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_saved_1
+	anim models/characters/heads/head01_old/lantern_scientist_saved_2.mb -rotate 90 -dest models/md5/heads/old/alphalabs2/scientist_saved_2
+	
+	anim models/characters/heads/head01_old/frag_scientist_primary.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_primary
+	anim models/characters/heads/head01_old/frag_scientist_secondary.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_secondary
+	anim models/characters/heads/head01_old/frag_scientist_secondary2.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_secondary2
+	anim models/characters/heads/head01_old/frag_scientist_trigger.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger
+	anim models/characters/heads/head01_old/frag_scientist_trigger2.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger2
+	anim models/characters/heads/head01_old/frag_scientist_trigger3.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger3
+	anim models/characters/heads/head01_old/frag_scientist_trigger4.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger4
+	anim models/characters/heads/head01_old/frag_scientist_trigger5.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger5
+	anim models/characters/heads/head01_old/frag_scientist_trigger6.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger6
+	anim models/characters/heads/head01_old/frag_scientist_trigger10.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger10
+	anim models/characters/heads/head01_old/frag_scientist_trigger11.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger11
+	anim models/characters/heads/head01_old/frag_scientist_trigger12.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger12
+	anim models/characters/heads/head01_old/frag_scientist_trigger13.mb -rotate 90 -dest models/md5/characters/npcs/heads/alphalabs4/frag_scientist_trigger13
+	
+	anim models/characters/heads/head01_old/charles_dontlisten.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/charles_dontlisten
+	anim models/characters/heads/head01_old/charles_shouldnttalk.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/charles_shouldnttalk
+	anim models/characters/heads/head01_old/charles_hey.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/charles_hey
+	anim models/characters/heads/head01_old/charles_notmybiz.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/charles_notmybiz
+	
+	anim models/characters/heads/head01_old/civ1_1.mb -rotate 90 -dest models/md5/heads/old/marscity/civ1_1
+	anim models/characters/heads/head01_old/civ1_2.mb -rotate 90 -dest models/md5/heads/old/marscity/civ1_2
+	anim models/characters/heads/head01_old/civ1_3.mb -rotate 90 -dest models/md5/heads/old/marscity/civ1_3
+	anim models/characters/heads/head01_old/civ1_4.mb -rotate 90 -dest models/md5/heads/old/marscity/civ1_4
+
+	anim models/characters/heads/head01_old/site3_trigger.mb -rotate 90 -dest models/md5/heads/old/site3/sci_trigger
+	anim models/characters/heads/head01_old/site3_primary.mb -rotate 90 -dest models/md5/heads/old/site3/sci_primary
+	anim models/characters/heads/head01_old/site3_secondary1.mb -rotate 90 -dest models/md5/heads/old/site3/sci_secondary1
+	anim models/characters/heads/head01_old/site3_secondary2.mb -rotate 90 -dest models/md5/heads/old/site3/sci_secondary2
+
+}
+
+export fred {
+	options -prefix H2_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim Focus -parent Head headcontrol  -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head -parent Focus headcontrol -parent Reyeaim Focus -parent Leyeaim Focus
+
+	mesh models/characters/heads/head02_young/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h2
+	anim models/characters/heads/head02_young/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h2idle
+	anim models/characters/heads/head02_young/blink.mb -rotate 90 -dest models/md5/characters/npcs/heads/h2blink
+	anim models/characters/heads/head02_young/death.mb -rotate 90 -dest models/md5/characters/npcs/heads/h2death
+
+	anim models/characters/heads/head02_young/windowsec.mb -range 1 965 -rotate 90 -dest models/md5/characters/npcs/heads/h2mc1window
+	
+	anim models/characters/heads/head02_young/daniel_01.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/daniel_01
+	anim models/characters/heads/head02_young/daniel_02.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/daniel_02
+	anim models/characters/heads/head02_young/daniel_03.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/daniel_03
+	anim models/characters/heads/head02_young/daniel_excuseme.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/daniel_excuseme
+	anim models/characters/heads/head02_young/daniel_donttouchthat.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/daniel_donttouchthat
+	
+	anim models/characters/heads/head02_young/ian_trigger.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ian_trigger
+	anim models/characters/heads/head02_young/ian_primary.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ian_primary
+	anim models/characters/heads/head02_young/ian_secondary.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ian_secondary
+
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 1 1 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead1
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 50 150 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead3
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 127 680 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead4
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 680 780 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead5
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 780 890 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead6
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 890 995 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead7
+	anim models/characters/heads/head02_young/monorail_riderhead.mb -range 995 1100 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead8
+	anim models/characters/heads/head02_young/monorail_rider_before_trigger.mb -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_before_trigger
+
+	anim models/characters/heads/head02_young/monorail_riderhead_suprise.mb -range 1 60 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead2
+	
+	anim models/characters/heads/head02_young/monorail_riderhead_notrig.mb -range 0 105 -rotate 90 -dest models/md5/characters/npcs/heads/monorail/monorail_riderhead9
+	anim models/characters/heads/head02_young/mc_checkin_cleared.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_cleared
+	anim models/characters/heads/head02_young/mc_checkin_gonnaneed.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_gonnaneed
+	anim models/characters/heads/head02_young/mc_checkin_holdstill.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_holdstill
+	anim models/characters/heads/head02_young/mc_checkin_idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_idle
+	anim models/characters/heads/head02_young/mc_checkin_letmeget.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_letmeget
+	anim models/characters/heads/head02_young/mc_checkin_waisting.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_waisting
+	anim models/characters/heads/head02_young/mc_checkin_welcome.mb -rotate 90 -dest models/md5/characters/npcs/heads/marscity/checkin_welcome
+	
+	anim models/characters/heads/head02_young/marine1_sitting_1_1.mb -rotate 90 -dest models/md5/heads/young/marscity/marine1_sitting_1_1
+	anim models/characters/heads/head02_young/marine1_sitting_1_2.mb -rotate 90 -dest models/md5/heads/young/marscity/marine1_sitting_1_2
+	anim models/characters/heads/head02_young/marine1_sitting_1_3.mb -rotate 90 -dest models/md5/heads/young/marscity/marine1_sitting_1_3
+	anim models/characters/heads/head02_young/marine1_sitting_1_4.mb -rotate 90 -dest models/md5/heads/young/marscity/marine1_sitting_1_4
+	anim models/characters/heads/head02_young/marine1_sitting_1_5.mb -rotate 90 -dest models/md5/heads/young/marscity/marine1_sitting_1_5
+	anim models/characters/heads/head02_young/marine1_sitting_1_6.mb -rotate 90 -dest models/md5/heads/young/marscity/marine1_sitting_1_6
+	
+	anim models/characters/heads/head02_young/marine2_hq_1.mb -rotate 90 -dest models/md5/heads/young/marscity/marine2_hq_1
+	anim models/characters/heads/head02_young/marine2_hq_2.mb -rotate 90 -dest models/md5/heads/young/marscity/marine2_hq_2
+	anim models/characters/heads/head02_young/marine2_hq_3.mb -rotate 90 -dest models/md5/heads/young/marscity/marine2_hq_3
+
+	anim models/characters/heads/head02_young/ceiling_trigger.mb -rotate 90 -dest models/md5/heads/young/marscity2/ceiling_trigger
+	anim models/characters/heads/head02_young/ceiling_primary.mb -rotate 90 -dest models/md5/heads/young/marscity2/ceiling_primary
+	anim models/characters/heads/head02_young/ceiling_secondary1.mb -rotate 90 -dest models/md5/heads/young/marscity2/ceiling_secondary1
+	anim models/characters/heads/head02_young/ceiling_secondary2.mb -rotate 90 -dest models/md5/heads/young/marscity2/ceiling_secondary2
+	
+	anim models/characters/heads/head02_young/marine6_hq_1.mb -rotate 90 -dest models/md5/heads/young/marscity/marine6_hq_1
+	anim models/characters/heads/head02_young/marine6_hq_2.mb -rotate 90 -dest models/md5/heads/young/marscity/marine6_hq_2
+	anim models/characters/heads/head02_young/marine6_hq_3.mb -rotate 90 -dest models/md5/heads/young/marscity/marine6_hq_3
+
+	anim maps/kevinc/marscity/IPN_News.mb -rotate 90 -dest models/md5/heads/head02young/marscity/ipn_news_head	
+	
+}
+
+export fred {
+	options -prefix H2_ -keep eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol  -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol
+
+	mesh models/characters/heads/head02_young/h2_make_new_mesh.mb -rotate 90 -dest models/md5/heads/head02young/h2_cinematic
+
+	anim models/characters/heads/head02_young/idle_cinematic.mb -rotate 90 -dest models/md5/heads/head02young/h2idle_cinematic
+	
+	anim models/characters/heads/head02_young/death_cinematic.mb -rotate 90 -dest models/md5/heads/head02young/h2death_cinematic
+	
+	anim models/characters/heads/head02_young/reception.mb -range 24 100 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_a
+	anim models/characters/heads/head02_young/reception.mb -range 101 145 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_b
+	anim models/characters/heads/head02_young/reception.mb -range 146 339 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_c
+	anim models/characters/heads/head02_young/reception.mb -range 340 475 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_d
+	anim models/characters/heads/head02_young/reception.mb -range 476 803 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_e
+	anim models/characters/heads/head02_young/reception.mb -range 804 820 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_f
+
+	anim models/characters/heads/head02_young/reception_secondaries.mb -range 0 100 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_primary
+	anim models/characters/heads/head02_young/reception_secondaries.mb -range 101 295 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_secondary1
+	anim models/characters/heads/head02_young/reception_secondaries.mb -range 296 398 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_secondary2
+	anim models/characters/heads/head02_young/reception_secondaries2.mb -range 0 35 -rotate 90 -dest models/md5/heads/head02young/marscity/reception_secondary3
+	
+	anim models/characters/heads/head02_young/h2_make_new_mesh.mb -rotate 90 -dest models/md5/heads/head02young/marscity/reception_idle
+
+	anim models/characters/heads/head02_young/delta2a_01_ian_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_01_ian_first
+	anim models/characters/heads/head02_young/delta2a_01_ian_second.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_01_ian_second
+	anim models/characters/heads/head02_young/delta2a_02_ian_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_02_ian_first
+	anim models/characters/heads/head02_young/delta2a_02_ian_second.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_02_ian_second
+	anim models/characters/heads/head02_young/delta2a_03_ian_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_03_ian_first
+	anim models/characters/heads/head02_young/delta2a_03_ian_second.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_03_ian_second
+	anim models/characters/heads/head02_young/delta2a_04_ian_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_04_ian_first
+	anim models/characters/heads/head02_young/delta2a_05_ian_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_05_ian_first
+	anim models/characters/heads/head02_young/delta2a_06_ian_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_06_ian_first
+	anim models/characters/heads/head02_young/delta2a_ian_primary_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_ian_primary_first
+	anim models/characters/heads/head02_young/delta2a_ian_primary_second.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_ian_primary_second
+	anim models/characters/heads/head02_young/delta2a_ian_secondary_first.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_ian_secondary_first
+	anim models/characters/heads/head02_young/delta2a_ian_secondary_second.mb -rotate 90 -dest models/md5/heads/head02young/delta2a/delta2a_ian_secondary_second
+
+	anim models/characters/heads/head02_young/sci_team_request.mb -range 0 215 -rotate 90 -dest models/md5/heads/head02young/marscity/sci_team_request
+
+
+}
+
+export fred {
+	options -prefix H4_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/characters/heads/head04_surgeon/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h4
+	anim models/characters/heads/head04_surgeon/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h4idle
+	anim models/characters/heads/head04_surgeon/blink.mb -rotate 90 -dest models/md5/characters/npcs/heads/h4blink
+	anim models/characters/heads/head04_surgeon/death.mb -rotate 90 -dest models/md5/characters/npcs/heads/h4death
+}
+
+export fred {
+	options -prefix H5_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  
+
+	mesh models/characters/heads/head05_asian/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h5
+	anim models/characters/heads/head05_asian/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h5idle
+	anim models/characters/heads/head05_asian/blink.mb -rotate 90 -dest models/md5/characters/npcs/heads/h5blink
+	anim models/characters/heads/head05_asian/death.mb -rotate 90 -dest models/md5/characters/npcs/heads/h5death
+
+	anim models/characters/heads/head05_asian/mc_thanku.mb -rotate 90 -dest models/md5/characters/npcs/heads/mcu_thanku
+
+	anim models/characters/heads/head05_asian/sci_crazy_end.mb -rotate 90 -dest models/md5/characters/npcs/heads/h5_sci_crazyend
+	
+	anim models/characters/heads/head05_asian/sci_crazy_start.mb -range 1 114 -rotate 90 -dest models/md5/characters/npcs/heads/underground/sci_crazy_start_a
+	anim models/characters/heads/head05_asian/sci_crazy_start.mb -range 115 224 -rotate 90 -dest models/md5/characters/npcs/heads/underground/sci_crazy_start_b
+	anim models/characters/heads/head05_asian/sci_crazy_start_b.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/sci_crazy_start_c
+	anim models/characters/heads/head05_asian/crazy_transform.mb -rotate 90 -dest models/md5/heads/asian_young/underground/crazy_transform
+
+	
+	anim models/characters/heads/head05_asian/enpro_woundedmarine.mb -range 1 92 -rotate 90 -dest models/md5/heads/asian_young/enpro/woundedmarine1
+	anim models/characters/heads/head05_asian/enpro_woundedmarine.mb -range 93 194 -rotate 90 -dest models/md5/heads/asian_young/enpro/woundedmarine2
+	anim models/characters/heads/head05_asian/enpro_woundedmarine.mb -range 195 340 -rotate 90 -dest models/md5/heads/asian_young/enpro/woundedmarine3
+	anim models/characters/heads/head05_asian/enpro_woundedmarine.mb -range 341 476 -rotate 90 -dest models/md5/heads/asian_young/enpro/woundedmarine4
+	anim models/characters/heads/head05_asian/enpro_woundedmarine.mb -range 477 571 -rotate 90 -dest models/md5/heads/asian_young/enpro/woundedmarine5
+	anim models/characters/heads/head05_asian/enpro_woundedmarine.mb -range 572 598 -rotate 90 -dest models/md5/heads/asian_young/enpro/woundedmarine6
+
+	
+	anim models/characters/heads/head05_asian/maint_tech_hallway1.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/maint_tech_hallway1
+	anim models/characters/heads/head05_asian/maint_tech_hallway2.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/maint_tech_hallway2
+	anim models/characters/heads/head05_asian/maint_tech_hallway3.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/maint_tech_hallway3
+	anim models/characters/heads/head05_asian/maint_tech_hallway4.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/maint_tech_hallway4
+	
+	anim models/characters/heads/head05_asian/marine2_sitting_1_1.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine2_sitting_1_1
+	anim models/characters/heads/head05_asian/marine2_sitting_1_2.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine2_sitting_1_2
+	anim models/characters/heads/head05_asian/marine2_sitting_1_3.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine2_sitting_1_3
+	anim models/characters/heads/head05_asian/marine2_sitting_1_4.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine2_sitting_1_4
+	anim models/characters/heads/head05_asian/marine2_sitting_1_5.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine2_sitting_1_5
+	anim models/characters/heads/head05_asian/marine2_sitting_1_6.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine2_sitting_1_6
+	
+	anim models/characters/heads/head05_asian/maint_kitchen_1.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/maint_kitchen_1
+	anim models/characters/heads/head05_asian/maint_kitchen_2.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/maint_kitchen_2
+	anim models/characters/heads/head05_asian/maint_kitchen_3.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/maint_kitchen_3
+	
+	anim models/characters/heads/head05_asian/hallway_maint_2_1.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_1
+	anim models/characters/heads/head05_asian/hallway_maint_2_2.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_2
+	anim models/characters/heads/head05_asian/hallway_maint_2_3.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_3
+	anim models/characters/heads/head05_asian/hallway_maint_2_4.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_4
+	anim models/characters/heads/head05_asian/hallway_maint_2_5.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_5
+	anim models/characters/heads/head05_asian/hallway_maint_2_6.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_6
+	anim models/characters/heads/head05_asian/hallway_maint_2_7.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_7
+	anim models/characters/heads/head05_asian/hallway_maint_2_8.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_8
+	anim models/characters/heads/head05_asian/hallway_maint_2_9.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_9
+	anim models/characters/heads/head05_asian/hallway_maint_2_10.mb -rotate 90 -dest models/md5/heads/asian_old/marscity/hallway_maint_2_10
+	
+	anim models/characters/heads/head05_asian/marine3_hq_1.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine3_hq_1
+	anim models/characters/heads/head05_asian/marine3_hq_2.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine3_hq_2
+	anim models/characters/heads/head05_asian/marine3_hq_3.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine3_hq_3
+	anim models/characters/heads/head05_asian/marine3_hq_yes_sir.mb -rotate 90 -dest models/md5/heads/asian_young/marscity/marine3_hq_yes_sir
+	
+	anim models/characters/heads/head05_asian/maint1_1.mb -rotate 90 -dest models/md5/heads/asian_young/caverns2/maint1_1
+	anim models/characters/heads/head05_asian/maint1_2.mb -rotate 90 -dest models/md5/heads/asian_young/caverns2/maint1_2
+	anim models/characters/heads/head05_asian/maint1_3.mb -rotate 90 -dest models/md5/heads/asian_young/caverns2/maint1_3
+	anim models/characters/heads/head05_asian/maint1_trig.mb -rotate 90 -dest models/md5/heads/asian_young/caverns2/maint1_trig
+
+
+}
+
+export fred {
+	options -prefix H6_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  
+
+	mesh models/characters/heads/head06_black/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h6
+	anim models/characters/heads/head06_black/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/h6idle
+	anim models/characters/heads/head06_black/blink.mb -rotate 90 -dest models/md5/characters/npcs/heads/h6blink
+	anim models/characters/heads/head06_black/death.mb -rotate 90 -dest models/md5/characters/npcs/heads/h6death
+	
+	anim models/characters/heads/head06_black/marine_bathroom_1.mb -rotate 90 -dest models/md5/heads/black/marscity/marine_bathroom_1
+	anim models/characters/heads/head06_black/marine_bathroom_2.mb -rotate 90 -dest models/md5/heads/black/marscity/marine_bathroom_2
+	anim models/characters/heads/head06_black/marine_bathroom_3.mb -rotate 90 -dest models/md5/heads/black/marscity/marine_bathroom_3
+	anim models/characters/heads/head06_black/marine_bathroom_4.mb -rotate 90 -dest models/md5/heads/black/marscity/marine_bathroom_4
+	
+	anim models/characters/heads/head06_black/scientist_monitor_1.mb -rotate 90 -dest models/md5/heads/black/marscity/scientist_monitor_1
+	anim models/characters/heads/head06_black/scientist_monitor_2.mb -rotate 90 -dest models/md5/heads/black/marscity/scientist_monitor_2
+	anim models/characters/heads/head06_black/scientist_monitor_3.mb -rotate 90 -dest models/md5/heads/black/marscity/scientist_monitor_3
+	
+	anim models/characters/heads/head06_black/marine5_hq_1.mb -rotate 90 -dest models/md5/heads/black/marscity/marine5_hq_1
+	anim models/characters/heads/head06_black/marine5_hq_2.mb -rotate 90 -dest models/md5/heads/black/marscity/marine5_hq_2
+	anim models/characters/heads/head06_black/marine5_hq_3.mb -rotate 90 -dest models/md5/heads/black/marscity/marine5_hq_3
+}
+
+export fred {
+	options -prefix SWN_ -keep Loneck eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  -parent glasses Head
+
+
+	mesh models/characters/heads/head_swann/idle.mb -rotate 90 -dest models/md5/heads/swann/swann
+	anim models/characters/heads/head_swann/idle.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/swannidle
+	anim models/characters/heads/head_swann/dead.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/swanndead
+	anim models/characters/heads/head_swann/blink.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/swannblink
+	//anim models/characters/heads/head_swann/mc_hangar.mb  -range 360 1650 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar
+	anim models/characters/heads/head_swann/mc_hangar.mb  -range 360 678 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar_a
+	anim models/characters/heads/head_swann/mc_hangar.mb  -range 679 766 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar_b
+	anim models/characters/heads/head_swann/mc_hangar.mb  -range 767 863 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar_c
+	anim models/characters/heads/head_swann/mc_hangar.mb  -range 864 937 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar_d
+	anim models/characters/heads/head_swann/mc_hangar.mb  -range 938 980 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar_e
+	anim models/characters/heads/head_swann/mc_hangar.mb  -range 981 1650 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/mc_hangar_f
+
+
+
+	anim models/characters/heads/head_swann/overhear_1_2_3.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/admin/swannhead_overhear_1_2_3
+	anim models/characters/heads/head_swann/overhear_4.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/admin/swannhead_overhear_4
+	anim models/characters/heads/head_swann/overhear_end.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/admin/swannhead_overhear_end
+	//anim models/characters/heads/head_swann/marscity_speech.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/swannhead_speech
+	anim models/characters/heads/head_swann/marscity_speech.mb  -range 1 54 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/swannhead_speech_a
+	anim models/characters/heads/head_swann/marscity_speech.mb  -range 55 92 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/swannhead_speech_b
+	anim models/characters/heads/head_swann/marscity_speech.mb  -range 93 137 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/swannhead_speech_c
+	anim models/characters/heads/head_swann/marscity_speech.mb  -range 138 1699 -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/marscity/swannhead_speech_d
+
+	anim models/characters/heads/head_swann/escape_shot1_swannhead.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/enpro/escape_swannheadshot1
+	anim models/characters/heads/head_swann/escape_shot2_swannhead.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/enpro/escape_swannheadshot2 
+	anim models/characters/heads/head_swann/wounded_swann.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/delta5/swannhead_wounded
+	anim models/characters/heads/head_swann/wounded_swann_primary.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/delta5/swannhead_wounded_primary
+	anim models/characters/heads/head_swann/wounded_swann_secondary1.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/delta5/swannhead_wounded_secondary1
+	anim models/characters/heads/head_swann/wounded_swann_secondary2.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/delta5/swannhead_wounded_secondary2
+	anim models/characters/heads/head_swann/comm1_swannvid1.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/comm1/swannhead_video1
+	anim models/characters/heads/head_swann/comm1_swannvid2.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/comm1/swannhead_video2
+	anim models/characters/heads/head_swann/comm1_swannvid3.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/swann/comm1/swannhead_video3
+}
+
+export fred {
+	options -prefix BET_ -keep eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  
+
+
+	mesh models/characters/heads/head_betruger/idle.mb -rotate 90 -dest models/md5/heads/betruger/betruger
+	anim models/characters/heads/head_betruger/idle.mb -rotate 90 -dest models/md5/heads/betruger/betrugeridle
+	anim models/characters/heads/head_betruger/blink.mb -rotate 90 -dest models/md5/heads/betruger/betrugerblink
+
+	//anim models/characters/heads/head_betruger/betruger_mc1_speech.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/marscity/betspeech
+	anim models/characters/heads/head_betruger/betruger_mc1_speech.mb  -range 1 54 -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/marscity/betspeech_a
+	anim models/characters/heads/head_betruger/betruger_mc1_speech.mb  -range 55 92 -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/marscity/betspeech_b
+	anim models/characters/heads/head_betruger/betruger_mc1_speech.mb  -range 93 137 -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/marscity/betspeech_c
+	anim models/characters/heads/head_betruger/betruger_mc1_speech.mb  -range 138 1798 -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/marscity/betspeech_d
+
+	anim models/characters/heads/head_betruger/recycling2_bet_video1.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/recycling2/betvideo1
+	anim models/characters/heads/head_betruger/recycling2_bet_video2.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/recycling2/betvideo2
+	anim models/characters/heads/head_betruger/overhear_operation.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/admin/bethead_operation
+	anim models/characters/heads/head_betruger/raisecommandos.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/monorail/betruger_raise
+	anim models/characters/heads/head_betruger/hkintro.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/betruger/delta4/betheadhkintro
+
+	anim models/characters/heads/head_betruger/blooper_damn.mb -rotate 90 -dest models/md5/heads/betruger/betruger_damn
+
+}
+
+export fred {
+	options -prefix CAMP_ -keep eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  
+
+
+	mesh models/characters/heads/head_campbell/idle.mb -rotate 90 -dest models/md5/heads/campbell/campbell
+	anim models/characters/heads/head_campbell/idle.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/campbellidle
+	anim models/characters/heads/head_campbell/blink.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/campbellblink
+	anim models/characters/heads/head_campbell/camphunt.mb  -range 1 70 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/cpu1/campbellheadhunt_a
+	anim models/characters/heads/head_campbell/camphunt.mb  -range 71 166 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/cpu1/campbellheadhunt_b
+	anim models/characters/heads/head_campbell/camphunt.mb  -range 167 269 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/cpu1/campbellheadhunt_c
+	anim models/characters/heads/head_campbell/camphunt.mb  -range 270 368 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/cpu1/campbellheadhunt_d
+
+	anim models/characters/heads/head_campbell/overhear_end.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/admin/camphead_overhear_end
+	anim models/characters/heads/head_campbell/escape_shot1_campbellhead.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/enpro/escape_campheadshot1
+	anim models/characters/heads/head_campbell/escape_shot2_campbellhead.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/enpro/escape_campheadshot2
+	anim models/characters/heads/head_campbell/campbell_death.mb  -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/cpu1/campbelldeath
+	anim models/characters/heads/head_campbell/campbell_death.mb  -range 300 300 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/cpu1/campbellend
+	//anim models/characters/heads/head_campbell/mc_hangar.mb  -range 360 1650 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar
+	anim models/characters/heads/head_campbell/mc_hangar.mb  -range 360 678 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar_a
+	anim models/characters/heads/head_campbell/mc_hangar.mb  -range 679 766 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar_b
+	anim models/characters/heads/head_campbell/mc_hangar.mb  -range 767 863 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar_c
+	anim models/characters/heads/head_campbell/mc_hangar.mb  -range 864 937 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar_d
+	anim models/characters/heads/head_campbell/mc_hangar.mb  -range 938 980 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar_e
+	anim models/characters/heads/head_campbell/mc_hangar.mb  -range 981 1650 -xyzprecision .01 -rotate 90 -dest models/md5/heads/campbell/marscity/mc_hangar_f
+}
+
+export fred {
+	options -prefix SAR_ -keep eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/characters/heads/head_sarge/idle.mb -rotate 90 -dest models/md5/heads/sarge/sarge
+	anim models/characters/heads/head_sarge/idle.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/sarge/sargeidle
+	anim models/characters/heads/head_sarge/blink.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/sarge/sargeblink
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 120 120 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_missionloop
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 120 176 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead1
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 177 380 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead2
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 381 555 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead3
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 556 700 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead4
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 701 814 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead5
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 815 920 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead6
+	anim models/characters/heads/head_sarge/mc_sargecin1.mb -xyzprecision .01 -range 921 960 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_sargehead7
+	
+	
+	anim models/characters/heads/head_sarge/mc2_mission_brief.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/sarge/marscity2/mission_brief
+	
+	anim models/characters/heads/head_sarge/sargecin_heads_secondaries.mb -xyzprecision .01 -range 0 80 -rotate 90 -dest models/md5/heads/sarge/marscity/mc_sarge_primary
+	anim models/characters/heads/head_sarge/sargecin_heads_secondaries.mb -xyzprecision .01 -range 80 165  -rotate 90 -dest models/md5/heads/sarge/marscity/mc_sarge_secondary
+	anim models/characters/heads/head_sarge/sargecin_heads_secondaries.mb -xyzprecision .01 -range 166 300 -rotate 90 -dest models/md5/heads/sarge/marscity/mc_sarge_secondary2
+
+	anim models/characters/heads/head_sarge/sarge_vcd.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/sarge/delta1/sarge_vcd
+	
+	anim models/characters/heads/head_sarge/sargecin_head_idle.mb -xyzprecision .01 -range 24 580 -rotate 90 -dest models/md5/heads/sarge/marscity/sargecin_wait_loop 
+
+}
+
+export fred {
+	options -prefix HELM_ -keep headcontrol neckcontrol loneckcontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol 
+
+	mesh models/characters/heads/head_marine_helmet/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/mhelmet
+	anim models/characters/heads/head_marine_helmet/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/mhelmetidle
+}
+
+export fred {
+	options -prefix HELM_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+ 
+	mesh models/characters/heads/head_security_helmet/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/shelmet
+	anim models/characters/heads/head_security_helmet/idle.mb -rotate 90 -dest models/md5/characters/npcs/heads/shelmetidle
+	anim models/characters/heads/head_security_helmet/zintro2.mb -rotate 90 -dest models/md5/characters/npcs/heads/shelmetzintro2
+}
+
+export fred {
+	options -prefix GOG_ -keep Lcheek Rcheek Lsmile headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  
+
+	mesh models/characters/heads/head_security_goggles/idle.mb -rotate 90 -dest models/md5/heads/security_goggles/goggles
+	anim models/characters/heads/head_security_goggles/idle.mb -rotate 90 -dest models/md5/heads/security_goggles/gogglesidle
+	anim models/characters/heads/head_security_goggles/blink.mb -rotate 90 -dest models/md5/heads/security_goggles/gogglesblink
+
+	anim models/characters/heads/head_security_goggles/invasion6b.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/gogglesinvasion6b
+	anim models/characters/heads/head_security_goggles/invasion6b.mb -xyzprecision .01 -range 1 53 -rotate 90 -dest models/md5/heads/security_goggles/underground/gogglesinvasion6c
+	anim models/characters/heads/head_security_goggles/invasion6b.mb -xyzprecision .01 -range 1 80 -rotate 90 -dest models/md5/heads/security_goggles/underground/gogglesinvasionrunfall
+
+	anim models/characters/heads/head_security_goggles/lip_brookswelcome.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brookswelcome
+	anim models/characters/heads/head_security_goggles/lip_brooksgonnaneed.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksgonnaneed
+	anim models/characters/heads/head_security_goggles/lip_brooksgrabyourgear.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksgrabyourgear
+	anim models/characters/heads/head_security_goggles/lip_brooksletme.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksletme
+	anim models/characters/heads/head_security_goggles/lip_brooksyouneedtosecure.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksyouneedto
+	anim models/characters/heads/head_security_goggles/lip_brooksyourstuff.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksyourstuff
+	anim models/characters/heads/head_security_goggles/lip_brooksnowyouready.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksnowyouready
+	anim models/characters/heads/head_security_goggles/lip_brooksdontfire.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksdontfire
+	anim models/characters/heads/head_security_goggles/lip_brookswatchthe.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brookswatchthe
+	anim models/characters/heads/head_security_goggles/lip_brooksyoudont.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/underground/brooksyoudont
+
+	anim models/characters/heads/head_security_goggles/sec_hangar_trigger.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/marscity/sec_hangar_trigger
+	anim models/characters/heads/head_security_goggles/sec_hangar_primary.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/marscity/sec_hangar_primary
+	anim models/characters/heads/head_security_goggles/sec_hangar_secondary1.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/marscity/sec_hangar_secondary_1
+	anim models/characters/heads/head_security_goggles/sec_hangar_secondary2.mb -xyzprecision .01 -rotate 90 -dest models/md5/heads/security_goggles/marscity/sec_hangar_secondary_2
+
+}
+
+export fred {
+	options -prefix PLAY_ -keep eyecontrol headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim eyecontrol -parent Leyeaim eyecontrol -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head  
+
+
+	mesh models/characters/heads/head_player/idle.mb -rotate 90 -dest models/md5/heads/player/player
+	anim models/characters/heads/head_player/idle.mb -rotate 90 -dest models/md5/heads/player/idle
+	anim models/characters/heads/head_player/blink.mb -rotate 90 -dest models/md5/heads/player/blink
+	
+	anim models/characters/heads/head_player/marscity_player.mb -range 24 100 -rotate 90 -dest models/md5/heads/player/marscity/reception_a
+	anim models/characters/heads/head_player/marscity_player.mb -range 101 145 -rotate 90 -dest models/md5/heads/player/marscity/reception_b
+	anim models/characters/heads/head_player/marscity_player.mb -range 146 339 -rotate 90 -dest models/md5/heads/player/marscity/reception_c
+	anim models/characters/heads/head_player/marscity_player.mb -range 340 475 -rotate 90 -dest models/md5/heads/player/marscity/reception_d
+	anim models/characters/heads/head_player/marscity_player.mb -range 476 803 -rotate 90 -dest models/md5/heads/player/marscity/reception_e
+	anim models/characters/heads/head_player/marscity_player.mb -range 804 820 -rotate 90 -dest models/md5/heads/player/marscity/reception_f
+
+
+	//anim models/characters/heads/head_player/marscity_hangar.mb -rotate 90 -dest models/md5/heads/player/marscity/hangar
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 360 678 -rotate 90 -dest models/md5/heads/player/marscity/hangar_a
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 679 766 -rotate 90 -dest models/md5/heads/player/marscity/hangar_b
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 767 863 -rotate 90 -dest models/md5/heads/player/marscity/hangar_c
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 864 937 -rotate 90 -dest models/md5/heads/player/marscity/hangar_d
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 938 980 -rotate 90 -dest models/md5/heads/player/marscity/hangar_e
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 981 1050 -rotate 90 -dest models/md5/heads/player/marscity/hangar_f
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 1051 1125 -rotate 90 -dest models/md5/heads/player/marscity/hangar_g
+	anim models/characters/heads/head_player/marscity_hangar.mb -range 1126 1236 -rotate 90 -dest models/md5/heads/player/marscity/hangar_h
+
+	anim models/characters/heads/head_player/rescue1b.mb -rotate 90 -dest models/md5/heads/player/rescue1b
+
+
+}
+
+
+export fred {
+	options -prefix h3_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head 
+
+	mesh models/characters/heads/head03_bald/wounded_marine_idle_head.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3
+	anim models/characters/heads/head03_bald/wounded_marine_idle_head.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3idle
+	anim models/characters/heads/head03_bald/blink.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3blink
+	anim models/characters/heads/head03_bald/death.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3death
+	
+	
+	anim models/characters/heads/head03_bald/wounded_marine_secondary_head.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3secondary
+	anim models/characters/heads/head03_bald/wounded_marine_secondary_head.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3dead -range 135 135
+	anim models/characters/heads/head03_bald/wounded_marine_primary_head.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3primary
+	anim models/characters/heads/head03_bald/wounded_marine_trigger_head.mb -rotate 90 -dest models/md5/characters/npcs/heads/h3trigger
+	
+	anim models/characters/heads/head03_bald/maint_hyrdocon_primary.mb -rotate 90  -dest models/md5/heads/bald/alphalabs1/maint_hyrdocon_primary
+	anim models/characters/heads/head03_bald/maint_hyrdocon_trigger.mb -rotate 90  -dest models/md5/heads/bald/alphalabs1/maint_hyrdocon_trigger
+	anim models/characters/heads/head03_bald/maint_hyrdocon_trigger2.mb -rotate 90  -dest models/md5/heads/bald/alphalabs1/maint_hyrdocon_trigger2	
+	anim models/characters/heads/head03_bald/maint_hyrdocon_secondary.mb -rotate 90  -dest models/md5/heads/bald/alphalabs1/maint_hyrdocon_secondary
+	anim models/characters/heads/head03_bald/maint_hyrdocon_secondary2.mb -rotate 90 -dest models/md5/heads/bald/alphalabs1/maint_hyrdocon_secondary2
+	
+	anim models/characters/heads/head03_bald/hallway_maint_1_1.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_1
+	anim models/characters/heads/head03_bald/hallway_maint_1_2.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_2
+	anim models/characters/heads/head03_bald/hallway_maint_1_3.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_3
+	anim models/characters/heads/head03_bald/hallway_maint_1_4.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_4
+	anim models/characters/heads/head03_bald/hallway_maint_1_5.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_5
+	anim models/characters/heads/head03_bald/hallway_maint_1_6.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_6
+	anim models/characters/heads/head03_bald/hallway_maint_1_7.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_7
+	anim models/characters/heads/head03_bald/hallway_maint_1_8.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_8
+	anim models/characters/heads/head03_bald/hallway_maint_1_9.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_9
+	anim models/characters/heads/head03_bald/hallway_maint_1_10.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_10
+	anim models/characters/heads/head03_bald/hallway_maint_1_11.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_11
+	
+	anim models/characters/heads/head03_bald/hallway_maint_1_9.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_9
+	anim models/characters/heads/head03_bald/hallway_maint_1_10.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_10
+	anim models/characters/heads/head03_bald/hallway_maint_1_11.mb -rotate 90 -dest models/md5/heads/bald/marscity/hallway_maint_1_11
+	
+	anim models/characters/heads/head03_bald/ross_because.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ross_because
+	anim models/characters/heads/head03_bald/ross_justfinish.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ross_justfinish
+	anim models/characters/heads/head03_bald/ross_primary.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ross_primary
+	anim models/characters/heads/head03_bald/ross_listenscotty.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ross_listenscotty
+	anim models/characters/heads/head03_bald/ross_secondary1.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ross_secondary1
+	anim models/characters/heads/head03_bald/ross_secondary2.mb -rotate 90 -dest models/md5/characters/npcs/heads/underground/ross_secondary2
+}
+
+export fred {
+
+	options -prefix Z1_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/monsters/zombie/heads/headz01/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z1
+	anim models/monsters/zombie/heads/headz01/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z1idle
+}
+
+export fred {
+
+	options -prefix Z2_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/monsters/zombie/heads/headz02_nojaw/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z2
+	anim models/monsters/zombie/heads/headz02_nojaw/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z2idle
+}
+
+export fred {
+
+	options -prefix Z3_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/monsters/zombie/heads/headz03/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z3
+	anim models/monsters/zombie/heads/headz03/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z3idle
+}
+
+export fred {
+
+	options -prefix Z4_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/monsters/zombie/heads/headz04_blown/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z4
+	anim models/monsters/zombie/heads/headz04_blown/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z4idle
+	anim models/monsters/zombie/heads/headz04_blown/zbeat2.mb -range 1 120 -rotate 90 -dest models/md5/characters/npcs/zheads/zbeat2
+	anim models/monsters/zombie/heads/headz04_blown/zbeat2.mb -range 121 211 -rotate 90 -dest models/md5/characters/npcs/zheads/zbeat3
+}
+
+export fred {
+
+	options -prefix Z5_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/monsters/zombie/heads/headz05_secgog/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z5
+	anim models/monsters/zombie/heads/headz05_secgog/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z5idle
+	anim models/monsters/zombie/heads/headz05_secgog/invasion6b.mb -rotate 90 -dest models/md5/characters/npcs/zheads/gogglesinvasion6b
+	anim models/monsters/zombie/heads/headz05_secgog/invasion6b.mb -range 1 80 -rotate 90 -dest models/md5/characters/npcs/zheads/gogglesinvasionrunfall
+	anim models/monsters/zombie/heads/headz05_secgog/invasion6b.mb -range 1 53 -rotate 90 -dest models/md5/characters/npcs/zheads/gogglesinvasion6c
+}
+
+export fred {
+
+	options -prefix Z6_ -scale .9 -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/monsters/zombie/heads/headz06_sec/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z6
+	anim models/monsters/zombie/heads/headz06_sec/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z6idle
+	anim models/monsters/zombie/heads/headz06_sec/pistol_sight.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z6_pistol_sight
+	anim models/monsters/zombie/heads/headz06_sec/choke.mb -range 14 45 -rotate 90 -dest models/md5/characters/npcs/zheads/z6choke_a
+	anim models/monsters/zombie/heads/headz06_sec/choke.mb -range 46 103 -rotate 90 -dest models/md5/characters/npcs/zheads/z6choke_b
+	anim models/monsters/zombie/heads/headz06_sec/choke.mb -range 104 180 -rotate 90 -dest models/md5/characters/npcs/zheads/z6choke_c
+}
+
+export fred {
+
+	options -prefix Z7_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+	
+	addoptions -keepmesh head_stumpmesh
+
+	mesh models/monsters/zombie/heads/headz07_stump/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z7
+	anim models/monsters/zombie/heads/headz07_stump/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/z7idle
+
+}
+
+export fred {
+
+	options -prefix Z7_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+	
+	addoptions -keepmesh polySurface12
+	addoptions -keepmesh polySurface14
+
+	mesh models/monsters/zombie/heads/headz07_stump/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/skull
+	anim models/monsters/zombie/heads/headz07_stump/idle.mb -rotate 90 -dest models/md5/characters/npcs/zheads/skullidle
+}
+
+model head_old {	
+	mesh							models/md5/characters/npcs/heads/h1.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h1blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h1death.md5anim
+				
+}
+
+model head_bald {
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h3blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h3death.md5anim
+}
+
+model head_black {
+	mesh							models/md5/characters/npcs/heads/h6.md5mesh
+	skin							skins/characters/npcs/head_black.skin
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h6idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h6idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h6blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h6death.md5anim
+	
+}
+
+model head_young {
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h2blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h2death.md5anim
+	anim IPN_News						models/md5/heads/young/marscity/IPN_News.md5anim {
+		frame 1							sound_voice sound/vo/video/video_ipn_news.wav								
+	}
+		
+}
+
+model head_pretty_old {
+	skin 							skins/characters/npcs/prettyoldhead.skin
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h2blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h2death.md5anim
+}
+
+model head_asian_old {
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h5blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h5death.md5anim
+}
+
+model head_asian_young {
+	skin							skins/characters/npcs/head_asian_young.skin
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h5blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h5death.md5anim
+}
+
+model head_surgeon {
+	mesh							models/md5/characters/npcs/heads/h4.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h4idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h4idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h4blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h4death.md5anim
+}
+
+model head_marine_helmet {
+	mesh							models/md5/characters/npcs/heads/mhelmet.md5mesh
+	anim idle						models/md5/characters/npcs/heads/mhelmetidle.md5anim
+	anim stand						models/md5/characters/npcs/heads/mhelmetidle.md5anim
+}
+
+model head_security_helmet {
+	mesh							models/md5/characters/npcs/heads/shelmet.md5mesh
+	anim idle						models/md5/characters/npcs/heads/shelmetidle.md5anim
+	anim stand						models/md5/characters/npcs/heads/shelmetidle.md5anim
+}
+
+model head_security_dhelmet {
+	mesh							models/md5/characters/npcs/heads/shelmet.md5mesh
+	anim idle						models/md5/characters/npcs/heads/shelmetidle.md5anim
+	anim stand						models/md5/characters/npcs/heads/shelmetidle.md5anim
+	skin							skins/monsters/zombies/dsechelmet.skin
+}
+
+model head_security_goggles {
+	mesh							models/md5/heads/security_goggles/goggles.md5mesh
+
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim idle						models/md5/heads/security_goggles/gogglesidle.md5anim
+	anim stand						models/md5/heads/security_goggles/gogglesidle.md5anim
+	anim blink						models/md5/heads/security_goggles/gogglesblink.md5anim
+}
+
+model head_sarge {
+	mesh							models/md5/heads/sarge/sarge.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim stand						models/md5/heads/sarge/sargeidle.md5anim
+	anim idle						models/md5/heads/sarge/sargeidle.md5anim
+	anim blink						models/md5/heads/sarge/sargeblink.md5anim
+
+}
+
+model head_swann {
+	skin 							skins/characters/npcs/swannglasses.skin
+	mesh							models/md5/heads/swann/swann.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim stand						models/md5/heads/swann/swannidle.md5anim
+	anim idle						models/md5/heads/swann/swannidle.md5anim
+	anim blink						models/md5/heads/swann/swannblink.md5anim
+}
+
+model head_betruger {
+	mesh							models/md5/heads/betruger/betruger.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/betruger/betrugeridle.md5anim
+	anim stand						models/md5/heads/betruger/betrugeridle.md5anim
+	anim blink						models/md5/heads/betruger/betrugerblink.md5anim
+}
+
+model head_campbell {
+	mesh							models/md5/heads/campbell/campbell.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/campbell/campbellidle.md5anim
+	anim stand						models/md5/heads/campbell/campbellidle.md5anim
+	anim blink						models/md5/heads/campbell/campbellblink.md5anim
+}
+
+model head_player {
+	mesh							models/md5/heads/player/player.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim idle						models/md5/heads/player/idle.md5anim
+	anim stand						models/md5/heads/player/idle.md5anim
+	anim blink						models/md5/heads/player/blink.md5anim
+}
+
+model head_zombie1 {
+	mesh							models/md5/characters/npcs/zheads/z1.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z1idle.md5anim
+}
+
+model head_zombie2 {
+	mesh							models/md5/characters/npcs/zheads/z2.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z2idle.md5anim
+}
+
+model head_zombie3 {
+	mesh							models/md5/characters/npcs/zheads/z3.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z3idle.md5anim
+}
+
+model head_zombie4 {
+	mesh							models/md5/characters/npcs/zheads/z4.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z4idle.md5anim
+}
+
+model head_zombie5 {
+	mesh							models/md5/characters/npcs/zheads/z5.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z5idle.md5anim
+}
+
+model head_zombie6 {
+	mesh							models/md5/characters/npcs/zheads/z6.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z6idle.md5anim
+	anim stand						models/md5/characters/npcs/zheads/z6idle.md5anim
+	anim sight						models/md5/characters/npcs/zheads/z6_pistol_sight.md5anim
+}
+
+model head_stump {
+	mesh							models/md5/characters/npcs/zheads/z7.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z7idle.md5anim
+	anim stand						models/md5/characters/npcs/zheads/z7idle.md5anim
+}
+
+model head_skull {
+	mesh							models/md5/characters/npcs/zheads/skull.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/skullidle.md5anim
+	anim stand						models/md5/characters/npcs/zheads/skullidle.md5anim
+}
+
+model head_bloodybald {
+	skin							skins/characters/npcs/head_bald_bloody.skin
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim dead						models/md5/characters/npcs/heads/h3death.md5anim
+}
+
+

@@ -1,0 +1,91 @@
+
+model erebus6_scientist_head {
+	inherit						head_old
+}
+
+model erebus6_technician_head {
+	inherit						head_asian_young
+//	"skin"						"skins/characters/npcs/cloud_head"
+}
+
+
+export jay0 {
+	options -prefix H2_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim Focus -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head -parent Focus headcontrol -parent Reyeaim Focus -parent Leyeaim Focus
+
+//-parent head headcontrol
+
+anim models/characters/Heads/HEAD02_YOUNG/bottech_alive.mb -rotate 90 -dest models/md5/characters/heads/young/erebus6/bottech_alive
+anim models/characters/Heads/HEAD02_YOUNG/bottech_remember.mb -rotate 90 -dest models/md5/characters/heads/young/erebus6/bottech_remember
+anim models/characters/Heads/HEAD02_YOUNG/bottech_primary.mb -rotate 90 -dest models/md5/characters/heads/young/erebus6/bottech_primary
+anim models/characters/Heads/HEAD02_YOUNG/bottech_secondary1.mb -rotate 90 -dest models/md5/characters/heads/young/erebus6/bottech_secondary1
+anim models/characters/Heads/HEAD02_YOUNG/bottech_secondary2.mb -rotate 90 -dest models/md5/characters/heads/young/erebus6/bottech_secondary2
+anim models/characters/Heads/HEAD02_YOUNG/bottech_trigger.mb -rotate 90 -dest models/md5/characters/heads/young/erebus6/bottech_trigger
+
+anim models/characters/Heads/HEAD02_YOUNG/spooked_primary.mb -rotate 90 -dest models/md5/characters/heads/young/erebus2/spooked_primary
+anim models/characters/Heads/HEAD02_YOUNG/spooked_secondary1.mb -rotate 90 -dest models/md5/characters/heads/young/erebus2/spooked_secondary1
+anim models/characters/Heads/HEAD02_YOUNG/spooked_secondary2.mb -rotate 90 -dest models/md5/characters/heads/young/erebus2/spooked_secondary2
+anim models/characters/Heads/HEAD02_YOUNG/spooked_triggered.mb -rotate 90 -dest models/md5/characters/heads/young/erebus2/spooked_triggered
+
+}
+
+export james {
+	options -prefix H1_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+anim models/characters/Heads/HEAD01_OLD/trapped_triggered1.mb -rotate 90 -dest models/md5/characters/heads/old/erebus4/trapped_triggered1
+anim models/characters/Heads/HEAD01_OLD/trapped_triggered2.mb -rotate 90 -dest models/md5/characters/heads/old/erebus4/trapped_triggered2
+
+}
+
+export jayhead {
+options -prefix HXP1_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/characters/heads/headxp_1/makemesh.mb -rotate 90 -dest models/md5/characters/npcs/heads/hxp1
+
+}
+
+model headXP_1 {
+	mesh							models/md5/characters/npcs/heads/hXP1.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim idle						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h1blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h1death.md5anim
+
+}
+
+export jayhead2 {
+options -prefix HXP2_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/characters/heads/headxp_2/makemesh.mb -rotate 90 -dest models/md5/characters/npcs/heads/hxp2
+
+}
+
+model headXP_2 {
+	mesh							models/md5/characters/npcs/heads/hXP2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim idle						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h1blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h1death.md5anim
+
+}
+
+export jayhead3 {
+options -prefix HXPHELMET_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	mesh models/characters/heads/headxp_helmet/makemesh.mb -rotate 90 -dest models/md5/characters/npcs/heads/hxp_helmet
+	anim models/characters/heads/headxp_helmet/makemesh.mb -rotate 90 -dest models/md5/characters/npcs/heads/hxp_helmet_idle
+}
+
+model headXP_helmet {
+	mesh							models/md5/characters/npcs/heads/hxp_helmet.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim idle						models/md5/characters/npcs/heads/hxp_helmet_idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/hxp_helmet_idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/hxp_helmet_idle.md5anim
+	anim dead						models/md5/characters/npcs/heads/hxp_helmet_idle.md5anim
+
+}

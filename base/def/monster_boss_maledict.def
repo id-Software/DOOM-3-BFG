@@ -1,0 +1,71 @@
+/***********************************************************************
+
+	monster_boss_maledict.def
+
+***********************************************************************/
+
+export fred {
+
+
+	options -prefix MAL_
+
+	mesh	models/monsters/maledict/cycles/maledict.mb -dest models/md5/monsters/maledict/maledict
+	anim	inhell.mb -dest inhell -sourcedir maps/fred/ending/ -destdir models/md5/monsters/maledict
+	anim	inhell.mb -dest inhell2 -range 602 650 -sourcedir maps/fred/ending/ -destdir models/md5/monsters/maledict -prefix MAL2_
+
+	options -prefix ENV_
+	mesh	maps/fred/ending/inhell.mb -dest models/md5/monsters/maledict/debris
+	anim	inhell.mb -dest debris -sourcedir maps/fred/ending/ -destdir models/md5/monsters/maledict
+
+
+}
+
+export fred {
+
+	camera	maps/fred/ending/inhell.mb -dest models/md5/monsters/maledict/endingcam -range 1 540
+	camera	maps/fred/ending/inhell.mb -dest models/md5/monsters/maledict/endingcam2 -range 602 650
+}
+
+entityDef ending_cam {
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+
+	
+	"spawnclass"				"idCameraAnim"
+
+	"anim ending"			"models/md5/monsters/maledict/endingcam.md5camera"
+	"anim ending_b"			"models/md5/monsters/maledict/endingcam2.md5camera"
+}
+
+model monster_boss_maledict_cinematic {
+	mesh							models/md5/monsters/maledict/maledict.md5mesh
+	skin							skins/models/monsters/maledict.skin
+	anim inhell						models/md5/monsters/maledict/inhell.md5anim {
+		frame 101					skin skins/models/monsters/maledictnohead.skin
+	}
+	anim inhell_b					models/md5/monsters/maledict/inhell2.md5anim {
+		frame 1						skin skins/models/monsters/maledictnohead.skin
+		frame 1						sound_global hh_sfx_dragonscream
+		frame 35					sound_global hh_music_credits
+	}
+
+
+}
+
+entityDef monster_boss_maledict_cinematic {
+	"inherit"					"cin_base"
+	"anim"						"inhell"
+	"model"						"monster_boss_maledict_cinematic"
+}
+
+model ending_debris {
+	mesh							models/md5/monsters/maledict/debris.md5mesh
+	anim inhell						models/md5/monsters/maledict/debris.md5anim
+}
+
+entityDef ending_debris {
+	"inherit"					"cin_base"
+	"anim"						"inhell"
+	"model"						"ending_debris"
+}

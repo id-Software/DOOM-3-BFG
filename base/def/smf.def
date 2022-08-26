@@ -1,0 +1,11 @@
+entityDef info_portalSky {
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_showangle"		"1"
+	"editor_usage"			"Specifies location for portal sky.  Multiple portalsky locations are supported, with one 'currently active' info_portalSky providing the view for all portal sky brushes.  Triggering an info_portalSky will make it 'current', even if it didn't have a 'triggered' flag to start with."
+	"editor_var triggered"	"This portal sky will be inactive at start, and must be triggered to become active.  All additional portalsky areas must have this flag set."
+	
+	"spawnclass"			"idPortalSky"
+	"hide"					"1"
+}

@@ -1,0 +1,633 @@
+//*********************************************************************************************************************************//
+//Exports      		                                                                                                               //
+//*********************************************************************************************************************************//
+
+export eric {
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	///////////
+	//Cameras//
+	///////////	
+	camera	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 0 238 	-dest models/md5/cinematics/le_hell_post/ending_cam_a
+//	camera	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 239 383 -dest models/md5/cinematics/le_hell_post/ending_cam_b
+//	camera	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 384 497 -dest models/md5/cinematics/le_hell_post/ending_cam_c
+//	camera	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 498 638 -dest models/md5/cinematics/le_hell_post/ending_cam_d
+	
+	camera	maps/user/eric/le_enpro/meyers_control_room_new.ma			-dest models/md5/cinematics/le_enpro1/le_enpro1_cam
+	
+//	camera	maps/user/fred/enpro/marine_battle_shot1.mb -range 1 170 		-dest models/md5/cinematics/enpro/exitcam_shot1
+//	camera	maps/user/fred/enpro/enpro_exit2.mb -range 699 740 				-dest models/md5/cinematics/enpro/exitcam_shot7
+	
+//	camera	maps/user/eric/le_enpro/wraith_legs_pull.ma 					-dest models/md5/cinematics/le_enpro1/wraith_legs_pull_cam
+	
+	camera maps/user/eric/le_hell_post/guardian_ending.ma					-dest models/md5/cinematics/le_hell_post/guardian_ending_cam
+
+//---------------------------------------------------------------------------------------------------------------------------------//	
+
+	///////////
+	//Marines//
+	///////////
+
+	//Marine Mesh Export
+//	mesh	maps/user/eric/le_hell_post/cinematic_marine_mesh_export.ma 	-dest models/md5/cinematics/le_hell_post/marine_mesh
+	
+	//Marine1 Animation
+//	options -prefix marine1:
+//	anim    maps/user/eric/le_hell_post/Ending_All_EW.ma -range 0 238 		-dest models/md5/cinematics/le_hell_post/marine1_a
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 239 383 	-dest models/md5/cinematics/le_hell_post/marine1_b
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 384 497 	-dest models/md5/cinematics/le_hell_post/marine1_c
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 498 638 	-dest models/md5/cinematics/le_hell_post/marine1_d
+	
+//	anim	maps/user/eric/le_enpro/wraith_legs_pull.ma -range 1 150		-dest models/md5/cinematics/le_enpro1/marine_leg_pull
+	
+	//Marine2  Animation
+//	options -prefix marine2:
+//	anim    maps/user/eric/le_hell_post/Ending_All_EW.ma -range 0 238 		-dest models/md5/cinematics/le_hell_post/marine2_a
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 239 383 	-dest models/md5/cinematics/le_hell_post/marine2_b
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 384 497 	-dest models/md5/cinematics/le_hell_post/marine2_c
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 498 638 	-dest models/md5/cinematics/le_hell_post/marine2_d
+	
+	//Marine3  Animation
+//	options -prefix marine3:
+//	anim    maps/user/eric/le_hell_post/Ending_All_EW.ma -range 0 238 		-dest models/md5/cinematics/le_hell_post/marine3_a
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 239 383 	-dest models/md5/cinematics/le_hell_post/marine3_b
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 384 497 	-dest models/md5/cinematics/le_hell_post/marine3_c
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 498 638 	-dest models/md5/cinematics/le_hell_post/marine3_d
+	
+//---------------------------------------------------------------------------------------------------------------------------------//	
+
+	////////////////////
+	//Scientist Meyers//
+	////////////////////
+
+	//Scientist Mesh Export
+//	options -prefix sci:
+//	mesh	maps/user/eric/le_hell_post/cinematic_meyers_mesh_export_ref.ma			-dest models/md5/cinematics/le_hell_post/meyers_mesh	
+	
+	//Ending cinematic animation
+	options -prefix scientist2:
+//	anim    maps/user/eric/le_hell_post/Ending_All_EW.ma -range 0 238 			-dest models/md5/cinematics/le_hell_post/meyers_a
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 239 383 		-dest models/md5/cinematics/le_hell_post/meyers_b
+	anim	maps/user/eric/le_hell_post/Ending_All_AR.ma -range 384 497 		-dest models/md5/cinematics/le_hell_post/meyers_c
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 498 638 		-dest models/md5/cinematics/le_hell_post/meyers_d
+
+	//Exis animation
+	options -prefix scientist: -parent Body2 Body
+//	anim    maps/user/eric/le_exis/meyers_exis_anim_01_new.ma   				-dest models/md5/cinematics/le_exis/meyers_exis_anim_01_new.md5anim
+//	anim    maps/user/eric/le_exis/meyers_exis_anim_02_new.ma   				-dest models/md5/cinematics/le_exis/meyers_exis_anim_02_new.md5anim
+//	anim    maps/user/eric/le_exis/meyers_exis_anim_idle.ma   					-dest models/md5/cinematics/le_exis/meyers_exis_anim_idle.md5anim
+	
+	//Enpro animation
+	options -prefix scientist:
+	anim	maps/user/eric/le_enpro/meyers_control_room_new.ma 					-dest models/md5/cinematics/le_enpro1/meyers_control_room_new.md5anim
+
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	////////////
+	//Dropship//
+	////////////	
+	
+	options -prefix dropship: -keep ship dropship_LightL dropship3L dropship2L dropship1L dropship_backL dropship_top2L dropship_top1L dropship_LightR dropship3R dropship2R dropship1R dropship_backR dropship_top2R dropship_top1R
+//	mesh	maps/user/eric/le_hell_post/Ending_All_EW.ma -dest models/md5/cinematics/le_hell_post/dropship
+	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 0 238	-dest models/md5/cinematics/le_hell_post/dropship_a
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 239 383	-dest models/md5/cinematics/le_hell_post/dropship_b
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 384 497	-dest models/md5/cinematics/le_hell_post/dropship_c
+//	anim	maps/user/eric/le_hell_post/Ending_All_EW.ma -range 498 638	-dest models/md5/cinematics/le_hell_post/dropship_d
+	
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	////////////
+	//GUARDIAN//
+	////////////
+	options -prefix GUARD_ 
+	mesh	maps/user/eric/le_hell_post/guardian_mesh.ma 					-dest models/md5/cinematics/le_hell_post/guardian_cinematic_mesh
+	options -prefix GUARD_
+	anim	maps/user/eric/le_hell_post/guardian_ending.ma					-dest models/md5/cinematics/le_hell_post/guardian_ending	
+
+}
+
+
+//*********************************************************************************************************************************//
+//Models      		                                                                                                   			   //
+//*********************************************************************************************************************************//
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	///////////
+	//Marines//
+	///////////
+
+	//Marine1
+	model lm_ending_marine1 {
+	mesh							models/md5/cinematics/le_hell_post/marine_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim marine1_a					models/md5/cinematics/le_hell_post/marine1_a.md5anim
+	anim marine1_b					models/md5/cinematics/le_hell_post/marine1_b.md5anim
+	anim marine1_c					models/md5/cinematics/le_hell_post/marine1_c.md5anim
+	anim marine1_d					models/md5/cinematics/le_hell_post/marine1_d.md5anim
+}
+
+	//Marine2
+	model lm_ending_marine2 {
+	mesh							models/md5/cinematics/le_hell_post/marine_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim marine2_a					models/md5/cinematics/le_hell_post/marine2_a.md5anim
+	anim marine2_b					models/md5/cinematics/le_hell_post/marine2_b.md5anim
+	anim marine2_c					models/md5/cinematics/le_hell_post/marine2_c.md5anim
+	anim marine2_d					models/md5/cinematics/le_hell_post/marine2_d.md5anim
+}
+
+	//Marine3
+	model lm_ending_marine3 {
+	mesh							models/md5/cinematics/le_hell_post/marine_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim marine3_a					models/md5/cinematics/le_hell_post/marine3_a.md5anim
+	anim marine3_b					models/md5/cinematics/le_hell_post/marine3_b.md5anim
+	anim marine3_c					models/md5/cinematics/le_hell_post/marine3_c.md5anim
+	anim marine3_d					models/md5/cinematics/le_hell_post/marine3_d.md5anim
+}	
+	
+	//Enpro Marine
+	model lm_enpro_marine1 {
+	mesh							models/md5/cinematics/le_hell_post/marine_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim marine_leg_pull			models/md5/cinematics/le_enpro1/marine_leg_pull.md5anim
+
+}	
+	
+	
+//---------------------------------------------------------------------------------------------------------------------------------//	
+		
+	////////////////////
+	//Scientist Meyers//
+	////////////////////
+
+	model lm_ending_meyers {
+	mesh							models/md5/cinematics/le_hell_post/meyers_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim meyers_a					models/md5/cinematics/le_hell_post/meyers_a.md5anim
+	anim meyers_b					models/md5/cinematics/le_hell_post/meyers_b.md5anim
+	anim meyers_c					models/md5/cinematics/le_hell_post/meyers_c.md5anim
+	anim meyers_d					models/md5/cinematics/le_hell_post/meyers_d.md5anim
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------//	
+		
+	////////////////////
+	//Exis Meyers     //
+	////////////////////
+
+	model lm_exis_meyers {
+	mesh							models/md5/cinematics/le_hell_post/meyers_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim idle							models/md5/cinematics/le_exis/meyers_exis_anim_idle.md5anim
+	anim stand							models/md5/cinematics/le_exis/meyers_exis_anim_idle.md5anim
+
+	anim meyers_exis_anim_01_new		models/md5/cinematics/le_exis/meyers_exis_anim_01_new.md5anim
+	anim meyers_exis_anim_02_new		models/md5/cinematics/le_exis/meyers_exis_anim_02_new.md5anim
+
+	anim meyers_exis_anim_idle			models/md5/cinematics/le_exis/meyers_exis_anim_idle.md5anim
+	anim talk_primary					models/md5/cinematics/le_exis/meyers_exis_anim_01_new.md5anim {
+		frame 1								event enableEyeFocus
+	}
+	
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------//	
+		
+	////////////////////
+	//Enpro Meyers     //
+	////////////////////
+
+	model lm_enpro_meyers_new {
+	mesh							models/md5/cinematics/le_hell_post/meyers_mesh.md5mesh
+	channel torso					()
+	channel legs					(*origin)
+
+	anim meyers_control_room_new	models/md5/cinematics/le_enpro1/meyers_control_room_new.md5anim
+
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------//	
+
+	////////////
+	//Dropship//
+	////////////
+
+	model lm_ending_dropship {
+	mesh							models/md5/cinematics/marscity/spaceship.md5mesh
+	skin							skins/dropshipnoflare.skin
+
+	anim dropship_a					models/md5/cinematics/le_hell_post/dropship_a.md5anim
+	anim dropship_b					models/md5/cinematics/le_hell_post/dropship_b.md5anim
+	anim dropship_c					models/md5/cinematics/le_hell_post/dropship_c.md5anim
+	anim dropship_d					models/md5/cinematics/le_hell_post/dropship_d.md5anim	
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------//	
+
+	////////////
+	//GUARDIAN//
+	////////////
+
+	model lm_guardian_ending {
+	mesh							models/md5/cinematics/le_hell_post/guardian_cinematic_mesh.md5mesh
+//	mesh							models/md5/monsters/guardian/guardian.md5mesh
+
+	channel torso					()
+	channel legs					(*origin)
+
+	anim guardian_ending			models/md5/cinematics/le_hell_post/guardian_ending.md5anim
+}	
+
+
+//*********************************************************************************************************************************//
+//Entities      		                                                                                                   		   //
+//*********************************************************************************************************************************//
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	///////////
+	//Cameras//
+	///////////	
+
+	entityDef lm_ending_camera {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+	
+	"anim camera_a"					"models/md5/cinematics/le_hell_post/ending_cam_a.camera"
+	"anim camera_b"					"models/md5/cinematics/le_hell_post/ending_cam_b.camera"
+	"anim camera_c"					"models/md5/cinematics/le_hell_post/ending_cam_c.camera"
+	"anim camera_d"					"models/md5/cinematics/le_hell_post/ending_cam_d.camera"
+
+	"cinematic"						"1"
+}
+
+	entityDef lm_meyers_camera_new {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+	
+	"anim meyers_control_room_cam"	"models/md5/cinematics/le_enpro1/le_enpro1_cam.camera"
+
+	"cinematic"						"1"
+
+}
+
+	entityDef lm_wraith_legs_pull_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+	
+	"anim wraith_legs_pull_cam"			"models/md5/cinematics/le_enpro1/wraith_legs_pull_cam.camera"
+
+	"cinematic"						"1"
+
+}
+
+	entityDef lm_guardian_ending_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+	
+	"anim guardian_ending_cam"		"models/md5/cinematics/le_hell_post/guardian_ending_cam.camera"
+
+	"cinematic"						"1"
+
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	///////////
+	//Marines//
+	///////////
+	
+	//Marine1
+	entityDef lm_ending_marine1 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_ending_marine1"
+	"anim"							"marine1_a"
+	"num_cinematics"				"4"
+	"anim1"							"marine1_a"
+	"anim2"							"marine1_b"
+	"anim3"							"marine1_c"
+	"anim4"							"marine1_d"
+	"cinematic"						"1"
+}
+
+	//Marine2
+	entityDef lm_ending_marine2 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_ending_marine2"
+	"anim"							"marine2_a"
+	"num_cinematics"				"4"
+	"anim1"							"marine2_a"
+	"anim2"							"marine2_b"
+	"anim3"							"marine2_c"
+	"anim4"							"marine2_d"
+	"cinematic"						"1"
+}
+
+	//Marine3
+	entityDef lm_ending_marine3 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_ending_marine3"
+	"anim"							"marine3_a"
+	"num_cinematics"				"4"
+	"anim1"							"marine3_a"
+	"anim2"							"marine3_b"
+	"anim3"							"marine3_c"
+	"anim4"							"marine3_d"
+	"cinematic"						"1"
+}
+
+	//Enpro Marine
+	entityDef lm_enpro_marine1 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_enpro_marine1"
+	"anim"							"marine_leg_pull"
+	"num_cinematics"				"1"
+	"anim1"							"marine_leg_pull"
+	"cinematic"						"1"
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	////////////////////
+	//Scientist Meyers//
+	////////////////////
+	
+	entityDef lm_ending_meyers {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_ending_meyers"
+	
+	"anim"							"meyers_a"	
+	"num_cinematics"				"4"
+	"anim1"							"meyers_a"
+	"anim2"							"meyers_b"
+	"anim3"							"meyers_c"
+	"anim4"							"meyers_d"
+	"cinematic"						"1"
+	
+}	
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+	
+	////////////////////
+	//Exis Meyers 01  //
+	////////////////////
+	
+entityDef lm_exis_meyers_01 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"cinematic_le_meyers"
+	"model"							"lm_exis_meyers"
+	"head_joint"					"Shoulders"
+
+//	"size"							"20 20 70"
+	"look_joint Waist"				"-0.2 0 0"
+	"look_joint Chest"				"-0.2 0 0"
+	"look_joint Shoulders"			"-0.2 0 0"
+	"look_joint headcontrol"		"-0.4 0.4 0"
+	"look_joint neckcontrol"		"-0.4 0.4 0"
+	"look_joint Ruparm"				"0.5 0 0"
+	"look_joint Luparm"				"0.5 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"	
+	"turn_rate"						"0"
+	"ik_numlegs"					"0"
+	
+	"talk_time"						"0"
+	"talkradius"					"384"
+	"cinematic"						"1"
+
+	"meyers_animation"				"meyers_exis_anim_01_new"
+}	
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	////////////////////
+	//Exis Meyers 02  //
+	////////////////////
+	
+	entityDef lm_exis_meyers_02 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"cinematic_le_meyers"
+	"model"							"lm_exis_meyers"
+
+	"meyers_animation"				"meyers_exis_anim_02_new"
+}	
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+	
+	////////////////////
+	//Exis Meyers 03  //
+	////////////////////
+	
+	entityDef lm_exis_meyers_03 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_exis_meyers"
+	
+	"anim"							"meyers_exis_anim_idle"
+	"num_cinematics"				"1"
+	"anim1"							"meyers_exis_anim_idle"
+	"cinematic"						"1"
+	
+}	
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+	////////////////////
+	//Enpro Meyers    //
+	////////////////////
+	
+	entityDef lm_enpro_meyers_new {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_enpro_meyers_new"
+	
+	"anim"							"meyers_control_room_new"	
+	"num_cinematics"				"1"
+	"anim1"							"meyers_control_room_new"
+	"cinematic"						"1"
+	
+}	
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	////////////////////
+	//Dropship		  //
+	////////////////////
+	
+	entityDef lm_ending_dropship {
+	"inherit"					"cin_base"
+	"model"						"lm_ending_dropship"
+
+	"anim"							"dropship_a"
+	"num_cinematics"				"4"
+	"anim1"							"dropship_a"
+	"anim2"							"dropship_b"
+	"anim3"							"dropship_c"
+	"anim4"							"dropship_d"
+	"cinematic"						"1"
+
+	"smokeParticleSystem1"			"dropship_top1R"
+	"smokeParticleSystem2"			"dropship_top1L"
+	"smokeParticleSystem3"			"dropship_top2R"
+	"smokeParticleSystem4"			"dropship_top2L"
+	"smokeParticleSystem5"			"dropship1R"
+	"smokeParticleSystem6"			"dropship1L"
+	"smokeParticleSystem7"			"dropship2R"
+	"smokeParticleSystem8"			"dropship2L"
+	"smokeParticleSystem9"			"dropship3R"
+	"smokeParticleSystem10"			"dropship3L"
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+	////////////////////
+	//GUARDIAN		  //
+	////////////////////
+
+	entityDef lm_guardian_ending {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"lm_guardian_ending"
+	
+	"anim"							"guardian_ending"	
+	"num_cinematics"				"1"
+	"anim1"							"guardian_ending"
+	"cinematic"						"1"
+
+	"mtr_light_shader"				"lights/lanternglow"
+	"light_radius"					"200"
+	"light_color"					"0.6 0.2 0.2"
+	"light_offset_right"			"0 32 32"
+	"light_offset_left"				"0 32 -32"
+	"light_noshadows"			"1"
+	
+	"smokeParticleSystem"			"GflameBack"
+	"smokeParticleSystem2"			"GflameRhand"
+	//"smokeParticleSystem3"			"head"
+	"smokeParticleSystem3"			"GflameLHand"
+	//"smokeParticleSystem5"			"tail_12"
+	//"smokeParticleSystem6"			"GflameReye"
+	//"smokeParticleSystem7"			"GflameLeye"
+	//"smokeParticleSystem8"			"GflameNose"
+	//"smokeParticleSystem4"			"tounge_2"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"8"
+	"ik_footDownTrace"				"64"
+	"ik_waist"						"Body"
+	"ik_hip1"						"lupleg"
+	"ik_hip2"						"rupleg"
+	"ik_knee1"						"lloleg"
+	"ik_knee2"						"rloleg"
+	"ik_ankle1"						"lleg"
+	"ik_ankle2"						"rleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"ik_foot1"
+	"ik_foot2"						"ik_foot2"
+
+	"snd_sight"						"monster_demon_guardian_sight"
+	"snd_chatter"					"monster_demon_guardian_chatter"
+	"snd_chatter_combat"			"monster_demon_guardian_chatter_combat"
+	"snd_pain"						"monster_demon_guardian_pain"
+	"snd_death"						"monster_demon_guardian_die"
+	"snd_footstep"					"monster_demon_guardian_footstep"
+	"snd_attack"					"monster_demon_guardian_attack"	
+	"snd_spawn_seeker"				"monster_demon_guardian_spawn"
+	"snd_kablam"					"monster_demon_guardian_death_impact"
+	
+	"def_poundgrounddamage"			"damage_guardianPoundGround"
+	"def_poundground"				"guardian_poundground_explosion"
+	"def_charge"					"damage_guardianCharge"
+}	
+
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+
+

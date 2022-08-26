@@ -1,0 +1,23 @@
+
+/***********************************************************************
+
+ func
+
+***********************************************************************/
+
+entityDef func_shoot_projectile {
+	"inherit"							"func_static"
+	"editor_color"						"0 .5 .8"
+	"editor_mins"						"-12 -12 -12"
+	"editor_maxs"						"12 12 12"
+	"editor_rotatable"					"1"
+
+	"editor_usage"						"Inherits from a func_static but is fixed size and shows a rotation arrow."
+	"editor_usage1"						"Target an entity to shoot the projectile in the direction of that entity."
+
+	"editor_var spawn_delay_ms"			"delay (in MS) between shots"
+	"editor_var speed"					"speed at which projectile will fly"
+	"editor_var def_projectile"			"name of entityDef projectile to spawn: projectile_rocket, projectile_plasmablast, projectile_fireball_hellknight, etc.. (SPELLING MUST BE EXACTLY AS DEFINED IN .DEF)"
+
+	"spawnclass"						"idFuncShootProjectile"
+}

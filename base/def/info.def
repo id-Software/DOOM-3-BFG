@@ -1,0 +1,50 @@
+/***********************************************************************
+
+ info
+
+***********************************************************************/
+
+entityDef info_player_deathmatch {
+	"editor_color"			"1 0 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_showangle"		"1"
+
+	"editor_usage"			"Potential spawning position for deathmatch games.  The first time a player enters the game, they will be at an 'initial' spot."
+	"editor_var target"		"targets to fire when someone spawns in."
+	"editor_var initial"	"this is an initial spawn spot"
+
+	"spawnclass"			"idPlayerStart"
+	"use_aas"				"aas48" // jmarshall
+}
+
+entityDef info_player_start {
+	"editor_color"			"1 0 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_showangle"		"1"
+
+	"editor_usage"			"Potential spawning position for single player games."
+	"editor_var useEffect"	"show teleportation effect for useEffect seconds.. 0 is instant"
+	"editor_var skin"		"skin to use for player model"
+
+	"spawnclass"			"idPlayerStart"
+}
+
+entityDef info_player_teleport {
+	"editor_color"				"1 0 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+	"editor_showangle"			"1"
+
+	"editor_usage"				"Spawning position player after cinematic.  When triggered, player will be moved to this location."
+	"editor_var push"			"How much of a push to give to the player when he is teleported."
+	"editor_var visualView"		"Camera to set player's view to when he is teleported."
+	"editor_var visualEffect"	"How long to show the view from the visualView."
+
+	"spawnclass"				"idPlayerStart"
+	
+	"push"						"300"
+	"visualEffect"				"0"
+	"visualView"				""
+}

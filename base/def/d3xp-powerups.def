@@ -1,0 +1,17 @@
+
+entityDef powerup_invulnerability {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Invulnerability"
+
+	"spawnclass"			"idItemPowerup"
+	"model" 				"models/items/mp_invuln/mp_invun_lo1.lwo"
+	"size"					"32 32 32"
+	"respawn"				"60"
+	"time"					"30"
+	"type"					"4"
+	"spin"					"1"
+	"snd_acquire"			"invisibility_pickup"
+}

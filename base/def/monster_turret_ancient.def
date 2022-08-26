@@ -1,0 +1,96 @@
+export shwood {
+
+	options -prefix TUR_ -keep origin ALL MISSILE -parent MISSILE pitch
+
+	addoptions -align ALL
+
+	mesh	models/mapobjects/turret/cycles/idle.mb -dest models/md5/environments/turret/turretmesh
+	anim	models/mapobjects/turret/cycles/idle.mb -dest models/md5/environments/turret/idle
+	anim	models/mapobjects/turret/cycles/fire.mb -dest models/md5/environments/turret/fire
+	anim	models/mapobjects/turret/cycles/activate.mb -range 1 1 -dest models/md5/environments/turret/idleoff
+
+	//anim	models/mapobjects/turret/cycles/fire_left.mb -range 1 1 -dest models/md5/environments/turret/fire_left
+	//anim	models/mapobjects/turret/cycles/fire_right.mb -range 1 1 -dest models/md5/environments/turret/fire_right
+
+	anim	models/mapobjects/turret/cycles/activate.mb -dest models/md5/environments/turret/activate
+	anim	models/mapobjects/turret/cycles/cinematic.mb -dest models/md5/environments/turret/cinematic
+}
+
+model monster_turret_ancient {
+	mesh				models/md5/environments/turret/turretmesh.md5mesh
+
+	channel torso					( *pitch)
+	channel legs					( *body ALL origin -*pitch)
+
+	anim idleoff			models/md5/environments/turret/idleoff.md5anim
+	anim idle				models/md5/environments/turret/idle.md5anim
+	anim fire				models/md5/environments/turret/fire.md5anim
+	//anim fire_left			models/md5/environments/turret/fire_left.md5anim
+	//anim fire_right			models/md5/environments/turret/fire_right.md5anim
+
+	anim activate			models/md5/environments/turret/activate.md5anim {
+		//frame 1				call map_erebus2_helltime::introCinematicSpawnSacrificeLostSoul
+		//frame 17			call map_erebus2_helltime::introCinemationRightTurretAttackLostSoul
+	}
+	anim leftactivate			models/md5/environments/turret/activate.md5anim
+	anim cinematic				models/md5/environments/turret/cinematic.md5anim{
+		frame 1				call map_erebus2_helltime::introCinematicSpawnSacrificeLostSoul
+		frame 17			call map_erebus2_helltime::introCinemationRightTurretAttackLostSoul
+	}
+}
+
+entityDef monster_turret_ancient {
+	"anim"							"idleoff"
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_turret_ancient"
+	"model"							"monster_turret_ancient"
+
+	"size"							"64 64 64"
+
+	"team"							"1"
+	"rank"							"0"
+	"health"						"100"
+	"turn_rate"						"0"
+	"bleed"							"0"
+	"on_activate"					""
+	"fov"							"360"
+	"aas"							""
+
+	"def_guided"					"projectile_powerball_guided"
+	"def_nonguided"					"projectile_helltime_killer"
+
+
+
+	"def_projectile"				"projectile_bullet_turret"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"attack_cone"					"360"
+	"attack_accuracy"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+
+	"head_focus_rate"				"0.05"
+
+	"bone_focus"					"MISSILE"
+	"bone_leftEye"					""
+	"bone_rightEye"					""
+
+	"eye_turn_min"								"0 0 0"
+	"eye_turn_max"								"0 0 0"
+
+	"look_min"						"-180 -180 0"
+	"look_max"						"180 180 0"
+	"look_joint yaw"				"1 1 0"
+	//"look_joint pitch"				"0 0 0"
+
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+
+	"snd_wakeup"					"char_sentry_active"	//TEMP
+	"snd_shutdown"					"char_sentry_destroyed"	//TEMP
+	"snd_windup"					"monster_zombie_commando_windup"
+	"snd_winddown"					"monster_zombie_commando_winddown"
+	//"snd_fire"					"player_chaingun_fire"
+	"snd_fire"						"monster_turret_fire"
+}

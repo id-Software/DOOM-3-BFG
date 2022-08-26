@@ -1,0 +1,61 @@
+//CPU_boss
+
+export fred {
+	camera	models/monsters/sabaoth/cycles/death.mb -dest models/md5/cinematics/cpu_boss/cpu_boss_cam
+}
+
+entityDef cpuboss_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"					"1"
+
+	"anim cpu_boss_cam"				"models/md5/cinematics/cpu_boss/cpu_boss_cam.md5camera"
+}
+
+
+model cpuboss_cin_player {
+	mesh						models/md5/characters/player/mocap/player.md5mesh
+	skin						skins/player/noweapon.skin
+
+	anim sargedeath				models/md5/cinematics/cpu_boss/sabaoth_death_player.md5anim
+
+}
+
+entityDef cpuboss_cin_player {
+	"inherit"					"cin_base"
+	"model"						"cpuboss_cin_player"
+	"cinematic"					"1"
+
+	"anim"						"sargedeath" 
+
+}
+
+model cpuboss_cin_sabaoth {
+	mesh						models/md5/monsters/sabaoth/sabaoth.md5mesh
+
+	anim death				models/md5/monsters/sabaoth/death.md5anim {
+		frame 200			skin skins/models/monsters/sabdeath.skin
+		frame 1               trigger		sargeexplosion1
+		frame 10			  sound_voice	sabaoth_death
+		frame 20              trigger		sargeexplosion2
+		frame 35              trigger		sargeexplosion3
+		frame 60              trigger		sargeexplosion4
+		frame 85              trigger		sargeexplosion5
+	}
+
+}
+
+entityDef cpuboss_cin_sabaoth {
+	"inherit"					"cin_base"
+	"model"						"cpuboss_cin_sabaoth"
+	"cinematic"					"1"
+
+	"anim"						"death" 
+
+}
+
+
+

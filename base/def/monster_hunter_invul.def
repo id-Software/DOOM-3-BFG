@@ -1,0 +1,670 @@
+/***********************************************************************
+
+	monster_hunter_invul.def
+
+-keep Lknee Rknee -keep ROT -align movement -parent spine_1 ROT -parent ROT body
+***********************************************************************/
+
+export james {
+ 	options -prefix INV_ -keep RMISSILE LMISSILE HMISSILE ALL -parent HMISSILE ALL -parent RMISSILE Rpalm -parent LMISSILE Lpalm -sourcedir models/monsters/hunter_invul/cycles -destdir models/md5/monsters/d3xp_invul
+
+	addoptions -align ALL
+
+	mesh	makemesh.mb -dest d3xp_invul
+	//anim	af_pose.mb
+	anim	idle1.mb
+	//anim	sight.mb
+	anim	walk1.mb
+	anim	melee_attack1.mb
+	anim	range_attack1.mb
+	anim	range_attack2.mb
+	anim	range_attack3.mb
+	anim	pain_luparm.mb
+	anim	pain_ruparm.mb
+	anim	pain_head.mb
+	anim	pain_chest.mb
+
+	anim	invuln_idle1.mb
+	anim	invuln_walk1.mb
+	anim	pre_summon.mb
+	anim	invuln_summon.mb
+	anim	invuln_shutdown.mb
+	anim	invuln_melee1.mb
+	anim	electro_blast.mb
+	anim	shockwave_blast1.mb
+
+	anim	idle2.mb
+
+	anim	missile_low.mb
+  	anim	missile_high.mb
+
+}
+
+////////////////////////////////////////////////////////////
+// CINEMATIC INVUL HUNTER INTRO PLAYER
+////////////////////////////////////////////////////////////\
+
+model phobos2_cinematic_inv_player {
+	mesh						models/md5/cinematics/phobos2/player.md5mesh
+	anim intro					models/md5/cinematics/phobos2/playerintro.md5anim {
+	}
+}
+
+model monster_hunter_invul {
+
+	mesh							models/md5/monsters/d3xp_invul/d3xp_invul.md5mesh
+
+	skin							"skins/monsters/hunter_invul/invuln_no_shell2"
+	//skin							"skins/monsters/hunter_invul/invuln_shell"
+
+	channel torso						( *HK_T_1 HMISSILE )
+	channel legs						( *Hips origin HK_root ALL )
+
+	//anim af_pose						models/md5/monsters/d3xp_invul/af_pose.md5anim
+	//anim ik_pose						models/md5/monsters/d3xp_invul/af_pose.md5anim
+
+////////////////////////////////////////////////////////////
+// CINEMATIC INTRO INVUL HUNTER
+////////////////////////////////////////////////////////////
+
+	anim phobos2_intro		models/md5/monsters/d3xp_invul/intro.md5anim {
+
+		frame 1							call map_phobos2_invul::cinematic_hunterShellNormal
+		frame 1							trigger phobos2_plasmajet1
+		frame 1							trigger phobos2_plasmajet2
+		frame 1							call map_phobos2_invul::TurnOffPlasma
+		frame 1							trigger trigger_once_36
+		frame 20						sound_body player_sounds_footstep
+		frame 34						sound_body player_sounds_footstep
+		frame 54						sound_body player_sounds_footstep
+		frame 71						sound_body player_sounds_footstep
+		frame 112						sound_body player_sounds_footstep
+		frame 124						sound_global p2_cin_transition
+
+		frame 135						sound_body player_sounds_footstep
+
+		frame 165						sound_item p2_cin_hunterglimpse
+
+		frame 166						sound_body player_sounds_footstep
+		frame 185						sound_weapon p2_cin_sgpump
+
+		frame 230						sound_voice p2_cin_initialsight
+
+		frame 322						sound_global p2_cin_landing
+
+		frame 360						sound_voice2 p2_cin_angryhunter
+
+		frame 390						call map_phobos2_invul::cinematic_electricityOn
+		frame 390						call map_phobos2_invul::cinematic_hunterTransShellFull
+		frame 390						start_emitter electricity origin inv_bottom_loop.prt
+		frame 390						start_emitter electricity2 origin inv_bolt_loop.prt
+		frame 390						call map_phobos2_invul::cinematic_blueLights
+		frame 420						call map_phobos2_invul::cinematic_hunterShellFull
+
+		frame 569						sound_weapon p2_cin_electropop
+
+		frame 569						call map_phobos2_invul::TurnOnPlasma1
+		frame 579						call map_phobos2_invul::TurnOnPlasma2
+		frame 581						trigger rod_nw_rodexplode
+//		frame 579						trigger nw_explosion_emitter
+		frame 591						call map_phobos2_invul::TurnOffPlasma
+
+		frame 590						sound_global p2_cin_rod_explosion
+
+		frame 594						call map_phobos2_invul::cinematic_rodExplodes
+		frame 615						call map_phobos2_invul::cinematic_electricityOff
+		frame 615						call map_phobos2_invul::cinematic_hunterTransShellStatic
+		frame 623						stop_emitter electricity
+
+		frame 625						sound_voice p2_cin_finalvoc
+
+		frame 629						call map_phobos2_invul::cinematic_hunterShellStatic
+		frame 632						stop_emitter electricity2
+		frame 646						call map_phobos2_invul::cinematic_closeRodDoors
+		frame 646						call map_phobos2_invul::cinematic_setup
+	}
+
+////////////////////////////////////////////////////////////
+// NORMAL INVUL HUNTER ANIMS
+////////////////////////////////////////////////////////////
+
+	anim idle						models/md5/monsters/d3xp_invul/idle1.md5anim {
+		frame 1								sound_voice snd_idle
+	}
+	anim stand						models/md5/monsters/d3xp_invul/idle1.md5anim {
+		frame 1								sound_voice snd_idle
+	}
+	anim sight						models/md5/monsters/d3xp_invul/invuln_summon.md5anim {
+		frame 1							sound_body snd_sight
+	}
+	anim walk						models/md5/monsters/d3xp_invul/walk1.md5anim {
+		frame 17						sound_body2 snd_fs
+		frame 36						sound_body3 snd_fs2
+	}
+	anim pain						models/md5/monsters/d3xp_invul/pain_chest.md5anim {
+		frame 1							sound_body snd_pain
+	}
+	anim pain_left_arm					models/md5/monsters/d3xp_invul/pain_luparm.md5anim {
+		frame 1							sound_body snd_pain
+	}
+	anim pain_right_arm					models/md5/monsters/d3xp_invul/pain_ruparm.md5anim {
+		frame 1							sound_body snd_pain
+	}
+	anim pain_chest						models/md5/monsters/d3xp_invul/pain_chest.md5anim {
+		frame 1							sound_body snd_pain
+	}
+	anim pain_head						models/md5/monsters/d3xp_invul/pain_head.md5anim {
+		frame 1							sound_body snd_pain
+	}
+	anim melee_attack1					models/md5/monsters/d3xp_invul/melee_attack1.md5anim {
+		frame 1							sound_weapon snd_attack
+		frame 8							sound_weapon snd_attack_missile
+		frame 14						melee hunter_invul_melee_normal
+	}
+
+	anim range_attack1					models/md5/monsters/d3xp_invul/range_attack1.md5anim {
+		frame 1							sound_voice snd_idle
+		frame 1							sound_body2 snd_attack
+		frame 8							create_missile rmissile
+		frame 22						launch_missile rmissile
+		frame 22						sound_weapon snd_attack_missile
+		frame 22						sound_body snd_sight
+	}
+
+	anim range_attack2					models/md5/monsters/d3xp_invul/range_attack2.md5anim {
+		frame 1							sound_voice snd_idle
+		frame 1							sound_body2 snd_attack
+		frame 1							create_missile rmissile
+		frame 17						launch_missile rmissile
+		frame 15						sound_weapon snd_attack_missile
+		frame 23						sound_body2 snd_attack
+	}
+	anim range_attack3					models/md5/monsters/d3xp_invul/range_attack3.md5anim {
+		frame 1							sound_voice snd_idle
+		frame 1							create_missile rmissile
+		frame 1							sound_body2 snd_attack
+		frame 17						launch_missile rmissile
+		frame 15						sound_weapon snd_attack_missile
+		frame 30						create_missile lmissile
+		frame 40						launch_missile lmissile
+		frame 36						sound_weapon snd_attack_missile
+	}
+	
+	anim electricwall_attack1			models/md5/monsters/d3xp_invul/range_attack1.md5anim {
+		frame 1							sound_voice snd_idle
+		frame 1							sound_body2 snd_attack
+		frame 8							create_missile rmissile
+		frame 22						launch_missile rmissile
+		frame 22						sound_weapon snd_attack_missile
+		frame 22						sound_body snd_sight
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// Invulnerability Animations
+	/////////////////////////////////////////////////////////////////////////////
+	anim invuln_idle					models/md5/monsters/d3xp_invul/invuln_idle1.md5anim {
+		frame 1								sound_voice snd_idle
+	}
+	anim invuln_walk					models/md5/monsters/d3xp_invul/invuln_walk1.md5anim {
+		frame 17						sound_body2 snd_fs
+		frame 36						sound_body3 snd_fs2
+	}
+	anim pre_summon						models/md5/monsters/d3xp_invul/pre_summon.md5anim {
+		frame 1							sound_voice snd_idle
+		frame 50						sound_body2 snd_attack
+	}
+	anim invuln_summon					models/md5/monsters/d3xp_invul/invuln_summon.md5anim {
+		frame 8							start_emitter electricity origin inv_bottom_loop.prt
+		frame 8							start_emitter electricity2 origin inv_bolt_loop.prt
+		frame 1								sound_voice snd_sight
+		frame 15								sound_body2 snd_attack
+	}
+	anim invuln_shutdown				models/md5/monsters/d3xp_invul/invuln_shutdown.md5anim {
+		frame 28						stop_emitter electricity
+		frame 28						stop_emitter electricity2
+		frame 12							sound_body snd_sight
+		frame 20							sound_body2 snd_attack
+	}
+	anim invuln_melee1					models/md5/monsters/d3xp_invul/invuln_melee1.md5anim {
+		frame 1							sound_weapon snd_attack
+		frame 8							sound_weapon snd_attack_missile
+		frame 14						melee hunter_invul_melee_normal
+	}
+
+	anim electro_blast					models/md5/monsters/d3xp_invul/electro_blast.md5anim {
+		frame 1								trigger_fx origin fx/hunter/invulnerability/shockball
+		frame 1							sound_voice snd_idle
+		frame 12						sound_body2 snd_attack
+		frame 22						sound_body snd_sight
+	}
+
+	anim invuln_shockwave1				models/md5/monsters/d3xp_invul/shockwave_blast1.md5anim {
+		frame 1								sound_voice snd_idle
+		frame 29							trigger_fx origin fx/hunter/invulnerability/groundpound
+		frame 23							sound_body snd_sight
+	}
+
+	anim invuln_shockwave_nodamage				models/md5/monsters/d3xp_invul/shockwave_blast1.md5anim {
+		frame 1								sound_voice snd_idle
+		frame 21							trigger_fx origin fx/hunter/invulnerability/groundpound_nodamage
+		frame 23							sound_body snd_sight
+	}
+
+	anim invuln_melee_attack1			models/md5/monsters/d3xp_invul/melee_attack1.md5anim {
+		frame 1								sound_weapon snd_attack
+		frame 8							sound_weapon snd_attack_missile
+		frame 14							melee hunter_invul_melee_inv
+	}
+
+	anim missile_low					models/md5/monsters/d3xp_invul/missile_low.md5anim {
+		frame 1				 			create_missile hmissile
+		frame 1							sound_weapon snd_attack_missile
+		frame 30						launch_missile hmissile
+	}
+
+	anim missile_high					models/md5/monsters/d3xp_invul/missile_high.md5anim {
+		frame 1							create_missile hmissile
+		frame 1							sound_weapon snd_attack_missile
+		frame 44						launch_missile hmissile
+	}
+
+
+	//anim teleport						models/md5/monsters/d3xp_bruiser/teleport.md5anim
+	//anim turret_attack					models/md5/monsters/d3xp_bruiser/range_attack2.md5anim
+	//anim melee_attack3					models/md5/monsters/d3xp_bruiser/attack3.md5anim
+	//anim melee_attack4					models/md5/monsters/d3xp_bruiser/attack4.md5anim
+	//anim evade_left					models/md5/monsters/d3xp_bruiser/evade_left.md5anim
+	//anim evade_right					models/md5/monsters/d3xp_bruiser/evade_right.md5anim
+	//anim pain_chest					models/md5/monsters/d3xp_bruiser/pain_chest1.md5anim
+	//anim pain_head					models/md5/monsters/d3xp_bruiser/pain_head1.md5anim
+
+	//anim af_pose						models/md5/monsters/d3xp_bruiser/af_pose.md5anim
+	//anim ik_pose						models/md5/monsters/d3xp_bruiser/af_pose.md5anim
+
+}
+
+entityDef monster_hunter_invul {
+	"inherit"						"monster_default"
+	"model"							"monster_hunter_invul"
+	"scriptobject"					"monster_hunter_invul"
+	"size"							"94 94 96"
+	"use_aas"						"aas96"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"7000"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"melee_range"					"48"
+	"bone_focus"					"Head"
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp.prt-HK_T_2"
+	"delay" 						"2"
+
+	"def_projectile"				"projectile_fireball_invul"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint HK_T_1"				"0.4 0.4 0"
+	"look_joint HK_N_2"				"0.6 0.6 0"
+
+	"damage_zone head"				"*HK_N_1"
+	"damage_zone chest"				"*HK_T_1 -*Rshoulder -*Lshoulder -*HK_N_1"
+	"damage_zone left_arm"			"*Lshoulder"
+	"damage_zone right_arm"			"*Rshoulder"
+	"damage_scale head"				"2"
+	"mass"   						"850"
+
+	//"smokeParticleSystem"			"flame_r"
+	//"smokeParticleSystem2"		"flame_l"
+
+	"mtr_wound_metal"				"textures/common/nodraw"
+
+	"smoke_wound_metal"			""
+
+	"fx_shockwave"					"fx/hunter/invulnerability/groundpound.fx"
+	"fx_electroblast"				"fx/hunter/invulnerability/shockball2.fx"
+
+	"skin"							"skins/monsters/hunter_invul/invuln_no_shell2"
+	"skin_no_shell"					"skins/monsters/hunter_invul/invuln_no_shell"
+	"skin_no_shell2"				"skins/monsters/hunter_invul/invuln_no_shell2"
+	"skin_no_shell2_burn"			"skins/monsters/hunter_invul/invuln_no_shell2_burn"
+	"skin_summonshell"				"skins/monsters/hunter_invul/invuln_summon_shell"
+	"skin_shutdownshell"			"skins/monsters/hunter_invul/invuln_shutdown_shell"
+	"skin_shell"					"skins/monsters/hunter_invul/invuln_shell"
+
+	"snd_idle"						"hunter_idle"
+	"snd_pain"						"hunter_pain"
+	"snd_sight"						"hunter_sight"
+	"snd_attack"					"hunter_attack"
+	"snd_attack_missile"			"hunter_invul_projectile_create"
+	"snd_chatter_combat"			"hunter_idle"
+	"snd_death"						"hunter_death"
+	"snd_fs"						"hunter_fs1"
+	"snd_fs2"						"hunter_fs2"
+	"snd_invul_fs"					"hunter_fs1"
+}
+
+entityDef hunter_invul_melee_inv {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+
+	"damage"						"25"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"120"
+
+	"kick_time"						"400"
+	"kick_amplitude"					"2"
+
+	"dv_time"						"100"
+}
+
+entityDef hunter_invul_melee_normal {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+
+	"damage"						"25"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"120"
+
+	"kick_time"						"400"
+	"kick_amplitude"					"2"
+
+	"dv_time"						"100"
+}
+
+entityDef damage_fireball_invul {
+	"damage"					"20"
+	"kickDir"					"1 0 0"
+
+	"mtr_blob"					"genericDamage"
+	"blob_time"					"300"
+	"blob_size"					"400"
+	"blob_offset_x"					"400"
+
+	"knockback"					"10"
+
+	"kick_time"					"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"					"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+
+entityDef damage_fireball_invul_splash {
+	"damage"					"25"
+	"radius"					"80"
+}
+
+entityDef projectile_fireball_invul {
+	"spawnclass"					"idProjectile"
+	"mins"						"-4 -4 -4"
+	"maxs"						"4 4 4"
+	"cone"						"3"
+	"model" 					"inv_fireball.prt"
+
+	"def_damage"					"damage_fireball_invul"
+	"def_splash_damage"				"damage_fireball_invul_splash"
+
+	"launchFromBarrel"				"1"
+	"health"					"5"				// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"475 0 -150"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"				// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"				// when to start accelerating
+	"thrust_end"					"0"				// when to stop accelerating
+	"linear_friction"				"0"				// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"					"0"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"5"
+	"gravity"					"250"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"				// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"				// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"				// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"				// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"				"0"				// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"				// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn_plasma"
+	"decal_size"					"75"
+
+	"smoke_fly"					"inv_trail.prt"		// particle effect while in the air
+	"smoke_detonate"				""				// particle effect when detonates
+	"smoke_residue"					""				// particle effect while in the air
+	"smoke_bounce"					""				// particle effect when bounces
+	"smoke_fuse"					""				// particle effect when removed from fuse expiring
+
+	// parametric particles -- temp
+	"model_detonate"				"hellknight_explosion.prt"
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	//"mtr_light_shader"				"lights/impflyflash"
+
+	//"light_color"					"0.34 0.73 1"
+	//"light_color"					"0.97 0.5 0.18"
+	//"light_color"					"0.1 0.6 0.9"
+	//"light_radius"					"160"
+	//"light_offset"					"0 0 0"
+
+	//"mtr_explode_light_shader"			"lights/spawnflash"
+	//"explode_light_color"				"0.1 0.6 0.9"
+	//"explode_light_radius"				"320"
+	//"explode_light_fadetime"			"1"
+
+	"snd_explode"				"hunter_invul_projectile_impact"
+	"snd_fly"					"hunter_invul_projectile_flight"	// particle effect while in the air
+}
+
+entityDef projectile_fireball_invul_guided {
+	"spawnclass"					"idGuidedProjectile"
+	"mins"							"-2 -2 -5"
+	"maxs"							"2 2 5"
+	"cone"							"3"
+	"model"							"inv_fireball.prt"
+
+	"def_damage"					"damage_fireball_invul"
+	"def_splash_damage"				"damage_fireball_invul_splash"
+
+	"random"						"15 15 0"		// random angular offset
+	"turn_max"						"180"			// maximum amount to turn per second
+	"clamp_dist"					"256"			// distance to begin clamping off the random direction changes
+	"launchFromBarrel"				"1"
+	"health"						"5"
+	"velocity"						"300 0 0"
+	"angular_velocity"				"0 0 0"
+	"thrust"						""
+	"thrust_start"					"0"
+	"thrust_end"					"4"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"
+	"mass"							"10"
+	"gravity"						"0"
+	"fuse"							"7"
+	"burstMode"						"1"
+	"burstDist"						"32"
+	"burstVelocity"					"1.25"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"1"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"			"0"
+	"impact_gib"					"1"
+
+	"mtr_detonate"					"textures/decals/ballburn_plasma"
+	"decal_size"					"75"
+
+	// temp temp
+	"smoke_fly"						"hellknight_trail.prt"
+	"smoke_detonate"				""
+	"smoke_residue"					""
+	"smoke_bounce"					""
+	"smoke_fuse"					""
+
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	// parametric particles -- temp
+	"model_detonate"				"rocketExplosion.prt"
+
+
+	"mtr_light_shader"				"lights/impflyflash"
+
+	"light_color"					"0.34 0.73 1"
+	//"light_color"					"0.97 0.5 0.18"
+	"light_color"					"0.1 0.6 0.9"
+	"light_radius"					"96"
+	"light_offset"					"0 0 0"
+
+	"mtr_explode_light_shader"			"lights/spawnflash"
+	"explode_light_color"				"0.1 0.6 0.9"
+	"explode_light_radius"				"128"
+	"explode_light_fadetime"			"1"
+
+	"snd_explode"				"hunter_invul_projectile_impact"
+	"snd_fly"					"hunter_invul_projectile_flight"	// particle effect while in the air
+}
+
+
+entityDef shockwave_pound_attack {
+	"inherit"						"func_shockwave"
+
+	"start_on"						"1"
+	"height"						"50"
+
+	"def_player_damage"				"hunter_invulnerability_pound_attack"
+}
+
+entityDef shockwave_electroblast {
+	"inherit"						"func_shockwave"
+
+	"start_on"						"1"
+	"endsize"						"560"
+	"duration"						"2750"
+
+	"def_player_damage"				"hunter_invulnerability_electroblast_attack"
+}
+
+entityDef hunter_invulnerability_pound_attack {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"8"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"100"
+
+	"kick_time"						"800"
+	"kick_amplitude"					"2"
+
+	"dv_time"						"400"
+}
+
+entityDef hunter_invulnerability_electroblast_attack {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"10"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"100"
+
+	"kick_time"						"800"
+	"kick_amplitude"					"2"
+
+	"dv_time"						"400"
+}
+
+
+entityDef damage_invulelectricwall {
+	"damage"			"10"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"10"
+
+	"smoke_wound_flesh"	"bloodwound.smoke"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+}
+
+entityDef invul_electricwall {
+	"spawnclass"				"idTrigger_Hurt"
+	"model"						"inv_electrowall.prt"
+	"size"						"48 48 128"
+	"cylinder"					"6"
+	"def_damage"				"damage_invulelectricwall"
+	"snd_fly"					"hunter_invul_projectile_flight"
+}
+
+entityDef damage_invulnArea {
+	"damage"						"5"
+	"kickDir"						"1 0 0"
+	"knockback"						"120"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"2"
+}
+
+entityDef phobos2_cinematic_inv_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_cinematic_inv_player"
+	"anim"						"intro"
+}
