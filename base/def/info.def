@@ -15,7 +15,6 @@ entityDef info_player_deathmatch {
 	"editor_var initial"	"this is an initial spawn spot"
 
 	"spawnclass"			"idPlayerStart"
-	"use_aas"				"aas48" // jmarshall
 }
 
 entityDef info_player_start {
