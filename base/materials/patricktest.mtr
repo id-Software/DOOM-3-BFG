@@ -1,0 +1,4272 @@
+table ptfullfade 	{ { .2, .1 , .002 , .0 ,.3, .1, .2, .8 ,.6 , .5 } }
+table ptclouds 		{ { .8, .7 , .6, .5 , .3 , .6 , .9 , 1, .8 , .5 , .3 ,.1 , .4, .5, 1} }
+table blood2 		{ { .2, .1 , .3, .5 , .7 , .8 , .9 , 1, .8 , 1 , .9 , .7 , .5, .6 , .7 , .8 , .9, 1 , 1, .8, } }
+table wrinklepulse 	{ { .3, .1 , .05, .01 , .05 , .2 , .3 , .4 } }
+table specular 		{ { 1 , 2 , 10 , 20 , 50 , 30 , 10 , 1, 1 , 1 , 2 , 3 , 4 , 5 , 2 } }
+table candle 		{ { .5 , 1 , .6 , .8 , .5 , 1 , .7 , .62 , .9 , .71 , 1 , .48 , .9 , .85 , .56 , .7 , 1 ,.5, .85 , .5, .62 , .99 , 1 , .48 , .82 , 1 , .65} }
+table bb		{ { .2, .1 , .002 , .0 ,.3, .1, .2, .8 ,.6 , .5 } }
+table firewall		{ { .5, .5 , 1, .5 , .3 , 1 , .5, .5, .5 , 1 , .5 , .3 , 1, .5, .5} }
+table lava		{ { .4,.32,.44,.375,.225,.35,.45,.5,.7,.6,.5,.7,.5,.65,.5,.45,.6,.5,.4,.6,.5,.4,.7} }
+table lightning 	{ { .2, 0 , 1 , 1 , 1, 0 ,0 ,0 ,0 ,0 ,.5,0 ,0 ,0  } }
+table lightning2 	{ { .2, .3 , 0, 0.1, 0, .2 , .3 ,.2 , 0 , 0 , 0 , 0.02 , 0 , 0.02 , 0 , 0.02 , .05 , .08 , .02, 0 , 0 , 0 , 0, .2, 0 , 0 , .1  } }
+table reverse		{ { 1, -1 } }
+table teleporter	{ { 1, 1, 1, .01, .05, .1, .2, .3, .4, .5, .6, .65, .7, .75, .8, .85, .9, .95, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} }
+table scaletable1	{ {  20, 1, 20  } }
+table scaletable2	{ {  1 , .5, .2 , .0 } }
+table teleporterfluid	{ { .2, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
+table eggdrip		{ { 1, 1, 1 , 1 , 1 , 1 } }
+
+//centerscale	0.97, 0.97
+//rotate time * .66
+
+///////////////////////
+
+
+
+
+
+
+
+textures/object/lightingmonkey
+{
+	qer_editorimage textures/object/lightingmonkey
+
+
+    	noselfShadow
+	noshadows
+
+		diffusemap		 textures/object/lightingmonkey
+
+}
+
+
+textures/rock/cliffwall
+
+ {
+ qer_editorimage textures/rock/cliffwall.tga
+
+ noSelfShadow
+ noShadows
+	
+
+		   {
+				blend	 diffusemap	
+				map	 textures/rock/cliffwall.tga
+		   		
+		   }
+			bumpmap			addnormals( textures/rock/cliffwall_local.tga, heightmap (textures/rock/cliffwall_h.tga, 10 ) )
+			specularmap	    	textures/rock/cliffwall_s.tga
+		
+
+
+}
+
+
+textures/rock/hellrock
+
+ {
+ qer_editorimage textures/rock/hellrock.tga
+
+ noSelfShadow
+ noShadows
+	
+
+		   {
+				blend	 diffusemap	
+				map	 textures/rock/hellrock.tga
+		   		
+		   }
+			bumpmap			addnormals( textures/rock/hellrock_local.tga, heightmap (textures/rock/hellrock_h.tga, 10 ) )
+			specularmap	    	textures/rock/hellrock_s.tga
+		
+
+
+}
+
+
+textures/particles/p_lightning6
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	
+	
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		blend		add
+		map			textures/particles/p_lightning6
+		red			s_lightningtable [(time*.5)+(.66+parm4)] * parm0
+		green		s_lightningtable [(time*.5)+(.66+parm4)] * parm1
+		blue		s_lightningtable [(time*.5)+(.66+parm4)] * parm2
+		centerscale	s_lightningtable2[time*4], s_lightningtable2[time*4]
+		zeroclamp
+		vertexcolor
+	}
+}
+
+textures/sfx/drip_01
+{
+	noSelfShadow
+	noshadows
+	translucent
+	
+				
+	{
+		maskcolor
+		map		makealpha(textures/sfx/drip_mask)
+		scroll 		time *0 , time * -.65 
+	}
+
+	{
+		blend 	gl_dst_alpha, gl_one
+		maskalpha
+		map		textures/sfx/drip_01
+	
+	}
+ }
+
+
+textures/sfx/drip_02
+{
+	noSelfShadow
+	noshadows
+	translucent
+	
+				
+	{
+		maskcolor
+		map		makealpha(textures/sfx/drip_mask)
+		scroll 		time *0 , time * -.55
+	}
+
+	{
+		blend 	gl_dst_alpha, gl_one
+		maskalpha
+		map		textures/sfx/drip_02
+	
+	}
+ }
+textures/sfx/drip_03
+{
+	noSelfShadow
+	noshadows
+	translucent
+	
+				
+	{
+		maskcolor
+		map		makealpha(textures/sfx/drip_mask)
+		scroll 		time *0 , time * -.74
+	}
+
+	{
+		blend 	gl_dst_alpha, gl_one
+		maskalpha
+		map		textures/sfx/drip_03
+	
+	}
+ }
+
+textures/hell/hellcloud_filter
+{
+ qer_editorimage textures/hell/hellcloud_filter.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+
+ 	{
+ 		blend filter
+ 		map textures/hell/hellcloud_filter.tga
+ 		vertexcolor
+		rotate	time * -.1
+		//alphatest .5
+
+ 	}
+ 
+}
+
+textures/particles/flame7
+{
+ qer_editorimage textures/particles/flame7.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+
+ 	{
+ 		blend add
+ 		map textures/particles/flame7.tga
+ 		vertexcolor
+		zeroclamp
+
+ 	}
+ 
+}
+
+textures/particles/flame6
+{
+ qer_editorimage textures/particles/flame6.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+
+ 	{
+ 		blend add
+ 		map textures/particles/flame6.tga
+ 		vertexcolor
+		zeroclamp
+
+ 	}
+ 
+}
+
+textures/particles/ring_blue
+{
+ qer_editorimage textures/particles/ring_blue.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+
+ 	{
+ 		blend add
+ 		map textures/particles/ring_blue.tga
+ 		vertexcolor
+		zeroclamp
+
+ 	}
+ 
+}
+
+textures/particles/ring_2
+{
+ qer_editorimage textures/particles/ring_2.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+
+ 	{
+ 		blend add
+ 		map textures/particles/ring_2.tga
+ 		vertexcolor
+		zeroclamp
+
+ 	}
+ 
+}
+
+
+textures/particles/crack_02
+{
+ qer_editorimage textures/particles/crack_03.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/crack_03.tga
+ 	vertexcolor
+ 	}
+ 
+}
+models\mapobjects\delta3\teleporter_warpfx\betrugger_sphere
+{
+	noSelfShadow
+	noshadows
+	nonsolid
+	noimpact
+	twosided
+	deform sprite
+	{
+		if	parm5	
+		blend  	filter
+		map		models\mapobjects\delta3\teleporter_warpfx\betrugger_sphere.tga
+		
+		centerscale 	scaletable1[ ( time + parm4 ) * 0.4 ], scaletable1[ ( time + parm4 ) * 0.4 ]  //this line is cuasing errors
+		clamp
+		
+
+	}
+ }
+
+models/mapobjects/delta3/teleporter_warpfx/betrugger_fade
+{
+	noSelfShadow
+	noshadows
+	nonsolid
+	noimpact
+	
+	
+
+	
+
+	{
+		blend  		add
+		map		models/mapobjects/delta3/teleporter_warpfx/betrugger_fade.tga
+		translate	time *.3,time *.0
+		clamp
+		
+
+	}
+ }
+
+models/mapobjects/delta3/teleporter_warpfx/betrugger_fluid
+{
+	noSelfShadow
+	noshadows
+	nonsolid
+	noimpact
+	twosided
+
+	
+
+	{
+
+		blend  		gl_zero, gl_one_minus_src_color
+		map		models/mapobjects/delta3/teleporter_warpfx/betrugger_fluid.tga
+		translate	time *.0,time*.35
+		//rgb		teleporterfluid[(time - Parm3)/(parm4 - parm3)]
+		clamp
+		
+
+	}
+ }
+
+models/mapobjects/delta3/teleporter_warpfx/betrugger_drops
+{
+	noSelfShadow
+	noshadows
+	nonsolid
+	noimpact
+	twosided
+
+	
+
+	{
+
+		blend  		add
+		map		models/mapobjects/delta3/teleporter_warpfx/betrugger_drops.tga
+		translate	time *.0,time*.0
+		scale 1 / 16 , 1
+ 		scroll table16[ time * .6 ] , 0
+		//rgb		teleporterfluid[(time - Parm3)/(parm4 - parm3)]
+				
+
+	}
+}
+
+
+textures/particles/fredo
+{
+ qer_editorimage textures/particles/fredo.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/fredo.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+textures/particles/fredo2
+{
+ qer_editorimage textures/particles/fredo2.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/fredo2.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+
+textures/particles/smokepuff4
+{
+ qer_editorimage textures/particles/smokepuff4.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/smokepuff4.tga
+ 	vertexcolor
+ 	}
+ 
+}
+textures/particles/smokepuff3
+{
+ qer_editorimage textures/particles/smokepuff3.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/smokepuff3.tga
+ 	vertexcolor
+ 	}
+ 
+}
+textures/particles/smokepuff2
+{
+ qer_editorimage textures/particles/smokepuff2.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/smokepuff2.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+
+textures/particles/snowball
+{
+ qer_editorimage textures/particles/snowball.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/snowball.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+
+textures/particles/strip_turq
+{
+ qer_editorimage textures/particles/strip_turq.tga
+ 	
+	noSelfShadow
+	noshadows
+	translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/strip_turq.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+models/weapons/bfg/bfgblast5
+{
+	translucent
+	noshadows
+	sort			nearest
+	{
+		maskcolor
+		map		makealpha(models/weapons/bfg/bfgblast3_mask)
+		translate	time *.5, 1
+		
+	}
+	{
+		blend 	gl_dst_alpha, gl_one
+		maskalpha
+		map		models/weapons/bfg/bfgblast5
+		translate	time * .5 , time * -1
+		scale 	1, bfgblast1table[time *.2]
+		colored //vertexcolor was here, but i swear it was an accident, so i replaced it.
+	}
+ }
+
+models/weapons/bfg/bfgblast6
+{
+	translucent
+	nonsolid
+	noshadows
+	twosided
+	qer_editorimage	models/weapons/bfg/bfgblast6
+	{
+		blend		add
+		map		models/weapons/bfg/bfgblast6
+		rotate	time * -.05
+		zeroclamp
+		highquality
+		rgb		1
+		vertexcolor
+		
+	}
+	{
+		blend		add
+		map		models/weapons/bfg/bfgblast6a
+		rotate	time * -3
+		zeroclamp
+		highquality
+		colored //vertexcolor was here, but i swear it was an accident, so i replaced it.
+	}
+}
+
+
+models/weapons/bfg/bfgblast4
+{
+	translucent
+	nonsolid
+	noshadows
+	twosided
+	qer_editorimage	models/weapons/bfg/bfgblast4
+	{
+		blend		add
+		map		models/weapons/bfg/bfgblast4
+		rotate	time * -.05
+		zeroclamp
+		highquality
+		rgb		1
+		vertexcolor
+	}
+	{
+		blend		add
+		map		models/weapons/bfg/bfgblast4a
+		rotate	time * -3
+		zeroclamp
+		highquality
+		colored
+	}
+}
+
+models/weapons/bfg/bfgblast3
+{
+	translucent
+	noshadows
+	sort			nearest
+	{
+		maskcolor
+		map		makealpha(models/weapons/bfg/bfgblast3_mask)
+		translate	time *.5, 1
+	}
+	{
+		blend 	gl_dst_alpha, gl_one
+		maskalpha
+		map		models/weapons/bfg/bfgblast3
+		translate	time * .5 , time * -1
+		scale 	1, bfgblast1table[time *.2]
+		colored
+	}
+ }
+
+
+
+textures/particles/lightball
+{
+ qer_editorimage textures/particles/lightball.tga
+ 	
+	noSelfShadow
+	noshadows
+	//translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/lightball.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+
+
+textures/particles/duffyboltver3_white
+{
+ qer_editorimage textures/particles/duffyboltver3_white.tga
+ 	
+	noSelfShadow
+	noshadows
+	//translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/duffyboltver3_white.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+
+
+
+textures/particles/rock
+
+ {
+ qer_editorimage textures/particles/rock_d.tga
+
+ noSelfShadow
+ noShadows
+	
+
+		   {
+				blend	 diffusemap	
+				map	 textures/particles/rock_d.tga
+		   		alphaTest 0.5
+		   }
+			bumpmap			addnormals( textures/particles/rock_local.tga, heightmap (textures/particles/rock_h.tga, 10 ) )
+			specularmap	    	textures/particles/rock_s.tga
+		
+
+
+}
+
+textures/sfx/vpring_power3
+{
+		//deform sprite
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       3           // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/particles/vpring1.tga   // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+
+textures/particles/billow3_glow
+{
+ qer_editorimage textures/particles/billow3_glow.tga
+ 	
+	noSelfShadow
+	noshadows
+	//translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/billow3_glow.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+
+textures/particles/billow_glow
+{
+ qer_editorimage textures/particles/billow_glow.tga
+ 	
+	noSelfShadow
+	noshadows
+	//translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/billow_glow.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+textures/particles/billow2_glow
+{
+ qer_editorimage textures/particles/billow2_glow.tga
+ 	
+	noSelfShadow
+	noshadows
+	//translucent
+	nonsolid
+	noimpact
+	twosided
+
+
+ 	{
+ 	blend add
+ 	map textures/particles/billow2_glow.tga
+ 	vertexcolor
+ 	}
+ 
+}
+
+textures/hell/spinalcrap_Hell1
+{
+	qer_editorimage textures/hell/spinalcrap_Hell1.tga
+
+    	noselfShadow
+	noshadows
+	{
+		blend		bumpmap	 
+		map		textures/hell/spinalcrap2_local.tga
+		translate	time *.03, time*.02
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/spinalcrap2.tga
+		translate	time*.03, time*.02
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/spinalcrap2_s.tga
+		translate	time*.03, time*.02
+	}
+
+}
+
+
+
+models/mapobjects/HellGrowth/hellgrowth
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 0 -trace .125  models/mapobjects/hellgrowth/hellgrowth_local.tga models/mapobjects/hellgrowth/hellgrowth_hi.lwo
+	bumpmap	addnormals( models/mapobjects/HellGrowth/HellGrowth_local.tga, heightmap( models/mapobjects/HellGrowth/HellGrowth_h.tga, 14 ) )
+	diffusemap		models/mapobjects/HellGrowth/HellGrowth_d.tga
+	specularmap		models/mapobjects/HellGrowth/HellGrowth_s.tga
+  
+}
+
+
+
+models/mapobjects/HellGrowth/hellgrowthskin
+
+{
+   	noselfShadow
+	noShadows
+	translucent
+	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hellgrowth/hellgrowthskin_local.tga models/mapobjects/hellgrowth/hellgrowthskin_hi.ase
+
+
+        		
+	{
+			blend	 diffusemap	
+			map	models/mapobjects/HellGrowth/HellGrowthskin_d.tga
+			rgb		revtable[ time * .1 ]
+
+	}	
+			bumpmap		models/mapobjects/HellGrowth/HellGrowthskin_local.tga
+
+        {
+			blend	 specularmap
+			map	models/mapobjects/HellGrowth/HellGrowthskin_s.tga
+			//translate	time * .02 , time * 0.01
+			//rotate	time * 0.05
+			//rgb		rev2table[ time * .1 ]
+
+         }
+
+		
+	
+               
+}
+
+models/mapobjects/hellarch/hellarch
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 512 256 -colorMap -aa 1 -trace .125  models/mapobjects/hellarch/hellarch_local.tga models/mapobjects/hellarch/hellarch_hi.ase
+	bumpmap	addnormals( models/mapobjects/hellarch/hellarch_local.tga, heightmap( models/mapobjects/hellarch/hellarch_h.tga, 7 ) )
+	diffusemap		models/mapobjects/hellarch/hellarch_d.tga
+	specularmap		models/mapobjects/hellarch/hellarch_s.tga
+  
+}
+
+models/mapobjects/hellarch2/hellarch2
+{
+	noShadows
+        noselfShadow
+	
+	bumpmap	addnormals( models/mapobjects/hellarch2/hellarch2_local.tga, heightmap( models/mapobjects/hellarch2/hellarch2_h.tga, 7 ) )
+	diffusemap		models/mapobjects/hellarch2/a_hellarch2_d07f.tga
+	specularmap		models/mapobjects/hellarch2/hellarch2b_s.tga
+  
+}
+
+
+
+
+models/mapobjects/Hellcages/Hellcage_
+
+{
+   	//noselfShadow
+	//noShadows
+	twosided
+
+	 renderbump  -size 256 256 -colorMap -aa 0 -trace .5  models/mapobjects/Hellcages/Hellcage_local.tga  models/mapobjects/Hellcages/Hellcage_hi.ase
+	
+	diffusemap		models/mapobjects/Hellcages/Hellcage_.tga
+	bumpmap		addnormals( models/mapobjects/Hellcages/Hellcage_local.tga, heightmap( models/mapobjects/Hellcages/Hellcage_h.tga, 7 ) )
+	specularmap		models/mapobjects/Hellcages/Hellcage_s.tga
+
+
+	
+               
+}
+
+
+
+models/mapobjects/hellcages/hellcagetop_
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 256 512 -colorMap -aa 1 -trace .05  models/mapobjects/hellcages/hellcagetop_local.tga models/mapobjects/hellcages/hellcagetop_hi.ase
+	
+	diffusemap	 models/mapobjects/hellcages/hellcagetop_.tga
+	bumpmap	addnormals( models/mapobjects/hellcages/hellcagetop_local.tga, heightmap( models/mapobjects/hellcages/hellcagetop_h.tga, 14 ) )
+	specularmap	 models/mapobjects/hellcages/hellcagetop_s.tga
+}
+
+
+
+
+models/mapobjects/hellcages/hellcagebot_
+{
+	//noShadows
+      	//noselfShadow
+	
+	renderbump  -size 256 512 -colorMap -aa 1 -trace .05  models/mapobjects/hellcages/hellcagetop_local.tga models/mapobjects/hellcages/hellcagetop_hi.ase
+	
+	diffusemap	 models/mapobjects/hellcages/hellcagetop_d.tga
+	bumpmap	addnormals( models/mapobjects/hellcages/hellcagetop_local.tga, heightmap( models/mapobjects/hellcages/hellcagetop_h.tga, 14 ) )
+	specularmap	 models/mapobjects/hellcages/hellcagetop_s.tga
+}
+
+
+
+
+models/mapobjects/hellcages/HellCagechain_
+{
+		//noShadows
+	      	//noselfShadow
+		twosided
+	
+		renderbump  -size 256 256 -colorMap -aa 1 -trace .25  models/mapobjects/hellcages/HellCagechain_local.tga models/mapobjects/hellcages/HellCagechain_hi.ase
+	
+	
+		   {
+				blend	 diffusemap	
+				map	models/mapobjects/hellcages/HellCagechain_d.tga
+		   		alphaTest 0.5
+		   }
+		   {
+				
+				bumpmap	
+				map	models/mapobjects/hellcages/HellCagechain_local.tga
+	           }
+	           {
+				blend	 specularmap
+				map	models/mapobjects/hellcages/hellcages_s.tga
+		   }
+
+}
+	
+	
+models/mapobjects/hellbubbles/hellbubbles
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .1  models/mapobjects/hellbubbles/hellbubbles_local.tga models/mapobjects/hellbubbles/hellbubbles_hi.ase
+
+        	diffusemap	 models/mapobjects/hellbubbles/hellbubbles.tga
+	      	bumpmap	addnormals( models/mapobjects/hellbubbles/hellbubbles_local.tga, heightmap( models/mapobjects/hellbubbles/hellbubbles_h.tga, 14 ) )
+		specularmap	 models/mapobjects/hellbubbles/hellbubbles_s.tga
+}
+
+models/mapobjects/hellskulls/hellskulla_
+{
+	noShadows
+      noselfShadow
+     	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/hellskulls/hellskulla_local.tga models/mapobjects/hellskulls/hellskulla_hi.ase
+
+        	diffusemap	 models/mapobjects/hellskulls/hellskulla_.tga
+	      //bumpmap      models/mapobjects/hellskulls/hellskulla_local.tga
+	      bumpmap	addnormals( models/mapobjects/hellskulls/hellskulla_local.tga, heightmap( models/mapobjects/hellskulls/hellskulla_h.tga, 14 ) )
+		specularmap	 models/mapobjects/hellskulls/hellskulla_s.tga
+}
+models/mapobjects/hellskulls/hellskullb_
+{
+	noShadows
+      //noselfShadow
+     	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .15 models/mapobjects/hellskulls/hellskullb_local.tga models/mapobjects/hellskulls/hellskullb_hi.ase
+
+        	diffusemap	 models/mapobjects/hellskulls/hellskullb_.tga
+	      //bumpmap      models/mapobjects/hellskulls/hellskullb_local.tga
+	      bumpmap	addnormals( models/mapobjects/hellskulls/hellskullb_local.tga, heightmap( models/mapobjects/hellskulls/hellskullb_h.tga, 14 ) )
+		specularmap	 models/mapobjects/hellskulls/hellskullb_s.tga
+}
+
+models/mapobjects/hellpillar/hellpillar_
+{
+	  noShadows
+          noselfShadow
+	
+	
+
+        	diffusemap	 models/mapobjects/hellpillar/hellpillar_.tga
+	      //bumpmap      models/mapobjects/hellpillar/hellpillar_local.tga
+	        bumpmap	addnormals( models/mapobjects/hellpillar/hellpillar_local.tga, heightmap( models/mapobjects/hellpillar/hellpillar_h.tga, 14 ) )
+		specularmap	 models/mapobjects/hellpillar/hellpillar_s.tga
+}
+
+models/mapobjects/hellpillar_2/hellpillar_2
+{
+	//noShadows
+      	  noselfShadow
+	//twosided
+     	//unsmoothedTangents
+	
+
+        	diffusemap	 models/mapobjects/hellpillar_2/hellpillar_2.tga
+		bumpmap	 addnormals( models/mapobjects/hellpillar_2/hellpillar_local_2.tga, heightmap( models/mapobjects/hellpillar_2/hellpillar_h_2.tga, 14 ) )
+		specularmap	 models/mapobjects/hellpillar_2/hellpillar_s_2.tga
+}
+
+models/mapobjects/Hellarch/HellarchWall_
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 1024 -colorMap -aa 1 -trace .2 models/mapobjects/Hellarch/HellarchWall_local.tga models/mapobjects/Hellarch/HellarchWall_hi.ase
+
+		
+		{
+			blend	 diffusemap	
+			map	models/mapobjects/Hellarch/HellarchWall_.tga
+	   		alphaTest 0.5
+	   }	
+		bumpmap		models/mapobjects/Hellarch/HellarchWall_local.tga
+
+	    {
+			blend	 specularmap
+			map	models/mapobjects/Hellarch/HellarchWall_s.tga
+
+
+	   }
+
+
+}
+models/mapobjects/Hellalcove/Pole
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/Hellalcove/Pole_local.tga models/mapobjects/Hellalcove/Pole_hi.ase
+
+
+		diffusemap	 models/mapobjects/Hellalcove/Pole.tga
+		bumpmap	 addnormals( models/mapobjects/Hellalcove/Pole_local.tga, heightmap( models/mapobjects/Hellalcove/Pole_h.tga, 14 ) )
+		specularmap	 models/mapobjects/Hellalcove/Pole_s.tga
+
+
+
+
+
+}
+models/mapobjects/Hellalcove/arch
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/Hellalcove/arch_local.tga models/mapobjects/Hellalcove/arch_hi.ase
+
+		
+		diffusemap	 models/mapobjects/Hellalcove/arch.tga
+		bumpmap	 addnormals( models/mapobjects/Hellalcove/arch_local.tga, heightmap( models/mapobjects/Hellalcove/arch_h.tga, 14 ) )
+		specularmap	 models/mapobjects/Hellalcove/arch_s.tga
+
+
+}
+models/mapobjects/Hellalcove/archsm
+{
+	noShadows
+      	noselfShadow
+	
+	
+		diffusemap	 models/mapobjects/Hellalcove/archsm.tga
+		bumpmap	 addnormals( models/mapobjects/Hellalcove/archsm_local.tga, heightmap( models/mapobjects/Hellalcove/archsm_h.tga, 14 ) )
+		specularmap	 models/mapobjects/Hellalcove/archsm_s.tga
+
+
+}
+models/mapobjects/meathead/meathead
+{
+	noShadows
+      	noselfShadow
+
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .03 models/mapobjects/meathead/meathead_local.tga models/mapobjects/meathead/meathead_hi.ase
+
+		diffusemap	 models/mapobjects/meathead/meathead.tga
+		bumpmap	 addnormals( models/mapobjects/meathead/meathead_local.tga, heightmap( models/mapobjects/meathead/meathead_h.tga, 14 ) )
+		specularmap	 models/mapobjects/meathead/meathead_s.tga
+
+
+}
+
+models/mapobjects/hellbody/hellbody
+{
+	noShadows
+      	noselfShadow
+	
+		diffusemap	 models/mapobjects/hellbody/hellbody.tga
+		bumpmap	 addnormals( models/mapobjects/hellbody/hellbody_local.tga, heightmap( models/mapobjects/hellbody/hellbody_h.tga, 10 ) )
+		specularmap	 models/mapobjects/hellbody/hellbody_s.tga
+
+
+}
+models/mapobjects/hellbody/hellbodyrock
+{
+	noShadows
+      	noselfShadow
+	
+		diffusemap	 models/mapobjects/hellbody/hellbodyrock.tga
+		bumpmap	 addnormals( models/mapobjects/hellbody/hellbodyrock_local.tga, heightmap( models/mapobjects/hellbody/hellbodyrock_h.tga, 10 ) )
+		specularmap	 models/mapobjects/hellbody/hellbodyrock_s.tga
+
+
+}
+
+models/mapobjects/meathead/body
+{
+	noShadows
+      	noselfShadow
+	
+	
+		diffusemap	 models/mapobjects/meathead/body.tga
+		bumpmap	 addnormals( models/mapobjects/meathead/meathead_local.tga, heightmap( models/mapobjects/meathead/meathead_h.tga, 14 ) )
+		specularmap	 models/mapobjects/meathead/meathead_s.tga
+
+
+}
+models/mapobjects/meathead/horn
+{
+	noShadows
+      	noselfShadow
+
+	
+		diffusemap	 models/mapobjects/meathead/horn.tga
+		bumpmap	 addnormals( models/mapobjects/meathead/horn_local.tga, heightmap( models/mapobjects/meathead/horn_h.tga, 14 ) )
+		specularmap	 models/mapobjects/meathead/horn_s.tga
+
+
+}
+models/mapobjects/Hellhorn/hellhorn
+{
+	noShadows
+      	noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/Hellhorn/hellhorn_local.tga models/mapobjects/Hellhorn/hellhorn_hi.ase
+
+		diffusemap	 models/mapobjects/Hellhorn/hellhorn.tga
+		bumpmap	 addnormals( models/mapobjects/Hellhorn/hellhorn_local.tga, heightmap( models/mapobjects/Hellhorn/hellhorn_h.tga, 14 ) )
+		specularmap	 models/mapobjects/Hellhorn/hellhorn_s.tga
+
+
+}
+textures/hell/clouds
+{
+	qer_editorimage textures/hell/clouds.tga
+
+    	noselfShadow
+	noshadows
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/clouds_local.tga
+		translate	time *.03, time*.02
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/clouds.tga
+		translate	time*.03, time*.02
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/clouds_s.tga
+		translate	time*.03, time*.02
+	}
+	{
+
+		blend		add	 
+		map			textures/hell/clouds_add.tga
+		translate	time*.03, time*.02  
+
+		rgb		 PTclouds [time *.1 ]
+	}
+
+
+}
+
+textures/hell/anustube
+{
+	qer_editorimage textures/hell/anustube.tga
+
+    	noselfShadow
+	noshadows
+
+	bumpmap	 addnormals( textures/hell/anustube_local.tga, heightmap( textures/hell/anustube_h.tga, 14 ) )
+	diffusemap	 textures/hell/anustube.tga
+	specularmap	 textures/hell/anustube_s.tga
+}
+
+textures/hell/anustubescroll
+{
+	qer_editorimage textures/hell/anustubescroll.tga
+    
+	
+	noselfShadow
+	noshadows
+
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/anustubescroll.tga
+		translate	time*-.01,time*-.025
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/anustubescroll_s.tga
+		translate	time*-.01,time*-.025
+	}
+
+}
+textures/hell/anustubescrollblend
+{
+	   noSelfShadow
+	   noshadows
+
+qer_editorimage		textures/hell/anustubescrollblend.tga
+
+
+	{
+		blend 		bumpmap
+		map		 textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+		
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/anustubescroll.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+	}
+	{
+		blend		specularmap
+		map	     	textures/hell/anustubescroll_s.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+	}
+	{
+		blend 		bumpmap
+		map		 textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+		
+		
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/anustubescroll_dark.tga
+		translate	time*-.01,time*-.025
+		inversevertexColor
+	}
+	{
+		blend		specularmap
+		map	     	textures/hell/anustubescroll_dark_s.tga
+		translate	time*-.01,time*-.025
+		inversevertexColor
+
+	}
+
+} 
+
+
+models\mapobjects\hell\maggotroom\wormsteam
+{	
+	noselfShadow
+	noshadows
+	//deform particle wormsteam
+
+	{
+		blend		bumpmap	 
+		map		models\mapobjects\hell\maggotroom\wormsteam_local.tga
+		translate	time*-.01,time*-.06
+	}
+	{
+		blend		diffusemap	 
+		map		models\mapobjects\hell\maggotroom\wormsteam.tga
+		translate	time*-.01,time*-.06
+		
+	}
+	{
+		blend		specularmap	 
+		map		models\mapobjects\hell\maggotroom\wormsteam_s.tga
+		translate	time*-.01,time*-.055
+	}
+	
+
+}
+
+
+textures/hell/wrinkles
+{
+	qer_editorimage textures/hell/wrinkles.tga
+    
+	noselfShadow
+	noshadows
+
+	{
+		blend		bumpmap	 
+		map		addnormals( textures/hell/wrinkles_local.tga, heightmap( textures/hell/wrinkles_h.tga, 14 ) )
+		translate	time*.00,time*.01
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/wrinkles.tga
+		translate	time*.00,time*.01
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/wrinkles_s.tga
+		translate	time*.00,time*.01
+	}
+	
+	
+
+}
+
+textures/hell/wrinkle
+{
+	noShadows
+      	noselfShadow
+
+	qer_editorimage textures/hell/wrinkle.tga
+	
+
+		diffusemap	textures/hell/wrinkle.tga
+		bumpmap		textures/hell/wrinkle_local.tga
+		specularmap	textures/hell/wrinkle_s.tga
+}
+
+textures/hell/wrinkle2
+{
+	noShadows
+      	noselfShadow
+	//translucent
+
+	qer_editorimage textures/hell/wrinkle2.tga
+
+	{
+		blend		diffusemap	 
+		map			textures/hell/wrinkle2.tga
+		translate	time*-.02,time*-.01
+		rotate	( time * 0.002 )
+
+	}
+	{
+		blend		bumpmap	 
+		map		addnormals( textures/hell/wrinkle2_local.tga, heightmap( textures/hell/wrinkle2_h.tga, 14 ) )
+		translate	time*-.02,time*-.01
+		rotate	( time * 0.002 )
+
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/wrinkle2_s.tga
+		translate	time*-.02,time*-.01
+		rotate	( time * 0.002 )
+
+	}
+	
+}
+
+textures/hell/wrinkle3
+{
+	noShadows
+      	noselfShadow
+	
+
+	qer_editorimage textures/hell/wrinkle3.tga
+
+	{
+		blend		diffusemap	 
+		map			textures/hell/wrinkle3.tga
+		translate	time*-.01,time*-.01
+		rotate	( time * 0.005 )
+
+	}
+	{
+		blend		bumpmap	 
+		map	        textures/hell/wrinkle3_local.tga
+		translate	time*-.01,time*-.01
+		rotate	( time * 0.005)
+
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/wrinkle3_s.tga
+		translate	time*-.01,time*-.01
+		rotate	( time * 0.005 )
+
+	}
+	
+}
+
+
+textures/hell/hellanustube2
+{
+	qer_editorimage textures/hell/hellanustube2.tga
+
+    	noselfShadow
+	noshadows
+
+	bumpmap			textures/hell/hellanustube2_local.tga
+	diffusemap		textures/hell/hellanustube2.tga
+	specularmap		textures/hell/hellanustube2_s.tga
+}
+
+
+
+textures/hell/hellanustube2scroll
+{
+
+    	noselfShadow
+	noshadows
+
+	qer_editorimage textures/hell/hellanustube2scroll.tga
+    
+	{
+		blend		bumpmap	 
+		map			textures/hell/hellanustube2_local.tga
+		translate	time*.01,time*-0.1
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/hellanustube2.tga
+		translate	time*.01,time*-0.1
+		
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/hellanustube2_s.tga
+		translate	time*.01,time*-0.1
+	}
+
+}
+
+
+
+
+
+
+
+
+
+models/mapobjects/Hellbodyb/hellbodyb_
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/Hellbodyb/hellbodyb_local.tga models/mapobjects/Hellbodyb/hellbodyb_hi.ase
+
+		diffusemap	 models/mapobjects/Hellbodyb/hellbodyb_.tga
+		bumpmap	 addnormals( models/mapobjects/Hellbodyb/hellbodyb_local.tga, heightmap( models/mapobjects/Hellbodyb/hellbodyb_h.tga, 7 ) )
+		specularmap	 models/mapobjects/Hellbodyb/hellbodyb_s.tga
+}
+
+models/mapobjects/hellcagea/hellcagea
+{
+	noShadows
+      	noselfShadow
+ 	renderbump  -size 256 256 -colorMap -aa 0 -trace .075 models/mapobjects/hellcagea/hellcagea_local.tga models/mapobjects/hellcagea/hellcagea_hi.ase
+
+		diffusemap	 models/mapobjects/hellcagea/hellcagea.tga
+		bumpmap	 addnormals( models/mapobjects/hellcagea/hellcagea_local.tga, heightmap( models/mapobjects/hellcagea/hellcagea_h.tga, 7 ) )
+		specularmap	 models/mapobjects/hellcagea/hellcagea_s.tga
+
+
+}
+
+
+models/mapobjects/hellcageb/hellcageb_
+{
+	noShadows
+      	noselfShadow
+	
+		diffusemap	 models/mapobjects/hellcageb/hellcageb_.tga
+		bumpmap	 addnormals( models/mapobjects/hellcageb/hellcageb_local.tga, heightmap( models/mapobjects/hellcageb/hellcageb_h.tga, 10 ) )
+		specularmap	 models/mapobjects/hellcageb/hellcageb_s.tga
+}
+
+
+models/mapobjects/helldoll/helldolla
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 2 -trace .07 models/mapobjects/helldoll/helldolla_local.tga models/mapobjects/helldoll/helldolla_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/helldoll/helldolla.tga
+		bumpmap	 addnormals( models/mapobjects/helldoll/helldolla_local.tga, heightmap( models/mapobjects/helldoll/helldolla_h.tga, 10 ) )
+		specularmap	 models/mapobjects/helldoll/helldolla_s.tga
+}
+
+
+models/mapobjects/helldoll/mandoll
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 2 -trace .05 models/mapobjects/helldoll/mandoll_local.tga models/mapobjects/helldoll/mandoll_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/helldoll/mandoll.tga
+		bumpmap	 addnormals( models/mapobjects/helldoll/mandoll_local.tga, heightmap( models/mapobjects/helldoll/mandoll_h.tga, 5 ) )
+		specularmap	 models/mapobjects/helldoll/mandoll_s.tga
+}
+
+models/mapobjects/helldoll/crucified
+{
+	noShadows
+      	noselfShadow
+
+	renderbump  -size 512 512 -colorMap -aa 2 -trace .08 models/mapobjects/helldoll/crucified_local.tga models/mapobjects/helldoll/crucified_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/helldoll/crucified.tga
+		bumpmap	 addnormals( models/mapobjects/helldoll/crucified_local.tga, heightmap( models/mapobjects/helldoll/crucified_h.tga, 5 ) )
+		specularmap	 models/mapobjects/helldoll/crucified_s.tga
+}
+
+
+
+
+textures/object/demonmuseum_tendons
+{
+	noShadows
+      	noselfShadow
+	twosided
+
+	qer_editorimage textures/object/demonmuseum_tendons.tga
+
+ 	deform turbulent	sinTable 0.0175 (time*0.15) 10
+	
+	{
+			blend	 filter
+			map	 textures/object/demonmuseum_tendons.tga
+	   		
+	}
+	
+
+
+
+}
+
+
+
+textures/particles/bloodwater
+{
+ qer_editorimage textures/particles/bloodwater.tga
+ noSelfShadow
+ noShadows
+ 
+ 
+ 	{
+ 	blend filter
+ 	map textures/particles/bloodwater.tga
+ 	scale 1 / 16 , 1
+ 	scroll table16[ time * .6 ] , 0
+ 
+ 	}
+ 
+}
+
+
+
+
+textures/particles/fluid_a
+
+{
+ qer_editorimage textures/particles/fluid_a.tga
+
+ noSelfShadow
+ noShadows
+  
+ 
+ 
+ 	{
+ 		blend blend
+ 		map 		textures/particles/fluid_a.tga
+		
+ 		//scale 1 / 16 , 1
+ 		//scroll table16[ time * .6 ] , 0
+		vertexcolor
+
+ 	}
+ 
+ }
+
+textures/particles/dust_a
+{
+ noSelfShadow
+ noShadows
+  
+	{
+	blend	 diffusemap
+	map 		textures/sfx/shard00.tga
+	alphaTest 0.55
+	}	
+}
+
+
+
+
+textures/particles/dust_b
+{
+
+ noSelfShadow
+ noShadows
+  
+	{
+	blend	 diffusemap
+ 	map 	textures/sfx/shard01.tga
+	alphatest 0.5	
+	}
+}
+
+
+
+
+textures/particles/dust_c
+{
+ noSelfShadow
+ noShadows
+  
+	{
+	blend	 diffusemap
+ 	map 	textures/sfx/shard02.tga
+	alphatest 0.5	
+	}
+}
+
+
+
+
+
+textures/particles/lightning1
+{
+    noselfShadow
+    noshadows	
+	nonsolid
+	noimpact
+	translucent
+	twosided
+
+	qer_editorimage  textures/particles/lightning1.tga
+
+	{
+		maskcolor
+		map makealpha(textures/particles/guardboltarcmask.tga)
+		vertexcolor
+	
+	
+	}
+
+	{ 
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+	 	map		textures/particles/guardboltarc.tga
+		translate	time * -0.8 + parm5, 0
+		scale 1.3, 1
+		vertexcolor
+		rgb		 lightning [ time * 1.1 ]
+	}
+
+}
+
+
+textures/sfx/lightning2
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning3
+		translate	1,time*2.1
+		rgb		lightning2 [ time * .3624 ]*1.5
+		scale		1,ember1   [time*.251]
+	}
+}
+
+textures/sfx/lightning3
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+
+	{
+		maskcolor
+		map			makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend		gl_dst_alpha, gl_one
+	   	maskalpha
+		map			textures/sfx/lightning3
+		translate	1,time*3
+		red			parm0 * lightning2 [time*.3124]*2   //rgb		lightning2 [time*.3124]*2
+		green		parm1 * lightning2 [time*.3124]*2
+		blue		parm2 * lightning2 [time*.3124]*2
+		scale		1,ember1   [time*.21]
+	}
+}
+
+textures/sfx/lightning4
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning4
+		translate	1,time*2.1
+		rgb		lightning2 [ time * .6124 ]*1.3121
+		scale		1,ember1   [time*.5]
+	}
+}
+
+textures/sfx/lightning4_color
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning4_color
+		translate	1,time*2.1
+		rgb		lightning2 [ time * .6124 ]*1.3121
+		scale		1,ember1   [time*.5]
+	}
+}
+
+textures/sfx/lightning5
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning5
+		translate	1,time*3
+		rgb		lightning2 [ time * .7824 ]*2.1
+		scale		1,ember1   [time*.5]
+	}
+}
+
+textures/sfx/lightning5_color
+
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning5_color.tga
+
+		translate	1,time*3
+		rgb		lightning2 [ time * .7824 ]*2.1
+		scale		1,ember1   [time*.5]
+	}
+}
+
+textures/sfx/lightning6
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning6
+		translate	time*3,time*3
+		rgb		lightning2 [ time * .7824 ]*2.1
+		scale		1,ember1   [time*.5]
+		clamp
+	}
+}
+
+
+textures/sfx/lightning7
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning7.tga
+
+		translate	1,time*3
+		rgb		lightning2 [ time * .7824 ]*2.1
+		scale		1,ember1   [time*.5]
+	}
+}
+
+textures/sfx/lightning8a
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning8.tga
+
+		translate	1,time*3.2
+		rgb		lightning2 [ time * .71 ]*2.1
+		scale		1,ember1   [time*.5]
+	}
+}
+
+textures/sfx/lightning9a
+{
+	translucent
+	twosided
+	noshadows
+	nonsolid
+	{
+		maskcolor
+		map makealpha(textures/particles/lightningmask.tga)
+		vertexcolor
+	}
+	{ 
+		blend gl_dst_alpha, gl_one
+	    	maskalpha
+		map			textures/sfx/lightning9.tga
+
+		translate	1,time*3
+		rgb		lightning2 [ time * .7824 ]*2.1
+		scale		1,ember1   [time*.5]
+	}
+}
+
+models/mapobjects/demonmuseum/demonmuseum_b
+{
+	//noShadows
+      	//noselfShadow
+	
+
+		diffusemap	 models/mapobjects/demonmuseum/Deadmaggot_.tga
+		bumpmap	 addnormals( models/mapobjects/demonmuseum/Deadmaggot_local.tga, heightmap( models/mapobjects/demonmuseum/Deadmaggot_h.tga, 5 ) )
+		specularmap	 models/mapobjects/demonmuseum/Deadmaggot_s.tga
+}
+
+models/mapobjects/demonmuseum/demonmuseum_c
+{
+	//noShadows
+      	//noselfShadow
+	
+
+		diffusemap	 models/mapobjects/demonmuseum/Deadimp_d.tga
+		bumpmap	 addnormals( models/mapobjects/demonmuseum/Deadimp_local.tga, heightmap( models/mapobjects/demonmuseum/Deadimp_h.tga, 7 ) )
+		specularmap	 models/mapobjects/demonmuseum/Deadimp_s.tga
+}
+
+
+textures/sfx/radiogoop_d
+{
+	qer_editorimage textures/sfx/radiogoop_d.tga
+	deform turbulent	sinTable 0.02 (time*0.1) 10
+    noShadows
+    noselfShadow
+	{
+		blend		bumpmap	 
+		map			textures/sfx/radiogoop_local.tga
+		translate	1,time*0.02
+	}
+	{
+		blend		diffusemap	 
+		map			textures/sfx/radiogoop_d.tga
+		translate	1,time*0.02
+		rgb			.5
+	}
+	{
+		blend		specularmap	 
+		map			models/mapobjects/radiogoop/radiogoopflow_s.tga
+		translate	1,time*0.02
+	}
+	{
+
+		blend		add	 
+		map			textures/sfx/radiogoop_add.tga
+		translate	1,time*0.02
+		rgb		 PTfullfade [ time * .1 ]+0.1
+
+	}
+
+}
+
+
+
+
+
+textures/sfx/radiogoopflow_d
+{
+	qer_editorimage textures/sfx/radiogoopflow_d.tga
+
+    	noselfShadow
+	noshadows
+	{
+
+		blend		bumpmap	 
+		map			textures/sfx/radiogoopflow_local.tga
+		translate	1,time*	.8
+	}
+	{
+		blend		diffusemap	 
+		map			textures/sfx/radiogoopflow_d.tga
+		translate	1,time*	.8
+	}
+	{
+		blend		specularmap	 
+		map			models/mapobjects/radiogoop/radiogoopflow_s.tga
+		translate	1,time*	.8
+	}
+	{
+
+		blend		add	 
+		map			textures/sfx/radiogoopflow_add.tga
+		//translate	time*       .8    ,time*	.0
+		rgb		 PTfullfade [ time * .1 ]+0.1
+
+	}
+
+}
+
+
+
+textures/sfx/radiogoopflow2_d
+{
+	qer_editorimage textures/sfx/radiogoopflow_d.tga
+
+    	noselfShadow
+	noshadows
+	{
+
+		blend		bumpmap	 
+		map			textures/sfx/radiogoopflow_local.tga
+		translate	1,time*	.4
+	}
+	{
+		blend		diffusemap	 
+		map			textures/sfx/radiogoopflow_d.tga
+		translate	1,time*	.4
+	}
+	{
+		blend		specularmap	 
+		map			models/mapobjects/radiogoop/radiogoopflow_s.tga
+		translate	1,time*	.4
+	}
+
+}
+
+
+
+textures/sfx/radiogoop_mix
+
+{
+	qer_editorimage textures/sfx/radiogoop_mix.tga
+
+    noShadows
+    noselfShadow
+
+	{
+		blend		bumpmap	 
+		map			textures/sfx/radiogoop_local.tga
+		translate	1,time*.2
+	}
+	{
+		blend		diffusemap	 
+		map			textures/sfx/radiogoop_d.tga
+		translate	1,time*.2
+		rgb			.5
+		vertexColor
+	}
+	{
+		blend		specularmap	 
+		map			models/mapobjects/radiogoop/radiogoopflow_s.tga
+		translate	1,time*.2
+		vertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map			textures/sfx/radiogoopflow_local.tga
+		translate	.2,time*	.5
+	}
+	{
+		blend		diffusemap	 
+		map			textures/sfx/radiogoopflow_d.tga
+		translate	.2,time*	.5
+		inverse
+
+
+
+	}
+	{
+		blend		specularmap	 
+		map			models/mapobjects/radiogoop/radiogoopflow_s.tga
+		translate	.2,time*	.5
+		inversevertexColor
+		
+	}
+
+}
+
+models/mapobjects/radiogoop/nukerock_
+{
+	noshadows 
+    	noselfShadow
+
+	bumpmap			models/mapobjects/radiogoop/nukerock_local.tga
+	diffusemap		models/mapobjects/radiogoop/nukerock_d.tga
+	specularmap		models/mapobjects/radiogoop/nukerock_s.tga
+
+
+
+
+}
+
+models/mapobjects/radiogoop/nukewall
+{
+	noShadows
+      	noselfShadow
+	//translucent		
+		
+		{
+			blend	 diffusemap	
+			map	models/mapobjects/radiogoop/nukerock_d.tga
+	   		alphaTest 0.55
+	      }
+
+		{	
+		blend bumpmap 
+		map addnormals( models/mapobjects/radiogoop/nukewall_local.tga, heightmap( models/mapobjects/radiogoop/nukewall_h.tga, 3 ) )		
+		}
+		{
+			blend	 specularmap
+			map	models/mapobjects/radiogoop/nukerock_s.tga
+		}
+		
+
+}
+models/mapobjects/deltacrane/boxa_d
+{
+	//noShadows
+      	//noselfShadow
+	renderbump  -size 256 256 -colorMap -aa 2 -trace .08  models/mapobjects/deltacrane/boxa_local.tga models/mapobjects/deltacrane/boxa_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/deltacrane/boxa_d.tga
+		bumpmap	 addnormals( models/mapobjects/deltacrane/boxa_local.tga, heightmap( models/mapobjects/deltacrane/boxa_h.tga, 7 ) )
+		specularmap	 models/mapobjects/deltacrane/boxa_s.tga
+}
+
+
+models/mapobjects/deltacrane/boxb_d
+{
+	//noShadows
+      	//noselfShadow
+	renderbump  -size 512 256 -colorMap -aa 2 -trace .025  models/mapobjects/deltacrane/boxb_local.tga models/mapobjects/deltacrane/boxb_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/deltacrane/boxb_d.tga
+		bumpmap	 addnormals( models/mapobjects/deltacrane/boxb_local.tga, heightmap( models/mapobjects/deltacrane/boxb_h.tga, 7 ) )
+		specularmap	 models/mapobjects/deltacrane/boxb_s.tga
+}
+
+
+models/mapobjects/deltacrane/cranebase
+{
+	//noShadows
+      	//noselfShadow
+
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/deltacrane/cranebase_local.tga models/mapobjects/deltacrane/cranebase_hi.lwo
+
+		diffusemap	 models/mapobjects/deltacrane/cranebase.tga
+		bumpmap	 addnormals( models/mapobjects/deltacrane/cranebase_local.tga, heightmap( models/mapobjects/deltacrane/cranebase_h.tga, 7 ) )
+		specularmap	 models/mapobjects/deltacrane/cranebase_s.tga
+}
+
+
+models/mapobjects/deltacrane/Cranebody/Cranebody
+{
+	//noShadows
+      	//noselfShadow
+
+	renderbump  -size 512 512 -colorMap -aa 2 -trace .03 models/mapobjects/deltacrane/Cranebody/Cranebody_local.tga models/mapobjects/deltacrane/Cranebody/Cranebody_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/deltacrane/Cranebody/Cranebody.tga
+		bumpmap	 addnormals( models/mapobjects/deltacrane/Cranebody/Cranebody_local.tga, heightmap( models/mapobjects/deltacrane/Cranebody/Cranebody_h.tga, 7 ) )
+		specularmap	 models/mapobjects/deltacrane/Cranebody/Cranebody_s.tga
+
+
+
+}
+
+
+
+textures/hell/warprockbblend
+{
+	   noSelfShadow
+	   noshadows
+
+qer_editorimage		textures/hell/warprockbblend.tga
+
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/warprockb_local.tga, heightmap( textures/hell/warprockb_h.tga, 10 ) )
+		
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/warprockb.tga
+		inverseVertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/warprockb_s.tga
+		inverseVertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/rockwall_local.tga, heightmap( textures/hell/rockwall_h.tga, 10 ) )
+		
+		
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/rockwall.tga
+		vertexColor
+	}
+	{
+		blend 	specularmap
+		map		textures/hell/rockwall_s.tga
+		vertexColor
+
+	}
+
+} 
+
+
+textures/hell/rockbase
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/hell/rockbase.tga
+
+	    	diffusemap		textures/hell/rockbase.tga
+		bumpmap		addnormals( textures/hell/rockbase_local.tga, heightmap( textures/hell/rockbase_h.tga, 10 ) )
+		specularmap	    	textures/hell/rockbase_s.tga
+
+
+}
+
+
+textures/hell/rockwall
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/hell/rockwall.tga
+
+	    	diffusemap		textures/hell/rockwall.tga
+		bumpmap		addnormals( textures/hell/rockwall_local.tga, heightmap( textures/hell/rockwall_h.tga, 10 ) )
+		specularmap	    	textures/hell/rockwall_s.tga
+
+
+}
+
+textures/hell/warprocka
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/hell/warprocka.tga
+
+	    	diffusemap		textures/hell/warprocka.tga
+		bumpmap		addnormals( textures/hell/warprocka_local.tga, heightmap( textures/hell/warprocka_h.tga, 10 ) )
+		specularmap	    	textures/hell/warprocka_s.tga
+
+
+}
+
+textures/hell/warprockb
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/hell/warprockb.tga
+
+	    	diffusemap		textures/hell/warprockb.tga
+		bumpmap		addnormals( textures/hell/warprockb_local.tga, heightmap( textures/hell/warprockb_h.tga, 10 ) )
+		specularmap	    	textures/hell/warprockb_s.tga
+
+
+}
+
+
+models/mapobjects/hell/warprockb
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .1 models/mapobjects/hell/warprockb_local.tga models/mapobjects/hell/warprockb_hi.lwo
+
+
+
+		diffusemap	 models/mapobjects/hell/warprockb.tga
+		bumpmap	 addnormals( models/mapobjects/hell/warprockb_local.tga, heightmap( models/mapobjects/hell/warprockb_h.tga, 7 ) )
+		specularmap	 models/mapobjects/hell/warprockb_s.tga
+}
+
+textures/hell/warprockc_d
+{
+		noSelfShadow
+		noshadows
+
+	qer_editorimage		textures/hell/warprockc.tga
+
+	    	diffusemap		textures/hell/warprockc_d.tga
+		bumpmap		addnormals( textures/hell/warprockc_local.tga, heightmap( textures/hell/warprockc_h.tga, 10 ) )
+		specularmap	    	textures/hell/warprockc_s.tga
+	
+}
+
+
+
+textures/hell/warprockd
+{
+		noSelfShadow
+		noshadows
+
+	qer_editorimage		textures/hell/warprockd_d.tga
+
+	    	diffusemap		textures/hell/warprockd_d.tga
+		bumpmap		addnormals( textures/hell/warprockb_local.tga, heightmap( textures/hell/warprockb_h.tga, 10 ) )
+		specularmap	    	textures/hell/warprockd_s.tga
+  	 {
+			blend	 add
+			map	textures/hell/warprockd_add.tga
+			rgb 	lava[ time * .11 ]
+
+	   }
+
+
+}
+
+textures/hell/lavatube
+{
+	qer_editorimage		textures/hell/lava1movenoshadow.tga
+	 noSelfShadow
+	    noshadows
+	    	
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+		red	1
+		green	.5
+		blue	.65
+
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+	}   
+	{
+		maskcolor
+		map textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+		red	1
+		green	.5
+		blue	.65
+	}
+	{
+		blend gl_dst_alpha , gl_one_minus_dst_alpha
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .6 ]
+		translate	time * 0.02 , time * 0.1
+	}
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+		red	1
+		green	.5
+		blue	.65
+	}
+ }
+
+textures/hell/warprockd_lava_blend
+{
+	   noSelfShadow
+	   noshadows
+
+qer_editorimage		textures/hell/warprockd_lava_blend.tga
+
+
+
+
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+		inverseVertexColor
+		red	1
+		green	.5
+		blue	.65
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	}   
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+		inverseVertexColor
+		red	1
+		green	.5
+		blue	.65
+	}
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/warprockb_local.tga, heightmap( textures/hell/warprockb_h.tga, 10 ) )
+		
+	}	
+	{
+		blend 		diffusemap
+		map		textures/hell/warprockd_d.tga
+		VertexColor
+	}
+	{
+			blend	 add
+			map	textures/hell/warprockd_add.tga
+			rgb 	lava[ time * .11 ]
+		VertexColor
+
+	}
+
+} 
+
+
+models/mapobjects/skullgate/skullgate3
+{
+	noselfshadow
+	noshadows
+
+	
+	  bumpmap 	models/mapobjects/skullgate/skullgate3_local.tga
+	  diffusemap	models/mapobjects/skullgate/skullgate3.tga
+	  specularmap 	models/mapobjects/skullgate/skullgate3_s.tga
+
+}
+
+models/mapobjects/skullgate/skullgate3b
+{
+	noselfshadow
+	noshadows
+
+	
+	  bumpmap 	models/mapobjects/skullgate/skullgate3b_local.tga
+	  diffusemap	models/mapobjects/skullgate/skullgate3b.tga
+	  specularmap 	models/mapobjects/skullgate/skullgate3b_s.tga
+
+}
+
+textures/hell/worm
+{
+	noShadows
+      	noselfShadow
+	
+	
+
+
+	    	diffusemap		textures/hell/anustube.tga
+		bumpmap		addnormals( textures/hell/anustube_local.tga, heightmap( textures/hell/anustube_h.tga, 10 ) )
+		specularmap	    	textures/hell/anustube_s.tga
+
+}
+
+		
+textures/hell/tentacles
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/tentacles.tga
+
+	   {
+			blend	 diffusemap	
+			map	textures/hell/tentacles.tga
+	   		alphaTest 0.5
+	   }	
+			bumpmap	textures/hell/tentacles_local.tga
+
+	    {
+			blend	 specularmap
+			map	extures/hell/tentacles_s.tga
+	    }
+
+}
+
+		
+textures/hell/rockpores
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/rockpores_d.tga
+
+		diffusemap		textures/hell/rockpores_d.tga
+		bumpmap		addnormals( textures/hell/rockpores_local.tga, heightmap (textures/hell/rockpores_h.tga, 10 ) )
+		specularmap	    	textures/hell/rockpores_s.tga
+
+}
+
+
+
+textures/hell/treeroots
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/treeroots.tga
+
+	{
+
+		blend		bumpmap	 
+		map		addnormals( textures/hell/treeroots_local.tga, heightmap (textures/hell/treeroots_h.tga, 10 ) )
+		translate	time *.0, time*.025
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/treeroots.tga
+		translate	time*.0, time*.025
+		
+
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/treeroots_s.tga
+		translate	time*.0, time*.025
+		
+		
+	}
+
+
+}
+textures/hell/treeroots2
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/treeroots2.tga
+
+	{
+
+		blend		bumpmap	 
+		map		addnormals( textures/hell/treeroots_local.tga, heightmap (textures/hell/treeroots_h.tga, 10 ) )
+		translate	time *.0, time*.025
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/treeroots2.tga
+		translate	time*.0, time*.025
+		
+
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/treeroots2_s.tga
+		translate	time*.0, time*.025
+		
+		
+	}
+
+
+}
+textures/hell/treerootsgrey
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/treerootsgrey.tga
+
+	{
+
+		blend		bumpmap	 
+		map		addnormals( textures/hell/treeroots_local.tga, heightmap (textures/hell/treeroots_h.tga, 10 ) )
+		translate	time *.0, time*.025
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/treerootsgrey.tga
+		translate	time*.0, time*.025
+		
+
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/treeroots_s.tga
+		translate	time*.0, time*.025
+		
+		
+	}
+
+
+}
+textures/hell/guts
+{
+
+		noSelfShadow
+		noshadows
+	
+
+		qer_editorimage		textures/hell/guts.tga
+
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/guts_local.tga
+		translate	time *.01, time*.04
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/guts.tga
+		translate	time*.01, time*.04
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/guts_s.tga
+		translate	time*.01, time*.04
+		
+		
+	}
+
+
+}
+
+textures/hell/meathead
+
+
+
+{
+		noSelfShadow
+		noshadows
+	
+
+		qer_editorimage		textures/hell/meathead.tga
+
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/meathead_local.tga
+		//translate	time *.01, time*.04
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/meathead.tga
+		//translate	time*.01, time*.04
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/meathead_s.tga
+		//translate	time*.01, time*.04
+		
+		
+	}
+
+
+}
+
+textures/hell/growth
+{
+	noShadows
+        noselfShadow
+	
+	
+		
+	qer_editorimage textures/hell/growth.tga
+
+	{
+		blend	 diffusemap	
+		map	 textures/hell/growth.tga
+	   	alphatest 0.5
+	}	
+
+		bumpmap			textures/hell/growth_local.tga
+		specularmap	    	textures/hell/growth_s.tga
+
+}
+
+models/mapobjects/hell/Site3/entrance/wormtube
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/entrance/wormtube_local.tga models/mapobjects/hell/Site3/entrance/wormtube_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/entrance/wormtube_d.tga
+		bumpmap			models/mapobjects/hell/Site3/entrance/wormtube_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/entrance/wormtube_s.tga
+		
+		
+}
+
+
+textures/hell/wormtube_d
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/wormtube_d.tga
+
+		
+		diffusemap		textures/hell/wormtube_d.tga
+	 	bumpmap			textures/hell/wormtube_local.tga
+		specularmap	    	textures/hell/wormtube_s.tga
+
+}
+
+
+
+textures/decals/splat18
+{
+	noShadows
+    noselfShadow
+	sort 0
+	
+	qer_editorimage textures/decals/splat18.tga
+
+	
+		
+	{	
+	blend	filter
+	map	textures/decals/splat18.tga
+
+	}
+
+}
+
+textures/decals/splat19
+{
+	noShadows
+        noselfShadow
+	sort 0
+
+	qer_editorimage textures/decals/splat19.tga
+
+	
+		
+	{	
+	blend	filter
+	map	textures/decals/splat19.tga
+
+	}
+
+}
+
+textures/decals/splat20
+{
+	noShadows
+        noselfShadow
+		sort 0
+
+	qer_editorimage textures/decals/splat20.tga
+
+	
+		
+	{	
+	blend	filter
+	map	textures/decals/splat20.tga
+
+	}
+
+}
+
+textures/hell/veins_d
+{
+	noShadows
+      	noselfShadow
+	
+		
+	   {
+			blend	 diffusemap	
+			map	textures/hell/veins_d.tga
+	   		alphaTest 0.5
+	   }
+	   {	
+			blend	bumpmap
+			map	textures/hell/veins_local.tga
+  	   }
+ 	   {
+			blend	 specularmap
+			map	textures/hell/veins_s.tga
+	   }
+
+}
+
+
+
+
+
+textures/hell/canyonb
+
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/hell/canyonb.tga
+
+		diffusemap		textures/hell/canyonb.tga
+		bumpmap			textures/hell/canyonb_local.tga	
+		specularmap	    	textures/hell/canyonb_s.tga
+
+}
+
+
+models/mapobjects/hell/Site3/archviletemple/candle_a
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/archviletemple/candle_a_local.tga models/mapobjects/hell/Site3/archviletemple/candle_a_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/archviletemple/candle_a.tga
+		bumpmap			models/mapobjects/hell/Site3/archviletemple/candle_a_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/archviletemple/candle_a_s.tga
+
+	   {
+			blend	 add
+			map	models/mapobjects/hell/Site3/archviletemple/candle_a_add.tga
+			rgb 	candle[ time * .4 ]
+
+	   }
+
+		
+		
+}
+
+models/mapobjects/hell/Site3/archviletemple/candle_b
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/archviletemple/candle_b_local.tga models/mapobjects/hell/Site3/archviletemple/candle_b_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/archviletemple/candle_b.tga
+		bumpmap			models/mapobjects/hell/Site3/archviletemple/candle_b_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/archviletemple/candle_b_s.tga
+	 {
+			blend	 add
+			map	models/mapobjects/hell/Site3/archviletemple/candle_b_add.tga
+			rgb  	candle[ time * .3 ]
+	 }		
+}
+
+models/mapobjects/hell/Site3/archviletemple/candle_c
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/archviletemple/candle_c_local.tga models/mapobjects/hell/Site3/archviletemple/candle_c_hi.lwo
+	
+					 
+		diffusemap		models/mapobjects/hell/Site3/archviletemple/candle_c.tga
+		bumpmap			models/mapobjects/hell/Site3/archviletemple/candle_c_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/archviletemple/candle_c_s.tga
+	   {
+			blend	 add
+			map	models/mapobjects/hell/Site3/archviletemple/candle_c_add.tga
+			rgb	candle[ time * .45 ]
+	   }		
+}
+
+models/mapobjects/hell/Site3/archviletemple/candle_d
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/archviletemple/candle_d_local.tga models/mapobjects/hell/Site3/archviletemple/candle_d_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/archviletemple/candle_d.tga
+		bumpmap			models/mapobjects/hell/Site3/archviletemple/candle_d_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/archviletemple/candle_d_s.tga
+   	   {
+			blend	 add
+			map	models/mapobjects/hell/Site3/archviletemple/candle_d_add.tga
+			rgb	candle[ time * .42 ]
+
+	   }
+		
+		
+}
+
+
+
+
+textures/hell/wires2_d
+
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/hell/wires2_d.tga
+
+		diffusemap		textures/hell/wires2_d.tga
+		bumpmap			textures/hell/wires2_local.tga	
+		specularmap	    	textures/hell/wires2_s.tga
+		
+}
+
+textures/hell/wirestreerootsgrey_blend
+{
+	   noSelfShadow
+	   noshadows
+
+qer_editorimage		textures/hell/wirestreerootsgrey_blend.tga
+
+
+	{
+		blend 		bumpmap
+		map		textures/hell/wires2_local.tga
+		
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/wires2_d.tga
+		inverseVertexColor
+	}
+	{
+		blend		specularmap
+		map	        textures/hell/wires2_s.tga
+		inverseVertexColor
+	}
+	{
+		blend		bumpmap
+		map		 textures/hell/treeroots_local.tga
+		translate	time*.0, time*.025
+		
+		
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/treeroots2.tga
+		translate	time*.0, time*.025
+		vertexColor
+	}
+	{
+		blend 	specularmap
+		map		textures/hell/treeroots_s.tga
+		translate	time*.0, time*.025
+		vertexColor
+
+	}
+
+} 
+
+
+
+textures/hell/treeroots_blend
+{
+	   noSelfShadow
+	   noshadows
+
+qer_editorimage		textures/hell/treeroots_blend.tga
+
+
+	{
+		blend 		bumpmap
+		map		textures/hell/treeroots2_local.tga
+		translate	time*.0, time*.025
+		
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/treeroots2.tga
+		translate	time*.0, time*.025
+		inverseVertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/treeroots_s.tga
+		translate	time*.0, time*.025
+		inverseVertexColor
+	}
+	{
+		blend 		bumpmap
+		map		textures/hell/treeroots2_local.tga
+		translate	time*.0, time*.025
+		
+		
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/treerootsgrey.tga
+		translate	time*.0, time*.025
+		vertexColor
+	}
+	{
+		blend 	specularmap
+		map		textures/hell/treeroots_s.tga
+		translate	time*.0, time*.025
+		vertexColor
+
+	}
+
+}  
+
+textures/rock/sharprock_sand_d
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/rock/sharprock_sand_d.tga
+
+		diffusemap		textures/rock/sharprock_sand_d.tga
+		bumpmap			textures/rock/sharprock_sand_local.tga	
+		specularmap	    	textures/rock/sharprock_sand_s.tga
+
+
+		
+}
+
+textures/rock/skyrock3
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/rock/skyrock3_d.tga
+
+		diffusemap		textures/rock/skyrock3_d.tga
+		bumpmap			textures/rock/skyrock3_local.tga	
+		specularmap	    	textures/rock/skyrock3_s.tga
+		
+}
+
+textures/rock/skysand3
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/rock/skysand3.tga
+
+		diffusemap		textures/rock/skysand3.tga
+		bumpmap			textures/rock/skysand3_local.tga	
+		specularmap	    	textures/rock/skysand3_s.tga
+		
+}
+
+
+models/mapobjects/hell/Site3/stoneroom/fingers
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/stoneroom/fingers_local.tga models/mapobjects/hell/Site3/stoneroom/fingers_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/stoneroom/fingers.tga
+		bumpmap			models/mapobjects/hell/Site3/stoneroom/fingers_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/stoneroom/fingers_s.tga
+		
+		
+}
+
+models/mapobjects/hell/Site3/stoneroom/imhorny_d
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/stoneroom/imhorny_local.tga models/mapobjects/hell/Site3/stoneroom/imhorny_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/stoneroom/imhorny_d.tga
+		bumpmap			addnormals( models/mapobjects/hell/Site3/stoneroom/imhorny_local.tga, heightmap (models/mapobjects/hell/Site3/stoneroom/imhorny_h.tga, 10 ) )
+		specularmap	 	models/mapobjects/hell/Site3/stoneroom/imhorny_s.tga
+		
+		
+}
+
+models/mapobjects/hell/Site3/stoneroom/dingle
+
+{
+		noShadows
+      		noselfShadow
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/Site3/stoneroom/dingle_local.tga models/mapobjects/hell/Site3/stoneroom/dingle_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/stoneroom/dingle.tga
+		bumpmap			models/mapobjects/hell/Site3/stoneroom/dingle_local.tga
+		specularmap	 	models/mapobjects/hell/Site3/stoneroom/dingle_s.tga
+		
+		
+}
+
+
+
+textures/hell/anustubescrollblend2
+{
+	   noSelfShadow
+	   noshadows
+
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/anustubescroll.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/anustubescroll_s.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/bacteria_3_local.tga
+		translate	time *.02, time*-.03
+	}
+	{
+		Blend		diffusemap	
+		map		textures/hell/bacteria_3_d.tga
+		translate	time *.02, time*-.03
+		inverseVertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell/bacteria_3_s.tga
+		translate	time *.02, time*-.03
+		inverseVertexColor
+	}
+
+}  
+  
+textures/hell/bacteriablend
+{
+	   noSelfShadow
+	   noshadows
+
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/anustubescroll.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/anustubescroll_s.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/bacteria_3_local.tga
+		translate	time *.02, time*-.03
+	}
+	{
+		Blend		diffusemap	
+		map		textures/hell/bacteria_3_d.tga
+		translate	time *.02, time*-.03
+		inverseVertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell/bacteria_3_s.tga
+		translate	time *.02, time*-.03
+		inverseVertexColor
+	}
+
+} 
+
+
+
+textures/hell/burnedflyblend
+{
+	   noSelfShadow
+	   noshadows
+	
+	qer_editorimage textures/hell/bacteriablendb.tga
+
+
+
+	{
+		Blend		diffusemap	
+		map		textures/hell/burnedfly.tga
+		translate	time *.01, time*.05
+		vertexcolor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/bacteria_3_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell/burnedfly_s.tga
+		translate	time *.01, time*.05
+		vertexcolor
+
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/bacteria_6_local.tga
+		translate	time *.02, time*-.03
+	}
+	{
+		Blend		diffusemap	
+		map		textures/hell/bacteria_6.tga
+		translate	time *.02, time*-.03
+		inverseVertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell/bacteria_6_s.tga
+		translate	time *.02, time*-.03
+		inverseVertexColor
+	}
+
+} 
+
+
+textures/hell/blood_stream2_d
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	
+	qer_editorimage textures/hell/blood_stream2_d.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/blood_stream2_local.tga
+		translate	time*.2,time*.00
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/blood_stream2_d.tga
+		alphaTest 0.5
+		translate	time*.2,time*-.00
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/blood_stream2_s.tga
+		translate	time*.2,time*.00
+		
+	}
+	
+		
+}
+
+
+
+
+
+models/mapobjects/hell/Site3/archviletemple/candlestand
+
+{
+		//noShadows
+      		//noselfShadow
+
+		renderbump  -size 256 512 -colorMap -aa 2 -trace .125 models/mapobjects/hell/Site3/archviletemple/candlestand_local.tga models/mapobjects/hell/Site3/archviletemple/candlestand_hi.lwo
+
+
+
+		
+					 
+		diffusemap		models/mapobjects/hell/Site3/archviletemple/candlestand.tga
+		bumpmap			addnormals( models/mapobjects/hell/Site3/archviletemple/candlestand_local.tga, heightmap (models/mapobjects/hell/Site3/archviletemple/candlestand_h.tga, 8 ) )
+		specularmap	 	models/mapobjects/hell/Site3/archviletemple/candlestand_s.tga
+		
+		
+}
+
+
+textures/particles/candlefire
+{
+ qer_editorimage textures/particles/candlefire.tga
+ noSelfShadow
+ noShadows
+ twosided
+ deform sprite
+
+ 	{
+ 	blend add
+ 	map textures/particles/candlefire.tga
+ 	scale 1 / 16 , 1
+	scroll table16[ time * 6 ] , 0
+ 	}
+ 
+}
+
+
+textures/decals/candleglow
+
+ {
+ qer_editorimage textures/decals/candlefire.tga
+
+ noSelfShadow
+ noShadows
+
+
+ 	{
+ 	blend add
+ 	map textures/decals/candleglow.tga
+	rgb 	candle[ time * .4 ]
+  	}
+ 
+}
+
+textures/decals/spawn
+
+ {
+ qer_editorimage textures/decals/spawn.tga
+
+ noSelfShadow
+ noShadows
+
+
+ 	{
+ 	blend add
+ 	map textures/decals/spawn.tga
+	rgb 	candle[ time * .1 ]
+  	}
+ 
+}
+
+textures/decals/spawn2
+
+ {
+ qer_editorimage textures/decals/spawn2.tga
+
+ noSelfShadow
+ noShadows
+
+
+ 	{
+ 	blend add
+ 	map textures/decals/spawn2.tga
+  	}
+ 
+}
+
+textures/hell/wrinklewall_tile
+{
+        noselfShadow
+	
+	qer_editorimage textures/hell/wrinklewall_tile
+
+		
+
+
+	{
+		blend 		bumpmap
+		map			textures/hell/wrinklewall_tile_local
+		translate	.01*sintable[ time *.1 ],  	.02*sintable[ time *.1 ]
+
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/wrinklewall_tile
+		translate	.01*sintable[ time *.1 ], 	.02*sintable[ time *.1 ]
+
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/wrinklewall_tile_ss
+		translate	.005*sintable[ time *.1 ], 	.01*sintable[ time *.1 ]
+
+	}
+	{
+		blend		specularmap
+		map			textures/hell/wrinklewall_tile_s
+		translate 	.01*sintable[ time *.1 ],	.02*sintable[ time *.1 ]
+
+	}
+	
+		
+}
+
+textures/hell/wrinklewall_blendb
+{
+	   noSelfShadow
+	   noshadows
+
+	   qer_editorimage textures/hell/wrinklewall_blend2 
+
+
+
+	{
+		blend 		bumpmap
+		map		textures/hell/wrinklewall_tile_local
+		translate	.01*sintable[ time *.1 ],  	.02*sintable[ time *.1 ]
+
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/wrinklewall_tile
+		translate	.01*sintable[ time *.1 ], 	.02*sintable[ time *.1 ]
+		VertexColor
+	}
+	{
+		blend		specularmap
+		map		textures/hell/wrinklewall_tile_s
+		translate 	.01*sintable[ time *.1 ],	.02*sintable[ time *.1 ]
+		VertexColor
+	}
+	{
+		Blend		diffusemap	
+		map		textures/hell/bacteria_5.tga
+		translate	time *.01, time*.05
+		inversevertexcolor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/bacteria_3_local.tga
+		translate	time *.01, time*.05
+		
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell/bacteria_3_s.tga
+		
+		inversevertexcolor
+	}	
+}
+
+textures/hell/smoke
+
+ {
+ qer_editorimage textures/hell/smoke
+
+ noSelfShadow
+ noShadows
+
+
+ 	{
+		blend		filter	 
+		map		textures/hell/smoke
+		translate	time*.00,time*-.1
+		
+	}
+
+
+}
+textures/hell/smokeblend
+{
+
+ qer_editorimage textures/hell/smokeblend
+
+
+ 	noSelfShadow
+ 	noShadows
+	nonsolid
+
+
+ 	{
+		blend		filter	 
+		map		textures/hell/smoke
+		translate	time*.00,time*-.1
+		vertexblend
+	}
+	{
+		blend		filter 
+		map		textures/hell/smokeblenddark
+		inversevertexblend
+	}
+
+
+}
+
+
+textures/sfx/purpleglassb
+{
+	noshadows
+	noselfshadow
+	
+	qer_editorimage	textures/sfx/purpleglass.tga
+
+	{
+		blend add
+		cubeMap		env/bland
+		texgen		reflect
+	}
+	
+	{
+	 	 blend	diffuseMap
+		map textures/sfx/purpleglass.tga
+		//scale	 16 , 16
+	}
+
+}
+
+textures/hell/anustubescrollblend3
+{
+	   noSelfShadow
+	   noshadows
+
+	qer_editorimage	textures/hell/anustubescrollblend3.tga
+
+
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/anustubescroll.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/anustubescroll_s.tga
+		translate	time*-.01,time*-.025
+		VertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell/bacteria_3_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+		Blend		diffusemap	
+		map		textures/hell/bacteria_5.tga
+		translate	time *.01, time*.05
+		inverseVertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell/bacteria_3_s.tga
+		translate	time *.01, time*.05
+		inverseVertexColor
+
+	}
+
+		
+}
+
+
+textures/hell/anustubescrollblend4
+{
+	   noSelfShadow
+	   noshadows
+
+	qer_editorimage	textures/hell/anustubescrollblend4.tga
+
+
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/anustubescroll_local.tga
+		translate	time*-.01,time*-.025
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/anustubescroll.tga
+		translate	time*-.01,time*-.025
+		inverseVertexColor
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/anustubescroll_s.tga
+		translate	time*-.01,time*-.025
+		inverseVertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		addnormals(textures/base_trim/a_reactorpipe_local_fin, heightmap( textures/base_trim/a_reactorpipe_b02black_fin, 10 ))
+		
+	}	
+	{
+		Blend		diffusemap	
+		map		textures/base_trim/a_reactorpipe_d02black_fin.tga  	
+		VertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/base_trim/a_reactorpipe_s02black_fin.tga 
+		VertexColor
+
+	}
+
+		
+}
+      
+        
+
+textures/hell/gizpool
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	
+	qer_editorimage textures/hell/gizpool.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/gizpool_local.tga
+		translate	time*.02,time*-.1
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/gizpool_d.tga
+		translate	time*.02,time*-.1
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/gizpool_s.tga
+		translate	time*.02,time*-.1
+		
+	}
+	
+		
+}
+
+textures/hell/gizpool2
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	
+	qer_editorimage textures/hell/gizpool.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/gizpool2_local.tga
+		translate	time*.0,time*-.05
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/gizpool_d.tga
+		translate	time*.0,time*-.05
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/gizpool2_s.tga
+		translate	time*.0,time*-.05
+		
+	}
+	
+		
+}
+
+textures/hell/gizpoolblend
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	
+	qer_editorimage textures/hell/gizpool.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/gizpool_local.tga
+		translate	time*.0,time*-.05
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/gizpool_d.tga
+		translate	time*.0,time*-.05
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/gizpool_s.tga
+		translate	time*.0,time*-.05
+		
+	}
+	{
+		blend		bumpmap	 
+		map		textures/hell/gizpool2_local.tga
+		translate	time*.0,time*-.05
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/gizpool_d.tga
+		translate	time*.0,time*-.05
+		
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/gizpool2_s.tga
+		translate	time*.0,time*-.05
+		
+	}
+		
+}
+
+
+textures/hell/firewall
+
+ {
+ qer_editorimage textures/hell/firewall.tga
+
+ noSelfShadow
+ noShadows
+
+
+	{
+ 		blend 		add
+ 		map 		textures/hell/firewall.tga
+		translate	time*.75 ,time*1.0
+		rgb 	firewall[ time * .3 ]
+  	}
+
+
+}
+
+textures/hell/eyeskin
+
+ {
+ qer_editorimage textures/hell/eyeskin_d.tga
+
+ noSelfShadow
+ noShadows
+	
+
+		diffusemap		textures/hell/eyeskin_d.tga
+		bumpmap			textures/hell/eyeskin_local.tga	
+		specularmap	    	textures/hell/eyeskin_s.tga
+		
+
+
+}
+
+textures/hell/eyeskin2
+
+ {
+ qer_editorimage textures/hell/eyeskin2_d.tga
+
+ noSelfShadow
+ noShadows
+	
+
+		diffusemap		textures/hell/eyeskin2_d.tga
+		bumpmap			addnormals( textures/hell/eyeskin2_local.tga, heightmap (textures/hell/eyeskin2_h.tga, 10 ) )
+		specularmap	    	textures/hell/eyeskin2_s.tga
+		
+
+
+}
+
+ models/mapobjects/hell/delta5/doora/eyeskin_d
+{
+	noShadows
+      	noselfShadow
+	
+	renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/delta5/doora/eyeskin_local.tga models/mapobjects/hell/delta5/doora/eyeskin_a_hi.lwo
+	
+	
+
+
+	    	diffusemap		 models/mapobjects/hell/delta5/doora/eyeskin_d
+		bumpmap			 addnormals( models/mapobjects/hell/delta5/doora/eyeskin_local, heightmap(models/mapobjects/hell/delta5/doora/eyeskin_h, 10 ))
+		specularmap	    	 models/mapobjects/hell/delta5/doora/eyeskin_s.tga
+
+}
+
+textures/hell/slime
+{
+	noShadows
+        noselfShadow
+	
+	
+	qer_editorimage textures/hell/slime.tga
+
+	
+	{
+		blend		filter	 
+		map		textures/hell/slime.tga
+	}
+	
+
+}
+
+
+textures/hell/slimefade
+{
+	noShadows
+        noselfShadow
+	
+	
+	qer_editorimage textures/hell/slimefade.tga
+
+	
+	{
+		blend		filter	 
+		map		textures/hell/slimefade.tga
+	}
+	
+
+}
+
+
+models/mapobjects/hell/delta5/doorb/hornskin
+{
+	noShadows
+      	noselfShadow
+	
+		
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models/mapobjects/hell/delta5/doorb/hornskin_local.tga models/mapobjects/hell/delta5/doorb/hornskin_hi.lwo
+
+
+	    	diffusemap		 models/mapobjects/hell/delta5/doorb/hornskin_d.tga
+		bumpmap			 addnormals(models/mapobjects/hell/delta5/doorb/hornskin_local, heightmap( models/mapobjects/hell/delta5/doorb/hornskin_h, 10 ))
+		specularmap	    	 models/mapobjects/hell/delta5/doorb/hornskin_s.tga
+
+}
+
+
+ models/mapobjects/hell/delta5/output
+{
+	noShadows
+      	noselfShadow
+	
+		
+
+
+	    	diffusemap		 models/mapobjects/hell/delta5/output_d.tga
+		bumpmap			 addnormals(models/mapobjects/hell/delta5/output_local.tga, heightmap(models/mapobjects/hell/delta5/output_h.tga, 10 ))
+		specularmap	    	 models/mapobjects/hell/delta5/output_s
+
+}
+
+
+
+textures/hell/maggot
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	twosided
+	
+	
+	qer_editorimage textures/hell/maggot_d.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/maggot_local.tga
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.5 ] , 0	
+		translate	.03 * sintable[ time *1 ], 	.01 * sintable[ time *1 ]
+		
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/maggot_d.tga
+		alphaTest 0.5
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.5 ] , 0	
+		translate	.03 * sintable[ time *1 ], 	.01 * sintable[ time *1 ]
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/maggot_s.tga
+		alphaTest 0.5
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.5 ] , 0	
+		translate	.03 * sintable[ time *1 ], 	.01 * sintable[ time *1 ]
+	}
+	
+		
+}
+
+textures/hell/maggotb
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	twosided
+	
+	
+	{
+		blend		bumpmap	 
+		map		textures/hell/maggot_local.tga
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.25 ] , .0
+		translate	.01 * sintable[ time *3 ], 	.02 * sintable[ time *1 ]
+	
+		
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/maggot_d.tga
+		alphaTest 0.5
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.25 ] , .0
+		translate	.01 * sintable[ time *3 ], 	.02 * sintable[ time *1 ]
+	
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/maggot_s.tga
+		alphaTest 0.5
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.25 ] , .0
+		translate	.01 * sintable[ time *3 ], 	.02 * sintable[ time *1 ]
+	
+	}
+	
+		
+}
+
+
+textures/hell/maggot_red
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	twosided
+	
+	qer_editorimage textures/hell/maggot_red_d.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/maggot_local.tga
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.25 ] , .0
+		translate	.01 * sintable[ time *3 ], 	.02 * sintable[ time *1 ]
+	
+		
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/maggot_red_d.tga
+		alphaTest 0.5
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.25 ] , .0
+		translate	.01 * sintable[ time *3 ], 	.02 * sintable[ time *1 ]
+	
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/maggot_s.tga
+		alphaTest 0.5
+		scale 1 / 16 , 1
+ 		scroll table16[ time * 1.25 ] , .0
+		translate	.01 * sintable[ time *3 ], 	.02 * sintable[ time *1 ]
+	
+	}
+	
+		
+}
+
+
+textures/hell/maggot_noanim
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	twosided
+	
+	qer_editorimage textures/hell/maggot_noanim_red_d.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/maggot_noanim_local.tga	
+		
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/maggot_noanim_red_d.tga
+		alphaTest 0.5
+	
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/maggot_noanim_s.tga
+	
+	}
+	
+		
+}
+
+
+textures/hell/maggot_group
+{
+	noShadows
+        noselfShadow
+	nonsolid
+	twosided
+	
+	qer_editorimage textures/hell/maggot_group.tga
+
+	{
+		blend		bumpmap	 
+		map		textures/hell/maggot_group_local.tga
+		translate	.002 * sintable[ time *2.1 ], 	.0021 * sintable[ time *1.81]	
+		
+	}
+	{
+		blend		diffusemap	 
+		map		textures/hell/maggot_group_d.tga
+		translate	.002 * sintable[ time *2.1 ], 	.0021 * sintable[ time *1.81 ]
+	
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/maggot_group_s.tga
+		translate	.002* sintable[ time *2.1 ], 	.0021 * sintable[ time *1.81 ]
+	
+	}
+	
+		
+}
+
+textures/decals/airlock
+{
+	noShadows
+        noselfShadow
+	
+	
+	qer_editorimage textures/decals/airlock.tga
+
+	
+	
+		 
+		diffusemap		textures/decals/airlock.tga
+	
+	
+
+}
+
+
+
+
+
+
+
+
+ models/mapobjects/demonmuseum/zombie
+{
+	noShadows
+      	noselfShadow
+	
+		
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .08	models/mapobjects/demonmuseum/zombie_local.tga models/mapobjects/demonmuseum/zombie_hi.lwo
+
+	    	diffusemap	 models/mapobjects/demonmuseum/zombie_d.tga
+		bumpmap		addnormals(models/mapobjects/demonmuseum/zombie_local.tga, heightmap(models/mapobjects/demonmuseum/zombie_h.tga, 8 ))
+		specularmap	 models/mapobjects/demonmuseum/zombie_s
+
+}
+
+models/mapobjects/demonmuseum/Hellknight_spinetex
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 256 256 -colorMap -aa 1 -trace .125 models/mapobjects/demonmuseum/Hellknight_spinetex_local.tga models/mapobjects/demonmuseum/work/Hellknight_spinetex_hi.lwo
+
+	bumpmap			addnormals(models/mapobjects/demonmuseum/Hellknight_spinetex_local.tga, heightmap( models/mapobjects/demonmuseum/Hellknight_spinetex_h.tga, 7 ) )
+	diffusemap		models/mapobjects/demonmuseum/Hellknight_spinetex_d.tga
+	specularmap		models/mapobjects/demonmuseum/Hellknight_spinetex_s.tga
+  
+}
+
+models/mapobjects/demonmuseum/Hellknight_headtex
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 256 256 -colorMap -aa 1 -trace .125 models/mapobjects/demonmuseum/Hellknight_headtex_local.tga models/mapobjects/demonmuseum/work/Hellknight_headtex_hi.lwo
+
+	bumpmap			addnormals(models/mapobjects/demonmuseum/Hellknight_headtex_local.tga, heightmap( models/mapobjects/demonmuseum/Hellknight_headtex_h.tga, 7 ) )
+	diffusemap		models/mapobjects/demonmuseum/Hellknight_headtex_d.tga
+	specularmap		models/mapobjects/demonmuseum/Hellknight_headtex_s.tga
+  
+}
+
+
+
+
+textures/hell/dirtywater
+{
+
+
+	qer_editorimage textures/hell/dirtywater.tga
+
+ 	deform turbulent	sinTable 0.015 (time*0.2) 10
+
+ 	noSelfShadow
+ 	noShadows
+	
+ 	
+	
+		{
+		blend		filter	
+		map		textures/hell/dirtywater
+		translate	time*.0,time*-.01
+		}
+	
+
+
+}
+
+
+textures/hell/dirtywaterb
+{
+
+
+	qer_editorimage textures/hell/dirtywaterb.tga
+
+ 	deform turbulent	sinTable 0.0175 (time*0.15) 10
+
+ 	noSelfShadow
+ 	noShadows
+	
+ 	
+	
+		{
+		blend		filter	
+		map		textures/hell/dirtywaterb
+		translate	time*.0,time*-.01
+		}
+	
+
+}
+
+
+
+models/mapobjects/hell/delta2b/labimp
+{
+	
+
+	bumpmap			addnormals(models/mapobjects/hell/delta2b/labimp_local.tga, heightmap( models/mapobjects/hell/delta2b/labimp_h.tga, 7 ) )
+	diffusemap		models/mapobjects/hell/delta2b/labimp_d.tga
+	specularmap		models/mapobjects/hell/delta2b/labimp_s.tga
+  
+}
+
+
+
+
+models/mapobjects/demonmuseum/deadimp
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 256 256 -colorMap -aa 2 -trace .125 models/mapobjects/demonmuseum/deadimp_local.tga models/mapobjects/demonmuseum/deadimp_hi.lwo
+
+	bumpmap			addnormals(models/mapobjects/demonmuseum/deadimp_local.tga, heightmap( models/mapobjects/demonmuseum/deadimp_h.tga, 7 ) )
+	diffusemap		models/mapobjects/demonmuseum/deadimp_d.tga
+	specularmap		models/mapobjects/demonmuseum/deadimp_s.tga
+  
+}
+
+
+models/mapobjects/hell/delta2b/labimpskin
+
+{
+	noShadows
+        noselfShadow
+	
+	renderbump  -size 256 256 -colorMap -aa 2 -trace .05 models/mapobjects/hell/delta2b/labimpskin_local.tga models/mapobjects/hell/delta2b/labimpskin_hi.lwo
+
+	bumpmap			addnormals(models/mapobjects/hell/delta2b/labimpskin_local.tga, heightmap( models/mapobjects/hell/delta2b/labimpskin_h.tga, 7 ) )
+	diffusemap		models/mapobjects/hell/delta2b/labimpskin_d.tga
+	specularmap		models/mapobjects/hell/delta2b/labimpskin_s.tga
+ 
+
+ 
+}
+
+
+models/mapobjects/hell/delta2b/labtable
+
+{
+	//noShadows
+        //noselfShadow
+	
+	
+	renderbump  -size 256 256 -colorMap -aa 2 -trace .05 models/mapobjects/hell/delta2b/labtable_local.tga models/mapobjects/hell/delta2b/labtable_hi.lwo
+
+
+
+	bumpmap			addnormals(models/mapobjects/hell/delta2b/labtable_local.tga, heightmap( models/mapobjects/hell/delta2b/labtable_h.tga, 7 ) )
+	diffusemap		models/mapobjects/hell/delta2b/labtable_d.tga
+	specularmap		models/mapobjects/hell/delta2b/labtable_s.tga
+ 
+
+ 
+}
+
+models/mapobjects/base/chairs/chair3
+
+{
+	//noShadows
+        noselfShadow
+	
+	renderbump  -size 256 256 -colorMap -aa 2 -trace .05 models/mapobjects/base/chairs/work/chair3_local.tga models/mapobjects/base/chairs/work/chair_hi.lwo
+
+	bumpmap			addnormals(models/mapobjects/base/chairs/chair3_local.tga, heightmap( models/mapobjects/base/chairs/chair3_h.tga, 7 ) )
+	diffusemap		models/mapobjects/base/chairs/chair3_d.tga
+	specularmap		models/mapobjects/base/chairs/chair3_s.tga
+ 
+
+ 
+}
+

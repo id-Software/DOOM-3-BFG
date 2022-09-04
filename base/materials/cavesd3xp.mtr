@@ -1,0 +1,170 @@
+
+textures/cavesd3xp/rubble3b
+{
+	noShadows	
+	noSelfShadow
+
+	qer_editorimage		textures/cavesd3xp/rubble3b
+
+	stone
+	bumpmap				textures/cavesd3xp/rubble3b_local
+	diffusemap			textures/cavesd3xp/rubble3b
+	specularmap			textures/cavesd3xp/rubble3b_s
+
+}
+
+
+
+textures/cavesd3xp/pbricks2a
+{
+	noselfShadow
+	noshadows
+
+	qer_editorimage		textures/cavesd3xp/pbricks2a
+	stone
+	
+		bumpmap			textures/cavesd3xp/pbricks2_local
+		diffusemap		textures/cavesd3xp/pbricks2a
+		specularmap		textures/cavesd3xp/pbricks2a_s
+}
+
+textures/cavesd3xp/pbricks2
+{
+	noselfShadow
+	noshadows
+
+	qer_editorimage		textures/cavesd3xp/pbricks2
+	stone
+	
+									
+		bumpmap			textures/cavesd3xp/pbricks2_local
+		diffusemap		textures/cavesd3xp/pbricks2
+		specularmap		textures/cavesd3xp/pbricks2_s
+
+}
+
+textures/cavesd3xp/pbricks1b
+{
+	noselfShadow
+	noshadows
+
+	qer_editorimage		textures/cavesd3xp/pbricks1b
+	stone
+	{
+		blend			bumpmap				
+		map				textures/cavesd3xp/pbricks1b_local 
+	}
+	{
+		blend			diffusemap
+		map				textures/cavesd3xp/pbricks1b
+	}
+	{
+		blend			specularmap			
+		map				textures/cavesd3xp/pbricks1_s
+		scale			1,2
+	}
+
+}
+
+
+
+textures/cavesd3xp/pbricks4
+{
+	noselfShadow
+	noshadows
+
+	qer_editorimage		textures/cavesd3xp/pbricks4
+	stone
+	{
+		blend			bumpmap				
+		map				addnormals (textures/cavesd3xp/pbricks1_local, heightmap (textures/cavesd3xp/pbricks1_h, 4) ) 
+	}
+		diffusemap		textures/cavesd3xp/pbricks4
+		specularmap		textures/cavesd3xp/pbricks1_s
+
+}
+
+
+textures/cavesd3xp/pbricks3
+{
+	noselfShadow
+	noshadows
+		
+	qer_editorimage		textures/cavesd3xp/pbricks3
+	stone
+	{
+		blend			bumpmap				
+		map				addnormals (textures/cavesd3xp/pbricks3_local, heightmap (textures/cavesd3xp/pbricks3_h, 4) ) 
+	}
+		diffusemap		textures/cavesd3xp/pbricks3
+
+
+}
+
+
+textures/cavesd3xp/pbricks5
+{
+	noselfShadow
+	noshadows
+	qer_editorimage		textures/cavesd3xp/pbricks5
+	stone
+	
+									
+		bumpmap			textures/cavesd3xp/pbricks5_local
+		diffusemap		textures/cavesd3xp/pbricks5
+		specularmap		textures/cavesd3xp/pbricks5_s
+
+
+}
+
+
+textures/cavesd3xp/pbricks6
+{
+	
+	
+
+	qer_editorimage		textures/cavesd3xp/pbricks6_d
+	
+	
+									
+		bumpmap			textures/cavesd3xp/pbricks6_local
+		diffusemap		textures/cavesd3xp/pbricks6_d
+		specularmap		textures/cavesd3xp/pbricks6_s
+
+
+}
+
+textures/cavesd3xp/pbricks7
+{
+
+	
+	
+
+
+	qer_editorimage		textures/cavesd3xp/pbricks7_D
+	
+	
+									
+		bumpmap			textures/cavesd3xp/pbricks7_local
+		diffusemap		textures/cavesd3xp/pbricks7_d
+		specularmap		textures/cavesd3xp/pbricks7_s
+
+}
+
+textures/cavesd3xp/catacomb_01
+{
+
+	noselfShadow
+	noshadows
+
+
+	qer_editorimage		textures/cavesd3xp/catacomb_01_d
+	
+	
+									
+		bumpmap			textures/cavesd3xp/catacomb_01_local
+		diffusemap		textures/cavesd3xp/catacomb_01_d
+		specularmap		textures/cavesd3xp/catacomb_01_s
+
+
+}

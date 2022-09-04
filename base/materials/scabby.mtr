@@ -1,0 +1,145 @@
+models/monsters/forgotten/forgotten
+{
+        noselfShadow
+		  //noShadows
+		clamp
+		forceOverlays
+		flesh
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.5 * (time - parm7)
+	}
+
+	renderbump  -size 512 512 -trace 0.07 -aa 2   models/monsters/forgotten/forgotten_local.tga models/monsters/forgotten/forgotten_hi.lwo
+
+
+	
+		{
+ 		  blend diffusemap	
+          map  models/monsters/forgotten/forgotten.tga
+ 		  
+     	}
+		{
+ 		  blend bumpmap
+          map  addnormals(models/monsters/forgotten/forgotten_local.tga, heightmap(models/monsters/forgotten/forgotten_h.tga, 2 ) )
+ 		  
+     	}
+		
+                  specularmap	models/monsters/forgotten/forgotten_s.tga
+}
+
+models/monsters/forgotten/forgotten_fx
+{
+	noShadows
+	noselfshadow
+	//deform sprite
+	flesh
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		if	( parm7 == 0 )
+		maskcolor
+		map makealpha(models/monsters/forgotten/forgotten_fx)
+	
+	}
+	{
+		if	( parm7 == 0 )
+	        blend gl_dst_alpha, gl_one
+			maskalpha
+		    map models/monsters/lost/lostfx.tga
+			red   1
+			blue  .6
+			green 1
+			translate	time * -1.5 , time * .1
+	}
+	{
+		if	( parm7 == 0 )
+	        blend gl_dst_alpha, gl_one
+			maskalpha
+		    map models/monsters/lost/lostfx.tga
+			red   .2
+			blue  .2
+			green .2
+			translate	time * -1.7 , time * -.1
+	}
+
+
+
+ }
+
+
+models/characters/female_npc/poppy/scabby
+{
+        noselfShadow
+		  //noShadows
+		clamp
+		forceOverlays
+		flesh
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.5 * (time - parm7)
+	}
+
+	renderbump  -size 1024 512 -trace 0.07 -colorMap -aa 2   models/characters/female_npc/poppy/poppy_local.tga models/characters/female_npc/poppy/poppy_hi.lwo
+
+
+	
+		{
+ 		  blend diffusemap	
+          map  models/characters/female_npc/poppy/poppy.tga
+ 		  
+     	}
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/female_npc/poppy/poppy_local.tga, heightmap(models/characters/female_npc/poppy/poppy_h.tga, 2 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/female_npc/poppy/poppy_s.tga
+}
+
+
+
+
+
+models/characters/female_npc/dress/scabbybod
+{
+        noselfShadow
+		  clamp
+		unsmoothedTangents
+		forceOverlays
+		flesh
+	renderbump  -size 1024 1024 -trace 0.04 -colorMap -aa 2   models/characters/female_npc/dress/dress_local.tga models/characters/female_npc/dress/dress_hi.lwo
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.5 * (time - parm7)
+	}
+	
+
+ 				diffusemap	  models/characters/female_npc/dress/dress.tga
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/female_npc/dress/dress_local.tga, heightmap(models/characters/female_npc/dress/dress_h.tga, 2 ) )
+ 		  
+     	}
+		
+                  specularmap	models/characters/female_npc/dress/dress_s.tga
+}
+
+

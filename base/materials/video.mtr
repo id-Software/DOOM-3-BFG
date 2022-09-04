@@ -1,0 +1,543 @@
+gui/intro/marsflyby
+{
+	translucent
+	{
+		videomap video/mars1.RoQ
+		linear
+	}
+}
+
+gui/intro/introloop {
+	translucent
+	{
+		videomap loop video/intro/introloop.RoQ
+		linear
+	}
+}
+
+gui/intro/introid {
+	translucent
+	{
+		videomap video/intro/introid.RoQ
+		linear
+	}
+}
+
+video/deployment {
+	translucent
+	{
+		videomap "sound/vo/video/deployment.RoQ"
+		linear
+	}
+}
+video/generator {
+	translucent {
+		videomap "sound/vo/video/generator.RoQ"
+		linear
+	}
+}
+video/grabber {
+	translucent {
+		videomap "sound/vo/video/grabber.RoQ"
+		linear
+	}
+}
+
+video/nervelogo
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	loop video/nrvlogo.RoQ
+	}
+}
+
+video/idlogo
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	loop video/idlogo.roq
+	}
+}
+
+gui/bloopers/betbloop {
+	translucent {
+		videomap loop video/bloopers/betbloop.RoQ
+		linear
+	}
+}
+gui/bloopers/monsters {
+	translucent {
+		videomap video/bloopers/monsters.RoQ
+		linear
+	}
+}
+gui/bloopers/pooped {
+	translucent {
+		videomap video/bloopers/pooped.RoQ
+		linear
+	}
+}
+
+video/intro
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	loop video/intro.roq
+	}
+	{
+		blend add
+		cubeMap		env/qcw
+		texgen		reflect
+	}
+}
+
+video/clip
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+		videoMap	loop video/mpintro.roq
+	}
+}
+
+
+video/noise {
+	translucent {
+		noisemap 0
+	}
+}
+
+video/delta1_sarge {
+	translucent {
+		videomap "delta1_sarge_vid.roq"
+		linear
+	}
+}
+
+video/mars_flare
+{
+	qer_editorimage	textures/editor/video.tga
+	{
+	blend add	
+	videoMap	video/lensflare.roq
+	}
+}
+
+pdas/video/tim1 {
+	translucent {
+		videomap "delta1_sarge_vid.roq"
+		linear
+	}
+}
+
+pdas/video/tim2 {
+	translucent {
+		videomap "video/intro.roq"
+		linear
+	}
+}
+
+pdas/video/mfs {
+	qer_editorimage	textures/editor/video.tga
+
+	translucent {
+		videomap "sound/vo/video/mfs.roq"
+		linear
+	}
+}
+
+pdas/video/bettest {
+	qer_editorimage	textures/editor/video.tga
+
+	translucent {
+		videomap "newpdas/video/bettest.roq"
+		linear
+	}
+}
+
+pdas/video/epd {
+	translucent {
+		videomap "sound/vo/video/epd.roq"
+		linear
+	}
+}
+
+video/data {
+	translucent {
+		videomap loop video/data.roq
+		linear
+		colored
+	}
+}
+video/crane {
+	translucent {
+		videomap loop video/demo2.roq
+		linear
+		colored
+	}
+}
+
+gui/mainmenu/intro {
+	translucent {
+		videomap loop video/d3.roq
+		linear
+	}
+}
+
+gui/mainmenu/fireball {
+	translucent {
+		videomap loop video/fireball.RoQ
+		linear
+	}
+}
+
+gui/comm1/radar {
+	translucent {
+		videomap loop video/radar.RoQ
+		linear
+	}
+}
+
+gui/admin/betruger {
+	translucent {
+		videomap "video/admin/betruger.RoQ"
+		linear
+	}
+}
+
+gui/marscity/monoflyby {
+	translucent {
+		videomap video/marscity/monoflyby.RoQ
+		linear
+	}
+}
+
+gui/marscity/dropship {
+	translucent {
+		videomap video/marscity/dropship.RoQ
+		linear
+	}
+}
+
+gui/marscity/dropship2 {
+	translucent {
+		videomap video/marscity/dropship2.RoQ
+		linear
+	}
+}
+
+gui/marscity/dropship3 {
+	translucent {
+		videomap video/marscity/ship.RoQ
+		linear
+	}
+}
+
+gui/marscity/comm2 {
+	translucent {
+		videomap loop video/marscity/comm2.RoQ
+		linear
+	}
+}
+
+gui/marscity/decom {
+	translucent {
+		videomap loop video/marscity/decom.RoQ
+		linear
+	}
+}
+
+gui/marscity/sci_team_request {
+	translucent {
+		videomap "video/marscity/sci_team_request.RoQ"
+		linear
+	}
+}
+
+gui/marscity/sarge_mission_brief {
+	translucent {
+		videomap "video/marscity/sarge_mission_brief.RoQ"
+		linear
+	}
+}
+
+gui/delta1/sarge_video1 {
+	translucent {
+		videomap "video/delta1/sarge_video1.RoQ"
+		linear
+	}
+}
+//yes
+gui/recycling2/cs_bert01_composite {
+	translucent {
+		videomap "video/recycling2/cs_bert01_composite.RoQ"
+		linear
+	}
+}
+//no
+gui/recycling2/cs_bert02_composite {
+	translucent {
+		videomap "video/recycling2/cs_bert02_composite.RoQ"
+		linear
+	}
+}
+
+gui/comm1/swann_vidphone1 {
+	translucent {
+		videomap "video/comm1/swann_vidphone1.RoQ"
+		linear
+	}
+}
+gui/comm1/swann_vidphone2 {
+	translucent {
+		videomap "video/comm1/swann_vidphone2.RoQ"
+		linear
+	}
+}
+gui/comm1/swann_vidphone3 {
+	translucent {
+		videomap "video/comm1/swann_vidphone3.RoQ"
+		linear
+	}
+}
+
+gui/mc_underground/invasion1 {
+	translucent {
+		videomap "video/mc_underground/invasion1.RoQ"
+		linear
+	}
+}
+gui/mc_underground/invasion2 {
+	translucent {
+		videomap "video/mc_underground/invasion2.RoQ"
+		linear
+	}
+}
+//
+
+gui/mc_underground/inv1 {
+	translucent {
+		videomap "video/mc_underground/inv1.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv1sm {
+	translucent {
+		videomap "video/mc_underground/inv1sm.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv2 {
+	translucent {
+		videomap "video/mc_underground/inv2.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv2sm {
+	translucent {
+		videomap "video/mc_underground/inv2sm.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv3 {
+	translucent {
+		videomap "video/mc_underground/inv3.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv3sm {
+	translucent {
+		videomap "video/mc_underground/inv3sm.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv4 {
+	translucent {
+		videomap "video/mc_underground/inv4.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv4sm {
+	translucent {
+		videomap "video/mc_underground/inv4sm.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv5 {
+	translucent {
+		videomap "video/mc_underground/inv5.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv5sm {
+	translucent {
+		videomap "video/mc_underground/inv5sm.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv6 {
+	translucent {
+		videomap "video/mc_underground/inv6.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv6sm {
+	translucent {
+		videomap "video/mc_underground/inv6sm.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv7 {
+	translucent {
+		videomap "video/mc_underground/inv7.RoQ"
+		linear
+	}
+}
+gui/mc_underground/inv7sm {
+	translucent {
+		videomap "video/mc_underground/inv7sm.RoQ"
+		linear
+	}
+}
+
+gui/hellhole/rescue {
+	translucent {
+		videomap "video/hellhole/rescue.RoQ"
+		linear
+	}
+}
+
+//
+video/hydrocon {
+	translucent {
+		videomap "sound/VO/video/hydrocon.RoQ"
+		linear
+	}
+}
+video/video_alphalabs_intro {
+	translucent {
+		videomap "sound/VO/video/video_alphalabs_intro.roq"
+		linear
+	}
+}
+video/video_ancient_civ {
+	translucent {
+		videomap "sound/VO/video/video_ancient_civ.roq"
+		linear
+	}
+}
+video/video_bfg {
+	translucent {
+		videomap "sound/VO/video/video_bfg.roq"
+		linear
+	}
+}
+video/video_chaingun {
+	translucent {
+		videomap "sound/VO/video/video_chaingun.roq"
+		linear
+	}
+}
+video/video_delta2_medical {
+	translucent {
+		videomap "sound/VO/video/video_delta2_medical.roq"
+		linear
+	}
+}
+video/video_ian_report {
+	translucent {
+		videomap sound/VO/video/video_ian_report.roq
+		linear
+	}
+}
+video/video_meyers_report {
+	translucent {
+		videomap sound/VO/video/video_meyers_report.roq
+		linear
+	}
+}
+video/video_ipn_news {
+	translucent {
+		videomap "sound/VO/video/video_ipn_news.roq"
+		linear
+	}
+}
+video/video_marine_sops {
+	translucent {
+		videomap "sound/VO/video/video_marine_sops.roq"
+		linear
+	}
+}
+video/video_plasmagun {
+	translucent {
+		videomap "sound/VO/video/video_plasmagun.roq"
+		linear
+	}
+}
+video/video_template_logo {
+	translucent {
+		videomap "sound/VO/video/video_template_logo.roq"
+		linear
+	}
+}
+video/video_uac_welcome {
+	translucent {
+		videomap "sound/VO/video/video_uac_welcome.roq"
+		linear
+	}
+}
+
+video/video_demon_museum {
+	translucent {
+		videomap "sound/VO/video/video_demon_museum.roq"
+		linear
+	}
+}
+
+video/video_recycling {
+	translucent {
+		videomap "sound/VO/video/video_recycling.roq"
+		linear
+	}
+}
+
+video/video_soulcube {
+	translucent {
+		videomap "sound/VO/video/video_soulcube.roq"
+		linear
+	}
+}
+
+video/video_tablets {
+	translucent {
+		videomap "sound/VO/video/video_tablets.roq"
+		linear
+	}
+}
+
+video/mcneil {
+	translucent {
+		videomap "video/mcneil.roq"
+		linear
+	}
+}
+video/erebusteam {
+	translucent {
+		videomap "video/erebusteam.roq"
+		linear
+		colored
+	}
+}
+
+gui/le_enpro1/meyers_initial_contact {
+	translucent {
+		videomap "video/enpro1/lm_meyers_enpro.RoQ"
+		linear
+	}
+}
+
+gui/shell/mars_rotation {
+	translucent {
+		videomap loop video/mars_rotation.RoQ
+		linear
+	}
+}

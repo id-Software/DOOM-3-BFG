@@ -1,0 +1,1084 @@
+table refract { { .7, 1, .5, .7, 0, .6, 1, .8, .6, 0, .7, 1, .6, 1, 1, .6, .7, .8, 0, .6, 1, .5, .7, 1 } }
+
+
+textures/sfx/refract {
+    noselfShadow
+    noshadows	
+	deform sprite
+	translucent
+	discrete
+	nonsolid
+	noimpact
+	
+	qer_editorimage	textures/sfx/refract.tga
+
+
+	{
+		blend blend
+		//cubeMap		env/bland
+		//texgen		reflect
+		map textures/particles/smokepuff.tga
+		rgba refract[ time * 0.4 ] * 0.5
+		scroll	sintable[time * 0.08], time * 1.14
+	}
+/*	
+	{
+	 	 blend	blend
+		map textures/particles/smokepuff.tga
+		//scroll 0, time * 0.1
+		alpha refract[ time * 0.1 ] * 0.2
+		//scale	 16 , 16
+	}
+*/	
+}
+
+textures/common/npc_pda
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	guiSurf guis/pda/pda_world.gui
+	discrete
+}
+
+
+textures/particles/duffybolt3
+{
+    noselfShadow
+    noshadows	
+	nonsolid
+	noimpact
+	twosided
+
+	qer_editorimage  textures/particles/duffybolt3.tga
+
+	{ 
+		blend	add
+	 	map		textures/particles/duffybolt3.tga
+		translate	time * 0.8, 0
+		vertexcolor
+	}
+	{ 
+		blend	add
+	 	map		textures/particles/duffybolt3.tga
+		translate	time * 0.4, 0
+		vertexcolor
+	}
+}
+
+
+textures/particles/blood2
+{
+	noSelfShadow
+	noshadows
+	//translucent
+	discrete
+	twosided
+	nonsolid
+	noimpact
+	qer_editorimage		textures/particles/blood2.tga
+	{
+		blend diffusemap
+		map textures/particles/blood2.tga
+		vertexcolor
+		colored
+	}
+	{
+		blend bumpmap
+		map textures/particles/blood_local2.tga
+		vertexcolor
+	}
+}
+
+textures/particles/bloodstream4
+{
+	noSelfShadow
+	noshadows
+	//translucent
+	//discrete
+	twosided
+	nonsolid
+	noimpact
+	qer_editorimage		textures/particles/bloodspray2.tga
+	{
+		blend blend
+		map textures/particles/bloodstream4.tga
+		vertexcolor
+		translate	0, time * -0.4
+	}
+
+	/*	
+	{
+		blend bumpmap
+		map textures/particles/blood2_local.tga
+		vertexcolor
+		translate	0, time * -0.4
+	}
+*/	
+
+}
+
+textures/particles/bfgball
+{
+    noselfShadow
+    noshadows	
+	nonsolid
+	noimpact
+	nomipmaps
+	qer_editorimage  textures/particles/bfgball.tga
+
+	{ 
+		blend	add
+	 	map		textures/particles/bfgball.tga
+		//translate	time * 0.8, 0
+		vertexcolor
+	}
+}
+
+
+
+textures/particles/duffybolt_white
+{
+    noselfShadow
+    noshadows	
+	nonsolid
+	noimpact
+	twosided
+
+	qer_editorimage  textures/particles/duffybolt2_white.tga
+
+	{ 
+		blend	add
+	 	map		textures/particles/duffybolt2_white.tga
+		translate	time * -1.0, 0
+		vertexcolor
+	}
+	{ 
+		blend	add
+	 	map		textures/particles/duffybolt2_white.tga
+		translate	time * -0.8, 0
+		vertexcolor
+	}
+	{ 
+		blend	add
+	 	map		textures/particles/duffybolt_white.tga
+		translate	time * -0.6, 0
+		vertexcolor
+	}
+/*	
+	{
+		blend		add
+		map			textures/particles/duffybeam.tga
+		translate	time * 0.5, 0
+		vertexcolor
+	}	
+*/	
+}
+
+textures/particles/duffyboltvert_white
+{
+    noselfShadow
+    noshadows	
+	nonsolid
+	noimpact
+	twosided
+
+	qer_editorimage  textures/particles/duffyboltvert_white.tga
+
+	{ 
+		blend	add
+	 	map		textures/particles/duffyboltvert_white.tga
+		translate	time * -0.8, 0
+		vertexcolor
+	}
+	{ 
+		blend	add
+	 	map		textures/particles/duffyboltvert_white.tga
+		translate	time * -0.4, 0
+		vertexcolor
+	}
+}
+
+textures/particles/duffyboltball
+{
+    noselfShadow
+    noshadows	
+	nonsolid
+	noimpact
+	twosided
+
+	qer_editorimage  textures/particles/duffyboltball.tga
+
+	{ 
+		blend	add
+	 	map		textures/particles/duffyboltball.tga
+		translate	time * 0.8, 0
+		vertexcolor
+	}
+	{ 
+		blend	add
+	 	map		textures/particles/duffyboltball.tga
+		translate	time * 0.4, 0
+		vertexcolor
+	}
+}
+guis/assets/glassy
+{
+	qer_editorimage 	textures/base_trim/glasscountertop.tga
+	bumpmap		textures/base_trim/glasscountertop_local.tga
+	diffusemap		textures/base_trim/glasscountertop_d.tga
+	specularmap		textures/base_trim/glasscountertop_s.tga
+	{
+		blend	add
+		map		ui/assets/uiScroll.tga
+		linear		// no mip maps
+		scroll	time * 0 , time * 0.2
+		
+	}
+
+}
+
+ui/assets/map {
+	{
+		blend add
+		map ui/assets/guisurfs/map2.tga
+	}
+	
+}
+
+guisurfs/pattest
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	guiSurf guis/patd/po.gui
+	discrete
+}
+
+guisurfs/videopanel_1
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	guiSurf badgui
+	discrete
+}
+
+guisurfs/wallpanel_1
+{	
+	qer_editorimage	guisurfaces/guisurface.tga
+	guiSurf badgui
+	discrete
+}
+
+guisurfs/moongui_1
+{	
+	qer_editorimage	guisurfaces/guisurface.tga
+	guiSurf badgui
+	discrete
+}
+
+ui/assets/guisurfs/computerBackground {
+	translucent			// everything used on a guisurf should be translucent
+	{
+		//videomap "moon.roq"
+		//videomap "mpintro.roq"
+		map		ui/assets/guiSurfs/computerBackground.tga
+		linear		// no mip maps
+		//scroll	time * 0.02 , 0
+	}
+
+}
+
+
+ui/assets/guisurfs/computerBlueBackground {
+	translucent			// everything used on a guisurf should be translucent
+	{
+		//videomap "moon.roq"
+		//videomap "mpintro.roq"
+		map		ui/assets/guiSurfs/computerBlueBackground.tga
+		linear		// no mip maps
+		//scroll	time * 0.02 , 0
+	}
+	{
+		blend	add
+		map		ui/assets/guiSurfs/computerScroll.tga
+		linear		// no mip maps
+		scroll	time * 0 , time * 0.2
+	}
+
+
+}
+
+
+
+ui/assets/guisurfs/moonvid {
+	translucent			// everything used on a guisurf should be translucent
+	{
+		videomap "moon.roq"
+		//videomap "mpintro.roq"
+		//map		ui/assets/guiSurfs/computerBackground.tga
+		linear		// no mip maps
+		//scroll	time * 0.02 , 0
+	}
+
+}
+
+ui/assets/guisurfs/video {
+	translucent			// everything used on a guisurf should be translucent
+	{
+		//videomap "moon.roq"
+		videomap "mpintro.roq"
+		//map		ui/assets/guiSurfs/computerBackground.tga
+		linear		// no mip maps
+		//scroll	time * 0.02 , 0
+	}
+}
+
+
+guisurfs/testgui
+{	
+	qer_editorimage	guisurfaces/guisurface.tga
+	guiSurf guis/patd/po.gui
+	discrete
+	description "A test gui surface"
+}
+
+ui/assets/3_cursor3 {
+	{
+		blend add
+		map ui/assets/3_cursor3.tga
+	}
+}
+
+ui/assets/copyright {
+	{
+		//blend add
+		map ui/assets/copyright.tga
+	}
+}
+
+ui/assets/playbutton {
+	{
+		blend add
+		map ui/assets/playbutton.tga
+	}
+	
+}
+
+ui/assets/playbuttonblur {
+      
+	{
+		blend add
+		map ui/assets/playbuttonblur.tga
+	}
+	
+}
+
+ui/assets/setupbutton {
+	{
+		blend add
+		map ui/assets/setupbutton.tga
+	}
+	
+}
+
+ui/assets/setupbuttonblur {
+      
+	{
+		blend add
+		map ui/assets/setupbuttonblur.tga
+	}
+	
+}
+
+ui/assets/editorbutton {
+	{
+		blend add
+		map ui/assets/editorbutton.tga
+	}
+	
+}
+
+ui/assets/editorbuttonblur {
+      
+	{
+		blend add
+		map ui/assets/editorbuttonblur.tga
+	}
+	
+}
+
+ui/assets/quitbutton {
+	{
+		blend add
+		map ui/assets/quitbutton.tga
+	}
+	
+}
+
+ui/assets/quitbuttonblur {
+      
+	{
+		blend add
+		map ui/assets/quitbuttonblur.tga
+	}
+	
+}
+
+ui/assets/uiBackground {
+	translucent			// everything used on a guisurf should be translucent
+	{
+		map		ui/assets/uiBackground.tga
+		linear		// no mip maps
+		//scroll	time * 0.02 , 0
+	}
+	{
+		blend	add
+		map		ui/assets/uiScroll.tga
+		linear		// no mip maps
+		scroll	time * 0 , time * 0.2
+		
+	}
+
+}
+
+
+textures/decals/wallsplat1
+{
+	qer_editorimage	textures/decals/duffysplat.tga
+
+	DECAL_MACRO
+	sort
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/splat5.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		rgb			decalFade[(time - Parm3)/(parm4 - parm3)]
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/decals/wallsplat2
+{
+	qer_editorimage	textures/decals/duffysplat.tga
+
+	DECAL_MACRO
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/duffysplat.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		rgb			decalFade[(time - Parm3)/(parm4 - parm3)]
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/particles/bloodspray
+{
+	qer_editorimage textures/particles/bloodparticle.tga
+	translucent
+	noShadows
+	{
+		blend 	gl_zero,gl_one_minus_src_color
+		map		textures/decals/duffysplat.tga
+		vertexColor
+
+		//blend blend
+		//map textures/particles/bloodparticle.tga
+		//rgb		Parm3
+	}
+}
+
+textures/particles/bloodpuff
+{
+	qer_editorimage textures/particles/bloodpuff.tga
+	translucent
+	noShadows
+	{
+		blend blend
+		map textures/particles/bloodpuff.tga
+		vertexColor
+	}
+}
+
+textures/decals/duffysplat
+{
+	qer_editorimage	textures/decals/duffysplat.tga
+
+	nonsolid
+	noimpact
+	blood
+	DECAL_MACRO
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/duffysplat.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		rgb			decalFade[(time - Parm3)/(parm4 - parm3)]
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/decals/duffysplat2
+{
+	qer_editorimage	textures/decals/duffysplat2.tga
+
+	nonsolid
+	noimpact
+	blood
+	DECAL_MACRO
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/duffysplat2.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		rgb			decalFade[(time - Parm3)/(parm4 - parm3)]
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/decals/dsplat2
+{
+	qer_editorimage	textures/decals/dsplat2.tga
+
+	nonsolid
+	noimpact
+	blood
+	DECAL_MACRO
+	decalInfo 10 5 ( 1 1 1 1 ) ( 0 0 0 0 )
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/dsplat2.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/decals/dsplat5
+{
+	qer_editorimage	textures/decals/dsplat5.tga
+
+	nonsolid
+	noimpact
+	blood
+	DECAL_MACRO
+	decalInfo 10 5 ( 1 1 1 1 ) ( 0 0 0 0 )
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/dsplat5.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/decals/dsplat7
+{
+	qer_editorimage	textures/decals/dsplat7.tga
+
+	nonsolid
+	noimpact
+	blood
+	DECAL_MACRO
+	decalInfo 10 5 ( 1 1 1 1 ) ( 0 0 0 0 )
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/dsplat7.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/decals/dsplat11
+{
+	qer_editorimage	textures/decals/dsplat11.tga
+
+	nonsolid
+	noimpact
+	blood
+	polygonoffset
+	DECAL_MACRO
+	decalInfo 10 5 ( 1 1 1 1 ) ( 0 0 0 0 )
+	{       
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/dsplat11.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}	
+}
+
+textures/sfx/firetrail
+{
+	qer_editorimage textures/particles/firepuff.tga
+	translucent
+	noShadows
+	{
+		blend	add
+		map		textures/particles/firepuff.tga
+		vertexColor
+	}
+}
+
+textures/sfx/fireplume
+{
+	qer_editorimage textures/particles/fireplume.tga
+	translucent
+	noShadows
+	{
+		blend	add
+		map		textures/particles/fireplume.tga
+		vertexColor
+	}
+}
+
+
+
+guis/testColored
+{
+	translucent			// everything used on a guisurf should be translucent
+	{
+		blend	blend
+		map		guis/assets/cpuserver/bg.tga
+		colored
+	}
+}
+
+textures/particles/teleportsparks
+{
+	qer_editorimage textures/particles/spawn1.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/spawn1.tga
+		zeroClamp
+	}
+}
+
+textures/particles/teleportsparks2
+{
+	qer_editorimage textures/particles/spawn2.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/spawn2.tga
+		zeroClamp
+	}
+}
+
+textures/particles/sparkstrip
+{
+	qer_editorimage textures/particles/sparkstrip.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/sparkstrip.tga
+		zeroClamp
+	}
+}
+
+textures/particles/bluesparks
+{
+	qer_editorimage textures/particles/spark.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/spark.tga
+//		rgb  sintable [time] + 2.5
+//		centerScale (1.25 + 0.25 * sintable[time]), (1.25 + 0.25 * sintable[time])
+		zeroClamp
+//		translate sintable[time], 0
+//		colored
+//		vertexColor
+	}
+}
+
+textures/decals/duffysplatgun
+{
+	qer_editorimage	textures/decals/duffysplat.tga
+
+	DECAL_MACRO
+	{       
+		blend gl_dst_color,gl_zero
+		map			textures/decals/duffysplat.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+	}	
+}
+
+textures/particles/redteleportsparks
+{
+	qer_editorimage textures/particles/redspawn.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/redspawn.tga
+		zeroClamp
+		colored
+	}
+}
+
+textures/particles/redteleportsmoke
+{
+	qer_editorimage textures/particles/hellsmoke.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/hellsmoke.tga
+		//zeroClamp
+		colored
+	}
+}
+
+textures/particles/debris
+{
+	qer_editorimage textures/sfx/debris.tga
+	//translucent
+	noShadows
+	{
+		blend blend
+		map textures/sfx/debris.tga
+		//zeroClamp
+		//rotate	time * 3
+		//colored
+		vertexcolor
+	}
+}
+
+textures/particles/debrislight
+{
+	qer_editorimage textures/sfx/debrislight.tga
+	//translucent
+	noShadows
+	{
+		blend blend
+		map textures/sfx/debrislight.tga
+		//zeroClamp
+		//rotate	time * 3
+		//colored
+		vertexcolor
+	}
+}
+
+
+textures/cameraImg1
+{	
+	qer_editorimage	textures/editor/cameragui.tga
+	noshadows
+	guiSurf	entity
+	discrete
+	translucent
+	sort "-2"
+	{
+		rgba 0
+		remoteRenderMap	512 256	// width / height of render image
+		map textures/dynamic/camera1.tga
+		scale 1 , -1		// the render view ars upside down otherwise
+		translate 0, -1
+
+	}
+}
+
+textures/cameraImg2
+{	
+	qer_editorimage	textures/editor/cameragui.tga
+	noshadows
+	guiSurf	entity
+	discrete
+	translucent
+	sort "-2"
+	{
+		rgba 0
+		remoteRenderMap	512 256	// width / height of render image
+		map textures/dynamic/camera2.tga
+		scale 1 , -1		// the render view ars upside down otherwise
+		translate 0, -1
+	}
+}
+
+textures/cameraView1
+{	
+	qer_editorimage	textures/editor/camera.tga
+	translucent			// everything used on a guisurf should be translucent
+	noshadows
+	discrete
+	sort "-2"
+	{
+		blend add
+		map textures/dynamic/camera1.tga
+		scale 1 , -1		// the render view ars upside down otherwise
+		translate 0, -1
+	}
+}
+
+textures/cameraView2
+{	
+	qer_editorimage	textures/editor/camera.tga
+	translucent			// everything used on a guisurf should be translucent
+	noshadows
+	discrete
+	sort "-2"
+	{
+		blend add
+		map textures/dynamic/camera2.tga
+		scale 1 , -1		// the render view ars upside down otherwise
+		translate 0, -1
+	}
+}
+
+guisurfs/guiremap1
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap2
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap3
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap4
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap5
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap6
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap7
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guiremap8
+{	
+	qer_editorimage	guisurfs/guisurface.tga
+	discrete
+}
+
+guisurfs/guipreview {
+	qer_editorimage	textures/editor/gui.tga
+	guiSurf	guis/mainmenu.gui
+}
+
+textures/skies/duffyblah_sky
+{
+	qer_editorimage	textures/skies/qc_sky.tga
+	noshadows
+	nonsolid
+	noimpact
+	discrete	
+	{
+	                  blend    Add
+		map textures/skies/duffyblah_sky.tga
+		scroll	time * 0.31 , time * -0.1
+		rgb 0.5
+		alpha parm4		
+	}
+                 {
+	                  blend	add 
+		map textures/skies/duffyblah_sky.tga
+		scroll	time * 0.21 , time * 0.14
+		rgb 0.5
+		alpha parm4		
+		
+	}
+                 {
+	                  blend	add 
+		map guis/assets/test/duffyfaces.tga
+		scroll	time * 0.1 , time * 0.04
+		rgb 0.5
+		alpha parm4		
+		
+	}
+	{
+		blend gl_dst_color,gl_zero
+		map lights/round.tga
+		alpha parm4		
+	}	
+
+	
+}	
+
+gui/filmstrip
+{
+	{
+		map guis/assets/filmstrip.tga
+	}
+}
+
+gui/assets/fingerprintscan
+{	
+	{
+		blend add
+		map guis/assets/fingerprint.tga
+	}
+	{
+		blend add
+		map guis/assets/test/gui_scanlines.tga
+		scroll 0, time * -.04
+	}
+}
+
+textures/objective1 {
+	{
+		map guis/assets/objective.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objective2 {
+	{
+		map guis/assets/objective2.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objective3 {
+	{
+		map guis/assets/objective3.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objective4 {
+	{
+		map guis/assets/objective4.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objective5 {
+	{
+		map guis/assets/objective5.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objectivecomplete1 {
+	{
+		map guis/assets/objectivecomplete.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objectivecomplete2 {
+	{
+		map guis/assets/objectivecomplete2.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objectivecomplete3 {
+	{
+		map guis/assets/objectivecomplete3.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objectivecomplete4 {
+	{
+		map guis/assets/objectivecomplete4.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+textures/objectivecomplete5 {
+	{
+		map guis/assets/objectivecomplete5.tga
+		scale 1, -1
+		translate 0, -1
+	}
+}
+
+material textures/effects/vagarysonic {
+	qer_editorimage		textures/decals/berserk.tga
+
+	noshadows
+	translucent
+	{
+		blend  blend
+		map    textures/decals/sonic.tga
+		colored
+	}
+
+}
+
+material particles/flowingblood {
+	noSelfShadow
+	//noShadows
+	//twosided
+	//translucent
+	{
+			blend bumpmap	
+			map textures/hell/lava1_local.tga
+			centerscale	1+.05*sinTable[time * .1 ], 1+.05*sinTable[time * .1]
+			//scroll	time * 0 , time * -.04	
+			vertexcolor
+			
+	}
+	{
+			blend diffusemap	
+			map models/mapobjects/teleporter/telecolon1.tga
+			//scale 1 , 3
+			scroll	time * 0 , time * -.06	
+			alphaTest 0.5
+			vertexcolor
+			
+	}
+
+	{
+			blend specularmap
+			map models/mapobjects/teleporter/telecolon1_s.tga
+
+			//scale 1 , 3
+			scroll	time * 0 , time * -.01	
+			vertexcolor
+			
+	}
+
+}
+
+material textures/decals/influence1 {
+
+	//noshadows
+	//translucent
+
+	qer_editorimage		textures/decals/tunnel.tga
+
+	// deform turbulent        sinTable        0.05    ( time * 0.2 )      100
+	{
+		alpha		parm4 * 0.15
+	    blend		add
+		centerscale	0.65, 0.65 
+		rotate time * .02
+		map    "guis/assets/test/faces-comp.tga"
+		clamp
+	}
+	 
+	
+	
+}
+

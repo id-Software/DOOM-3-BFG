@@ -1,0 +1,35 @@
+
+
+
+textures/sfxd3xp/spotlight3
+{
+	qer_editorimage	textures/sfxd3xp/spotlight3
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	
+	{
+		blend		add
+		map			textures/sfxd3xp/spotlight3
+		colored
+	}
+}
+
+textures/sfxd3xp/spotlight4
+{
+	qer_editorimage	textures/sfxd3xp/spotlight4
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	
+	{
+		blend		add
+		map			textures/sfxd3xp/spotlight4
+		colored
+		rgb .1
+	}
+}
+
+

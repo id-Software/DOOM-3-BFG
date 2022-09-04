@@ -1,0 +1,231 @@
+textures/cavesd3xp/d3xp_cavfloorlift1
+{
+	qer_editorimage		textures/cavesd3xp/d3xp_cavfloorlift1_ed.tga
+	bumpmap			addnormals (textures/cavesd3xp/d3xp_cavfloorlift1_local.tga, heightmap (textures/cavesd3xp/d3xp_cavfloorlift1_h.tga, 3) )	
+	diffusemap		textures/cavesd3xp/d3xp_cavfloorlift1.tga
+	specularmap		textures/cavesd3xp/d3xp_cavfloorlift1_s.tga
+	{
+		blend 	add
+		map		textures/cavesd3xp/d3xp_cavfloorlift1_add.tga
+		rgb 	(.8 * sintable [.002 + time ]) + .9
+	}
+}
+
+textures/cavesd3xp/d3xp_cavfloorlift1_red
+{
+	qer_editorimage		textures/cavesd3xp/d3xp_cavfloorlift1_red_ed.tga
+	bumpmap			addnormals (textures/cavesd3xp/d3xp_cavfloorlift1_local.tga, heightmap (textures/cavesd3xp/d3xp_cavfloorlift1_h.tga, 3) )
+	diffusemap		textures/cavesd3xp/d3xp_cavfloorlift1.tga
+	specularmap		textures/cavesd3xp/d3xp_cavfloorlift1_s.tga
+	{
+		blend 	add
+		map		textures/cavesd3xp/d3xp_cavfloorlift1_red_add.tga
+		rgb 	(.8 * sintable [.002 + time ]) + .9
+	}
+}
+
+textures/cavesd3xp/d3xp_cavfloorlift1_blu
+{
+	qer_editorimage		textures/cavesd3xp/d3xp_cavfloorlift1_blu_ed.tga
+	bumpmap			addnormals (textures/cavesd3xp/d3xp_cavfloorlift1_local.tga, heightmap (textures/cavesd3xp/d3xp_cavfloorlift1_h.tga, 3) )
+	diffusemap		textures/cavesd3xp/d3xp_cavfloorlift1.tga
+	specularmap		textures/cavesd3xp/d3xp_cavfloorlift1_s.tga
+	{
+		blend 	add
+		map		textures/cavesd3xp/d3xp_cavfloorlift1_blu_add.tga
+		rgb 	(.8 * sintable [.002 + time ]) + .9
+	}
+}
+models/mapobjects/d3xpfiller/beartrophy/beartrophy
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/d3xpfiller/beartrophy/beartrophy_local.tga models/mapobjects/d3xpfiller/beartrophy/beartrophy_hi.lwo
+        diffusemap	models/mapobjects/d3xpfiller/beartrophy/beartrophy_d.tga
+        bumpmap 	addnormals (models/mapobjects/d3xpfiller/beartrophy/beartrophy_local.tga, heightmap (models/mapobjects/d3xpfiller/beartrophy/beartrophy_bmp.tga, 3) )
+        specularmap	models/mapobjects/d3xpfiller/beartrophy/beartrophy_s.tga
+}
+
+models/mapobjects/d3xpfiller/beartrophy/plaque
+{
+	qer_editorimage		models/mapobjects/d3xpfiller/beartrophy/plaque_local.tga
+	bumpmap			models/mapobjects/d3xpfiller/beartrophy/plaque_local.tga
+	diffusemap		models/mapobjects/d3xpfiller/beartrophy/plaque_d.tga
+	//specularmap		models/mapobjects/d3xpfiller/beartrophy/plaque_s.tga
+}
+
+models/mapobjects/d3xpfiller/sargepic/sargeframe
+{
+	qer_editorimage		models/mapobjects/d3xpfiller/sargepic/sargeframe_local.tga
+	bumpmap			models/mapobjects/d3xpfiller/sargepic/sargeframe_local.tga
+	diffusemap		models/mapobjects/d3xpfiller/sargepic/sargeframe_d.tga
+	specularmap		models/mapobjects/d3xpfiller/sargepic/sargeframe_s.tga
+}
+
+models/mapobjects/d3xpfiller/sargepic/sargecrop
+{
+	qer_editorimage		models/mapobjects/d3xpfiller/sargepic/sargecrop.tga
+	diffusemap		models/mapobjects/d3xpfiller/sargepic/sargecrop.tga
+}
+
+models/mapobjects/cavesd3xp/techknobxp/techknobxp
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/cavesd3xp/techknobxp/techknobxp_local.tga models/mapobjects/cavesd3xp/techknobxp/techknobxp_hi.lwo
+        diffusemap	models/mapobjects/cavesd3xp/techknobxp/techknobxp_d.tga
+        bumpmap 	addnormals (models/mapobjects/cavesd3xp/techknobxp/techknobxp_local.tga, heightmap (models/mapobjects/cavesd3xp/techknobxp/techknobxp_bmp.tga, 3) )
+        specularmap	models/mapobjects/cavesd3xp/techknobxp/techknobxp_s.tga
+}
+
+models/mapobjects/exgen/d3xp_genexplode_d
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/exgen/d3xp_genexplode_local.tga models/mapobjects/exgen/d3xp_genexplode_hi.lwo
+        diffusemap	models/mapobjects/exgen/d3xp_genexplode_d.tga
+        bumpmap 	addnormals (models/mapobjects/exgen/d3xp_genexplode_local.tga, heightmap (models/mapobjects/exgen/d3xp_genexplode_bmp.tga, 3) )
+        specularmap	models/mapobjects/exgen/d3xp_genexplode_s.tga
+}
+
+models/mapobjects/exgen/d3xp_genduocase_d
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/exgen/d3xp_genduocase_local.tga models/mapobjects/exgen/d3xp_genduocase_hi.lwo
+        diffusemap	models/mapobjects/exgen/d3xp_genduocase_d.tga
+        bumpmap 	addnormals (models/mapobjects/exgen/d3xp_genduocase_local.tga, heightmap (models/mapobjects/exgen/d3xp_genduocase_bmp.tga, 3) )
+        specularmap	models/mapobjects/exgen/d3xp_genduocase_s.tga
+}
+
+models/mapobjects/exgen/d3xp_genunocase_d
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/exgen/d3xp_genunocase_local.tga models/mapobjects/exgen/d3xp_genunocase_hi.lwo
+        diffusemap	models/mapobjects/exgen/d3xp_genunocase_d.tga
+        bumpmap 	addnormals (models/mapobjects/exgen/d3xp_genunocase_local.tga, heightmap (models/mapobjects/exgen/d3xp_genunocase_bmp.tga, 3) )
+        specularmap	models/mapobjects/exgen/d3xp_genunocase_s.tga
+}
+
+models/mapobjects/exgen/d3xp_gencelhandle_d
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/exgen/d3xp_gencelhandle_local.tga models/mapobjects/exgen/d3xp_gencelhandle_hi.lwo
+        diffusemap	models/mapobjects/exgen/d3xp_gencelhandle_d.tga
+        bumpmap 	addnormals (models/mapobjects/exgen/d3xp_gencelhandle_local.tga, heightmap (models/mapobjects/exgen/d3xp_gencelhandle_bmp.tga, 3) )
+        specularmap	models/mapobjects/exgen/d3xp_gencelhandle_s.tga
+}
+
+/*
+	Generated by the Material Editor.
+	Type 'materialeditor' at the console to launch the material editor.
+*/
+models/mapobjects/exgen/d3xp_pcell
+{
+	noSelfShadow	
+	renderbump	-size 512 512 -aa 2  models/mapobjects/exgen/d3xp_pcell_local.tga models/mapobjects/exgen/d3xp_pcell_hi.lwo
+	diffusemap	models/mapobjects/exgen/ta_pcell_d.tga
+	bumpmap	addnormals(models/mapobjects/exgen/d3xp_pcell_local.tga, heightmap(models/mapobjects/exgen/ta_pcell_h.tga, 4 ) )
+	{
+		name	"Stage 3"
+		map	models/mapobjects/exgen/ta_pcell_l.tga
+		blend	add
+		colored	
+		rgb	flickertable [ time * 8 ]
+	}
+	specularmap	models/mapobjects/exgen/ta_pcell_s.tga
+}
+
+
+models/mapobjects/exgen/pgen_doors_d
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/exgen/pgen_doors_local.tga models/mapobjects/exgen/pgen_door_hi.lwo
+        diffusemap	models/mapobjects/exgen/pgen_doors_d.tga
+        bumpmap 	models/mapobjects/exgen/pgen_doors_local.tga
+        specularmap	models/mapobjects/exgen/pgen_doors_s.tga
+}
+
+models/mapobjects/exgen/d3xp_ccase
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/exgen/d3xp_ccase_local.tga models/mapobjects/exgen/d3xp_ccase_hi.lwo
+        diffusemap	models/mapobjects/exgen/d3xp_ccase_d.tga
+        bumpmap 	addnormals (models/mapobjects/exgen/d3xp_ccase_local.tga, heightmap (models/mapobjects/exgen/d3xp_ccase_bmp.tga, 3) )
+        specularmap	models/mapobjects/exgen/d3xp_ccase_s.tga
+}
+
+models/mapobjects/d3xphell/tools/hacksaw
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -trace 0.005 -aa 2  models/mapobjects/d3xphell/tools/hacksaw_local.tga models/mapobjects/d3xphell/tools/hacksaw_hi.lwo
+        diffusemap	models/mapobjects/d3xphell/tools/hacksaw_d.tga
+        bumpmap 	addnormals (models/mapobjects/d3xphell/tools/hacksaw_local.tga, heightmap (models/mapobjects/d3xphell/tools/hacksaw_bmp.tga, 3) )
+        specularmap	models/mapobjects/d3xphell/tools/hacksaw_s.tga
+}
+
+models/mapobjects/d3xphell/tools/hellshovel
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -trace 0.005 -aa 2  models/mapobjects/d3xphell/tools/hellshovel_local.tga models/mapobjects/d3xphell/tools/hellshovel_hi.lwo
+        diffusemap	models/mapobjects/d3xphell/tools/hellshovel_d.tga
+        bumpmap 	models/mapobjects/d3xphell/tools/hellshovel_local.tga
+        specularmap	models/mapobjects/d3xphell/tools/hellshovel_s.tga
+}
+
+models/mapobjects/d3xphell/tools/meathook
+{
+	qer_editorimage		models/mapobjects/d3xphell/tools/meathook.tga
+	diffusemap		models/mapobjects/d3xphell/tools/meathook.tga
+	specularmap		models/mapobjects/d3xphell/tools/meathook_s.tga
+}
+
+models/mapobjects/d3xphell/altar/altar
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/d3xphell/altar/altar_local.tga models/mapobjects/d3xphell/altar/altar_hi.lwo
+        diffusemap	models/mapobjects/d3xphell/altar/altar_d.tga
+        bumpmap 	addnormals (models/mapobjects/d3xphell/altar/altar_local.tga, heightmap (models/mapobjects/d3xphell/altar/altar_bmp.tga, 3) )
+        specularmap	models/mapobjects/d3xphell/altar/altar_s.tga
+}
+
+models/mapobjects/d3xphell/altar/pentagram
+{
+    qer_editorimage models/mapobjects/d3xphell/altar/pentagram.tga
+    noShadows
+    nonsolid
+    noimpact
+    translucent
+    {
+               	blend add
+            	map models/mapobjects/d3xphell/altar/pentagram.tga
+		rgb		fireballtable[ time * .5 ]
+
+    }
+}
+
+models/mapobjects/exgen/single_door_d
+{
+	noSelfShadow	
+
+	diffusemap		models/mapobjects/exgen/single_door_d.tga
+	bumpmap	        models/mapobjects/exgen/gen_singledoor_local.tga 
+	specularmap		models/mapobjects/exgen/single_door1_s.tga
+	
+}
+
+models/mapobjects/caves/temtablet4xp_comp
+{
+	qer_editorimage		models/mapobjects/caves/temtablet4xp_comp_d.tga
+	bumpmap 		addnormals (models/mapobjects/caves/temtablet4xp_comp_local.tga, heightmap (models/mapobjects/caves/temtablet4xp_comp_bmp.tga, 6 ))
+	diffusemap		models/mapobjects/caves/temtablet4xp_comp_d.tga
+	specularmap		textures/caves/tembrick1crum_s.tga
+}
+

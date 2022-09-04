@@ -1,0 +1,37 @@
+
+textures/base_wall/skpanel17a_d_trans
+{
+	qer_editorimage	textures/base_wall/skpanel17a_d.tga
+	bumpmap			textures/base_wall/skpanel17_local.tga
+	diffusemap		textures/base_wall/skpanel17a_d.tga
+	specularmap		textures/base_wall/skpanel17_s.tga
+	nonsolid
+}
+
+textures/washroom/btile01_trans
+{
+	qer_editorimage textures/washroom/btile01.tga
+	bumpmap 		textures/washroom/btile_local.tga
+	diffusemap		textures/washroom/btile_d.tga
+	nonsolid
+	{
+		blend		specularmap	
+		map			textures/washroom/btile_s.tga
+		scale		2, 2
+	}
+}	
+
+maps/rr2do2/bftopview
+{
+	qer_editorimage maps/mre/wakeisland_doom_d.tga
+
+	diffusemap maps/mre/wakeisland_doom_d.tga
+	bumpmap maps/mre/wakeisland_doom_local.tga
+
+	//noselfShadow
+	//renderbump  -size 512 512 -aa 2 -colorMap maps/mre/wakeisland_doom_local.tga maps/mre/wakeisland_doom_hi.lwo
+	//renderbump  -size 256 256 -colorMap maps/mre/wakeisland_doom_local.tga maps/mre/wakeisland_doom_hi.lwo
+
+	//bumpmap addnormals (maps/mre/wakeisland_doom_local.tga, heightmap (maps/mre/wakeisland_doom_local.tga, 2) )
+	//specularmap maps/mre/wakeisland_doom_s.tga
+}

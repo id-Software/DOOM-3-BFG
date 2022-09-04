@@ -1,0 +1,59 @@
+textures/decalsd3xp/blood_18
+{
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+
+	qer_editorimage textures/decalsd3xp/blood_18.tga
+
+	{       
+      		blend		gl_dst_color,gl_zero
+		map		textures/decalsd3xp/blood_18
+		
+	}
+
+
+
+}
+
+textures/decalsd3xp/blood_19
+{
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+
+		qer_editorimage textures/decalsd3xp/blood_19.tga
+
+	{       
+      		blend		gl_dst_color,gl_zero
+		map		textures/decalsd3xp/blood_19
+		
+	}
+
+
+
+}
+
+textures/decalsd3xp/blood_20
+{
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+
+		qer_editorimage textures/decalsd3xp/blood_20.tga
+
+	{       
+      		blend		gl_dst_color,gl_zero
+		map		textures/decalsd3xp/blood_20
+		
+	}
+
+
+
+}

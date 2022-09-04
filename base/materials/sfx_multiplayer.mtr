@@ -1,0 +1,89 @@
+textures/sfx/mp_d3dm1_glass
+{
+	translucent
+	twoSided
+	noshadows
+	
+	qer_editorimage	textures/sfx/blueglass.tga
+
+	{
+		blend add
+		cubeMap		env/d3dm1
+		texgen		reflect
+		vertexcolor
+	}
+	
+}
+
+textures/sfx/mp_d3dm3_glass
+{
+	translucent
+	twoSided
+	noshadows
+	
+	qer_editorimage	textures/sfx/chiglass1blue.tga
+	{
+		blend add
+		cubeMap		env/d3dm3
+		texgen		reflect
+	}
+	
+	{
+	 	 blend	diffuseMap
+		map textures/sfx/chiglass1blue_d.tga
+		scale	 16 , 16
+	}	
+	
+}
+
+textures/sfx/mp_d3dm3_glass_small
+{
+	translucent
+	twoSided
+	noshadows
+	
+	qer_editorimage	textures/sfx/chiglass1blue.tga
+	{
+		blend add
+		cubeMap		env/d3dm3small
+		texgen		reflect
+	}
+	
+	{
+	 	 blend	diffuseMap
+		map textures/sfx/chiglass1blue_d.tga
+		scale	 16 , 16
+	}	
+	
+}
+
+textures/sfx/mp_d3dm5_glass
+{
+	translucent
+	twoSided
+	noshadows
+	
+	qer_editorimage	textures/sfx/blueglass.tga
+
+	{
+		blend add
+		cubeMap		env/d3dm5
+		texgen		reflect
+		vertexcolor
+	}
+	
+}
+
+textures/sfx/lagometer
+{
+	translucent
+	noShadows
+	
+	{
+		nearest
+		nopicmip
+		colored
+		blend add
+		map textures/sfx/lagometer.tga
+	}
+}

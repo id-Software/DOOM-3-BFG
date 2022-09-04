@@ -1,0 +1,12 @@
+stereoRenderLaserSight
+{
+	qer_editorimage	textures/zaphod/shotgun_laser.TGA
+	translucent
+	noShadows
+	{
+		blend add
+		map		textures/bfgEdition/laserSight.tga
+		scroll	time * 0.04, 0
+	}
+}
+

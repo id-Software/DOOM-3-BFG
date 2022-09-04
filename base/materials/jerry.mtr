@@ -1,0 +1,92 @@
+//===============================================================
+//Jerry's grate lights, various 
+//===============================================================
+
+lights/newalphagrate1_flicker
+{	
+	{
+		map	lights/newalphagrate1
+		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+		zeroclamp
+	}
+}
+
+lights/newalphagrate2_flicker
+{	
+	{
+		map	lights/newalphagrate2
+		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+		zeroclamp
+	}
+}
+
+
+lights/newalphagrate3_flicker
+{	
+	{
+		map	lights/newalphagrate3
+		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+		zeroclamp
+	}
+}
+
+lights/newalphagrate3b_flicker
+{	
+	{
+		map	lights/newalphagrate3b
+		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+		zeroclamp
+	}
+}
+
+lights/newalphagrate4_flicker
+{	
+	{
+		map	lights/newalphagrate4
+		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+		zeroclamp
+	}
+}
+
+lights/newalphagrate5_flicker
+{	
+	{
+		map	lights/newalphagrate5
+		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
+		zeroclamp
+	}
+}
+
+lights/lightgratelight2_snd
+{	
+	{
+		map	lights/lightgratelight2
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/triangle1_snd
+{	
+	{
+		map	lights/triangle1.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}

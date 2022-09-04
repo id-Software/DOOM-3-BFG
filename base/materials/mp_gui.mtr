@@ -1,0 +1,18 @@
+
+/// =================================================
+// Material use for multiplayer maps
+// Last update : 17/10/03 SHoD
+// =================================================
+
+gui/healthstation
+{
+
+	{
+		blend	add
+		map		guis/assets/health/hbg2.tga
+		rgb	flickertable [ time * 3 ]
+		alpha	parm3
+	}
+
+
+}

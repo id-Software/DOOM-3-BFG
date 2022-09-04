@@ -1,0 +1,180 @@
+
+
+models/characters/male_npc/marine2/h_mp5
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		collision
+		clamp
+		forceoverlays
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+
+        diffusemap	  models/characters/male_npc/marine2/h_mp5.tga
+		bumpmap			models/characters/sarge2/helmet_local.tga
+        specularmap		models/characters/male_npc/marine/h_mp1_s.tga
+}
+
+models/characters/male_npc/marine2/h_mp6
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		collision
+		clamp
+		forceoverlays
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+
+        diffusemap	  models/characters/male_npc/marine2/h_mp6.tga
+		bumpmap			models/characters/sarge2/helmet_local.tga
+        specularmap		models/characters/male_npc/marine/h_mp1_s.tga
+}
+
+models/characters/male_npc/marine2/h_mp7
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		forceOverlays
+		collision
+		clamp
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+        diffusemap	  models/characters/male_npc/marine2/h_mp7.tga
+		bumpmap			models/characters/sarge2/helmet_local.tga
+        specularmap		models/characters/male_npc/marine/h_mp1_s.tga
+}
+
+models/characters/male_npc/marine2/h_mp8
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		forceOverlays
+		collision
+		clamp
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+        diffusemap	  models/characters/male_npc/marine2/h_mp8.tga
+		bumpmap			models/characters/sarge2/helmet_local.tga
+        specularmap		models/characters/male_npc/marine/h_mp1_s.tga
+}
+
+models/characters/male_npc/marine2/mp5
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		forceOverlays
+		collision
+		clamp
+
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+        diffusemap	  models/characters/male_npc/marine2/mp5.tga
+		bumpmap		  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
+        specularmap	models/characters/male_npc/marine/mp1_s.tga
+}
+
+models/characters/male_npc/marine2/mp6
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		forceOverlays
+		collision
+		clamp
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+        diffusemap	  models/characters/male_npc/marine2/mp6.tga
+		bumpmap		  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
+        specularmap	models/characters/male_npc/marine/mp1_s.tga
+}
+
+models/characters/male_npc/marine2/mp7
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		forceOverlays
+		collision
+		clamp
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+        diffusemap	  models/characters/male_npc/marine2/mp7.tga
+		bumpmap		  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
+        specularmap	models/characters/male_npc/marine/mp1_s.tga
+}
+
+models/characters/male_npc/marine2/mp8
+{
+       noSelfShadow
+		unsmoothedTangents
+		metal
+		forceOverlays
+		collision
+		clamp
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.7 * (time - parm7)
+	}
+        diffusemap	  models/characters/male_npc/marine2/mp8.tga
+		bumpmap		  addnormals(models/characters/male_npc/marine/marine_local.tga, heightmap(models/characters/male_npc/marine/marine_h.tga, 5 ) )
+        specularmap	models/characters/male_npc/marine/mp1_s.tga
+}

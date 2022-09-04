@@ -1,0 +1,25 @@
+
+
+textures/sfx/vpice
+{
+	
+		nonsolid
+		translucent
+		qer_editorimage	textures/sfx/radiogoop_h.tga
+	
+	{
+		blend add
+		map textures/sfx/radiogoop_h.tga
+	}
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .9          // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vpd3ex_1    //vpcurve_y   // the normal map for distortion
+             
+        }
+
+
+}

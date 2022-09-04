@@ -1,0 +1,309 @@
+//===============================================================================
+// Materials below are used in D3DM2 ( Ammo Factory )
+//===============================================================================
+textures/base_light/striplight3_notbreakable
+	// shader for not breakable lights
+{
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map		textures/base_light/striplight3_add_nobreakable.tga
+		red		parm0
+		green		parm1
+		blue		parm2
+	}
+}
+textures/base_light/stehalllight_notbreakable
+// shader for not breakable lights
+{
+	qer_editorimage		textures/base_light/stehalllight.tga
+	bumpmap			textures/base_light/stehalllight_local.tga
+	diffusemap		textures/base_light/stehalllight_d.tga
+	specularmap		textures/base_light/stehalllight_s.tga
+	{
+		blend 		add
+		map		textures/base_light/stehalllight_add_nobreakable.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+		colored
+	}
+}
+
+//===============================================================================
+// Materials below are used in D3DM3 ( Fragchamber )
+//===============================================================================
+lights/fragchamber_fadeLight1
+{	
+	// script can change the global parms to effect the color
+	// of every single light in the world that uses this shader
+	{
+		map 		lights/squarelight1.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+		zeroClamp
+	}
+}
+
+lights/fragchamber_fadeLight2
+{	
+	// script can change the global parms to effect the color
+	// of every single light in the world that uses this shader
+	{
+		map 		lights/newalphagrate3b.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+		zeroClamp
+	}
+}
+
+lights/fragchamber_fadeLight3
+{	
+	// script can change the global parms to effect the color
+	// of every single light in the world that uses this shader
+	{
+		map		lights/grate8sqr.tga
+		red		parm0 * global1
+		green		parm1 * global1
+		blue		parm2 * global1
+		zeroClamp
+	}
+}
+
+textures/base_light/stehalllight_global_d3dm3
+{
+	description 		"uses global parms"
+	qer_editorimage		textures/base_light/stehalllight_global.tga
+	bumpmap			textures/base_light/stehalllight_local.tga
+	diffusemap		textures/base_light/stehalllight_d.tga
+	specularmap		textures/base_light/stehalllight_s.tga
+	{
+		blend 		add
+		map		textures/base_light/stehalllight_add.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/base_wall/gotbpanel2light_global_d3dm3
+{
+	description 		"uses global parms"
+	qer_editorimage		textures/base_wall/gotbpanel2light.tga
+	bumpmap			textures/base_wall/gotbpanel2light_local.tga
+	diffusemap		textures/base_wall/gotbpanel2light_d.tga
+	specularmap		textures/base_wall/gotbpanel2light_s.tga
+	{
+		blend 		add
+		map		textures/base_wall/gotbpanel2light_add.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/base_light/sterlightdecal_global_d3dm3
+
+{
+ 	noShadows
+	nonsolid
+	noimpact
+	qer_editorimage 	textures/base_light/sterlightdecal.tga
+  	bumpmap 		textures/base_light/sterlightdecal_local.tga
+	{       
+      	 	blend		diffusemap
+		map		textures/base_light/sterlightdecal_d.tga
+		alphaTest 0.5
+	}
+	{
+		blend 		add
+		map		textures/base_light/sterlightdecal_add.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/mcity/mcityc29_global_d3dm3
+{
+	description 		"uses global parms"
+
+	qer_editorimage		textures/mcity/mcityc29
+	bumpmap			textures/mcity/mcityc29_local
+	{
+		blend		diffusemap		
+		map		textures/mcity/mcityc29_d
+		alphatest	.5
+	}
+	specularmap		textures/mcity/mcityc29_s
+	{
+		blend		add
+		map		textures/mcity/mcityc29_add
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/base_wall/sopanel19_global_d3dm3
+{
+	description 		"uses global parms"
+
+	qer_editorimage		textures/base_wall/sopanel19.tga
+	diffusemap		textures/base_wall/sopanel19_d.tga
+	{
+		blend		bumpmap
+		map		textures/base_wall/sopanel19_local.tga
+	}
+	{
+		blend		specularmap
+		map		textures/base_wall/sopanel19_s.tga
+	}
+	{
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+		blend		add
+		map		textures/base_wall/sopanel19_add.tga
+	}
+}
+
+textures/base_wall/sopanel19a_global_d3dm3
+{
+	description 		"uses global parms"
+	qer_editorimage		textures/base_wall/sopanel19a.tga
+	diffusemap		textures/base_wall/sopanel19a.tga
+	{
+		blend		bumpmap
+		map		textures/base_wall/sopanel19_local.tga
+	}
+	{
+		blend		specularmap
+		map		textures/base_wall/sopanel19_s.tga
+	}
+	{
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+		blend		add
+		map		textures/base_wall/sopanel19a_add.tga
+	}
+}
+
+textures/base_light/bluetex4a_ed_global_d3dm3
+{
+	description 		"uses global parms"
+
+	qer_editorimage		textures/base_light/bluetex4a_ed.tga
+	bumpmap			textures/base_light/bluetex4a_local.tga
+	diffusemap		textures/base_light/bluetex4adif.tga
+	{
+                colored
+		blend 		gl_one,gl_one
+		map 		textures/base_light/bluetex4aadd.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+	specularmap		textures/base_light/bluetex4aspec.tga
+}
+
+textures/base_light/striplight3_global_d3dm3
+{
+	description 		"uses global parms"
+
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map		textures/base_light/striplight3_add.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/base_light/mallight_global_d3dm3
+{
+	description 		"uses global parms"
+
+	qer_editorimage 	textures/base_light/mallight.tga
+	diffusemap		textures/base_light/mallight_d.tga
+	specularmap		textures/base_light/mallight_s.tga
+        bumpmap	        	textures/base_light/mallight_local.tga
+	{
+                colored
+		blend 		gl_one,gl_one
+		map 		textures/base_light/mallight_fx.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+//===============================================================================
+// modified material for D3DM4 ( The Edge 2 )
+//===============================================================================
+textures/base_light/striplightxl1_global0
+{
+	qer_editorimage		textures/base_light/striplightxl1_d.tga
+	bumpmap			addnormals (textures/base_light/striplightxl1_local.tga, heightmap (textures/base_light/striplightxl1_bmp.tga, 4 ) )
+	diffusemap		textures/base_light/striplightxl1_d.tga
+	specularmap		textures/base_light/striplightxl1_s.tga
+	{
+		blend		add
+		map		textures/base_light/striplightxl1_add.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}	
+}
+
+textures/base_light/striplightxl1_global1
+{
+	qer_editorimage		textures/base_light/striplightxl1_d.tga
+	bumpmap			addnormals (textures/base_light/striplightxl1_local.tga, heightmap (textures/base_light/striplightxl1_bmp.tga, 4 ) )
+	diffusemap		textures/base_light/striplightxl1_d.tga
+	specularmap		textures/base_light/striplightxl1_s.tga
+	{
+		blend		add
+		map		textures/base_light/striplightxl1_add.tga
+		red		parm0 * global1
+		green		parm1 * global1
+		blue		parm2 * global1
+	}	
+}
+
+lights/mp_d3dm4_globalFadeLight
+{	
+	// script can change the global parms to effect the color
+	// of every single light in the world that uses this shader
+	{
+		map 		lights/squarelight1.tga
+		red		parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+		zeroClamp
+	}
+}
+
+
+lights/mp_d3dm4_globalFadeLight2
+{	
+	// script can change the global parms to effect the color
+	// of every single light in the world that uses this shader
+	{
+		map 		lights/squarelight1.tga
+		red		parm0 * global1
+		green		parm1 * global1
+		blue		parm2 * global1
+		zeroClamp
+	}
+}

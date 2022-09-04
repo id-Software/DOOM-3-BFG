@@ -1,0 +1,8 @@
+
+// I use this shader when I just want to look at the showtris
+black
+{
+	diffusemap colors/black.tga
+	specularmap colors/black.tga
+	bumpmap bumpmaps/flat.tga
+}

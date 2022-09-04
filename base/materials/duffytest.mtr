@@ -1,0 +1,101 @@
+lights/wlevel
+{
+	{
+		map	lights/patest.tga
+		colored
+		rgb		slightdim[ time * 0.01 ]
+		zeroClamp
+	}
+
+}
+
+
+table slightdim { { 0.9, 1 } }
+
+gui/patd/assets/wlevelback
+{
+
+	{
+		blend	add
+		map		guis/assets/wrap1.tga
+		scroll	0 , time * 0.08
+		rgb		slightdim[ time * 0.01 ]
+		
+	}
+
+}
+
+gui/patd/assets/wlevel5
+{
+
+	{
+		blend	add
+		map		guis/assets/wlevel5.tga
+		rgb		slightdim[ time * 0.01 ]
+		
+	}
+
+}
+
+gui/patd/assets/wlevel4
+{
+
+		translucent		
+	{
+		blend	blend
+		map		guis/assets/yellowscroll.tga
+		scroll	time * 0.8, time * 0.01
+		rgb		slightdim[ time * 0.01 ]
+		
+	}
+
+	{
+		blend	add
+		map		guis/assets/wlevel4.tga
+		rgb		slightdim[ time * 0.01 ]
+	}
+
+}
+
+
+__test/blink
+{
+	qer_editorimage 	textures/base_wall/blupaintedmetalcomp
+}
+
+__test/blink223
+{
+	qer_editorimage 	textures/lab/medtile01_d.tga
+}
+
+textures/lab/duffyblah
+{	
+	qer_editorimage 	textures/lab/medtile01_d.tga
+	bumpmap 		heightmap	(textures/lab/medtile01_b.tga, 3)
+	diffusemap	 	textures/lab/medtile01_d.tga
+	specularmap		textures/lab/medtile01_s.tga
+}
+
+
+textures/base_wall/blupaintedmetalcomp
+{
+	qer_editorimage 	textures/base_wall/blupaintedmetalcomp
+}
+
+
+textures/base_floor/bigroundfloor
+{
+	qer_editorimage		textures/base_floor/roundfloor1big.tga
+	bumpmap			textures/base_floor/roundfloor1_local.tga
+	diffusemap		textures/base_floor/roundfloor1_d.tga
+	specularmap		textures/base_floor/roundfloor1_s.tga
+}
+
+textures/base_floor/smallroundfloor
+{
+	qer_editorimage		textures/base_floor/roundfloor1small.tga
+	bumpmap			textures/base_floor/roundfloor1_local.tga
+	diffusemap		textures/base_floor/roundfloor1_d.tga
+	specularmap		textures/base_floor/roundfloor1_s.tga
+}
+

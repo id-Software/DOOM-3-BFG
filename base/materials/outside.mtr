@@ -1,0 +1,73 @@
+textures/outside/a_redskybuilding1_01
+{	
+	qer_editorimage	        textures/outside/a_redskybuilding1_01.tga
+	bumpmap			textures/outside/a_redskybuilding1_local.tga
+	diffusemap		textures/outside/a_redskybuilding1_d01.tga
+	specularmap		textures/outside/a_redskybuilding1_s01.tga
+        description             "doesn't necessarily need to be used outside"
+
+}
+
+
+textures/outside/a_redskybuilding2_d01
+{	
+	qer_editorimage	        textures/outside/a_redskybuilding2_d01.tga
+	bumpmap			textures/outside/a_redskybuilding2_local.tga
+	diffusemap		textures/outside/a_redskybuilding2_d01.tga
+	specularmap		textures/outside/a_redskybuilding2_s01.tga
+        description             "doesn't necessarily need to be used outside"
+}
+
+textures/outside/a_redskybuilding3_d01
+{	
+	qer_editorimage	        textures/outside/a_redskybuilding3_d01.tga
+	bumpmap			addnormals( textures/outside/a_redskybuilding3_local.tga, heightmap( textures/outside/a_redskybuilding3_b01.tga, 2 ) )
+	diffusemap		textures/outside/a_redskybuilding3_d01.tga
+	specularmap		textures/outside/a_redskybuilding3_s01.tga
+        description             "doesn't necessarily need to be used outside"
+}
+
+textures/outside/a_fencewall1_d01
+{	
+	qer_editorimage	        textures/outside/a_fencewall1_d01.tga
+	bumpmap			textures/outside/a_fencewall1_local.tga
+	diffusemap		textures/outside/a_fencewall1_d01.tga
+	specularmap		textures/outside/a_fencewall1_s01.tga
+        
+}
+
+textures/outside/a_fencewall1_d02
+{	
+	qer_editorimage	        textures/outside/a_fencewall1_d02.tga
+	bumpmap			textures/outside/a_fencewall1_local.tga
+	diffusemap		textures/outside/a_fencewall1_d02.tga
+	specularmap		textures/outside/a_fencewall1_s02.tga
+        
+}
+
+textures/outside/a_fencewall2_d01
+{	
+	qer_editorimage	        textures/outside/a_fencewall2_d01.tga
+	bumpmap			textures/outside/a_fencewall2_local.tga
+	diffusemap		textures/outside/a_fencewall2_d01.tga
+	specularmap		textures/outside/a_fencewall2_s01.tga
+        
+}
+
+textures/outside/a_fencewall3_d01
+{	
+	qer_editorimage	        textures/outside/a_fencewall3_d01.tga
+	bumpmap			textures/outside/a_fencewall3_local.tga
+	diffusemap		textures/outside/a_fencewall3_d01.tga
+	specularmap		textures/outside/a_fencewall3_s01.tga
+        
+}
+
+textures/outside/a_fencewall4_d01
+{	
+	qer_editorimage	        textures/outside/a_fencewall4_d01.tga
+	bumpmap			textures/outside/a_fencewall4_local.tga
+	diffusemap		textures/outside/a_fencewall4_d01.tga
+	specularmap		textures/outside/a_fencewall4_s01.tga
+        
+}
