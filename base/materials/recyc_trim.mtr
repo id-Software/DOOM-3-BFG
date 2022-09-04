@@ -1,0 +1,64 @@
+textures/recyc_wall/recyc_doornrnskn
+{
+
+	qer_editorimage textures/recyc_wall/recyc_doornrnskn.tga
+
+	diffusemap	textures/recyc_wall/corrugated05_d.tga
+	specularmap	textures/recyc_wall/corrugated05_s.tga
+      //bumpmap heightmap (textures/recyc_wall/corrugated05_b.tga, 2)
+
+ }
+
+textures/recyc_trim/girders02
+{
+
+	qer_editorimage textures/recyc_trim/girders02.tga
+
+	diffusemap	textures/recyc_trim/girders02_d.tga
+	specularmap	textures/recyc_trim/girders02_s.tga
+      bumpmap	textures/recyc_trim/girders02_local.tga
+
+ }
+
+textures/recyc_trim/girders04
+{
+
+	qer_editorimage textures/recyc_trim/girders04.tga
+
+	diffusemap	textures/recyc_trim/girders04_d.tga
+	specularmap	textures/recyc_trim/girders02_s.tga //reusing specular right now
+      bumpmap	textures/recyc_trim/girders04_local.tga
+
+ }
+
+//textures/recyc_trim/girders05
+//{
+
+	//qer_editorimage textures/recyc_trim/girders05.tga
+
+	//diffusemap	textures/recyc_trim/girders05_d.tga
+//	specularmap	textures/recyc_trim/girders05_s.tga
+  //    bumpmap	textures/recyc_trim/girders05_local.tga
+// }
+
+//textures/recyc_trim/girders06
+//{
+
+	//qer_editorimage textures/recyc_trim/girders06.tga
+
+	//diffusemap	textures/recyc_trim/girders06_d.tga
+//	specularmap	textures/recyc_trim/girders06_s.tga
+  //    bumpmap	textures/recyc_trim/girders06_local.tga
+//
+//}
+
+//textures/recyc_trim/girders07
+//{
+
+//	qer_editorimage textures/recyc_trim/girders07.tga
+
+//	diffusemap	textures/recyc_trim/girders07_d.tga
+	//specularmap	textures/recyc_trim/girders07_s.tga
+  ////    bumpmap	textures/recyc_trim/girders07_local.tga
+
+//}

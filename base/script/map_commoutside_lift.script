@@ -1,0 +1,875 @@
+namespace map_commoutside {
+
+	#define CMD_LIFT_NONE		0
+	#define CMD_LIFT_UP			1
+	#define CMD_LIFT_DOWN		2
+	#define CMD_LIFT_FORWARD	3
+	#define CMD_LIFT_RIGHT		4
+	#define CMD_LIFT_LEFT		5
+	#define CMD_LIFT_BACK		6
+	#define CMD_LIFT_CALL1		7
+	#define CMD_LIFT_CALL2		8
+	#define CMD_LIFT_CALL3		9
+
+	#define	LIFT_MOVE_SPEED		160
+	#define	LIFT_TURN_TIME		2
+	#define LIFT_UPDOWN_TIME	2
+
+	// states for the lift
+	float	lift_command;
+	boolean	lift_plat_up;
+	float	lift_dir;
+	entity	lift_station;
+
+	void	setup_lift();
+	void	reset_guis();
+	void	set_lift_location( entity position );
+	float 	calc_lift_path_r( entity current_pos, entity previous, entity target, float depth );
+	float 	get_lift_turn_dir( entity source, entity target );
+	entity	check_lift_move_dir( entity current_pos, float dir );
+	void	turn_lift_to_dir( float dir );
+	void	move_lift_to( entity target );
+
+	void 	cmd_lift_up();
+	void 	cmd_lift_down();
+	void 	cmd_lift_forward();
+	void 	cmd_lift_right();
+	void 	cmd_lift_left();
+	void 	cmd_lift_back();
+	void 	cmd_lift_call_1();
+	void 	cmd_lift_call_2();
+	void 	cmd_lift_call_3();
+	void	lift_loop();
+
+	void 	lift_up();
+	void 	lift_down();
+	void 	lift_forward();
+	void 	lift_right();
+	void 	lift_left();
+	void 	lift_back();
+	void 	lift_call_1();
+	void 	lift_call_2();
+	void 	lift_call_3();
+
+	void 	callspot1_panel_up();
+	void 	callspot1_panel_down();
+	void 	callspot2_panel_up();
+	void 	callspot2_panel_down();
+	void 	callspot3_panel_up();
+	void 	callspot3_panel_down();
+
+	void 	lift_main();
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup binds and times etc...
+	//
+	////////////////////////////////////////////////////
+	void setup_lift() {
+		// initial variable assignments
+		lift_command = CMD_LIFT_NONE;
+		lift_plat_up = true;
+
+		lift_station = $lift_bottom.getTarget( 0 );
+		if ( !lift_station ) {
+			sys.warning( "Entity 'lift_bottom' doesn't have a target." );
+		}
+		set_lift_location( lift_station );
+
+		lift_dir = 2;
+
+		// Lift binds, times, and speeds
+		$lift_leg_11.bind($lift_bottom);
+		$lift_light1.bind($lift_bottom);
+		
+		$lift_axle1.bind($lift_leg_11);
+		$lift_axle2.bind($lift_leg_11);
+		$lift_leg_12.bind($lift_axle2);
+		$lift_axle4.bind($lift_leg_12);
+		$lift_axle6.bind($lift_leg_12);
+		$lift_leg_13.bind($lift_axle6);
+		$lift_axle7.bind($lift_leg_13);
+
+		$lift_leg_23.bind($lift_axle7);
+		$lift_axle5.bind($lift_leg_23);
+		$lift_leg_22.bind($lift_axle5);
+		$lift_axle3.bind($lift_leg_22);
+		$lift_leg_21.bind($lift_axle3);
+
+		$lift_connection_top_move.bind($lift_leg_13);
+		$lift_connection_top_static.bind($lift_leg_23);
+		$lift_connection_bottom_move.bind($lift_leg_21);
+
+		$lift_cage.bind($lift_connection_top_static);
+
+		$lift_leg_11.time( LIFT_UPDOWN_TIME );
+		$lift_leg_12.time( LIFT_UPDOWN_TIME );
+		$lift_leg_13.time( LIFT_UPDOWN_TIME );
+		$lift_connection_top_move.time( LIFT_UPDOWN_TIME );
+		$lift_leg_21.time( LIFT_UPDOWN_TIME );
+		$lift_connection_bottom_move.time( LIFT_UPDOWN_TIME );
+		$lift_leg_22.time( LIFT_UPDOWN_TIME );
+		$lift_leg_23.time( LIFT_UPDOWN_TIME );
+		$lift_connection_top_static.time( LIFT_UPDOWN_TIME );
+
+		$lift_leg_11.accelTime( .25 );
+		$lift_leg_12.accelTime( .25 );
+		$lift_leg_13.accelTime( .25 );
+		$lift_connection_top_move.accelTime( .25 );
+		$lift_leg_21.accelTime( .25 );
+		$lift_connection_bottom_move.accelTime( .25);
+		$lift_leg_22.accelTime( .25 );
+		$lift_leg_23.accelTime( .25 );
+		$lift_connection_top_static.accelTime( .25 );
+
+		$lift_leg_11.decelTime( .25 );
+		$lift_leg_12.decelTime( .25 );
+		$lift_leg_13.decelTime( .25 );
+		$lift_connection_top_move.decelTime( .25 );
+		$lift_leg_21.decelTime( .25 );
+		$lift_connection_bottom_move.decelTime( .25 );
+		$lift_leg_22.decelTime( .25 );
+		$lift_leg_23.decelTime( .25 );
+		$lift_connection_top_static.decelTime( .25 );
+
+		// Call spots panel stuff
+		$callspot1_conpan_gui.bind($callspot1_conpan);
+		$callspot1_conpan.time(.25);
+		$callspot1_conpan.rotateOnce( '63.43 0 0' );
+		$callspot1_conpan_trigger_down.disable();
+
+		$callspot2_conpan_gui.bind($callspot2_conpan);
+		$callspot2_conpan.time(.25);
+		$callspot2_conpan.rotateOnce( '0 0 -63.43' );
+		$callspot2_conpan_trigger_down.disable();
+
+		$callspot3_conpan_gui.bind($callspot3_conpan);
+		$callspot3_conpan.time(.25);
+		$callspot3_conpan.rotateOnce( '0 0 -63.43' );
+		$callspot3_conpan_trigger_down.disable();
+
+		$lift_light1_mover.rotateOnce( '90 0 0' );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//  reset the gui's to an interactive state
+	//
+	////////////////////////////////////////////////////
+	void reset_guis() {
+		sys.trigger($callspot1_conpan);
+		$callspot1_conpan.setGuiParm ( "gui_parm3", 0 );
+		sys.trigger($callspot2_conpan);
+		$callspot2_conpan.setGuiParm ( "gui_parm3", 0 );
+		sys.trigger($callspot3_conpan);
+		$callspot3_conpan.setGuiParm ( "gui_parm3", 0 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	keep track of the current path entity we're at and update the
+	//  gui's on the call panels with our position.
+	//
+	////////////////////////////////////////////////////
+	void set_lift_location( entity position ) {
+		string	position_name;
+		string	position_num;
+		float	pos;
+
+		lift_station = position;
+		position_name = position.getName();
+		if ( sys.strLeft( position_name, 10 ) != "lift_spot_" ) {
+			sys.warning( "Invalid lift target name '" + position_name + "'.  Lift targets must be named 'lift_spot_#' (where # is a numeric value)" );
+		}
+
+		position_num = sys.strSkip( position_name, 10 );
+		pos = sys.strToFloat( position_num );
+
+		$lift_cage.setGuiParm( "gui_parm2", pos );
+		$callspot1_conpan.setGuiParm ( "gui_parm2", pos );
+		$callspot2_conpan.setGuiParm ( "gui_parm2", pos );
+		$callspot3_conpan.setGuiParm ( "gui_parm2", pos );
+
+		$callspot1_conpan.setGuiParm ( "gui_parm4", 0 );
+		$callspot2_conpan.setGuiParm ( "gui_parm4", 0 );
+		$callspot3_conpan.setGuiParm ( "gui_parm4", 0 );
+		
+		//sys.print("position" + pos + "\n");
+
+		if ( ( pos == 13 ) && ( lift_dir == 0 ) && !lift_plat_up ) {
+			$callspot1_conpan.setGuiParm ( "gui_parm4", 1 );
+			reset_guis();
+		} else if ( ( pos == 31 ) && ( lift_dir == 1 ) && !lift_plat_up ) {
+			$callspot2_conpan.setGuiParm ( "gui_parm4", 1 );
+			reset_guis();
+		} else if ( ( pos == 83 ) && ( lift_dir == 1 ) && !lift_plat_up ) {
+			$callspot3_conpan.setGuiParm ( "gui_parm4", 1 );
+			reset_guis();
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Do a depth-first search of the "track" to find a path to the target entity.
+	//  each path entity targets 1 or more other path entities.  Each path entity it
+	//  targets must also target it, so the links are forward and back.  There must be
+	//  no circular links and the longest possible path must never be more than the
+	//  script stack can handle (around 62 path entities would be the limit, but possibly
+	//  fewer).  This could be modified to handle circular links, and be made non-recursive
+	//  so it's not dependent on the stack size, and possibly with a bit of effort could find
+	//  the shortest path if multiple paths exist, but for our purposes, this does the job.
+	//
+	////////////////////////////////////////////////////
+	float calc_lift_path_r( entity current_pos, entity previous, entity target, float depth ) {
+		float num;
+		float i;
+		entity next;
+		float  path_length;
+
+		// have we reached the target?
+		if ( current_pos == target ) {
+            return depth;
+		}
+
+		// check each of the targets on this entity
+		num = current_pos.numTargets();
+		for( i = 0; i < num; i++ ) {
+			next = current_pos.getTarget( i );
+			if ( next == previous ) {
+				// don't go back the way we came
+				continue;
+			}
+
+			// check if a path exists through this target
+			path_length = calc_lift_path_r( next, current_pos, target, depth + 1 );
+			if ( path_length ) {
+				// found the target, so as we recurse backwards, set the name of the next path entity to go to.
+				// when we're done, going through the "path*" keys in order will give the order of entities
+				// to follow to get to the target.
+				$lift_bottom.setKey( "path" + depth, next.getName() );
+				return path_length;
+			}
+		}
+
+		// no path from this entity
+		return 0;
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	calculate the direction to turn to the next target
+	//
+	////////////////////////////////////////////////////
+	float get_lift_turn_dir( entity source, entity target ) {
+		float	dir;
+		vector	delta;
+		vector	ang;
+
+		delta = target.getOrigin();
+		delta = delta - source.getOrigin();
+		ang = sys.VecToAngles( delta );
+		dir = ( ( ang_y + 45 ) / 90 ) & 3;
+
+		return dir;
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	movement test
+	//
+	////////////////////////////////////////////////////
+	entity check_lift_move_dir( entity current_pos, float dir ) {
+		float	num;
+		float	i;
+		float	check_dir;
+		entity	check_ent;
+
+		num = current_pos.numTargets();
+		for( i = 0; i < num; i++ ) {
+			check_ent = current_pos.getTarget( i );
+			check_dir = get_lift_turn_dir( current_pos, check_ent );
+			if ( check_dir == dir ) {
+				return check_ent;
+			}
+		}
+		return current_pos;
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	rotates the lift back into position when blocked
+	//
+	////////////////////////////////////////////////////
+	void lift_rotate_blocked() {
+		vector	delta;
+		vector	dest_angles;
+		float	rotateTime;
+
+		$lift_bottom.stopRotating();
+		sys.wait( 0.1 );
+
+		// rotate back
+		dest_angles_y = ( lift_dir & 3 ) * 90 + 180;
+		if ( dest_angles_y >= 180 ) {
+			dest_angles_y -= 360;
+		}
+		delta = anglemod180( dest_angles - $lift_bottom.getAngles() );
+		rotateTime = abs( delta_y / 90 )* LIFT_TURN_TIME + 0.5;
+		$lift_bottom.time( rotateTime );
+		$lift_bottom.accelTime( .5 );
+		$lift_bottom.decelTime( .5 );
+		$lift_bottom.rotateOnce( delta );
+		sys.waitFor( $lift_bottom );
+
+		reset_guis();
+
+		// update our location on the guis
+		set_lift_location( lift_station );
+
+		lift_loop();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	turns lift
+	//
+	////////////////////////////////////////////////////
+	void turn_lift_to_dir( float dir ) {
+		float	turn_diff;
+		vector	delta;
+		vector	dest_angles;
+		float	rotateTime;
+		
+		turn_diff = ( dir - lift_dir ) & 3;
+		if ( turn_diff == 0 ) {
+			return;
+		}
+
+		dest_angles_y = ( dir & 3 ) * 90 + 180;
+		if ( dest_angles_y >= 180 ) {
+			dest_angles_y -= 360;
+		}
+		delta = anglemod180( dest_angles - $lift_bottom.getAngles() );
+		rotateTime = abs( delta_y / 90 )* LIFT_TURN_TIME + 0.5;
+
+		sys.onSignal( SIG_BLOCKED, $lift_bottom, "map_commoutside::lift_rotate_blocked" );
+		$lift_bottom.accelTime( .5 );
+		$lift_bottom.decelTime( .5 );
+		$lift_bottom.time( rotateTime );
+		
+		$lift_bottom.startSoundShader ("co_lift_rotation", SND_CHANNEL_VOICE );
+				
+		$lift_bottom.rotateOnce( delta );
+		sys.waitFor ($lift_bottom);
+
+		sys.clearSignalThread( SIG_BLOCKED, $lift_bottom );
+		lift_dir = dir;
+
+		// update our location on the guis
+		set_lift_location( lift_station );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift to a specific spot
+	//
+	////////////////////////////////////////////////////
+	void move_lift_to( entity target ) {
+		float 	path_length;
+		float 	i;
+		float 	dir;
+		float 	next_dir;
+		string 	ent_name;
+		entity 	path_ent;
+		entity 	next_ent;
+
+		if ( lift_station == target ) {
+			// lower the platform if necessary
+			if ( lift_plat_up ) {
+				cmd_lift_down();
+			}
+			return;
+		}
+
+		// create a path to the target
+		path_length = calc_lift_path_r( lift_station, lift_station, target, 0 );
+		if ( !path_length ) {
+			string currentname = lift_station.getName();
+			string targetname = target.getName();
+			sys.warning( "entity 'lift_bottom' can't find path from '" + currentname + "' to '" + targetname + "'" );
+			return;
+		}
+
+		// lower the platform if necessary
+		if ( lift_plat_up ) {
+			cmd_lift_down();
+		}
+
+		// get the first point on the path
+		ent_name = $lift_bottom.getKey( "path0" );
+		next_ent = sys.getEntity( ent_name );
+		if ( !next_ent ) {
+			sys.warning( "entity 'lift_bottom' can't find path entity '" + ent_name + "' to get to '" + target.getName() + "'" );
+			return;
+		}
+		dir = get_lift_turn_dir( lift_station, next_ent );
+
+		// move to each point on the path
+		for( i = 0; i < path_length; i++ ) {
+			path_ent = next_ent;
+
+			// get the next path entity, unless we're at the last one
+			if ( i < path_length - 1 ) {
+				ent_name = $lift_bottom.getKey( "path" + ( i + 1 ) );
+				next_ent = sys.getEntity( ent_name );
+				if ( !next_ent ) {
+					sys.warning( "entity 'lift_bottom' can't find path entity '" + ent_name + "' to get to '" + target.getName() + "'" );
+					return;
+				}
+			}
+
+			// turn towards the new direction if it's different and accelerate
+			if ( dir != lift_dir ) {
+				turn_lift_to_dir( dir );
+				$lift_bottom.accelTime( .5 );
+			} else if ( i != 0 ) {
+				$lift_bottom.accelTime( 0 );
+			} else {
+				// always accelerate on the first path entity
+				$lift_bottom.accelTime( .5 );
+			}
+
+			// decelerate on the last path entity or if we have to turn
+			if ( i < path_length - 1 ) {
+				dir = get_lift_turn_dir( path_ent, next_ent );
+				if ( dir != lift_dir ) {
+					$lift_bottom.decelTime( .5 );
+				} else {
+					$lift_bottom.decelTime( 0 );
+				}
+			} else {
+				$lift_bottom.decelTime( .5 );
+			}
+			
+			// move to the next path entity
+			sys.onSignal( SIG_BLOCKED, $lift_bottom, "map_commoutside::lift_move_blocked" );
+			$lift_bottom.speed( LIFT_MOVE_SPEED );
+		
+			$lift_bottom.moveTo( path_ent );
+			sys.waitFor( $lift_bottom );
+			sys.clearSignalThread( SIG_BLOCKED, $lift_bottom );
+
+			// update our location on the guis
+			set_lift_location( path_ent );
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	if blocked when trying to go up, go back down
+	//
+	////////////////////////////////////////////////////
+	void lift_up_blocked() {
+		cmd_lift_down();
+		lift_loop();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift up
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_up() {
+		if ( lift_plat_up ) { 
+			return;
+		}
+		
+		float rotation = 0;
+
+		// set the amount of movment 
+		// needed for the spots where the lift can't go up fully
+		if ( lift_station == $lift_spot_31 ) {
+			rotation = 25;
+		} else if ( lift_station == $lift_spot_32 ) {
+			rotation = 20;
+		} else if ( lift_station == $lift_spot_44 ) {
+			rotation = 20;
+		} else if ( lift_station == $lift_spot_73 ) {
+			rotation = 24;
+		}
+
+		lift_plat_up = true;
+
+		$lift_leg_11.startSoundShader ("co_lift_up_2s", SND_CHANNEL_VOICE );
+		
+		$lift_leg_11.rotateUpTo ( 0, -rotation );
+		$lift_leg_12.rotateDownTo ( 0, 2 * rotation );
+		$lift_leg_13.rotateUpTo ( 0, -2 * rotation );
+		$lift_connection_top_move.rotateDownTo ( 0, rotation );
+
+		$lift_leg_21.rotateDownTo ( 0, 2 * rotation );
+		$lift_connection_bottom_move.rotateUpTo ( 0, -rotation );
+		$lift_leg_22.rotateUpTo ( 0, -2 * rotation );
+		$lift_leg_23.rotateDownTo ( 0, 2 * rotation );
+		$lift_connection_top_static.rotateUpTo ( 0, -rotation );
+		
+		sys.onSignal( SIG_BLOCKED, $lift_bottom, "map_commoutside::lift_up_blocked" );
+		sys.waitFor( $lift_leg_23 );
+		sys.clearSignalThread( SIG_BLOCKED, $lift_bottom );
+
+		// update our location on the guis
+		set_lift_location( lift_station );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	if blocked when trying to go down, go back up
+	//
+	////////////////////////////////////////////////////
+	void lift_down_blocked() {
+		cmd_lift_up();
+		reset_guis();
+		lift_loop();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift down
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_down() {
+		if ( !lift_plat_up ) { 
+			return;
+		}
+
+		$lift_cage_control.disable();
+
+		lift_plat_up = false;
+
+		$lift_leg_11.startSoundShader ("co_lift_down_2s", SND_CHANNEL_VOICE );
+		
+		$lift_leg_11.rotateDownTo ( 0, 320 );
+		$lift_leg_12.rotateUpTo ( 0, 80 );
+		$lift_leg_13.rotateDownTo ( 0, 280 );
+		$lift_connection_top_move.rotateUpTo ( 0, 40 );
+
+		$lift_leg_21.rotateUpTo ( 0, 80 );
+		$lift_connection_bottom_move.rotateDownTo ( 0, 320 );
+		$lift_leg_22.rotateDownTo ( 0, 280 );
+		$lift_leg_23.rotateUpTo ( 0, 80 );
+		$lift_connection_top_static.rotateDownTo ( 0, 320 );
+
+		sys.onSignal( SIG_BLOCKED, $lift_bottom, "map_commoutside::lift_down_blocked" );
+		sys.waitFor ($lift_leg_23);
+		sys.clearSignalThread( SIG_BLOCKED, $lift_bottom );
+
+		$lift_cage_control.enable();
+
+		// update our location on the guis
+		set_lift_location( lift_station );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	moves the lift back into position when blocked
+	//
+	////////////////////////////////////////////////////
+	void lift_move_blocked() {
+		$lift_bottom.stopMoving();
+		$lift_bottom.startSound( "snd_decel", SND_CHANNEL_BODY2, false );
+		sys.wait( 0.1 );
+		
+		// move back
+		$lift_bottom.accelTime( .5 );
+		$lift_bottom.decelTime( .5 );
+		$lift_bottom.speed( LIFT_MOVE_SPEED );
+		$lift_bottom.moveTo( lift_station );
+		sys.waitFor( $lift_bottom );
+		$lift_cage_control.enable();
+
+		reset_guis();
+
+		// update our location on the guis
+		set_lift_location( lift_station );
+
+		lift_loop();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift forward
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_forward() {
+		entity path_ent;
+
+		path_ent = check_lift_move_dir( lift_station, lift_dir );
+		if ( path_ent == lift_station ) {
+			return;
+		}
+
+		if ( lift_plat_up ) {
+			cmd_lift_down();
+		}
+
+		$lift_cage_control.disable();
+
+		sys.onSignal( SIG_BLOCKED, $lift_bottom, "map_commoutside::lift_move_blocked" );
+		$lift_bottom.accelTime( .5 );
+		$lift_bottom.decelTime( .5 );
+		$lift_bottom.speed( LIFT_MOVE_SPEED );
+		$lift_bottom.moveTo( path_ent );
+		sys.waitFor( $lift_bottom );
+		sys.clearSignalThread( SIG_BLOCKED, $lift_bottom );
+		set_lift_location( path_ent );
+		$lift_cage_control.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift back
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_back() {
+		entity path_ent;
+
+		path_ent = check_lift_move_dir( lift_station, ( lift_dir + 2 ) & 3 );
+		if ( path_ent == lift_station ) {
+			return;
+		}
+
+		if ( lift_plat_up ) {
+			cmd_lift_down();
+		}
+
+		$lift_cage_control.disable();
+
+		sys.onSignal( SIG_BLOCKED, $lift_bottom, "map_commoutside::lift_move_blocked" );
+		$lift_bottom.accelTime( .5 );
+		$lift_bottom.decelTime( .5 );
+		$lift_bottom.speed( LIFT_MOVE_SPEED );
+		$lift_bottom.moveTo( path_ent );
+		sys.waitFor( $lift_bottom );
+		set_lift_location( path_ent );
+		$lift_cage_control.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift right
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_right() {
+		turn_lift_to_dir( ( lift_dir - 1 ) & 3 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move lift left
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_left() {
+		turn_lift_to_dir( ( lift_dir + 1 ) & 3 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	call lift to call spot #1
+	//	From anywhere in the grid the lift will find
+	//	it's way to call spot #1
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_call_1() {
+		move_lift_to( $lift_spot_13 );
+		turn_lift_to_dir( 0 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	call lift to call spot #2
+	//	From anywhere in the grid the lift will find
+	//	it's way to call spot #2
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_call_2() {
+		move_lift_to( $lift_spot_31 );
+		turn_lift_to_dir( 1 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	call lift to call spot #3
+	//	From anywhere in the grid the lift will find
+	//	it's way to call spot #3
+	//
+	////////////////////////////////////////////////////
+	void cmd_lift_call_3() {
+		move_lift_to( $lift_spot_83 );
+		turn_lift_to_dir( 1 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	command processing loop
+	//
+	////////////////////////////////////////////////////
+	void lift_loop() {
+		while( 1 ) {
+			lift_command = CMD_LIFT_NONE;
+			while( lift_command == CMD_LIFT_NONE ) {
+				sys.waitFrame();
+			}
+
+			if ( lift_command == CMD_LIFT_UP ) {
+				cmd_lift_up();
+			} else if ( lift_command == CMD_LIFT_DOWN ) {
+				cmd_lift_down();
+			} else if ( lift_command == CMD_LIFT_FORWARD ) {
+				cmd_lift_forward();
+			} else if ( lift_command == CMD_LIFT_RIGHT ) {
+				cmd_lift_right();
+			} else if ( lift_command == CMD_LIFT_LEFT ) {
+				cmd_lift_left();
+			} else if ( lift_command == CMD_LIFT_BACK ) {
+				cmd_lift_back();
+			} else if ( lift_command == CMD_LIFT_CALL1 ) {
+				cmd_lift_call_1();
+			} else if ( lift_command == CMD_LIFT_CALL2 ) {
+				cmd_lift_call_2();
+			} else if ( lift_command == CMD_LIFT_CALL3 ) {
+				cmd_lift_call_3();
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Gui call back functions
+	//
+	////////////////////////////////////////////////////
+	void lift_up() {
+		lift_command = CMD_LIFT_UP;
+	}
+	void lift_down() {
+		lift_command = CMD_LIFT_DOWN;
+	}
+	void lift_forward() {
+		lift_command = CMD_LIFT_FORWARD;
+	}
+	void lift_right() {
+		lift_command = CMD_LIFT_RIGHT;
+	}
+	void lift_left() {
+		lift_command = CMD_LIFT_LEFT;
+	}
+	void lift_back() {
+		lift_command = CMD_LIFT_BACK;
+	}
+	void lift_call_1() {
+		lift_command = CMD_LIFT_CALL1;
+	}
+	void lift_call_2() {
+		lift_command = CMD_LIFT_CALL2;
+	}
+	void lift_call_3() {
+		lift_command = CMD_LIFT_CALL3;
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	raise panel for call spot #1
+	//
+	////////////////////////////////////////////////////
+	void callspot1_panel_up() {
+		$callspot1_conpan.startSoundShader ("co_conpanel", SND_CHANNEL_VOICE );
+		$callspot1_conpan.rotateOnce( '-63.43 0 0' );
+		$callspot1_conpan_trigger_up.disable();
+		sys.waitFor( $callspot1_conpan );
+
+		$callspot1_conpan_trigger_down.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	raise panel for call spot #1
+	//
+	////////////////////////////////////////////////////
+	void callspot1_panel_down()	{
+		$callspot1_conpan.startSoundShader ("co_conpanel", SND_CHANNEL_VOICE );
+		$callspot1_conpan.rotateOnce( '63.43 0 0' );
+		$callspot1_conpan_trigger_down.disable();
+		sys.waitFor( $callspot1_conpan );
+
+		$callspot1_conpan_trigger_up.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	raise panel for call spot #2
+	//
+	////////////////////////////////////////////////////
+	void callspot2_panel_up() {
+		$callspot2_conpan.startSoundShader ("co_conpanel", SND_CHANNEL_VOICE );
+		$callspot2_conpan.rotateOnce( '0 0 63.43' );
+		$callspot2_conpan_trigger_up.disable();
+		sys.waitFor( $callspot2_conpan );
+
+		$callspot2_conpan_trigger_down.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	raise panel for call spot #2
+	//
+	////////////////////////////////////////////////////
+	void callspot2_panel_down() {
+		$callspot2_conpan.startSoundShader ("co_conpanel", SND_CHANNEL_VOICE );
+		$callspot2_conpan.rotateOnce( '0 0 -63.43' );
+		$callspot2_conpan_trigger_down.disable();
+		sys.waitFor( $callspot2_conpan );
+
+		$callspot2_conpan_trigger_up.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	raise panel for call spot #3
+	//
+	////////////////////////////////////////////////////
+	void callspot3_panel_up() {
+		$callspot3_conpan.startSoundShader ("co_conpanel", SND_CHANNEL_VOICE );
+		$callspot3_conpan.rotateOnce( '0 0 63.43' );
+		$callspot3_conpan_trigger_up.disable();
+		sys.waitFor( $callspot3_conpan );
+
+		$callspot3_conpan_trigger_down.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	raise panel for call spot #3
+	//
+	////////////////////////////////////////////////////
+	void callspot3_panel_down() {
+		$callspot3_conpan.startSoundShader ("co_conpanel", SND_CHANNEL_VOICE );
+		$callspot3_conpan.rotateOnce( '0 0 -63.43' );
+		$callspot3_conpan_trigger_down.disable();
+		sys.waitFor( $callspot3_conpan );
+
+		$callspot3_conpan_trigger_up.enable();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void lift_main() {
+		
+		setup_lift();
+
+		// turn lift to the left so it can illuminate the 2nd call station area
+		cmd_lift_left();
+		lift_loop();
+	}
+} // namespace

@@ -1,0 +1,61 @@
+namespace map_marscity2 
+{
+
+	float request_speaker = 1;
+
+
+	void lower_airlock_ladder()
+	{
+		sys.wait( 2 );
+		sys.trigger( $snd_ladder_move );
+		$airlock_ladder.move( DOWN, 102 );
+	}
+	
+	void video_request_speaker()
+	{
+		float	sound_length;
+		
+		while (request_speaker == 1)
+		{
+			sound_length = $speaker_280.startSoundShader ("marscity2_comp_vidconnect_req", SND_CHANNEL_VOICE2 );
+			sys.wait (sound_length);
+			sys.wait( 1 );
+		}
+	}
+	
+	void connect_sarge_speaker()
+	{
+		request_speaker = 0;
+		$speaker_280.stopSound ( SND_CHANNEL_VOICE2, false );
+		sys.trigger( $sarge_monitor );
+		//sys.wait( 1.5 );
+		sys.trigger( $speaker_281 );
+		sys.wait( .25);
+		sys.trigger( $speaker_282 );
+		sys.trigger( $sarge_monitor );
+		sys.trigger( $trigger_relay_111 );
+	}
+	
+	void loop_steamblast1()
+	{
+		while (1)
+		{
+			sys.trigger( $steamblast_1 );
+			sys.trigger( $steamblast_1_snd );
+			sys.wait( 2 );
+			sys.trigger( $steamblast_1 );
+			sys.trigger( $steamblast_1_snd );
+			sys.wait( 7 );
+		}	
+	}
+	
+	//*********************************
+	//	MAIN
+	//*********************************
+	void main()
+	{
+		thread video_request_speaker();
+		//setup_objects ();
+		//init_world();
+	}
+}

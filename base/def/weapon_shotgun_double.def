@@ -1,0 +1,278 @@
+/***********************************************************************
+
+ Double Barrel Shotgun
+
+***********************************************************************/
+
+export dbshotgun {
+	// view model double barrel shotgun
+	options -prefix DB_ -keep barrel flash eject -parent flash gunbarrel -parent eject gunbody -parent barrel gunbarrel -sourcedir models/weapons/doublebarrel/cycles -destdir models/md5/weapons/doublebarrel_view/new
+
+
+	mesh	idle.mb -dest dbviewmesh
+	anim	idle.mb
+	anim	raise_lower.mb -range 1 15 -dest raise
+	anim	raise_lower.mb -range 15 21 -dest lower
+	anim	fire1.mb -xyzprecision .01 -quatprecision 0.00001
+	anim	fire2.mb -xyzprecision .01 -quatprecision 0.00001
+	anim	reload.mb -xyzprecision .01 -quatprecision 0.00001
+	//anim	reload2.mb
+	anim	reload3.mb
+	anim	reload4.mb
+	anim 	putaway.mb
+	anim	reload_noammo.mb
+	anim 	noammo.mb
+}
+
+export jayshotgun {
+
+	// world model double shotgun
+	options -prefix PLAYER_DBSHOTGUN_ -keep ATTACHER barrel flash eject -parent flash body -parent eject body -rename ATTACHER origin -clearorigin
+
+	mesh	models/characters/player_character/cycles/grabber_w_idle.mb -dest models/md5/weapons/shotgun_double_world/worlddbshotgun
+	anim	models/characters/player_character/cycles/grabber_w_idle.mb -range 0 0 -dest models/md5/weapons/shotgun_double_world/dbshotgun_idle
+	anim	models/characters/player_character/cycles/grabber_w_idle.mb -range 0 0 -dest models/md5/weapons/shotgun_double_world/dbshotgun_fire1
+	anim	models/characters/player_character/cycles/dbshotgun_w_reload.mb -dest models/md5/weapons/shotgun_double_world/dbshotgun_reload
+}
+
+model worldmodel_shotgun_double {
+	mesh						models/md5/weapons/shotgun_double_world/worlddbshotgun.md5mesh
+
+	anim raise					models/md5/weapons/shotgun_double_world/dbshotgun_idle.md5anim
+	anim idle 					models/md5/weapons/shotgun_double_world/dbshotgun_idle.md5anim
+	anim aim 					models/md5/weapons/shotgun_double_world/dbshotgun_idle.md5anim
+	anim fire1 					models/md5/weapons/shotgun_double_world/dbshotgun_fire1.md5anim
+	anim fire2 					models/md5/weapons/shotgun_double_world/dbshotgun_fire1.md5anim
+	anim fire3 					models/md5/weapons/shotgun_double_world/dbshotgun_fire1.md5anim
+	anim reload_start 			models/md5/weapons/shotgun_double_world/dbshotgun_reload.md5anim
+	anim putaway				models/md5/weapons/shotgun_double_world/dbshotgun_idle.md5anim
+}
+
+
+
+
+model viewmodel_shotgun_double {
+	mesh						models/md5/weapons/doublebarrel_view/new/dbviewmesh.md5mesh
+	offset						( 8.5 -4 -5 )
+
+	anim idle 					models/md5/weapons/doublebarrel_view/new/idle.md5anim
+
+	anim raise					models/md5/weapons/doublebarrel_view/new/raise.md5anim {
+		frame 1						sound_body player_shotgun_raise
+	}
+	anim putaway				models/md5/weapons/doublebarrel_view/new/lower.md5anim {
+		frame 1						sound_body player_shotgun_putaway
+	}
+
+	anim fire1 					models/md5/weapons/doublebarrel_view/new/fire1.md5anim {
+		frame 1						sound_weapon snd_fire
+	}
+	anim fire2 					models/md5/weapons/doublebarrel_view/new/fire2.md5anim {
+		frame 1						sound_weapon snd_fire
+	}
+
+	anim reload_start 			models/md5/weapons/doublebarrel_view/new/reload.md5anim {
+		frame 6						sound_body3 snd_click
+		frame 23					sound_voice snd_insert
+		frame 32					sound_voice2 snd_insert
+		frame 45					sound_body2 snd_clack
+		frame 26						object_call EjectBrass
+	}
+	anim reload_newammo 		models/md5/weapons/doublebarrel_view/new/reload.md5anim {
+		frame 6						sound_body3 snd_click
+		frame 23					sound_voice snd_insert
+		frame 32					sound_voice2 snd_insert
+		frame 45					sound_body2 snd_clack
+	}
+	anim reload_noammo 			models/md5/weapons/doublebarrel_view/new/idle.md5anim {
+		frame 1						sound player_shotgun_reload_start
+	}
+
+	anim noammo					models/md5/weapons/doublebarrel_view/new/noammo.md5anim {
+		frame 1						sound_voice player_shotgun_empty
+	}
+}
+
+
+
+
+entityDef weapon_shotgun_double {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Double Barrel Shotgun"
+	"editor_rotatable"		"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model"						"models/weapons/doublebarrel/doublebarrel_w.lwo"
+	"mp_model"					"models/weapons/doublebarrel/doublebarrel_w.lwo"
+	"model_view" 				"viewmodel_shotgun_double"
+	"model_world" 				"worldmodel_shotgun_double"
+	"joint_attach"				"SHOTGUN_ATTACHER"
+	"def_dropItem"				"moveable_item_shotgun_double"
+
+	"inv_name"					"#str_00100191"
+	"inv_weapon"				"weapon_shotgun_double"
+	"inv_ammo_shells"			"8"
+	"inv_item"					"5"
+	"inv_icon"					"guis/assets/hud/items/shotgun_ammo.tga"
+	"icon"						"guis/assets/hud/wpn_2"
+
+	"inv_desc"					"#str_00100212"
+	"display_name"				"#str_00100191"
+	"hudIcon"					"guis/assets/hud/icons/doublebarrelw.tga"	
+
+	"weapon_scriptobject"		"weapon_shotgun_double"
+	"def_projectile"			"projectile_bullet_shotgun_double"
+	"ammoType"					"ammo_shells"
+	"ammoRequired"				"1"
+	"clipSize"					"2"
+	"minclipsize"				"2"
+	"lowAmmo"					"0"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"silent_fire"				"0"
+	"recoilTime"				"325"
+	"recoilAngles"				"-1 0 0"
+
+	"weaponAngleOffsetAverages" "15"
+	"weaponAngleOffsetScale" 	".40"
+	"weaponAngleOffsetMax"		"20"
+	"weaponOffsetTime"			"500"
+	"weaponOffsetScale"			"0.005"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"smoke_muzzle"				"shotgunmuzzlesmoke.prt"
+	"def_ejectBrass"			"debris_shotgunbrass"
+	"ejectBrassDelay"			"-1"
+
+
+	"snd_fire"					"ssg_fire"
+	"snd_click"					"ssg_click"
+	"snd_clack"					"ssg_clack"
+	"snd_insert"				"ssg_shell_insert"
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+
+	"skin_invisible"			"skins/shotgun_double_invis"
+	
+	"controllerShakeHighMag"	"2.0"
+	"controllerShakeHighTime"	"220"
+	"controllerShakeLowMag"		"20.9"
+	"controllerShakeLowTime"	"350"
+}
+
+entityDef moveable_item_shotgun_double {
+	"inherit"					"weapon_shotgun_double"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/weapons/doublebarrel/doublebarrel_w.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef	damage_shotgun_double {
+	"damage"			"16"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"12"
+
+	"gib"				"1"
+	"smoke_wound_flesh"	"burstysquirt.prt"
+
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+	"mtr_wound_metal"	"textures/decals/hurtmetal"
+	"mtr_splat_flesh"	"textures/decals/dsplat2"
+	"mtr_splat_flesh2"	"textures/decals/dsplat5"
+	"mtr_splat_flesh3"	"textures/decals/dsplat7"
+	"mtr_splat_flesh4"	"textures/decals/dsplat11"
+	"snd_flesh"			"shotgun_impact_flesh"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+}
+
+entityDef projectile_bullet_shotgun_double {
+	"spawnclass"				"idProjectile"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+	"cone"						"3"
+	//"model" 					"models/items/projectiles/rocket.ase"
+	"scale"						"0.1"
+	"noshadows"					"1"
+
+	"snd_flesh"					"bullet_impact_flesh"
+	"snd_metal"					"bullet_impact_metal"
+	"snd_stone"					"bullet_impact_stone"
+	"snd_wood"					"bullet_impact_wood"
+	"snd_cardboard"				"bullet_impact_cardboard"
+	"snd_glass"					"bullet_impact_glass"
+	"snd_liquid"				"bullet_impact_liquid"
+	"snd_ricochet"				"bullet_ricochet"
+	"snd_plastic"				"small_plastic"
+
+	"snd_impact"				"shotgun_impact_metal"
+
+	"def_damage"				"damage_shotgun_double"
+
+	"launchFromBarrel"			"0"
+	"health"					"0"
+	"velocity"					"7200 0 0"	// .38 Special 600 fps.  Source: Petzal, David E. "How fast is a speeding bullet." Field and Stream. 97 (1992): 23
+	"angular_velocity"			"0 0 0"
+	"thrust"					"0"
+	"thrust_start"				"0"
+	"thrust_end"				"0"
+	"linear_friction"			"0"
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"
+	"mass"						"1.0"
+	"gravity"					"0"
+	"fuse"						"4"
+
+	"detonate_on_fuse"			"0"
+	"detonate_on_death"			"0"
+	"detonate_on_world"			"1"
+	"detonate_on_actor"			"1"
+
+	"impact_damage_effect"		"1"
+	"impact_gib"				"1"
+
+	"mtr_detonate"				"textures/decals/bulleth02"
+	"mtr_detonate_glass"		"textures/decals/testbulletglass1"
+	"decal_size"				"10"
+	"model_smokespark"			"sgsmokeandspark.prt"
+	"model_ricochet"			"bulletricochet.prt"
+
+	"model_slimesplash"			"sludgebulletimpact.prt"
+
+	"smoke_fly"					""
+	"smoke_detonate"			"smokeandspark.smoke"
+	"smoke_bounce"				"sparkdebris.smoke"
+	"smoke_fuse"				""
+
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0"
+	"light_radius"				"0"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	""
+	"explode_light_color"		"0 0 0"
+	"explode_light_radius"		"0"
+	"explode_light_fadetime"	"0"
+}

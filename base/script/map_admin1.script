@@ -1,0 +1,449 @@
+namespace map_admin1
+{
+	void archiver2_cycle( entity capsule )
+	{
+		capsule.time( 1.0 );
+		capsule.decelTime( 0.25 );
+		capsule.moveTo( $capsule_staging );
+		//staging speaker - 1sec
+		//capsule slides out to loading position
+		sys.trigger ($speaker_archiver_staging);
+		sys.waitFor( capsule );
+
+		// receive a new capsule
+		$archiver2_joint.time( 0.5 );
+		$archiver2_joint.move( FORWARD, 24 );
+		//loading speaker #1 - .5sec
+		//carrier moves a bit to accept capsule
+		sys.trigger ($speaker_archiver_loading1);
+		sys.waitFor( $archiver2_joint );
+
+		capsule.accelTime( 0.1 );
+		capsule.time( 0.5 );
+		capsule.decelTime( 0.1 );
+		capsule.moveTo( $archiver2_carrier );
+		//loading speaker #2 - .5sec
+		//capsule moves into carrier
+		sys.trigger ($speaker_archiver_loading2);
+		sys.waitFor( capsule );
+
+		capsule.bind( $archiver2_carrier );
+		sys.wait( 0.5 );
+
+		$archiver2_joint.time( 0.5 );
+		$archiver2_joint.move( BACK, 24 );
+		//loading speaker #1 - .5sec
+		//carrier moves back after accepting capsule
+		sys.trigger ($speaker_archiver_loading1);
+		sys.waitFor( $archiver2_joint );
+
+// 3.0s
+		// rotate over to depository2
+		$archiver2_arm.accelTime( 0.25 );
+		$archiver2_arm.time( 0.5 );
+		$archiver2_arm.decelTime( 0.25 );
+		$archiver2_arm.rotateDownTo( Y_AXIS, 315 );
+		//Arm2 short speaker  - .5sec
+		//Arm2 moves
+		sys.trigger ($speaker_archiver_arm2_short);
+		sys.waitFor( $archiver2_arm );
+
+		// place the capsule into the archiver
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.rotateUpTo( X_AXIS, 75 );
+		//depository2 speaker #1 - .5sec
+		//carrier turns
+		sys.trigger ($speaker_archiver_depository2_1);
+		sys.waitFor( $archiver2_carrier );
+
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.move( REL_FORWARD, 16 );
+		//depository2 speaker #2 - .5sec
+		//carrier moves a bit
+		sys.trigger ($speaker_archiver_depository2_2);
+		sys.waitFor( $archiver2_carrier );
+
+		// time = 0.5
+		capsule.move( LEFT, 44 );
+		//depository2 speaker #3 - .5sec
+		//capsule moves into/outof depository
+		sys.trigger ($speaker_archiver_depository2_3);
+		sys.waitFor( capsule );
+
+		// trigger GUI to animate
+		$func_static_2764.setGuiParm( "gui_parm1", 1 );
+		sys.wait( 2.5 );
+
+		$func_static_2764.setGuiParm( "gui_parm1", 0 );
+
+		// time = 0.5
+		capsule.move( RIGHT, 44 );
+		//depository2 speaker #3 - .5sec
+		//capsule moves into/outof depository
+		sys.trigger ($speaker_archiver_depository2_3);
+		sys.waitFor( capsule );
+
+// 8.0s
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.move( REL_BACK, 16 );
+		//depository2 speaker #2 - .5sec
+		//carrier moves a bit
+		sys.trigger ($speaker_archiver_depository2_2);
+		sys.waitFor( $archiver2_carrier );
+
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.rotateDownTo( X_AXIS, 0 );
+		//depository2 speaker #1 - .5sec
+		//carrier turns
+		sys.trigger ($speaker_archiver_depository2_1);
+		sys.waitFor( $archiver2_carrier );
+
+		// rotate over to dump2
+		$archiver2_arm.time( 1.5 );
+		$archiver2_arm.rotateDownTo( Y_AXIS, 180 );
+		//Arm2 long speaker  - 1.5sec
+		//Arm2 moves
+		sys.trigger ($speaker_archiver_arm2_long);
+		sys.waitFor( $archiver2_arm );
+
+		// dispose of the capsule
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.rotateUpTo( X_AXIS, 30 );
+		//dump2 speaker #1 - .5sec
+		//carrier turns
+		sys.trigger ($speaker_archiver_dump2_1);
+		sys.waitFor( $archiver2_carrier );
+
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.move( REL_FORWARD, 16 );
+		//dump2 speaker #2 - .5sec
+		//carrier moves a bit
+		sys.trigger ($speaker_archiver_dump2_2);
+		sys.waitFor( $archiver2_carrier );
+
+// 11.5s
+		capsule.unbind();
+
+		capsule.accelTime( 0.1 );
+		capsule.time( 0.5 );
+		capsule.decelTime( 0.1 );
+		capsule.move( REL_LEFT, 128 );
+		//dump1 speaker #3 - .5sec
+		//capsule moves into dump
+		sys.trigger ($speaker_archiver_dump2_3);
+		sys.waitFor( capsule );
+
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.move( REL_BACK, 16 );
+		//dump2 speaker #2 - .5sec
+		//carrier moves a bit
+		sys.trigger ($speaker_archiver_dump2_2);
+		sys.waitFor( $archiver2_carrier );
+
+		$archiver2_carrier.time( 0.5 );
+		$archiver2_carrier.rotateDownTo( X_AXIS, 0 );
+		//dump2 speaker #1 - .5sec
+		//carrier turns
+		sys.trigger ($speaker_archiver_dump2_1);
+		sys.waitFor( $archiver2_carrier );
+
+		// rotate over to incomming capsules
+		$archiver2_arm.time( 2.0 );
+		$archiver2_arm.rotateDownTo( Y_AXIS, 0 );
+		//Arm2 longer speaker  - 2sec
+		//Arm2 moves
+		sys.trigger ($speaker_archiver_arm2_longer);
+		sys.waitFor( $archiver2_arm );
+
+// 15.0s
+		// reset the capsule
+		capsule.restorePosition();
+	}
+
+	void archiver1_cycle( entity capsule )
+	{
+		while( true )
+		{
+			capsule.time( 1.0 );
+			capsule.decelTime( 0.25 );
+			capsule.moveTo( $capsule_staging );
+			//staging speaker - 1sec
+			//capsule slides out to loading position
+			sys.trigger ($speaker_archiver_staging);
+			sys.waitFor( capsule );
+
+			// receive a new capsule
+			$archiver1_joint.time( 0.5 );
+			$archiver1_joint.move( FORWARD, 24 );
+			//loading speaker #1 - .5sec
+			//carrier moves a bit to accept capsule
+			sys.trigger ($speaker_archiver_loading1);
+			sys.waitFor( $archiver1_joint );
+
+			capsule.accelTime( 0.1 );
+			capsule.time( 0.5 );
+			capsule.decelTime( 0.1 );
+			capsule.moveTo( $archiver1_carrier );
+			//loading speaker #2 - .5sec
+			//capsule moves into carrier
+			sys.trigger ($speaker_archiver_loading2);
+			sys.waitFor( capsule );
+
+			capsule.bind( $archiver1_carrier );
+			sys.wait( 0.5 );
+
+			$archiver1_joint.time( 0.5 );
+			$archiver1_joint.move( BACK, 24 );
+			//loading speaker #1 - .5sec
+			//carrier moves back after accepting capsule
+			sys.trigger ($speaker_archiver_loading1);
+			sys.waitFor( $archiver1_joint );
+
+// 3.0s
+			// rotate over to depository1
+			$archiver1_arm.accelTime( 0.25 );
+			$archiver1_arm.time( 1.5 );
+			$archiver1_arm.decelTime( 0.25 );
+			$archiver1_arm.rotateDownTo( Y_AXIS, 45 );
+			//Arm1 long speaker  - 1.5sec
+			//Arm1 moves
+			sys.trigger ($speaker_archiver_arm1_long);
+			sys.waitFor( $archiver1_arm );
+
+			// place the capsule into the archiver
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.rotateUpTo( X_AXIS, 75 );
+			//depository1 speaker #1 - .5sec
+			//carrier turns
+			sys.trigger ($speaker_archiver_depository1_1);
+			sys.waitFor( $archiver1_carrier );
+
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.move( REL_FORWARD, 16 );
+			//depository1 speaker #2 - .5sec
+			//carrier moves a bit
+			sys.trigger ($speaker_archiver_depository1_2);
+			sys.waitFor( $archiver1_carrier );
+
+			// time = 0.5
+			capsule.move( LEFT, 40 );
+			//depository1 speaker #3 - .5sec
+			//capsule moves into/outof depository
+			sys.trigger ($speaker_archiver_depository1_3);
+			sys.waitFor( capsule );
+
+			//start the second arm mechanism
+			thread archiver2_cycle( $capsule2 );
+
+			// trigger GUI to animate
+			$func_static_2767.setGuiParm( "gui_parm1", 1 );
+			sys.wait( 2.5 );
+
+			$func_static_2767.setGuiParm( "gui_parm1", 0 );
+
+			// time = 0.5
+			capsule.move( RIGHT, 40 );
+			//depository1 speaker #3 - .5sec
+			//capsule moves into/outof depository
+			sys.trigger ($speaker_archiver_depository1_3);
+			sys.waitFor( capsule );
+// 9.0s
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.move( REL_BACK, 16 );
+			//depository1 speaker #2 - .5sec
+			//carrier moves a bit
+			sys.trigger ($speaker_archiver_depository1_2);
+			sys.waitFor( $archiver1_carrier );
+
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.rotateDownTo( X_AXIS, 0 );
+			//depository1 speaker #1 - .5sec
+			//carrier turns
+			sys.trigger ($speaker_archiver_depository1_1);
+			sys.waitFor( $archiver1_carrier );
+
+			// rotate over to dump1
+			$archiver1_arm.time( 1.5 );
+			$archiver1_arm.rotateDownTo( Y_AXIS, 270 );
+			//Arm1 long speaker  - 1.5sec
+			//Arm1 moves
+			sys.trigger ($speaker_archiver_arm1_long);
+			sys.waitFor( $archiver1_arm );
+
+			// dispose of the capsule
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.rotateUpTo( X_AXIS, 30 );
+			//dump1 speaker #1 - .5sec
+			//carrier turns
+			sys.trigger ($speaker_archiver_dump1_1);
+			sys.waitFor( $archiver1_carrier );
+
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.move( REL_FORWARD, 16 );
+			//dump1 speaker #2 - .5sec
+			//carrier moves a bit
+			sys.trigger ($speaker_archiver_dump1_2);
+			sys.waitFor( $archiver1_carrier );
+
+// 12.5s
+			capsule.unbind();
+
+			capsule.accelTime( 0.1 );
+			capsule.time( 0.5 );
+			capsule.decelTime( 0.1 );
+			capsule.move( REL_LEFT, 128 );
+			//dump1 speaker #3 - .5sec
+			//capsule moves into dump
+			sys.trigger ($speaker_archiver_dump1_3);
+			sys.waitFor( capsule );
+
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.move( REL_BACK, 16 );
+			//dump1 speaker #2 - .5sec
+			//carrier moves a bit
+			sys.trigger ($speaker_archiver_dump1_2);
+			sys.waitFor( $archiver1_carrier );
+
+			$archiver1_carrier.time( 0.5 );
+			$archiver1_carrier.rotateDownTo( X_AXIS, 0 );
+			//dump1 speaker #1 - .5sec
+			//carrier turns
+			sys.trigger ($speaker_archiver_dump1_1);
+			sys.waitFor( $archiver1_carrier );
+
+			// rotate over to incomming capsules
+			$archiver1_arm.time( 1.0 );
+			$archiver1_arm.rotateDownTo( Y_AXIS, 180 );
+			//Arm1 short speaker  - 1sec
+			//Arm1 moves
+			sys.trigger ($speaker_archiver_arm1_short);
+			sys.waitFor( $archiver1_arm );
+
+// 15.0s
+			// reset the capsule
+			capsule.restorePosition();
+		}
+	}
+
+
+	void archivers_setup()
+	{
+		// setup archiving unit 1
+		$archiver1_carrier.bind( $archiver1_joint );
+
+		$archiver1_joint.time( 0.1 );
+		$archiver1_joint.rotateUpTo( Y_AXIS, 90 );
+		sys.waitFor( $archiver1_joint );
+
+		$archiver1_arm.time( 0.1 );
+		$archiver1_arm.rotateUpTo( Y_AXIS, 180 );
+		sys.waitFor( $archiver1_arm );
+
+		$archiver1_joint.bind( $archiver1_arm );
+
+		// bind the arm so that both arms stop when one is blocked
+		$archiver1_arm.bind( $func_static_2683 );
+
+		// setup archiving unit 2
+		$archiver2_carrier.bind( $archiver2_joint );
+
+		$archiver2_joint.time( 0.1 );
+		$archiver2_joint.rotateUpTo( Y_AXIS, 90 );
+		sys.waitFor( $archiver2_joint );
+
+		$archiver2_arm.time( 0.1 );
+		$archiver2_arm.rotateUpTo( Y_AXIS, 0 );
+		sys.waitFor( $archiver2_arm );
+
+		$archiver2_joint.bind( $archiver2_arm );
+
+		// bind the arm so that both arms stop when one is blocked
+		$archiver2_arm.bind( $func_static_2683 );
+
+		// setup reader tube 1
+		$archiver1_reader.bind( $archiver_reader_parent );
+
+		$archiver_reader_parent.time( 0.1 );
+		$archiver_reader_parent.rotateUpTo( Y_AXIS, 45 );
+		sys.waitFor( $archiver_reader_parent );
+
+		$archiver1_reader.time( 0.1 );
+		$archiver1_reader.rotateUpTo( X_AXIS, 75 );
+		sys.waitFor( $archiver1_reader );
+
+		$archiver1_reader.move( REL_FORWARD, 64 );
+		sys.waitFor( $archiver1_reader );
+
+		$archiver1_reader.unbind();
+		$archiver_reader_parent.restorePosition();
+
+		// setup reader tube 2
+		$archiver2_reader.bind( $archiver_reader_parent );
+
+		$archiver_reader_parent.time( 0.1 );
+		$archiver_reader_parent.rotateDownTo( Y_AXIS, 315 );
+		sys.waitFor( $archiver_reader_parent );
+
+		$archiver2_reader.time( 0.1 );
+		$archiver2_reader.rotateUpTo( X_AXIS, 75 );
+		sys.waitFor( $archiver2_reader );
+
+		$archiver2_reader.move( REL_FORWARD, 64 );
+		sys.waitFor( $archiver2_reader );
+
+		$archiver2_reader.unbind();
+		$archiver_reader_parent.restorePosition();
+
+		// setup dump tube 1
+		$archiver1_dump.bind( $archiver_reader_parent );
+
+		$archiver_reader_parent.time( 0.1 );
+		$archiver_reader_parent.rotateUpTo( Y_AXIS, 180 );
+		sys.waitFor( $archiver_reader_parent );
+
+		$archiver1_dump.time( 0.1 );
+		$archiver1_dump.rotateUpTo( X_AXIS, 30 );
+		sys.waitFor( $archiver1_dump );
+
+		$archiver1_dump.move( REL_FORWARD, 64 );
+		sys.waitFor( $archiver1_dump );
+
+		$archiver1_dump.unbind();
+		$archiver_reader_parent.restorePosition();
+
+		// setup dump tube 2
+		$archiver2_dump.bind( $archiver_reader_parent );
+
+		$archiver_reader_parent.time( 0.1 );
+		$archiver_reader_parent.rotateUpTo( Y_AXIS, 270 );
+		sys.waitFor( $archiver_reader_parent );
+
+		$archiver2_dump.time( 0.1 );
+		$archiver2_dump.rotateUpTo( X_AXIS, 30 );
+		sys.waitFor( $archiver2_dump );
+
+		$archiver2_dump.move( REL_FORWARD, 64 );
+		sys.waitFor( $archiver2_dump );
+
+		$archiver2_dump.unbind();
+		$archiver_reader_parent.remove();
+
+		// run the loops
+		thread archiver1_cycle( $capsule1 );
+	}
+
+	void kill_wounded_marine()
+	{
+		$tim_admin_wounded_marine_1.kill();
+	}
+
+	void main()
+	{
+		//$swinglight_mover.sway( 2, 0, '40 15 0' );
+		$swinglight_mover.sway( 50, 0, '20 0 0' );
+		$library_lamp1_swing_anchor.sway( 3, 0, '15 10 0' );
+		$library_lamp1_swing_anchor2.sway( 3.5, 0, '7 5 5' );
+
+		archivers_setup();
+	}
+}

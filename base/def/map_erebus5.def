@@ -1,0 +1,251 @@
+//////////////////////////////////////////////
+//
+//	EREBUS5 CLOUD CINEMATIC
+//
+//////////////////////////////////////////////
+export cine_erebus5 {
+
+	camera	models/cinematics/erebus5/cloud.mb -range 0 2290 -dest models/md5/cinematics/erebus5/erebus5_cinematic_cam
+	camera	models/cinematics/erebus5/envirosuit_on.mb -dest models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam
+	camera	models/cinematics/erebus5/envirosuit_on.mb -range 0 72 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_a
+	camera	models/cinematics/erebus5/envirosuit_on.mb -range 73 116 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_b
+	camera	models/cinematics/erebus5/envirosuit_on.mb -range 117 161 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_c
+	camera	models/cinematics/erebus5/envirosuit_on.mb -range 162 190 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_d
+
+	camera	models/cinematics/erebus5/envirosuit_off.mb -dest models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam
+	camera	models/cinematics/erebus5/envirosuit_off.mb -range 0 72 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam_a
+	camera	models/cinematics/erebus5/envirosuit_off.mb -range 73 130 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam_b
+	camera	models/cinematics/erebus5/envirosuit_off.mb -range 131 155 -dest models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam_c
+
+//CLOUD HEAD
+	options -prefix H1_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+
+	anim models/characters/heads/headxp_2/e5_cloud.mb -rotate 90 -range 0 2290 -dest models/md5/characters/npcs/heads/erebus5_cloud
+
+//CLOUD BODY
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh marinebodymesh
+	addoptions -align ALL
+
+	anim	models/cinematics/erebus5/cloud.mb -range 0 2290 -dest models/md5/cinematics/erebus5/cinematic_cloud -prefix CLOUD_
+
+
+//	MCNEIL
+
+	options		-prefix MCNEIL_ -align ALL -keep LkneeVector RkneeVector
+
+	anim	models/characters/mcneil/cycles/erebus5.mb -dest models/md5/chars/mcneil/erebus5
+
+}
+
+model erebus5_scientist_cloud_head {
+	inherit						headXP_2
+	anim cinematic				models/md5/characters/npcs/heads/erebus5_cloud.md5anim {
+	}
+
+}
+
+model erebus5_scientist_cloud {
+//	mesh						models/md5/cinematics/erebus5/cinematic_cloud_mesh.md5mesh
+	inherit						npc_labcoat
+	anim cinematic 				models/md5/cinematics/erebus5/cinematic_cloud.md5anim{
+
+		frame 1							call map_erebus5::cloud_start_opendoor
+		frame 1							call map_erebus5::cloud_hide_primitive
+		frame 60						call map_erebus5::cloud_start_lockdoor
+		frame 25						sound_body e5_cloud_triggered1
+		frame 265						sound_body e5_mcneil_triggered1
+		frame 315						sound_body e5_cloud_triggered2
+		frame 423						sound_body e5_mcneil_triggered2
+		frame 505						call map_erebus5::CloudInfluence
+		frame 505						sound_body power_surge
+		frame 555						sound_body e5_cloud_triggered3
+		frame 624						sound_body e5_mcneil_triggered3
+		frame 630						call map_erebus5::cloud_show_primitive
+		frame 645						call map_erebus5_cloud::artifact_scanner_start
+		frame 645						call map_erebus5::EmittersOff
+		frame 645						call map_erebus5::cloud_viewer_start
+		frame 729						sound_body e5_cloud_triggered4
+		frame 847						call map_erebus5::cloud_viewer_done
+		frame 965						sound_body e5_cloud_triggered5
+		frame 1111						sound_body e5_mcneil_triggered4
+		frame 1200						sound_body e5_cloud_triggered6
+		frame 1561						sound_body e5_mcneil_triggered5
+		frame 1676						sound_body e5_cloud_triggered7
+		frame 2210						call map_erebus5::cloud_end_opendoor
+		frame 2285						call map_erebus5::cloud_end_closedoor
+
+	}
+}
+
+entityDef erebus5_scientist_cloud {
+	"inherit"					"npc_base"
+	"model"						"erebus5_scientist_cloud"
+	"skin"						"skins/characters/npcs/labcoat_cloud2"
+	"copy_joint_world eyecontrol"			""
+
+	"def_head"					"erebus5_scientist_cloud_head"
+	"head_joint"					"Shoulders"
+
+	//"def_attach"					"prop_shotgun"
+	//"def_dropDeathItem"				"moveable_item_flashlight"
+}
+
+model erebus5_cinematic_player {
+	mesh						models/md5/cinematics/erebus5/player.md5mesh
+	anim cinematic				models/md5/cinematics/erebus5/cinematic.md5anim
+
+}
+
+entityDef erebus5_cinematic_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"erebus5_cinematic_player"
+	"anim"						"cinematic"
+}
+
+
+entityDef erebus5_cinematic_cam {
+	"editor_color"							"1 .5 0"
+	"editor_mins"							"-16 -16 0"
+	"editor_maxs"							"16 16 64"
+	"spawnclass"							"idCameraAnim"
+
+	"anim erebus5_cinematic_cam_1"			"models/md5/cinematics/erebus5/erebus5_cinematic_cam.md5camera"
+}
+
+
+/////////////////////////////////
+//
+//  ENVIROSUIT ON/OFF
+//
+/////////////////////////////////
+
+entityDef erebus5_envirosuit_on_cam {
+	"editor_color"							"1 .5 0"
+	"editor_mins"							"-16 -16 0"
+	"editor_maxs"							"16 16 64"
+	"spawnclass"							"idCameraAnim"
+
+	"anim erebus5_envirosuit_on_cam_1"			"models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam.md5camera"
+	"anim erebus5_envirosuit_on_cam_a"			"models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_a.md5camera"
+	"anim erebus5_envirosuit_on_cam_b"			"models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_b.md5camera"
+	"anim erebus5_envirosuit_on_cam_c"			"models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_c.md5camera"
+	"anim erebus5_envirosuit_on_cam_d"			"models/md5/cinematics/erebus5/erebus5_envirosuit_on_cam_d.md5camera"
+}
+
+model erebus5_envirosuit_player {
+	mesh						models/md5/cinematics/erebus5/envirosuit_on.md5mesh
+	anim envirosuit_on				models/md5/cinematics/erebus5/envirosuit_on.md5anim {
+		frame 1						sound_body snd_footstep
+		frame 15					sound_body snd_footstep
+		frame 30					sound_body snd_footstep
+	}
+	anim envirosuit_on_a				models/md5/cinematics/erebus5/envirosuit_on_a.md5anim {
+		frame 1						sound_body snd_footstep
+		frame 22					sound_body snd_footstep
+		frame 44					sound_body snd_footstep
+		frame 66					sound_body snd_footstep
+	
+	}
+	anim envirosuit_on_b				models/md5/cinematics/erebus5/envirosuit_on_b.md5anim {
+		frame 1						sound_body snd_footstep
+		frame 13					sound_body snd_footstep
+		frame 26					sound_body snd_footstep
+	}
+	anim envirosuit_on_c				models/md5/cinematics/erebus5/envirosuit_on_c.md5anim {
+		frame 24					sound_voice e5_helmet_on			// -Xian
+	}
+	anim envirosuit_on_d				models/md5/cinematics/erebus5/envirosuit_on_d.md5anim
+	anim envirosuit_off				models/md5/cinematics/erebus5/envirosuit_off.md5anim
+	anim envirosuit_off_a				models/md5/cinematics/erebus5/envirosuit_off_a.md5anim {
+		frame 1						sound_body snd_footstep
+		frame 22					sound_body snd_footstep
+		frame 44					sound_body snd_footstep
+		frame 66					sound_body snd_footstep
+		frame 68					sound_voice e1_helmet_removal		// -Xian
+	}
+	anim envirosuit_off_b				models/md5/cinematics/erebus5/envirosuit_off_b.md5anim {
+		frame 22					sound_body snd_footstep
+	}
+	anim envirosuit_off_c				models/md5/cinematics/erebus5/envirosuit_off_c.md5anim {
+		frame 6					sound_body snd_footstep
+	}
+}
+
+entityDef erebus5_envirosuit_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"erebus5_envirosuit_player"
+	"anim"						"envirosuit_on"
+	"snd_footstep"				"player_sounds_footstep"
+}
+
+entityDef erebus5_envirosuit_off_cam {
+	"editor_color"							"1 .5 0"
+	"editor_mins"							"-16 -16 0"
+	"editor_maxs"							"16 16 64"
+	"spawnclass"							"idCameraAnim"
+
+	"anim erebus5_envirosuit_off_cam_1"			"models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam.md5camera"
+	"anim erebus5_envirosuit_off_cam_a"			"models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam_a.md5camera"
+	"anim erebus5_envirosuit_off_cam_b"			"models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam_b.md5camera"
+	"anim erebus5_envirosuit_off_cam_c"			"models/md5/cinematics/erebus5/erebus5_envirosuit_off_cam_c.md5camera"
+}
+
+
+/******************************************
+	EREBUS5 MCNEIL ANIMATION ROQ STUFF !! NOT USED IN GAME!!
+******************************************/
+export mcneil_roq {
+
+//	MCNEIL CAMERA
+	camera	models/cinematics/erebus5/mcneil.mb -range 0 1650 -dest models/md5/cinematics/erebus5/erebus5_McNeil
+//  MCNEIL MODEL EXPORT
+	options		-prefix MCNEIL_ -keep LkneeVector RkneeVector HEAD_Leyeaim HEAD_Reyeaim
+//  addoptions -align ALL
+
+	mesh	models/cinematics/erebus5/mcneil.mb -dest models/md5/chars/mcneil/erebus5_mcneil
+	anim	models/cinematics/erebus5/mcneil.mb -range 0 1650 -dest models/md5/chars/mcneil/erebus5_anim
+}
+
+model erebus5_mcneil_fem {
+	mesh						models/md5/chars/mcneil/erebus5_mcneil.md5mesh
+
+	channel torso						( *Waist )
+	channel legs						( *Hips origin Body )
+
+	anim mcneil					models/md5/chars/mcneil/erebus5_anim.md5anim{
+		frame 265						sound_body e5_mcneil_triggered1
+		frame 423						sound_body e5_mcneil_triggered2
+		frame 624						sound_body e5_mcneil_triggered3
+		frame 1111						sound_body e5_mcneil_triggered4
+		frame 1561						sound_body e5_mcneil_triggered5
+	}
+
+}
+entityDef erebus5_mcneil_fem {
+
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"erebus5_mcneil_fem"
+	"anim"						"mcneil"
+}
+entityDef erebus5_mcneil_cam {
+	"editor_color"							"1 .5 0"
+	"editor_mins"							"-16 -16 0"
+	"editor_maxs"							"16 16 64"
+	"spawnclass"							"idCameraAnim"
+
+	"anim erebus5_mcneil_cam_1"			"models/md5/cinematics/erebus5/erebus5_McNeil.md5camera"
+}

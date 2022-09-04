@@ -1,0 +1,1264 @@
+textures/david/cavsolarmap
+{
+	qer_editorimage	textures/caves/cavsolarmap_d.tga
+	bumpmap		addnormals (textures/caves/cavsolarmap_local.tga, heightmap (textures/caves/cavsolarmap_bmp.tga, 3 ))
+	diffusemap	textures/caves/cavsolarmap_d.tga
+	specularmap	textures/caves/cavsolarmap_s.tga
+
+	{
+	blend 		add
+	map		textures/caves/cavsolarmap_add.tga
+	colored
+	}
+}
+
+textures/david/ribwallsharprock2noshadow
+{
+	noSelfShadow
+	noshadows
+	qer_editorimage	textures/david/ribwallsharprock2noshadow.tga
+
+	{
+	blend 		bumpmap
+	map		addnormals (models/mapobjects/steve_temp/ribwall_local.tga, heightmap (models/mapobjects/steve_temp/ribwall_h.tga, 3))
+	}
+	{
+	blend 		diffusemap
+	map		models/mapobjects/steve_temp/ribwall_d.tga
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map	      	models/mapobjects/steve_temp/ribwall_s.tga
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/sharprock2.tga
+	inverseVertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/sharprock2_s.tga
+	inverseVertexColor
+	}
+}
+
+textures/david/dirt02cbrick2noshadow
+{
+	noSelfShadow
+	noshadows
+	qer_editorimage	textures/david/dirt02cbrick2noshadow.tga
+
+	{
+	blend 		bumpmap
+	map		addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/dirt02.tga
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map	      	textures/hell/dirt02_s.tga
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/cbrick2_local.tga, heightmap( textures/hell/breakage1_h.tga, 3 ) )
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/cbrick2.tga
+	inverseVertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/cbrick2_s.tga
+	inverseVertexColor
+	}
+} 
+
+textures/david/cracked2lavasharprock2noshadow
+{
+	noSelfShadow
+	noshadows
+	qer_editorimage	textures/david/cracked2lavasharprock2noshadow.tga
+
+	{
+	blend 		bumpmap
+	map		addnormals( textures/hell/cracked2b_local.tga, heightmap( textures/hell/cracked2_h.tga, 9 ) )
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/cracked2lava.tga
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map	      	textures/hell/cracked2lava_s.tga
+	vertexColor
+	}
+	{
+	blend 		add
+	map 		textures/hell/cracked2fx.tga
+	rgb		fireballtable[ time * .15 ]
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/sharprock2.tga
+	inverseVertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/sharprock2_s.tga
+	inverseVertexColor
+	}
+}
+
+textures/david/lava1movesharprock2noshadow
+{
+	qer_editorimage	textures/david/lava1movesharprock2noshadow.tga
+	noSelfShadow
+	noshadows
+	deform particle lava1move
+
+	{
+	blend 		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	translate	time * 0 , time * -0.1
+	}
+	{
+	blend		specularmap
+	map	      	textures/hell/dirt02_s.tga
+	vertexColor
+	}
+	{
+	maskcolor
+	map 		textures/hell/lava1.tga
+	translate	time * 0 , time * -0.1
+	vertexColor
+	}
+	{
+	blend 		gl_dst_alpha , gl_one_minus_dst_alpha
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .6 ]
+	translate	time * 0.02 , time * 0.1
+	vertexColor
+	}
+	{
+	blend 		add
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .5 ]
+	translate	time * 0 , time * -0.1
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/sharprock2.tga
+	inverseVertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/sharprock2_s.tga
+	inverseVertexColor
+	}
+}
+
+textures/caves/sbricks1b_666
+{
+	translucent
+	spectrum	666
+	qer_editorimage	textures/caves/sbricks1b
+
+	{
+	blend		bumpmap				
+	map		addnormals (textures/caves/sbricks1b_local, heightmap (textures/caves/sbricks1b_bmp, 4) ) 
+	}
+	{
+	blend		diffusemap
+	map		textures/caves/sbricks1b
+	}
+	{
+	blend		specularmap			
+	map		textures/caves/sbricks1_s
+	scale		1,2
+	}
+}
+
+textures/caves/rubble3_666
+{
+	translucent
+	spectrum	666
+	qer_editorimage	textures/caves/rubble3
+	bumpmap		textures/caves/rubble3_local
+	diffusemap	textures/caves/rubble3
+}
+
+textures/caves/tembrick2smoo_666
+{
+	translucent
+	spectrum	666
+	qer_editorimage	textures/caves/tembrick2smoo.tga
+
+	{
+	blend		bumpmap 		
+	map		addnormals (textures/caves/tembrick1crum_local.tga, heightmap (textures/caves/tembrick2smoo_bmp.tga, 4) ) 
+	}
+	diffusemap	textures/caves/tembrick2smoo_d.tga
+	specularmap	textures/caves/tembrick2smoo_s.tga
+}
+
+textures/caves/sbricks2_666
+{
+	translucent
+	spectrum	666
+	qer_editorimage	textures/caves/sbricks2
+
+	{
+	blend		bumpmap				
+	map		addnormals (textures/caves/sbricks2_local, heightmap (textures/caves/sbricks1_bmp, 4) ) 
+	}
+	diffusemap	textures/caves/sbricks2
+//	specularmap	textures/caves/sbricks1_s
+}
+
+textures/david/sharprock2lava1noshadow
+{
+	noSelfShadow
+	noshadows
+	qer_editorimage	textures/david/sharprock2lava1noshadow.tga
+
+{
+	blend		bumpmap
+	map		addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/sharprock2.tga
+	VertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/sharprock2_s.tga
+	VertexColor
+	}
+	{
+	blend 		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 8 ) )
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/lava1.tga
+	inversevertexColor
+	}
+        {
+	blend 		add
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .05 ]
+        inversevertexColor
+	}
+	{
+	blend		specularmap
+	map	      	textures/hell/lava1_s.tga
+	inversevertexColor
+	}
+}
+
+textures/david/lava1movelava1noshadow
+{
+	qer_editorimage	textures/david/lava1movelava1noshadow.tga
+	noSelfShadow
+	noshadows
+	deform particle lava1move
+
+	{
+	blend 		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	translate	time * 0 , time * -0.1
+	}
+	{
+	blend		specularmap
+	map	      	textures/hell/dirt02_s.tga
+	vertexColor
+	}
+	{
+	maskcolor
+	map 		textures/hell/lava1.tga
+	translate	time * 0 , time * -0.1
+	vertexColor
+	}
+	{
+	blend 		gl_dst_alpha , gl_one_minus_dst_alpha
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .6 ]
+	translate	time * 0.02 , time * 0.1
+	vertexColor
+	}
+	{
+	blend 		add
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .5 ]
+	translate	time * 0 , time * -0.1
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 8 ) )
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lava1.tga
+	inverseVertexColor
+	}
+	{
+	blend 		add
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .05 ]
+        inversevertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	inverseVertexColor
+	}
+}
+
+textures/david/skysandnew_sharprock_dark
+{
+	qer_editorimage	textures/david/skysandnew_sharprock_dark
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/skysand1_local.tga, heightmap (textures/rock/skysand2_bmp.tga, 4))
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/skysand2.tga
+	VertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) )
+	}
+	{
+	blend		diffusemap
+	map		textures/rock/sharprock_dark
+	inverseVertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	inverseVertexColor
+	}
+}
+
+textures/david/lavasharprock_dark
+{
+	qer_editorimage	textures/david/lavasharprock_dark.tga
+	noSelfShadow
+	noshadows
+
+	{
+	blend 		bumpmap
+	map		textures/hell/hhlava_local.tga
+	translate	time * 0 , time * -0.02
+	scale 		.35, .35
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/hhlava_s.tga
+	translate	time * 0 , time * -0.02
+	scale 		.35, .35
+	vertexColor
+	}
+	{
+	blend 		add
+	map 		textures/hell/hhlava_fx.tga
+	//rgb		fireballtable[ time * .5 ]
+	translate	time * 0 , time * -0.02
+	scale 		.35, .35
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) )
+	}
+	{
+	blend		diffusemap
+	map		textures/rock/sharprock_dark
+	inverseVertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/rock/sharprock_dark_s
+	inverseVertexColor
+	}
+}
+
+textures/david/ice3a_ice1d
+{
+	noSelfShadow	
+	qer_editorimage	textures/david/ice3a_ice1d.tga
+	
+	{
+	vertexColor
+	blend		bumpmap
+	map		textures/rock/skyrock3_local.tga
+	}
+	{
+	vertexColor
+	blend		diffusemap
+	map		textures/pat/ice1_d.tga
+	}
+	{
+	vertexColor
+	blend		specularmap
+	map		textures/pat/ice1_s.tga
+	}
+	{
+	inverseVertexColor
+	blend		bumpmap
+	map		heightmap (textures/researchoutpost/ice3a_h.tga,24)
+	}
+	{
+	inverseVertexColor	
+	blend		diffusemap
+	map		textures/researchoutpost/ice3a_d.tga
+	}
+	{
+	inverseVertexColor	
+	blend		specularmap
+	map		textures/researchoutpost/ice3a_s.tga
+	}
+}
+
+textures/david/g2_lavascroll
+{
+	qer_editorimage	textures/david/g2_lavascroll
+
+	{
+	blend 		bumpmap
+	map		addnormals (textures/hell/greenrocks_local, heightmap (textures/hell/greenrocks_bmp.tga,8) )
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/greenrocks
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/hell/greenrocks_s
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	scale		2,2
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lavascroll.tga
+	scale		2,2
+	inverseVertexColor
+	}
+	{
+	map		textures/hell/lavascroll
+	scale		2,2
+	maskcolor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	scale		2,2
+	translate	time * .02 , time * -0.05
+	inverseVertexColor
+	}   
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	red		parm0*fireballtable[ time * .05 ]
+	green		parm1*fireballtable[ time *.25 ]
+	blue		parm2*fireballtable[ time *.25 ]
+	scale		2,2
+	translate	time * .01 , time * -0.025
+	inverseVertexColor
+	}
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	red		parm0*fireballtable[ time *.25 ]
+	green		parm1*fireballtable[ time *.25 ]
+	blue		parm2*fireballtable[ time * .25  ]
+	scale		3,3
+	translate	time * -.02 , 1
+	inverseVertexColor
+	}
+}
+
+textures/david/g2
+{
+	qer_editorimage	textures/david/g2
+	stone
+	bumpmap		addnormals (textures/hell/greenrocks_local, heightmap (textures/hell/greenrocks_bmp.tga,8) ) 
+	diffusemap	textures/hell/greenrocks
+	specularmap	textures/hell/greenrocks_s
+}
+
+textures/david/sharprock_dark_xp
+{
+	qer_editorimage	textures/david/sharprock_dark_xp
+	stone
+	bumpmap		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	diffusemap	textures/rock/sharprock_dark
+	specularmap	textures/rock/sharprock_dark_s
+}
+
+textures/david/sharprock_dark_dirt02noshadow_xp
+{
+	qer_editorimage	textures/david/sharprock_dark_dirt02noshadow_xp
+	stone
+
+	{
+	blend 		bumpmap
+	map		addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+	scale		2,2
+
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/dirt02.tga
+	scale		2,2
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/hell/dirt02_s.tga
+	scale		2,2
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+	blend		diffusemap
+	map		textures/rock/sharprock_dark
+	inverseVertexColor
+	}
+	{
+	blend 		specularmap
+	map		textures/rock/sharprock_dark_s
+	inverseVertexColor
+	}   
+}
+
+textures/david/sharprock_dark_lavascroll_xp
+{
+	qer_editorimage	textures/david/sharprock_dark_lavascroll_xp
+	stone
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/sharprock_dark
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	scale		2,2
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lavascroll.tga
+	scale		2,2
+	inverseVertexColor
+	}
+	{
+	map		textures/hell/lavascroll
+	scale		2,2
+	maskcolor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	scale		2,2
+	translate	time * .02 , time * -0.05
+	inverseVertexColor
+	}   
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .05 ]
+	scale		2,2
+	translate	time * .01 , time * -0.025
+	inverseVertexColor
+	}
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .25  ]
+	scale		3,3
+	translate	time * -.02 , 1
+	inverseVertexColor
+	}
+}
+
+textures/david/emitfrompoly_smallersparks_xp
+{
+	deform particle hell_smallersparks
+	qer_editorimage textures/david/emitfrompoly_smallersparks_xp.tga
+	nonsolid
+	noshadows
+	{
+	blend		filter
+	map		_white
+	}
+}
+
+textures/david/lavascroll_lava21hell_hub_xp
+{
+	qer_editorimage	textures/david/lavascroll_lava21hell_hub_xp
+	{//white verts
+	blend 		bumpmap
+	map		textures/hell/hhlava_local.tga
+	translate	time * 0 , time * -0.02
+	//scale 	.35, .35
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/greenrocks
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/hell/hhlava_s.tga
+	translate	time * 0 , time * -0.02
+	//scale 	.35, .35
+	vertexColor
+	}
+	{
+
+	blend 		add
+	map 		textures/hell/hhlava_fx.tga
+	translate	time * 0 , time * -0.02
+	//scale 	.35, .35
+	vertexColor
+	}
+
+	{//black verts
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	scale		2,2
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lavascroll.tga
+	scale		2,2
+	inverseVertexColor
+	}
+	{
+	map		textures/hell/lavascroll
+	scale		2,2
+	maskcolor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	scale		2,2
+	translate	time * .02 , time * -0.05
+	inverseVertexColor
+	}   
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .05 ]
+	scale		2,2
+	translate	time * .01 , time * -0.025
+	inverseVertexColor
+	}
+	{
+	blend		gl_dst_alpha , gl_one
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .25  ]
+	scale		3,3
+	translate	time * -.02 , 1
+	inverseVertexColor
+	}
+}
+
+textures/david/lavascroll_xp
+{
+	qer_editorimage	textures/david/lavascroll_xp.tga
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	scale		2,2
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lavascroll.tga
+	scale		2,2
+	}
+	{
+	map		textures/hell/lavascroll
+	scale		2,2
+	maskcolor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	scale		2,2
+	translate	time * -0.02 , time * 0.05
+	}   
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	red		parm0*fireballtable[ time * .05 ]
+	green		parm1*fireballtable[ time * .05 ]
+	blue		parm2*fireballtable[ time * .05 ]
+	scale		2,2
+	translate	time * .01 , time * -0.025
+	}
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	red		parm0*fireballtable[ time *.25 ]
+	green		parm1*fireballtable[ time *.25 ]
+	blue		parm2*fireballtable[ time *.25 ]
+	scale		3,3
+	translate	time * -.02 , 1
+	}
+}
+
+textures/david/greenrocks2lava
+{
+	qer_editorimage	textures/david/greenrocks2lava
+	stone
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	scale		2,2
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lavascroll.tga
+	scale		2,2
+	VertexColor
+	}
+	{
+	map		textures/hell/lavascroll
+	scale		2,2
+	maskcolor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	scale		2,2
+	translate	time * .02 , time * -0.05
+	VertexColor
+	}   
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .05 ]
+	scale		2,2
+	translate	time * .01 , time * -0.025
+	VertexColor
+	}
+	{
+	blend		gl_dst_alpha , gl_one
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .25  ]
+	scale		3,3
+	translate	time * -.02 , 1
+	VertexColor
+	}
+	{
+	blend 		bumpmap
+	map		addnormals (textures/hell/greenrocks_local, heightmap (textures/hell/greenrocks_bmp.tga,8) )
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/greenrocks
+	inverseVertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/hell/greenrocks_s
+	inverseVertexColor
+	}
+}
+
+textures/david/sharprock_dark_greenrocks2
+{
+	qer_editorimage	textures/david/sharprock_dark_greenrocks2
+	stone
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/sharprock_dark
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	vertexColor
+	}
+	{
+	blend 		bumpmap
+	map		addnormals (textures/hell/greenrocks_local, heightmap (textures/hell/greenrocks_bmp.tga,8) )
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/greenrocks
+	inverseVertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/hell/greenrocks_s
+	inverseVertexColor
+	}
+}
+
+textures/david/skullgate3_sharprock_dark
+{
+	qer_editorimage	textures/david/skullgate3_sharprock_dark
+	stone
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/sharprock_dark
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	vertexColor
+	}
+	{
+	blend 		bumpmap
+	map		models/mapobjects/skullgate/skullgate3_local.tga
+	}
+	{
+	blend 		diffusemap
+	map		models/mapobjects/skullgate/skullgate3.tga
+	inverseVertexColor
+	}
+	{
+	blend		specularmap
+	map		models/mapobjects/skullgate/skullgate3_s.tga
+	inverseVertexColor
+	}
+}
+
+textures/david/sharprock_dark_lavascroll_ns_xp
+{
+	qer_editorimage	textures/david/sharprock_dark_lavascroll_ns_xp
+	noSelfShadow
+	noshadows
+
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/sharprock_dark
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	vertexColor
+	}
+	{
+	blend		bumpmap
+	map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	scale		2,2
+	}
+	{
+	blend		diffusemap
+	map		textures/hell/lavascroll.tga
+	scale		2,2
+	inverseVertexColor
+	}
+	{
+	map		textures/hell/lavascroll
+	scale		2,2
+	maskcolor
+	}
+	{
+	blend 		specularmap
+	map		textures/hell/lava1_s.tga
+	scale		2,2
+	translate	time * .02 , time * -0.05
+	inverseVertexColor
+	}   
+	{
+	blend		gl_dst_alpha , gl_one
+	map		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .05 ]
+	scale		2,2
+	translate	time * .01 , time * -0.025
+	inverseVertexColor
+	}
+	{
+	blend		gl_dst_alpha , gl_one
+	map 		textures/hell/lava1fx.tga
+	rgb		fireballtable[ time * .25  ]
+	scale		3,3
+	translate	time * -.02 , 1
+	inverseVertexColor
+	}
+}
+
+textures/david/skull1_xp
+{
+	noSelfShadow
+	//noShadows
+	clamp
+	renderbump  	-size 512 512 -trace 0.1 -aa 2 models/mapobjects/hell/skulls/skull1_local.tga models/mapobjects/hell/skulls/skull1_hi.lwo
+	
+	bumpmap		models/mapobjects/hell/skulls/skull1_local
+	diffusemap	models/mapobjects/hell/skulls/skull1
+	specularmap	models/mapobjects/hell/skulls/skull1_s
+}
+
+textures/skies/polar
+{
+	noFragment
+	noshadows
+	noimpact
+	forceOpaque		
+	{
+	blend		add	
+	cameraCubeMap	env/polar
+	texgen		skybox
+	red		.75//Parm0 * xray02table[ time * .1 ]
+	green		.75//Parm1 * xray02table[ time * .1 ]
+	blue		.75//Parm2 * xray02table[ time * .1 ]
+	}
+}
+
+textures/skies/polar2
+{
+	noFragment
+	noshadows
+	noimpact
+	forceOpaque		
+	{
+	blend		add	
+	cameraCubeMap	env/polar2
+	texgen		skybox
+	red		.75//Parm0 * xray02table[ time * .1 ]
+	green		.75//Parm1 * xray02table[ time * .1 ]
+	blue		.75//Parm2 * xray02table[ time * .1 ]
+	}
+}
+
+textures/david/ice3a_sharprock
+{
+	noSelfShadow	
+	qer_editorimage	textures/david/ice3a_sharprock.tga
+	
+	{
+	VertexColor
+	blend		bumpmap
+	map		heightmap (textures/researchoutpost/ice3a_h.tga,24)
+	}
+	{
+	VertexColor	
+	blend		diffusemap
+	map		textures/researchoutpost/ice3a_d.tga
+	}
+	{
+	VertexColor	
+	blend		specularmap
+	map		textures/researchoutpost/ice3a_s.tga
+	}
+	{
+	inverseVertexColor
+	blend		bumpmap
+	map		textures/pat/sharprock_local.tga
+	}
+	{
+	inverseVertexColor
+	blend		diffusemap
+	map		textures/pat/sharprock_dark_d.tga
+	}
+	{
+	inverseVertexColor
+	blend		specularmap
+	map		textures/pat/sharprock_ice_s.tga
+	}
+}
+
+textures/david/sharprock_sharprock_ice
+{
+	noSelfShadow	
+	qer_editorimage	textures/david/sharprock_sharprock_ice.tga
+	
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/sharprock_dark
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	vertexColor
+	}
+	{
+	inverseVertexColor
+	blend		bumpmap
+	map		textures/pat/sharprock_local.tga
+	}
+	{
+	inverseVertexColor
+	blend		diffusemap
+	map		textures/pat/sharprock_dark_d.tga
+	}
+	{
+	inverseVertexColor
+	blend		specularmap
+	map		textures/pat/sharprock_ice_s.tga
+	}
+}
+
+textures/david/sharprock_dark_wrinklewall
+{
+	qer_editorimage	textures/david/sharprock_dark_wrinklewall
+	stone
+	{
+	blend 		bumpmap
+	map		addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	vertexcolor
+	}
+	{
+	blend 		diffusemap
+	map		textures/rock/sharprock_dark
+	vertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/rock/sharprock_dark_s
+	vertexColor
+	}
+	{
+	blend 		bumpmap
+	map		textures/hell/wrinklewall_tile_local
+	translate	.01*sintable[ time *.1 ], 	.02*sintable[ time *.1 ]
+	inverseVertexColor
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/wrinklewall_tile
+	translate	.01*sintable[ time *.1 ], 	.02*sintable[ time *.1 ]
+	inverseVertexColor
+	}
+	{
+	blend 		diffusemap
+	map		textures/hell/wrinklewall_tile_ss
+	translate	.005*sintable[ time *.1 ], 	.01*sintable[ time *.1 ]
+	inverseVertexColor
+	}
+	{
+	blend		specularmap
+	map		textures/hell/wrinklewall_tile_s
+	translate 	.01*sintable[ time *.1 ],	.02*sintable[ time *.1 ]
+	inverseVertexColor
+	}
+}
+
+textures/david/dropshipglass_xp
+{
+	qer_editorimage	textures/sfx/paneglass1.tga
+	noselfshadow
+	noshadows
+	{
+		blend		diffusemap		
+		map			_black
+		
+	}
+	{
+		blend		add
+		cubeMap		env/gen1
+		texgen		reflect
+	}
+	{
+		blend		specularmap
+		map			models/mapobjects/dropship/dropship_glass
+		
+	}	
+}
+
+textures/david/emitfrompoly_sparks_xp
+{
+	deform particle hell_lavasparks
+	qer_editorimage textures/david/emitfrompoly_sparks_xp.tga
+	nonsolid
+	noshadows
+	{	//even though this draws nothing, i have to do it to get teh particles to emit.
+		blend	filter
+		map		_white
+	}
+}
+
+textures/david/greenrocks2_lavascroll_xp
+{
+	qer_editorimage		textures/david/greenrocks2_lavascroll_xp
+
+	{
+		blend 			bumpmap
+		map				addnormals (textures/hell/greenrocks_local, heightmap (textures/hell/greenrocks_bmp.tga,8) )
+	}
+	{
+		blend 			diffusemap
+		map				textures/hell/greenrocks
+		vertexColor
+	}
+	{
+		blend			specularmap
+		map				textures/hell/greenrocks_s
+		vertexColor
+	}
+	{
+		blend			bumpmap
+		map				addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		scale			2,2
+	}
+	{
+		blend			diffusemap
+		map				textures/hell/lavascroll.tga
+		scale			2,2
+		inverseVertexColor
+	}
+	{
+		map				textures/hell/lavascroll
+		scale			2,2
+		maskcolor
+	}
+	{
+		blend 		specularmap
+		map			textures/hell/lava1_s.tga
+		scale		2,2
+		translate	time * .02 , time * -0.05
+		inverseVertexColor
+	}   
+	{
+		blend		gl_dst_alpha , gl_one
+		map			textures/hell/lava1fx.tga
+		red			parm0*fireballtable[ time * .05 ]
+		green		parm1*fireballtable[ time *.25 ]
+		blue		parm2*fireballtable[ time *.25 ]
+		scale		2,2
+		translate	time * .01 , time * -0.025
+		inverseVertexColor
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map			textures/hell/lava1fx.tga
+		red			parm0*fireballtable[ time *.25 ]
+		green		parm1*fireballtable[ time *.25 ]
+		blue		parm2*fireballtable[ time * .25  ]
+		scale		3,3
+		translate	time * -.02 , 1
+		inverseVertexColor
+	}
+}
+
+textures/david/telecolon2_david
+
+{
+	noSelfShadow
+	noShadows
+	translucent
+	//twosided
+	{
+			blend bumpmap	
+			map models/mapobjects/teleporter/telecolon1_local.tga
+			scroll	time * 1 , time * 2.2
+			
+	}
+
+
+	{
+			blend specularmap
+			map models/mapobjects/teleporter/telecolon2_s.tga
+			scroll	time * 2 , time * .5
+			
+	}
+}
+
+
+textures/david/telecolon1_david
+
+{
+	noSelfShadow
+	noShadows
+	//deform particle delta2a_telecolon_fx
+
+	{
+			blend bumpmap	
+			map textures/rock/lanrock1_local.tga
+			//scale 4 , 4
+			scroll	time * -.7 , time * .8
+			
+	}
+	{
+			blend diffusemap	
+			map models/mapobjects/teleporter/telecolon1.tga
+			//scale 1 , 3
+			scroll	time * 0.9 , time * 0.7
+			
+	}
+
+	{
+			blend specularmap
+			map models/mapobjects/teleporter/telecolon1_s.tga
+
+			//scale 1 , 3
+			scroll	time * -0.9 , time * 1	
+			
+	}
+		{
+			blend add	
+			map models/mapobjects/teleporter/telecolon1_fx.tga
+			rgb		meattable[ time * .2 ] -.5
+			//scale .4 , .4
+			scroll	time * -.7 , time * .8
+			
+	}
+}

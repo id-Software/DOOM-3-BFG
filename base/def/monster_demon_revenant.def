@@ -1,0 +1,516 @@
+/***********************************************************************
+
+	monster_demon_revenant.def
+
+***********************************************************************/
+
+export james {
+
+	options -prefix REV_ -keep Lknee Rknee -keep ROT Rmissile Lmissile target1 target2 -parent Rmissile r_gun -parent Lmissile l_gun -parent Waist1 ROT -parent ROT Body
+
+    anim    maps/james/revenant/revenant_intro.mb -dest models/md5/cinematics/revenant/revintro_rev
+
+	addoptions -align movement -sourcedir models/monsters/revenant/cycles -destdir models/md5/monsters/revenant/james
+	
+	mesh	revenant_mesh.mb -dest revenant																
+	anim	idle1.mb
+	anim	sight1.mb
+	anim	sight2.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	teleport.mb
+	anim	walk1.mb
+	anim	walk2.mb
+	anim	range_attack1.mb
+	anim	range_attack2.mb
+	anim	range_attack3.mb
+	anim	evade_left1.mb
+	anim	evade_left2.mb
+	anim	evade_right1.mb
+	anim	evade_right2.mb
+	anim	pain_chest1.mb
+	anim	pain_chest2.mb
+	anim	pain_head1.mb
+	anim	pain_head2.mb
+	anim	pain_luparm1.mb
+	anim	pain_luparm2.mb
+	anim	pain_ruparm1.mb
+	anim	pain_ruparm2.mb
+	anim	af_pose.mb
+}
+
+model monster_demon_revenant {
+	mesh							models/md5/monsters/revenant/james/revenant.md5mesh
+
+	channel torso					( *Waist1 )
+	channel legs					( *Hips origin Body ROT )
+
+	anim turret_attack				models/md5/monsters/revenant/james/range_attack3.md5anim {
+		frame 1							call overrideLegs
+		frame 13						sound_weapon snd_attackmissile
+		frame 14						launch_missile Lmissile
+		frame 15						launch_missile Rmissile
+		frame 15						sound_body snd_footstep
+	}
+
+	anim af_pose					models/md5/monsters/revenant/james/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/revenant/james/af_pose.md5anim
+
+	anim idle						models/md5/monsters/revenant/james/idle1.md5anim
+
+	anim teleport					models/md5/monsters/revenant/james/teleport.md5anim {
+
+		frame 5							sound_body snd_footstep
+		frame 6							sound_body snd_footstep
+		frame 11						sound_voice snd_sight
+	}
+
+	anim sight1						models/md5/monsters/revenant/james/sight1.md5anim {
+		frame 1							sound_voice snd_sight
+	}
+
+	anim sight2						models/md5/monsters/revenant/james/sight2.md5anim {
+		frame 9							sound_voice snd_sight2
+	}
+
+	anim walk						models/md5/monsters/revenant/james/walk1.md5anim {
+		frame 11						sound_body snd_footstep
+		frame 24						sound_body snd_footstep
+	}
+
+	anim pain						models/md5/monsters/revenant/james/pain_chest1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_chest2				models/md5/monsters/revenant/james/pain_chest2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_head1					models/md5/monsters/revenant/james/pain_head1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_head2					models/md5/monsters/revenant/james/pain_head2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_left_arm1				models/md5/monsters/revenant/james/pain_luparm1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_left_arm2				models/md5/monsters/revenant/james/pain_luparm2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_right_arm1			models/md5/monsters/revenant/james/pain_ruparm1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_right_arm2			models/md5/monsters/revenant/james/pain_ruparm2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_legs					models/md5/monsters/revenant/james/pain_chest1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim run						models/md5/monsters/revenant/james/walk2.md5anim {
+		frame 11						sound_body snd_footstep
+		frame 24						sound_body snd_footstep
+	}
+
+	anim melee_attack1				models/md5/monsters/revenant/james/attack1.md5anim {
+		frame 1							call overrideLegs
+		frame 11						melee melee_revRightClaw	
+		frame 11						sound_weapon snd_attackmelee_1
+		frame 12						sound_body snd_footstep
+		frame 13						sound_body snd_footstep
+	}
+
+	anim melee_attack2				models/md5/monsters/revenant/james/attack2.md5anim {
+		frame 1							call overrideLegs
+		frame 11						melee melee_revLeftClaw	
+		frame 12						sound_weapon snd_attackmelee_1
+		frame 14						sound_body snd_footstep
+	}
+
+	anim melee_attack3				models/md5/monsters/revenant/james/attack3.md5anim {
+		frame 1							call overrideLegs
+		frame 12						sound_weapon snd_attackmelee_1
+		frame 12						melee melee_revenant_right
+		frame 13	    				sound_body snd_footstep
+		frame 22						melee melee_revenant_left 
+		frame 22						sound_weapon snd_attackmelee_1
+		frame 22						melee melee_revenant_right
+
+	}
+
+	anim evade_left1				models/md5/monsters/revenant/james/evade_left1.md5anim {
+
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+		frame 18						sound_weapon snd_attackmissile		
+		frame 19						launch_missile Lmissile
+	}
+
+	anim evade_left2				models/md5/monsters/revenant/james/evade_left2.md5anim {
+
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+	
+	anim evade_right1				models/md5/monsters/revenant/james/evade_right1.md5anim {
+		
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+		frame 18						sound_weapon snd_attackmissile		
+		frame 19						launch_missile Rmissile
+	}
+
+	anim evade_right2				models/md5/monsters/revenant/james/evade_right2.md5anim {
+
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+
+	anim range_attack1				models/md5/monsters/revenant/james/range_attack1.md5anim {
+		frame 1							call overrideLegs	
+		frame 12						sound_weapon snd_attackmissile
+		frame 12						launch_missile Lmissile
+	}
+
+	anim range_attack2				models/md5/monsters/revenant/james/range_attack2.md5anim {
+		frame 1							call overrideLegs	
+		frame 13						sound_weapon snd_attackmissile
+		frame 13						launch_missile Rmissile
+	}
+
+	anim range_attack3				models/md5/monsters/revenant/james/range_attack3.md5anim {
+		frame 1							call overrideLegs
+		frame 13						sound_weapon snd_attackmissile
+		frame 14						launch_missile Lmissile
+		frame 15						launch_missile Rmissile
+		frame 15						sound_body snd_footstep
+	}
+}
+
+entityDef monster_demon_revenant {
+	"inherit"						"monster_default"
+	"model"							"monster_demon_revenant"
+	"scriptobject"					"monster_demon_revenant"
+	"size"							"48 48 82"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"272"
+	"melee_range"					"52"
+	"def_projectile"				"projectile_rev_rocket"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"chatter_min"					"6"
+	"chatter_max"					"15"
+	"chatter_combat_min"			"3"
+	"chatter_combat_max"			"7"
+	"ragdoll"						"monster_demon_revenant2"
+	"bone_focus"					"Head"
+	"mass"   						"250"
+	
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"			"burn_imp.prt-waist"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist1"				"0.4 0.4 0"
+	"look_joint Head"				"0.6 0.6 0"	
+
+	"damage_zone head"				"*Shldrs"
+	"damage_zone chest"				"*Waist1 -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips origin Body"
+	"damage_scale head"				"2"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle"
+	"ik_ankle2"						"Rankle"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Ltoe"
+	"ik_foot2"						"Rtoe"
+
+	"snd_footstep"					"monster_demon_revenant_footstep"
+	"snd_attackmelee_1"				"monster_demon_revenant_attackmelee"
+	"snd_sight"						"monster_demon_revenant_sight"
+	"snd_sight2"					"monster_demon_revenant_sight2"
+	"snd_chatter"					"monster_demon_revenant_chatter"
+	"snd_chatter_combat"			"monster_demon_revenant_chatter_combat"
+	"snd_pain"						"monster_demon_revenant_pain"
+	"snd_attackmissile"				"monster_demon_revenant_attackmissile"
+	"snd_death"						"monster_demon_revenant_die"
+	"snd_burn"						"monster_demon_revenant_burn"
+}
+
+entityDef damage_RevRocket {
+	"damage"						"10"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	//"smoke_wound_flesh"				"bloodwound.smoke"
+	"snd_flesh"						"bullet_impact_flesh"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef damage_RevRocketSplash {
+	"damage"						"10"
+	"radius"						"30"
+}
+
+entityDef projectile_rev_rocket {
+	"spawnclass"					"idGuidedProjectile"
+	"mins"							"-2 -2 -5"
+	"maxs"							"2 2 5"
+	"cone"							"3"
+	"model"							"models/weapons/rocketlauncher/rocket.lwo"
+
+	"def_damage"					"damage_RevRocket"
+	"def_splash_damage"				"damage_RevRocketSplash"
+	
+	"random"						"15 15 0"		// random angular offset
+	"turn_max"						"180"			// maximum amount to turn per second
+	"clamp_dist"					"256"			// distance to begin clamping off the random direction changes
+	"launchFromBarrel"				"1"
+	"health"						"5"
+	"velocity"						"300 0 0"
+	"angular_velocity"				"0 0 0"
+	"thrust"						""
+	"thrust_start"					"0"
+	"thrust_end"					"4"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"
+	"mass"							"10"
+	"gravity"						"0"
+	"fuse"							"7"
+	"burstMode"						"1"
+	"burstDist"						"32"
+	"burstVelocity"					"1.25"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"1"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"			"0"
+	"impact_gib"					"1"
+
+	//"mtr_detonate"				"textures/decals/ballburn_rev"
+	"decal_size"					"75" 
+
+	// temp temp
+	"smoke_fly"						"revrockettrail.prt"
+	"smoke_detonate"				""
+	"smoke_residue"					""
+	"smoke_bounce"					""
+	"smoke_fuse"					""
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	// parametric particles -- temp
+	"model_detonate"				"rocketExplosion.prt"
+
+	"mtr_light_shader"				""
+	"light_color"					"0.9 0.6 0.05"
+	"light_radius"					"96"
+	"light_offset"					"0 0 -16"
+
+	"mtr_explode_light_shader"		"muzzleflash"
+	"explode_light_color"			"1 0.8 0.4"
+	"explode_light_radius"			"128"
+	"explode_light_fadetime"		"0.25"
+
+	"snd_fly"						"monster_demon_revenant_rocket_flight"
+	"snd_explode"					"monster_demon_revenant_rocket_explode"
+	"snd_havetone"					"monster_demon_revenant_rocket_tone"
+}
+
+// used for cinematics.  flies straight.
+entityDef projectile_rev_rocket_cinematic {
+	"inherit"						"projectile_rev_rocket"
+	"spawnclass"					"idProjectile"
+}
+
+entityDef melee_revLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+
+	// damage parameters
+	"damage"						"16"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_revRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"16"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"30"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_revenant {
+	"damage"						"16"
+	"kickDir"						".5 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+
+	"knockback"						"40"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+}
+
+entityDef melee_revenant_right {	
+	"damage"						"16"
+	"kickDir"						"0 1 0"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	
+	"knockback"						"60"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+}
+
+entityDef melee_revenant_right_down {
+	"damage"						"16"
+	"kickDir"						".5 0 -1"
+	
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+
+	"knockback"						"70"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+}
+
+entityDef melee_revenant_left {
+	"damage"						"16"
+	"kickDir"						"0 -1 0"
+	
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+
+	"knockback"						"40"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+}
+
+entityDef melee_revenant_left_down {
+	"damage"						"16"
+	"kickDir"						"0 -1 0"
+	
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+
+	"knockback"						"40"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+}

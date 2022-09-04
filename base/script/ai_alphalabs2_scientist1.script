@@ -1,0 +1,1387 @@
+/***********************************************************************
+
+ai_alphalabs2_scientist1.script
+
+***********************************************************************/
+
+#define ED_WAIT_GETCLOSER		4
+#define	ED_LEAD_TIMEOUT			1
+#define ED_MIN_LOOK_DELAY		4
+#define	ED_MAX_LOOK_DELAY		8
+#define	ED_LOOK_TIME			1.5
+#define ED_LEAD_DIST			128
+#define ED_LOST_DIST			256
+
+#define ED_NUM_EVENTS			7
+#define ED_POINT_OF_NO_RETURN	(ED_NUM_EVENTS - 1)
+
+#define ED_COWER_ANGLE_LEFT		85
+#define ED_COWER_ANGLE_RIGHT	-85
+
+#define	ED_COWER_BLEND			9
+#define ED_BLEND_TURN_TO_IDLE	0
+
+#define ED_TURN_THRESHOLD		25
+
+object ai_alphalabs2_scientist1 : ai {
+	boolean		attack_count;
+	boolean		hurry_count;
+	boolean		cower;
+	float		talk_count;
+	float		event;
+	float		lastHurryTime;
+	entity		light;
+	entity		playerEnemy;
+	entity		lookTarget;
+	float		playerMoveState;
+	vector		lastValidPlayerPosition;
+	float		playerPositionThread;
+	
+	//
+	// States
+	//
+	void		state_WorkingOnStuff();
+	void		state_DeathScene();
+	void		state_Killed();
+	void		state_NoticePlayer();
+	void		state_Wait();
+	void		state_Spooked();
+	void		state_Lead();
+	void		state_FindPlayer();
+	void		state_Cower();
+
+	void		init();
+	void		destroy();
+
+	void		faceTowardsEntity( entity target, float duration );
+	void		light_fade_out( float fadeTime );
+	void		light_fade_in( float fadeTime );
+	void		light_fade( float stay_off );
+	void		light_fade1();
+	void		light_fade2();
+	void		doEvent();
+	void		sayStuff();
+	void		hurry_up();
+
+	float		checkDestinationDistance();
+	void		updatePlayerPositionThread();
+	void		checkBlocked();
+	
+	// head anim states	
+	void		Head_Idle();
+	void		Head_Death();
+	void		Head_DeathScene();
+	void 		Head_Greeting();
+	void 		Head_Speech();
+	void		Head_Hurry();
+	void 		Head_StayClose();
+	void 		Head_Electro_Pulses();
+	void 		Head_Pulse1();
+	void 		Head_Pulse2();
+	void 		Head_WatchIt();
+	void 		Head_Spooked();
+	void 		Head_Exit();
+	void		Head_SayStuff();
+	void 		Head_Attacked();
+	void 		Head_AttackDone();
+
+	// torso anim states
+	void		Torso_DeathScene();
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_Work();
+	
+	// legs anim states
+	void		Legs_Death();
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_TurnLeft();
+	void		Legs_TurnRight();
+	void		Legs_Cower();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void ai_alphalabs2_scientist1::Head_Idle() {
+	idleAnim( ANIMCHANNEL_HEAD, "stand" );
+}
+
+void ai_alphalabs2_scientist1::Head_Death() {
+	playAnim( ANIMCHANNEL_HEAD, "dead" );
+	while( AI_DEAD ) {
+		waitFrame();
+	}
+}
+
+void ai_alphalabs2_scientist1::Head_DeathScene() {
+	stopAnim( ANIMCHANNEL_HEAD, 0 );
+	while( AI_DEAD ) {
+		waitFrame();
+	}
+}
+
+void ai_alphalabs2_scientist1::Head_Greeting() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_dontshoot" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );
+	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+
+void ai_alphalabs2_scientist1::Head_Speech() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_canhelp" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	
+	playAnim( ANIMCHANNEL_HEAD, "lips_lightsout" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	
+	lookAt( $player1, 0 );
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+
+void ai_alphalabs2_scientist1::Head_Hurry() {
+	if ( hurry_count ) {
+		playAnim( ANIMCHANNEL_HEAD, "lips_hurry1" );
+	} else {
+		playAnim( ANIMCHANNEL_HEAD, "lips_hurry2" );
+	}
+	
+	hurry_count = !hurry_count;
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+
+void ai_alphalabs2_scientist1::Head_StayClose() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_stayclose" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_Electro_Pulses() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_electro" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_Pulse1() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_theresone" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_Pulse2() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_hangon" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_WatchIt() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_watchit" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_Spooked() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_whatwasthat" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		waitFrame();
+	}
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_Exit() {
+	playAnim( ANIMCHANNEL_HEAD, "lips_theexit" );
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 00 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+		
+void ai_alphalabs2_scientist1::Head_SayStuff() {
+	if ( !talk_count ) {
+		talk_count = 1;
+		playAnim( ANIMCHANNEL_HEAD, "lips_wecantstop" );
+	} else if ( talk_count == 1 ) {
+		talk_count = 2;
+		playAnim( ANIMCHANNEL_HEAD, "lips_canttalknow" );
+	} else if ( talk_count == 2 ) {
+		talk_count = 1;
+		playAnim( ANIMCHANNEL_HEAD, "lips_itisntfar" );
+	}	
+	
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+
+void ai_alphalabs2_scientist1::Head_Attacked() {
+	if ( attack_count ) {
+		playAnim( ANIMCHANNEL_HEAD, "lips_ohgod" );
+	} else {
+		playAnim( ANIMCHANNEL_HEAD, "lips_killit" );
+	}
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+
+void ai_alphalabs2_scientist1::Head_AttackDone() {
+	if ( attack_count ) {
+		playAnim( ANIMCHANNEL_HEAD, "lips_ohthankgod" );
+	} else {
+		playAnim( ANIMCHANNEL_HEAD, "lips_thatwasclose" );
+	}
+	attack_count = !attack_count;
+	while( !( animDone( ANIMCHANNEL_HEAD, 0 ) ) ) {
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	lookAt( $player1, 0 );	
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 4 );
+}
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void ai_alphalabs2_scientist1::Torso_Work() {
+	playAnim( ANIMCHANNEL_TORSO, "working" );	
+	while( !( animDone( ANIMCHANNEL_TORSO, 12 ) ) ) {
+		waitFrame();
+	}	
+	finishAction( "work" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 12 );
+}
+
+void ai_alphalabs2_scientist1::Torso_DeathScene() {
+	string animname;
+
+	overrideAnim( ANIMCHANNEL_LEGS );
+	
+	playAnim( ANIMCHANNEL_TORSO, "killme" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	
+	becomeRagdoll();
+	finishAction( "dead" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void ai_alphalabs2_scientist1::Torso_Death() {
+	finishAction( "dead" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void ai_alphalabs2_scientist1::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+}
+
+void ai_alphalabs2_scientist1::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+			}
+		}
+		waitFrame();
+	}
+	
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void ai_alphalabs2_scientist1::Legs_Death() {
+	while( AI_DEAD ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void ai_alphalabs2_scientist1::Legs_Idle() {
+	float delta;
+	
+	delta = getTurnDelta();
+	if ( !AI_FORWARD && !facingIdeal() ) {
+		if ( delta > 10 ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+		}
+		if ( delta < -10 ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+		}
+	}
+	
+	if ( AI_FORWARD ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+	}
+	
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( AI_FORWARD ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+		}
+		if ( cower ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Cower", 12 );
+		}
+		
+		if ( !facingIdeal() ) {
+			delta = getTurnDelta();
+			if ( delta > 10 ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+			}
+			if ( delta < -10 ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+			}
+		}
+	}
+}
+
+void ai_alphalabs2_scientist1::Legs_Walk() {
+	float delta;
+	
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	while( AI_FORWARD )	{
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+}
+
+void ai_alphalabs2_scientist1::Legs_TurnLeft() {
+	float delta;
+
+	allowMovement( true );
+	animTurn( 180 );
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, ED_BLEND_TURN_TO_IDLE ) ) {
+		if ( AI_FORWARD ) {
+			break;
+		}
+		waitFrame();
+	}
+	animTurn( 0 );
+	
+	if ( AI_FORWARD ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+	}
+	
+	if ( !facingIdeal() ) {
+		delta = getTurnDelta();
+		if ( delta > 10 ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", ED_BLEND_TURN_TO_IDLE );
+		}
+		if ( delta < -10 ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", ED_BLEND_TURN_TO_IDLE );
+		}
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", ED_BLEND_TURN_TO_IDLE );
+}
+
+void ai_alphalabs2_scientist1::Legs_TurnRight() {
+	float delta;
+
+	allowMovement( true );
+	animTurn( 180 );
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, ED_BLEND_TURN_TO_IDLE ) ) {
+		if ( AI_FORWARD ) {
+			break;
+		}
+		waitFrame();
+	}
+	animTurn( 0 );
+
+	if ( AI_FORWARD ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+	}
+
+	if ( !facingIdeal() ) {
+		delta = getTurnDelta();
+		if ( delta > 10 ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", ED_BLEND_TURN_TO_IDLE );
+		}
+		if ( delta < -10 ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", ED_BLEND_TURN_TO_IDLE );
+		}
+	}
+
+    animState( ANIMCHANNEL_LEGS, "Legs_Idle", ED_BLEND_TURN_TO_IDLE );
+}
+
+void ai_alphalabs2_scientist1::Legs_Cower() {
+	vector delta;
+	vector ang1;
+	vector ang2;
+	vector ang3;
+	float  yaw;
+	float  frac;
+	
+	yaw = 0;
+	overrideAnim( ANIMCHANNEL_TORSO );
+	playCycle( ANIMCHANNEL_LEGS, "cower" );
+	while( cower ) {
+		disableEyeFocus();	// gets reenabled by the head anim ending, so just set it every frame
+
+		if ( playerEnemy ) {
+			delta = playerEnemy.getOrigin();
+			delta = delta - getOrigin();
+			ang1 = sys.VecToAngles( delta );
+			ang2 = getAngles();
+			ang3 = anglemod180( ang1 - ang2 );
+			if ( ang3_y > ED_COWER_ANGLE_LEFT ) {
+				ang3_y = ED_COWER_ANGLE_LEFT;
+			} else if ( ang3_y < ED_COWER_ANGLE_RIGHT ) {
+				ang3_y = ED_COWER_ANGLE_RIGHT;
+			}
+
+			yaw = yaw * 0.9 + ang3_y * 0.1;
+			if ( yaw < 0 ) {
+				frac = yaw / ED_COWER_ANGLE_RIGHT;
+				setSyncedAnimWeight( ANIMCHANNEL_LEGS, 0, 1 - frac );	// center
+				setSyncedAnimWeight( ANIMCHANNEL_LEGS, 1, 0 );			// left
+				setSyncedAnimWeight( ANIMCHANNEL_LEGS, 2, frac );		// right
+			} else {
+				frac = yaw / ED_COWER_ANGLE_LEFT;
+				setSyncedAnimWeight( ANIMCHANNEL_LEGS, 0, 1 - frac );	// center
+				setSyncedAnimWeight( ANIMCHANNEL_LEGS, 1, frac );		// left
+				setSyncedAnimWeight( ANIMCHANNEL_LEGS, 2, 0 );			// right
+			}
+		}
+		waitFrame();
+	}
+	
+	enableEyeFocus();
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+ai_alphalabs2_scientist1::init
+=====================
+*/
+void ai_alphalabs2_scientist1::init() {
+	setBoneMod( true );
+	
+	talk_count = 0;
+	lastHurryTime = 0;
+	cower = false;
+	attack_count = 0;
+	hurry_count = 0;
+	event = 0;
+	
+	lookTarget = sys.spawn( "target_null" );
+	lookTarget.bind( self );
+	lookTarget.setOrigin( '120 0 72' );	
+	
+	light = sys.spawn( "light" );
+	light.setShader( "lights/lanternglow" );
+	light.setRadius( 192 );		
+	light.setAngles( '0 -90 0' );
+	light.bindToJoint( self, "lanternlight", true );
+	light.setOrigin( '-5 0 0' );
+
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	setState( "state_WorkingOnStuff" );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::destroy
+=====================
+*/
+void ai_alphalabs2_scientist1::destroy() {
+	lookTarget.remove();
+	light.remove();
+	if ( playerPositionThread ) {
+		sys.terminate( playerPositionThread );
+		playerPositionThread = 0;
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::faceTowardsEntity
+=====================
+*/
+void ai_alphalabs2_scientist1::faceTowardsEntity( entity target, float duration ) {
+	vector delta;
+	vector ang1;
+	vector ang2;
+	vector ang3;
+	
+	delta = target.getOrigin();
+	delta = delta - getOrigin();
+	ang1 = sys.VecToAngles( delta );
+	ang2 = getAngles();
+	ang3 = anglemod180( ang1 - ang2 );
+	if ( ang3_y < -ED_TURN_THRESHOLD ) {
+		turnTo( ang1_y );
+	} else if ( ang3_y > ED_TURN_THRESHOLD ) {
+		turnTo( ang1_y );
+	}
+	
+	lookAt( target, duration );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::light_fade_out
+=====================
+*/
+void ai_alphalabs2_scientist1::light_fade_out( float fadeTime ) {
+	float i;
+	vector c;
+	float frac;
+	float numTics;
+
+	setSkin( "skins/characters/npcs/labcoat_old_lantern_off.skin" );
+	
+	// convert to the total number of game tics
+	numTics = fadeTime * GAME_FPS;
+
+	for( i = 0; i < numTics; i++ ) {
+		frac = 1 - ( i / numTics );
+		light.setColor( frac, frac, frac );
+		global_flashlight_intensity = frac;
+
+		// wait one game frame
+		sys.waitFrame();
+	}
+	
+	// make sure we are set to exactly the final value
+	light.setColor( 0, 0, 0 );
+	global_flashlight_intensity = 0;
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::light_fade_in
+=====================
+*/
+void ai_alphalabs2_scientist1::light_fade_in( float fadeTime ) {
+	float i;
+	vector c;
+	float frac;
+	float numTics;
+
+	setSkin( "skins/characters/npcs/body_labcoat_lantern" );
+	
+	// convert to the total number of game tics
+	numTics = fadeTime * GAME_FPS;	
+
+	for( i = 0; i < numTics; i++ ) {
+		frac = i / numTics;
+		light.setColor( frac, frac, frac );
+		global_flashlight_intensity = frac;
+
+		// wait one game frame
+		sys.waitFrame();
+	}
+	
+	// make sure we are set to exactly the final value
+	light.setColor( 1, 1, 1 );
+	global_flashlight_intensity = 1;
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::light_fade
+=====================
+*/
+void ai_alphalabs2_scientist1::light_fade( float stay_off ) {
+	light_fade_out( 0.1 );
+	light_fade_in( 0.05 );
+	light_fade_out( 0.1 );
+	light_fade_in( 0.2 );
+	light_fade_out( 0.05 );
+	if ( !stay_off ) {
+		sys.wait( 2 );
+		thread light_fade_in( 3 );
+		
+		lookTarget.setOrigin( '80 -40 72' );	
+		lookAt( lookTarget, 1.2 );
+		sys.wait( 1.2 );
+		
+		lookTarget.setOrigin( '80 40 72' );	
+		lookAt( lookTarget, 1.5 );
+		sys.wait( 1.5 );
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::light_fade1
+=====================
+*/
+void ai_alphalabs2_scientist1::light_fade1() {
+	float currentTime;
+	float threadNum;
+	
+	sys.wait( 0.2 );
+	threadNum = thread light_fade( false );
+	sys.wait( 1 );
+	
+	stopMove();
+	currentTime = sys.getTime();
+
+	animState( ANIMCHANNEL_HEAD, "Head_Pulse1", 4 );
+	sys.waitForThread( threadNum );
+	setState( "state_Lead" );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::light_fade2
+=====================
+*/
+void ai_alphalabs2_scientist1::light_fade2() {
+	float currentTime;
+	float threadNum;
+
+	threadNum = thread light_fade( false );
+	sys.wait( 0.5 );
+	
+	stopMove();
+	currentTime = sys.getTime();
+	animState( ANIMCHANNEL_HEAD, "Head_Pulse2", 4 );
+	sys.waitForThread( threadNum );
+	setState( "state_Lead" );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::doEvent
+=====================
+*/
+void ai_alphalabs2_scientist1::doEvent() {
+	float currentTime;
+	
+	AI_ACTIVATED = false;
+	currentTime = sys.getTime();
+	event = event + 1;
+	if ( event == 1 ) {
+		animState( ANIMCHANNEL_HEAD, "Head_Electro_Pulses", 4 );
+		setState( "state_Lead" );
+	} else if ( event == 2 ) {
+		light_fade1();
+	} else if ( event == 3 ) {
+		setState( "state_Spooked" );
+	} else if ( event == 4) {
+		light_fade2();
+	} else if ( event == 5 ) {
+		animState( ANIMCHANNEL_HEAD, "Head_Exit", 4 );
+		setState( "state_Lead" );
+	} else if ( event == ( ED_NUM_EVENTS - 1) ) {
+		// point of no return
+		;
+	} else if ( event >= ED_NUM_EVENTS ) {
+		setState( "state_DeathScene" );
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::sayStuff
+=====================
+*/
+void ai_alphalabs2_scientist1::sayStuff() {
+	setTalkTarget( $null_entity );
+	if ( !inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+		return;
+	}
+	animState( ANIMCHANNEL_HEAD, "Head_SayStuff", 4 );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::hurry_up
+=====================
+*/
+void ai_alphalabs2_scientist1::hurry_up() {
+	float currentTime;
+
+	currentTime = sys.getTime();
+	if ( ( currentTime > lastHurryTime ) && inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+		animState( ANIMCHANNEL_HEAD, "Head_Hurry", 4 );
+		lastHurryTime = currentTime + 6;
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::checkDestinationDistance()
+=====================
+*/
+float ai_alphalabs2_scientist1::checkDestinationDistance() {
+	float	playerDist;
+	float	currentDist;
+	float	leadDistance;
+	float	relativeMoveDir;
+	vector	delta;
+
+	// determine if the player is moving toward us
+	delta = getOrigin() - $player1.getOrigin();
+	relativeMoveDir = delta * $player1.getLinearVelocity();
+	if ( relativeMoveDir > 1 ) {
+		// Player is approaching
+		playerMoveState = APPROACHING;
+	} else if ( relativeMoveDir < -1 ) {
+		// Player is moving away from us
+		playerMoveState = RETREATING;
+	} else {
+		// Player is standing still
+		playerMoveState = NOT_MOVING;
+	}
+
+	playerDist = distanceToPoint( lastValidPlayerPosition );
+	if ( playerDist < ED_LEAD_DIST ) {
+		return PLAYER_OK;
+	}
+
+	if ( !canSee( $player1 ) ) {
+		currentDist = travelDistanceToEntity( $scientist_destination );
+		leadDistance = travelDistanceBetweenPoints( lastValidPlayerPosition, $scientist_destination.getOrigin() );
+		if ( currentDist > leadDistance ) {
+			return PLAYER_AHEAD_OF_ME;
+		} else {
+			return PLAYER_LOST;
+		}
+	}
+
+	if ( playerDist > ED_LOST_DIST ) {
+		currentDist = travelDistanceToEntity( $scientist_destination );
+		leadDistance = travelDistanceBetweenPoints( lastValidPlayerPosition, $scientist_destination.getOrigin() );
+		if ( currentDist > leadDistance ) {
+			return PLAYER_AHEAD_OF_ME;
+		} else {
+			return PLAYER_BEHIND_ME;
+		}
+	}
+
+	return PLAYER_OK;
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::updatePlayerPositionThread()
+=====================
+*/
+void ai_alphalabs2_scientist1::updatePlayerPositionThread() {
+	vector pos;
+
+	while( 1 ) {
+		if ( canReachEntity( $player1 ) ) {
+			lastValidPlayerPosition = getReachableEntityPosition( $player1 );
+		}
+		//sys.debugBounds( '1 0 0', lastValidPlayerPosition + $player1.getMins(), lastValidPlayerPosition + $player1.getMaxs(), 0 );
+		waitFrame();
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::checkBlocked
+=====================
+*/
+void ai_alphalabs2_scientist1::checkBlocked() {
+	entity obstacle;
+	vector player_pos;
+	vector delta;
+
+	if ( moveStatus() >= MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+		obstacle = getObstacle();
+		if ( obstacle != $player1 ) {
+			kickObstacles( obstacle, 60 );
+			return;
+		}
+
+		hurry_up();
+		player_pos = $player1.getOrigin();
+		saveMove();
+		stopMove();
+		while( 1 ) {
+			delta = player_pos - $player1.getOrigin();
+			delta_z = 0;
+			if ( sys.vecLength( delta ) > 4 ) {
+				restoreMove();
+				if ( moveStatus() < MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+					break;
+				}
+				if ( getObstacle() != $player1 ) {
+					break;
+				}
+				stopMove();
+			}
+			if ( $player1.hasEnemies() ) {
+				setState( "state_Cower" );
+			}
+			faceTowardsEntity( $player1, 1 );
+			if ( AI_TALK ) {
+				sayStuff();
+			}
+			waitFrame();
+		}
+	}
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_Killed
+=====================
+*/
+void ai_alphalabs2_scientist1::state_Killed() {
+	light.Off();
+	setSkin( "skins/characters/npcs/body_labcoat_no_lantern.skin" );
+	stopMove();
+
+	sys.terminate( playerPositionThread );
+	playerPositionThread = 0;
+
+	animState( ANIMCHANNEL_HEAD, "Head_Death", 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+
+	waitAction( "dead" );
+	stopThinking();
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_DeathScene
+=====================
+*/
+void ai_alphalabs2_scientist1::state_DeathScene() {
+	// keep walking
+	AI_FORWARD = true;
+	setNeverDormant( false );
+
+	sys.terminate( playerPositionThread );
+	playerPositionThread = 0;
+
+	thread light_fade( true );
+	sys.wait( 0.5 );
+	
+	setTalkState( TALK_DEAD );
+
+	stopMove();
+	sys.trigger( $edkiller );
+	
+	thread light_fade_in( 2.0 ); // turn flashlight back on after ed's death
+	
+	animState( ANIMCHANNEL_HEAD, "Head_DeathScene", 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_DeathScene", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+	waitAction( "dead" );
+	stopThinking();
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_WorkingOnStuff
+=====================
+*/
+void ai_alphalabs2_scientist1::state_WorkingOnStuff() {
+	vector ang1;
+	vector ang2;
+	
+	ang1 = $interesting_object1.getAngles();
+	ang2 = $interesting_object2.getAngles();
+
+	AI_ACTIVATED = false;	
+	while( 1 ) {
+		moveToEntity( $interesting_object1 );
+		while( !AI_MOVE_DONE ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+		
+		turnTo( ang1_y );
+		while( !facingIdeal() ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+
+		while( !inAnimState( ANIMCHANNEL_LEGS, "Legs_Idle" ) ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+
+		animState( ANIMCHANNEL_TORSO, "Torso_Work", 8 );
+		while( inAnimState( ANIMCHANNEL_TORSO, "Torso_Work" ) ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+
+		moveToEntity( $interesting_object2 );
+		while( !AI_MOVE_DONE ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+		
+		turnTo( ang2_y );
+		while( !facingIdeal() ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+
+		while( !inAnimState( ANIMCHANNEL_LEGS, "Legs_Idle" ) ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+
+		animState( ANIMCHANNEL_TORSO, "Torso_Work", 8 );
+		while( inAnimState( ANIMCHANNEL_TORSO, "Torso_Work" ) ) {
+			if ( AI_ACTIVATED ) {
+				setState( "state_NoticePlayer" );
+			}
+			waitFrame();
+		}
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_NoticePlayer
+=====================
+*/
+void ai_alphalabs2_scientist1::state_NoticePlayer() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 12 );
+	
+	setNeverDormant( true );
+	AI_ACTIVATED = false;
+	lookAt( $player1, 10 );
+	animState( ANIMCHANNEL_HEAD, "Head_Greeting", 4 );
+	moveToEntity( $greet_player );
+	while( !AI_MOVE_DONE ) {
+		if ( distanceTo( $player1 ) < 64 ) {
+			AI_ACTIVATED = true;
+			turnToEntity( $player1 );
+			break;
+		}
+		lookAt( $player1, 1 );
+		waitFrame();
+	}
+	stopMove();
+	
+	while( !AI_ACTIVATED ) {
+		faceTowardsEntity( $player1, 1 );
+		waitFrame();
+	}
+	AI_ACTIVATED = false;
+	
+	animState( ANIMCHANNEL_HEAD, "Head_Speech", 4 );
+	while( !inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+		faceTowardsEntity( $player1, 1 );
+		waitFrame();
+	}
+	
+	setTalkTarget( $null_entity );
+
+	playerPositionThread = thread updatePlayerPositionThread();
+	setState( "state_Lead" );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_Wait
+=====================
+*/
+void ai_alphalabs2_scientist1::state_Wait() {
+	float getCloserTime;
+	float currentTime;
+
+	float result = checkDestinationDistance();
+	if ( result == PLAYER_LOST ) {
+		setState( "state_FindPlayer" );
+	} else if ( result == PLAYER_AHEAD_OF_ME ) {
+		setState( "state_Lead" );
+	} else if ( ( result == PLAYER_OK ) && ( playerMoveState == APPROACHING ) ) {
+		setState( "state_Lead" );
+	}
+
+	stopMove();
+	hurry_up();
+
+	getCloserTime = currentTime + ED_WAIT_GETCLOSER;
+	
+	while( 1 ) {
+		faceTowardsEntity( $player1, 1 );
+		if ( AI_TALK ) {
+			sayStuff();
+		}
+	
+		result = checkDestinationDistance();
+		if ( result == PLAYER_LOST ) {
+			setState( "state_FindPlayer" );
+		} else if ( result == PLAYER_AHEAD_OF_ME ) {
+			setState( "state_Lead" );
+		} else if ( ( result == PLAYER_OK ) && ( playerMoveState == APPROACHING ) ) {
+			setState( "state_Lead" );
+		} else  if ( ( sys.getTime() > getCloserTime ) && ( result == PLAYER_BEHIND_ME ) ) {
+			setState( "state_GetCloser" );
+		}
+
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+		
+		if ( AI_ACTIVATED ) {
+			if ( inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+				doEvent();
+			}
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_GetCloser
+=====================
+*/
+void ai_alphalabs2_scientist1::state_GetCloser() {
+	while( 1 ) {
+		moveToPosition( lastValidPlayerPosition );
+		if ( AI_MOVE_DONE ) {
+			if ( !canReachEntity( $player1 ) ) {
+				setState( "state_CantReachPlayer" );
+			}
+		}
+
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+
+		checkBlocked();
+
+		float result = checkDestinationDistance();
+		if ( result == PLAYER_LOST ) {
+			setState( "state_FindPlayer" );
+		}
+        if ( result == PLAYER_OK ) {
+			setState( "state_Wait" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_CantReachPlayer
+=====================
+*/
+void ai_alphalabs2_scientist1::state_CantReachPlayer() {
+	startSound( "snd_cant_reach_player", SND_CHANNEL_VOICE, false );
+	stopMove();
+	while( 1 ) {
+		if ( canReachEntity( $player1 ) ) {
+			setState( "state_Wait" );
+		}
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_Spooked
+=====================
+*/
+void ai_alphalabs2_scientist1::state_Spooked() {
+	vector ang;
+	float endTime;
+
+	animState( ANIMCHANNEL_HEAD, "Head_Spooked", 4 );
+	lookAt( $player1, 1.2 );
+	stopMove();
+	sys.wait( 1.2 );
+	
+	if ( $player1.hasEnemies() ) {
+		setState( "state_Cower" );
+	}
+
+	lookTarget.setOrigin( '80 -120 72' );	
+	lookAt( lookTarget, 1.7 );
+	endTime = sys.getTime() + 1.7;
+	while( endTime > sys.getTime() ) {
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+		waitFrame();
+	}
+	
+	lookTarget.setOrigin( '80 120 72' );	
+	lookAt( lookTarget, 1.7 );
+	endTime = sys.getTime() + 1.7;
+	while( endTime > sys.getTime() ) {
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+		waitFrame();
+	}
+	
+	if ( $player1.hasEnemies() ) {
+		setState( "state_Cower" );
+	}
+	
+	animState( ANIMCHANNEL_HEAD, "Head_StayClose", 4 );
+	while( !inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+		waitFrame();
+	}
+
+	setState( "state_Lead" );
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_Lead
+=====================
+*/
+void ai_alphalabs2_scientist1::state_Lead() {
+	float	nextLookTime;
+	float	leadTimeOut;
+
+	nextLookTime = RandomDelay( ED_MIN_LOOK_DELAY, ED_MAX_LOOK_DELAY );
+	moveToEntity( $scientist_destination );
+
+	leadTimeOut = sys.getTime() + ED_LEAD_TIMEOUT;
+
+	while( 1 ) {
+		if ( AI_TALK ) {
+			sayStuff();
+		}
+		
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+
+		if ( sys.getTime() > nextLookTime ) {
+			lookAt( $player1, ED_LOOK_TIME );
+			nextLookTime = RandomDelay( ED_MIN_LOOK_DELAY, ED_MAX_LOOK_DELAY );
+		}
+
+		checkBlocked();
+
+		float result = checkDestinationDistance();
+		if ( ( result != PLAYER_BEHIND_ME ) && ( result != PLAYER_LOST ) ) {
+			leadTimeOut = sys.getTime() + ED_LEAD_TIMEOUT;
+		} else if ( sys.getTime() > leadTimeOut ) {
+			if ( event < ED_POINT_OF_NO_RETURN ) {
+				setState( "state_Wait" );
+			}
+		} else {
+			// look back at player to see what he's up to
+			lookAt( $player1, 0.1 );
+			nextLookTime += 0.1;
+		}
+
+		if ( AI_MOVE_DONE ) {
+			moveToEntity( $scientist_destination );
+		}		
+		
+		if ( AI_ACTIVATED ) {
+			if ( inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+				doEvent();
+			}
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_FindPlayer
+=====================
+*/
+void ai_alphalabs2_scientist1::state_FindPlayer() {
+	setTalkTarget( $null_entity );
+	while( 1 ) {
+		moveToPosition( lastValidPlayerPosition );
+		if ( AI_MOVE_DONE || AI_DEST_UNREACHABLE ) {
+			if ( !canReachEntity( $player1 ) ) {
+				setState( "state_CantReachPlayer" );
+			}
+		}
+
+		if ( $player1.hasEnemies() ) {
+			setState( "state_Cower" );
+		}
+		
+		if ( AI_TALK ) {
+			sayStuff();
+		}
+
+		checkBlocked();
+		
+		if ( AI_ACTIVATED ) {
+			if ( inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+				doEvent();
+			}
+		}
+
+		float result = checkDestinationDistance();
+		if ( canSee( $player1 ) && ( ( result == PLAYER_BEHIND_ME ) || ( result == PLAYER_OK ) ) ) {
+			setState( "state_Wait" );
+		} else if ( result == PLAYER_AHEAD_OF_ME ) {
+			setState( "state_Lead" );
+		}
+
+		waitFrame();
+	}
+}
+
+/*
+=====================
+ai_alphalabs2_scientist1::state_Cower
+=====================
+*/
+void ai_alphalabs2_scientist1::state_Cower() {
+	sys.wait( 0.6 );
+
+	setTalkState( TALK_BUSY );
+	setTalkTarget( $null_entity );
+
+	lookAt( self, 0 );
+	playerEnemy = $player1.closestEnemyToPoint( getOrigin() );
+	if ( playerEnemy ) {
+		stopMove();
+		faceTowardsEntity( playerEnemy, 1 );
+		sys.wait( 0.4 );
+
+		animState( ANIMCHANNEL_HEAD, "Head_Attacked", 4 );
+
+		sys.wait( 0.2 );
+		cower = true;
+		stopMove();
+
+		while( $player1.hasEnemies() ) {
+			if ( !playerEnemy ) {
+				playerEnemy = $player1.closestEnemyToPoint( getOrigin() );
+			}
+			waitFrame();
+		}
+	}
+	
+	sys.wait( 0.8 );
+	cower = false;
+	setTalkState( TALK_OK );
+	lookAt( $player1, 1 );
+	sys.wait( 0.5 );
+	
+	animState( ANIMCHANNEL_HEAD, "Head_AttackDone", 10 );
+	while( !inAnimState( ANIMCHANNEL_HEAD, "Head_Idle" ) ) {
+		faceTowardsEntity( $player1, 1 );
+		waitFrame();
+	}
+	
+	sys.wait( 0.2 );
+
+	setState( "state_Lead" );
+}

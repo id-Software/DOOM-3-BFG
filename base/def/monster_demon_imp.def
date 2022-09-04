@@ -1,0 +1,779 @@
+/***********************************************************************
+
+	monster_demon_imp.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix IMP1_ -keep Lknee Rknee Lelbow Relbow camera Body -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent Hips Body -parent Waist Body -parent camera Head
+
+	anim	maps/fred/impdoorbreak/impdoorbreak.mb -range 34 100 -dest models/md5/monsters/imp/imp1doorbreak -rotate 180
+	anim	maps/fred/admin/impcrawl.mb -range 1 52 -rotate -180 -dest models/md5/monsters/imp/imp1wallcrawl
+	anim	maps/fred/underground/impscurry.mb -rotate 90 -dest models/md5/cinematics/underground/tunnelscurry -prefix IMP_
+	anim	maps/fred/underground/impstairs.mb -rotate 180 -dest models/md5/cinematics/underground/stairsimpcrawl -prefix IMP_
+
+	addoptions -prefix IMP2_
+
+	anim	maps/fred/impdoorbreak/impdoorbreak.mb -range 34 125 -dest models/md5/monsters/imp/imp2doorbreak -rotate 180
+	anim	maps/fred/admin/impcrawl.mb -range 1 40 -dest models/md5/monsters/imp/imp2wallcrawl
+	
+
+	//anim	maps/fred/enpro/enpro_exit2.mb -range 1 510 -dest models/md5/cinematics/enpro/exitimp2a
+
+
+	//anim	maps/fred/enpro/enpro_exit2.mb -range 1 321 -dest models/md5/cinematics/enpro/exitimp2a
+	anim	maps/fred/enpro/enpro_exit2.mb -range 171 259 -dest models/md5/cinematics/enpro/exitimp2a
+	anim	maps/fred/enpro/marine_battle_shot4.mb -range 350 420 -dest models/md5/cinematics/enpro/exitimp2b
+	anim	maps/fred/enpro/enpro_exit2.mb -range 452 510 -dest models/md5/cinematics/enpro/exitimp2c
+	anim	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitimp2
+	
+	anim	maps/fred/ceiling/ceiling2.mb -range 1 1 -dest models/md5/monsters/imp/ceilingimpidle -align ALL
+	anim	maps/fred/ceiling/ceiling2.mb -dest models/md5/monsters/imp/ceilingimp -align ALL
+
+	addoptions -prefix IMP_
+
+	anim	maps/fred/alphalabs2/ed_death.mb -dest models/md5/cinematics/alphalabs2/edkiller
+
+	anim	maps/fred/marscity_2/imp_throws_marine_idle.mb -range 1 40 -rotate 90 -dest models/md5/cinematics/marscity_2/marinethrow_imp_idle
+	anim	maps/fred/marscity_2/imp_throws_marine.mb -range 1 63 -rotate 90 -dest models/md5/cinematics/marscity_2/marinethrow_imp
+	anim	maps/fred/marscity_2/mars_city2.mb -range 1 90 -dest models/md5/cinematics/marscity_2/impfeast_imp_loop
+	anim	maps/fred/marscity_2/mars_city2.mb -range 91 170 -dest models/md5/cinematics/marscity_2/impfeast_imp
+
+	anim	maps/fred/alphalabs1/impscare.mb -dest models/md5/cinematics/alphalabs1/impscare
+
+	anim	maps/fred/underground/ending.mb -range 1 1 -dest models/md5/cinematics/underground/ending_impstart
+	anim	maps/fred/underground/ending.mb -range 1 48 -dest models/md5/cinematics/underground/ending_imp
+
+	//anim	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitimp1
+	
+	anim	maps/fred/underground/impintro.mb -dest models/md5/cinematics/underground/impintro_imp
+
+	anim	maps/fred/delta2a/malimpcolumns.mb -range 1 1 -dest models/md5/monsters/imp/idlecolumn
+	anim	maps/fred/delta2a/malimpcolumns.mb -dest models/md5/monsters/imp/leapdowncolumn
+	anim	maps/fred/delta2a/malcageroom.mb -range 17 17 -dest models/md5/monsters/imp/idlecages
+	anim	maps/fred/delta2a/malcageroom.mb -dest models/md5/monsters/imp/leapdowncages
+	anim	maps/fred/delta2b/monster_tanks.mb -dest models/md5/monsters/imp/imptankidle
+	anim	maps/fred/delta2b/monster_tanks_twitch.mb -range 23 97 -dest models/md5/monsters/imp/imptanktwitch
+	anim	maps/fred/delta1/impdowncorner.mb -range 1 1 -dest models/md5/monsters/imp/d1corneridle
+	anim	maps/fred/delta1/impdowncorner.mb -dest models/md5/monsters/imp/d1corner
+
+	anim	maps/fred/alphalabs2/elevator_attack.mb -range 1 195 -dest models/md5/monsters/imp/a2_elevator
+	anim	maps/fred/caverns2/imprailing.mb -range 1 60 -dest models/md5/cinematics/caverns2/imp1railing
+	anim	maps/fred/caverns2/imprailing2.mb -rotate -90 -range 1 90 -dest models/md5/cinematics/caverns2/imp2railing
+
+	anim	maps/james/mc_underground/impcrawl_armdoor.mb -dest models/md5/cinematics/underground/underground_impcrawl_arm
+	anim	maps/james/alphalabs2/alphalabs2_impcrawl_armdoor.mb -dest models/md5/cinematics/alphalabs2/alphalabs2_impcrawl_arm
+
+	addoptions -sourcedir models/monsters/imp/animation/cycles 
+	addoptions -destdir models/md5/monsters/imp
+	anim	offwall.ma -range 275 275 -dest offwallidle
+	anim	offwall.ma
+
+	addoptions -align ALL
+	
+	mesh	imp.mb
+
+	anim	initial.ma
+	anim	idle1.ma
+	anim	mocapalert_idle.ma -rotate 90
+	anim	alert_walk.ma
+	anim	sight.ma
+	anim	sight2.ma
+
+	anim	walk1.ma -dest walk1
+	anim	faster_walk.ma
+	anim	run.ma
+	anim	on4_sight.ma
+	anim	on4_idle.ma
+	anim	on4_melee1.ma -xyzprecision 0.01 -quatprecision 0.00006
+	anim	on4_melee2.ma -xyzprecision 0.01 -quatprecision 0.00006
+	anim	evade_right.ma
+	anim	evade_right_on4.ma
+	anim	evade_left.ma
+	anim	evade_left_on4.ma
+	anim	scurry2.ma
+	anim	scurry_leap2.ma -dest scurry_leap.md5anim
+	anim	cabinet_leap.mb
+
+	anim	scurry_leap2.ma -range 1 19 -dest jump_start
+	anim	jump_loop.ma
+	anim	jump_loop2.ma
+	anim	jump_loop3.ma
+	anim	scurry_leap2.ma -range 30 48 -dest jump_end
+	anim 	scurry_stop.ma
+	anim	pain3.ma
+	anim	pain_head.ma
+	anim	pain_head_on4.ma
+	anim	pain_chest.ma
+	anim	pain_chest_on4.ma
+	anim	pain_luparm.ma
+	anim	pain_luparm_on4.ma
+	anim	pain_ruparm.ma
+	anim	pain_ruparm_on4.ma
+	anim	pain_legs.ma
+	anim	turret_attack1.ma
+	anim	turret_idle.ma
+	anim	range1.ma
+	anim	range2.ma
+	anim	range3.ma
+	anim	fireball_sight.ma -dest range4
+	anim	crouched_range1.ma
+	anim	slash1.ma
+	anim	slash2.ma
+	anim	slash3.ma
+	anim	teleportin.ma
+	anim	hangonceiling.ma
+
+	anim	outofhole.ma -range 1 1 -dest outofholeidle
+	anim	outofhole.ma
+
+	anim	kitchen.mb -range 1 1 -dest kitchenimpidle -sourcedir maps/fred/kitchen/ -destdir models/md5/monsters/imp/
+
+	anim	kitchen.mb -dest kitchenimp -sourcedir maps/fred/kitchen/ -destdir models/md5/monsters/imp/
+
+	anim	idle.mb -dest severedidle -rotate 180 -sourcedir models/monsters/zombie/zombie01/severed/ -destdir models/md5/monsters/imp/
+	anim	wake.mb -dest severedwake -rotate 180 -sourcedir models/monsters/zombie/zombie01/severed/ -destdir models/md5/monsters/imp/
+
+	anim	monster_wakeups.mb -sourcedir maps/fred/cyberdemon -dest impcyberwakeup -prefix IMP1_
+
+}
+
+model monster_demon_imp {
+	mesh							models/md5/monsters/imp/imp.md5mesh
+	channel torso					( *chest )
+	channel legs					( waist *Hips Body origin )
+	
+	anim af_pose					models/md5/monsters/imp/initial.md5anim
+	anim ik_pose					models/md5/monsters/imp/initial.md5anim
+							
+	anim teleport					models/md5/monsters/imp/teleportin.md5anim {
+		frame 4							sound_body snd_footstep
+		frame 21						sound_body snd_sight
+	}		
+	anim initial					models/md5/monsters/imp/initial.md5anim
+	anim crawl						models/md5/monsters/imp/scurry2.md5anim {
+		frame 6							sound_body snd_footstep
+		frame 10						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 18						sound_body snd_footstep
+	}	
+	anim crawl_idle					models/md5/monsters/imp/on4_idle.md5anim {
+		frame 57						sound_chatter snd_alert_idle
+		frame 140						sound_chatter snd_alert_idle
+	}
+	anim stand						models/md5/monsters/imp/idle1.md5anim
+	anim idle						models/md5/monsters/imp/idle1.md5anim {
+		random_cycle_start
+	}
+	anim idle1						models/md5/monsters/imp/idle1.md5anim {
+		random_cycle_start
+	}
+	anim sight1						models/md5/monsters/imp/sight.md5anim {
+		frame 15						sound_body snd_sight
+	}
+	anim sight2						models/md5/monsters/imp/sight2.md5anim {
+		frame 13						sound_body snd_sight2
+	}
+	anim walk						models/md5/monsters/imp/walk1.md5anim {
+		random_cycle_start
+	 	frame 2							leftfoot
+		frame 19						rightfoot
+	}
+	anim run						models/md5/monsters/imp/faster_walk.md5anim {
+		random_cycle_start
+		frame 13						leftfoot
+		frame 26						rightfoot
+	}
+	anim crawl_evade_left			models/md5/monsters/imp/evade_left_on4.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+	}
+	anim crawl_evade_right			models/md5/monsters/imp/evade_right_on4.md5anim	{
+		frame 1							sound_voice snd_pain
+		frame 13						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+	}
+	anim crawl_evade_left_noturn	models/md5/monsters/imp/evade_left_on4.md5anim {
+		ai_no_turn
+		frame 1							sound_voice snd_pain
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+	}
+	anim crawl_evade_right_noturn	models/md5/monsters/imp/evade_right_on4.md5anim	{
+		ai_no_turn
+		frame 1							sound_voice snd_pain
+		frame 13						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+	}
+	anim evade_left					models/md5/monsters/imp/evade_left.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+	}
+	anim evade_right				models/md5/monsters/imp/evade_right.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 13						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+	}
+	anim range_attack1				models/md5/monsters/imp/range1.md5anim {
+		frame 2							sound_weapon snd_createmissile
+		frame 2							create_missile RMissile
+		frame 22						sound_weapon snd_attackmissile
+		frame 22						launch_missile RMissile
+	}
+	anim range_attack2				models/md5/monsters/imp/range3.md5anim {
+		frame 11						sound_weapon snd_createmissile
+		frame 11						create_missile RMissile
+		frame 45						sound_weapon snd_attackmissile
+		frame 45						launch_missile RMissile
+	}
+	anim range_attack3				models/md5/monsters/imp/range4.md5anim {
+		frame 1							sound_body snd_sight
+		frame 2							sound_weapon snd_createmissile
+		frame 2							create_missile RMissile
+		frame 37						sound_weapon snd_attackmissile
+		frame 37						launch_missile RMissile
+	}
+	anim turret_attack1				models/md5/monsters/imp/turret_attack1.md5anim {
+		frame 1							sound_body snd_sight
+		frame 2							sound_weapon snd_createmissile
+		frame 2							create_missile RMissile
+		frame 22						sound_weapon snd_attackmissile
+		frame 22						launch_missile RMissile
+	}
+	anim turret_idle				models/md5/monsters/imp/turret_idle.md5anim
+	
+	anim jump_start					models/md5/monsters/imp/jump_start.md5anim {
+		frame 1							sound_voice snd_attackmelee_1
+	}
+	anim jump_loop1					models/md5/monsters/imp/jump_loop.md5anim
+	anim jump_end					models/md5/monsters/imp/jump_end.md5anim {
+		frame 1							sound_body snd_footstep
+		frame 3							sound_body snd_footstep
+	}
+
+	anim melee_attack1				models/md5/monsters/imp/slash1.md5anim {
+		frame 1							sound_weapon snd_attackmelee_1
+		frame 8							melee melee_impLeftClaw
+		frame 10						sound_body snd_footstep	
+		frame 17						melee melee_impRightClaw
+		frame 19						sound_body snd_footstep
+	}
+	anim melee_attack2				models/md5/monsters/imp/slash2.md5anim {
+		frame 1							sound_weapon snd_attackmelee_2
+		frame 4							sound_body snd_footstep
+		frame 9							melee melee_impLeftClaw	
+		frame 11						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+	}
+	anim melee_attack3				models/md5/monsters/imp/slash3.md5anim {
+		frame 1							sound_weapon snd_attackmelee_2
+		frame 6							melee melee_impRightClaw	
+		frame 10						sound_body snd_footstep
+	}
+	anim pain_head					models/md5/monsters/imp/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/imp/pain_luparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm				models/md5/monsters/imp/pain_ruparm.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	anim pain_chest					models/md5/monsters/imp/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain						models/md5/monsters/imp/pain3.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim leap_attack				models/md5/monsters/imp/scurry_leap.md5anim {
+		frame 1							sound_voice snd_sight8
+		frame 4							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						attack_begin melee_impLeapAttack
+		frame 28						attack_end
+		frame 30						sound_body snd_footstep	
+		frame 32						sound_body snd_footstep
+		frame 38						sound_body snd_footstep
+	}
+
+	anim roofcrawlidle				models/md5/monsters/imp/ceilingimpidle.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim roofcrawl					models/md5/monsters/imp/ceilingimp.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 117						enableGravity
+		frame 117						enableWalkIK
+	}
+
+	anim ceilinghang				models/md5/monsters/imp/hangonceiling.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+
+	anim zombie_feast				models/md5/monsters/imp/severedidle.md5anim {
+		ai_no_turn
+	}
+	anim zombie_feast_wake			models/md5/monsters/imp/severedwake.md5anim {
+		ai_no_turn
+		frame 6						sound_voice snd_chatter
+	}
+
+	anim outofholeidle				models/md5/monsters/imp/outofholeidle.md5anim {
+		frame 1							disableWalkIK
+		ai_no_turn
+	}
+	anim outofhole					models/md5/monsters/imp/outofhole.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 12						sound_voice snd_chatter
+		frame 65						enableWalkIK
+	}
+
+	anim offwallidle				models/md5/monsters/imp/offwallidle.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							disableGravity
+	}
+	anim offwall					models/md5/monsters/imp/offwall.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							disableGravity
+		frame 73						enableGravity
+		frame 73						enableWalkIK
+	}
+}
+
+entityDef monster_demon_imp {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_imp"
+	"model"							"monster_demon_imp"
+	"ragdoll"						"monster_demon_imp"
+	
+	"size"							"48 48 72"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"130"
+	"melee_damage" 					"35"
+	"melee_range"					"40"
+	"def_projectile"				"projectile_impfireball"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"offsetModel"					"-8 0 0"
+	"anim"							"idle1"
+	"mass"							"200"
+
+	"burnaway"						".5"
+	"smoke_burnParticleSystem"			"burn_imp.prt-chest"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+	
+	"ragdoll_slomoStart"			"0"
+	"ragdoll_slomoEnd"				"0"
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*waist -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips"
+
+	"damage_scale head"				"2"
+
+	"def_leapattack"				"melee_impLeapAttack"
+
+	"snd_footstep"					"monster_demon_imp_footstep"
+	"snd_sight"						"monster_demon_imp_sight"
+	"snd_sight2"					"monster_demon_imp_sight2"
+	"snd_sight8"					"monster_demon_imp_sight8"
+	"snd_chatter"					"monster_demon_imp_chatter"
+	"snd_chatter_combat"			"monster_demon_imp_chatter_combat"
+	"snd_pain"						"monster_demon_imp_pain"
+	"snd_attackmelee_1"				"monster_demon_imp_attackmelee_1"
+	"snd_attackmelee_2"				"monster_demon_imp_attackmelee_2"
+	"snd_death"						"monster_demon_imp_die"
+	"snd_thud"						"monster_demon_imp_thud"
+	"snd_createmissile"				"monster_demon_imp_fireball_create"
+	"snd_attackmissile"				"monster_demon_imp_fireball_throw"
+	"snd_alert_idle"				"monster_demon_imp_alert_idle"
+	"snd_burn"						"monster_demon_archvile_burn"
+}
+
+model monster_demon_imp_crawler {
+	mesh							models/md5/monsters/imp/imp.md5mesh
+	channel torso					( *chest )
+	channel legs					( waist *Hips Body origin )
+
+	anim af_pose					models/md5/monsters/imp/initial.md5anim
+	anim ik_pose					models/md5/monsters/imp/on4_idle.md5anim
+
+	anim stand						models/md5/monsters/imp/on4_idle.md5anim {
+		frame 57						sound_chatter snd_alert_idle
+		frame 140						sound_chatter snd_alert_idle
+	}
+	anim teleport					models/md5/monsters/imp/teleportin.md5anim {
+		frame 28						sound_body snd_sight
+	}
+	anim sight						models/md5/monsters/imp/on4_sight.md5anim {
+		frame 5							sound_body snd_sight
+	}
+	anim idle						models/md5/monsters/imp/on4_idle.md5anim {
+		frame 57						sound_chatter snd_alert_idle
+		frame 140						sound_chatter snd_alert_idle
+	}
+	anim run						models/md5/monsters/imp/scurry2.md5anim {
+		frame 6							sound_body snd_footstep
+		frame 10						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 18						sound_body snd_footstep
+	}
+	anim walk						models/md5/monsters/imp/scurry2.md5anim {
+		frame 6							sound_body snd_footstep
+		frame 10						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 18						sound_body snd_footstep
+	}
+	anim evade_left					models/md5/monsters/imp/evade_left_on4.md5anim {
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+	}
+	anim evade_right				models/md5/monsters/imp/evade_right_on4.md5anim	{
+		frame 13						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+	}
+	anim pain_head					models/md5/monsters/imp/pain_head_on4.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/imp/pain_luparm_on4.md5anim {
+		frame 1							call overrideLegs			
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm				models/md5/monsters/imp/pain_ruparm_on4.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice snd_pain	
+	}
+	anim pain_legs					models/md5/monsters/imp/pain_chest_on4.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/imp/pain_chest_on4.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice snd_pain
+	}
+	anim pain						models/md5/monsters/imp/pain_chest_on4.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice snd_pain
+	}
+
+	anim range_attack				models/md5/monsters/imp/crouched_range1.md5anim {
+		frame 1							call overrideLegs
+		frame 2							sound_weapon snd_createmissile
+		frame 2							create_missile RMissile
+		frame 12						sound_weapon snd_attackmissile
+		frame 12						launch_missile RMissile
+	}
+
+	anim jump_start					models/md5/monsters/imp/jump_start.md5anim
+	anim jump_loop1					models/md5/monsters/imp/jump_loop.md5anim
+	anim jump_loop2					models/md5/monsters/imp/jump_loop2.md5anim
+	anim jump_loop3					models/md5/monsters/imp/jump_loop3.md5anim
+	anim jump_end					models/md5/monsters/imp/jump_end.md5anim
+
+	anim melee_attack1				models/md5/monsters/imp/on4_melee1.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_weapon snd_attackmelee_1
+		frame 11						melee melee_impRightClaw
+	}
+	anim melee_attack2				models/md5/monsters/imp/on4_melee2.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_weapon snd_attackmelee_2
+		frame 7							sound_body snd_footstep
+		frame 8							melee melee_impRightClaw		
+		frame 14						melee melee_impLeftClaw
+		frame 17						sound_body snd_footstep
+		frame 22						sound_body snd_footstep
+	}
+}
+
+entityDef monster_demon_imp_crawler {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_imp"
+	"model"							"monster_demon_imp_crawler"
+	"ragdoll"						"monster_demon_imp"
+	
+	"size"							"48 48 72"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"130"
+	"melee_damage" 					"35"
+	"melee_range"					"40"
+	"def_projectile"				"projectile_impfireball"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"offsetModel"					"-8 0 0"
+	"mass"							"150"
+	
+	"burnaway"						"0.50"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_hip3"						"Luparm"
+	"ik_hip4"						"Ruparm"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_knee3"						"Lloarm"
+	"ik_knee4"						"Rloarm"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_ankle3"						"Lhand"
+	"ik_ankle4"						"Rhand"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_dir3"						"Lelbow"
+	"ik_dir4"						"Relbow"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+	"ik_foot3"						"Lhand"
+	"ik_foot4"						"Rhand"
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*waist -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips"
+	"damage_scale head"				"1.25"
+
+	"snd_footstep"					"monster_demon_imp_footstep"
+	"snd_sight"						"monster_demon_imp_sight"
+	"snd_sight2"					"monster_demon_imp_sight2"
+	"snd_sight8"					"monster_demon_imp_sight8"
+	"snd_chatter"					"monster_demon_imp_chatter"
+	"snd_chatter_combat"			"monster_demon_imp_chatter_combat"
+	"snd_pain"						"monster_demon_imp_pain"
+	"snd_attackmelee_1"				"monster_demon_imp_attackmelee_1"
+	"snd_attackmelee_2"				"monster_demon_imp_attackmelee_2"
+	"snd_death"						"monster_demon_imp_die"
+	"snd_thud"						"monster_demon_imp_thud"
+	"snd_createmissile"				"monster_demon_imp_fireball_create"
+	"snd_attackmissile"				"monster_demon_imp_fireball_throw"
+	"snd_alert_idle"				"monster_demon_imp_alert_idle"
+	"snd_burn"						"monster_demon_tick_burn"
+}
+
+entityDef damage_impfireball {
+	"damage"						"12"
+	"kickDir"						"1 0 0"
+	"push"							"500"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef	damage_impfireball_splash {
+	"damage"						"5"
+	"radius"						"50"
+	"push"							"5000"
+}
+
+entityDef projectile_impfireball {
+	"spawnclass"					"idProjectile"
+	"mins"							"-4 -4 -4"
+	"maxs"							"4 4 4"
+	"cone"							"3"
+	"model" 						"impfireball2.prt"
+						
+	"def_damage"					"damage_impfireball"
+	"def_splash_damage"				"damage_impfireball_splash"
+									
+	"launchFromBarrel"				"1"
+	"health"						"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"475 0 -150"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"5"
+	"gravity"						"250"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75" 
+
+	"smoke_fly"						"imp_trail2.prt"									// particle effect while in the air
+	"smoke_detonate"				""			// particle effect when detonates
+	"smoke_residue"					""			// particle effect while in the air
+	"smoke_bounce"					""					// particle effect when bounces
+	"smoke_fuse"					""					// particle effect when removed from fuse expiring
+	
+	// parametric particles -- temp
+	"model_detonate"				"imp_explosion.prt"
+										
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+	
+	"mtr_light_shader"				"lights/impflyflash"
+	"light_color"					"0.9 0.7 0.05"
+	"light_radius"					"96"
+	"light_offset"					"0 0 0"
+
+
+
+	"mtr_explode_light_shader"		"lights/impflash"
+	"explode_light_color"			"3.6 3.0 0.5"
+	"explode_light_radius"			"128"
+	"explode_light_fadetime"		"1.0"
+
+
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+	"snd_fly"						"monster_demon_imp_fireball_flight"					// particle effect while in the air
+}
+
+entityDef melee_impLeapAttack {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"8"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"100"
+
+	"kick_time"						"800"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"400"
+}
+
+entityDef	melee_impLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters
+	"damage"						"8"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef	melee_impRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"8"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"30"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+model monster_demon_imp_crawl_armdoor {
+	mesh							models/md5/monsters/imp/imp.md5mesh
+	anim alphalabs2_impcrawl_arm	models/md5/cinematics/alphalabs2/alphalabs2_impcrawl_arm.md5anim {
+		frame 2							 sound_body	snd_sight5
+	}
+	anim underground_impcrawl_arm	models/md5/cinematics/underground/underground_impcrawl_arm.md5anim {
+		frame 57						sound_body	snd_sight
+		frame 75						sound_body	snd_sight2
+		frame 110						sound_body	snd_sight3
+		frame 128						sound_body	snd_sight4
+	}
+}
+
+entityDef monster_demon_imp_crawl_armdoor {
+	"inherit"						"cin_base"
+	"model"							"monster_demon_imp_crawl_armdoor"
+	"anim"							"underground_impcrawl_arm"
+
+	"snd_sight"						"mcu_imp_teh_angar"
+	"snd_sight2"					"mcu_imp_teh_angar2"
+	"snd_sight3"					"mcu_imp_teh_angar3"
+	"snd_sight4"					"mcu_imp_skulkaway"
+	"snd_sight5"					"monster_demon_imp_sight2_loud"
+}

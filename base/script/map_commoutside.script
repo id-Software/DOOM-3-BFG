@@ -1,0 +1,871 @@
+namespace map_commoutside {
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup binds and times etc...
+	//
+	////////////////////////////////////////////////////
+	void setup_objects()
+	{
+		//set airlock door guis initial states to 1
+		$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock3_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock3_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock4_door1_gui.setGuiParm ( "gui_parm1" , 1);
+
+		//airlock1 times
+		$airlock1_door1_left.time (1.2);
+		$airlock1_door1_right.time (1.2);
+		$airlock1_door1_left.accelTime (.2);
+		$airlock1_door1_left.decelTime (1);
+		$airlock1_door1_right.accelTime (.2);
+		$airlock1_door1_right.decelTime (1);
+
+		$airlock1_door1_top_lock.time (.25);
+		$airlock1_door1_bottom_lock.time (.25);
+		
+		$airlock1_door1_left_lock.time (.75);
+		$airlock1_door1_right_lock.time (.75);
+		$airlock1_door1_left_lock.accelTime (.1);
+		$airlock1_door1_left_lock.decelTime (.65);
+		$airlock1_door1_right_lock.accelTime (.1);
+		$airlock1_door1_right_lock.decelTime (.65);
+
+		$airlock1_door2_left.time (1.2);
+		$airlock1_door2_right.time (1.2);
+		$airlock1_door2_left.accelTime (.2);
+		$airlock1_door2_left.decelTime (1);
+		$airlock1_door2_right.accelTime (.2);
+		$airlock1_door2_right.decelTime (1);
+
+		$airlock1_door2_top_lock.time (.25);
+		$airlock1_door2_bottom_lock.time (.25);
+		
+		$airlock1_door2_left_lock.time (.75);
+		$airlock1_door2_right_lock.time (.75);
+		$airlock1_door2_left_lock.accelTime (.1);
+		$airlock1_door2_left_lock.decelTime (.65);
+		$airlock1_door2_right_lock.accelTime (.1);
+		$airlock1_door2_right_lock.decelTime (.65);
+
+		//airlock2 times
+		$airlock2_door1_left.time (1.2);
+		$airlock2_door1_right.time (1.2);
+		$airlock2_door1_left.accelTime (.2);
+		$airlock2_door1_left.decelTime (1);
+		$airlock2_door1_right.accelTime (.2);
+		$airlock2_door1_right.decelTime (1);
+
+		$airlock2_door1_top_lock.time (.25);
+		$airlock2_door1_bottom_lock.time (.25);
+		
+		$airlock2_door1_left_lock.time (.75);
+		$airlock2_door1_right_lock.time (.75);
+		$airlock2_door1_left_lock.accelTime (.1);
+		$airlock2_door1_left_lock.decelTime (.65);
+		$airlock2_door1_right_lock.accelTime (.1);
+		$airlock2_door1_right_lock.decelTime (.65);
+
+		$airlock2_door2_left.time (1.2);
+		$airlock2_door2_right.time (1.2);
+		$airlock2_door2_left.accelTime (.2);
+		$airlock2_door2_left.decelTime (1);
+		$airlock2_door2_right.accelTime (.2);
+		$airlock2_door2_right.decelTime (1);
+
+		$airlock2_door2_top_lock.time (.25);
+		$airlock2_door2_bottom_lock.time (.25);
+		
+		$airlock2_door2_left_lock.time (.75);
+		$airlock2_door2_right_lock.time (.75);
+		$airlock2_door2_left_lock.accelTime (.1);
+		$airlock2_door2_left_lock.decelTime (.65);
+		$airlock2_door2_right_lock.accelTime (.1);
+		$airlock2_door2_right_lock.decelTime (.65);
+
+		//airlock3 times
+		$airlock3_door1_left.time (1.2);
+		$airlock3_door1_right.time (1.2);
+		$airlock3_door1_left.accelTime (.2);
+		$airlock3_door1_left.decelTime (1);
+		$airlock3_door1_right.accelTime (.2);
+		$airlock3_door1_right.decelTime (1);
+
+		$airlock3_door1_top_lock.time (.25);
+		$airlock3_door1_bottom_lock.time (.25);
+		
+		$airlock3_door1_left_lock.time (.75);
+		$airlock3_door1_right_lock.time (.75);
+		$airlock3_door1_left_lock.accelTime (.1);
+		$airlock3_door1_left_lock.decelTime (.65);
+		$airlock3_door1_right_lock.accelTime (.1);
+		$airlock3_door1_right_lock.decelTime (.65);
+
+		$airlock3_door2_left.time (1.2);
+		$airlock3_door2_right.time (1.2);
+		$airlock3_door2_left.accelTime (.2);
+		$airlock3_door2_left.decelTime (1);
+		$airlock3_door2_right.accelTime (.2);
+		$airlock3_door2_right.decelTime (1);
+
+		$airlock3_door2_top_lock.time (.25);
+		$airlock3_door2_bottom_lock.time (.25);
+		
+		$airlock3_door2_left_lock.time (.75);
+		$airlock3_door2_right_lock.time (.75);
+		$airlock3_door2_left_lock.accelTime (.1);
+		$airlock3_door2_left_lock.decelTime (.65);
+		$airlock3_door2_right_lock.accelTime (.1);
+		$airlock3_door2_right_lock.decelTime (.65);
+
+		//airlock4 times
+		$airlock4_door1_left.time (1.2);
+		$airlock4_door1_right.time (1.2);
+		$airlock4_door1_left.accelTime (.2);
+		$airlock4_door1_left.decelTime (1);
+		$airlock4_door1_right.accelTime (.2);
+		$airlock4_door1_right.decelTime (1);
+
+		$airlock4_door1_top_lock.time (.25);
+		$airlock4_door1_bottom_lock.time (.25);
+		
+		$airlock4_door1_left_lock.time (.75);
+		$airlock4_door1_right_lock.time (.75);
+		$airlock4_door1_left_lock.accelTime (.1);
+		$airlock4_door1_left_lock.decelTime (.65);
+		$airlock4_door1_right_lock.accelTime (.1);
+		$airlock4_door1_right_lock.decelTime (.65);
+
+		//goofy arm binds
+		$goofyarm_4.bind ($goofyarm_3);
+		$goofyarm_3.bind ($goofyarm_2);
+		$goofyarm_2.bind ($goofyarm_1);
+
+		$goofyarm_1.time (.5);
+		$goofyarm_2.time (.5);
+		$goofyarm_3.time (.5);
+		$goofyarm_4.time (.5);
+
+		$goofy_light_1.setColor( .62, .62, .72);
+		$goofy_light_2.setColor( .62, .62, .72);
+
+		$goofy_flare_1.setColor( .62, .62, .72);
+		$goofy_flare_2.setColor( .62, .62, .72);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	goofy arm ambient movement
+	//
+	////////////////////////////////////////////////////
+	void goofyarm_move ()
+	{
+		while (1){
+			$goofyarm_1.startSoundShader ("co_05s_machinery_01", SND_CHANNEL_VOICE );
+			$goofyarm_1.rotateOnce ( '0 -35 0' );
+			$goofyarm_2.rotateOnce ( '0 20 0' );
+			$goofyarm_3.rotateOnce ( '0 15 0' );
+			sys.wait (2);
+
+			$goofyarm_1.startSoundShader ("co_goofy_updown", SND_CHANNEL_VOICE );
+			$goofyarm_1.move ( DOWN, 32 );
+			sys.waitFor ($goofyarm_1);
+
+			$goofyarm_1.startSoundShader ("co_05s_machinery_01", SND_CHANNEL_VOICE );
+			$goofyarm_1.rotateOnce ( '0 35 0' );
+			$goofyarm_2.rotateOnce ( '0 -20 0' );
+			$goofyarm_3.rotateOnce ( '0 -15 0' );
+			sys.waitFor ($goofyarm_1);
+
+			$goofy_light_1.startSoundShader ("al4_welding_2s", SND_CHANNEL_VOICE );
+			$goofy_light_1.setColor( .86, .86, 1 );
+			$goofy_flare_1.setColor( .86, .86, 1 );
+			sys.wait (2);
+
+			thread crossFadeEnt ($goofy_light_1, '.86 .86 1', '.3 .3 .5', 2);
+			thread crossFadeEnt ($goofy_flare_1, '.86 .86 1', '.3 .3 .5', 2);
+						
+			$goofyarm_1.startSoundShader ("co_05s_machinery_01", SND_CHANNEL_VOICE );
+			$goofyarm_1.rotateOnce ( '0 -35 0' );
+			$goofyarm_2.rotateOnce ( '0 20 0' );
+			$goofyarm_3.rotateOnce ( '0 15 0' );
+			sys.wait (2);
+
+			$goofyarm_1.startSoundShader ("co_goofy_updown", SND_CHANNEL_VOICE );
+			$goofyarm_1.move ( UP, 32 );
+			sys.waitFor ($goofyarm_1);
+
+			$goofyarm_1.startSoundShader ("co_05s_machinery_01", SND_CHANNEL_VOICE );
+			$goofyarm_1.rotateOnce ( '0 35 0' );
+			$goofyarm_2.rotateOnce ( '0 -20 0' );
+			$goofyarm_3.rotateOnce ( '0 -15 0' );
+			sys.waitFor ($goofyarm_1);
+
+			$goofy_light_2.startSoundShader ("al4_welding_2s", SND_CHANNEL_VOICE );
+			$goofy_light_2.setColor( .86, .86, 1 );
+			$goofy_flare_2.setColor( .86, .86, 1 );
+			sys.wait (2);
+
+			thread crossFadeEnt ($goofy_light_2, '.86 .86 1', '.3 .3 .5', 2);
+			thread crossFadeEnt ($goofy_flare_2, '.86 .86 1', '.3 .3 .5', 2);
+		
+		} 
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	grate light mover 
+	//
+	////////////////////////////////////////////////////
+	void gratelight_move ()
+	{
+		$gratelight_mover.time ( 1 );
+		$gratelight_mover.accelTime ( .25 );
+		$gratelight_mover.decelTime ( .25 );
+
+		float ran1;
+
+		while (1) //begin main while
+		{
+		ran1=sys.random(3);
+		
+		if (ran1<1){
+			$gratelight_mover.moveTo ($gratelightpoint_1);
+			sys.waitFor ($gratelight_mover);
+		} else if (ran1<2) {
+			$gratelight_mover.moveTo ($gratelightpoint_2);
+			sys.waitFor ($gratelight_mover);
+		} else {
+			$gratelight_mover.moveTo ($gratelightpoint_3);
+			sys.waitFor ($gratelight_mover);
+		}
+
+		} //end main while
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	helldoor random movement
+	//
+	////////////////////////////////////////////////////
+	void helldoor_movement ()
+	{
+		float ran1, ran2, ran3;
+
+		$helldoor1_mover.time (.2);
+		$helldoor2_mover.time (.2);
+
+		//shake the scary_door in a loop - TEMP
+		while (1) {
+			ran3 = ( sys.random(2.5) + 2 );
+			sys.wait (ran3);
+
+			$helldoor1_mover.rotateOnce ( '0 2.5 0');
+			$helldoor2_mover.rotateOnce ( '0 -2 0');
+			sys.waitFor ($helldoor1_mover);
+
+			//trigger speaker
+			sys.trigger ($helldoor_speaker);
+			sys.trigger ($helldoor1_bang_influence);
+
+			$helldoor1_mover.rotateOnce ( '0 -2.5 0');
+			$helldoor2_mover.rotateOnce ( '0 2 0');
+			sys.waitFor ($helldoor1_mover);
+
+			ran2=sys.random(.12) + .1;
+			$helldoor1_mover.time (ran2);
+			$helldoor2_mover.time (ran2);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	stop helldoor
+	//
+	////////////////////////////////////////////////////
+	void stop_helldoor ()
+	{
+		sys.killthread ("map_commoutside::helldoor_movement");
+        sys.trigger ($func_door_14);
+		sys.trigger ($helldoor_splat1);
+		sys.trigger ($helldoor_splat2);
+		sys.trigger ($helldoor_splat3);
+		sys.trigger ($helldoor_scream);
+
+		sys.wait (2);
+		sys.trigger ($func_forcefield_2);
+		sys.trigger ($func_door_14);
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	underlift movedown
+	//
+	////////////////////////////////////////////////////
+	void underlift_movedown ()
+	{
+		//move the lift to underlift_pos_mid
+		$underlift.time ( 3 );
+		$underlift.accelTime ( .5 );
+		$underlift.decelTime ( .25 );
+
+		$underlift.startSoundShader ("co_lift_down_3s", SND_CHANNEL_VOICE );			// SOUND
+		
+		$underlift.moveTo ($underlift_pos_mid);
+		sys.waitFor ($underlift);
+		
+		//open underlift_doors_bottom
+		$underlift_doors_bottom.open();
+		sys.waitFor ($underlift_doors_bottom);
+
+		//move the lift to underlift_pos_top
+		$underlift.startSoundShader ("co_lift_down_3s", SND_CHANNEL_VOICE );			// SOUND
+		$underlift.moveTo ($underlift_pos_bottom);
+		sys.waitFor ($underlift);
+
+		//close underlift_doors_bottom
+		$underlift_doors_bottom.close();
+		sys.waitFor ($underlift_doors_bottom);
+	}
+	
+	
+	
+	////////////////////////////////////////////////////
+	//
+	//	underlift moveup
+	//
+	////////////////////////////////////////////////////
+	void underlift_moveup ()
+	{
+		//open underlift_doors_bottom
+		$underlift_doors_bottom.open();
+		sys.waitFor ($underlift_doors_bottom);
+
+		//move the lift to underlift_pos_mid
+		$underlift.time ( 3 );
+		$underlift.accelTime ( .5 );
+		$underlift.decelTime ( .25 );
+
+		$underlift.startSoundShader ("co_lift_up_3s", SND_CHANNEL_VOICE );			// SOUND
+		$underlift.moveTo ($underlift_pos_mid);
+		sys.waitFor ($underlift);
+
+		//close underlift_doors_bottom
+		$underlift_doors_bottom.close();
+		sys.waitFor ($underlift_doors_bottom);
+
+		//open underlift_doors_top
+		$underlift_doors_top.open();
+		sys.waitFor ($underlift_doors_top);
+
+		//move the lift to underlift_pos_top
+		$underlift.startSoundShader ("co_lift_up_3s", SND_CHANNEL_VOICE );			// SOUND
+		$underlift.moveTo ($underlift_pos_top);
+		sys.waitFor ($underlift);
+
+		//close the underlift_doors_top
+		$underlift_doors_top.close();
+		sys.waitFor ($underlift_doors_top);
+
+		//trigger the gui button
+		sys.trigger ($airlock_lift_calldown_button);
+	}
+
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Open airlock door
+	//
+	////////////////////////////////////////////////////
+
+	void airlock_door_open( float airlock, float doornum )
+	{
+		entity ent;
+		entity entdoorr, entdoorl;
+		entity speaker;
+		string door1;
+		string door2;
+		float  portalstate;
+		float  movedist;
+
+		if ( doornum == 2 ) {
+			door1 = "airlock" + airlock + "_door2";
+			door2 = "airlock" + airlock + "_door1";
+			portalstate = 2;
+			movedist = -16;
+		} else {
+			door1 = "airlock" + airlock + "_door1";
+			door2 = "airlock" + airlock + "_door2";
+			portalstate = 1;
+			movedist = 16;
+		}
+
+		//turn door1 light on and door2 light off
+		ent=sys.getEntity ( door2 + "_light" );
+		thread crossFadeEnt (ent, '.84 .84 .9', '0.37 0.05 0.01', 1);
+		
+		sys.wait(1);
+
+		ent=sys.getEntity ( door1 + "_light" );
+		thread crossFadeEnt (ent, '0.37 0.05 0.01', '.84 .84 .9', 1);
+
+		//move the 4 locks to unlock position
+		ent=sys.getEntity ( door1 + "_top_lock" );
+		ent.time (0.25);
+		ent.move ( UP, 15 );
+
+		speaker=sys.getEntity ("speaker_" + door1 + "_bottom_lock" );
+		sys.trigger (speaker);
+ 
+		ent=sys.getEntity ( door1 + "_bottom_lock" );
+		ent.time (0.25);
+		ent.move ( DOWN, 15 );
+
+		sys.waitFor (ent);
+
+		speaker=sys.getEntity ("speaker_" + door1 + "_left_lock" );
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door1 + "_left_lock" );
+		ent.time (0.75);
+		ent.move ( EAST, movedist );
+
+		speaker=sys.getEntity ("speaker_" + door1 + "_right_lock" );
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door1 + "_right_lock" );
+		ent.time (0.75);
+		ent.move ( EAST, movedist );
+
+		sys.waitFor (ent);
+
+		//open doors
+		speaker=sys.getEntity ( "speaker_" + door1 + "_open");
+		sys.trigger (speaker);
+
+		entdoorl=sys.getEntity ( door1 + "_left" );
+		entdoorl.time (1.2);
+		entdoorl.rotateOnce ( '0 45 0' );
+
+		entdoorr=sys.getEntity ( door1 + "_right" );
+		entdoorr.time (1.2);
+		entdoorr.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		ent=sys.getEntity (door1 + "_portal" );
+		sys.trigger (ent);
+
+		sys.waitFor (entdoorr);
+		sys.waitFor (entdoorl);
+
+		//set airlock state
+		ent=sys.getEntity ("airlock" + airlock + "_door1_portal" );
+		ent.setKey ("state", portalstate );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Close airlock door
+	//
+	////////////////////////////////////////////////////
+	void airlock_door_close(float airlock, float doornum )
+	{
+		entity ent;
+		entity entdoorr, entdoorl;
+		entity speaker;
+		string door;
+		float  movedist;
+
+		if ( doornum == 2 ) {
+			door = "airlock" + airlock + "_door2";
+			movedist = 16;
+		} else {
+			door = "airlock" + airlock + "_door1";
+			movedist = -16;
+		}
+
+		//close doors
+
+		speaker= sys.getEntity ("speaker_" + door + "_close");
+		sys.trigger (speaker);
+
+		entdoorl=sys.getEntity ( door + "_left" );
+		entdoorl.time (1.2);
+		entdoorl.rotateOnce ( '0 -45 0' );
+
+		entdoorr=sys.getEntity ( door + "_right" );
+		entdoorr.time (1.2);
+		entdoorr.rotateOnce ( '0 45 0' );
+
+		sys.waitFor (entdoorr);
+		sys.waitFor (entdoorl);
+
+		//trigger the portal
+		ent=sys.getEntity ( door + "_portal" );
+		sys.trigger (ent);
+
+		//move the 4 locks to unlock position
+		ent=sys.getEntity ( door + "_top_lock" );
+		ent.time (0.25);
+		ent.move ( DOWN, 15 );
+
+		speaker=sys.getEntity ("speaker_" + door + "_bottom_lock");
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door + "_bottom_lock" );
+		ent.time (0.25);
+		ent.move ( UP, 15 );
+		
+		speaker=sys.getEntity ("speaker_" + door + "_left_lock" );
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door + "_left_lock" );
+		ent.time (0.75);
+		ent.move ( EAST, movedist );
+
+		speaker=sys.getEntity ("speaker_" + door + "_right_lock" );
+		sys.trigger (speaker);
+
+		ent=sys.getEntity ( door + "_right_lock" );
+		ent.time (0.75);
+		ent.move ( EAST, movedist );
+
+		sys.waitFor (ent);
+
+}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Main Activate airlock
+	//	conditionally chooses based on entrance
+	//
+	////////////////////////////////////////////////////
+	void airlock_main_activate(float airlock)
+	{
+		entity ent;
+
+		//check to see which way the palyer entered by checking the airlock_state
+		//if 1 then close 1 and open 2
+
+		ent=sys.getEntity ("airlock" + airlock + "_door1_portal" );
+			
+		if (ent.getFloatKey ("state")==1) {
+			airlock_door_close( airlock, 1 );
+			airlock_door_open( airlock, 2 );
+
+		} else { //else close 2 and open 1
+			airlock_door_close( airlock, 2 );
+			airlock_door_open( airlock, 1 );
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK main activation
+	//	
+	////////////////////////////////////////////////////
+	void airlock2_activate()
+	{
+		//disable the guis on the doors
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock2_innerguiholder.setGuiParm ( "gui_parm11" , 0);
+	
+		airlock_main_activate(2);
+
+		//check the airlock state and enable the guis on the closed door
+		if ($airlock2_door1_portal.getFloatKey ("state")==1) {
+			$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		} else { //else close 2 and open 1
+			$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		}
+
+		$airlock2_innerguiholder.setGuiParm ( "gui_parm11" , 1);
+	}
+	
+	void airlock3_activate()
+	{
+		//disable the guis on the doors
+		$airlock3_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock3_door2_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock3_innerguiholder.setGuiParm ( "gui_parm11" , 0);
+	
+		airlock_main_activate(3);
+
+		//check the airlock state and enable the guis on the closed door
+		if ($airlock3_door1_portal.getFloatKey ("state")==1) {
+			$airlock3_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		} else { //else close 2 and open 1
+			$airlock3_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		}
+
+		$airlock3_innerguiholder.setGuiParm ( "gui_parm11" , 1);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK doors opening
+	//	
+	////////////////////////////////////////////////////
+	void airlock2_door1_open()
+	{
+		airlock_door_open(2, 1);
+	}
+
+	void airlock2_door2_open()
+	{
+		airlock_door_open(2, 2);
+	}
+
+	void airlock3_door1_open()
+	{
+		airlock_door_open(3, 1);
+	}
+
+	void airlock3_door2_open()
+	{
+		airlock_door_open(3, 2);
+	}
+
+	void airlock4_door1_open()
+	{
+		$airlock4_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		airlock_door_open(4, 1);
+	}
+
+	
+	//exits map
+	void airlock_exit()
+	{
+		sys.trigger ($end_level);
+
+		float thread1;
+
+		thread1 = thread airlock_door_close(4, 1);
+		sys.waitForThread( thread1 );
+
+		//turn doora light off
+		thread crossFadeEnt ($airlock4_door1_light, '.84 .84 .9', '0.37 0.05 0.01', 1);
+		sys.wait(1);
+
+		sys.trigger ($end_level);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	initial AIRLOCK doors opening
+	//	start of map
+	//	
+	////////////////////////////////////////////////////
+	void initial_airlock_open()
+	{
+		//turn door2 light on
+		thread crossFadeEnt ($airlock1_door2_light, '0.37 0.05 0.01', '.84 .84 .9', 1);
+
+		//move the 4 locks to unlock position
+		$airlock1_door2_top_lock.move ( UP, 15 );
+		$airlock1_door2_bottom_lock.move ( DOWN, 15 );
+		
+		sys.trigger ($speaker_airlock1_door2_bottom_lock);		// SOUND
+		
+		sys.waitFor ($airlock1_door2_bottom_lock);
+
+		sys.trigger ($speaker_airlock1_door2_left_lock);
+		$airlock1_door2_left_lock.move ( EAST, -16 );
+		
+		sys.trigger ($speaker_airlock1_door2_right_lock);
+		$airlock1_door2_right_lock.move ( EAST, -16 );
+		sys.waitFor ($airlock1_door2_right_lock);
+
+		//open doors
+		sys.trigger ($speaker_airlock1_door2_open);				// SOUND
+		
+		$airlock1_door2_left.rotateOnce ( '0 45 0' );
+		$airlock1_door2_right.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		sys.trigger ($airlock1_door2_portal);
+
+		sys.waitFor ($airlock1_door2_left);
+		sys.waitFor ($airlock1_door2_right);
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	co_drop_floor
+	//
+	////////////////////////////////////////////////////
+	void co_drop_floor_down ()
+	{
+		$co_drop_floor.time(.5);
+		$co_drop_floor.accelTime(.5);
+		//$co_drop_floor.decelTime(0);
+
+		//trigger the weird sound
+		//sys.trigger($co_drop_floor_weird_speaker);
+
+		sys.trigger ($co_floordrop_01);
+		sys.trigger ($co_floordrop_02);
+
+		//move drop_floor down
+		$co_drop_floor.move (DOWN, 128);
+	}
+
+	void co_drop_floor_end ()
+	{
+		$co_drop_step_1.time(1);
+		$co_drop_step_1.accelTime(.2);
+		$co_drop_step_1.decelTime(.2);
+
+		$co_drop_step_2.time(1);
+		$co_drop_step_2.accelTime(.2);
+		$co_drop_step_2.decelTime(.2);
+
+		$co_drop_step_3.time(1);
+		$co_drop_step_3.accelTime(.2);
+		$co_drop_step_3.decelTime(.2);
+
+		//move steps out
+		$co_drop_step_3.startSoundShader ("co_step_out", SND_CHANNEL_VOICE );
+		$co_drop_step_3.move (WEST, 112);
+		sys.waitFor ($co_drop_step_3);
+		
+		sys.wait (0.5);
+		
+		$co_drop_step_2.startSoundShader ("co_step_out", SND_CHANNEL_VOICE );
+		$co_drop_step_2.move (WEST, 80);
+		sys.waitFor ($co_drop_step_2);
+		
+		sys.wait (0.5);
+		
+		$co_drop_step_1.startSoundShader ("co_step_out", SND_CHANNEL_VOICE );
+		$co_drop_step_1.move (WEST, 48);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	spectrum hallway
+	//
+	////////////////////////////////////////////////////
+	void spectrum_move() {
+		sys.wait (2);
+		while(1){
+            $spectrumlight_mover.time( 3 );
+			$spectrumlight_mover.accelTime( 0 );
+			$spectrumlight_mover.decelTime( 0 );
+			$spectrumlight_mover.startSpline( $spectrum_spline );
+
+			sys.waitFor($spectrumlight_mover);
+			sys.wait(3);
+			$spectrumlight_mover.removeInitialSplineAngles();
+		}
+	}
+
+	void spectrum_stop() 
+	{
+		sys.wait (3);
+
+		sys.trigger ( $trigger_relay_55 );
+		sys.killthread( "map_commoutside::spectrum_move" );
+        $spectrumlight_mover.remove();
+		sys.trigger ( $speaker_136 );
+		sys.trigger ( $speaker_137 );
+		$speaker_137.remove();
+		$light_5229.remove();
+		$light_5230.remove();
+	}
+
+	void close_func_door_17()
+	{
+		$func_door_17.close();
+	}
+
+	//close sawyer door
+	void close_func_door_1675()
+	{
+		$func_door_1675.close();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Scary Elevator Shake
+	//
+	////////////////////////////////////////////////////
+	void ele_shake() 
+	{
+		$ele_mover.time (.25);
+		$ele_mover.move (DOWN, 8);
+		sys.waitFor ($ele_mover);
+		sys.trigger ( $speaker_elebang );
+		$ele_mover.move (UP, 8);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	sawyer_intro
+	//
+	////////////////////////////////////////////////////
+	void sawyer_intro ()
+	{
+		$sawyer_light_1.kill();
+		$sawyer_light_2.kill();
+		//sys.print ("I just killed those lights\n");
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("co_step_out");
+		sys.cacheSoundShader ("co_lift_up_3s");
+		sys.cacheSoundShader ("co_lift_down_3s");
+		sys.cacheSoundShader ("al4_welding_2s");
+		sys.cacheSoundShader ("co_05s_machinery_01");
+		sys.cacheSoundShader ("co_goofy_updown");
+		sys.cacheSoundShader ("rec1_steamchuff");
+		sys.cacheSoundShader ("co_lift_rotation");
+		sys.cacheSoundShader ("co_lift_up_2s");
+		sys.cacheSoundShader ("co_lift_down_2s");
+		sys.cacheSoundShader ("co_conpanel");
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main ()
+	{
+		cache_sounds();
+		setup_objects ();
+		thread goofyarm_move ();
+		thread gratelight_move ();
+		thread helldoor_movement ();
+		thread lift_main ();
+
+		//open the airlock doors that need to be open initially
+		thread airlock3_door2_open();
+		thread airlock2_door2_open();
+	}
+
+}// namespace
+

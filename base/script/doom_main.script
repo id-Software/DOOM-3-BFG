@@ -1,0 +1,177 @@
+/***********************************************************************
+
+doom_main.script
+
+This is the main script that is loaded before any level scripts load.
+
+***********************************************************************/
+
+float GAME_FPS = 60.0f;
+
+scriptEvent	void	setHomingMissileGoal();
+scriptEvent	void	launchHomingMissile();
+
+// DEFINES to be used in our scripts
+#define BERSERK 0
+#define INVISIBILITY 1
+#define MEGAHEALTH 2
+#define ADRENALINE 3
+#define INVULNERABILITY 4
+#define HELLTIME 5
+#define ENVIROSUIT 6
+#define ENVIROTIME 7
+
+// base defines and util functions
+#include "script/doom_defs.script"
+#include "script/doom_events.script"
+#include "script/doom_util.script"
+#include "script/weapon_base.script"
+#include "script/ai_base.script"
+
+// weapons
+#include "script/weapon_fists.script"
+#include "script/weapon_pistol.script"
+#include "script/weapon_shotgun.script"
+#include "script/weapon_machinegun.script"
+#include "script/weapon_chaingun.script"
+#include "script/weapon_handgrenade.script"
+#include "script/weapon_plasmagun.script"
+#include "script/weapon_rocketlauncher.script"
+#include "script/weapon_bfg.script"
+#include "script/weapon_soulcube.script"
+#include "script/weapon_chainsaw.script"
+#include "script/weapon_flashlight.script"
+#include "script/weapon_pda.script"
+
+// ai
+#include "script/ai_monster_base.script"
+#include "script/ai_monster_zombie_base.script"
+#include "script/ai_monster_demon_archvile.script"
+#include "script/ai_monster_demon_cherub.script"
+#include "script/ai_monster_demon_hellknight.script"
+#include "script/ai_monster_demon_imp.script"
+#include "script/ai_monster_demon_maggot.script"
+#include "script/ai_monster_demon_mancubus.script"
+#include "script/ai_monster_demon_pinky.script"
+#include "script/ai_monster_demon_revenant.script"
+#include "script/ai_monster_demon_trite.script"
+#include "script/ai_monster_demon_wraith.script"
+#include "script/ai_monster_flying_lostsoul.script"
+#include "script/ai_monster_flying_cacodemon.script"
+#include "script/ai_monster_zombie.script"
+#include "script/ai_monster_zombie_morgue.script"
+#include "script/ai_monster_zombie_sawyer.script"
+#include "script/ai_monster_zombie_bernie.script"
+#include "script/ai_monster_zombie_commando_cgun.script"
+#include "script/ai_monster_zombie_commando_tentacle.script"
+#include "script/ai_monster_zombie_security_pistol.script"
+#include "script/ai_monster_turret.script"
+#include "script/ai_monster_boss_vagary.script"
+#include "script/ai_monster_boss_cyberdemon.script"
+#include "script/ai_monster_boss_guardian.script"
+#include "script/ai_monster_boss_guardian_seeker.script"
+#include "script/ai_monster_boss_sabaoth.script"
+#include "script/ai_character.script"
+#include "script/ai_character_prone.script"
+#include "script/ai_character_sentry.script"
+#include "script/ai_player.script"
+
+// map specific character scripts
+#include "script/ai_alphalabs2_scientist1.script"
+#include "script/ai_cinematic_le.script"
+
+// map scripts
+#include "script/map_admin1.script" 
+#include "script/map_alphalabs1.script"
+#include "script/map_alphalabs2.script"
+#include "script/map_alphalabs3.script"
+#include "script/map_alphalabs4.script"
+#include "script/map_caves.script"
+#include "script/map_caves2.script"
+#include "script/map_comm1.script"
+#include "script/map_commoutside_lift.script"
+#include "script/map_commoutside.script"
+#include "script/map_cpu.script"
+#include "script/map_cpuboss.script"
+#include "script/map_delta1.script"
+#include "script/map_delta2a.script"
+#include "script/map_delta2b.script"
+#include "script/map_delta3.script"
+#include "script/map_delta5.script"
+#include "script/map_enpro.script"
+#include "script/map_hell1.script"
+#include "script/map_hellhole.script"
+#include "script/map_recycling1.script"
+#include "script/map_recycling2.script"
+#include "script/map_site3.script"
+#include "script/map_marscity1.script"
+#include "script/map_marscity2.script"
+#include "script/map_mc_underground.script"
+#include "script/map_monorail.script"
+
+// D3XP Scripts
+//Events
+#include "script/d3xp_events.script"
+
+//Weapons
+#include "script/weapon_bloodstone_passive.script"
+#include "script/weapon_bloodstone_active1.script"
+#include "script/weapon_bloodstone_active2.script"
+#include "script/weapon_bloodstone_active3.script"
+#include "script/weapon_shotgun_double.script"
+#include "script/weapon_grabber.script"
+
+//Monsters
+#include "script/ai_monster_hunter_helltime.script"
+#include "script/ai_monster_hunter_berserk.script"
+#include "script/ai_monster_hunter_invul.script"
+#include "script/ai_monster_boss_maledict.script"
+#include "script/ai_monster_demon_vulgar.script"
+#include "script/ai_monster_demon_d3xp_bruiser.script"
+#include "script/ai_monster_dummy_target.script"
+#include "script/ai_monster_dummy.script"
+#include "script/ai_monster_demon_sentry.script"
+#include "script/ai_monster_demon_trite_jump.script"
+#include "script/ai_monster_turret_ancient.script"
+#include "script/ai_monster_flying_forgotten.script"
+#include "script/ai_character_erebus3.script"
+
+//Global Scripts
+#include "script/d3xp_airlock.script"
+#include "script/d3xp_bloodstone.script"
+
+//Map Scripts
+//#include "script/map_icecap1.script"
+#include "script/map_erebus1.script"
+#include "script/map_erebus2_helltime.script"
+#include "script/map_erebus2.script"
+#include "script/map_erebus3.script"
+#include "script/map_erebus4.script"
+#include "script/map_erebus5.script"
+#include "script/map_erebus5_cloud.script"
+#include "script/map_erebus6.script"
+#include "script/map_erebus6_berzerk.script"
+#include "script/map_phobos1.script"
+#include "script/map_phobos2.script"
+#include "script/map_phobos2_invul.script"
+#include "script/map_phobos3.script"
+#include "script/map_phobos4.script"
+#include "script/map_deltax.script"
+#include "script/map_hell.script"
+#include "script/map_maledict.script"
+
+// D3LE Scripts
+#include "script/d3le-ai_monster_boss_guardian2.script"
+
+// test scripts
+#include "script/ai_follower.script"
+
+void doom_main() {
+	sys.print( "Entering doom_main()\n");
+
+	//
+	// Do any script setup here
+	//
+
+	sys.print( "Exiting doom_main()\n" );
+}

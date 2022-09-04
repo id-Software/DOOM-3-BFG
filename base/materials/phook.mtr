@@ -1,0 +1,73 @@
+textures/mcity/mcitya12_2_break
+{
+	qer_editorimage	textures/mcity/mcitya12_2
+
+	{ if( parm7 == 0 )
+		blend bumpmap
+		map textures/mcity/mcitya12_local
+	}
+	{ if( parm7 == 0 )
+		blend diffusemap
+		map textures/mcity/mcitya12_d
+	}
+	{ if( parm7 == 0 )
+		blend specularmap
+		map textures/mcity/mcitya12_s
+	}
+	{ if( parm7 == 0 )
+		blend gl_one, gl_one
+		map textures/mcity/mcitya12_2_add
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+
+	{ if( parm7 != 0 )
+		blend bumpmap
+		map textures/mcity/mcitya12_local
+	}
+	{ if( parm7 != 0 )
+		blend diffusemap
+		map textures/mcity/mcitya12_broke_d
+	}
+	{ if( parm7 != 0 )
+		blend specularmap
+		map textures/mcity/mcitya12_broke_s
+	}
+	{ if( parm7 != 0 )
+		blend gl_one, gl_one
+		map textures/mcity/mcitya12_broke_add
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+}
+
+lights/squarelight_breakable_sound_off
+{
+	{ if( parm7 == 0 )
+		map lights/squarelight1.tga
+		red			parm0 * sound
+		green		parm1 * sound
+		blue		parm2 * sound
+		zeroClamp
+	}
+	{ if( parm7 != 0 )
+		map	lights/squarelight1.tga
+		red			0
+		green		0
+		blue		0
+		zeroClamp
+	}
+}
+
+fogs/delta1_fog
+{
+	fogLight
+	noShadows
+	{
+		map			_fog
+		alpha		0.5
+		colored
+	}
+}

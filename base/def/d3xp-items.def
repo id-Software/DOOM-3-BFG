@@ -1,0 +1,348 @@
+entityDef item_envirotank {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Enviro Tank"
+
+	"spawnclass"			"idItem"
+	"model"					"models/mapobjects/phobos/envirotank.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"#str_00100899"
+	"inv_enviroTime"		"30"
+	"inv_item"				"1"
+	"snd_acquire"			"air_cannister_pickup"
+}
+
+entityDef item_powercell {
+	"inherit"				"item_default"
+
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Power Cell"
+	"editor_model"			"models/items/powercell/powercell1_lo.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/powercell/powercell1_lo.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"#str_00101056"
+	"inv_item"				"1"
+	"inv_powercell"			"1"
+	"inv_icon"				"guis/assets/hud/icons/powercellw.tga"
+	"snd_acquire"			"guisounds_item"
+	"editor_copy100"		"inv_item"
+}
+
+
+
+entityDef item_powercell2 {
+	"inherit"				"item_default"
+
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Power Cell"
+	"editor_model"			"models/items/powercell/powercell2_lo.lwo"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/items/powercell/powercell2_lo.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"#str_00101056"
+	"inv_item"				"1"
+	"inv_powercell"			"1"
+	"inv_icon"				"guis/assets/hud/icons/powercellw.tga"
+	"snd_acquire"			"guisounds_item"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef item_envirosuit {
+	"inherit"				"item_default"
+
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Environmental Suit"
+	"editor_model"			"models/mapobjects/washroom/mopbucket.lwo"
+
+	"spawnclass"			"idItem"
+	"model"					"models/mapobjects/washroom/mopbucket.lwo"
+	"size"					"32 32 32"
+
+	"inv_carry"				"1"
+	"inv_name"				"#str_00100300"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/items/battery.tga"
+	"snd_acquire"			"guisounds_item"
+	"editor_copy100"		"inv_item"
+}
+
+
+entityDef item_artifact_tablet {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Artifact Tablet"
+
+	"spawnclass"			"idItem"
+	"model" 				"models/mapobjects/d3xptablets/tiny_tablets_lo.lwo"
+	"size"					"32 32 32"
+	"inv_carry"				"1"
+	"inv_name"				"#str_00100609"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/icons/artifact_tablet.tga"
+	"snd_acquire"			"guisounds_item"
+	"dropToFloor"			"1"
+}
+
+entityDef moveable_item_backpack {
+	"inherit"					"item_backpack"
+	"spawnclass"				"idMoveableItem"
+	"model" 					"models/items/powerups/d3xp_backpack.lwo"
+	"inv_name"					"#str_03084"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_powerup_adrenaline {
+	"inherit"					"powerup_adrenaline"
+	"spawnclass"				"idMoveableItem"
+	"model" 					"models/items/powerups/adrenalin_world.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"nopulse"					"1"
+	"inv_adrenaline"			"30"
+}
+
+entityDef moveable_item_envirotank {
+	"inherit"					"item_envirotank"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/mapobjects/phobos/envirotank.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+
+entityDef moveable_item_aircannister {
+	"inherit"					"item_aircannister"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/aircannister/d3xp_aircannister.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_item_medkit_small {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"item_medkit_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/medkit/d3xp_medkit_small.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_item_armor_shard {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"item_armor_shard"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/armor/d3xp_armor_shard_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+
+entityDef moveable_ammo_bullets_small {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"ammo_bullets_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/bullet_ammo/d3xp_bullet_small.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_bullets_large {
+	"inherit"					"ammo_bullets_large"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/bullet_ammo/d3xp_bullet_large_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_shells_small {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"ammo_shells_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/shells_ammo/d3xp_shells_small_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_shells_large {
+	"inherit"					"ammo_shells_large"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/shells_ammo/d3xp_shells_large_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_clip_small {
+	"inherit"					"ammo_clip_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/clip_ammo/d3xp_clip_small_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_clip_large {
+	"inherit"					"ammo_clip_large"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/clip_ammo/d3xp_clip_large_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_grenade_small {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"ammo_grenade_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/grenade_ammo/d3xp_grenade_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_rockets_small {
+	"inherit"					"ammo_rockets_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/rocket_ammo/d3xp_rocket_small_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_rockets_large {
+	"inherit"					"ammo_rockets_large"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/rocket_ammo/d3xp_rocket_large_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_cells_small {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"ammo_cells_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/cell_ammo/d3xp_cells_small.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_cells_large {
+	"inherit"					"ammo_cells_large"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/cell_ammo/d3xp_cells_large.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_belt_small {
+	"inherit"					"ammo_belt_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/belt_ammo/d3xp_belt_lo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}
+
+entityDef moveable_ammo_bfg_small {
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"inherit"					"ammo_bfg_small"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/items/bfg_ammo/d3xp_bfg_ammo.lwo"
+	"density"					"0.05"
+	"friction"					"0.4"
+	"bouncyness"				"0.1"
+	"nopulse"					"1"
+	
+	"snd_bounce"				"smallbox"
+}

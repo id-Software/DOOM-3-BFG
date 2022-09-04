@@ -1,0 +1,171 @@
+/***********************************************************************
+
+ Bloodstone Active
+
+***********************************************************************/
+export jay {
+	// view model blood_orb
+	options -prefix setup01_ -rename origin blah -keep flash
+	mesh	models/weapons/blood_orb/cycles/idle_passive.mb -dest models/md5/weapons/blood_orb_view/bloodorb
+	anim	models/weapons/blood_orb/cycles/1_to_2.mb -dest models/md5/weapons/blood_orb_view/1_to_2
+	anim	models/weapons/blood_orb/cycles/2_to_3.mb -dest models/md5/weapons/blood_orb_view/2_to_3
+	anim	models/weapons/blood_orb/cycles/3_to_passive.mb -dest models/md5/weapons/blood_orb_view/3_to_passive
+	anim	models/weapons/blood_orb/cycles/idle_1.mb -dest models/md5/weapons/blood_orb_view/idle_1
+	anim	models/weapons/blood_orb/cycles/idle_2.mb -dest models/md5/weapons/blood_orb_view/idle_2
+	anim	models/weapons/blood_orb/cycles/idle_3.mb -dest models/md5/weapons/blood_orb_view/idle_3
+	anim	models/weapons/blood_orb/cycles/putaway_2.mb -dest models/md5/weapons/blood_orb_view/putaway_2
+	anim	models/weapons/blood_orb/cycles/putaway_3.mb -dest models/md5/weapons/blood_orb_view/putaway_3 
+	anim	models/weapons/blood_orb/cycles/passive_to_1.mb -dest models/md5/weapons/blood_orb_view/passive_to_1 
+	anim	models/weapons/blood_orb/cycles/raise_2.mb -dest models/md5/weapons/blood_orb_view/raise_2
+	anim	models/weapons/blood_orb/cycles/raise_3.mb -dest models/md5/weapons/blood_orb_view/raise_3
+	
+}
+
+model viewmodel_bloodstone_active1 {
+	mesh						models/md5/weapons/blood_orb_view/bloodorb.md5mesh
+	offset						( -2 -6 -36 )
+
+	anim raise					models/md5/weapons/blood_orb_view/raise_passive.md5anim
+	anim passivetoone			models/md5/weapons/blood_orb_view/passive_to_1.md5anim
+	anim idle					models/md5/weapons/blood_orb_view/idle_1.md5anim
+	anim fire					models/md5/weapons/blood_orb_view/idle_1.md5anim
+
+	anim putaway				models/md5/weapons/blood_orb_view/putaway_passive.md5anim
+}
+
+model viewmodel_bloodstone_active2 {
+	mesh						models/md5/weapons/blood_orb_view/bloodorb.md5mesh
+	offset						( -2 -6 -36 )
+
+	anim raise					models/md5/weapons/blood_orb_view/raise_2.md5anim
+	anim onetotwo				models/md5/weapons/blood_orb_view/1_to_2.md5anim
+	anim idle					models/md5/weapons/blood_orb_view/idle_2.md5anim
+	anim fire					models/md5/weapons/blood_orb_view/idle_2.md5anim
+
+	anim putaway				models/md5/weapons/blood_orb_view/putaway_2.md5anim
+}
+
+model viewmodel_bloodstone_active3 {
+	mesh						models/md5/weapons/blood_orb_view/bloodorb.md5mesh
+	offset						( -2 -6 -36 )
+
+	anim raise					models/md5/weapons/blood_orb_view/raise_3.md5anim
+	anim twotothree				models/md5/weapons/blood_orb_view/2_to_3.md5anim
+	anim idle					models/md5/weapons/blood_orb_view/idle_3.md5anim
+	anim fire					models/md5/weapons/blood_orb_view/idle_3.md5anim
+
+	anim putaway				models/md5/weapons/blood_orb_view/putaway_3.md5anim
+}
+
+entityDef weapon_bloodstone_active1 {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Artifact"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"_DEFAULT"
+	"model_view"				"viewmodel_bloodstone_passive"
+	"model_world" 				"worldmodel_bloodstone_passive"
+	"joint_attach"				"FL_ATTACHER"
+
+	"inv_name"					"#str_00100201"
+	"inv_weapon"				"weapon_bloodstone_active1"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_11"
+
+	"hudIcon"					"guis/assets/hud/icons/bloodorb2w.tga"
+
+	"weapon_scriptobject"		"weapon_bloodstone_active1"
+	
+	"ammoType"					"ammo_bloodstone"
+	"ammoRequired"				"1000"
+	"clipSize"					"0"
+	"lowAmmo"					"-1"
+		
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"flashPointLight"			"1"
+	
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+}
+
+
+entityDef weapon_bloodstone_active2 {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Artifact"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"_DEFAULT"
+	"model_view"				"viewmodel_bloodstone_passive"
+	"model_world" 				"worldmodel_bloodstone_passive"
+	"joint_attach"				"FL_ATTACHER"
+
+	"inv_name"					"#str_00100202"
+	"inv_weapon"				"weapon_bloodstone_active2"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_11"
+
+	"hudIcon"					"guis/assets/hud/icons/bloodorb2w.tga"
+
+	"weapon_scriptobject"		"weapon_bloodstone_active2"
+	
+	"ammoType"					"ammo_bloodstone"
+	"ammoRequired"				"1000"
+	"clipSize"					"0"
+	"lowAmmo"					"-1"
+		
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"flashPointLight"			"1"
+	
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+}
+
+
+
+entityDef weapon_bloodstone_active3 {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Artifact"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"_DEFAULT"
+	"model_view"				"viewmodel_bloodstone_passive"
+	"model_world" 				"worldmodel_bloodstone_passive"
+	"joint_attach"				"FL_ATTACHER"
+
+	"inv_name"					"#str_00100203"
+	"inv_weapon"				"weapon_bloodstone_active3"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_11"
+
+	"hudIcon"					"guis/assets/hud/icons/bloodorb2w.tga"
+
+	"weapon_scriptobject"		"weapon_bloodstone_active3"
+	
+	"ammoType"					"ammo_bloodstone"
+	"ammoRequired"				"1000"
+	"clipSize"					"0"
+	
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"flashPointLight"			"1"
+	
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+}

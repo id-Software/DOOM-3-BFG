@@ -1,0 +1,494 @@
+textures/recyc_wall/corrugated05
+{
+
+	qer_editorimage textures/recyc_wall/corrugated05.tga
+
+	diffusemap	textures/recyc_wall/corrugated05_d.tga
+	specularmap	textures/recyc_wall/corrugated05_s.tga
+      bumpmap	textures/recyc_wall/corrugated05_local.tga 
+
+ }
+
+textures/recyc_wall/corrugated01
+{
+
+	qer_editorimage textures/recyc_wall/corrugated01.tga
+
+	diffusemap	textures/recyc_wall/corrugated01_d.tga
+	specularmap	textures/recyc_wall/corrugated01_s.tga
+      bumpmap	textures/recyc_wall/corrugated01_local.tga 
+
+ }
+
+textures/recyc_wall/flat01
+{
+
+	qer_editorimage textures/recyc_wall/flat01.tga
+
+	diffusemap	textures/recyc_wall/corrugated05_d.tga
+	specularmap	textures/recyc_wall/corrugated05_s.tga
+      bumpmap heightmap (textures/recyc_wall/corrugated05_b.tga, 4)
+
+ }
+
+textures/recyc_wall/concretebumpy
+{
+
+	qer_editorimage textures/recyc_wall/concretebumpy.tga
+
+	diffusemap	textures/base_floor/concrete01d.tga
+	specularmap	textures/base_floor/concrete01s.tga
+	bumpmap		addnormals( textures/recyc_wall/concretebumpy_local.tga, heightmap( textures/base_floor/concrete01.tga, 3 ) )
+ }
+
+textures/recyc_wall/girders02_fin.tga
+{
+	qer_editorimage	textures/recyc_wall/girders02_fin.tga
+	bumpmap		addnormals( textures/recyc_wall/girders02_fin_local.tga, heightmap( textures/recyc_wall/girders02_fin_b.tga, 5 ) )
+	diffusemap		textures/recyc_wall/girders02_fin_d.tga
+	specularmap		textures/recyc_wall/girders02_fin_s.tga
+}
+
+ 
+textures/recyc_wall/girders02d128_fin
+{
+	qer_editorimage textures/recyc_wall/girders02d128_fin.tga
+        diffusemap	textures/recyc_wall/girders02d128_fin_d.tga      
+	specularmap	textures/recyc_wall/girders02d128_fin_s.tga        
+        bumpmap	        addnormals( textures/recyc_wall/girders02d128_fin_local.tga  , heightmap( textures/recyc_wall/girders02d128_fin_b.tga, 5 ) )
+
+       
+}          
+
+textures/recyc_wall/girders02e128_fin
+{
+	qer_editorimage textures/recyc_wall/girders02e128_fin.tga
+        diffusemap	textures/recyc_wall/girders02e128_fin_d.tga      
+	specularmap	textures/recyc_wall/girders02e128_fin_s.tga        
+        bumpmap	        addnormals( textures/recyc_wall/girders02e128_fin_local.tga  , heightmap( textures/recyc_wall/girders02e128_fin_b.tga, 5 ) )
+
+       
+}          
+
+textures/recyc_wall/girders02eorg_fin
+{
+	qer_editorimage textures/recyc_wall/girders02eorg_fin.tga
+        diffusemap	textures/recyc_wall/girders02eorg_fin_d.tga      
+	specularmap	textures/recyc_wall/girders02eorg_fin_s.tga        
+        bumpmap	        addnormals( textures/recyc_wall/girders02eorg_fin_local.tga  , heightmap( textures/recyc_wall/girders02eorg_fin_b.tga, 4 ) )
+
+       
+}          
+
+textures/recyc_wall/maldoor_org01_d
+{
+	qer_editorimage textures/recyc_wall/maldoor_org01_d.tga
+        diffusemap	textures/recyc_wall/maldoor_org01_d.tga      
+	specularmap	textures/recyc_wall/girders02eorg_fin_s.tga        
+        bumpmap	        addnormals( textures/recyc_wall/girders02eorg_fin_local.tga  , heightmap( textures/recyc_wall/maldoor_org01_b.tga, 3 ) )
+
+       
+}          
+
+textures/recyc_wall/maldoor_org02_d
+{
+	qer_editorimage   textures/recyc_wall/maldoor_org02_d.tga
+      diffusemap	      textures/recyc_wall/maldoor_org02_d.tga      
+	specularmap	      textures/recyc_wall/maldoor_org02_s.tga      
+      bumpmap	      addnormals( textures/recyc_wall/maldoor_org02_local.tga  , heightmap( textures/recyc_wall/maldoor_org02_b.tga, 2 ) )
+
+       
+}          
+
+textures/recyc_wall/girders02f128_fin
+{
+	qer_editorimage textures/recyc_wall/girders02f128_fin.tga
+        diffusemap	textures/recyc_wall/girders02f128_fin_d.tga      
+	specularmap	textures/recyc_wall/girders02f128_fin_s.tga        
+        bumpmap	        addnormals( textures/recyc_wall/girders02f128_fin_local.tga  , heightmap( textures/recyc_wall/girders02f128_fin_b.tga, 4 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport01_fin
+{
+	qer_editorimage textures/recyc_wall/asupport01_fin.tga
+        diffusemap	textures/recyc_wall/asupport01_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport01_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport01_local_fin.tga, heightmap( textures/recyc_wall/asupport01_b_fin.tga, 2 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport04_fin
+{
+	qer_editorimage textures/recyc_wall/asupport04_fin.tga
+        diffusemap	textures/recyc_wall/asupport04_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport04_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport04_local_fin.tga, heightmap( textures/recyc_wall/asupport04_b_fin.tga, 3 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport05_fin
+{
+	qer_editorimage textures/recyc_wall/asupport05_fin.tga
+        diffusemap	textures/recyc_wall/asupport05_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport05_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport05_local_fin.tga, heightmap( textures/recyc_wall/asupport05_b_fin.tga, 4 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport06_fin
+{
+	qer_editorimage textures/recyc_wall/asupport06_fin.tga
+        diffusemap	textures/recyc_wall/asupport06_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport06_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport06_local_fin.tga, heightmap( textures/recyc_wall/asupport06_b_fin.tga, 4 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport07_fin
+{
+	qer_editorimage textures/recyc_wall/asupport07_fin.tga
+        diffusemap	textures/recyc_wall/asupport07_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport07_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport07_local_fin.tga, heightmap( textures/recyc_wall/asupport07_b_fin.tga, 4 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport07b_fin
+{
+	qer_editorimage textures/recyc_wall/asupport07b_fin.tga
+        diffusemap	textures/recyc_wall/asupport07b_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport07b_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport07b_local_fin.tga, heightmap( textures/recyc_wall/asupport07b_b_fin.tga, 3 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport07c_fin
+{
+	qer_editorimage textures/recyc_wall/asupport07c_fin.tga
+        diffusemap	textures/recyc_wall/asupport07c_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport07c_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport07c_local_fin.tga, heightmap( textures/recyc_wall/asupport07c_b_fin.tga, 3 ) )
+
+       
+} 
+
+textures/recyc_wall/asupport07d_fin
+{
+	qer_editorimage textures/recyc_wall/asupport07d_fin.tga
+        diffusemap	textures/recyc_wall/asupport07d_d_fin.tga      
+	specularmap	textures/recyc_wall/asupport07d_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/asupport07d_local_fin.tga, heightmap( textures/recyc_wall/asupport07d_b_fin.tga, 3 ) )
+
+       
+} 
+
+textures/recyc_wall/girders2pipesb_fin
+{
+	qer_editorimage textures/recyc_wall/girders2pipesb_fin.tga
+        diffusemap	textures/recyc_wall/girders2pipesb_d_fin.tga      
+	specularmap	textures/recyc_wall/girders2pipesb_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/girders2pipesb_local_fin.tga, heightmap( textures/recyc_wall/girders2pipesb_b_fin.tga, 4 ) )
+
+       
+} 
+
+textures/recyc_wall/girdersgray01_fin
+{
+	qer_editorimage textures/recyc_wall/girdersgray01_fin.tga
+        diffusemap	textures/recyc_wall/girdersgray01_d_fin.tga      
+	specularmap	textures/recyc_wall/girdersgray01_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/girdersgray01_local_fin.tga, heightmap( textures/recyc_wall/girdersgray01_b_fin.tga, 6 ) )
+
+       
+} 
+
+textures/recyc_wall/corrugated01_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated01_fin.tga
+        diffusemap	textures/recyc_wall/corrugated01_d_fin.tga     
+	specularmap	textures/recyc_wall/corrugated01_s_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated01_local_fin.tga , heightmap( textures/recyc_wall/corrugated01_b_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated01_3_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated01_3_fin.tga
+        diffusemap	textures/recyc_wall/corrugated01_d3_fin.tga     
+	specularmap	textures/recyc_wall/corrugated01_s3_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated01_local3_fin.tga , heightmap( textures/recyc_wall/corrugated01_b3_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated01_4_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated01_4_fin.tga
+        diffusemap	textures/recyc_wall/corrugated01_d4_fin.tga     
+	specularmap	textures/recyc_wall/corrugated01_s4_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated01_local4_fin.tga , heightmap( textures/recyc_wall/corrugated01_b4_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated01_5_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated01_5_fin.tga
+        diffusemap	textures/recyc_wall/corrugated01_d5_fin.tga     
+	specularmap	textures/recyc_wall/corrugated01_s5_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated01_local5_fin.tga , heightmap( textures/recyc_wall/corrugated01_b5_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated01_6_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated01_6_fin.tga
+        diffusemap	textures/recyc_wall/corrugated01_d6_fin.tga     
+	specularmap	textures/recyc_wall/corrugated01_s6_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated01_local6_fin.tga , heightmap( textures/recyc_wall/corrugated01_b6_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated05_1_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated05_1_fin.tga
+        diffusemap	textures/recyc_wall/corrugated05_d1_fin.tga     
+	specularmap	textures/recyc_wall/corrugated05_s1_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated05_local1_fin.tga , heightmap( textures/recyc_wall/corrugated05_b1_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated05_3_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated05_3_fin.tga
+        diffusemap	textures/recyc_wall/corrugated05_d3_fin.tga     
+	specularmap	textures/recyc_wall/corrugated05_s3_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated05_local3_fin.tga , heightmap( textures/recyc_wall/corrugated05_b3_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated05_4_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated05_4_fin.tga
+        diffusemap	textures/recyc_wall/corrugated05_d4_fin.tga     
+	specularmap	textures/recyc_wall/corrugated05_s4_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated05_local4_fin.tga , heightmap( textures/recyc_wall/corrugated05_b4_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated05_5_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated05_5_fin.tga
+        diffusemap	textures/recyc_wall/corrugated05_d5_fin.tga     
+	specularmap	textures/recyc_wall/corrugated05_s5_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated05_local5_fin.tga , heightmap( textures/recyc_wall/corrugated05_b5_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/corrugated05_6_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated05_6_fin.tga
+        diffusemap	textures/recyc_wall/corrugated05_d6_fin.tga     
+	specularmap	textures/recyc_wall/corrugated05_s6_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/corrugated05_local6_fin.tga , heightmap( textures/recyc_wall/corrugated05_b6_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/girders02e128flat_fin.tga
+{
+	qer_editorimage textures/recyc_wall/girders02e128flat_fin.tga
+        diffusemap	textures/recyc_wall/girders02e128flat_fin_d.tga    
+	specularmap	textures/recyc_wall/girders02e128flat_fin_s.tga         
+        bumpmap	        heightmap( textures/recyc_wall/girders02e128flat_fin_b.tga , 4 ) 
+
+       
+}
+
+textures/recyc_wall/girders02e128flat2_fin.tga
+{
+	qer_editorimage textures/recyc_wall/girders02e128flat2_fin.tga
+        diffusemap	textures/recyc_wall/girders02e128flat2_fin_d.tga    
+	specularmap	textures/recyc_wall/girders02e128flat2_fin_s.tga         
+        bumpmap	        heightmap( textures/recyc_wall/girders02e128flat2_fin_b.tga , 4 ) 
+
+       
+}
+
+textures/recyc_wall/girders02eorgflat_fin.tga
+{
+	qer_editorimage textures/recyc_wall/girders02eorgflat_fin.tga
+        diffusemap	textures/recyc_wall/girders02eorgflat_fin_d.tga    
+	specularmap	textures/recyc_wall/girders02eorgflat_fin_s.tga         
+        bumpmap	        heightmap( textures/recyc_wall/girders02eorgflat_fin_b.tga , 4 ) 
+
+       
+}
+
+textures/recyc_wall/girders02eorgflat2_fin.tga
+{
+	qer_editorimage textures/recyc_wall/girders02eorgflat2_fin.tga
+        diffusemap	textures/recyc_wall/girders02eorgflat2_fin_d.tga    
+	specularmap	textures/recyc_wall/girders02eorgflat2_fin_s.tga         
+        bumpmap	        heightmap( textures/recyc_wall/girders02eorgflat2_fin_b.tga , 4 ) 
+
+       
+}
+
+textures/recyc_wall/corrugated01b_fin
+{
+	qer_editorimage textures/recyc_wall/corrugated01b_fin.tga
+        diffusemap	textures/recyc_wall/corrugated01b_d_fin.tga     
+	specularmap	textures/recyc_wall/corrugated01b_s_fin.tga         
+        bumpmap	        heightmap( textures/recyc_wall/corrugated01b_b_fin.tga , 5 ) 
+
+       
+}
+
+textures/recyc_wall/refpipes01_3_fin
+{
+	qer_editorimage textures/recyc_wall/refpipes01_3_fin.tga
+        diffusemap	textures/recyc_wall/refpipes01_d3_fin.tga     
+	specularmap	textures/recyc_wall/refpipes01_s3_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/refpipes01_local3_fin.tga , heightmap( textures/recyc_wall/refpipes01_b3_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/refpipes01_4_fin
+{
+	qer_editorimage textures/recyc_wall/refpipes01_4_fin.tga
+        diffusemap	textures/recyc_wall/refpipes01_d4_fin.tga     
+	specularmap	textures/recyc_wall/refpipes01_s4_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/refpipes01_local4_fin.tga , heightmap( textures/recyc_wall/refpipes01_b4_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/refpipes01_5_fin
+{
+	qer_editorimage textures/recyc_wall/refpipes01_5_fin.tga
+        diffusemap	textures/recyc_wall/refpipes01_d5_fin.tga     
+	specularmap	textures/recyc_wall/refpipes01_s5_fin.tga         
+        bumpmap	        addnormals( textures/recyc_wall/refpipes01_local5_fin.tga , heightmap( textures/recyc_wall/refpipes01_b5_fin.tga , 4 ) )
+
+       
+}
+
+textures/recyc_wall/dirtypipe01_01_fin
+{
+	qer_editorimage textures/recyc_wall/dirtypipe01_01_fin.tga
+        diffusemap	textures/recyc_wall/dirtypipe01_d01_fin.tga     
+	specularmap	textures/recyc_wall/dirtypipe01_s01_fin.tga         
+        bumpmap heightmap	        (textures/recyc_wall/dirtypipe01_b01_fin.tga , 4) 
+        description     "very dirty, painted surface for pipes, HALF ME"    
+}
+
+textures/recyc_wall/dirtypipe01_02_fin
+{
+	qer_editorimage textures/recyc_wall/dirtypipe01_02_fin.tga
+        diffusemap	textures/recyc_wall/dirtypipe01_d02_fin.tga     
+	specularmap	textures/recyc_wall/dirtypipe01_s02_fin.tga         
+        bumpmap heightmap    (textures/recyc_wall/dirtypipe01_b02_fin.tga , 4) 
+        description     "dirty, painted surface for pipes, HALF ME"    
+}
+
+textures/recyc_wall/dirtypipe01_03_fin
+{
+	qer_editorimage textures/recyc_wall/dirtypipe01_03_fin.tga
+        diffusemap	textures/recyc_wall/dirtypipe01_d03_fin.tga     
+	specularmap	textures/recyc_wall/dirtypipe01_s03_fin.tga         
+        bumpmap heightmap    (textures/recyc_wall/dirtypipe01_b03_fin.tga , 4) 
+        description     "dirty, painted surface for pipes, connector,HALF ME"    
+}
+
+textures/recyc_wall/dirtypipe01_04_fin
+{
+	qer_editorimage textures/recyc_wall/dirtypipe01_04_fin.tga
+        diffusemap	textures/recyc_wall/dirtypipe01_d04_fin.tga     
+	specularmap	textures/recyc_wall/dirtypipe01_s04_fin.tga         
+        bumpmap heightmap    (textures/recyc_wall/dirtypipe01_b04_fin.tga , 4) 
+        description     "dirty, painted surface for pipes, label+connector, HALF ME"    
+}
+
+textures/recyc_wall/shinypipe01_01_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_01_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d01_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s01_fin.tga         
+      bumpmap heightmap  (textures/recyc_wall/shinypipe01_b01_fin.tga , 3) 
+        description     "shiny, clean, bright red, painted surface for pipes"
+}
+
+textures/recyc_wall/shinypipe01_02_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_02_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d02_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s02_fin.tga         
+        bumpmap heightmap (textures/recyc_wall/shinypipe01_b02_fin.tga , 4) 
+        description     "shiny, clean, maroon, painted surface for pipes"    
+}
+
+textures/recyc_wall/shinypipe01_02b_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_02b_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d02b_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s02b_fin.tga         
+        bumpmap heightmap (textures/recyc_wall/shinypipe01_b02b_fin.tga , 4) 
+        description     "lettering, maroon, painted surface for pipes"    
+}
+
+textures/recyc_wall/shinypipe01_02c_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_02c_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d02c_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s02c_fin.tga         
+        bumpmap heightmap (textures/recyc_wall/shinypipe01_b02c_fin.tga , 4) 
+        description     "256 wide, lettering, maroon, painted surface for pipes"    
+}
+
+textures/recyc_wall/shinypipe01_02d_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_02d_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d02d_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s02d_fin.tga         
+        bumpmap heightmap (textures/recyc_wall/shinypipe01_b02d_fin.tga , 4) 
+        description     "128 wide, solid maroon, painted surface for pipes"    
+}
+
+textures/recyc_wall/shinypipe01_02e_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_02e_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d02e_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s02e_fin.tga         
+        bumpmap heightmap (textures/recyc_wall/shinypipe01_b02e_fin.tga , 4) 
+        description     "256 wide, DIRTY maroon, painted surface for pipes"    
+}
+
+textures/recyc_wall/shinypipe01_02f_fin
+{
+	qer_editorimage textures/recyc_wall/shinypipe01_02f_fin.tga
+        diffusemap	textures/recyc_wall/shinypipe01_d02f_fin.tga     
+	specularmap	textures/recyc_wall/shinypipe01_s02f_fin.tga         
+        bumpmap heightmap (textures/recyc_wall/shinypipe01_b02f_fin.tga , 4) 
+        description     "128 wide, DIRTY maroon, pipe connector"    
+}
+
+
+
+         

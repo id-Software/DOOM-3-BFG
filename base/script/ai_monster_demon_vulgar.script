@@ -1,0 +1,538 @@
+/***********************************************************************
+
+monster_demon_vulgar.script
+
+monster_demon_vulgar
+
+***********************************************************************/
+
+#define VULGAR_RUNDISTANCE			192
+#define VULGAR_WALKTURN				65
+#define VULGAR_ATTACK_RATE			1.33
+#define VULGAR_DODGE_RATE			1
+#define VULGAR_LEAP_RATE			8
+#define VULGAR_MELEE_LEAP_PAUSE		1.5
+#define VULGAR_LEAP_SPEED			650
+#define VULGAR_LEAP_MAXHEIGHT		48
+#define VULGAR_LEAP_RANGE_MIN		200
+#define VULGAR_LEAP_RANGE_MAX		480
+#define	VULGAR_PAIN_DELAY			0.25
+
+// anim blend times
+#define	VULGAR_PAIN_TO_IDLE			8
+#define VULGAR_PAIN_TO_PAIN			4
+#define	VULGAR_MELEE_TO_IDLE		4
+#define VULGAR_RANGE_TO_IDLE		4
+#define VULGAR_LEAP_TO_IDLE			4
+#define VULGAR_DODGE_LEFT_TO_IDLE	4
+#define	VULGAR_DODGE_RIGHT_TO_IDLE	4
+#define VULGAR_IDLE_TO_PAIN			4
+#define VULGAR_IDLE_TO_WALK			4
+#define VULGAR_IDLE_TO_RUN			4
+#define VULGAR_WALK_TO_RUN			4
+#define VULGAR_WALK_TO_DODGE_LEFT	4
+#define VULGAR_WALK_TO_DODGE_RIGHT	4
+#define VULGAR_WALK_TO_IDLE			4
+#define VULGAR_WALK_TO_RANGEATTACK	6
+#define VULGAR_WALK_TO_LEAP			4
+#define VULGAR_WALK_TO_MELEE		4
+#define VULGAR_RUN_TO_WALK			4
+#define VULGAR_RUN_TO_IDLE			4
+#define VULGAR_TURRET_TO_IDLE		4
+
+object monster_demon_vulgar : monster_base {
+	float		nextDodge;
+	float		nextAttack;
+	float		nextLeap;
+	float		nextMelee;
+	vector		jumpVelocity;
+	entity		combat_node;
+	string		range_attack_anim;
+
+	// States
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_leap();
+	void		combat_melee();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+
+	void		init();
+	void		path_jump();
+
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_TurretAttack();
+	void		Torso_LeapAttack();
+
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_Run();
+	void		Legs_DodgeLeft();
+	void		Legs_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_vulgar::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", VULGAR_IDLE_TO_PAIN );
+}
+
+void monster_demon_vulgar::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + VULGAR_PAIN_DELAY;
+
+	while( !animDone( ANIMCHANNEL_TORSO, VULGAR_PAIN_TO_IDLE ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", VULGAR_PAIN_TO_PAIN );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", VULGAR_PAIN_TO_IDLE );
+}
+
+void monster_demon_vulgar::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, VULGAR_MELEE_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", VULGAR_MELEE_TO_IDLE );
+}
+
+void monster_demon_vulgar::Torso_RangeAttack() {
+	string anim;
+
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, range_attack_anim );
+	while( !animDone( ANIMCHANNEL_TORSO, VULGAR_RANGE_TO_IDLE ) ) {
+		lookAt( getEnemy(), 1 );
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", VULGAR_RANGE_TO_IDLE );
+}
+
+void monster_demon_vulgar::Torso_TurretAttack() {
+	allowMovement( false );
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, VULGAR_TURRET_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "turret_attack" );
+	allowMovement( true );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_demon_vulgar::Torso_LeapAttack() {
+	overrideAnim( ANIMCHANNEL_LEGS );
+	disablePain();
+	playAnim( ANIMCHANNEL_TORSO, "jump_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, VULGAR_LEAP_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	attackBegin( "melee_vulgarLeapAttack" );
+	setLinearVelocity( jumpVelocity );
+
+	playCycle( ANIMCHANNEL_TORSO, "jump_loop" );
+	do {
+		waitFrame();
+	} while( !AI_ONGROUND );
+
+	attackEnd();
+	playAnim( ANIMCHANNEL_TORSO, "jump_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, VULGAR_LEAP_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "leap_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", VULGAR_LEAP_TO_IDLE );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_demon_vulgar::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", VULGAR_IDLE_TO_RUN ); }
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", VULGAR_IDLE_TO_WALK ); }
+	}
+}
+
+void monster_demon_vulgar::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+
+	eachFrame {
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", VULGAR_WALK_TO_RUN ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", VULGAR_WALK_TO_IDLE ); }
+	}
+}
+
+void monster_demon_vulgar::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+
+	eachFrame {
+		if ( !run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", VULGAR_RUN_TO_WALK ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", VULGAR_RUN_TO_IDLE ); }
+	}
+}
+
+void monster_demon_vulgar::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, VULGAR_DODGE_LEFT_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", VULGAR_DODGE_LEFT_TO_IDLE );
+}
+
+void monster_demon_vulgar::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, VULGAR_DODGE_RIGHT_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", VULGAR_DODGE_RIGHT_TO_IDLE );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_vulgar::init
+=====================
+*/
+void monster_demon_vulgar::init() {
+	run_distance	= VULGAR_RUNDISTANCE;
+	walk_turn		= VULGAR_WALKTURN;
+
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_vulgar::state_Begin
+=====================
+*/
+void monster_demon_vulgar::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_vulgar::state_Idle
+=====================
+*/
+void monster_demon_vulgar::state_Idle() {
+	wait_for_enemy();
+
+	nextLeap	= RandomTime( VULGAR_LEAP_RATE );
+	nextAttack	= 0;
+	nextMelee	= 0;
+	nextDodge	= RandomTime( VULGAR_DODGE_RATE );
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_vulgar::do_attack
+=====================
+*/
+void monster_demon_vulgar::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_LEAP ) {
+		combat_leap();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_demon_vulgar::check_attacks
+=====================
+*/
+float monster_demon_vulgar::check_attacks() {
+	float	range;
+	float 	currentTime;
+	float 	canMelee;
+	float 	attack_flags;
+	float 	checkLeap;
+	vector 	vel;
+	float  	t;
+	vector 	jumpTarget;
+	string	anim;
+
+	attack_flags = 0;
+	currentTime = sys.getTime();
+
+	if ( currentTime >= nextMelee ) {
+		canMelee = testMeleeAttack();
+	} else {
+		canMelee = 0;
+	}
+
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+
+	if ( AI_ENEMY_IN_FOV ) {
+		if ( canMelee ) {
+			attack_flags |= ATTACK_MELEE;
+		}
+
+		range = enemyRange();
+		if ( ( range >= VULGAR_LEAP_RANGE_MIN ) && ( range < VULGAR_LEAP_RANGE_MAX ) && ( currentTime >= nextLeap ) ) {
+			if ( canHitEnemy() ) {
+				t = animLength( ANIMCHANNEL_TORSO, "jump_start" );
+				jumpTarget = predictEnemyPos( t );
+				jumpVelocity = getJumpVelocity( jumpTarget, VULGAR_LEAP_SPEED, VULGAR_LEAP_MAXHEIGHT );
+				if ( jumpVelocity != '0 0 0' ) {
+					attack_flags |= ATTACK_LEAP;
+				} else {
+					// check if we can leap again in 2 seconds
+					nextLeap = DelayTime( 2 );
+				}
+			}
+		}
+
+		if ( currentTime >= nextAttack ) {
+			range_attack_anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+			if ( canHitEnemyFromAnim( range_attack_anim ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+		}
+	}
+
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_vulgar::combat_range
+=====================
+*/
+void monster_demon_vulgar::combat_range() {
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", VULGAR_WALK_TO_RANGEATTACK );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( VULGAR_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_demon_vulgar::combat_leap
+=====================
+*/
+void monster_demon_vulgar::combat_leap() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", VULGAR_WALK_TO_LEAP );
+	waitAction( "leap_attack" );
+	nextLeap = DelayTime( VULGAR_LEAP_RATE );
+	nextMelee = DelayTime( VULGAR_MELEE_LEAP_PAUSE );
+	nextAttack = DelayTime( 0.7 );
+	moveToEnemy();
+}
+
+/*
+=====================
+monster_demon_vulgar::combat_melee
+=====================
+*/
+void monster_demon_vulgar::combat_melee() {
+	lookAt( getEnemy(), 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", VULGAR_WALK_TO_MELEE );
+	waitAction( "melee_attack" );
+	lookAt( getEnemy(), 1 );
+}
+
+/*
+=====================
+monster_demon_vulgar::combat_dodge_left
+=====================
+*/
+void monster_demon_vulgar::combat_dodge_left() {
+	if ( !AI_FORWARD ) {
+		run = false;
+	}
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", VULGAR_WALK_TO_DODGE_LEFT );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( VULGAR_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_vulgar::combat_dodge_right
+=====================
+*/
+void monster_demon_vulgar::combat_dodge_right() {
+	if ( !AI_FORWARD ) {
+		run = false;
+	}
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", VULGAR_WALK_TO_DODGE_RIGHT );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( VULGAR_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_vulgar::path_jump
+=====================
+*/
+void monster_demon_vulgar::path_jump() {
+	entity target;
+	vector dir;
+	vector jumpTarget;
+
+	// walk to the path entity first
+	path_corner();
+
+	if ( checkForEnemy( true ) ) {
+		return;
+	}
+
+	target = current_path.randomPath();
+	if ( !target ) {
+		sys.error( "missing target for '" + current_path.getName() + "'" );
+	}
+	jumpTarget = target.getOrigin();
+	if ( !current_path.getKey( "up" ) ) {
+		jumpVelocity = getJumpVelocity( jumpTarget, VULGAR_LEAP_SPEED, 1024 );
+		if ( jumpVelocity == '0 0 0' ) {
+			sys.error( "Monster '" + getName() + "' couldn't make jump from '" + current_path.getName() + "' to '" + target.getName() + "'" );
+		}
+	} else {
+		float forward = current_path.getFloatKey( "forward" );
+		if ( forward <= 0 ) {
+			sys.error( "Invalid forward velocity on path_jump entity '" + current_path.getName() + "'\n" );
+		}
+		dir = jumpTarget - getOrigin();
+		dir_z = 0;
+		dir = sys.vecNormalize( dir );
+		dir = dir * forward;
+		dir_z = current_path.getFloatKey( "up" );
+		jumpVelocity = dir;
+	}
+
+	stopMove();
+	turnToPos( jumpTarget );
+	while( !facingIdeal() ) {
+		if ( checkForEnemy( true ) ) {
+			return;
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );
+	waitAction( "leap_attack" );
+
+	stopMove();
+}

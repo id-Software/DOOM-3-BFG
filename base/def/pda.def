@@ -1,0 +1,136 @@
+/***********************************************************************
+
+ pdas
+
+***********************************************************************/
+
+entityDef moveable_item_pda {
+	"inherit"						"item_pda"
+	"model"							"models/items/pda/pda_world.lwo"
+	"density"						"0.05"
+	"friction"						"0.2"
+	"bouncyness"					"0"
+	"joint"							"pda"
+	"origin"						"0 0 0"
+	"angles"						"180 153 90"
+	"remove"						"1"
+	"spawnclass"					"idMoveablePDAItem"
+	"snd_bounce"					"smallbox"
+}
+
+entityDef pda_underground_maint_young_daniel {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/mc_underground/safety_bridge2.gui"
+	"pda_name"						"mcunderground_young"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_underground_security_helmet_mark {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/mc_underground/machine1.gui"
+	"pda_name"						"mcunderground_ryan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+
+}
+
+entityDef pda_marscity_security_goggles_pda {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/pda/pda_npc.gui"
+	"pda_name"						"marscity2_duncan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_marscity_char_maint_asian_pda {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/pda/tablet_npc.gui"
+	"pda_name"						"marscity2_duncan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_marscity_labcoat_black {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/pda/pda_npc.gui"
+	"pda_name"						"marscity2_duncan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_marscity_maint1_hallway {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/pda/pda_npc.gui"
+	"pda_name"						"marscity2_duncan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_marscity_soldier_young_pda {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/pda/tablet_npc.gui"
+	"pda_name"						"marscity2_duncan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_marscity_soldier_black {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/pda/tablet_npc.gui"
+	"pda_name"						"marscity2_duncan"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+
+}
+
+entityDef pda_alphalabs1_labcoat_bald {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/screens/cpu_one.gui"
+	"pda_name"						"alphalabs1_krietman"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_marscity_soldier_bald_pda {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/marscity/reception.gui"
+	"pda_name"						"alphalabs1_krietman"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+entityDef pda_alphalabs3_fragchamber_scientist2 {
+	"inherit"						"moveable_item_pda"
+	"gui"							"guis/screens/cpu_one.gui"
+	"pda_name"						"alphalabs4_kaczynski"
+	"notpushable"					"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+}
+
+
+
+
+

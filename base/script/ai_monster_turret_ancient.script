@@ -1,0 +1,152 @@
+/***********************************************************************
+
+ai_monster_turret_ancient.script
+
+monster_turret_ancient
+
+***********************************************************************/
+
+
+object monster_turret_ancient : monster_base {
+
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+	void		state_TrackEnemy();
+
+	
+
+	void		init();
+	void		destory();
+	
+	void		returnToIdle();
+	void		trackEnemy();
+	void		fire();
+		
+	// anim states
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Fire();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_turret_ancient::Torso_Death() {
+	finishAction( "dead" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void monster_turret_ancient::Torso_Idle() {
+	playCycle( ANIMCHANNEL_TORSO, "idle" );
+	
+	while(1) {
+		waitFrame();
+	}
+}
+
+void monster_turret_ancient::Torso_Fire() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "fire" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	finishAction( "fire" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_turret_ancient::init
+=====================
+*/
+void monster_turret_ancient::init() {
+	float team;
+
+	// don't take damage
+	ignoreDamage();
+
+	// can't move, so only fire on sight
+	ambush = true;
+	
+	/*string	animname;
+	animname = self.getKey( "anim" );
+	playCustomCycle( animname, 4 );
+	waitUntil( AI_ACTIVATED || AI_PAIN );*/
+	monster_begin();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_turret_ancient::destory
+=====================
+*/
+void monster_turret_ancient::destory() {
+}
+
+
+
+
+/*
+=====================
+monster_turret_ancient::state_Begin
+=====================
+*/
+void monster_turret_ancient::state_Begin() {
+	setMoveType( MOVETYPE_STATIC );
+
+	setState("state_Idle");
+}
+
+/*
+=====================
+monster_turret_ancient::state_Idle
+=====================
+*/
+void monster_turret_ancient::state_Idle() {
+	while(1) {
+		waitFrame();
+	}
+}
+
+
+
+void monster_turret_ancient::state_TrackEnemy() {
+	while(1) {
+		lookAtEnemy(1);
+		waitFrame();
+	}
+}
+
+
+void monster_turret_ancient::trackEnemy() {
+	setState("state_TrackEnemy");
+}
+
+void monster_turret_ancient::returnToIdle() {
+	clearEnemy();
+	setState("state_Idle");
+}
+
+void monster_turret_ancient::fire() {
+	//sys.print("Fire!!!!\n");
+	animState( ANIMCHANNEL_TORSO, "Torso_Fire", 0 );
+	waitUntil("fire");
+}

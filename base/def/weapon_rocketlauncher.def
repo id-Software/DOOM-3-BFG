@@ -1,0 +1,223 @@
+/***********************************************************************
+
+	weapon_rocketlauncher.def
+
+***********************************************************************/
+
+export fred {
+	// View Model Rocket Launcher
+	options -prefix RL_ -keep barrel -keep flash -rename origin blah -rename barrel2 barrel -parent barrel RLBODY -parent flash RLBODY
+
+	mesh	models/weapons/rocketlauncher/cycles/idle.mb -rotate 90 -dest models/md5/weapons/rocketlauncher_view/viewrocketlauncher
+	anim	models/weapons/rocketlauncher/cycles/raise.mb -rotate 90 -dest models/md5/weapons/rocketlauncher_view/raise
+	anim	models/weapons/rocketlauncher/cycles/idle.mb -rotate 90 -dest models/md5/weapons/rocketlauncher_view/idle
+	anim	models/weapons/rocketlauncher/cycles/fire.mb -rotate 90 -dest models/md5/weapons/rocketlauncher_view/fire
+	anim	models/weapons/rocketlauncher/cycles/reload.mb -rotate 90 -dest models/md5/weapons/rocketlauncher_view/reload
+	anim	models/weapons/rocketlauncher/cycles/lower.mb -rotate 90 -dest models/md5/weapons/rocketlauncher_view/lower
+
+	// world model Rocket Launcher
+	options -prefix PLAYER_RL -keep barrel _ATTACHER flash eject -parent eject BODY -parent flash BODY -rename barrel2 barrel -rename _ATTACHER origin -parent barrel BODY -clearorigin
+	addoptions -skipmesh PLAYER_rshell1
+	addoptions -skipmesh PLAYER_rshell2
+	addoptions -skipmesh PLAYER_rshell3
+	addoptions -skipmesh PLAYER_rshell4
+	addoptions -skipmesh PLAYER_reloader1
+	addoptions -skipmesh PLAYER_handle
+	addoptions -skipmesh PLAYER_aimer
+	addoptions -skipmesh PLAYER_body
+
+	mesh	models/characters/player/mocap/rocketlauncher_aim.mb -dest models/md5/weapons/rocketlauncher_world/worldrocketlauncher
+	//anim	models/characters/player/mocap/rocketlauncher_aim.mb -dest models/md5/weapons/rocketlauncher_world/rocketlauncher_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_aim.mb -dest models/md5/weapons/rocketlauncher_world/rocketlauncher_aim
+
+	//anim	models/characters/player/mocap/rocketlauncher_fire.mb -dest models/md5/weapons/rocketlauncher_world/rocketlauncher_fire
+}
+
+entityDef weapon_rocketlauncher {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Rocket Launcher"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"models/weapons/rocketlauncher/w_rocketlauncher.lwo"
+	"model_view" 				"viewmodel_rocketlauncher"
+	"model_world" 				"worldmodel_rocketlauncher"
+	"joint_attach"				"RL_ATTACHER"
+	"def_dropItem"				"moveable_item_rocketlauncher"
+
+	"inv_name"					"#str_01424"
+	"inv_weapon"				"weapon_rocketlauncher"
+	"inv_ammo_rockets"			"5"
+	"inv_item"					"5"
+	"inv_desc"					"#str_02539"
+	"display_name"				"#str_02480"
+
+	"icon"						"guis/assets/hud/wpn_6"
+	"pdaIcon"					"guis/assets/hud/icons/rocketlauncher_new.tga"
+	"hudIcon"					"guis/assets/hud/icons/rocketlauncherw.tga"	
+
+	"hide_time"					"0.3"				// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-20"				// distance to offset weapon when talking to npcs or looking at guis
+
+	"weapon_scriptobject"		"weapon_rocketlauncher"
+	"def_projectile"			"projectile_rocket"
+	"ammoType"					"ammo_rockets"
+	"ammoRequired"				"1"
+	"clipSize"					"5"
+	"lowAmmo"					"1"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"silent_fire"				"0"
+	"recoilTime"				"325"
+	"recoilAngles"				"-1 0 0"
+
+	"weaponAngleOffsetAverages" "15"
+	"weaponAngleOffsetScale" 	".5"
+	"weaponAngleOffsetMax"		"50"
+	"weaponOffsetTime"			"500"
+	"weaponOffsetScale"			"0.005"
+
+	//"smoke_muzzle"			"rocketmuzzle.prt"
+
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+
+	"skin_1"					"skins/models/weapons/0rox.skin"
+	"skin_2"					"skins/models/weapons/1rox.skin"
+	"skin_3"					"skins/models/weapons/2rox.skin"
+	"skin_4"					"skins/models/weapons/3rox.skin"
+	"skin_5"					"skins/models/weapons/4rox.skin"
+	"skin_6"					"skins/models/weapons/5rox.skin"
+	
+	"skin_invisible"			"skins/rocket_invis"
+	
+	"spread"					"1"
+
+	"controllerShakeHighMag"	"1.0"
+	"controllerShakeHighTime"	"500"
+	"controllerShakeLowMag"		"0.9"
+	"controllerShakeLowTime"	"750"
+}
+
+entityDef moveable_item_rocketlauncher {
+	"inherit"					"weapon_rocketlauncher"
+	"spawnclass"				"idMoveableItem"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+}
+
+model worldmodel_rocketlauncher {
+	mesh						models/md5/weapons/rocketlauncher_world/worldrocketlauncher.md5mesh
+
+	anim raise 					models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim
+	anim idle 					models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim
+	anim aim					models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim
+	anim fire					models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim
+	anim reload					models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim		
+	anim noammo					models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim
+	anim putaway				models/md5/weapons/rocketlauncher_world/rocketlauncher_aim.md5anim
+}
+
+model viewmodel_rocketlauncher {
+	mesh 						models/md5/weapons/rocketlauncher_view/viewrocketlauncher.md5mesh
+	offset						( -6 -3 -60 )
+
+	anim raise 					models/md5/weapons/rocketlauncher_view/raise.md5anim {
+		frame 1					sound_weapon player_rocketlauncher_raise
+	}
+	anim idle 					models/md5/weapons/rocketlauncher_view/idle.md5anim
+	anim fire 					models/md5/weapons/rocketlauncher_view/fire.md5anim {
+		frame 1					sound_weapon player_rocketlauncher_fire
+	}
+	anim reload 				models/md5/weapons/rocketlauncher_view/reload.md5anim {
+		frame 1					sound_weapon player_rocketlauncher_reload
+	}
+	anim putaway 				models/md5/weapons/rocketlauncher_view/lower.md5anim
+}
+
+entityDef projectile_rocket {
+	"spawnclass"				"idProjectile"
+	"mins"						"-3 -3 -6"
+	"maxs"						"3 3 6"
+	"cone"						"3"
+	"model" 					"models/weapons/rocketlauncher/rocket.lwo"
+
+	"def_damage"				"damage_rocketDirect"
+	"def_splash_damage"			"damage_rocketSplash"
+
+	"launchFromBarrel"			"1"					// launch from barrel
+	"health"					"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"900 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"4"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"300"
+	"gravity"					"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"		"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+								
+	"mtr_detonate"				"textures/decals/ballburn01"
+	"decal_size"				"300"
+
+	"smoke_fly"					"rockettrail.prt"		// particle effect while in the air
+	// parametric particles -- temp
+	"model_detonate"			"rocketExplosion.prt"
+	"smoke_detonate"			""						// particle effect when detonates
+	"smoke_residue"				""						// particle effect while in the air
+	"smoke_bounce"				""
+	"smoke_fuse"				""
+
+	"debris_count"				"6"
+	"def_debris"				"debris_largeshrapnel"
+	"def_shrapnel"				"debris_shrapnel"
+	
+	"mtr_light_shader"			""
+	"light_color"				"1 0.8 0.4"
+	"light_radius"				"160"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	"muzzleflash"
+	"explode_light_color"		"2 1.6 0.8"
+	"explode_light_radius"		"320"
+	"explode_light_fadetime"	"0.5"
+
+	"snd_fly"					"rocket_flight"					// sound effect while in the air
+	"snd_explode"				"rocket_impact"
+}
+
+entityDef damage_rocketDirect {
+	"damage"					"170"
+	"push"						"1000"
+	"mtr_wound_flesh"			"textures/decals/hurt02"
+	"mtr_splat_flesh"			""
+	"gib"						"1"
+	"smoke_wound_flesh"			"bloodwound.prt"
+}
+
+entityDef damage_rocketSplash {
+	"damage"					"150"
+	"radius"					"175" //changed by Tim 6-22-04 from 132
+	"knockback"					"80"
+	"push"						"10000"
+	"attackerDamageScale"		"0.2"
+	"attackerPushScale"			"0.2"
+	"gib"						"1"
+}

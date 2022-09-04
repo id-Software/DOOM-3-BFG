@@ -1,0 +1,592 @@
+/***********************************************************************
+	monster_boss_d3xp_maledict.def
+***********************************************************************/
+
+export maledict {
+
+	options -prefix MAL_ -sourcedir models/monsters/d3xp_maledict/cycles -destdir models/md5/monsters/d3xp_maledict -parent tongue1 Head
+
+	mesh	maledict.ma
+
+	anim	maledict_bossfight.mb -range 0 0 -dest idle_down
+	anim	maledict_bossfight.mb -dest attack_a
+	anim	maledict_bossfight_j2.mb -dest attack_a1
+	anim	maledict_attack_b.mb -dest attack_b
+	anim	maledict_attack_c.mb -dest attack_c
+	anim	maledict_swoop_a.mb -dest swoop_a
+	anim	maledict_swoop_b.mb -dest swoop_b
+	anim	maledict_swoop_c.mb -dest swoop_c
+	anim	maledict_perch.mb -dest perch
+	anim	maledict_charge.mb -dest charge
+	anim	maledict_forgotten.mb -dest forgotten
+	anim	maledict_swoop_horiz.mb -dest horiz
+	anim	maledict_swoop_vert.mb -dest vert
+}
+
+model monster_boss_d3xp_maledict {
+	mesh							models/md5/monsters/d3xp_maledict/maledict.md5mesh
+	skin							skins/models/monsters/maledict.skin
+
+	channel legs					( *origin )
+
+	anim idle						models/md5/monsters/d3xp_maledict/idle_down.md5anim
+
+	anim attack_a					models/md5/monsters/d3xp_maledict/attack_a.md5anim {
+		frame 1							sound_voice snd_mal_scream
+		frame 30						sound_body2 snd_mal_flapdown
+		frame 61						sound_body2 snd_mal_flapdown
+		frame 112						sound_body2 snd_mal_flapdown
+
+		frame 56						create_missile tongue1
+		frame 57						sound_voice snd_mal_fire
+		frame 57						launch_missile tongue1
+
+		frame 60						create_missile tongue1
+		frame 60						sound_voice2 snd_mal_fire
+		frame 61						launch_missile tongue1
+
+		frame 64						create_missile tongue1
+		frame 63						sound_body2 snd_mal_fire
+		frame 65						launch_missile tongue1
+		frame 120						sound_voice snd_mal_scream
+		frame 130						sound_body3 snd_mal_whoosh
+	}
+	anim attack_a1					models/md5/monsters/d3xp_maledict/attack_a1.md5anim {
+		frame 1							sound_voice snd_mal_scream
+		frame 30						sound_body2 snd_mal_flapdown
+		frame 61						sound_body2 snd_mal_flapdown
+		frame 112						sound_body2 snd_mal_flapdown
+		frame 219						sound_body2 snd_mal_flapdown
+
+		frame 27						create_missile tongue1
+		frame 28						sound_voice snd_mal_fire
+		frame 28						launch_missile tongue1
+
+		frame 64						create_missile tongue1
+		frame 65						sound_voice2 snd_mal_fire
+		frame 65						launch_missile tongue1
+
+		frame 104						create_missile tongue1
+		frame 105						sound_body2 snd_mal_fire
+		frame 105						launch_missile tongue1
+
+		frame 140						create_missile tongue1
+		frame 141						sound_body2 snd_mal_fire
+		frame 141						launch_missile tongue1
+
+		frame 152						create_missile tongue1
+		frame 153						sound_body2 snd_mal_fire
+		frame 153						launch_missile tongue1
+
+		frame 164						create_missile tongue1
+		frame 165						sound_body2 snd_mal_fire
+		frame 165						launch_missile tongue1
+
+		frame 176						create_missile tongue1
+		frame 177						sound_body2 snd_mal_fire
+		frame 177						launch_missile tongue1
+
+		frame 188						create_missile tongue1
+		frame 189						sound_body2 snd_mal_fire
+		frame 189						launch_missile tongue1
+
+		frame 200						create_missile tongue1
+		frame 201						sound_body2 snd_mal_fire
+		frame 201						launch_missile tongue1
+
+		frame 223						create_missile tongue1
+		frame 224						sound_body2 snd_mal_fire
+		frame 224						launch_missile tongue1
+
+		frame 230						sound_voice snd_mal_scream
+		frame 240						sound_body3 snd_mal_whoosh
+	}
+
+	anim swoop_horiz				models/md5/monsters/d3xp_maledict/horiz.md5anim {
+		ai_no_turn
+
+		frame 5							sound_voice2 snd_mal_swoop
+		frame 48						sound_weapon snd_mal_flamestart
+		frame 48						object_call flame_wall
+		frame 48						sound_item snd_mal_flamewall
+		frame 60						sound_body3	snd_mal_whoosh
+	}
+	anim swoop_vert					models/md5/monsters/d3xp_maledict/vert.md5anim {
+		ai_no_turn
+
+		frame 5							sound_voice	snd_mal_swoop
+		frame 48						sound_weapon snd_mal_flamestart
+		frame 48						object_call flame_wall
+		frame 48						sound_item	snd_mal_flamewall
+		frame 60						sound_body3	snd_mal_whoosh
+	}
+
+	anim perch						models/md5/monsters/d3xp_maledict/perch.md5anim {
+		ai_no_turn
+
+		frame 20						sound_voice	snd_mal_scream
+		frame 112						sound_body2	snd_mal_flapdown
+		frame 153						sound_body2	snd_mal_flapdown
+		frame 180						sound_body2	snd_mal_flapdown
+		frame 238						sound_body2	snd_mal_flapdown
+		frame 293						sound_body2	snd_mal_flapdown
+		frame 319						sound_body2	snd_mal_flapdown
+		frame 336						sound_body2	snd_mal_flapdown
+
+		frame 95						sound_body3	snd_mal_land
+		frame 110						call map_hell::rof_hurt_on
+		frame 110						trigger mal_firering_emitter_1
+		frame 110						trigger mal_firering_emitter_2
+		frame 110						trigger mal_firering_emitter_3
+		frame 110						trigger mal_firering_emitter_4
+		frame 110						trigger mal_firering_emitter_5
+		frame 110						trigger mal_firering_emitter_6
+		frame 110						trigger mal_firering_emitter_7
+		frame 110						trigger mal_firering_emitter_8
+		frame 110						object_call asteroid_attack
+		frame 190						sound_voice2 snd_mal_scream
+		frame 290						sound_voice snd_mal_scream
+		frame 350						sound_body3	snd_mal_whoosh
+		frame 254						call map_hell::rof_hurt_off
+	}
+
+	anim charge						models/md5/monsters/d3xp_maledict/charge.md5anim {
+		ai_no_turn
+
+		frame 5							sound_voice	snd_mal_swoop
+		frame 20						sound_weapon snd_mal_flamestart
+		frame 20						sound_item	snd_mal_flamewall
+		frame 20						object_call flame_wall
+		frame 32						sound_body3	snd_mal_whoosh
+	}
+
+	anim forgotten						models/md5/monsters/d3xp_maledict/forgotten.md5anim {
+		ai_no_turn
+
+		frame 10						sound_voice mal_forgotten_summon
+		frame 20						create_missile tongue1
+		frame 21						launch_missile tongue1
+		frame 30						create_missile tongue1
+		frame 31						launch_missile tongue1
+		frame 70						sound_voice2 mal_forgotten_summon
+		frame 70						create_missile tongue1
+		frame 71						launch_missile tongue1
+		frame 80						create_missile tongue1
+		frame 81						launch_missile tongue1
+	}
+}
+
+/***********************************
+ Maledict
+ **********************************/
+entityDef monster_boss_d3xp_maledict {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_boss_maledict"
+	"model"							"monster_boss_d3xp_maledict"
+	"size"							"48 48 80"
+
+	"anim"							"idle"
+
+	"skin"							"skins/models/monsters/maledictnohead2.skin"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"2"
+	"def_projectile"				"projectile_maledict_fireball"
+	"attack_cone"					"180"
+	"attack_accuracy"				"1"
+	"forceMuzzle"					"1"
+	"mass"							"600"
+
+	"gravityDir"					"0 0 0"
+	"animate_z"						"1"
+
+	"health"						"1500"
+
+	// ==================
+	// Define sounds here
+	// ==================
+	"snd_mal_scream"				"mal_scream"
+	"snd_mal_flapdown"				"mal_flapdown"
+	"snd_mal_fire"					"mal_fire"
+	"snd_mal_whoosh"				"mal_whoosh"
+	"snd_mal_swoop"					"mal_swoop"
+	"snd_mal_flamestart"			"mal_flamestart"
+	"snd_mal_flamewall"				"mal_flamewall"
+	"snd_mal_land"					"mal_land"
+
+
+	"skin_precache"					"skins/models/monsters/maledict_burning_nohead.skin"
+	"def_flamewall"					"maledict_flamewall1"
+	"def_flamewall2"				"maledict_flamewall2"
+	"def_flamewall3"				"maledict_flamewall3"
+	"def_flamewall_sound"			"maledict_flamewall_sound"
+	"def_asteroid"					"projectile_maledict_asteroid"
+	"def_asteroid2"					"projectile_maledict_asteroid2"
+	"def_asteroid3"					"projectile_maledict_asteroid3"
+	"def_asteroid4"					"projectile_maledict_asteroid_huge"
+}
+
+/***********************************
+ The primary projectile
+ **********************************/
+entityDef projectile_maledict_fireball {
+	"spawnclass"					"idProjectile"
+	"mins"							"-6 -6 -6"
+	"maxs"							"6 6 6"
+	"model" 						"maledict_fireball.prt"
+
+	"def_damage"					"damage_maledict_fireball"
+	"def_splash_damage"				"damage_maledict_fireball_splash"
+
+	"launchFromBarrel"				"1"
+	"health"						"35"				// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"825 0 -350"		// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"500"
+	"gravity"						"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75"
+
+	"smoke_fly"						"imp_trail2.prt"			// particle effect while in the air
+	"smoke_detonate"				""							// particle effect when detonates
+	"smoke_residue"					""							// particle effect while in the air
+	"smoke_bounce"					""							// particle effect when bounces
+	"smoke_fuse"					""							// particle effect when removed from fuse expiring
+
+	"model_detonate"				"maledict_explosion.prt"
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	"mtr_light_shader"				"lights/impflyflash"
+	"light_color"					"0.9 0.7 0.05"
+	"light_radius"					"160"
+	"light_offset"					"0 0 0"
+
+
+	"mtr_explode_light_shader"		"lights/impflash"
+	"explode_light_color"			"3.6 3.0 0.5"
+	"explode_light_radius"			"320"
+	"explode_light_fadetime"		"1"
+
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+	"snd_fly"					"monster_demon_imp_fireball_flight"					// particle effect while in the air
+}
+
+/***********************************
+ Projectile damage defs
+ **********************************/
+entityDef damage_maledict_fireball {
+	"damage"						"18"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef	damage_maledict_fireball_splash {
+	"damage"						"18"
+	"radius"						"160"
+}
+
+entityDef damage_maledict_fireball_catch {
+	"damage"						"250"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+/***********************************
+ Maledict's FIRE WALL
+ **********************************/
+
+entityDef damage_maledictfirewall {
+	"damage"			"13"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"60"
+
+	"smoke_wound_flesh"	"bloodwound.smoke"
+
+	"kick_time"			"500"
+	"kick_amplitude"	"2"
+
+	"dv_time"			"300"
+}
+
+entityDef maledict_flamewall_sound {
+	"spawnclass"				"idSound"
+	"s_shader"					"archvile_fireloop"
+}
+
+entityDef maledict_flamewall_base {
+	"spawnclass"				"idTrigger_Hurt"
+	"size"						"164 164 128"
+	"cylinder"					"6"
+	"def_damage"				"damage_maledictfirewall"
+}
+
+entityDef maledict_flamewall1 {
+	"inherit"					"maledict_flamewall_base"
+	"model"						"maledict_flamewall.prt"
+}
+entityDef maledict_flamewall2 {
+	"inherit"					"maledict_flamewall_base"
+	"model"						"maledict_flamewall2.prt"
+}
+entityDef maledict_flamewall3 {
+	"inherit"					"maledict_flamewall_base"
+	"model"						"maledict_flamewall3.prt"
+}
+
+/***********************************
+ Maledict's ASTEROIDS
+ **********************************/
+
+entityDef damage_maledict_asteroid {
+	"damage"						"15"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef	damage_maledict_asteroid_splash {
+	"damage"						"20"
+	"radius"						"256"
+}
+
+// ===========================================================================
+// After an asteroid is thrown by the Grabber, it uses the following damageDef
+// ===========================================================================
+entityDef damage_maledict_asteroid_catch {
+	"damage"						"400"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef projectile_maledict_asteroid {
+	"spawnclass"					"idProjectile"
+	"mins"							"-18 -18 -18"
+	"maxs"							"18 18 18"
+	"model" 						"models/patj/meteor1.lwo"
+
+	"def_damage"					"damage_maledict_asteroid"
+	"def_splash_damage"				"damage_maledict_asteroid_splash"
+
+	"launchFromBarrel"				"1"
+	"health"						"15"				// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"-1000 0 -1000"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"10 -10 10"			// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0.0"					// "air" friction
+	"angular_friction"				"0.4"
+	"contact_friction"				"0.1"
+	"bounce"						"0.4"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"100"
+	"gravity"						"100"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"8"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75"
+
+	"smoke_fly"						"meteor_trail.prt"			// particle effect while in the air
+	"smoke_detonate"				""							// particle effect when detonates
+	"smoke_residue"					""							// particle effect while in the air
+	"smoke_bounce"					""							// particle effect when bounces
+	"smoke_fuse"					""							// particle effect when removed from fuse expiring
+
+	"model_detonate"				"maledict_asteroid_explosion.prt"
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	"mtr_light_shader"				""
+	"mtr_explode_light_shader"		""
+
+	"snd_explode"					"mal_asteroid"
+	"snd_fly"						"monster_demon_imp_fireball_flight"					// particle effect while in the air
+}
+
+entityDef projectile_maledict_asteroid2 {
+	"inherit"						"projectile_maledict_asteroid"
+	"model" 						"models/patj/meteor2.lwo"
+}
+
+entityDef projectile_maledict_asteroid3 {
+	"inherit"						"projectile_maledict_asteroid"
+	"model" 						"models/patj/meteor3.lwo"
+}
+
+entityDef projectile_maledict_asteroid_huge {
+	"inherit"						"projectile_maledict_asteroid"
+	"model" 						"models/patj/meteor_huge.lwo"
+}
+
+fx fx/maledict_asteroid
+{
+	{										// spawn fx
+		delay 0
+		name "particle2"
+		duration 2.0
+		restart 0
+		rotate 0.1
+		model "meteor_spawn.prt"
+		offset 0, 0, 0
+		fadeOut 2.0
+	}
+	{
+		delay 1
+		launch "projectile_maledict_asteroid"
+		duration 10
+	}
+}
+
+fx fx/maledict_asteroid2
+{
+	{										// spawn fx
+		delay 0
+		name "particle2"
+		duration 2.0
+		restart 0
+		rotate 0.1
+		model "meteor_spawn.prt"
+		offset 0, 0, 0
+		fadeOut 2.0
+	}
+	{
+		delay 0.5
+		launch "projectile_maledict_asteroid2"
+		duration 10
+	}
+}
+
+fx fx/maledict_asteroid3
+{
+	{										// spawn fx
+		delay 0
+		name "particle2"
+		duration 2.0
+		restart 0
+		rotate 0.1
+		model "meteor_spawn.prt"
+		offset 0, 0, 0
+		fadeOut 2.0
+	}
+	{
+		delay 2
+		launch "projectile_maledict_asteroid3"
+		duration 10
+	}
+}
+
+fx fx/maledict_asteroid_huge
+{
+	{										// spawn fx
+		delay 0
+		name "particle2"
+		duration 2.0
+		restart 0
+		rotate 0.1
+		model "meteor_spawn.prt"
+		offset 0, 0, 0
+		fadeOut 2.0
+	}
+	{
+		launch "projectile_maledict_asteroid_huge"
+		duration 10
+	}
+}
+
+//////////////////////////////////////////////
+// MALEDICT_SMOKING SMOKE
+//////////////////////////////////////////////
+
+entityDef maledict_smoke {
+	"no_damage"				"1"
+	"inherit"				"env_ai_dummy"
+	"SmokeParticleSystem"	"maledict_burning-joint1"
+}
+
+entityDef maledict_smoke2 {
+	"no_damage"				"1"
+	"inherit"				"env_ai_dummy"
+	"SmokeParticleSystem"	"maledict_burning2-joint1"
+}

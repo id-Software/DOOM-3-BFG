@@ -1,0 +1,18 @@
+textures/stone/sand01
+{
+	qer_editorimage textures/stone/sand01_d.tga
+
+	diffusemap	textures/stone/sand01_d.tga
+	specularmap	textures/stone/sand01_s.tga
+        bumpmap	        heightmap (textures/stone/sand01.tga, 3)
+        
+}
+textures/stone/sand02
+{
+	qer_editorimage textures/stone/sand01_d.tga
+
+	diffusemap	textures/stone/sand01_d.tga
+	specularmap	textures/stone/sand01_s.tga
+        bumpmap	        heightmap (textures/stone/sand02.tga, 3)
+        
+}

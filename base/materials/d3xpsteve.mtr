@@ -1,0 +1,11 @@
+
+textures/hell/qfloor2
+{
+	stone
+	qer_editorimage	textures/hell/qfloor_ed
+	bumpmap			addnormals( textures/hell/qfloor_local.tga, heightmap( textures/hell/qfloor_h.tga, 5 ) )
+	diffusemap		textures/hell/qfloor2.tga
+	specularmap		textures/hell/qfloor_s.tga
+
+   
+}

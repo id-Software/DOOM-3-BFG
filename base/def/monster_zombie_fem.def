@@ -1,0 +1,208 @@
+/***********************************************************************
+
+monster_zombie_fem.def
+
+***********************************************************************/
+
+export fred {
+	options		-prefix ZFEM_ -align ALL -keep LkneeVector RkneeVector Lball_r Rball_r HEAD_headcontrol HEAD_neckcontrol HEAD_loneckcontrol HEAD_Leyeaim HEAD_Reyeaim -parent HEAD_Head HEAD_headcontrol -parent HEAD_Reyeaim HEAD_Head -parent HEAD_Leyeaim HEAD_Head -parent HEAD_headcontrol HEAD_neckcontrol -parent HEAD_neckcontrol HEAD_loneckcontrol -parent HEAD_Neck HEAD_neckcontrol -parent HEAD_Jaw HEAD_Head -parent HEAD_mouth12 HEAD_Head -parent HEAD_mouth1 HEAD_Head -parent HEAD_mouth2 HEAD_Head -parent HEAD_mouth3 HEAD_Head -parent HEAD_mouth4 HEAD_Jaw -parent HEAD_mouth5 HEAD_Jaw -parent HEAD_mouth6 HEAD_Jaw -parent HEAD_mouth7 HEAD_Jaw -parent HEAD_mouth8 HEAD_Jaw -parent HEAD_mouth9 HEAD_Head -parent HEAD_mouth10 HEAD_Head -parent HEAD_mouth11 HEAD_Head -parent HEAD_tongue1 HEAD_Jaw -parent HEAD_Lcheek HEAD_Head -parent HEAD_Rcheek HEAD_Head -parent HEAD_Rnostril HEAD_Head -parent HEAD_Lnostril HEAD_Head -parent HEAD_Lsmile HEAD_Head -parent HEAD_Rsmile HEAD_Head -parent HEAD_Rcheek HEAD_Head -parent HEAD_Lcheek HEAD_Head -parent HEAD_Lsneer HEAD_Head -parent HEAD_Rsneer HEAD_Head -parent HEAD_Lbrow1 HEAD_Head -parent HEAD_Lbrow2 HEAD_Head -parent HEAD_Lbrow3 HEAD_Head -parent HEAD_Rbrow1 HEAD_Head -parent HEAD_Rbrow2 HEAD_Head -parent HEAD_Rbrow3 HEAD_Head -parent HEAD_Ruplid HEAD_Head -parent HEAD_Rlolid HEAD_Head -parent HEAD_Luplid HEAD_Head -parent HEAD_Llolid HEAD_Head -sourcedir models/monsters/zombie/zfem/cycles -destdir models/md5/monsters/zfem
+	addoptions -keepmesh ZFEMMESH
+	addoptions -keepmesh teethmesh
+
+	mesh		makemesh.mb -dest zfem
+
+	anim		reginitial.mb -dest initial
+	anim		idle.mb -xyzprecision .01 -dest idle
+	anim		walk1.mb
+	anim		nicewalk.mb -dest walk2
+	anim		run2.mb
+}
+
+export fred {
+	options		-prefix FEM_ -keep LkneeVector RkneeVector Lball_r Rball_r HEAD_headcontrol HEAD_neckcontrol HEAD_loneckcontrol HEAD_Leyeaim HEAD_Reyeaim -parent HEAD_Head HEAD_headcontrol -parent HEAD_Reyeaim HEAD_Head -parent HEAD_Leyeaim HEAD_Head -parent HEAD_headcontrol HEAD_neckcontrol -parent HEAD_neckcontrol HEAD_loneckcontrol -parent HEAD_Neck HEAD_neckcontrol -parent HEAD_Jaw HEAD_Head -parent HEAD_mouth12 HEAD_Head -parent HEAD_mouth1 HEAD_Head -parent HEAD_mouth2 HEAD_Head -parent HEAD_mouth3 HEAD_Head -parent HEAD_mouth4 HEAD_Jaw -parent HEAD_mouth5 HEAD_Jaw -parent HEAD_mouth6 HEAD_Jaw -parent HEAD_mouth7 HEAD_Jaw -parent HEAD_mouth8 HEAD_Jaw -parent HEAD_mouth9 HEAD_Head -parent HEAD_mouth10 HEAD_Head -parent HEAD_mouth11 HEAD_Head -parent HEAD_tongue1 HEAD_Jaw -parent HEAD_Lcheek HEAD_Head -parent HEAD_Rcheek HEAD_Head -parent HEAD_Rnostril HEAD_Head -parent HEAD_Lnostril HEAD_Head -parent HEAD_Lsmile HEAD_Head -parent HEAD_Rsmile HEAD_Head -parent HEAD_Rcheek HEAD_Head -parent HEAD_Lcheek HEAD_Head -parent HEAD_Lsneer HEAD_Head -parent HEAD_Rsneer HEAD_Head -parent HEAD_Lbrow1 HEAD_Head -parent HEAD_Lbrow2 HEAD_Head -parent HEAD_Lbrow3 HEAD_Head -parent HEAD_Rbrow1 HEAD_Head -parent HEAD_Rbrow2 HEAD_Head -parent HEAD_Rbrow3 HEAD_Head -parent HEAD_Ruplid HEAD_Head -parent HEAD_Rlolid HEAD_Head -parent HEAD_Luplid HEAD_Head -parent HEAD_Llolid HEAD_Head -parent HEAD_Lside HEAD_Head -parent HEAD_Rside HEAD_Head
+
+	addoptions -skipmesh ZFEMMESH
+
+	anim		maps/fred/enpro/poppyidle.mb -range 1 130 -dest models/md5/cinematics/enpro/fem_lostintrostart	
+	anim		maps/fred/enpro/lostsoulintro.mb -range 1 219 -dest models/md5/cinematics/enpro/fem_lostintro1
+	addoptions  -prefix POPPY_
+	anim		maps/fred/enpro/lostsoulintro_poppy.mb -range 187 269 -dest models/md5/cinematics/enpro/fem_lostintro2
+
+	addoptions -align ALL
+	addoptions -prefix ZFEM_
+	addoptions -sourcedir models/monsters/zombie/zfem/cycles 
+	addoptions -destdir models/md5/characters/poppy
+
+	mesh		makemesh.mb -dest poppy
+
+	anim		initial.mb
+	anim		idle.mb -xyzprecision .01 -dest idle
+	anim		walk1.mb
+	anim		nicewalk.mb -dest walk2
+	anim		walk2.mb -dest walk3
+	anim		fastwalk.mb -dest walk4
+	anim		run2.mb
+	
+}
+
+
+model monster_zombie_zfem {
+	mesh							models/md5/monsters/zfem/zfem.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *Hips origin Body2 )
+
+	anim af_pose					models/md5/monsters/zfem/initial.md5anim
+	anim ik_pose					models/md5/monsters/zfem/initial.md5anim
+
+	anim initial					models/md5/monsters/zfem/initial.md5anim
+	anim idle						models/md5/monsters/zfem/idle.md5anim
+	anim stand						models/md5/monsters/zfem/idle.md5anim
+	anim sight						models/md5/monsters/zfem/idle.md5anim
+	anim run						models/md5/monsters/zfem/run2.md5anim
+	anim walk1						models/md5/monsters/zfem/walk1.md5anim
+	anim walk2						models/md5/monsters/zfem/walk2.md5anim
+	
+	//anim pain_head				models/monsters/zombie/fatty/Animation/cycles/facepain.md5anim
+	//anim pain_left_arm			models/monsters/zombie/fatty/Animation/cycles/leftarmpain.md5anim
+	//anim pain_right_arm			models/monsters/zombie/fatty/Animation/cycles/rightarmpain.md5anim
+	//anim pain_legs				models/monsters/zombie/fatty/Animation/cycles/legpain.md5anim
+	//anim pain_chest				models/monsters/zombie/fatty/Animation/cycles/bellypain.md5anim
+
+	//anim death					models/monsters/zombie/fatty/Animation/cycles/death1.md5anim
+	//anim death_getup_attempt		models/monsters/zombie/fatty/Animation/cycles/getup_attempt1.md5anim
+	//anim death_getup				models/monsters/zombie/fatty/Animation/cycles/getup1.md5anim
+	//anim death_twitch				models/monsters/zombie/fatty/Animation/cycles/death1_twitch
+}
+
+entityDef monster_zombie_zfem {
+	"inherit"							"zombie_default"
+	"scriptobject"						"monster_zombie"
+	"size"								"48 48 68"
+	"use_aas"							"aas48"
+	"team"								"1"
+	"rank"								"0"
+	"health"							"100"
+	"melee_range"						"32"
+	"mass"								"125"
+
+	"model"								"monster_zombie_zfem"
+	"ragdoll"							"monster_zombie_zfem"
+
+	//"damage_zone head"				"*loneck"
+	//"damage_zone chest"				"*waist -*Rshldr -*Lshldr -*loneck"
+	//"damage_zone left_arm"			"*Lshldr"
+	//"damage_zone right_arm"			"*Rshldr"
+	//"damage_zone legs"				"*Hips origin Body Body2"
+
+	//"damage_scale head"				"2"
+}
+
+
+model char_poppy {
+	mesh							models/md5/characters/poppy/poppy.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *Hips origin Body2 )
+
+	anim af_pose					models/md5/characters/poppy/initial.md5anim
+	anim ik_pose					models/md5/characters/poppy/initial.md5anim
+
+	anim initial					models/md5/characters/poppy/initial.md5anim
+	anim stand						models/md5/characters/poppy/idle.md5anim	
+	anim idle						models/md5/characters/poppy/idle.md5anim
+	anim run						models/md5/characters/poppy/run2.md5anim
+	anim walk						models/md5/characters/poppy/walk3.md5anim
+	
+	//anim pain_head				models/monsters/zombie/fatty/Animation/cycles/facepain.md5anim
+	//anim pain_left_arm			models/monsters/zombie/fatty/Animation/cycles/leftarmpain.md5anim
+	//anim pain_right_arm			models/monsters/zombie/fatty/Animation/cycles/rightarmpain.md5anim
+	//anim pain_legs				models/monsters/zombie/fatty/Animation/cycles/legpain.md5anim
+	//anim pain_chest				models/monsters/zombie/fatty/Animation/cycles/bellypain.md5anim
+
+	//anim death					models/monsters/zombie/fatty/Animation/cycles/death1.md5anim
+	//anim death_getup_attempt		models/monsters/zombie/fatty/Animation/cycles/getup_attempt1.md5anim
+	//anim death_getup				models/monsters/zombie/fatty/Animation/cycles/getup1.md5anim
+	//anim death_twitch				models/monsters/zombie/fatty/Animation/cycles/death1_twitch
+}
+
+entityDef char_poppy {
+	"inherit"						"character_default"
+	"scriptobject"					"character"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"100"
+	"melee_range"					"32"
+	"mass"							"125"
+	"head_look"						"1"
+
+	"skin"							"skins/poppy.skin"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"0"
+	"ik_waist"						"Body2"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"LkneeVector"
+	"ik_dir2"						"RkneeVector"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+	"bone_focus"					"HEAD_headcontrol"
+	"bone_leftEye"					"HEAD_Leyeaim"
+	"bone_rightEye"					"HEAD_Reyeaim"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint HEAD_headcontrol"	"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+	
+	"model"							"char_poppy"
+	"ragdoll"						"char_poppy"
+	"gib"							"1"
+
+	//"damage_zone head"				"*loneck"
+	//"damage_zone chest"				"*waist -*Rshldr -*Lshldr -*loneck"
+	//"damage_zone left_arm"			"*Lshldr"
+	//"damage_zone right_arm"			"*Rshldr"
+	//"damage_zone legs"				"*Hips origin Body Body2"
+
+	//"damage_scale head"				"1.25"
+
+	"skin_dropGib"					"skins/poppy_gib.skin"
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+}
+
+
+

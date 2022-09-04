@@ -1,0 +1,206 @@
+/***********************************************************************
+
+	weapon_soulcube.def
+
+***********************************************************************/
+
+export fred {
+	// view model soulCube
+	options -prefix SOUL_ -keep guilight toplftnub toprtnub midnub botlftnub botrtnub -rename origin blah
+	mesh	models/weapons/soulcube/cycles/idle.mb -dest models/md5/weapons/soulcube_view/soulcube
+	anim	models/weapons/soulcube/cycles/raise.mb -dest models/md5/weapons/soulcube_view/raise
+	anim	models/weapons/soulcube/cycles/idle.mb -xyzprecision .01 -dest models/md5/weapons/soulcube_view/idle
+	anim	models/weapons/soulcube/cycles/idle2.mb -xyzprecision .01 -dest models/md5/weapons/soulcube_view/idle2
+	anim	models/weapons/soulcube/cycles/fire2.mb -dest models/md5/weapons/soulcube_view/fire
+	anim	models/weapons/soulcube/cycles/dryfire.mb -dest models/md5/weapons/soulcube_view/dryfire
+	anim	models/weapons/soulcube/cycles/lower.mb -dest models/md5/weapons/soulcube_view/lower
+}
+
+export fred {
+	// world model soulCube
+
+	options -ignorescale -prefix PLAYER_SOUL_ -rename ATTACHER origin -clearorigin -keepmesh soulfx1 -keepmesh soulfx2 -keepmesh soulfx3 -keepmesh soulfx4 -keepmesh soulfx5 -keepmesh soulknife -keepmesh soulcube
+
+	mesh	models/characters/male_npc/cycles/tweakedplayermoves/soulcube_idle.mb -dest models/md5/weapons/soulcube_world/worldsoulcube
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/soulcube_idle.mb -dest models/md5/weapons/soulcube_world/soulcube_idle
+
+}
+
+entityDef weapon_soulcube {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Soul Cube"
+	"editor_rotatable"		"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model"						"models/weapons/soulcube/w_soulcube.lwo"
+	"model_world" 				"worldmodel_soulcube"
+	"model_view" 				"viewmodel_soulcube"
+	"joint_attach"				"SOUL_ATTACHER"
+
+	"inv_name"					"#str_02023"
+	"inv_weapon"				"weapon_soulcube"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_11"
+	"pdaIcon"					"guis/assets/hud/icons/soul_cube.tga"
+	"hudIcon"					"guis/assets/hud/icons/scubew.tga"
+	"display_name"				"#str_02525"
+	"inv_desc"					"#str_02542"
+
+	"mtr_guiLightShader"		"lights/viewWeaponGuiLight"
+	"weapon_scriptobject"		"weapon_soulcube"
+	"def_projectile"			"projectile_soulblast"
+	"ammoType"					"ammo_souls"
+	"ammoRequired"				"5"
+	"clipSize"					"0"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"silent_fire"				"0"
+	
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+	
+	"spread"					"0"
+
+	"weaponAngleOffsetAverages" "10"
+	"weaponAngleOffsetScale" 	".5"
+	"weaponAngleOffsetMax"		"400"
+	"weaponOffsetTime"			"400"
+	"weaponOffsetScale"			"0.005"
+
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+	"snd_raise"					"soulcube_raise"
+	"snd_lower"					"soulcube_putaway"
+	"snd_hum"					"soulcube_idle"
+	"snd_fire_start"			"soulcube_fire_start"
+
+	"controllerShakeHighMag"	"1.0"
+	"controllerShakeHighTime"	"100"
+	"controllerShakeLowMag"		"0.9"
+	"controllerShakeLowTime"	"250"
+}
+
+model viewmodel_soulcube {
+	mesh						models/md5/weapons/soulcube_view/soulcube.md5mesh
+	offset						( 12 0 -63 )
+	skin 						skins/models/weapons/soulcubeidle
+	
+	anim raise					models/md5/weapons/soulcube_view/raise.md5anim {
+		frame 1 				skin skins/models/weapons/soulcubeidle
+		frame 1					sound_weapon soulcube_raise
+	}
+	anim idle 					models/md5/weapons/soulcube_view/idle2.md5anim
+	anim spin 					models/md5/weapons/soulcube_view/idle.md5anim {
+		frame 95				sound_weapon soulcube_idlespin
+	}
+	anim fire 					models/md5/weapons/soulcube_view/fire.md5anim {
+		frame 1 				skin skins/models/weapons/soulcubeidle
+		frame 1					sound_weapon soulcube_fire_start
+		frame 23				skin skins/models/weapons/soulcubefire.skin
+		frame 23				object_call Launch
+	}
+	anim putaway				models/md5/weapons/soulcube_view/lower.md5anim
+}
+
+model worldmodel_soulcube {
+	mesh						models/md5/weapons/soulcube_world/worldsoulcube.md5mesh
+
+	anim raise					models/md5/weapons/soulcube_world/soulcube_idle.md5anim	
+	anim idle 					models/md5/weapons/soulcube_world/soulcube_idle.md5anim
+	anim aim					models/md5/weapons/soulcube_world/soulcube_idle.md5anim
+	anim fire 					models/md5/weapons/soulcube_world/soulcube_idle.md5anim 
+	anim reload					models/md5/weapons/soulcube_world/soulcube_idle.md5anim 
+	anim putaway				models/md5/weapons/soulcube_world/soulcube_idle.md5anim
+}
+
+
+entityDef damage_soulSplash {
+	"damage"			"40"
+	"radius"			"100"
+	"knockback"			"80"
+	"push"				"10000"
+	"gib"				"1"
+	"smoke_wound_flesh"	"bloodwound.prt"
+}
+
+entityDef	damage_soulblast {
+	"damage"			"1000"
+	"gib"				"1"
+}
+
+entityDef projectile_soulblast {
+	"spawnclass"				"idSoulCubeMissile"
+	"mins"						"-4 -4 -4"
+	"maxs"						"4 4 4"
+	"cone"						"3"
+	"model" 					"models/weapons/soulcube/w_soulcube3.lwo"
+
+	"def_damage"				"damage_soulblast"
+	//"def_splash_damage"		"damage_soulSplash"
+
+	"launchFromBarrel"			"1"
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"55 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"5"
+	"gravity"					"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"30"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+	"random"					"0 0 0"
+	"clamp_dist"				"64"
+	"turn_max"					"1000"
+	"startingVelocity"			"250"			
+	"endingVelocity"			"700"
+	"accelTime"					"3"
+
+	"special_damage"			"1"					// for bosses that only show pain for certain types of projectiles
+
+	"launchDist"				"30"
+	"launchOffset"				"0 0 -2"
+
+
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+	
+	"model_detonate"			"grenadeExplosion.prt"			// parametric particles -- temp
+	"model_dissolve"			"soulcubedissolve.prt"
+
+	"impact_damage_effect"		"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"				""					// decal to leave on world when detonates
+	
+	"smoke_kill"									"soulcubedamage3.prt"
+
+	"smoke_fly"										"soulcubetrail.prt"
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0.8"
+	"light_radius"				"160"
+	"light_offset"				"-8 0 0"
+
+	"snd_present"				"soulcube_idlespin"
+	"snd_fly"					"soulcube_fire_loop"					// sound effect while in the air
+	"snd_explode"				"soulcube_shred"
+	"snd_return"				"soulcube_fire_end"
+
+	"mtr_explode_light_shader"	"muzzleflash"
+	"explode_light_color"		"0 0 1"
+	"explode_light_radius"		"160"
+	"explode_light_fadetime"	"0.25"
+}

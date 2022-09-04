@@ -1,0 +1,1440 @@
+
+
+/***********************************************************************
+
+ moveable objects
+
+***********************************************************************/
+
+entityDef moveable_base {
+	"editor_color"						"0 .5 .8"
+	"editor_mins"						"?"
+	"editor_maxs"						"?"
+	"editor_rotatable"					"1"
+
+	"editor_usage2"						"Moveable object. Will drop to the floor and rest untill activated."
+	"editor_usage3"						"The visual model set with the 'model' key can also be used for"
+	"editor_usage4"						"collision detection. However the model may not be too complex."
+	"editor_usage5"						"max vertices = 32"
+	"editor_usage6"						"max edges = 32"
+	"editor_usage7"						"max polygons = 16"
+	"editor_usage8"						"max edges per polygon = 16"
+	"editor_usage9"						"The collision model must be an enclosed hull. Dangling polygons or"
+	"editor_usage10"					"edges are not allowed. If the visual model is too complex or does"
+	"editor_usage11"					"not meet these requirements it can be contained in a less complex"
+	"editor_usage12"					"model for collision detection. Such a collision model is specified with the"
+	"editor_usage13"					"'clipmodel' key."
+								
+
+	"editor_var density"				"Volume of the object times the density is the mass."
+	"editor_var friction"				"Friction with contacting surfaces in the range [0-1] where 0 is no friction."
+	"editor_var bouncyness"				"How much the object bounces in the range [0-1] where 0 is no bounce."
+	"editor_var mass"					"Mass of the object (overrides density)."
+	"editor_model clipmodel"			"Model to be used for collision detection."
+	"editor_var clipshrink"				"Shrink the visual model with an epsilon and use it as a clip model."
+	"editor_var allowStep"				"Set to 0 to prevent monsters from ever walking over this object."
+	"editor_var nonsolid"				"Make the object non-solid."
+	"editor_bool nodrop"				"Do not drop to the floor."
+	"editor_bool noimpact"				"Do not activate by the impact of other objects."
+	"editor_bool notpushable"			"Do not allow to be pushed."
+	"editor_bool unbindondeath"			"Unbind entity when health drops down to or below zero."
+	"editor_var health"					"If set the visual model changes to 'broken' when the health drops down to or below zero."
+	"editor_model broken"				"Visual model to be used when the health drops down to or below zero."
+	"editor_bool explode"				"If set to 1 the moveable explodes and is removed when the health drops down to or below zero."
+	"editor_var init_velocity"			"Initial linear velocity set when activated."
+	"editor_var init_avelocity"			"Initial angular velocity set when activated."
+	"editor_var init_velocityDelay"		"Delay in seconds before the initial linear velocity is set after being activated."
+	"editor_var init_avelocityDelay"	"Delay in seconds before the initial angular velocity is set after being activated."
+	"editor_var initialSplineTime"		"Number of milliseconds the moveable should follow the initial spline path."
+	"editor_var damage"					"Damage definition if it damages things it collides with"
+	"editor_var damageWhenActive"		"Only damage when active ( currently for the vagary and influence stuff )"
+	"editor_var fx_collide"				"FX system to start at impact position when object collides."
+
+	"spawnclass"						"idMoveable"
+
+	"density"							"0.5"
+	"friction"							"0.05"
+	"bouncyness"						"0.6"
+	"explode"							"0"
+	"unbindondeath"						"0"
+	"health"							"0"
+	"nodrop"							"0"
+	"noimpact"							"0"
+	"notPushable"						"0"
+	"clipshrink"						"0"
+	"allowStep"							"1"
+	"snd_bounce"						"smallpanel_impact"
+}
+
+entityDef moveable_caverock1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/caves/caverock1.ASE"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_caverock2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/caves/caverock2.ASE"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_caverock3 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/caves/caverock3.ASE"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_wrench {
+	"inherit"					"moveable_base"
+	"model"						"models/mapobjects/filler/monkeywrench.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+
+	// BJ Added 12/29
+	//"nonsolid"				"1"
+	"snd_bounce"				"tray_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+
+}
+
+entityDef moveable_base_brick {
+	"inherit"					"moveable_base"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+}
+
+entityDef moveable_burger {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/burgereat.lwo"
+	"density"					"0.2"
+	"friction"					"0.2"
+	"bouncyness"				"0.01"
+	"snd_bounce"				"burger_impact"
+
+	// BJ Added 12/29
+	//"nonsolid"				"1"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_paperwad {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/paperwad1.lwo"
+	"density"					"0.1"
+	"friction"					"0.1"
+	"bouncyness"				"0.1"
+	"snd_bounce"				"paper_impact"
+
+	// BJ Added 12/29
+	//"nonsolid"				"1"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_burgerboxclose {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/burgerboxclose.lwo"
+	"density"					"0.1"
+	"friction"					"0.1"
+	"bouncyness"				"0.1"
+	"snd_bounce"				"smallbox"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_burgerboxopen {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/burgerboxopen.lwo"
+	"density"					"0.1"
+	"friction"					"0.1"
+	"bouncyness"				"0.1"
+	"snd_bounce"				"smallbox"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_base_boulder {
+	"inherit"					"moveable_base"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"caverns2_boulder"
+}
+
+entityDef moveable_base_domino {
+	"inherit"					"moveable_base"
+	"density"					"0.005"
+	"friction"					"0.6"
+	"bouncyness"				"0.2"
+}
+
+entityDef moveable_base_barrel {
+	"inherit"					"moveable_base"
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+
+	"editor_usage"				"Moveable barrel. Works just like a moveable_base. However the barrel"
+	"editor_usage1"				"has special handling to make it appear more round."
+
+	"spawnclass"				"idBarrel"
+
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.4"
+	"snd_bounce"				"barrel_impact"
+}
+
+entityDef moveable_base_fixed {
+	"inherit"					"moveable_base"
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+}
+
+entityDef moveable_computer {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/mcity/deskcomp/deskcomp.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_ktable {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/ktable.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_tech_chair1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/base/tech/chair1.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_chair1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/base/chairs/chair1.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_chair2 {
+	"inherit"					"moveable_base_fixed"
+	//"model"						"models/mapobjects/base/chairs/chair2.ase"
+	"model"						"models/mapobjects/chairs/d3xp_chair2.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"smallbox"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_chair5 {
+	"inherit"					"moveable_base_fixed"
+	//"model"						"models/mapobjects/base/chairs/chair5.ase"
+	"model"						"models/mapobjects/chairs/d3xp_chair5.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"smallbox"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_normchair {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/base/chairs/normchair.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_kitchenchair {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/chairs/kitchenchair/kitchenchair.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cannister {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/cannister/cannister.ase"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_trashcan01 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/washroom/trashcan01.ase"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"hollow_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_mop {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/washroom/mop.lwo"
+	"density"					"0.1"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_mopbucket {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/washroom/mopbucket.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"large_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_beaker {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/beaker/beaker.lwo"
+	"density"					"0.1"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"nonsolid"					"1"
+	"snd_bounce"				"small_plastic"
+}
+
+entityDef moveable_blaptop {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/Blaptop/blaptop.lwo"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"book_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_compcart {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/compcart/compcart.lwo"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_filecabinet1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/filecabinet1/filecabinet1.lwo"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_infusion {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/infusion/infusion.lwo"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_plasticbin {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/plasticbin/plasticbin.lwo"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"small_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_plasticbinmini {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/plasticbinmini/plasticbinmini.lwo"
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"nonsolid"					"1"
+	"snd_bounce"				"small_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox1.ase"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox2.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox3 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox3.ase"
+	"density"					"0.002"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox4 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox4.ase"
+	"density"					"0.007"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox5 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox5.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox6 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox6.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox7 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox7.ase"
+	"density"					"0.007"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cartonbox8 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox8.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"smallbox"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_carton"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_metalbox1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/boxes/metalbox1.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_diamondbox {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/diamondbox/diamondbox.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_diamondbox_sm {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/diamondbox/diamondbox_sm.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+	"networkSync"				"1"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_barrel1 {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/fuel_barrel/gbarrel.ASE"
+	"density"					"0.005"
+	"friction"					"0.05"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_barrel2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/fuel_barrel/p_barrel.ase"
+	"density"					"0.005"
+	"friction"					"0.1"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"metal_barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_barrel3 {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/fuel_barrel/exp_barrel.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"networksync"				"1"
+
+	"snd_bounce"				"metal_barrel_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_fireext {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/base/misc/fireext.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"tray_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cone {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/cone.ASE"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"hollow_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_cokecan {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/cola1.lwo"
+	"broken"					"models/mapobjects/filler/cola2.lwo"
+	"health"					"20"
+	"density"					"0.5"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+
+	// BJ Added 12/29
+	//"nonsolid"					"1"
+	"snd_bounce"				"tincan"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_item_lantern_world {
+	"inherit"					"moveable_item_default"
+	"model"						"models/items/lantern/lantern_world.lwo"
+	//"broken"					"models/items/lantern/lantern_world_broken.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+
+	"nopulse"					"1"
+}
+
+entityDef moveable_foamcup {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/foamcup.lwo"
+	"density"					"1"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	// BJ Added 12/29
+	//"nonsolid"					"1"
+	"snd_bounce"				"small_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_bottle1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/bottle1/bottle1.lwo"
+	"density"					"0.2"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	//"nonsolid"					"1"
+	"snd_bounce"				"small_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_plasticjar1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/plasticjar1/plasticjar1.lwo"
+	"density"					"0.2"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	//"nonsolid"					"1"
+	"snd_bounce"				"small_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_plasticjar2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/plasticjar2/plasticjar2.lwo"
+	"density"					"0.1"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"nonsolid"					"1"
+	"snd_bounce"				"small_plastic"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_microscope {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/microscope/microscope.lwo"
+	"density"					"0.1"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_laptop {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/laptop.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_desklamp {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lamps/desklamp.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_monitor {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/monitor.ase"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce" 				"smallpanel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_monitorflip {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/monitorflip.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+}
+
+entityDef moveable_keyboard1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/mkeyboard.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	// BJ Added 12/29
+	//"nonsolid"					"1"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_pc1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/pc1.ase"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_gizmo1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/gizmo1/gizmo1.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_gizmo2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/gizmo2/gizmo2.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_gizmo3 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/gizmo3/gizmo3.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_phone {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/phone.ase"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"book_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_spigotcan {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/spigotcan/spigotcan.lwo"
+	"density"					"0.02"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"plastic_jar_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_tablecart1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/tablecart1/tablecart1.lwo"
+	"density"					"0.01"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_tablecart2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/tablecart2/tablecart2.lwo"
+	"density"					"0.01"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_tray {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lab/tray/tray.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"tray_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_utilitylamp {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mal/y_utilitylampcm.ase"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"metal_barrel_impact"
+}
+
+entityDef moveable_guardian_brick {
+	"inherit"					"moveable_base_brick"
+	"density"					"0.001"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"caverns2_boulder"
+}
+
+entityDef debris_barrelpiece {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/mapobjects/fuel_barrel/exp_barrel2b.lwo"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"0 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"
+	"angular_velocity"			"1 -1 1"			// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.8"				// "air" friction
+	"angular_friction"			"1.1"
+	"contact_friction"			"0.9"
+	"bounce"					"0.1"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"40"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.prt"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef debris_barreltop {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/mapobjects/fuel_barrel/exp_barrel2c.lwo"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"1 1 450"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"
+	"angular_velocity"			"105 215 10"	    // how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"1.0"				// "air" friction
+	"angular_friction"			"0.1"
+	"contact_friction"			"0.9"
+	"bounce"					"0.1"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"50"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.prt"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef debris_barrelpiece2 {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/mapobjects/fuel_barrel/exp_barrel2b.lwo"
+	"skin"						"skins/exp_barrel_red"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"0 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"
+	"angular_velocity"			"1 -1 1"			// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.8"				// "air" friction
+	"angular_friction"			"1.1"
+	"contact_friction"			"0.9"
+	"bounce"					"0.1"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"40"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.prt"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef debris_barreltop2 {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/mapobjects/fuel_barrel/exp_barrel2c.lwo"
+	"skin"						"skins/exp_barrel_red"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"1 1 450"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"
+	"angular_velocity"			"105 215 10"	    // how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"1.0"				// "air" friction
+	"angular_friction"			"0.1"
+	"contact_friction"			"0.9"
+	"bounce"					"0.1"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"50"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.prt"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef moveable_explodingbarrel {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 48"
+	"editor_rotatable"			"1"
+
+
+	"editor_usage"					"Moveable barrel. Works just like a func_moveable. However the barrel"
+	"editor_usage1"					"has special handling to make it appear more round. This version also explodes when damaged enough."
+	"editor_usage2"					"Only add model, model_detonate or model_burn or health to override defaults"
+	"editor_var burn"				"number of seconds to burn before exploding."
+	"editor_model model_damage"		"model to leave as damaged base"
+	"editor_model model_detonate"	"ips model to switch to for explosion."
+	"editor_model model_burn"		"ips model to show when on fire."
+	"editor_var def_debris"			"add as many as you like, debris1, debris2, etc.. "
+	"editor_var health"				"how much health the barrel has, default is 5. If burn is set to 1, the health is effectively doubled so you have to kill it twice to get the explosion"
+	"editor_var respawn"			"if non zero the number of seconds to respawn after killed"
+	"editor_var respawn_range"		"no player in distance range to actually respawn - default 256"
+	"editor_var respawn_again"		"try again in seconds if player in range - default 10"
+	"editor_var triggerTargets"		"if set to 1 will trigger targets after being killed"
+	"editor_mat mtr_lightExplode"	"light shader to use for explosion"
+	"editor_mat mtr_lightBurn"		"light shader to use for burning"
+	"editor_mat mtr_burnmark"		"shader to use for burn decal"
+	"editor_var triggerOnRespawn"	"if set to no zero will trigger targets this many seconds after being killed"
+
+	"spawnclass"				"idExplodingBarrel"
+
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.4"
+	"def_splash_damage"			"damage_explodingbarrel"
+	"model"						"models/mapobjects/fuel_barrel/exp_barrel.lwo"
+	"def_debris"				"debris_barreltop2"
+	"def_debris1"				"debris_barrelpiece2"
+	"def_debris2"				"debris_barrelpiece2"
+	"def_debris3"				"debris_barrelpiece2"
+	"model_detonate"			"barrelexplosion.prt"
+	"skin"						"skins/exp_barrel_red"
+	"mtr_lightexplode"			"lights/impflash"
+	"mtr_burnmark"				"textures/decals/ballburn01"
+	"light_radius"				"300"
+	"health"					"25"
+	"snd_explode"				"barrel_explosions"
+	"snd_bounce"				"metal_barrel_impact"
+
+}
+
+entityDef moveable_burningbarrel {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 48"
+	"editor_rotatable"			"1"
+
+	"editor_usage"					"Moveable barrel. Works just like a func_moveable. However the barrel"
+	"editor_usage1"					"has special handling to make it appear more round. This version also explodes when damaged enough."
+	"editor_usage2"					"Only add model, model_detonate or model_burn or health to override defaults"
+	"editor_var burn"				"number of seconds to burn before exploding."
+	"editor_model model_damage"		"model to leave as damaged base"
+	"editor_model model_detonate"	"ips model to switch to for explosion."
+	"editor_model model_burn"		"ips model to show when on fire."
+	"editor_var def_debris"			"add as many as you like, debris1, debris2, etc.. "
+	"editor_var health"				"how much health the barrel has, default is 5. If burn is set to 1, the health is effectively doubled so you have to kill it twice to get the explosion"
+	"editor_var respawn"			"if non zero the number of seconds to respawn after killed"
+	"editor_var respawn_range"		"no player in distance range to actually respawn - default 256"
+	"editor_var respawn_again"		"try again in seconds if player in range - default 10"
+	"editor_var triggerTargets"		"if set to 1 will trigger targets after being killed"
+	"editor_mat mtr_lightExplode"	"light shader to use for explosion"
+	"editor_mat mtr_lightBurn"		"light shader to use for burning"
+	"editor_mat mtr_burnmark"		"shader to use for burn decal"
+	"editor_var triggerOnRespawn"	"if set to no zero will trigger targets this many seconds after being killed"
+
+	"spawnclass"				"idExplodingBarrel"
+
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.4"
+	"def_splash_damage"			"damage_explodingbarrel"
+	"debris_count"				"6"
+	"model"						"models/mapobjects/fuel_barrel/exp_barrel.lwo"
+	"model_burn"				"barrelfire.prt"
+	"def_debris"				"debris_barreltop"
+	"def_debris1"				"debris_barrelpiece"
+	"def_debris2"				"debris_barrelpiece"
+	"def_debris3"				"debris_barrelpiece"
+	"model_detonate"			"barrelexplosion.prt"
+	"burn"						"2.5"
+	"health"					"15"
+	"snd_explode"				"barrel_explosions"
+	"mtr_lightexplode"			"lights/impflash"
+	"mtr_burnmark"				"textures/decals/ballburn01"
+	"light_radius"				"300"
+	"snd_bounce"				"metal_barrel_impact"
+}
+
+entityDef moveable_explodingtank {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 48"
+	"editor_rotatable"			"1"
+
+	"editor_usage"					"Moveable barrel. Works just like a func_moveable. However the barrel"
+	"editor_usage1"					"has special handling to make it appear more round. This version also explodes when damaged enough."
+	"editor_usage2"					"Only add model, model_detonate or model_burn or health to override defaults"
+	"editor_var burn"				"number of seconds to burn before exploding."
+	"editor_model model_damage"		"model to leave as damaged base"
+	"editor_model model_detonate"	"ips model to switch to for explosion."
+	"editor_model model_burn"		"ips model to show when on fire."
+	"editor_var def_debris"			"add as many as you like, debris1, debris2, etc.. "
+	"editor_var health"				"how much health the barrel has, default is 5. If burn is set to 1, the health is effectively doubled so you have to kill it twice to get the explosion"
+	"editor_var respawn"			"if non zero the number of seconds to respawn after killed"
+	"editor_var respawn_range"		"no player in distance range to actually respawn - default 256"
+	"editor_var respawn_again"		"try again in seconds if player in range - default 10"
+	"editor_var triggerTargets"		"if set to 1 will trigger targets after being killed"
+	"editor_mat mtr_lightExplode"	"light shader to use for explosion"
+	"editor_mat mtr_lightBurn"		"light shader to use for burning"
+	"editor_mat mtr_burnmark"		"shader to use for burn decal"
+	"editor_var triggerOnRespawn"	"if set to no zero will trigger targets this many seconds after being killed"
+
+	"spawnclass"				"idExplodingBarrel"
+
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.4"
+	"debris_count"				"6"
+	"def_debris"				"projectile_debris"
+	"def_shrapnel"				"projectile_shrapnel"
+	"model"						"models/mapobjects/washroom/airtank.lwo"
+	"model_detonate"			"airtankexplosion.prt"
+	"model_burn"				"tankfire.prt"
+	"mtr_burnmark"				"textures/decals/ballburn01"
+	"health"					"25"
+	"snd_explode"				"barrel_explosions"
+	"snd_bounce"				"metal_barrel_impact"
+
+}
+
+entityDef moveable_burningtank {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 48"
+	"editor_rotatable"			"1"
+
+	"editor_usage"					"Moveable barrel. Works just like a func_moveable. However the barrel"
+	"editor_usage1"					"has special handling to make it appear more round. This version also explodes when damaged enough."
+	"editor_usage2"					"Only add model, model_detonate or model_burn or health to override defaults"
+	"editor_var burn"				"number of seconds to burn before exploding."
+	"editor_model model_damage"		"model to leave as damaged base"
+	"editor_model model_detonate"	"ips model to switch to for explosion."
+	"editor_model model_burn"		"ips model to show when on fire."
+	"editor_var def_debris"			"add as many as you like, debris1, debris2, etc.. "
+	"editor_var health"				"how much health the barrel has, default is 5. If burn is set to 1, the health is effectively doubled so you have to kill it twice to get the explosion"
+	"editor_var respawn"			"if non zero the number of seconds to respawn after killed"
+	"editor_var respawn_range"		"no player in distance range to actually respawn - default 256"
+	"editor_var respawn_again"		"try again in seconds if player in range - default 10"
+	"editor_var triggerTargets"		"if set to 1 will trigger targets after being killed"
+	"editor_mat mtr_lightExplode"	"light shader to use for explosion"
+	"editor_mat mtr_lightBurn"		"light shader to use for burning"
+	"editor_mat mtr_burnmark"		"shader to use for burn decal"
+	"editor_var triggerOnRespawn"	"if set to no zero will trigger targets this many seconds after being killed"
+
+	"spawnclass"				"idExplodingBarrel"
+
+	"density"					"0.02"
+	"friction"					"0.2"
+	"bouncyness"				"0.4"
+	"debris_count"				"6"
+	"def_debris"				"projectile_debris"
+	"def_shrapnel"				"projectile_shrapnel"
+	"model"						"models/mapobjects/washroom/airtank.lwo"
+	"model_detonate"			"airtankexplosion.prt"
+	"model_burn"				"tankfire.prt"
+	"skin"						"skins/airtank_grey"
+	"mtr_burnmark"				"textures/decals/ballburn01"
+	"burn"						"2.5"
+	"health"					"15"
+	"snd_explode"				"barrel_explosions"
+}
+
+entityDef moveable_hangingmonitor {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/monitors/hangingmonitor.lwo"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.3"
+	"snd_bounce"				"smallpanel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+
+entityDef moveable_explodingbarrel_slime {
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 48"
+	"editor_rotatable"			"1"
+
+
+	"editor_usage"				"Moveable barrel. Works just like a func_moveable. However the barrel"
+	"editor_usage1"				"has special handling to make it appear more round. This version also explodes when damaged enough."
+	"editor_usage2"				"Only add model, model_detonate or model_burn or health to override defaults"
+	"editor_var burn"			"number of seconds to burn before exploding."
+	"editor_model model_damage"		"model to leave as damaged base"
+	"editor_model model_detonate"		"ips model to switch to for explosion."
+	"editor_model model_burn"		"ips model to show when on fire."
+	"editor_var def_debris"			"add as many as you like, debris1, debris2, etc.. "
+	"editor_var health"			"how much health the barrel has, default is 5. If burn is set to 1, the health is effectively doubled so you have to kill it twice to get the explosion"
+	"editor_var respawn"			"if non zero the number of seconds to respawn after killed"
+	"editor_var respawn_range"		"no player in distance range to actually respawn - default 256"
+	"editor_var respawn_again"		"try again in seconds if player in range - default 10"
+	"editor_var triggerTargets"		"if set to 1 will trigger targets after being killed"
+	"editor_mat mtr_lightExplode"		"light shader to use for explosion"
+	"editor_mat mtr_lightBurn"		"light shader to use for burning"
+	"editor_mat mtr_burnmark"		"shader to use for burn decal"
+	"editor_var triggerOnRespawn"		"if set to no zero will trigger targets this many seconds after being killed"
+
+	"spawnclass"				"idExplodingBarrel"
+
+	"density"				"0.02"
+	"friction"				"0.2"
+	"bouncyness"				"0.4"
+	"def_splash_damage"			"damage_explodingbarrel"
+	"model"					"models/mapobjects/fuel_barrel/exp_barrel.lwo"
+//	"def_debris"				"debris_barreltop_slime"
+//	"def_debris1"				"debris_barrelpiece_slime"
+//	"def_debris2"				"debris_barrelpiece_slime"
+//	"def_debris3"				"debris_barrelpiece_slime"
+	"model_detonate"			"barrelexplosion_slime.prt"
+	"skin"					"skins/exp_barrel_slime"
+	"mtr_lightexplode"			"lights/impflash"
+	"mtr_burnmark"				"textures/decals/ballburn01"
+	"light_radius"				"300"
+	"health"					"25"
+	"snd_explode"				"barrel_explosions"
+	"snd_bounce"				"metal_barrel_impact"
+
+}
+
+
+
+entityDef debris_barrelpiece_slime {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/mapobjects/fuel_barrel/exp_barrel2b.lwo"
+	"skin"						"skins/exp_barrel_slime"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"0 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"
+	"angular_velocity"			"1 -1 1"			// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.8"				// "air" friction
+	"angular_friction"			"1.1"
+	"contact_friction"			"0.9"
+	"bounce"					"0.1"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"40"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.prt"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef debris_barreltop_slime {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/mapobjects/fuel_barrel/exp_barrel2c.lwo"
+	"skin"						"skins/exp_barrel_slime"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"1 1 450"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"
+	"angular_velocity"			"105 215 10"	    // how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"1.0"				// "air" friction
+	"angular_friction"			"0.1"
+	"contact_friction"			"0.9"
+	"bounce"					"0.1"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"50"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.prt"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef moveable_binder2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/binder2.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"nonsolid"					"1"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_binder3 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/binder3.lwo"
+	"density"					"0.05"
+	"friction"					"0.1"
+	"bouncyness"				"0.3"
+	"nonsolid"					"1"
+	"snd_bounce"				"book_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}

@@ -1,0 +1,355 @@
+/***********************************************************************
+
+ai_monster_demon_mancubus.script
+
+monster_demon_mancubus
+
+***********************************************************************/
+
+#define MANC_WALKTURN			65
+#define MANC_ATTACK_RATE		1
+#define MANC_MAX_SHOTS			5
+#define MANC_MIN_SHOTS			1
+#define MANC_NOFOVTIME			8
+
+object monster_demon_mancubus : monster_base {
+	float		nextAttack;
+	float		nextNoFOVAttack;
+	entity		combat_node;
+	float		fire;
+	
+	// States
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+
+	void		init();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_TurretAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_mancubus::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+	
+	eachFrame {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+		}
+		if ( fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+		}
+	}
+}
+
+void monster_demon_mancubus::Torso_Pain() {
+	string animname;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		preventPain( 2 );
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+void monster_demon_mancubus::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_demon_mancubus::Torso_RangeAttack() {
+	float endtime;
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+		}
+		waitFrame();
+	}
+	
+	while( fire > 0 ) {
+		playAnim( ANIMCHANNEL_TORSO, "range_attack_loop" );
+		while( ( fire > 0 ) && !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+			if ( AI_PAIN ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+			}
+			waitFrame();
+		}
+		fire = fire - 1;
+	}
+
+	fire = 0;
+	
+	if ( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+	}
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+		}
+		waitFrame();
+	}
+	
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+}
+
+void monster_demon_mancubus::Torso_TurretAttack() {
+	float endtime;
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+		}
+		waitFrame();
+	}
+	
+	fire = MANC_MIN_SHOTS + int( sys.random( MANC_MAX_SHOTS - MANC_MIN_SHOTS ) );
+	while( fire > 0 ) {
+		fire = fire - 1;
+		playAnim( ANIMCHANNEL_TORSO, "range_attack_loop" );
+		while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+			if ( AI_PAIN ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+			}
+			waitFrame();
+
+			if ( !canHitEnemyFromAnim( "range_attack_loop" ) ) {
+				break;
+			}
+		}
+	}
+
+	fire = 0;
+
+	if ( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+	}
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+		}
+		waitFrame();
+	}
+
+	finishAction( "turret_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_demon_mancubus::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 2 ); }
+	}
+}
+
+void monster_demon_mancubus::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 ); }
+	}
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_mancubus::init
+=====================
+*/
+void monster_demon_mancubus::init() {
+	walk_turn = MANC_WALKTURN;
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_mancubus::state_Begin
+=====================
+*/
+void monster_demon_mancubus::state_Begin() {
+	fire = 0;
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_mancubus::state_Idle
+=====================
+*/
+void monster_demon_mancubus::state_Idle() {
+	wait_for_enemy();
+
+	nextAttack		= 0;
+	nextNoFOVAttack = 0;
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_mancubus::do_attack
+=====================
+*/
+void monster_demon_mancubus::do_attack( float attack_flags ) {
+	nextNoFOVAttack = sys.getTime() + MANC_NOFOVTIME;
+	if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_demon_mancubus::check_attacks
+=====================
+*/
+float monster_demon_mancubus::check_attacks() {
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+	
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	if ( ( ( sys.getTime() > nextNoFOVAttack ) && AI_ENEMY_VISIBLE ) || AI_ENEMY_IN_FOV ) {
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			if ( canHitEnemyFromAnim( "range_attack_loop" ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_mancubus::combat_range
+=====================
+*/
+void monster_demon_mancubus::combat_range() {
+	float attack_flags;
+
+	faceEnemy();
+	if ( !AI_ENEMY_IN_FOV ) {
+		sys.wait( 0.4 );
+	}
+
+	fire = MANC_MIN_SHOTS + int( sys.random( MANC_MAX_SHOTS - MANC_MIN_SHOTS ) );
+	while( fire > 0 ) {
+		if ( !canHitEnemyFromAnim( "range_attack_loop" ) ) {
+			break;
+		}
+		if ( AI_PAIN ) {
+			attack_flags = check_attacks();
+			if ( attack_flags & ATTACK_MELEE ) {
+				break;
+			}
+		}
+		
+		waitFrame();
+	}
+
+	fire = 0;
+	while( !inAnimState( ANIMCHANNEL_TORSO, "Torso_Idle" ) ) {
+		waitFrame();
+	}
+
+	// don't attack for a bit
+	nextAttack = DelayTime( MANC_ATTACK_RATE );
+	nextNoFOVAttack = sys.getTime() + MANC_NOFOVTIME;
+}
+
+/*
+=====================
+monster_demon_mancubus::combat_melee
+=====================
+*/
+void monster_demon_mancubus::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}

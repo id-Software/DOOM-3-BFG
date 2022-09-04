@@ -1,0 +1,467 @@
+namespace map_erebus6
+{
+	string g_strSkill;
+
+	void ClearHelltime() {
+		$player1.stopHelltime( 0 );
+	}
+
+	void GiveStamina() {
+		// give the player unlimited stamina
+		sys.setcvar( "pm_stamina", "0" );
+		$ber_guistation.setGuiParm( "noninteractive", "1" );
+	}
+
+	void ResetStamina() {
+		// reset Stamina
+		sys.setcvar( "pm_stamina", "24" );
+	}
+
+	void airlock1_door1_open()
+	{
+		airlock_door_activate(1 , 1 , 2 , 1);
+	}
+
+
+	void airlock1_door2_open()
+	{
+		$airlock1_door1_light.setColor( 0.37, 0.05, 0.01 );
+		airlock_door_activate(1 , 2 , 2 , 1);
+	}
+
+
+	void airlock1_door2_close()
+	{
+		airlock_door_activate(1, 2, 2, 2);
+	}
+
+
+	void airlock2_door1_open()
+	{
+		airlock_door_activate(2 , 1 , 1 , 1);
+	}
+
+
+	void airlock2_door2_open()
+	{
+		airlock_door_activate(2 , 2 , 1 , 1);
+	}
+
+
+	void airlock2_door1_close()
+	{
+		airlock_door_activate(2 , 1 , 1 , 2);
+	}
+
+
+	void airlock2_door2_close()
+	{
+		airlock_door_activate(2 , 1 , 1 , 2);
+	}
+
+
+	void airlock2_activate()
+	{
+		sys.trigger( $erebus6_airlock2_clipper );
+		thread airlock_main_activate(2, 1);
+	}
+
+
+	void OpenEntryAirlock()
+	{
+		airlock1_door2_open();
+	}
+
+	void RemoveFakeClip() {
+		$bh_fakeclip1.remove();
+	}
+
+
+	void TurnOnFlame1() {
+		$bh_fstream1.show();
+		sys.trigger( $bh_fstream_hurt1 );
+		sys.trigger( $bh_fsteam_sound1 );
+	}
+
+	void TurnOnFlame2() {
+		$bh_fstream2.show();
+		sys.trigger( $bh_fstream_hurt2 );
+		sys.trigger( $bh_fsteam_sound1 );
+	}
+
+	void Computer1TipOver()
+	{
+		$computer1_origin.accelTime( 0.4 );
+		$computer1_origin.time( 0.5 );
+		$computer1_origin.rotateOnce( '90 0 0' );
+		sys.waitFor( $computer1_origin );
+
+		sys.trigger( $computer1_dust );
+		sys.trigger( $computer1_shockwave );
+
+		$computer1_origin.time( 0.05 );
+		$computer1_origin.accelTime( 0.05 );
+		$computer1_origin.rotateOnce( '-4 0 0' );
+		sys.waitFor( $computer1_origin );
+
+		$computer1_origin.rotateOnce( '4 0 0' );
+		sys.waitFor( $computer1_origin );
+
+		$computer1_origin.time( 0.05 );
+		$computer1_origin.rotateOnce( '-2 0 0' );
+		sys.waitFor( $computer1_origin );
+
+		sys.waitFor( $computer1_origin );
+		$computer1_origin.rotateOnce( '2 0 0' );
+		sys.waitFor( $computer1_origin );
+	}
+
+
+	void TubePump1Loop()
+	{
+		$tubepump1_tube.bind( $tubepump1_origin );
+		$tubepump1_nozzle.bind( $tubepump1_tube );
+		$tubepump1_receiver.bind( $tubepump1_mixer );
+
+		while( true )
+		{
+			$tubepump1_nozzle.time( 0.5 );
+			$tubepump1_nozzle.move( SOUTH, 12 );
+			sys.waitFor( $tubepump1_nozzle );
+
+			$tubepump1_speaker.startSoundShader( "sact1_vent_1s", SND_CHANNEL_ANY );
+
+			$tubepump1_nozzle.time( 0.5 );
+			$tubepump1_nozzle.rotateOnce( '0 0 360' );
+			sys.waitFor( $tubepump1_nozzle );
+
+			sys.trigger( $tubepump1_bubbles );
+			sys.wait( 1.5 );
+
+			$tubepump1_speaker.startSoundShader( "sact1_vent_1s", SND_CHANNEL_ANY );
+
+			$tubepump1_nozzle.time( 0.5 );
+			$tubepump1_nozzle.rotateOnce( '0 0 -360' );
+			sys.waitFor( $tubepump1_nozzle );
+
+			$tubepump1_nozzle.time( 0.5 );
+			$tubepump1_nozzle.move( NORTH, 12 );
+			sys.waitFor( $tubepump1_nozzle );
+			sys.wait( 0.5 );
+
+			$tubepump1_origin.time( 1.0 );
+			$tubepump1_origin.rotateOnce( '90 0 0' );
+			sys.waitFor( $tubepump1_origin );
+
+			$tubepump1_mixer.time( 1.0 );
+			$tubepump1_mixer.accelTime( 0.2 );
+			$tubepump1_mixer.decelTime( 0.2 );
+			$tubepump1_mixer.rotateOnce( '180 0 0' );
+			sys.waitFor( $tubepump1_mixer );
+
+			$tubepump1_mixer.time( 1.0 );
+			$tubepump1_mixer.accelTime( 0.2 );
+			$tubepump1_mixer.decelTime( 0.2 );
+			$tubepump1_mixer.rotateOnce( '-180 0 0' );
+			sys.waitFor( $tubepump1_mixer );
+
+			$tubepump1_mixer.time( 1.5 );
+			$tubepump1_mixer.accelTime( 0.25 );
+			$tubepump1_mixer.decelTime( 0.25 );
+			$tubepump1_mixer.rotateOnce( '360 0 0' );
+			sys.waitFor( $tubepump1_mixer );
+
+			sys.trigger( $tubepump1_bubbles );
+
+			$tubepump1_origin.time( 1.0 );
+			$tubepump1_origin.rotateOnce( '-90 0 0' );
+			sys.waitFor( $tubepump1_origin );
+		}
+	}
+
+
+	void CylVent1Loop()
+	{
+		while( true )
+		{
+			$cylvent1_flap1.time( 0.5 );
+			$cylvent1_flap2.time( 0.5 );
+			$cylvent1_flap3.time( 0.5 );
+			$cylvent1_flap1.rotateOnce( '0 -100 0' );
+			$cylvent1_flap2.rotateOnce( '0 -70 0' );
+			$cylvent1_flap3.rotateOnce( '0 -70 0' );
+			$cylvent1_gas_speaker.startSoundShader( "sact1_vent_05s_close", SND_CHANNEL_ANY );
+			sys.waitFor( $cylvent1_flap3 );
+
+			$cylvent1_origin.time( 1.0 );
+			$cylvent1_origin.rotateOnce( '0 -150 0' );
+			$cylvent1_gas_speaker.startSoundShader( "sact1_vent_1s", SND_CHANNEL_ANY );
+			sys.waitFor( $cylvent1_origin );
+
+			sys.wait( 2.0 );
+
+			$cylvent1_origin.time( 1.0 );
+			$cylvent1_origin.rotateOnce( '0 150 0' );
+			$cylvent1_gas_speaker.startSoundShader( "sact1_vent_1s", SND_CHANNEL_ANY );
+			sys.waitFor( $cylvent1_origin );
+
+			sys.wait( 0.5 );
+
+			$cylvent1_flap1.time( 0.5 );
+			$cylvent1_flap2.time( 0.5 );
+			$cylvent1_flap3.time( 0.5 );
+			$cylvent1_flap1.rotateOnce( '0 100 0' );
+			$cylvent1_flap2.rotateOnce( '0 70 0' );
+			$cylvent1_flap3.rotateOnce( '0 70 0' );
+			$cylvent1_gas_speaker.startSoundShader( "sact1_vent_05s_open", SND_CHANNEL_ANY );
+			sys.waitFor( $cylvent1_flap3 );
+
+			sys.trigger( $cylvent1_gas );
+			sys.wait( 3.0 );
+			sys.trigger( $cylvent1_gas );
+		}
+	}
+
+
+	void HellVisionHideSentry()
+	{
+		$char_sentry_flashlight_1.hide();
+		$hv_wall1.show();
+		$hv_wall2.show();
+		sys.wait( 4.0 );
+		$char_sentry_flashlight_1.show();
+		$hv_wall1.hide();
+		$hv_wall2.hide();
+	}
+
+	void seal_tunnels() {
+		$waste_door1.close();
+		$waste_door1.lock( 2 );
+		$waste_cliphack1.show();
+		$waste_cliphack2.show();
+	}
+
+	float MONO_MOVING = 0;
+
+
+	// Berserker Hunter Specific Functions
+	void shut_doors()
+	{
+		$bh_fakewall1.show();
+		//$bz_cliphack1.show();
+		//$bh_doorframe.setShaderParm( 7, 0 );
+		//$end_door1.close();
+		//$end_door2.close();
+		//$end_door1.lock( 1 );
+		//$end_door2.lock( 1 );
+	}
+
+	void Berzerk_Influence()
+	{
+		sys.trigger( $bh_influence );
+		sys.trigger( $bh_sound1 );
+		sys.wait( 3 );
+		sys.trigger( $bh_sound1 );
+	}
+
+	void Berzerk_FightInfluence() {
+
+		sys.trigger ($speaker_influence_in);
+
+		sys.trigger( $bh_influence );
+		//$bz_hellgrowth1.show();
+		sys.trigger( $bh_sound1 );
+
+		sys.wait( 1 );
+		$heartlight.On();
+
+		sys.wait( 2 );
+
+		sys.trigger ($speaker_influence_out);
+
+		//$bz_hellgrowth1.hide();
+		sys.trigger( $bh_sound1 );
+	}
+
+	void Berzerk_Influence2()
+	{
+		thread Berzerk_FightInfluence();
+	}
+
+	void InitHeartLight()
+	{
+		$heartlight.bindToJoint($hunter_berzerk, "heart_light", 1);
+		$heartlight.Off();
+	}
+
+	void HeartLightOn()
+	{
+		//sys.print( "HEARTLIGHT ON!\n" );
+		$heartlight.On();
+	}
+
+	void HeartLightOff()
+	{
+		//sys.print( "HEARTLIGHT OFF!\n" );
+		$heartlight.Off();
+	}
+
+	// Level Specific Functions
+
+	// monorail stuff
+	void open_mon_d1() {
+		$mon_d1_1.open();
+	}
+
+	void open_mon_d2() {
+		$mon_d2_1.open();
+	}
+
+	void move_e6_monorail()
+	{
+		/*
+			State is 0 upon loading the level
+			State is 1 when it's in motion
+		*/
+		if (MONO_MOVING == 1) {
+			return;
+		}
+		$doorclip_rightFront.show();
+		$doorclip_leftFront.show();
+		$doorclip_rightRear.show();
+		$doorclip_leftRear.show();
+		sys.wait (1);
+		sys.trigger( $back_door1_1 );
+		sys.trigger( $front_door1_1 );
+		$e6_monorail_lift1.move( DOWN, 248 );
+		sys.wait( .5 );
+		$e6_monorail_lift2.move( DOWN, 248 );
+		//sys.print( "MOVING MONORAIL!" );
+		$monorail_anchor.unbind();
+		$monorail_anchor.time( 16 );
+		$monorail_anchor.accelTime( 4 );
+		$monorail_anchor.decelTime( 3 );
+		//$player1.disableWeapon(); //changed to target_enableweapons in radiant
+		sys.trigger( $squeal_speaker );
+		sys.trigger( $movement_speaker );
+		$monorail_anchor.startSpline( $spline1 );
+		$monorail_anchor.removeInitialSplineAngles();
+		MONO_MOVING = 1;
+	}
+
+	void setup_monorail() {
+		$doorclip_rightFront.hide();
+		$doorclip_leftFront.hide();
+		$doorclip_rightRear.hide();
+		$doorclip_leftRear.hide();
+		$e6_parttrack.bind( $e6_track_parent );
+		$e6_support1.bind( $e6_track_parent );
+		$e6_support2.bind( $e6_track_parent );
+		$monorail_anchor.bind( $e6_track_parent );
+		$e6_monorail_lift1.move( DOWN, 248 );
+		$e6_monorail_lift2.move( DOWN, 248 );
+		$e6_monorail_lift1.time( .1 );
+		$e6_monorail_lift2.time( .1 );
+		$e6_track_parent.time( .1 );
+		$back_door1_1.lock( 2 );
+		$front_door1_1.lock( 2 );
+		$back_door2_1.lock( 2 );
+		$front_door2_1.lock( 2 );
+	}
+
+	void raise_monorail() {
+		sys.wait( 1 );
+		$e6_track_parent.time( 4 );
+
+		sys.trigger ($e6_train_speaker);
+
+		$e6_track_parent.move( UP, 96 );
+		sys.waitFor( $e6_track_parent );
+		$e6_monorail_lift1.time( 2.5 );
+		$e6_monorail_lift2.time( 2.5 );
+
+		sys.trigger( $rotate_door_north_speaker );
+		sys.trigger( $rotate_door_north_lamp );
+		sys.trigger( $rotate_door_south_speaker );
+		sys.trigger( $rotate_door_south_lamp );
+
+		sys.trigger ($e6_lift1_speaker);
+
+		$e6_monorail_lift1.move( UP, 248 );
+		sys.wait( .5 );
+
+		sys.trigger ($e6_lift2_speaker);
+
+		$e6_monorail_lift2.move( UP, 248 );
+		sys.waitFor( $e6_monorail_lift2 );
+
+		$rotate_door_north.rotateOnce( '0 90 0' );
+		$rotate_door_south.rotateOnce( '0 90 0' );
+
+		$back_door1_1.lock( 0 );
+		$front_door1_1.lock( 0 );
+		sys.wait( .1 );
+		sys.trigger( $back_door1_1 );
+		sys.trigger( $front_door1_1 );
+	}
+
+	void get_bs2() {
+		sys.wait( 2 );
+		$player1.giveInventoryItem("weapon_bloodstone_active2");
+		sys.wait( 1 );
+		$player1.giveInventoryItem( "ammo_bloodstone_normal" );
+		raise_monorail();
+	}
+
+
+	void SetupLevel()
+	{
+		g_strSkill = sys.getcvar( "g_skill" );
+
+		// set airlock door guis initial states to 1
+		$airlock2_door1_gui.setGuiParm( "gui_parm1" , 1);
+		$airlock2_door2_gui.setGuiParm( "gui_parm1" , 1);
+		$airlock2_door2_light.setColor( 0.37, 0.05, 0.01 );
+		$airlock2_door1_loght.setColor( 0.84, 0.84, 0.90 );
+
+		$swinger_mover123.sway( 20, 2, '2 10 2' );
+		$swinglight1_mover.sway( 20, 0, '0 15 0' );
+		$bh_fstream1.hide();
+		$bh_fstream2.hide();
+		sys.trigger( $bh_fstream_hurt1 );
+		sys.trigger( $bh_fstream_hurt2 );
+	}
+
+	void e6_hunter_death() {
+		// Fade out the eh0r ambient speaker
+		$speaker_eh0r.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+	}
+
+	void main()
+	{
+		// PRECACHE
+		sys.cacheSoundShader( "player_cough" );
+		sys.cacheSoundShader( "sact1_vent_05s_close" );
+		sys.cacheSoundShader( "sact1_vent_1s" );
+		sys.cacheSoundShader( "sact1_vent_1s" );
+		sys.cacheSoundShader( "sact1_vent_05s_open" );
+		sys.cacheSoundShader ( "e6_hunter_intro" );
+		sys.cacheSoundShader ( "chamber_rods_down_speaker" );
+		sys.cacheSoundShader ( "e6_mach_2_5s" );
+
+		// LEVEL SETUP
+		thread SetupLevel();
+
+		thread TubePump1Loop();
+		thread CylVent1Loop();
+
+		setup_monorail();
+		InitHeartLight();
+	}
+
+
+	void e6_make_player_cough()
+	{
+		$player1.startSoundShader( "player_cough", SND_CHANNEL_VOICE );
+	}
+}

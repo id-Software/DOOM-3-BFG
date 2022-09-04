@@ -1,0 +1,248 @@
+/***********************************************************************
+
+ai_monster_zombie_sawyer.script
+
+monster_zombie_sawyer
+
+***********************************************************************/
+
+#define SAWYER_SMOKE_PARTICLES	0
+#define SAWYER_BLOOD_PARTICLES	1
+
+object monster_zombie_sawyer : monster_zombie_base {
+	boolean		attack;
+
+	void		state_Begin();
+	void		state_Idle();
+	void		init();
+
+	void		start_smoke();
+		
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Run();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_melee();
+	void		start_attack();
+	void		end_attack();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_zombie_sawyer::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 4 );
+}
+
+void monster_zombie_sawyer::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 4 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+void monster_zombie_sawyer::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_zombie_sawyer::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 ); }
+	}
+}
+
+void monster_zombie_sawyer::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_sawyer::init
+=====================
+*/
+void monster_zombie_sawyer::init() {
+	setSmokeVisibility( ALL_PARTICLES, 0 );
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_zombie_sawyer::start_smoke
+=====================
+*/
+void monster_zombie_sawyer::start_smoke() {
+	setSmokeVisibility( SAWYER_SMOKE_PARTICLES, 1 );
+}
+
+/*
+=====================
+monster_zombie_sawyer::state_Begin
+=====================
+*/
+void monster_zombie_sawyer::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );		
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_zombie_sawyer::state_Idle
+=====================
+*/
+void monster_zombie_sawyer::state_Idle() {
+	wait_for_enemy();
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_sawyer::do_attack
+=====================
+*/
+void monster_zombie_sawyer::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	}
+}
+
+/*
+=====================
+monster_zombie_sawyer::check_attacks
+=====================
+*/
+float monster_zombie_sawyer::check_attacks() {
+	float attack_flags;
+
+	attack_flags = 0;
+	if ( testMeleeAttack() ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_zombie_sawyer::combat_melee
+=====================
+*/
+void monster_zombie_sawyer::combat_melee() {
+	float next_hit_time;
+	float smoke_frames;
+
+	lookAtEnemy( 100 );
+	faceEnemy();
+
+	next_hit_time = 0;
+	attack = false;
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 8 );
+	while( inAnimState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack" ) ) {
+		if ( attack && ( sys.getTime() > next_hit_time ) ) {
+			if ( attackMelee( "melee_zombie_chainsaw" ) ) {
+				next_hit_time = sys.getTime() + 0.025;
+				setSmokeVisibility( SAWYER_BLOOD_PARTICLES, 1 );
+				smoke_frames = 4;
+			}
+		}
+
+		if ( smoke_frames ) {
+			smoke_frames--;
+			if ( !smoke_frames ) {
+				setSmokeVisibility( SAWYER_BLOOD_PARTICLES, 0 );
+			}
+		}
+
+		waitFrame();
+	}
+
+	setSmokeVisibility( SAWYER_BLOOD_PARTICLES, 0 );
+	attack = false;
+	lookAtEnemy( 1 );
+}
+
+/*
+=====================
+monster_zombie_sawyer::start_attack
+=====================
+*/
+void monster_zombie_sawyer::start_attack() {
+	attack = true;
+}
+
+/*
+=====================
+monster_zombie_sawyer::end_attack
+=====================
+*/
+void monster_zombie_sawyer::end_attack() {
+	attack = false;
+}

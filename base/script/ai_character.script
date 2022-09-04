@@ -1,0 +1,1963 @@
+/***********************************************************************
+
+character.script
+
+***********************************************************************/
+
+#define CHAR_TALK_TRIGGERED			0
+#define CHAR_TALK_PRIMARY			1
+#define CHAR_TALK_SECONDARY			2
+#define CHAR_WALKTURN				65
+#define CHAR_MIN_TURN				10
+#define CHAR_TURN_THRESHOLD			45
+#define CHAR_GETOUTOFWAY_DIST		124
+#define CHAR_ALLOW_WALK_DIST		180
+#define CHAR_ALLOW_WALK_DIST_NPC	80
+#define CHAR_WAIT_BLOCKED			6
+#define CHAR_PUSH_DELAY				0.35
+
+#define CHAR_BLEND_COWER_TO_IDLE	6
+#define CHAR_BLEND_TURN_TO_IDLE		0
+
+object character : ai {
+	entity		head;
+	float		talkMode;
+	float		talk_secondary_index;
+	string		customAnim;
+	float		customBlendOut;
+	string		walkAnim;
+	boolean		allow_turn;
+	boolean		run;
+	boolean		can_talk;
+	boolean		no_cower;
+	boolean		no_cower_saved;
+	boolean		ignore_push;
+	boolean		skipOutOfPath;
+	character	listening_to_character;
+	character	next_listener;
+	float		lastPushTime;
+	float		pushTime;
+
+	entity		current_path;
+	entity		next_path;
+	
+	boolean		follow_nodes;
+	boolean		dont_push_others;
+
+	float		playHeadAnim( string animname, float blend_frames );
+	void		endHeadAnim( float blend_out );
+	
+	void		executePathCommand( entity pathnode );
+	void		finishPathCommand();
+	void		cancelPathCommand();
+
+	void		checkBlocked();
+	boolean		getOutOfWay();
+
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_TalkTrigger();
+	void		state_Idle();
+	void		state_Killed();
+
+	//
+	// actions
+	//
+	void		idle_stand();
+	void		idle_followPathEntities( entity pathnode );
+	void		idle_talk();
+
+	void		init();
+	void		destroy();
+	void		faceTowardsEntity( entity target, float duration );
+	
+	void		playCustomCycle( string animname, float blendTime );
+	void		playCustomAnim( string animname, float blendIn, float blendOut );
+	boolean		inCustomAnim();
+	void		endCustomAnim();
+	void		waitForCustomAnim( string animname, float blendIn, float blendOut );
+
+	void		state_Spawner();
+	void		state_Cower();
+	void		check_cower();
+	void		target_talk();
+	void		say_triggered();
+	void		say_primary();
+	void		say_secondary();
+
+	void		skip_conversation();
+
+	void		disable_turning();
+	void		enable_turning();
+
+	// path following
+	void 		path_corner();
+	void 		path_anim();
+	void 		path_cycleanim();
+	void 		path_turn();
+	void 		path_wait();
+	void 		path_waitfortrigger();
+	void 		path_hide();
+	void 		path_show();
+	void		path_conversation_listen();
+	void		path_conversation();
+	void		path_headanim();
+	void 		path_talk();
+	void 		path_talk_triggered();
+	void 		path_talk_primary();
+	void 		path_talk_secondary();
+	void		path_lookat();
+	void 		state_FollowAlternatePath();
+	void 		follow_alternate_path1();
+	void 		follow_alternate_path2();
+	void 		follow_alternate_path3();
+
+	// head anim states
+	void		Anim_Disable();
+	void		Head_Idle();
+	void		Head_Dead();
+	void		Head_TalkHeadOnly();
+
+	// legs anim states
+	void		Legs_Death();
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_Walk_Special();
+	void		Legs_Run();
+	void		Legs_TurnLeft();
+	void		Legs_TurnRight();
+	void		Legs_Cower();
+	void		Legs_CustomAnim();
+	void		Legs_CustomCycle();
+};
+
+/***********************************************************************
+
+	Head animation control
+
+***********************************************************************/
+
+void character::Anim_Disable() {
+}
+
+void character::Head_Idle() {
+	idleAnim( ANIMCHANNEL_HEAD, "stand" );
+}
+
+void character::Head_Dead() {
+	playAnim( ANIMCHANNEL_HEAD, "dead" );
+}
+
+void character::Head_TalkHeadOnly() {
+	playAnim( ANIMCHANNEL_HEAD, customAnim );
+	while( !animDone( ANIMCHANNEL_HEAD, customBlendOut ) ) {
+		waitFrame();
+	}
+	finishAction( "talkAnim" );
+	animState( ANIMCHANNEL_HEAD, "Head_Idle", customBlendOut );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void character::Legs_Death() {
+	finishAction( "dead" );
+}
+
+void character::Legs_Idle() {
+	float delta;
+
+	if ( allow_turn && !AI_FORWARD ) {
+		delta = getTurnDelta();
+		if ( delta > CHAR_MIN_TURN ) {
+			Legs_TurnLeft();
+		}
+		if ( delta < -CHAR_MIN_TURN ) {
+			Legs_TurnRight();
+		}
+	}
+	
+	allowMovement( false );
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( AI_FORWARD ) {
+			if ( walkAnim != "" ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk_Special", 8 );
+			} else if ( run ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 );
+			} else {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 );
+			}
+		}
+		
+		if ( allow_turn ) {
+			if ( getTurnDelta() > CHAR_MIN_TURN ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+			}
+			if ( getTurnDelta() < -CHAR_MIN_TURN ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+			}
+		}
+	}
+}
+
+void character::Legs_Walk() {
+	float delta;
+
+	allowMovement( true );
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+
+	while( AI_FORWARD && ( walkAnim == "" ) ) {
+		if ( run ) {
+			delta = getTurnDelta();
+			if ( ( delta < CHAR_WALKTURN ) && ( delta > -CHAR_WALKTURN ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 );
+			}
+		}
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void character::Legs_Walk_Special() {
+	allowMovement( true );
+	playCycle( ANIMCHANNEL_LEGS, walkAnim );
+	
+	while( AI_FORWARD && ( walkAnim != "" ) )	{
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void character::Legs_Run() {
+	float delta;
+
+	allowMovement( true );
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+	
+	while( AI_FORWARD && run && ( walkAnim == "" ) ) {
+		delta = getTurnDelta();
+		if ( ( delta > CHAR_WALKTURN ) || ( delta < -CHAR_WALKTURN ) ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 );
+		}
+
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void character::Legs_TurnLeft() {
+	float delta;
+
+	allowMovement( true );
+	animTurn( 180 );
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, CHAR_BLEND_TURN_TO_IDLE ) ) {
+		waitFrame();
+	}
+	animTurn( 0 );
+	
+	if ( allow_turn && !AI_FORWARD ) {
+		delta = getTurnDelta();
+		if ( delta > CHAR_MIN_TURN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", CHAR_BLEND_TURN_TO_IDLE );
+		}
+		if ( delta < -CHAR_MIN_TURN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", CHAR_BLEND_TURN_TO_IDLE );
+		}
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", CHAR_BLEND_TURN_TO_IDLE );
+}
+
+void character::Legs_TurnRight() {
+	float delta;
+
+	allowMovement( true );
+	animTurn( 180 );
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, CHAR_BLEND_TURN_TO_IDLE ) ) {
+		waitFrame();
+	}
+	animTurn( 0 );
+
+	if ( allow_turn && !AI_FORWARD ) {
+		delta = getTurnDelta();
+		if ( delta > CHAR_MIN_TURN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", CHAR_BLEND_TURN_TO_IDLE );
+		}
+		if ( delta < -CHAR_MIN_TURN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", CHAR_BLEND_TURN_TO_IDLE );
+		}
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", CHAR_BLEND_TURN_TO_IDLE );
+}
+
+void character::Legs_Cower() {
+	setTalkTarget( $null_entity );
+	startSound( "snd_cower", SND_CHANNEL_VOICE, false );
+	playAnim( ANIMCHANNEL_LEGS, "cower" );
+	
+	while( !animDone( ANIMCHANNEL_LEGS, CHAR_BLEND_COWER_TO_IDLE ) ) {
+		lookAt( $player1, 0.1 );
+		waitFrame();
+	}
+	
+	setTalkTarget( $null_entity );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", CHAR_BLEND_COWER_TO_IDLE );
+}
+
+void character::Legs_CustomCycle() {
+	allowMovement( true );
+	playCycle( ANIMCHANNEL_LEGS, customAnim );
+	while( 1 ) {
+		waitFrame();
+	}
+}
+
+void character::Legs_CustomAnim() {
+	allowMovement( true );
+	playAnim( ANIMCHANNEL_LEGS, customAnim );
+	
+	while( !animDone( ANIMCHANNEL_LEGS, customBlendOut ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "customAnim" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", customBlendOut );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+character::init
+=====================
+*/
+void character::init() {
+	float mod;
+
+	mod = getIntKey( "head_look" );
+	setBoneMod( mod );
+
+	lastPushTime = 0;
+	pushTime = 0;
+
+	dont_push_others = getIntKey( "dont_push_others" );
+
+	talkMode = CHAR_TALK_PRIMARY;
+	talk_secondary_index = 1;
+	follow_nodes = true;
+	walkAnim = "";
+	run = false;
+
+	can_talk = getIntKey( "talks" );
+	no_cower = getIntKey( "no_cower" );
+	ignore_push = getIntKey( "ignore_push" );
+	no_cower_saved = no_cower;
+	if ( getFloatKey( "turn_rate" ) != 0 ) {
+		allow_turn = true;
+	} else {
+		ignore_push = true;
+	}
+
+	self.setKey( "conversationNext", "" );
+	
+	if ( getIntKey( "spawner" ) ) {
+		setNextState( "state_Spawner" );
+	} else {
+		setNextState( "state_Begin" );
+	}
+}
+
+/*
+=====================
+character::destroy
+=====================
+*/
+void character::destroy() {
+	character conversation_char;
+
+	// disconnect from anyone we're listening to
+	if ( listening_to_character ) {
+		conversation_char = listening_to_character;
+        while( conversation_char ) {
+			if ( self == conversation_char.next_listener ) {
+				// point the previous one in the list to the our next listener
+				conversation_char.next_listener = next_listener;
+				break;
+			}
+
+			conversation_char = conversation_char.next_listener;
+		}
+	}
+}
+
+/*
+=====================
+character::state_Spawner
+=====================
+*/
+void character::state_Spawner() {
+	entity	ent;
+	float	triggerCount;
+	float	maxSpawn;
+	float	i;
+	string	name;
+
+	maxSpawn = getIntKey( "spawner" );
+	name = getName();
+
+	hide();
+
+	triggerCount = 0;
+	AI_ACTIVATED = false;
+	while( 1 ) {
+		if ( AI_ACTIVATED ) {
+			triggerCount++;
+			AI_ACTIVATED = false;
+		}
+
+		if ( triggerCount ) {
+			if ( canBecomeSolid() ) {
+				for( i = 0; i < maxSpawn; i++ ) {
+					ent = sys.getEntity( name + "_" + i );
+					if ( !ent ) {
+						break;
+					}
+				}
+
+				if ( i < maxSpawn ) {
+					triggerCount--;
+					sys.copySpawnArgs( self );
+					sys.setSpawnArg( "spawner", "0" );
+					sys.setSpawnArg( "name", name + "_" + i );
+					if ( getKey( "spawn_target" ) != "" ) {
+						sys.setSpawnArg( "target", getKey( "spawn_target" ) );
+					}
+					ent = sys.spawn( getKey( "classname" ) );
+					sys.trigger( ent );
+				}
+			}
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::state_Cower
+=====================
+*/
+void character::state_Cower() {
+	float waittime;
+
+	stopSound( SND_CHANNEL_VOICE, false );
+	if ( head ) {
+		head.stopSound( SND_CHANNEL_VOICE, false );
+	}
+
+	endHeadAnim( 6 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Cower", 6 );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_Cower" ) ) {
+		waitFrame();
+	}
+
+	setTalkTarget( $null_entity );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+character::check_cower
+=====================
+*/
+void character::check_cower() {
+	if ( !no_cower ) {
+		if ( heardSound( false ) ) {
+			endHeadAnim( 6 );
+			cancelPathCommand();
+			setState( "state_Cower" );
+		}
+	}
+}
+
+/*
+=====================
+character::target_talk
+
+forces character to talk to the player
+=====================
+*/
+void character::target_talk() {
+	cancelPathCommand();
+	setTalkTarget( $player1 );
+	idle_talk();
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+character::say_triggered
+
+forces character to say his triggered talk anim to the player
+=====================
+*/
+void character::say_triggered() {
+	cancelPathCommand();
+	talkMode = CHAR_TALK_TRIGGERED;
+	setTalkTarget( $player1 );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+character::say_primary
+
+forces character to say his primary talk anim to the player
+=====================
+*/
+void character::say_primary() {
+	cancelPathCommand();
+	talkMode = CHAR_TALK_PRIMARY;
+	setTalkTarget( $player1 );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+character::say_secondary
+
+forces character to say his secondary talk anim to the player
+=====================
+*/
+void character::say_secondary() {
+	cancelPathCommand();
+	talkMode = CHAR_TALK_SECONDARY;
+	setTalkTarget( $player1 );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+character::faceTowardsEntity
+=====================
+*/
+void character::faceTowardsEntity( entity target, float duration ) {
+	vector delta;
+	vector ang1;
+	vector ang2;
+	vector ang3;
+
+	delta = target.getOrigin();
+	delta = delta - getOrigin();
+	ang1 = sys.VecToAngles( delta );
+	ang2 = getAngles();
+	ang3 = anglemod180( ang1 - ang2 );
+	if ( ang3_y < -CHAR_TURN_THRESHOLD ) {
+		turnTo( ang1_y );
+	} else if ( ang3_y > CHAR_TURN_THRESHOLD ) {
+		turnTo( ang1_y );
+	}
+	
+	lookAt( target, duration );
+}
+
+/*
+=====================
+character::playCustomCycle
+=====================
+*/
+void character::playCustomCycle( string animname, float blendTime ) {
+	customAnim = animname;
+	animState( ANIMCHANNEL_LEGS, "Legs_CustomCycle", blendTime );
+}
+
+/*
+=====================
+character::playCustomAnim
+=====================
+*/
+void character::playCustomAnim( string animname, float blendIn, float blendOut ) {
+	customBlendOut = blendOut;
+	customAnim = animname;
+	animState( ANIMCHANNEL_LEGS, "Legs_CustomAnim", blendIn );
+}
+
+/*
+=====================
+character::inCustomAnim
+=====================
+*/
+boolean character::inCustomAnim() {
+	return inAnimState( ANIMCHANNEL_LEGS, "Legs_CustomAnim" );
+}
+
+/*
+=====================
+character::endCustomAnim
+=====================
+*/
+void character::endCustomAnim() {
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", customBlendOut );
+}
+
+/*
+=====================
+character::waitForCustomAnim
+=====================
+*/
+void character::waitForCustomAnim( string animname, float blendIn, float blendOut ) {
+	check_cower();
+	customBlendOut = blendOut;
+	customAnim = animname;
+	animState( ANIMCHANNEL_LEGS, "Legs_CustomAnim", blendIn );
+	while( inAnimState( ANIMCHANNEL_LEGS, "Legs_CustomAnim" ) ) {
+		check_cower();
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::endHeadAnim
+=====================
+*/
+void character::endHeadAnim( float blend_out ) {
+	if ( getHead() ) {
+		stopAnim( ANIMCHANNEL_HEAD, blend_out );
+	}
+	setBlendFrames( ANIMCHANNEL_LEGS, blend_out );
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+	if ( getHead() ) {
+		animState( ANIMCHANNEL_HEAD, "Head_Idle", blend_out );
+	}
+}
+
+/*
+=====================
+character::playHeadAnim
+=====================
+*/
+float character::playHeadAnim( string animname, float blend_frames ) {
+	string anim;
+	float headlength;
+	float bodylength;
+
+	animState( ANIMCHANNEL_LEGS, "Anim_Disable", blend_frames );
+	setBlendFrames( ANIMCHANNEL_LEGS, blend_frames );
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+	waitFrame();
+
+	anim = chooseAnim( ANIMCHANNEL_HEAD, animname );
+	if ( anim != "" ) {
+		setBlendFrames( ANIMCHANNEL_HEAD, blend_frames );
+		playAnim( ANIMCHANNEL_HEAD, anim );
+		headlength = animLength( ANIMCHANNEL_HEAD, anim );
+
+		anim = chooseAnim( ANIMCHANNEL_LEGS, animname );
+		if ( anim == "" ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_frames );
+		} else {
+			bodylength = animLength( ANIMCHANNEL_LEGS, anim );
+			if ( bodylength < headlength ) {
+				playCycle( ANIMCHANNEL_LEGS, anim );
+			} else {
+				playAnim( ANIMCHANNEL_LEGS, anim );
+			}
+		}
+
+		return ANIMCHANNEL_HEAD;
+	} else {
+		// play on legs
+		if ( blend_frames >= 0 ) {
+			setBlendFrames( ANIMCHANNEL_LEGS, blend_frames );
+		}
+		anim = chooseAnim( ANIMCHANNEL_LEGS, animname );
+		if ( anim == "" ) {
+			playAnim( ANIMCHANNEL_LEGS, "stand" );
+		} else {
+			playAnim( ANIMCHANNEL_LEGS, animname );
+		}
+		return ANIMCHANNEL_LEGS;
+	}
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+character::state_Begin
+=====================
+*/
+void character::state_Begin() {
+	float	doHide;
+	float	teleportType;
+	string	triggerAnim;
+	float	movetype;
+	
+	head = getHead();
+
+	talkMode = CHAR_TALK_PRIMARY;
+	follow_nodes = true;
+	walkAnim = "";
+	run = false;
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	if ( getHead() ) {
+		animState( ANIMCHANNEL_HEAD, "Head_Idle", 0 );
+	}
+
+	doHide = getIntKey( "hide" );
+	teleportType = getIntKey( "teleport" );
+	triggerAnim = getKey( "trigger_anim" );
+	if ( triggerAnim != "" ) {
+		//
+		// hide until triggered and then play a special animation
+		//
+		checkAnim( ANIMCHANNEL_LEGS, triggerAnim );
+		hide();
+		waitUntil( AI_ACTIVATED );
+		clearEnemy();
+		waitUntil( canBecomeSolid() );
+		show();
+		waitForCustomAnim( triggerAnim, 0, 4 );
+	} else if ( teleportType > 0 ) {
+		//
+		// teleport in when triggered
+		//
+		hide();
+		AI_ACTIVATED = false;	
+		waitUntil( AI_ACTIVATED );
+		clearEnemy();
+		waitUntil( canBecomeSolid() );
+		becomeSolid();
+		movetype = getMoveType();
+		setMoveType( MOVETYPE_STATIC );
+		if ( teleportType == 1 ) {
+			startFx( "fx/teleporter1.fx" );
+			wait( 1.6 );
+		} else if ( teleportType == 2 ) {
+			startFx( "fx/teleporter2.fx" );
+			wait( 2.6 );
+		} else if ( teleportType == 3 ) {
+			startFx( "fx/teleporter3.fx" );
+			wait( 3.6 );
+		} else {
+			startFx( "fx/teleporter.fx" );
+			wait( 0.6 );
+		}
+		show();
+		playCustomAnim( "teleport", 0, 4 );
+		waitAction( "customAnim" );
+		setMoveType( movetype );
+	} else if ( doHide ) {
+		//
+		// hide until triggered
+		//
+		hide();
+		AI_ACTIVATED = false;	
+		waitUntil( AI_ACTIVATED );
+		if ( doHide == 1 ) {
+			AI_ACTIVATED = false;
+			clearEnemy();
+		}
+		waitUntil( canBecomeSolid() );
+		show();
+	}
+
+	if ( getIntKey( "trigger" )  ) {
+		AI_ACTIVATED = false;
+		waitUntil( AI_ACTIVATED );
+	}
+
+	float waittime;
+	waittime = getFloatKey( "wait" );
+	if ( waittime > 0 ) {
+		sys.wait( waittime );
+	}
+	
+	if ( getIntKey( "talktrigger" )  ) {
+		setState( "state_TalkTrigger" );
+	} else {
+		setState( "state_Idle" );
+	}
+}
+
+/*
+=====================
+character::state_TalkTrigger
+=====================
+*/
+void character::state_TalkTrigger() {
+	string animname;
+	entity activator;
+
+	animname = getKey( "anim" );
+	if ( animname != "" ) {
+		playCustomCycle( animname, 0 );
+	}
+
+	while( !AI_ACTIVATED ) {
+		check_cower();
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+	
+	setTalkTarget( $player1 );
+	talkMode = CHAR_TALK_TRIGGERED;
+	
+	setState( "state_Idle" );
+}
+	
+/*
+=====================
+character::state_Idle
+=====================
+*/
+void character::state_Idle() {
+	entity node;
+	
+	if ( can_talk ) {
+		setTalkState( TALK_OK );
+	}
+	no_cower = no_cower_saved;
+
+	while( 1 ) {
+		if ( AI_TALK ) {
+			idle_talk();
+			continue;
+		}
+		
+		if ( follow_nodes ) {
+			if ( !current_path ) {
+				current_path = randomPath();
+			}
+			if ( current_path ) {
+				idle_followPathEntities( current_path );
+                if ( getIntKey( "follow_once" ) ) {
+					follow_nodes = false;
+				}
+				continue;
+			}
+		}
+
+        idle_stand();
+	}
+}
+
+/*
+=====================
+character::state_Killed
+=====================
+*/
+void character::state_Killed() {
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+	if ( getHead() ) {
+		animState( ANIMCHANNEL_HEAD, "Head_Dead", 0 );
+	}
+	stopThinking();
+}
+
+/***********************************************************************
+
+	Idle
+
+***********************************************************************/
+
+/*
+=====================
+character::idle_stand
+=====================
+*/
+void character::idle_stand() {
+	stopMove();
+	while( !AI_TALK ) {
+		check_cower();
+		if ( AI_PUSHED ) {
+			getOutOfWay();
+		}
+
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::idle_talk
+=====================
+*/
+void character::idle_talk() {
+	float	ang;
+	float	talktime;
+	float	endtime;
+	float	talkradius;
+	float	blendin;
+	float	blendout;
+	entity	target;
+	vector	originalAngles;
+	float	currentTime;
+	boolean	no_turn;
+	entity  talkTo;
+	float	channel;
+
+	talkTo = getTalkTarget();
+	
+	no_turn = getIntKey( "talk_no_turn" );
+
+	originalAngles = getAngles();
+	stopMove();
+
+	if ( !no_turn && allow_turn ) {
+		faceTowardsEntity( talkTo, 0.1 );
+		sys.wait( 0.5 );
+		// wait for turn anim to finish
+		while( !inAnimState( ANIMCHANNEL_LEGS, "Legs_Idle" ) ) {
+			if ( talkMode != CHAR_TALK_TRIGGERED ) {
+				check_cower();
+			}
+			lookAt( talkTo, 0.1 );
+			waitFrame();
+		}
+	}	
+
+	allowMovement( true );
+
+	talkradius = getFloatKey( "talkradius" );
+	if ( talkMode == CHAR_TALK_TRIGGERED ) {
+		// triggered response
+		blendin = self.getIntKey( "talk0_blendin" );
+		blendout = self.getIntKey( "talk0_blendout" );
+		channel = playHeadAnim( "talk_trigger", blendin );
+		talkMode = CHAR_TALK_PRIMARY;
+	} else if ( talkMode == CHAR_TALK_PRIMARY ) {
+		// primary response
+		blendin = self.getIntKey( "talk1_blendin" );
+		blendout = self.getIntKey( "talk1_blendout" );
+		channel = playHeadAnim( "talk_primary", blendin );
+		talkMode = CHAR_TALK_SECONDARY;
+	} else if ( talkMode == CHAR_TALK_SECONDARY ) {
+		// secondary response
+		blendin = self.getIntKey( "talk2_blendin" );
+		blendout = self.getIntKey( "talk2_blendout" );
+		channel = playHeadAnim( "talk_secondary" + talk_secondary_index, blendin );
+		talk_secondary_index = talk_secondary_index + 1;
+		if ( !hasAnim( ANIMCHANNEL_HEAD, "talk_secondary" + talk_secondary_index ) && !hasAnim( ANIMCHANNEL_LEGS, "talk_secondary" + talk_secondary_index ) ) {
+			talk_secondary_index = 1;
+		}
+	}
+
+	while( !animDone( channel, blendout ) ) {
+		if ( distanceTo( talkTo ) > talkradius ) {
+			// stop talking
+			stopSound( SND_CHANNEL_VOICE, false );
+			if ( head ) {
+				head.stopSound( SND_CHANNEL_VOICE, false );
+			}
+			break;
+		}
+
+		check_cower();
+		if ( no_turn || !allow_turn ) {
+			lookAt( talkTo, 0.1 );
+		} else {
+			faceTowardsEntity( talkTo, 0.1 );
+		}
+		waitFrame();
+	}
+	endHeadAnim( blendout );
+	setTalkTarget( $null_entity );
+	
+	talktime = getFloatKey( "talktime" );
+	currentTime = sys.getTime();
+	endtime = currentTime + talktime;
+	while( ( currentTime < endtime ) && ( distanceTo( talkTo ) <= talkradius ) ) {
+		check_cower();
+		if ( no_turn || !allow_turn ) {
+			lookAt( talkTo, 0.1 );
+		} else {
+			faceTowardsEntity( talkTo, 0.1 );
+		}
+		if ( AI_TALK ) {
+			allowMovement( false );
+			return;
+		}
+		if ( AI_PUSHED ) {
+			getOutOfWay();
+		}
+		waitFrame();
+		currentTime = sys.getTime();
+	}
+
+	lookAt( $null_entity, 0 );
+	turnTo( originalAngles_y );
+	allowMovement( false );
+}
+
+/*
+=====================
+character::idle_followPathEntities
+=====================
+*/
+void character::idle_followPathEntities( entity pathnode ) {
+	current_path = pathnode;
+	while( current_path ) {
+		check_cower();
+		executePathCommand( current_path );
+		if ( AI_TALK ) {
+			setState( "state_Idle" );
+		}
+	}
+}
+
+/*
+=====================
+character::executePathCommand
+=====================
+*/
+void character::executePathCommand( entity pathnode ) {
+	string nodeaction;
+
+	current_path = pathnode;
+	next_path = current_path.randomPath();
+	nodeaction = current_path.getKey( "classname" );
+	if ( !hasFunction( nodeaction ) ) {
+		sys.warning( "'" + getName() + "' encountered an unsupported path entity '" + nodeaction + "' on entity '" + current_path.getName() + "'\n" );
+		return;
+	}
+
+	//sys.print( getName() + " : " + current_path.getName() + " : " + nodeaction + "\n" );
+
+	skipOutOfPath = current_path.getIntKey( "skip" );
+
+	if ( current_path.getIntKey( "no_cower" ) ) {
+		no_cower = true;
+	}
+	if ( current_path.getIntKey( "no_talk" ) && can_talk ) {
+		setTalkState( TALK_BUSY );
+	}
+
+	callFunction( nodeaction );
+
+	if ( AI_TALK ) {
+		cancelPathCommand();
+		setState( "state_Idle" );
+	}
+
+	finishPathCommand();
+}
+
+/*
+=====================
+character::finishPathCommand
+=====================
+*/
+void character::finishPathCommand() {
+	string triggername;
+	entity triggerent;
+
+	// trigger any entities the path had targeted
+	triggername = current_path.getKey( "trigger" );
+	if ( triggername != "" ) {
+		triggerent = sys.getEntity( triggername );
+		if ( triggerent ) {
+			triggerent.activate( self );
+		}
+	}
+	current_path = next_path;
+
+	skipOutOfPath = false;
+	if ( can_talk ) {
+		setTalkState( TALK_OK );
+	}
+	no_cower = no_cower_saved;
+}
+
+/*
+=====================
+character::cancelPathCommand
+=====================
+*/
+void character::cancelPathCommand() {
+	if ( skipOutOfPath ) {
+		finishPathCommand();
+	}
+
+	skipOutOfPath = false;
+	if ( can_talk ) {
+		setTalkState( TALK_OK );
+	}
+	no_cower = no_cower_saved;
+}
+
+/*
+=====================
+character::getOutOfWay
+=====================
+*/
+boolean character::getOutOfWay() {
+	vector org;
+	vector oldorigin;
+	vector pos;
+	vector ang;
+	vector dir;
+
+	if ( ignore_push ) {
+		return false;
+	}
+
+	// check if we were pushed in the last frame
+	if ( ( sys.getTime() - lastPushTime ) > GAME_FRAMETIME ) {
+		// start the push timer
+		lastPushTime = sys.getTime();
+		pushTime = lastPushTime + CHAR_PUSH_DELAY;
+		return false;
+	}
+
+	// update the last push time so next frame we know we were pushed this frame
+	lastPushTime = sys.getTime() + GAME_FRAMETIME;
+
+	// check if we've been pushed long enough
+	if ( sys.getTime() < pushTime ) {
+		return false;
+	}
+
+	// choose a point inside the aas
+	oldorigin = getOrigin();
+	org = pushPointIntoAAS( oldorigin );
+
+	// determine if there's a direction we can walk
+	setOrigin( org );
+	for( ang_y = 0; ang_y < 360; ang_y += 45 ) {
+		dir = sys.angToForward( ang );
+		pos = pushPointIntoAAS( org + dir * CHAR_GETOUTOFWAY_DIST );
+		if ( testMoveToPosition( pos ) ) {
+			break;
+		}
+	}
+	setOrigin( oldorigin );
+
+	if ( ang_y >= 360 ) {
+		// no direction that we can move in, so don't do anything
+		return false;
+	}
+
+	// make sure we're inside the aas
+	moveToPosition( org );
+	while( !AI_MOVE_DONE ) {
+		check_cower();
+		if ( AI_TALK ) {
+			setState( "state_Idle" );
+		}
+		waitFrame();
+	}
+
+	turnToPos( pos );
+
+	// slide him the rest of the way to make sure we're fully in the aas
+	if ( org != getOrigin() ) {
+		slideTo( org, 0.2 );
+		while( !AI_MOVE_DONE ) {
+			check_cower();
+			if ( AI_TALK ) {
+				setState( "state_Idle" );
+			}
+			waitFrame();
+		}
+	}
+
+	// move out of the way
+	moveToPosition( pos );
+	while( !AI_MOVE_DONE ) {
+		check_cower();
+		if ( AI_TALK ) {
+			setState( "state_Idle" );
+		}
+		waitFrame();
+	}
+	
+	// turn around so we face the way we came
+	turnTo( getCurrentYaw() + 180 );
+
+	stopMove();
+
+	return true;
+}
+
+/*
+=====================
+character::checkBlocked
+=====================
+*/
+void character::checkBlocked() {
+	entity obstacle;
+	vector playerMoveDir;
+	character npc;
+	float allow_walk_dist;
+	float end_time;
+	boolean waitUntilPathClear;
+	float channel;
+	vector obstacle_pos;
+	vector delta;
+
+	if ( dont_push_others ) {
+		if ( moveStatus() >= MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+			// just wait for the path to be clear
+			obstacle = getObstacle();
+
+			if ( moveStatus() == MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+				kickObstacles( getObstacle(), 60 );
+				return;
+			}
+
+			obstacle_pos = obstacle.getOrigin();
+			saveMove();
+			stopMove();
+			while( 1 ) {
+				delta = obstacle_pos - obstacle.getOrigin();
+				delta_z = 0;
+				if ( sys.vecLength( delta ) > 4 ) {
+					restoreMove();
+					if ( moveStatus() < MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+						break;
+					}
+					if ( getObstacle() != obstacle ) {
+						break;
+					}
+					stopMove();
+				}
+				check_cower();
+				if ( AI_PUSHED ) {
+					getOutOfWay();
+				}
+				if ( AI_TALK ) {
+					setState( "state_Idle" );
+				}
+				waitFrame();
+			}
+		}
+		return;
+	}
+
+	waitUntilPathClear = false;
+	while( moveStatus() >= MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+		obstacle = getObstacle();
+		npc = obstacle;
+		if ( npc ) {
+			if ( npc.ignore_push ) {
+				// can't push this guy
+				break;
+			}
+		} else if ( moveStatus() == MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+			kickObstacles( getObstacle(), 60 );
+			break;
+		}
+
+		obstacle_pos = obstacle.getOrigin();
+
+		saveMove();
+		stopMove();
+
+		channel = playHeadAnim( "talk_excuseme", 8 );
+
+		// prevent an infinite loop if we don't have an excuse me anim
+		waitFrame();
+
+		while( !animDone( channel, 8 ) ) {
+			check_cower();
+			faceTowardsEntity( obstacle, 0.1 );
+			waitFrame();
+		}
+		endHeadAnim( 8 );
+
+		if ( npc ) {
+			npc.AI_PUSHED = true;
+			npc.lastPushTime = sys.getTime();
+			npc.pushTime = sys.getTime();
+			allow_walk_dist = CHAR_ALLOW_WALK_DIST_NPC;
+		} else {
+			allow_walk_dist = CHAR_ALLOW_WALK_DIST;
+		}
+
+		end_time = sys.getTime() + CHAR_WAIT_BLOCKED;
+		while( ( sys.getTime() < end_time ) || AI_PUSHED || waitUntilPathClear ) {
+			check_cower();
+			faceTowardsEntity( obstacle, 0.1 );
+
+			delta = obstacle_pos - obstacle.getOrigin();
+			delta_z = 0;
+			
+			if ( sys.vecLength( delta ) < 4 ) {
+				if ( sys.getTime() > end_time ) {
+					break;
+				}
+				if ( AI_PUSHED ) {
+					if ( getOutOfWay() ) {
+						waitUntilPathClear = true;
+						end_time = sys.getTime() + CHAR_WAIT_BLOCKED;
+					}
+				}
+			} else {
+				restoreMove();
+				if ( !AI_OBSTACLE_IN_PATH ) {
+					if ( !waitUntilPathClear || ( sys.getTime() > end_time ) ) {
+						break;
+					}
+				} else if ( getObstacle() != obstacle ) {
+					break;
+				}
+
+				if ( distanceTo( obstacle ) > allow_walk_dist ) {
+					break;
+				}
+				if ( moveStatus() >= MOVE_STATUS_BLOCKED_BY_OBJECT ) {
+					if ( AI_PUSHED ) {
+						if ( getOutOfWay() ) {
+							waitUntilPathClear = true;
+							end_time = sys.getTime() + CHAR_WAIT_BLOCKED;
+						}
+					}
+				}
+				stopMove();
+			}
+
+			if ( AI_TALK ) {
+				setState( "state_Idle" );
+			}
+
+			waitFrame();
+		}
+		restoreMove();
+	}
+}
+
+/***********************************************************************
+
+	path functions
+
+***********************************************************************/
+
+/*
+=====================
+character::path_corner
+=====================
+*/
+void character::path_corner() {
+	run = current_path.getIntKey( "run" );
+	walkAnim = current_path.getKey( "anim" );
+	moveToEntity( current_path );
+	waitFrame();
+	while( !AI_MOVE_DONE && !AI_TALK ) {
+		check_cower();
+		checkBlocked();
+		moveToEntity( current_path );
+		waitFrame();
+	}
+	walkAnim = "";
+	run = false;
+
+	if ( AI_TALK ) {
+		cancelPathCommand();
+		setState( "state_Idle" );
+	}
+	if ( AI_DEST_UNREACHABLE ) {
+		// Can't reach
+		sys.warning( "entity '" + getName() + "' couldn't reach path_corner '" + current_path.getName() + "'" );
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::path_anim
+=====================
+*/
+void character::path_anim() {
+	string	animname;
+	float	ang;
+	float	blend_in;
+	float	blend_out;
+	float	channel;
+
+	animname = current_path.getKey( "anim" );
+	blend_in = current_path.getIntKey( "blend_in" );
+	blend_out = current_path.getIntKey( "blend_out" );
+
+	if ( current_path.getKey( "angle" ) != "" ) {
+		ang = current_path.getFloatKey( "angle" );
+		turnTo( ang );
+		while( !facingIdeal() ) {
+			check_cower();
+			waitFrame();
+		}
+	}
+
+	if ( current_path.getIntKey( "head_anim" ) ) {
+		channel = playHeadAnim( animname, blend_in );
+		while( !animDone( channel, blend_out ) ) {
+			check_cower();
+			if ( AI_TALK ) {
+				endHeadAnim( blend_out );
+				sys.wait( blend_out / 24 );
+				cancelPathCommand();
+				setState( "state_Idle" );
+			}
+			waitFrame();
+		}
+		endHeadAnim( blend_out );
+	} else {
+		playCustomAnim( animname, blend_in, blend_out );
+		while( inCustomAnim() ) {
+			check_cower();
+			if ( AI_TALK ) {
+				endCustomAnim();
+				sys.wait( blend_out / 24 );
+				cancelPathCommand();
+				setState( "state_Idle" );
+			}
+			waitFrame();
+		}
+	}
+}
+
+/*
+=====================
+character::path_cycleanim
+=====================
+*/
+void character::path_cycleanim() {
+	string	animname;
+	float	ang;
+	float	blend_in;
+	float	blend_out;
+	float	waittime;
+
+	animname = current_path.getKey( "anim" );
+	blend_in = current_path.getIntKey( "blend_in" );
+	blend_out = current_path.getIntKey( "blend_out" );
+
+	waittime = current_path.getFloatKey( "wait" );
+
+	AI_ACTIVATED = false;
+
+	if ( current_path.getKey( "angle" ) != "" ) {
+		ang = current_path.getFloatKey( "angle" );
+		turnTo( ang );
+		while( !facingIdeal() ) {
+			if ( !waittime && AI_ACTIVATED ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+				return;
+			}
+			check_cower();
+			waitFrame();
+		}
+	}
+
+	playCustomCycle( animname, blend_in );
+
+	if ( waittime ) {
+		waittime += sys.getTime();
+		while( sys.getTime() < waittime ) {
+			check_cower();
+			if ( AI_TALK ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+				sys.wait( blend_out / 24 );
+				cancelPathCommand();
+				setState( "state_Idle" );
+			}
+			waitFrame();
+		}
+	} else {
+		while( !AI_ACTIVATED ) {
+			check_cower();
+			if ( AI_TALK ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+				sys.wait( blend_out / 24 );
+				cancelPathCommand();
+				setState( "state_Idle" );
+				return;
+			}
+			waitFrame();
+		}
+	}
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+}
+
+/*
+=====================
+character::path_turn
+=====================
+*/
+void character::path_turn() {
+	vector ang;
+
+	ang = current_path.getAngles();
+	turnTo( ang_y );
+
+	// wait 1 frame so that Legs_Idle can start turning.
+	waitFrame();
+
+	while( !facingIdeal() ) {
+		check_cower();
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::path_wait
+=====================
+*/
+void character::path_wait() {
+	float waittime;
+
+	waittime = current_path.getFloatKey( "wait" );
+	waittime += sys.getTime();
+	while( sys.getTime() < waittime ) {
+		check_cower();
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::path_waitfortrigger
+=====================
+*/
+void character::path_waitfortrigger() {
+	AI_ACTIVATED = false;
+	while( !AI_ACTIVATED ) {
+		check_cower();
+		if ( AI_TALK ) {
+			cancelPathCommand();
+			setState( "state_Idle" );
+		}
+		waitFrame();
+	}
+}
+			
+/*
+=====================
+character::path_hide
+=====================
+*/
+void character::path_hide() {
+	hide();
+}
+
+/*
+=====================
+character::path_show
+=====================
+*/
+void character::path_show() {
+	waitUntil( canBecomeSolid() );
+	show();
+}
+
+/*
+=====================
+character::skip_conversation
+=====================
+*/
+void character::skip_conversation() {
+	string classname;
+
+	classname = current_path.getKey( "classname" );
+	while( sys.strLeft( classname, 17 ) == "path_conversation" ) {
+		current_path = next_path;
+		next_path = next_path.randomPath();
+		if ( !next_path ) {
+			break;
+		}
+		classname = current_path.getKey( "classname" );
+	}
+	stopSound( SND_CHANNEL_VOICE, false );
+	if ( head ) {
+		head.stopSound( SND_CHANNEL_VOICE, false );
+	}
+}
+
+/*
+=====================
+character::break_out_of_conversation
+=====================
+*/
+void character::break_out_of_conversation() {
+	character listener;
+
+	// tell our listeners to skip out
+	while( next_listener ) {
+		listener = next_listener;
+		next_listener = listener.next_listener;
+		listener.skip_conversation();
+		listener.next_listener = $null_entity;
+		listener.listening_to_character  = $null_entity;
+	}
+
+	skip_conversation();
+}
+
+/*
+=====================
+character::path_conversation_listen
+=====================
+*/
+void character::path_conversation_listen() {
+	string	focus_character;
+	string	anim;
+	boolean no_look;
+	float	blend_in;
+	float	blend_out;
+	
+	stopMove();
+
+	focus_character = current_path.getKey( "focus" );
+	listening_to_character = sys.getEntity( focus_character );
+
+	anim = current_path.getKey( "anim" );
+	if ( anim != "" ) {
+		blend_in = current_path.getIntKey( "blend_in" );
+		blend_out = current_path.getIntKey( "blend_out" );
+		playCustomCycle( anim, blend_in );
+	}
+
+	no_look = current_path.getIntKey( "no_look" );
+
+	// link ourselves into the focus character's listeners
+	next_listener = listening_to_character.next_listener;
+	listening_to_character.next_listener = self;
+
+	while( listening_to_character ) {
+		if ( AI_TALK ) {
+			listening_to_character.break_out_of_conversation();
+			cancelPathCommand();
+			setState( "state_Idle" );
+		}
+		check_cower();
+		if ( !no_look ) {
+			lookAt( listening_to_character, 0.1 );
+		}
+		waitFrame();
+	}
+
+	if ( anim != "" ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+	}
+}
+
+/*
+=====================
+character::path_conversation
+=====================
+*/
+void character::path_conversation() {
+	string		dialog;
+	string		anim;
+	string		focus_character;
+	float		waitTime;
+	entity		listener;
+	character	char_listener;
+	float		blend_in;
+	float		blend_out;
+	float		channel;
+
+	stopMove();
+
+	anim = current_path.getKey( "anim" );
+	focus_character = current_path.getKey( "focus" );
+	waitTime = current_path.getFloatKey( "wait" );
+	listener = sys.getEntity( focus_character );
+	blend_in = current_path.getIntKey( "blend_in" );
+	blend_out = current_path.getIntKey( "blend_out" );
+
+	// say the conversation line
+	dialog = current_path.getKey( "snd_dialog" );
+	if ( dialog != "" ) {
+		startSoundShader( dialog, SND_CHANNEL_VOICE );
+	}
+
+	setBlendFrames( ANIMCHANNEL_LEGS, blend_in );
+	if ( getHead() ) {
+		animState( ANIMCHANNEL_HEAD, "Anim_Disable", blend_in );
+	}
+
+	channel = playHeadAnim( anim, blend_in );
+	while( !animDone( channel, blend_out ) ) {
+		if ( AI_TALK ) {
+			break;
+		}
+		check_cower();
+		lookAt( listener, 0.1 );
+		waitFrame();
+	}
+
+	endHeadAnim( blend_out );
+
+	if ( AI_TALK ) {
+		break_out_of_conversation();
+		cancelPathCommand();
+		setState( "state_Idle" );
+	}
+
+	if ( waitTime ) {
+		// wait for a bit
+		waitTime += sys.getTime();
+		while( waitTime > sys.getTime() ) {
+			if ( AI_TALK ) {
+				break_out_of_conversation();
+				cancelPathCommand();
+				setState( "state_Idle" );
+			}
+			check_cower();
+			lookAt( listener, 0.1 );
+			waitFrame();
+		}
+	}
+
+	// tell our listeners we're done
+	while( next_listener ) {
+		char_listener = next_listener;
+		next_listener = char_listener.next_listener;
+		char_listener.next_listener = $null_entity;
+		char_listener.listening_to_character  = $null_entity;
+	}
+}
+
+/*
+=====================
+character::path_headanim
+=====================
+*/
+void character::path_headanim() {
+	float blendIn;
+	
+	blendIn = current_path.getIntKey( "blend_in" );
+	customBlendOut = current_path.getIntKey( "blend_out" );
+	customAnim = current_path.getKey( "anim" );
+	animState( ANIMCHANNEL_HEAD, "Head_TalkHeadOnly", blendIn );
+}
+
+/*
+=====================
+character::path_waitforheadanim
+=====================
+*/
+void character::path_waitforheadanim() {
+	string	focus_entity;
+	entity	focus;
+	
+	stopMove();
+
+	focus_entity = current_path.getKey( "focus" );
+	focus = sys.getEntity( focus_entity );
+
+	while( inAnimState( ANIMCHANNEL_HEAD, "Head_TalkHeadOnly" ) ) {
+		if ( AI_TALK ) {
+			cancelPathCommand();
+			setState( "state_Idle" );
+		}
+		check_cower();
+		lookAt( focus, 0.1 );
+		waitFrame();
+	}
+}
+
+/*
+=====================
+character::path_talk
+
+forces character to talk to the player
+=====================
+*/
+void character::path_talk() {
+	setTalkTarget( $player1 );
+	idle_talk();
+}
+
+/*
+=====================
+character::path_talk_triggered
+
+forces character to say his triggered talk anim to the player
+=====================
+*/
+void character::path_talk_triggered() {
+	talkMode = CHAR_TALK_TRIGGERED;
+	setTalkTarget( $player1 );
+	idle_talk();
+}
+
+/*
+=====================
+character::path_talk_primary
+
+forces character to say his primary talk anim to the player
+=====================
+*/
+void character::path_talk_primary() {
+	talkMode = CHAR_TALK_PRIMARY;
+	setTalkTarget( $player1 );
+	idle_talk();
+}
+
+/*
+=====================
+character::path_talk_secondary
+
+forces character to say his secondary talk anim to the player
+=====================
+*/
+void character::path_talk_secondary() {
+	talkMode = CHAR_TALK_SECONDARY;
+	setTalkTarget( $player1 );
+	idle_talk();
+}
+
+/*
+=====================
+character::path_lookat
+=====================
+*/
+void character::path_lookat() {
+	string		dialog;
+	string		anim;
+	string		focus_entity;
+	float		waitTime;
+	entity		focus;
+	float		blend_in;
+	float		blend_out;
+	
+	stopMove();
+
+	anim = current_path.getKey( "anim" );
+	blend_in = current_path.getIntKey( "blend_in" );
+	blend_out = current_path.getIntKey( "blend_out" );
+	focus_entity = current_path.getKey( "focus" );
+	focus = sys.getEntity( focus_entity );
+	waitTime = current_path.getFloatKey( "wait" );
+
+	if ( anim != "" ) {
+		playCustomCycle( anim, blend_in );
+	}
+
+	if ( !waitTime ) {
+		AI_ACTIVATED = false;
+		while( !AI_ACTIVATED ) {
+			if ( AI_TALK ) {
+				cancelPathCommand();
+				if ( anim != "" ) {
+					animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+				}
+				setState( "state_Idle" );
+			}
+			check_cower();
+			lookAt( focus, 0.1 );
+			waitFrame();
+		}
+	} else {
+		waitTime += sys.getTime();
+		AI_ACTIVATED = false;
+		while( waitTime > sys.getTime() ) {
+			if ( AI_ACTIVATED ) {
+				break;
+			}
+			if ( AI_TALK ) {
+				if ( anim != "" ) {
+					animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+				}
+				cancelPathCommand();
+				setState( "state_Idle" );
+			}
+			check_cower();
+			lookAt( focus, 0.1 );
+			waitFrame();
+		}
+	}
+
+	if ( anim != "" ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Idle", blend_out );
+	}
+}
+
+/*
+=====================
+character::state_FollowAlternatePath
+=====================
+*/
+void character::state_FollowAlternatePath() {
+	endHeadAnim( 8 );
+
+	idle_followPathEntities( current_path );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+character::follow_alternate_path1
+=====================
+*/
+void character::follow_alternate_path1() {
+	current_path = getEntityKey( "alt_path1" );
+	setState( "state_FollowAlternatePath" );
+}
+
+/*
+=====================
+character::follow_alternate_path2
+=====================
+*/
+void character::follow_alternate_path2() {
+	current_path = getEntityKey( "alt_path2" );
+	setState( "state_FollowAlternatePath" );
+}
+
+/*
+=====================
+character::follow_alternate_path3
+=====================
+*/
+void character::follow_alternate_path3() {
+	current_path = getEntityKey( "alt_path3" );
+	setState( "state_FollowAlternatePath" );
+}
+
+/*
+=====================
+character::disable_turning
+=====================
+*/
+void character::disable_turning() {
+	allow_turn = false;
+}
+
+/*
+=====================
+character::enable_turning
+=====================
+*/
+void character::enable_turning() {
+	allow_turn = true;
+}

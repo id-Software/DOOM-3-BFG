@@ -1,0 +1,93 @@
+models/monsters/vulgar/vulgar_eyes2
+{
+	noShadows
+	//deform sprite
+	//discrete
+	nonsolid
+	noimpact
+
+	{       
+		if ( parm7 == 0 )
+      	 blend	add
+	 map	models/monsters/vulgar/vulgar_eyes.tga
+	rgb		eyestable[ time * .1 ]
+	}
+
+
+ }
+
+models/monsters/vulgar/vulgar2
+
+{
+    noselfShadow
+	unsmoothedTangents
+	flesh
+	clamp
+	renderbump  -size 1024 1024 -trace 0.02 -colorMap -aa 2  models/monsters/vulgar/vulgar_local.tga models/monsters/vulgar/vulgar_hi.lwo
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	forceOverlays 
+ 	
+	    diffusemap	    models/monsters/vulgar/vulgar.tga
+		bumpmap		addnormals(models/monsters/vulgar/vulgar_local.tga, heightmap(models/monsters/vulgar/vulgar_h.tga, 30 ) )
+	    specularmap  models/monsters/vulgar/vulgar_s.tga
+	
+
+
+}
+
+models/monsters/vulgar/vtail2
+
+{
+    noselfShadow
+	unsmoothedTangents
+	flesh
+	clamp
+	renderbump  -size 1024 128 -trace 0.02   models/monsters/vulgar/vtail_local.tga models/monsters/vulgar/vtail_hi.lwo
+
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	forceOverlays 
+
+		diffusemap		models/monsters/vulgar/vtail.tga
+		bumpmap			models/monsters/vulgar/vtail_local.tga
+		specularmap		models/monsters/vulgar/vtail_s.tga
+
+}

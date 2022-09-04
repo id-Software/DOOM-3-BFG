@@ -1,0 +1,54 @@
+/***********************************************************************
+
+	monster_demon_imp_d3xp.def
+
+***********************************************************************/
+export Ronn2 {
+ 	options -prefix IMP_ -keep Lknee Rknee Lelbow Relbow camera Body -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent Hips Body -parent Waist Body -parent camera Head
+
+ 	addoptions -sourcedir models/monsters/imp/cycles
+	addoptions -destdir models/md5/monsters/imp
+
+
+	anim	e2_pillar_idle.mb
+	anim	e2_pillar_leap.mb
+	anim	e2_catwalk_idle.mb
+	anim	e2_catwalk_climb.mb
+
+}
+
+model monster_demon_imp_d3xp {
+	inherit							"monster_demon_imp"
+
+	anim e2_pillar_leap				  	models/md5/monsters/imp/e2_pillar_leap.md5anim {
+		ai_no_turn
+		frame 1							sound_body snd_sight
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+
+	anim e2_pillar_idle				  	models/md5/monsters/imp/e2_pillar_idle.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+
+	anim e2_catwalk_climb				  	models/md5/monsters/imp/e2_catwalk_climb.md5anim {
+			ai_no_turn
+			frame 1							sound_body snd_sight
+			frame 1							disableGravity
+			frame 1							disableWalkIK
+	}
+
+	anim e2_catwalk_idle				  	models/md5/monsters/imp/e2_catwalk_idle.md5anim {
+				ai_no_turn
+				frame 1							disableGravity
+				frame 1							disableWalkIK
+	}
+
+}
+
+entityDef monster_demon_imp_d3xp {
+	"inherit"						"monster_demon_imp"
+	"model"							"monster_demon_imp_d3xp"
+}

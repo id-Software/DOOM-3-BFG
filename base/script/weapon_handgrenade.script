@@ -1,0 +1,267 @@
+/***********************************************************************
+
+weapon_handgrenade.script
+
+***********************************************************************/
+
+#define HANDGRENADE_MINRELEASETIME		0.05
+#define HANDGRENADE_FUSE				3
+#define HANDGRENADE_QUICKTHROWTIME		.2
+#define HANDGRENADE_MINPOWER			1.5
+#define HANDGRENADE_MAXPOWER			6
+#define HANDGRENADE_QUICKTHROWLAUNCH	0.55
+#define HANDGRENADE_NORMALTHROWLAUNCH	0.3
+#define HANDGRENADE_NUMPROJECTILES		1
+
+// blend times
+#define HANDGRENADE_IDLE_TO_LOWER		4
+#define HANDGRENADE_IDLE_TO_FIRE		4
+#define HANDGRENADE_RAISE_TO_IDLE		4
+#define HANDGRENADE_FIRE_TO_IDLE		4
+
+object weapon_handgrenade : weapon_base {
+	float		spread;
+	float		fuse_start;
+	string		skin_nade;
+	string		skin_nade_invis;
+	string		skin_nonade;
+	string		skin_nonade_invis;
+	entity		projectile;
+	
+	boolean		show_grenade;
+	
+	void		init();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		EnterCinematic();
+	void		ExitCinematic();
+	void		WeaponStolen();
+	void		OwnerDied();
+	void		ExplodeInHand();
+	
+				// called by the game
+	void		UpdateSkin();
+	
+				// used by anim frame commands
+	void		GrenadeNade();
+	void		GrenadeNoNade();
+};
+
+void weapon_handgrenade::init() {
+	spread				= getFloatKey( "spread" );
+	skin_nade			= getKey( "skin_nade" );
+	skin_nade_invis		= getKey( "skin_nade_invis" );
+	skin_nonade			= getKey( "skin_nonade" );
+	skin_nonade_invis	= getKey( "skin_nonade_invis" );
+	
+	GrenadeNade();
+	
+	weaponState( "Raise", 0 );
+}
+
+void weapon_handgrenade::Raise() {
+	if ( !ammoAvailable() ) {
+		weaponHolstered();
+		nextWeapon();
+		return;
+	}
+	
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, HANDGRENADE_RAISE_TO_IDLE ) );
+	weaponState( "Idle", HANDGRENADE_RAISE_TO_IDLE );
+}
+
+void weapon_handgrenade::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_handgrenade::Idle() {
+	weaponReady();
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", HANDGRENADE_IDLE_TO_LOWER );
+		}
+		if ( WEAPON_ATTACK ) {
+			weaponState( "Fire", HANDGRENADE_IDLE_TO_FIRE );
+		}
+		waitFrame();
+	}
+}
+
+void weapon_handgrenade::Fire() {
+	float fuse_end;
+	float current_time;
+	float time_held;
+	float power;
+	boolean exploded;
+	
+	projectile = createProjectile();
+
+	if ( projectile ) {
+		projectile.startSound( "snd_throw", SND_CHANNEL_BODY, true );
+	}
+	
+	playAnim( ANIMCHANNEL_ALL, "throw_start" );
+	
+	current_time = sys.getTime();
+	fuse_start = current_time;
+	fuse_end = current_time + HANDGRENADE_FUSE;
+	while( current_time < fuse_end ) {
+		if ( ( current_time > fuse_start + HANDGRENADE_MINRELEASETIME ) && !WEAPON_ATTACK ) {
+			break;
+		}
+		waitFrame();
+		current_time = sys.getTime();
+	}
+	
+	time_held = current_time - fuse_start;
+	power = time_held + HANDGRENADE_MINPOWER;
+	if ( power > HANDGRENADE_MAXPOWER ) {
+		power = HANDGRENADE_MAXPOWER;
+	}
+
+	if ( time_held < HANDGRENADE_QUICKTHROWTIME ) {
+		playAnim( ANIMCHANNEL_ALL, "throw_quick" );
+		sys.wait( HANDGRENADE_QUICKTHROWLAUNCH );
+		exploded = false;
+	} else if ( time_held < HANDGRENADE_FUSE ) {
+		playAnim( ANIMCHANNEL_ALL, "throw" );
+		sys.wait( HANDGRENADE_NORMALTHROWLAUNCH	);
+		exploded = false;
+	} else {
+		// no anim.  grenade just blows up
+		ExplodeInHand();
+		exploded = true;
+	}
+	
+	if ( !exploded ) {
+		GrenadeNoNade();
+		current_time = sys.getTime();
+		if ( projectile ) {
+			projectile.show();
+			projectile.unbind();
+			launchProjectiles( HANDGRENADE_NUMPROJECTILES, spread, current_time - fuse_start, power, 1.0 );
+			projectile = $null_entity;
+		}
+
+		waitUntil( animDone( ANIMCHANNEL_ALL, HANDGRENADE_FIRE_TO_IDLE ) );
+	}
+	
+	if ( !ammoAvailable() ) {
+		weaponHolstered();
+		nextWeapon();
+	} else {
+		GrenadeNade();
+		weaponState( "Idle", HANDGRENADE_FIRE_TO_IDLE );
+	}
+}
+
+void weapon_handgrenade::EnterCinematic() {
+	if ( projectile ) {
+		projectile.remove();
+		projectile = $null_entity;		
+	}
+	weaponState( "Idle", 0 );
+}
+
+void weapon_handgrenade::ExitCinematic() {
+	if ( !ammoAvailable() ) {
+		weaponHolstered();
+		nextWeapon();
+	} else {
+		GrenadeNade();
+		weaponState( "Idle", 0 );
+	}
+}
+
+void weapon_handgrenade::GrenadeNade() {
+	show_grenade = true;
+	UpdateSkin();
+}
+
+void weapon_handgrenade::GrenadeNoNade() {
+	show_grenade = false;
+	UpdateSkin();
+}
+
+void weapon_handgrenade::UpdateSkin() {
+	if ( !show_grenade ) {
+		if ( isInvisible() ) {
+			setSkin( skin_nonade_invis );
+		} else {
+			setSkin( skin_nonade );
+		}
+	} else {
+		if ( isInvisible() ) {
+			setSkin( skin_nade_invis );
+		} else {
+			setSkin( skin_nade );
+		}
+	}
+}
+
+void weapon_handgrenade::WeaponStolen() {
+	if ( projectile ) {
+		projectile.remove();
+		projectile = $null_entity;		
+	}
+}
+
+void weapon_handgrenade::OwnerDied() {
+	float time_held;
+
+	if ( projectile ) {
+		time_held = sys.getTime() - fuse_start;
+		projectile.show();
+		projectile.unbind();
+
+		// allow grenade to drop
+		launchProjectiles( HANDGRENADE_NUMPROJECTILES, spread, time_held, 0, 1.0 );
+
+		projectile = $null_entity;
+	}
+}
+
+void weapon_handgrenade::ExplodeInHand() {
+	string	entname;
+	entity	explosion;
+	vector	forward;
+	vector	angles;
+	entity	owner;
+
+	if ( projectile ) {
+		projectile.remove();
+		projectile = $null_entity;
+	}
+
+	owner = getOwner();
+
+	GrenadeNoNade();
+	startSound( "snd_explode", SND_CHANNEL_ANY, false );
+
+	if ( !sys.isClient() ) {
+		useAmmo( HANDGRENADE_NUMPROJECTILES );
+
+		angles = owner.getViewAngles();
+		forward = sys.angToForward( angles );
+
+		entname = getKey( "def_explode_inhand" );
+		explosion = sys.spawn( entname );
+		explosion.setOrigin( getOrigin() + forward * 16 );
+		explosion.setShaderParm( SHADERPARM_TIMEOFFSET, -sys.getTime() );
+		delayRemove( explosion, 2 );
+
+		// this should kill us
+		sys.radiusDamage( getOrigin(), self, owner, $null_entity, getKey( "def_damage_inhand" ), 1.0 );
+	}
+}

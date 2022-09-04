@@ -1,0 +1,75 @@
+export jay4 {
+
+	options -prefix PLAT_ -sourcedir models/mapobjects/phobos/bridge/cycles/ //-destdir models/md5/environments/phobos
+
+	mesh	idle.mb -dest models/md5/environments/phobos/bridge
+	anim	idle.mb -range 1 1 -dest models/md5/environments/phobos/closed_idle
+	anim	idle.mb -range 1 134 -dest models/md5/environments/phobos/opening
+	anim	idle.mb -range 134 134 -dest models/md5/environments/phobos/opening_idle
+
+}
+
+model env_phobos_bridge {
+	mesh				models/md5/environments/phobos/bridge.md5mesh
+	anim closed			models/md5/environments/phobos/closed_idle.md5anim
+	// -- Xian Start
+	anim opening			models/md5/environments/phobos/opening.md5anim{
+		frame 1				call map_phobos3::p3_bridge1
+		frame 1				trigger reactor_bridge_hurt01
+		frame 12			call map_phobos3::p3_bridge2
+		frame 12			trigger reactor_bridge_hurt02
+		frame 24			call map_phobos3::p3_bridge3
+		frame 24			trigger reactor_bridge_hurt03
+		frame 36			call map_phobos3::p3_bridge4
+		frame 36			trigger reactor_bridge_hurt04
+		frame 48			call map_phobos3::p3_bridge5
+		frame 48			trigger reactor_bridge_hurt05
+		frame 60			call map_phobos3::p3_bridge6
+		frame 60			trigger reactor_bridge_hurt06
+		frame 72			call map_phobos3::p3_bridge7
+		frame 72			trigger reactor_bridge_hurt07
+		frame 84			call map_phobos3::p3_bridge8
+		frame 84			trigger reactor_bridge_hurt08		
+
+		frame 24			call map_phobos3::p3_bridge1a
+		frame 35			call map_phobos3::p3_bridge2a
+		frame 48			call map_phobos3::p3_bridge3a
+		frame 60			call map_phobos3::p3_bridge4a
+		frame 72			call map_phobos3::p3_bridge5a
+		frame 84			call map_phobos3::p3_bridge6a
+		frame 96			call map_phobos3::p3_bridge7a
+		frame 108			call map_phobos3::p3_bridge8a
+		
+		frame 40			call map_phobos3::p3_bridge1b
+		frame 40			trigger reactor_bridge_hurt01
+		frame 53			call map_phobos3::p3_bridge2b
+		frame 53			trigger reactor_bridge_hurt02
+		frame 65			call map_phobos3::p3_bridge3b
+		frame 65			trigger reactor_bridge_hurt03
+		frame 76			call map_phobos3::p3_bridge4b
+		frame 76			trigger reactor_bridge_hurt04
+		frame 88			call map_phobos3::p3_bridge5b
+		frame 88			trigger reactor_bridge_hurt05
+		frame 100			call map_phobos3::p3_bridge6b
+		frame 100			trigger reactor_bridge_hurt06
+		frame 113			call map_phobos3::p3_bridge7b
+		frame 113			trigger reactor_bridge_hurt07
+		frame 122			call map_phobos3::p3_bridge8b
+		frame 122			trigger reactor_bridge_hurt08
+	}
+	// -- Xian End
+	anim open			models/md5/environments/phobos/opening_idle.md5anim
+
+}
+
+entityDef env_phobos_bridge {
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+									
+	"spawnclass"			"idAnimated"
+	"model"				"env_phobos_bridge"
+	"anim"				"open"
+	
+	"combatModel"			"1"
+}

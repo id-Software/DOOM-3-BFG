@@ -1,0 +1,231 @@
+// Xian Stuff
+
+table xTestTable { snap clamp { 0, 0.5, 1 } }
+
+//===============================================================
+//sound shaders
+//==================================================================
+
+lights/lightgratelight_snd
+{	
+	{
+		map	lights/lightgratelight
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+
+lights/warmup_squarelight_snd
+{	
+	{
+		map		lights/squarelight1.tga
+		// Parm6 == current time
+		red 		xTestTable [ ( time - Parm6 ) * 0.25 ] * sound * Parm0
+		green 		xTestTable [ ( time - Parm6 ) * 0.25 ] * sound * Parm1
+		blue 		xTestTable [ ( time - Parm6 ) * 0.25 ] * sound * Parm2
+		zeroclamp
+	}
+}
+
+lights/newalphagrate3_snd
+{	
+	{
+		map	lights/newalphagrate3
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroclamp
+	}
+}
+
+
+lights/duolight02_snd_cv
+{
+	{
+		map	lights/duolight02grey.tga
+		colored
+
+//		red 	( neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm0 * sound
+//		green 	( neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm1 * sound
+//		blue 	( neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm2 * sound
+
+		red 	Parm0 * sound
+		green 	Parm1 * sound
+		blue 	Parm2 * sound
+	
+	}
+}
+
+/***
+ DO NOT EVER CHANGE THE BELOW SHADER ! (lights/squarelight1_snd)
+ IT WORKS ! Copy it and create a new entry if you must.
+ -Xian
+***/
+
+lights/squarelight1_snd
+{	
+	{
+		map		lights/squarelight1.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroclamp
+	}
+}
+
+lights/squarelight1_snd_noflicker
+{	
+	{
+		map			lights/squarelight1.tga
+		red 		Parm0
+		green 		Parm1
+		blue 		Parm2
+		zeroclamp
+	}
+}
+
+lights/biground1_snd_noflicker
+{	
+	{
+		map	lights/biground1.tga
+		red 		Parm0
+		green 		Parm1
+		blue 		Parm2
+		zeroclamp
+	}
+}
+
+
+
+lights/squarelight1_snd_cave_group1
+{	
+	{
+		map		lights/squarelight1.tga
+		red 		(sound * Parm0) * global0
+		green 		(sound * Parm1) * global0
+		blue 		(sound * Parm2) * global0
+		zeroclamp
+	}
+}
+
+lights/squarelight1_snd_cave_group2
+{	
+	{
+		map		lights/squarelight1.tga
+		red 		(sound * Parm0) * global1
+		green 		(sound * Parm1) * global1
+		blue 		(sound * Parm2) * global1
+		zeroclamp
+	}
+}
+
+lights/squarelight1_snd_cave_group3
+{	
+	{
+		map		lights/squarelight1.tga
+		red 		(sound * Parm0) * global2
+		green 		(sound * Parm1) * global2
+		blue 		(sound * Parm2) * global2
+		zeroclamp
+	}
+}
+
+lights/spot01_snd
+{	
+	{
+		map		lights/spot01.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroclamp
+	}
+}
+
+
+// The lights oscillate with half the amplitude of the sound so there is not as much flicker.
+// - Xian (Feb.25.2002)
+
+lights/squarelight1_snd_softer
+{
+	{
+		map		lights/squarelight1.tga
+		red 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		green		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		blue 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		zeroclamp
+	}
+}
+
+lights/squarelight_breakable_softer
+{
+	{	
+		map		lights/squarelight1.tga
+
+//		red 		( xTestTable [ sound ] ) * Parm0
+//		green		( xTestTable [ sound ] ) * Parm1
+//		blue 		( xTestTable [ sound ] ) * Parm2
+
+		red 		sound * Parm0
+		green		sound * Parm1
+		blue 		sound * Parm2
+
+//		red 		( 0.15 + ( 0.85 * sound ) ) * Parm0
+//		green		( 0.15 + ( 0.85 * sound ) ) * Parm0
+//		blue 		( 0.15 + ( 0.85 * sound ) ) * Parm0
+
+
+		zeroclamp
+	}
+}
+
+lights/blamplight_still_cv_breakable_softer
+{
+	{if ( parm7 == 0 )
+		map	lights/blamplight_cv.tga
+		red 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		green		( 0.75 + ( 0.25 * sound ) ) * Parm1
+		blue 		( 0.75 + ( 0.25 * sound ) ) * Parm2
+		zeroclamp
+	}
+	{if ( parm7 != 0 )
+		map	lights/blamplight_cv.tga
+		red 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		green		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		blue 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		zeroclamp
+	}
+}
+
+
+
+// -Xian (Feb.4.2002)
+// Use shaderParm3 to adjust the volume of the sound
+//
+
+lights/squarelight1_snd_negative
+{	
+	{
+		map		lights/squarelight1.tga
+		red 		( ( 1 - sound ) * Parm0 ) * Parm3
+		green 		( ( 1 - sound ) * Parm1 ) * Parm3
+		blue 		( ( 1 - sound ) * Parm2 ) * Parm3
+		zeroclamp
+	}
+}
+
+
+// =======================================================================
+
+lights/squarelight1_snd_mod 
+{
+	{
+		map		lights/squarelight1.tga
+		red 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		green		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		blue 		( 0.75 + ( 0.25 * sound ) ) * Parm0
+		zeroclamp		
+	}
+}

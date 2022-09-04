@@ -1,0 +1,1732 @@
+/* this flare uses parm4 to modify the size */
+textures/smf/flareSizeable
+{
+	noshadows
+	translucent
+	nonsolid
+	//deform flare 		( 2 + parm4 )
+	qer_editorimage		textures/editor/flare.tga
+	{
+	                Program           heatHaze.vfp
+	                vertexParm              0       0.5 + time*2, 0.12 // texture scrolling
+	                vertexParm              1       .8        // magnitude of the distortion
+	                fragmentProgram			heatHaze.vfp
+	                fragmentMap             0       _currentRender
+	                fragmentMap             1       textures/sfx/grabber_beam_warp.tga  // the normal map for distortion
+
+    }
+	{
+		if ( parm7 == 0 )
+		map			textures/sfx/grabber_beam_fx.tga
+		blend		add
+
+		translate	time*2, 0
+		scale		0.75, 1
+	}
+	{
+		if ( parm7 == 0 )
+		map			textures/sfx/grabber_beam_fx.tga
+		blend		add
+
+		translate	0.5 + time*4, 0.12 * sinTable[time*2]
+		scale		0.5, 0.9
+	}
+}
+
+models/smf/white
+{
+	qer_editorimage		models/smf/white.tga
+	bumpmap				_flat
+	diffusemap			_white
+}
+
+textures/smf/mirror
+{
+	discrete
+	translucent
+	noshadows
+
+	qer_editorimage	textures/sfx/shatterglass01.tga
+/*
+	{
+		blend diffuseMap
+		map textures/sfx/shatterglass01_d.tga
+//		map textures/washroom/mirror.tga
+	}
+*/
+	{
+		mirrorRenderMap		512 512		// size of the texture to draw the mirror view in
+		blend	blend
+
+		// tint
+		red		0.7
+		green	0.7
+		blue	0.8
+
+		// opacity
+		alpha	1
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+}
+
+textures/smf/window
+{
+	discrete
+	translucent
+	noshadows
+	suppressInSubview
+	twoSided
+
+	qer_editorimage	textures/sfx/shatterglass01.tga
+
+	{
+		xrayRenderMap		512 512		// size of the texture to draw the mirror view in
+		blend	blend
+
+		// tint
+		red		0
+		green	1
+		blue	0
+
+		// opacity
+		alpha	1
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+}
+
+textures/smf/chiglass1blue2
+{
+	translucent
+//	polygonOffset
+	{
+		privatePolygonOffset
+		map						_white
+		red						0
+		blue					0
+		green					0
+	}
+}
+
+textures/smf/chiglass1blue
+{
+	translucent
+//	polygonOffset
+	{
+		privatePolygonOffset
+		Program					heatHaze_smf.vfp
+		fragmentProgram			heatHaze_smf.vfp
+	}
+}
+
+/*
+textures/smf/chiglass1blue
+{
+//	noshadows
+//	translucent
+//	twoSided
+//	sort nearest
+//	glass
+//	polygonOffset
+	{
+//		privatePolygonOffset
+		Program					heatHaze_smf.vfp
+		vertexParm				0       0.5 + time*0.1, 0.12 // texture scrolling
+		vertexParm				1       3        // magnitude of the distortion
+		fragmentProgram			heatHaze_smf.vfp
+		fragmentMap				0       _currentRender
+		fragmentMap				1       textures/sfx/grabber_beam_warp.tga  // the normal map for distortion
+	}
+}
+*/
+
+textures/smf/window_scratch2
+{
+	noshadows
+	translucent
+	twoSided
+//	polygonOffset
+	{
+		Program				xray.vfp
+		vertexParm			0       0.5 + time*0.1, 0.12					// texture scrolling
+		vertexParm			1       3										// magnitude of the distortion
+		fragmentProgram		xray.vfp
+		fragmentMap			0       _scratch2
+	}
+}
+
+textures/smf/window_scratch
+{
+	translucent
+	noshadows
+	twoSided
+
+	// black stage
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+
+	// small-square stage
+	{
+		blend	blend
+		map		guis/assets/cpuserver/bg.tga
+		red		1
+		green	1
+		blue	1
+		alpha	0.3
+		scale	40, 40
+	}
+
+	// noise stage
+	{
+		blend	blend
+		map		textures/sfx/monitor_glass2.tga
+		scale	2, 2
+		translate	time * 5 , time * 3
+		red		flickertable [ time * 2 ]
+		green	flickertable [ time * 2 ]
+		blue	flickertable [ time * 2 ]
+		alpha	0.1
+	}
+
+	// xray stage1
+	{
+		screen
+		map _scratch2
+		blend	add
+
+		// tint
+		red		0
+		green	1
+		blue	0.2
+
+		// opacity
+		alpha	1
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+
+	// xray stage2
+	{
+		screen
+		map _scratch2
+		blend	add
+
+		// tint
+		red		0
+		green	0.6 + 0.4 * sintable[time*0.5]
+		blue	0.6 + 0.4 * sintable[time*0.5]
+
+		// opacity
+		alpha	1
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+
+	// xray stage3
+	{
+		screen
+		map _scratch2
+		blend	add
+
+		// tint
+		red		0
+		green	0.6 + 0.4 * sintable[time*0.5]
+		blue	0.6 + 0.4 * sintable[time*0.5]
+
+		// opacity
+		alpha	1
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+
+	// xray stage4
+	{
+		screen
+		map _scratch2
+		blend	add
+
+		// tint
+		red		0
+		green	0.6 + 0.4 * sintable[time*0.5]
+		blue	0.6 + 0.4 * sintable[time*0.5]
+
+		// opacity
+		alpha	1
+
+		// fix up the projection
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+}
+
+texture/smf/lostsoul2_tail
+{
+	discrete
+	translucent
+	noshadows
+	deform particle lostsoul2_tail
+
+	{
+		map	_white
+		red 0
+		green 0
+		blue 0
+	}
+}
+
+textures/object/tecpipebraid2_smf
+{
+	discrete
+	translucent
+	noshadows
+	deform particle lostsoul2_tail
+
+	{
+		map	_white
+		red 0
+		green 0
+		blue 0
+		alpha 0
+	}
+}
+
+texture/smf/skeleton
+{
+	renderbump  -size 1024 1024 -trace 0.02 -colorMap -aa 2  models/monsters/skeleton/skeleton01_local.tga models/monsters/skeleton/skeleton_hi.lwo
+
+	unsmoothedTangents
+ 	noselfShadow
+	noshadows
+	nonsolid
+	noimpact
+	collision
+	spectrum 21
+
+	diffusemap	models/monsters/skeleton/skeleton01_d.tga
+	specularmap	models/monsters/skeleton/skeleton01_s.tga
+	bumpmap		addnormals( models/monsters/skeleton/skeleton01_local.tga, heightmap(models/monsters/skeleton/skeleton01_h.tga, 6) )
+}
+
+lights/spectrum_21_xray
+{
+	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+	spectrum 21
+	{
+		forceHighQuality
+		map lights/squarelight1.tga
+		colored
+		zeroClamp
+	}
+}
+
+textures/smf/warp
+{
+//	twoSided
+//	suppressInSubview
+	{
+		map			_currentRender
+		red			1
+		green		1
+		blue		1
+	}
+}
+
+textures/smf/scratch
+{
+	{
+		map			_scratch
+		red			1
+		green		1
+		blue		1
+	}
+}
+
+textures/smf/scratch2
+{
+	{
+		map			_scratch2
+		red			1
+		green		1
+		blue		1
+	}
+}
+
+textures/smf/scratch2_add
+{
+	{
+		map			_scratch2
+		red			1
+		green		1
+		blue		1
+		alpha		1
+		blend		add
+	}
+}
+
+// DHM - Envirosuit
+models/viewmodels/visor
+{
+	nonsolid
+	noimpact
+	sort 12
+	{
+		blend	diffusemap
+		red		0
+		green	0
+		blue	0
+		map		models/viewmodels/visor.tga
+	}
+}
+
+models/viewmodels/visor_glass
+{
+	twoSided
+	noshadows
+	nonsolid
+	noimpact
+	translucent
+	sort 12
+
+	// WARP-GRADIENT TEXTURE STAGE
+	{
+		if ( global6 == 0 )
+
+		highquality
+		glassWarp
+		translate	0.5 , 0.5
+		scale		0.5 , 0.5
+
+		map			textures/sfx/glasswarp.tga
+		alpha		1
+		blend		blend
+	}
+	{
+		if ( global6 == 0 )
+
+		highquality
+		map			textures/sfx/act1glass_d.tga
+		alpha		0
+		blend		blend
+	}
+}
+
+
+
+
+lights/envirolight
+{
+	lightFalloffImage	makeIntensity( lights/flashoff.tga )
+	{
+		map	lights/round.tga
+		zeroClamp
+		colored
+		rgb		bathroomtable[ time * .25 ] * parm3
+	}
+}
+
+models/characters/player/playerhead_reflection
+{
+        noselfShadow
+		noShadows
+	renderbump  -size 512 512 -trace 0.07 -colorMap -aa 2  models/characters/player/playerhead_local.tga models/characters/player/playerhead_hi.lwo
+
+
+
+        	diffusemap	 models/characters/player/playerhead.tga
+		{
+ 		  blend bumpmap
+          map  addnormals(models/characters/player/playerhead_local.tga, heightmap(models/characters/player/playerhead_h.tga, 3 ) )
+ 		  highquality
+     	}
+          specularmap	 models/characters/player/playerhead_s.tga
+}
+
+models/characters/common/teethplayer_reflection
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+
+}
+
+models/characters/common/rightplayer_reflection
+{
+	translucent
+	noshadows
+        noselfShadow
+//	deform	eyeBall
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5
+	}
+
+
+}
+
+models/characters/common/leftplayer_reflection
+{
+	translucent
+	noshadows
+        noselfShadow
+//	deform	eyeBall
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5
+	}
+}
+
+
+
+
+textures/smf/portal_sky
+{
+	qer_editorimage				textures/smf/portal_sky.tga
+	forceOpaque					// will still seal levels
+	noshadows
+	noimpact
+	sort						portalSky
+
+	{
+		map						_currentRender
+
+		clamp
+		screen
+
+		// fix up the projection based on the screen coords
+		translate				global4 * 0.5, global5 * 0.5
+		scale					global4 * 0.5, global5 * 0.5
+	}
+/*
+	{
+		vertexProgram			portalSky.vfp
+		fragmentProgram			portalSky.vfp
+		fragmentMap				0		_currentRender
+	}
+*/
+}
+
+
+
+
+
+textures/smf/enviro_suit
+{
+	noshadows
+
+	{
+		vertexProgram			enviroSuit.vfp
+		fragmentProgram			enviroSuit.vfp
+		vertexParm				0		0							// texture scrolling
+		fragmentMap				0		_currentRender
+
+		// artists can change these values
+		vertexParm				1		0.2							// magnitude of the distortion
+		fragmentMap				1		textures/sfx/glasswarp.tga
+	}
+	{
+		highquality
+		map						textures/smf/glass_spec.tga
+		blend					add
+	}
+}
+
+textures/smf/blurImage
+{
+	{
+		map			_scratch
+		red			0.1 //sinTable[time]
+		green		0.1 //sinTable[time]
+		blue		0.1 //sinTable[time]
+		alpha		0.5
+		blend		add
+	}
+}
+
+textures/smf/accumBuffer
+{
+	{
+		map			_scratch2
+		red			1
+		green		1
+		blue		1
+		alpha		0.99 //0.98
+		blend		blend
+	}
+}
+
+
+
+
+
+textures/decals/berserk2
+{
+	//noshadows
+	//translucent
+
+	qer_editorimage		textures/decals/berserk.tga
+
+
+	{	// write alpha test values to destination alpha
+		maskcolor				// write only to the alpha channel
+		map textures/decals/berserk2.tga
+		rotate time
+		//alphaTest 0.5 // - parm3
+		colored
+		clamp
+		translate 0.1, 0.1
+	}
+
+	{
+		blend  gl_dst_alpha, gl_one_minus_dst_alpha
+      	scale		1, -1
+      	translate	0, -1
+		map			_scratch2
+		centerscale	0.97, 0.97
+	}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+textures/smf/bloodorb1
+{
+	{
+		vertexProgram           bloodorb1.vfp
+		fragmentProgram			bloodorb1.vfp
+		fragmentMap             0       _currentRender
+		fragmentMap             1       _scratch
+		fragmentMap             2       clamp textures/smf/bloodorb2.tga
+	}
+}
+textures/smf/bloodorb1_init
+{
+	{
+		vertexProgram           bloodorb1.vfp
+		fragmentProgram			bloodorb1.vfp
+		fragmentMap             0       _currentRender
+		fragmentMap             1       _currentRender
+		fragmentMap             2       clamp textures/smf/bloodorb2.tga
+	}
+}
+
+textures/smf/bloodorb2
+{
+	{
+		vertexProgram           bloodorb2.vfp
+		fragmentProgram			bloodorb2.vfp
+		fragmentMap             0       _currentRender
+		fragmentMap             1       _scratch
+		fragmentMap             2       clamp textures/smf/bloodorb2.tga
+	}
+}
+textures/smf/bloodorb2_init
+{
+	{
+		vertexProgram           bloodorb2.vfp
+		fragmentProgram			bloodorb2.vfp
+		fragmentMap             0       _currentRender
+		fragmentMap             1       _currentRender
+		fragmentMap             2       clamp textures/smf/bloodorb2.tga
+	}
+}
+
+textures/smf/bloodorb3_preblend
+{
+	{
+		clamp
+		rotate					time*0.05
+		map						textures/smf/bloodorb2.tga
+	}
+}
+textures/smf/bloodorb3
+{
+	{
+		vertexProgram           bloodorb3.vfp
+		fragmentProgram			bloodorb3.vfp
+		fragmentMap             0       _currentRender
+		fragmentMap             1       _scratch
+		fragmentMap             2       clamp _scratch2
+	}
+}
+textures/smf/bloodorb3_init
+{
+	{
+		vertexProgram           bloodorb3.vfp
+		fragmentProgram			bloodorb3.vfp
+		fragmentMap             0       _currentRender
+		fragmentMap             1       _currentRender
+		fragmentMap             2       clamp _scratch2
+	}
+}
+
+
+
+
+
+
+
+
+table snapshot_ramp { clamp { 0, 0, 1, 0 } }
+
+textures/smf/snapshot
+{
+	noshadows
+	translucent
+	nonsolid
+	{
+		map						_white
+		red						0.03
+		green					0.01
+		blue					0.01
+		alpha					snapshot_ramp[parm6]*0.7
+		blend					blend
+	}
+}
+
+
+
+
+table helltimeboss_ramp { clamp { 0, 1, 0 } }
+
+textures/smf/snapshot_helltimeboss
+{
+	noshadows
+	translucent
+	nonsolid
+	{
+		map						_white
+		red						0.05
+		green					0.04
+		blue					0.04
+		alpha					helltimeboss_ramp[(time - parm7)]
+		blend					add
+	}
+}
+
+textures/smf/trails
+{
+	noshadows
+	translucent
+	nonsolid
+//	deform sprite
+	twoSided
+	{
+		map				_white
+		red				1
+		blue			1
+		green			1
+		alpha			1
+		vertexColor
+		blend			blend
+	}
+}
+
+textures/smf/trails2
+{
+	noshadows
+	translucent
+	nonsolid
+	deform flare 		8
+	qer_editorimage		textures/editor/flare.tga
+	{
+		if ( parm7 == 0 )
+		blend		add
+		map		_quadratic
+		colored
+		vertexcolor
+	}
+}
+
+textures/smf/currentRender
+{
+	{
+		map				_currentRender
+	}
+}
+
+textures/smf/white
+{
+	{
+		map				_white
+	}
+}
+
+textures/smf/blendBack
+{
+	{
+		blend			blend
+		colored
+		map				_currentRender
+	}
+}
+
+textures/smf/doubleVision
+{
+	{
+		blend			blend
+		colored
+		map				_currentRender
+	}
+}
+
+
+// ==============
+// BLOODORB1 FX
+// ==============
+textures/smf/bloodorb1/ac_init
+{
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/smf/bloodorb1/ac_capture
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+		centerscale		0.995, 0.995
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/bloodorb1/cr_capture
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		alpha			0.05
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+textures/smf/bloodorb1/ac_draw
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/bloodorb1/cr_draw
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+// ==============
+// BLOODORB2 FX
+// ==============
+textures/smf/bloodorb2/ac_init
+{
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/smf/bloodorb2/ac_capture
+{
+	{
+		map				_accum
+		red				1
+		green			0.98 - sintable[time*0.5] * 0.01
+		blue			0.98 - sintable[time*0.5] * 0.01
+		alpha			1
+		blend			blend
+		centerscale		0.990 + sintable[time*0.5] * 0.004, 0.990 + sintable[time*0.5] * 0.004
+		rotate			0.005
+		clamp
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+		centerscale		1.0 + sintable[time*0.2] * 0.1, 1.0 + sintable[time*0.2] * 0.1
+	}
+}
+
+textures/smf/bloodorb2/cr_capture
+{
+	{
+		map				_currentRender
+		red				1
+		green			0.8
+		blue			0.8
+		alpha			0.05
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+textures/smf/bloodorb2/ac_draw
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+		centerscale		1.0 + sintable[time*0.2] * 0.1, 1.0 + sintable[time*0.2] * 0.1
+	}
+}
+
+textures/smf/bloodorb2/cr_draw
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+// ==============
+// BLOODORB3 FX
+// ==============
+textures/smf/bloodorb3/ac_init
+{
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/smf/bloodorb3/ac_capture
+{
+	{
+		map				_accum
+		red				1 - sintable[time*0.5] * 0.01
+		green			1 - sintable[time*0.5] * 0.01
+		blue			1
+		alpha			1
+		blend			blend
+		centerscale		0.995 + sintable[time*0.5] * 0.004, 0.995 + sintable[time*0.5] * 0.004
+		rotate			0.005
+		clamp
+	}
+	{
+		map				_accum
+		red				1 // - sintable[time*0.5] * 0.01
+		green			0.95 - sintable[time*0.5] * 0.01
+		//blue			1
+		blue			0.95
+		alpha			0.5
+		blend			blend
+		centerscale		0.995 + sintable[time*0.5] * 0.004, 0.995 + sintable[time*0.5] * 0.004
+		rotate			-0.0025
+		clamp
+	}
+	{
+		map				_accum
+		red				0.015 // - sintable[time*0.5] * 0.01
+		green			0.015 // - sintable[time*0.5] * 0.01
+		blue			0.015
+		alpha			0.01
+		blend			add
+		centerscale		0.995 + sintable[time*0.5] * 0.004, 0.995 + sintable[time*0.5] * 0.004
+		rotate			0.0025
+		clamp
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/bloodorb3/cr_capture
+{
+	{
+		map				_currentRender
+		//red			0.8
+		//green			0.8
+		//blue			1
+		red				.8
+		green			.5
+		blue			.5
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+textures/smf/bloodorb3/ac_draw
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/bloodorb3/cr_draw
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+// ==============
+// BASIC SHADERS
+// ==============
+textures/smf/basic/currentRender
+{
+	{
+		map				_currentRender
+	}
+}
+
+textures/smf/basic/scratch
+{
+	{
+		map				_scratch
+	}
+}
+
+textures/smf/basic/scratch2
+{
+	{
+		map				_scratch2
+	}
+}
+
+textures/smf/basic/accum
+{
+	{
+		map				_accum
+	}
+}
+
+textures/smf/basic/white
+{
+	{
+		map				_white
+	}
+}
+
+textures/smf/basic/black
+{
+	{
+		map				_white
+		red				0
+		green			0
+		blue			0
+	}
+}
+
+textures/smf/basic/red
+{
+	{
+		map				_white
+		red				1
+		green			0
+		blue			0
+	}
+}
+
+textures/smf/basic/blue
+{
+	{
+		map				_white
+		red				0
+		green			0
+		blue			1
+	}
+}
+
+textures/smf/basic/green
+{
+	{
+		map				_white
+		red				0
+		green			1
+		blue			0
+	}
+}
+
+textures/smf/basic/tester
+{
+	{
+		// vprog
+		vertexProgram			tester.vfp
+		vertexParm				0				0
+		vertexParm				1				0, sintable[time*0.2], sintable[(time+3.14159)*0.2]
+
+		// fprog
+		fragmentProgram			tester.vfp
+		fragmentMap				0				_currentRender
+		fragmentMap				1				textures/sfx/monitor_glass2.tga
+	}
+}
+
+// ==============
+// MOTION BLUR
+// ==============
+textures/smf/motionblur
+{
+	{
+		vertexProgram           motionblur.vfp
+		vertexParm				0				0
+		vertexParm				1				sintable[time*0.3+0.5]*0.5+0.5, sintable[time*0.3+0.5]*0.5+0.5, 0
+
+
+		fragmentProgram			motionblur.vfp
+		fragmentMap             0       _currentRender
+	}
+}
+
+// ==============
+// ANAMORPHIC FLARES
+// ==============
+textures/smf/flares/center
+{
+	twoSided
+
+	{
+		map				textures/smf/flare/center.tga
+		blend			add
+		zeroClamp
+		colored
+	}
+}
+
+textures/smf/flares/spike
+{
+	twoSided
+
+	{
+		map				textures/smf/flare/flarefade1.tga
+		blend			add
+		zeroClamp
+		colored
+	}
+}
+
+textures/smf/flares/spike2
+{
+	twoSided
+
+	{
+		map				textures/smf/flare/flarefade2.tga
+		blend			add
+		zeroClamp
+		colored
+	}
+}
+
+textures/smf/flares/illumination
+{
+	{
+		map				textures/smf/flare/mask.tga
+	}
+}
+
+textures/smf/flares/glass
+{
+	twoSided
+
+	{
+		vertexProgram           flare.vfp
+		vertexParm				0				0
+		vertexParm				1				1
+
+		fragmentProgram			flare.vfp
+		fragmentMap				0				_currentRender
+		fragmentMap				1				_scratch
+		fragmentMap				2				textures/smf/flare/test.tga
+	}
+}
+
+
+
+
+
+
+
+
+// ==============
+// MULTIPLAYER FX
+// ==============
+/*
+textures/smf/multiplayer1/ac_init
+{
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/smf/multiplayer1/ac_capture
+{
+	{
+		map				_white
+		red				0
+		green			0
+		blue			0
+	}
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+		centerscale		0.99, 0.99
+	}
+	{
+		map				_accum
+		red				0.01
+		green			0.01
+		blue			0.02
+		alpha			1
+		blend			add
+		centerscale		0.98, 0.98
+	}
+	{
+		maskcolor
+		map				textures/smf/garbage/woo.tga
+		rotate			time*0.4 //sintable[time*0.2]
+		clamp
+	}
+}
+
+textures/smf/multiplayer1/cr_capture
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		alpha			0.01
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+textures/smf/multiplayer1/ac_draw
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+	}
+	{
+		map				textures/decals/berserk2.tga
+		red				0.2
+		green			0.2
+		blue			0.2
+		alpha			0.5
+		rotate			time*0.5
+		blend			add
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/multiplayer1/cr_draw
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+*/
+
+
+
+
+
+
+
+
+
+textures/smf/multiplayer1/ac_init
+{
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/smf/multiplayer1/ac_capture
+{
+	{
+		map				_white
+		red				0
+		green			0
+		blue			0
+	}
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+		centerscale		0.97, 0.97
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/multiplayer1/cr_capture
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		alpha			0.01
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+textures/smf/multiplayer1/ac_draw
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+	}
+	{
+		maskcolor
+		map				textures/smf/bloodorb3.tga
+		clamp
+	}
+}
+
+textures/smf/multiplayer1/cr_draw
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		blend			gl_dst_alpha, gl_one_minus_dst_alpha
+	}
+}
+
+
+
+
+
+
+
+
+textures/smf/bloom/ac_init
+{
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/smf/bloom/ac_capture
+{
+	{
+		map				_accum
+		red				parm0
+		green			parm1				// dieoff
+		blue			parm2
+		blend			blend
+		centerscale		0.99, parm3			// speed
+	}
+}
+
+textures/smf/bloom/cr_capture
+{
+	{
+		map				_currentRender
+		red				0.05
+		green			0.05
+		blue			0.1
+		alpha			0.1
+		blend			gl_one, gl_one
+	}
+}
+
+textures/smf/bloom/ac_draw
+{
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			blend
+	}
+	{
+		map				_accum
+		red				1
+		green			1
+		blue			1
+		alpha			1
+		blend			gl_one, gl_one
+	}
+}
+
+textures/smf/bloom/cr_draw
+{
+	{
+		map				_currentRender
+		red				1
+		green			1
+		blue			1
+		blend			gl_one, gl_one
+	}
+}
+
+
+
+
+
+textures/smf/bloom2/init
+{
+	{
+		map		_currentRender
+		red		1
+		blue	1
+		green	1
+		alpha	1
+	}
+}
+
+textures/smf/bloom2/draw
+{
+	{
+		map				_currentRender
+//		red				0.1 * parm0
+//		green			0.1 * parm0
+//		blue			0.2 * parm0
+		red				0.08 * parm0
+		green			0.08 * parm0
+		blue			0.1 * parm0
+
+		blend			gl_one, gl_one
+
+	}
+}
+
+textures/smf/bloomfade
+{
+	{
+		map				_white
+		red				1 - ( time + parm4 ) / 3
+		green			1 - ( time + parm4 ) / 3
+		blue			1 - ( time + parm4 ) / 3
+		blend			add
+	}
+}
+
+textures/smf/bloomfade2
+{
+	{
+		map				_white
+		red				(1 - ( time + parm4 ) / 4) * 0.3
+		green			(1 - ( time + parm4 ) / 4) * 0.3
+		blue			(1 - ( time + parm4 ) / 4) * 0.3
+		blend			add
+	}
+}
+
+// ==============
+// D3BFG BLOODORB FX
+// ==============
+
+textures/d3bfg/bloodorb/init
+{
+	sort portalSky
+	translucent
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/d3bfg/bloodorb/draw
+{
+	sort portalSky
+	translucent
+	{
+		vertexProgram			bloodorb_draw.vfp
+		fragmentProgram			bloodorb_draw.vfp
+
+		fragmentMap		0		_accum
+		fragmentMap		1		_currentRender
+		fragmentMap		2		textures/smf/bloodorb3.tga
+	}
+}
+
+
+textures/d3bfg/bloodorb1/capture
+{
+	sort portalSky
+	translucent
+	{
+		vertexProgram			bloodorb1_capture.vfp
+		fragmentProgram			bloodorb1_capture.vfp
+
+		vertexParm2		0		0.995, 0.995, 0, 0
+
+		fragmentMap		0		_accum
+		fragmentMap		1		_currentRender
+		fragmentMap		2		textures/smf/bloodorb3.tga
+	}
+}
+
+textures/d3bfg/bloodorb2/capture
+{
+	sort portalSky
+	translucent
+	{
+		vertexProgram			bloodorb2_capture.vfp
+		fragmentProgram			bloodorb2_capture.vfp
+
+		vertexParm2		0		0.990 + sintable[time*0.5] * 0.004,		0.990 + sintable[time*0.5] * 0.004,	0,	0
+		vertexParm2		1		0.9994, 0.0349, 0, 0
+		vertexParm2		2		1.0 + sintable[time*0.2] * 0.1,			1.0 + sintable[time*0.2] * 0.1,		0,	0
+		vertexParm2		3		1.0, 0.98 - sintable[time*0.5] * 0.01,	0.98 - sintable[time*0.5] * 0.01, 0
+
+		fragmentMap		0		_accum
+		fragmentMap		1		_currentRender
+		fragmentMap		2		textures/smf/bloodorb3.tga
+	}
+}
+
+textures/d3bfg/bloodorb3/capture
+{
+	sort portalSky
+	translucent
+	{
+		vertexProgram			bloodorb3_capture.vfp
+		fragmentProgram			bloodorb3_capture.vfp
+
+		vertexParm2		0		0.995 + sintable[time*0.5] * 0.004,		0.995 + sintable[time*0.5] * 0.004,		0,	0
+		vertexParm2		1		0.9994, 0.0349, 0.9998, 0.0175
+		vertexParm2		2		sintable[time*0.5] * 0.01, 0, 0, 0
+
+		fragmentMap		0		_accum
+		fragmentMap		1		_currentRender
+		fragmentMap		2		textures/smf/bloodorb3.tga
+	}
+}
+
+// ==============
+// D3BFG MULTIPLAYER FX
+// ==============
+
+textures/d3bfg/multiplayer/init
+{
+	sort portalSky
+	translucent
+	{
+		map		_white
+		red		0
+		blue	0
+		green	0
+		alpha	1
+	}
+}
+
+textures/d3bfg/multiplayer/capture
+{
+	sort portalSky
+	translucent
+	{
+		vertexProgram			bloodorb1_capture.vfp
+		fragmentProgram			bloodorb1_capture.vfp
+
+		vertexParm2		0		0.97, 0.97, 0, 0
+
+		fragmentMap		0		_accum
+		fragmentMap		1		_currentRender
+		fragmentMap		2		textures/smf/bloodorb3.tga
+	}
+}
+
+textures/d3bfg/blendBack
+{
+	sort portalSky
+	translucent
+	{
+		blend			blend
+		colored
+		map				_currentRender
+	}
+}
+
+textures/d3bfg/doubleVision
+{
+	sort portalSky
+	translucent
+	{
+		blend			blend
+		colored
+		map				_currentRender
+	}
+}
+
+textures/d3bfg/warp
+{
+	sort portalSky
+	translucent
+	{
+		map			_currentRender
+	}
+}
+
+textures/d3bfg/enviro_suit
+{
+	sort portalSky
+	translucent
+	{
+		vertexProgram			enviroSuit.vfp
+		fragmentProgram			enviroSuit.vfp
+		vertexParm		0		0
+		vertexParm		1		0.2
+		fragmentMap		0		_currentRender
+		fragmentMap		1		textures/sfx/glasswarp.tga
+	}
+	{
+		highquality
+		map						textures/smf/glass_spec.tga
+		blend					add
+	}
+}
+
+textures/d3bfg/bloom2/init
+{
+	sort portalSky
+	translucent
+	{
+		map		_currentRender
+	}
+}
+
+textures/d3bfg/bloom2/draw
+{
+	sort portalSky
+	translucent
+	{
+		map				_currentRender
+		red				0.08 * parm0
+		green			0.08 * parm0
+		blue			0.1 * parm0
+		blend			gl_one, gl_one
+	}
+}

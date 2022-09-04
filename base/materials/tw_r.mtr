@@ -1,0 +1,292 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Threewave CTf material / shaders file
+// tw_r.mtr
+//
+// Last changed by: Ross
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Textures
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+textures/ctf/tw_bolt
+{
+ 	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	qer_editorimage textures/ctf/tw_bolt_01_d.tga
+       
+	{
+		blend	diffusemap
+		map	textures/ctf/tw_bolt_01_d.tga
+	 	alphaTest 0.5
+	}
+	specularmap	textures/ctf/tw_bolt_01_s.tga
+
+	{
+ 
+		blend		bumpmap
+		map 	textures/ctf/tw_bolt_01_local.tga
+	}
+}
+
+textures/ctf/tw_bolt_02
+//bolt cracked 
+{
+ 	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	qer_editorimage textures/ctf/tw_bolt_02_d.tga
+
+	{
+		blend	diffusemap
+		map	textures/ctf/tw_bolt_02_d.tga
+		alphaTest 0.5
+	}
+	specularmap	textures/ctf/tw_bolt_02_s.tga
+
+	{
+ 
+		blend 		bumpmap
+		map		addnormals (textures/ctf/tw_bolt_01_local.tga, heightmap (textures/ctf/tw_bolt_02_b.tga, 2) )
+	}
+}
+
+
+textures/ctf/tw_bolt_03
+//bolt dirty
+{
+ 	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	qer_editorimage textures/ctf/tw_bolt_03_d.tga
+
+	{       
+		blend	diffusemap
+		map	textures/ctf/tw_bolt_03_d.tga
+		alphaTest 0.5
+	}
+	specularmap	textures/ctf/tw_bolt_01_s.tga
+
+	{
+ 
+		blend 		bumpmap
+		map		textures/ctf/tw_bolt_01_local.tga
+	}
+}
+
+textures/ctf/tw_hammer
+//hammer_clean
+{
+     
+ 	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	qer_editorimage textures/ctf/tw_hammer_01_d.tga
+
+	{       
+		blend	diffusemap
+		map	textures/ctf/tw_hammer_01_d.tga
+		alphaTest 0.5
+	}
+	specularmap	textures/ctf/tw_hammer_01_s.tga
+	{
+ 
+		blend 		bumpmap
+		map		textures/ctf/tw_hammer_01_local.tga 
+	}
+}
+
+
+textures/ctf/tw_hammer_02
+//hammer cracked 
+{
+	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	qer_editorimage textures/ctf/tw_hammer_02_d.tga
+
+	{       
+      	 	blend	diffusemap
+	 	map	textures/ctf/tw_hammer_02_d.tga
+		alphaTest 0.5
+	}
+	specularmap	textures/ctf/tw_hammer_02_s.tga
+	{
+ 
+		blend 		bumpmap
+		map		addnormals (textures/ctf/tw_hammer_01_local.tga, heightmap (textures/ctf/tw_hammer_02_b.tga, 2) )
+	}
+}
+
+
+textures/ctf/tw_hammer_03
+//hammer dirty
+{
+ 	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	qer_editorimage textures/ctf/tw_hammer_03_d.tga
+
+	{       
+		blend		diffusemap
+		map		textures/ctf/tw_hammer_03_d.tga
+		alphaTest	0.5
+	}
+	specularmap	textures/ctf/tw_hammer_01_s.tga
+
+	{
+ 
+		blend 		bumpmap
+		map		textures/ctf/tw_hammer_01_local.tga
+	}
+}
+
+textures/ctf/pickup_01_d
+//object spawn marker
+{
+     
+ 	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+    zeroClamp
+	qer_editorimage textures/ctf/pickup_01_d.tga
+
+	{       
+      	 blend	diffusemap
+	 map	textures/ctf/pickup_01_d.tga
+	alphaTest 0.5
+	}
+
+}
+
+
+
+textures/ctf/arrow_01
+//arrow marker
+{
+	qer_editorimage textures/ctf/arrow_01_diff.tga
+	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		// colored
+      		blend	diffuseMap  
+		map textures/ctf/arrow_01_diff.tga
+	}
+}
+textures/ctf/arrow_02
+//arrow marker
+{
+	qer_editorimage textures/ctf/arrow_02_diff.tga
+	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		// colored
+      		blend	diffuseMap  
+		map textures/ctf/arrow_02_diff.tga
+	}
+}
+textures/ctf/arrow_03
+//arrow marker
+{
+	qer_editorimage textures/ctf/arrow_03_diff.tga
+	noShadows
+	noSelfShadow
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		// colored
+      		blend	diffuseMap  
+		map textures/ctf/arrow_03_diff.tga
+	}
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Models
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// d3ctf3's spotlight
+models/ctf/d3ctf3/spotlight_diff
+{
+    zeroclamp
+	noSelfShadow
+	bumpmap		models/ctf/d3ctf3/spotlight_local.tga
+	specularmap	models/ctf/d3ctf3/spotlight_spec.tga
+	
+	{
+		blend 	diffusemap
+		map	models/ctf/d3ctf3/spotlight_diff.tga
+		alphatest 0.5
+	}
+
+	{
+         
+		blend add
+		map models/ctf/d3ctf3/spotlight_ilum.tga
+		colored
+	}
+}
+
+
+// d3ctf2's rocks
+models/ctf/d3ctf2/rockface_d
+{
+
+	noSelfShadow
+	bumpmap		addnormals (base/textures/rock/lanrock1_local.tga, heightmap (base/textures/rock/lanrock1_h.tga, 2) )
+	specularmap	base/textures/rock/lanrock1_s.tga
+	
+	{
+		blend 	diffusemap
+		map	models/ctf/d3ctf2/d3ctf2/lanrock1_d.tga
+		alphatest 0.5
+	}
+}
+
+
+// ctf bolt 3d
+models/ctf/logos/bolt_3d_diff
+{
+     
+	noSelfShadow
+    	zeroclamp
+	bumpmap		heightmap (models/ctf/logos/bolt_3d_bump.tga, 2)
+	specularmap	models/ctf/logos/bolt_3d_spec.tga
+	diffusemap	models/ctf/logos/bolt_3d_diff.tga
+}
+
+// ctf hammer 3d
+models/ctf/logos/hammer3d_diff
+{
+     
+	noSelfShadow
+    	zeroclamp
+	bumpmap		heightmap (models/ctf/logos/hammer3d_bump.tga, 2)
+	specularmap	models/ctf/logos/hammer3d_spec.tga
+	diffusemap	models/ctf/logos/hammer3d_diff.tga
+}
+
+

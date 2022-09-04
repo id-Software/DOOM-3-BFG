@@ -1,0 +1,323 @@
+export cine_erebus6 {
+
+	// HUNTER
+
+	options -prefix H2_ -keep mouth -keep heart_light -keep SPINNER -parent heart_light heart2 -parent waist SPINNER
+
+	addoptions -align ALL
+
+//	anim	models/cinematics/erebus6/berzerk.mb -range 0 600 -dest models/md5/cinematics/erebus6/hunter2anim
+//	anim	models/cinematics/erebus6/berzerk_death.mb -dest models/md5/cinematics/erebus6/hunter2_death
+	// WALL EXPORT
+
+	options -prefix WALL_ -keep ALL
+//	addoptions -align ALL
+
+	mesh	models/cinematics/erebus6/berzerk.mb -dest models/md5/cinematics/erebus6/wallmesh
+	anim	models/cinematics/erebus6/berzerk.mb -dest models/md5/cinematics/erebus6/wallanim
+
+	options -prefix AI_DUMMY_
+	anim	models/cinematics/erebus6/berzerk_death.mb -dest models/md5/cinematics/erebus6/ai_dummy_death
+}
+
+
+export cine_erebus6 {
+	camera	models/cinematics/erebus6/berzerk.mb -dest models/md5/cinematics/erebus6/hunter2introcam
+	camera	models/cinematics/erebus6/berzerk_death.mb -dest models/md5/cinematics/erebus6/hunter2outrocam
+}
+
+entityDef erebus6_cinematic_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"anim erebus6_cinematic_cam_1"	"models/md5/cinematics/erebus6/hunter2introcam.md5camera"
+}
+
+entityDef erebus6_cinematic_cam_death {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"anim erebus6_cinematic_cam_outro"	"models/md5/cinematics/erebus6/hunter2outrocam.md5camera"
+}
+
+model erebus6_cinematic_wall {
+	mesh						models/md5/cinematics/erebus6/wallmesh.md5mesh
+	anim cinematic					models/md5/cinematics/erebus6/wallanim.md5anim
+}
+
+entityDef erebus6_cinematic_wall {
+	"inherit"					"cin_base"
+	"anim"						"cinematic"
+	"model"						"erebus6_cinematic_wall"
+
+	"combatModel"				"1"
+	"bleed"						"1"
+}
+
+model erebus6_cinematic_hunterdeath {
+//	inherit						"monster_hunter_berzerk"
+	mesh						models/md5/monsters/hunter_berzerk/idle.md5mesh
+	anim erebus6_outro			models/md5/cinematics/erebus6/hunter2_death.md5anim {
+		frame 1					start_emitter smoke waist berzerker_enrage3.prt
+		frame 1					sound_global e6_hunter_death
+		frame 1					trigger ber_outro_heartlight
+		frame 60				trigger ber_death_func_fx
+		frame 80				stop_emitter smoke
+		frame 180				trigger ber_outro_heartlight
+		frame 180				call map_erebus6_berzerk::StartBerserkDeathBurn
+		frame 180				call map_erebus6::ResetStamina
+	}
+}
+
+entityDef erebus6_cinematic_hunterdeath {
+/*	"inherit"					"monster_hunter_berzerk"
+	"model"						"erebus6_cinematic_hunterdeath"
+	"anim"						"erebus6_outro"
+*/
+	"skin"						"skins/monsters/hunter_berserk/hunter_berserk_enrage"
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"erebus6_cinematic_hunterdeath"
+	"anim"						"erebus6_outro"
+
+}
+
+model erebus6_ai_dummy {
+	mesh				models/md5/enviroments/ai_dummy/ai_dummy.md5mesh
+
+	channel torso					( *joint1 )
+	channel legs					( *origin -*joint1 )
+
+	anim idle			models/md5/environments/ai_dummy/idle.md5anim
+	anim death			models/md5/cinematics/erebus6/ai_dummy_death.md5anim	{
+		frame 210			start_emitter deathstuff joint1 ht_deathjuice.prt
+		frame 275			stop_emitter deathstuff
+	}
+}
+
+entityDef erebus6_ai_dummy {
+	"no_damage"				"1"
+
+	"inherit"				"monster_default"
+	"scriptobject"			"monster_dummy"
+	"editor_color"			"1 1 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"model"					"erebus6_ai_dummy"
+	"anim"					"idle"
+	"SmokeParticleSystem"	"imp_trail2-joint1"
+/*
+	"inherit"				"erebus6_ai_dummy"
+	"SmokeParticleSystem"	"ancient_puzzle_trail-joint1"
+	"anim"					"death"
+*/
+}
+
+model erebus6_cinematic_player {
+	mesh						models/md5/cinematics/erebus6/player.md5mesh
+	anim intro					models/md5/cinematics/erebus6/playerintro.md5anim {
+		frame 1					call map_erebus6::RemoveFakeClip
+		frame 1					sound_global e6_hunter_intro
+		frame 115				call map_erebus6_berzerk::monogui_start
+		frame 160				call map_erebus6_berzerk::HideGuiModel
+		frame 208				call map_erebus6_berzerk::IntroInfluence
+		frame 208				trigger ber_light_wallbreak
+		frame 208				trigger ber_light_wallbreak2
+		frame 320				call map_erebus6_berzerk::ShowGuiModel
+		frame 333				trigger ber_playerlight
+
+		frame 395				call map_erebus6::TurnOnFlame1
+
+		frame 405				call map_erebus6::TurnOnFlame2
+
+		frame 455				trigger ber_light_wallbreak
+		frame 455				trigger ber_light_wallbreak2
+		frame 455				trigger e6_steam1
+
+		frame 455				trigger e6_steam2
+
+		frame 455				trigger ber_playerlight
+		frame 520				call map_erebus6_berzerk::SetHunterEnemy
+
+	}
+}
+
+entityDef erebus6_cinematic_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"erebus6_cinematic_player"
+	"anim"						"intro"
+}
+
+model erebus6_cinematic_player_end {
+	mesh						models/md5/cinematics/erebus6/player_outro.md5mesh
+	anim outro					models/md5/cinematics/erebus6/player_outro.md5anim {
+		frame	1					skin skins/weapons/artifact_3rd_normal
+		frame	270					skin skins/weapons/artifact_fx2
+		frame	270					call setShaderTime
+		frame	310					skin skins/weapons/artifact_3rd_fx2
+		frame	310					call setShaderTime
+	}
+}
+
+entityDef erebus6_cinematic_player_end {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"erebus6_cinematic_player_end"
+	"anim"						"outro"
+}
+
+
+/******************************************
+	Erebus6 Bot Tech
+******************************************/
+
+model erebus6_bottech_head {
+	inherit							head_young
+
+	anim remember				models/md5/characters/heads/young/erebus6/bottech_remember.md5anim {
+		frame 1							sound_voice		snd_talk_remember
+	}
+	anim talk_trigger			models/md5/characters/heads/young/erebus6/bottech_trigger.md5anim {
+		frame 1						sound_voice			snd_talk_trigger
+		frame 111					sound_voice			snd_talk_alive
+	}
+	anim talk_primary			models/md5/characters/heads/young/erebus6/bottech_primary.md5anim {
+		frame 1							sound_voice		snd_talk_primary
+	}
+	anim talk_secondary1		models/md5/characters/heads/young/erebus6/bottech_secondary1.md5anim {
+		frame 1							sound_voice		snd_talk_secondary1
+	}
+	anim talk_secondary2		models/md5/characters/heads/young/erebus6/bottech_secondary2.md5anim {
+		frame 1							sound_voice		snd_talk_secondary2
+	}
+}
+
+model erebus6_bottech_body {
+
+	mesh							models/md5/chars/tshirt.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+	anim pain						models/md5/chars/erubus6_bottech_pain.md5anim
+	anim stand						models/md5/chars/erubus6_bottech_idle.md5anim
+	anim pda_idle_look				models/md5/chars/erubus6_bottech_idle.md5anim
+	anim cower						models/md5/chars/erubus6_bottech_pain.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim walk						models/md5/chars/erubus6_bottech_idle.md5anim
+	anim run1						models/md5/chars/erubus6_bottech_idle.md5anim
+	anim turn_left					models/md5/chars/erubus6_bottech_idle.md5anim, models/md5/chars/erubus6_bottech_idle.md5anim {
+		anim_turn
+	}
+	anim turn_right					models/md5/chars/erubus6_bottech_idle.md5anim, models/md5/chars/erubus6_bottech_idle.md5anim {
+		anim_turn
+	}
+
+	anim remember					models/md5/chars/erubus6_bottech_remember.md5anim
+	anim talk_trigger				models/md5/chars/erubus6_bottech_trigger.md5anim
+	anim talk_primary				models/md5/chars/erubus6_bottech_primary.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/erubus6_bottech_secondary1.md5anim
+	anim talk_secondary2			models/md5/chars/erubus6_bottech_secondary2.md5anim
+
+}
+
+entityDef erebus6_bottech {
+	"inherit"						"npc_base"
+	"model"							"erebus6_bottech_body"
+	"def_head"						"erebus6_bottech_head"
+	"head_joint"					"Shoulders"
+
+	"size"							"8 8 32"
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"2048"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+
+	"head_focus_rate"				"0.1"
+
+	"ignore_push"					"1"
+	"bleed"							"1"
+	"gib"							"1"
+	"copy_joint_world eyecontrol"	""
+
+	"talk0_blendin"					"15"
+	"talk0_blendout"				"15"
+	"talk1_blendin"					"15"
+	"talk1_blendout"				"15"
+	"talk2_blendin"					"15"
+	"talk2_blendout"				"15"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".1 .1 0"
+	"look_joint headcontrol"		".3 .3 0"
+	"look_joint Ruparm"				"-.3 -.3 0"
+	"look_joint Luparm"				"-.3 -.3 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+	"snd_talk_trigger"				"bottech_trigger"
+	"snd_talk_primary"				"bottech_primary"
+	"snd_talk_secondary1"			"bottech_secondary1"
+	"snd_talk_secondary2"			"bottech_secondary2"
+	"snd_talk_alive"				"bottech_alive"
+	"snd_talk_remember"				"bottech_remember"
+
+	"harvest_on_death"				"1"
+	"def_harvest_type"				"env_harvest_default"
+	"harvest_sound"					"snd_harvest_whisper"
+
+	"skin_harvest"					"skins/characters/male_npc/e6_body_bottech_harvest.skin"
+	"skin_harvest_head"				"skins/characters/npcs/heads/e6_head_bottech_harvest.skin"
+	"skin_harvest_burn"				"skins/characters/male_npc/e6_body_bottech_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/heads/e6_head_bottech_burn.skin"
+
+	"snd_harvest_whisper"			"harvest_whisper"
+	"skin_dropGib"				"skins/characters/npcs/labcoat_old.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+}

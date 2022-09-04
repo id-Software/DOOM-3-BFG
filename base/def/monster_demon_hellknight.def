@@ -1,0 +1,396 @@
+/***********************************************************************
+
+	monster_demon_hellknight.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix HK2_ -keep lknee1 rknee1 SPINNER rmissile lmissile target forehead1 -parent rmissile rhand -parent lmissile lhand -parent waist SPINNER -parent SPINNER body2 -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+
+	anim	maps/fred/delta4/hkintro2.mb -range 617 644 -dest models/md5/cinematics/delta4/hkintro_hk2
+
+	anim	maps/fred/delta4/hkthrowshaz2.mb -range 261 409 -dest models/md5/cinematics/delta4/hkintro_hkthrow2 -keepmesh hellknightmesh -keepmesh salivamesh -keepmesh droolmesh -keepmesh tonguemesh
+
+	anim	maps/fred/delta4/pooped.mb -range 182 500 -dest models/md5/cinematics/delta4/hkintro_hkpooped -keepmesh hellknightmesh -keepmesh salivamesh -keepmesh droolmesh -keepmesh tonguemesh -prefix HK_
+
+
+	addoptions -prefix HK_
+
+	mesh	models/monsters/hellknight/cycles/hellknight_mesh.mb -dest models/md5/monsters/hellknight/hellknight
+	anim	models/monsters/combos/hk_throws_chainsawzombie_withcams.mb -dest models/md5/monsters/hellknight/hk_throws_chainsawzombie
+	anim	maps/fred/caverns2/bridge2.mb -range 315 490 -dest models/md5/cinematics/caverns2/bridge_hellknight
+	anim	maps/fred/site3/hkfloor.mb -range 1 1 -dest models/md5/cinematics/site3/floor_hkidle
+	anim	maps/fred/site3/hkfloor.mb -range 1 186 -dest models/md5/cinematics/site3/floor_hk
+	anim	maps/fred/delta4/hkintro.mb -range 1 384 -dest models/md5/cinematics/delta4/hkintro_hk_out
+	anim	maps/fred/delta4/hkintro2.mb -range 617 644 -dest models/md5/cinematics/delta4/hkintro_hk1
+	anim	maps/fred/delta4/hkthrowshaz1.mb -range 182 260 -dest models/md5/cinematics/delta4/hkintro_hkgrab -keepmesh hellknightmesh -keepmesh salivamesh -keepmesh droolmesh -keepmesh tonguemesh
+	anim	maps/fred/delta4/hkthrowshaz2.mb -range 261 409 -dest models/md5/cinematics/delta4/hkintro_hkthrow -keepmesh hellknightmesh -keepmesh salivamesh -keepmesh droolmesh -keepmesh tonguemesh
+	anim	maps/fred/caverns2/hkwall.mb -range 1 120 -dest models/md5/cinematics/caverns2/breakwall
+
+	addoptions -align All -sourcedir models/monsters/hellknight/cycles -destdir models/md5/monsters/hellknight
+
+	anim	initial.mb
+	anim	ik_pose.mb
+	anim	idle2.mb
+	anim	stand.mb
+
+	//anim	walk5.mb
+	anim	walk7.mb
+	anim	walk7_left.mb
+	anim	roar1.mb
+
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	leftslash.mb
+	
+	anim	range_attack2.mb
+	anim	headpain.mb
+	anim	chestpain.mb -dest chest
+	anim	pain1.mb
+	anim	pain2.mb
+	anim	ruparmpain.mb -dest pain_ruparm
+	anim	luparmpain.mb -dest pain_luparm
+
+	anim	turret_attack.mb
+
+
+}
+
+model monster_demon_hellknight {
+	mesh							models/md5/monsters/hellknight/hellknight.md5mesh
+
+	channel torso					( *waist )
+	channel legs					( *hips body body2 origin SPINNER )
+
+	anim af_pose					models/md5/monsters/hellknight/initial.md5anim
+	anim ik_pose					models/md5/monsters/hellknight/ik_pose.md5anim
+
+	anim initial					models/md5/monsters/hellknight/initial.md5anim
+	anim idle						models/md5/monsters/hellknight/idle2.md5anim
+	anim stand						models/md5/monsters/hellknight/stand.md5anim
+
+	anim walk						models/md5/monsters/hellknight/walk7.md5anim {
+		frame 13						sound_body snd_footstep
+		frame 13						sound_body2 snd_deepfs
+		frame 31						sound_body snd_footstep
+		frame 31						sound_body2 snd_deepfs
+	}
+	anim walk_left					models/md5/monsters/hellknight/walk7_left.md5anim {
+		frame 13						sound_body snd_footstep
+		frame 13						sound_body2 snd_deepfs
+		frame 31						sound_body snd_footstep
+		frame 31						sound_body2 snd_deepfs
+	}
+	anim sight						models/md5/monsters/hellknight/roar1.md5anim {
+		frame 1							sound_voice snd_sight2
+		frame 19						sound_body snd_footstep
+		frame 19						sound_body2 snd_deepfs
+		frame 41						sound_body snd_footstep
+		frame 41						sound_body2 snd_deepfs
+	}
+	
+	anim pain						models/md5/monsters/hellknight/pain1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/hellknight/chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/hellknight/headpain.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	anim pain_right_arm				models/md5/monsters/hellknight/pain_ruparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/hellknight/pain_luparm.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	
+	anim melee_attack1				models/md5/monsters/hellknight/attack2.md5anim {
+	
+		frame 11						sound_body snd_footstep
+		frame 11						sound_body2 snd_deepfs
+		frame 11						fx fx/hkwalk.fx
+		frame 14						melee melee_hellknight_bite
+	}
+
+	anim melee_attack2				models/md5/monsters/hellknight/attack3.md5anim {
+		frame 17						sound_body snd_footstep
+		frame 17						sound_body2 snd_deepfs
+		frame 17						fx fx/hkwalk.fx
+		frame 17						melee melee_hellknightRightClaw
+	}
+	anim melee_attack3				models/md5/monsters/hellknight/leftslash.md5anim {
+		frame 7						sound_voice snd_chatter_combat
+		frame 17						melee melee_hellknightLeftClaw
+	}
+	anim range_attack1				models/md5/monsters/hellknight/range_attack2.md5anim {
+		frame 8							sound_body2 monster_demon_hellknight_fireball_create
+		frame 8							create_missile rmissile
+		frame 33						sound_body snd_footstep
+		frame 33						sound_body2 snd_deepfs
+		frame 33						fx fx/hkwalk.fx
+		//frame 34						sound_weapon snd_attackmissile
+		frame 34						launch_missile rmissile
+		frame 47						sound_body snd_footstep
+		frame 47						sound_body2 snd_deepfs
+		frame 47						fx fx/hkwalk.fx
+		frame 52						sound_voice snd_chatter_combat
+	}
+
+	anim turret_attack				models/md5/monsters/hellknight/turret_attack.md5anim {
+		frame 8							sound_body2 monster_demon_hellknight_fireball_create
+		frame 8							create_missile rmissile
+		frame 20						sound_weapon snd_attackmissile
+		frame 23						launch_missile rmissile
+	}
+	
+
+
+}
+
+entityDef monster_demon_hellknight {
+	"editor_mins"					"-48 -48 0"
+	"editor_maxs"					"48 48 96"
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_hellknight"
+	"model"							"monster_demon_hellknight"
+	"ragdoll"						"monster_demon_hellknight"
+	"size"							"94 94 96"
+	"use_aas"						"aas96"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"900" //up from 700 Tim - 6/9/04
+	"melee_range"					"75"
+	"turn_rate"						"100"
+	"def_projectile"				"projectile_fireball_hellknight"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"mass"							"600"
+	"pain_threshold"				"25"	
+	
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"			"burn_imp.prt-chest"
+	
+	"ik_numLegs"					"2"
+	"ik_footSize"					"8"
+	"ik_minWaistAnkleDist"			"30"
+	"ik_footUpTrace"				"32"
+	"ik_footDownTrace"				"64"
+	"ik_waist"						"body"
+	"ik_hip1"						"lupleg"
+	"ik_hip2"						"rupleg"
+	"ik_knee1"						"lloleg"
+	"ik_knee2"						"rloleg"
+	"ik_ankle1"						"lankle"
+	"ik_ankle2"						"rankle"
+	"ik_dir1"						"lknee1"
+	"ik_dir2"						"rknee1"
+	"ik_foot1"						"lfoot"
+	"ik_foot2"						"rfoot"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Head"				"0.4 0.4 0"
+	"look_joint LoNeck"				"0.6 0.6 0"
+
+
+	"damage_zone head"				"*neck"
+	"damage_zone chest"				"*waist -*ruparm -*luparm -*neck"
+	"damage_zone left_arm"			"*luparm"
+	"damage_zone right_arm"			"*ruparm"
+	"damage_zone legs"				"*hips"
+	"damage_scale head"				"2"
+	
+	"anim"							"idle"
+
+	"snd_sight1"					"monster_demon_hellknight_sight1"
+	"snd_sight2"					"monster_demon_hellknight_sight2"
+	"snd_sight3"					"monster_demon_hellknight_sight3"
+	"snd_chatter"					"monster_demon_hellknight_chatter"
+	"snd_chatter_combat"			"monster_demon_hellknight_chatter_combat"
+	"snd_pain"						"monster_demon_hellknight_pain"
+	"snd_attackmissile"				"monster_demon_hellknight_attackmissile"
+	"snd_death"						"monster_demon_hellknight_die"
+	"snd_footstep"					"monster_demon_hellknight_footstep"
+	"snd_deepfs"					"hellknight_deepfs"
+	"snd_burn"						"monster_demon_hellknight_burn"
+	
+	"fx_teleport"								"fx/teleporter_96.fx"
+	"fx_teleport1"								"fx/teleporter1_96.fx"
+	"fx_teleport2"								"fx/teleporter2_96.fx"
+	"fx_teleport3"								"fx/teleporter3_96.fx"
+}
+
+model delta1_hellknight {
+	inherit							monster_demon_hellknight
+	anim throwchainsawzombie		models/md5/monsters/hellknight/hk_throws_chainsawzombie.md5anim
+}
+
+entityDef delta1_hellknight {
+	"inherit"						"monster_demon_hellknight"
+	"model"							"delta1_hellknight"
+	"anim"							"throwchainsawzombie"
+}
+
+entityDef damage_fireball_hellknight {
+	"damage"						"30"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+ 
+
+entityDef damage_fireball_hellknight_splash {
+	"damage"						"45"
+	"radius"						"120"
+}
+
+entityDef projectile_fireball_hellknight {
+	"spawnclass"				"idProjectile"
+	"mins"						"-4 -4 -4"
+	"maxs"						"4 4 4"
+	"cone"						"3"
+	"model" 					"hellknight_fireball2.prt"
+
+	"def_damage"				"damage_fireball_hellknight"
+	"def_splash_damage"			"damage_fireball_hellknight_splash"
+								
+	"launchFromBarrel"			"1"
+	"health"					"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"475 0 -150"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"5"
+	"gravity"					"250"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+								
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+								
+	"impact_damage_effect"		"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+								
+	"mtr_detonate"				"textures/decals/ballburn_plasma"
+	"decal_size"				"75" 
+
+	"smoke_fly"						"hellknight_trail.prt"									// particle effect while in the air
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_residue"				""					// particle effect while in the air
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+	
+	// parametric particles -- temp
+	"model_detonate"			"hellknight_explosion.prt"
+									
+	"debris_count"				"3"
+	"def_debris"				"debris_largeshrapnel"
+	"def_shrapnel"				"debris_shrapnel"
+	
+	"mtr_light_shader"			"lights/impflyflash"
+	"light_color"				"0.1 0.6 0.9"
+	"light_radius"				"96"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	"lights/spawnflash"
+	"explode_light_color"		"0.1 0.6 0.9"
+	"explode_light_radius"		"128"
+	"explode_light_fadetime"	"1"
+
+	"snd_explode"				"monster_demon_imp_fireball_explode"
+	"snd_fly"					"monster_demon_imp_fireball_flight"					// particle effect while in the air
+}
+
+entityDef melee_hellknightLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters
+	"damage"						"25"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"240"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_hellknightRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+
+	"damage"						"25"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"120"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+
+
+entityDef melee_hellknight_bite {
+	"damage"						"30"
+	"kickDir"						"1 0 0"
+
+	"snd_hit"						"monster_demon_hellknight_melee_2"
+	"snd_miss"						"monster_demon_hellknight_melee_2"
+
+	"mtr_blob"						"bite"
+	"blob_time"						"600"
+	//"blob_size"						"600"
+	//"blob_offset_x"					"600"
+
+	"blob_x"						"0"
+	"blob_y"						"-125"
+	"blob_width"					"650"
+	"blob_height"					"650"
+
+	"knockback"						"100"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+

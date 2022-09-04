@@ -1,0 +1,2827 @@
+textures/rock/sharprock_dark_lavascroll_ns
+{
+	qer_editorimage		textures/rock/sharprock_dark_lava1
+		noSelfShadow
+	    noshadows
+
+	{
+		blend 		bumpmap
+		map			addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	}
+	{
+		blend 		diffusemap
+		map			textures/rock/sharprock_dark
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map			textures/rock/sharprock_dark_s
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		scale		2,2
+	}
+	{
+		blend		diffusemap
+		map			textures/hell/lavascroll.tga
+		scale		2,2
+		inverseVertexColor
+	}
+	{
+		map				textures/hell/lavascroll
+		scale			2,2
+		maskcolor
+	}
+	{
+		blend 		specularmap
+		map			textures/hell/lava1_s.tga
+		scale		2,2
+		translate	time * .02 , time * -0.05
+		inverseVertexColor
+	}   
+	{
+		blend		gl_dst_alpha , gl_one
+		map			textures/hell/lava1fx.tga
+		rgb			fireballtable[ time * .05 ]
+		scale		2,2
+		translate	time * .01 , time * -0.025
+		inverseVertexColor
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map textures/hell/lava1fx.tga
+		rgb			fireballtable[ time * .25  ]
+		scale		3,3
+		translate	time * -.02 , 1
+		inverseVertexColor
+	}
+}
+
+
+
+
+textures/hell/lavascroll_ns
+{
+	 noSelfShadow
+	    noshadows
+	qer_editorimage		textures/hell/lava1.tga
+	{
+		blend			bumpmap
+		map				addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		scale			2,2
+	}
+	{
+		blend			diffusemap
+		map				textures/hell/lavascroll.tga
+		scale			2,2
+	}
+	{
+		map				textures/hell/lavascroll
+		scale			2,2
+		maskcolor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+		scale			2,2
+		translate	time * -0.02 , time * 0.05
+	}   
+	{
+		blend		gl_dst_alpha , gl_one
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .05 ]
+		scale			2,2
+		translate	time * .01 , time * -0.025
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map textures/hell/lava1fx.tga
+		rgb			fireballtable[ time *.25 ]
+		scale		3,3
+		translate	time * -.02 , 1
+	}
+}
+
+
+textures/hell/qfloor
+{
+	stone
+	qer_editorimage	textures/hell/qfloor_ed
+	bumpmap			addnormals( textures/hell/qfloor_local.tga, heightmap( textures/hell/qfloor_h.tga, 5 ) )
+	diffusemap		textures/hell/qfloor.tga
+	specularmap		textures/hell/qfloor_s.tga
+
+   
+}
+
+textures/hell/hhtrim1
+{
+	bumpmap			addnormals( textures/hell/hhtrim1_local.tga, heightmap( textures/hell/hhtrim1_h.tga, 5 ) )
+	diffusemap		textures/hell/hhtrim1.tga
+	specularmap		textures/hell/hhtrim1_s.tga
+
+   
+}
+
+textures/hell/bartrim
+{
+
+	bumpmap			textures/hell/bartrim_local.tga
+	diffusemap		textures/hell/bartrim.tga
+	specularmap		textures/hell/bartrim_s.tga
+
+   
+}
+
+textures/hell/tinnytrim
+{
+	bumpmap			addnormals( textures/hell/tinnytrim_local.tga, heightmap( textures/hell/tinnytrim_h.tga, 5 ) )
+	diffusemap		textures/hell/tinnytrim.tga
+	specularmap		textures/hell/tinnytrim_s.tga
+
+   
+}
+
+textures/hell/nuckletrim
+{
+
+	bumpmap			textures/hell/nuckletrim_local.tga
+	diffusemap		textures/hell/nuckletrim.tga
+	specularmap		textures/hell/nuckletrim_s.tga
+
+   
+}
+textures/hell/pillarbase
+{
+	//noSelfShadow
+	noshadows	
+	bumpmap			textures/hell/pillarbase_local.tga
+	diffusemap		textures/hell/pillarbase.tga
+	specularmap		textures/hell/pillarbase_s.tga
+
+   
+}
+
+textures/hell/apillar
+{
+	noSelfShadow
+	//noshadows	
+	bumpmap			textures/hell/apillar_local.tga
+	diffusemap		textures/hell/apillar.tga
+	specularmap		textures/hell/apillar_s.tga
+
+   
+}
+textures/hell/vpillar
+{
+	noSelfShadow
+	//noshadows	
+	bumpmap			textures/hell/vpillar_local.tga
+	diffusemap		textures/hell/vpillar.tga
+	specularmap		textures/hell/vpillar_s.tga
+
+   
+}
+
+textures/hell/lavalanrockblend
+{
+	stone
+	   noSelfShadow
+	    noshadows
+	qer_editorimage	textures/hell/dirt02sharprock02noshadow.tga
+
+	{
+		blend 		bumpmap
+		map		textures/hell/lava1_local.tga
+		//scale 3,3
+		//translate	time * 0 , time * 0.01
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+		scale 3,3
+		translate	time * 0 , time * 0.01
+		vertexColor
+	}
+	{
+		blend		add
+		map	      textures/hell/lava1fx.tga
+		//scale 3,3
+		//translate	time * 0 , time * 0.01
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/rock/lanrock1_local.tga, heightmap( textures/rock/lanrock1_h.tga, 8 ) )	
+	}
+	{
+		blend		diffusemap
+		map		textures/rock/lanrock1_d.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/rock/lanrock1_s.tga
+		inverseVertexColor
+		
+	}
+} 
+
+
+textures/hell/sandylanrockblend
+{
+	stone
+	   noSelfShadow
+	    noshadows
+	qer_editorimage	textures/hell/dirt02sharprock02noshadow.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/dirt02sand.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/dirt02_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/rock/lanrock1_local.tga, heightmap( textures/rock/lanrock1_h.tga, 8 ) )	
+	}
+	{
+		blend		diffusemap
+		map		textures/rock/lanrock1_d.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/rock/lanrock1_s.tga
+		inverseVertexColor
+		
+	}
+} 
+
+textures/hell/cbrick_single
+{
+	  //noSelfShadow
+	   // noshadows
+		clamp
+		stone
+	qer_editorimage		textures/hell/cbrick_single
+	    diffusemap		textures/hell/cbrick_single
+		bumpmap		    addnormals( textures/hell/cbrick_single_local.tga, heightmap(textures/hell/cbrick_single_h.tga, 8 ) )
+		specularmap	    textures/hell/cbrick_single_s.tga
+}
+
+textures/hell/bustage
+{
+	   noSelfShadow
+	    noshadows
+
+	qer_editorimage		textures/hell/bustage
+	    diffusemap		textures/hell/bustage
+		bumpmap		    textures/hell/bustage_local
+		specularmap	    textures/hell/bustage_s
+}
+
+textures/hell/dirt02sand
+{
+	   noSelfShadow
+	    noshadows
+	stone
+	qer_editorimage		textures/hell/dirt02sand.tga
+	    diffusemap		textures/hell/dirt02sand.tga
+		bumpmap		    addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+		specularmap	    textures/hell/dirt02_s.tga
+}
+
+
+textures/hell/boney
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/boney.tga
+	    diffusemap		textures/hell/boney.tga
+		bumpmap		    addnormals( textures/hell/boney_local.tga, heightmap( textures/hell/boney_h.tga, 8 ) )
+		specularmap	    textures/hell/boney_s.tga
+}
+
+textures/hell/hhbricks
+{
+	  noSelfShadow
+	  stone
+	    //noshadows
+	qer_editorimage		textures/hell/hhbricks
+	    diffusemap		textures/hell/hhbricks
+		bumpmap		    addnormals( textures/hell/hhbricks_local.tga, heightmap( textures/hell/hhbricks_h.tga, 8 ) )
+		specularmap	    textures/hell/hhbricks_s.tga
+}
+
+textures/hell/htorch
+{
+	  noSelfShadow
+	    noshadows
+	qer_editorimage		textures/hell/htorch.tga
+	    diffusemap		textures/hell/htorch.tga
+		bumpmap		    textures/hell/htorch_local.tga
+		specularmap	    textures/hell/htorch_s.tga
+	{
+		maskcolor
+		map makealpha(textures/hell/htorch_mask.tga)
+		//	scroll	time * 3 , time * 0	
+		//clamp
+	
+	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+	    map textures/hell/htorch_fx.tga
+		translate	time * 0.05 , time * 0
+		rgb		fireballtable[ time * .02 ]
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+	    map textures/hell/htorch_fx.tga
+		translate	time * -0.04 , time * 0
+		rgb		fireballtable[ time * .03 ]
+	}
+
+
+}
+
+
+textures/hell/lava21hell_hub
+{
+	qer_editorimage		textures/hell/lava1movenoshadow.tga
+	 noSelfShadow
+            noimpact
+	    noshadows
+	    	
+
+	{
+		blend 		bumpmap
+		map		    textures/hell/hhlava_local.tga
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+	} 
+	{
+		blend 		specularmap
+		map		textures/hell/hhlava_s.tga
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+	}   
+	{
+
+		blend add
+		map textures/hell/hhlava_fx.tga
+		//rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+	}
+
+
+
+ }
+
+textures/hell/lavasharpyblend2
+{
+	   qer_editorimage		textures/hell/lavaboneyblend.tga
+	   noSelfShadow
+	    noshadows
+
+	{
+		blend 		bumpmap
+		map		    textures/hell/hhlava_local.tga
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/hhlava_s.tga
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+		vertexColor
+	}
+	{
+		blend add
+		map textures/hell/hhlava_fx.tga
+		//rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+} 
+
+
+textures/hell/lavasharpyblend
+{
+	   qer_editorimage		textures/hell/lavaboneyblend.tga
+	   noSelfShadow
+	    noshadows
+
+	{
+		blend 		bumpmap
+		map		    textures/hell/hhlava_local.tga
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/hhlava_s.tga
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+		vertexColor
+	}
+	{
+		blend add
+		map textures/hell/hhlava_fx.tga
+		//rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.02
+		scale .35, .35
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+} 
+
+textures/hell/dirtyboneyblend
+{
+	   noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage	textures/hell/dirt02sharprock02noshadow.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/dirt02.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/dirt02_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/boney_local.tga, heightmap( textures/hell/boney_h.tga, 8 ) )
+		scale 2, 2
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/boney2.tga
+		scale 2, 2
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/boney_s.tga
+		scale 2, 2
+		inverseVertexColor
+		
+	}
+} 
+
+
+textures/hell/dirtysharpyblend
+{
+	   noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage	textures/hell/dirt02sharprock02noshadow.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/dirt02.tga
+		inversevertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/dirt02_s.tga
+		inversevertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		VertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		VertexColor
+	}
+} 
+
+
+textures/hell/lavaboneyblend
+{
+	   qer_editorimage		textures/hell/lavaboneyblend.tga
+	   noSelfShadow
+	    noshadows
+	    stone
+
+	{
+		blend 		bumpmap
+		map		    textures/hell/hhlava_local.tga
+		translate	time * 0 , time * -0.02
+		scale .25, .25
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/hhlava_s.tga
+		translate	time * 0 , time * -0.02
+		scale .25, .25
+		vertexColor
+	}
+	{
+		blend add
+		map textures/hell/hhlava_fx.tga
+		//rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.02
+		scale .25, .25
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/boney_local.tga, heightmap( textures/hell/boney_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/boney.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/boney_s.tga
+		inverseVertexColor
+	}
+} 
+
+
+textures/hell/boney_hellhub
+{
+	  noSelfShadow
+	    noshadows
+	qer_editorimage		textures/hell/boney.tga
+		{
+		blend diffusemap	
+		map	textures/hell/boney2.tga
+		scale 2, 2
+		}
+		{
+		blend bumpmap
+		map	 addnormals( textures/hell/boney_local.tga, heightmap( textures/hell/boney_h.tga, 8 ) )
+		scale 2, 2
+		}
+		{
+		blend specularmap
+		map	textures/hell/boney_s.tga
+		scale 2, 2
+		}
+			   
+
+}
+
+textures/hell/hhstone
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/hhstone
+	    diffusemap		textures/hell/hhstone
+		bumpmap		    addnormals( textures/hell/hhstone_local.tga, heightmap( textures/hell/hhstone_h.tga, 8 ) )
+		specularmap	    textures/hell/hhstone_s
+}
+
+textures/hell/hhstairs
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/hhstairs
+	    diffusemap		textures/hell/hhstairs
+		bumpmap		    addnormals( textures/hell/hhstairs_local.tga, heightmap( textures/hell/hhstairs_h.tga, 8 ) )
+		specularmap	    textures/hell/hhstairs_s
+}
+
+textures/hell/hbranches
+{
+	    noSelfShadow
+	    noshadows
+	    wood
+		twosided
+	qer_editorimage		textures/hell/hbranches
+	  {
+	   blend diffusemap
+	map		textures/hell/hbranches
+		alphatest .3
+	  }
+		bumpmap		    addnormals( textures/hell/hbranches_local.tga, heightmap( textures/hell/hbranches_h.tga, 8 ) )
+		specularmap	    textures/hell/hbranches_s
+}
+
+
+textures/hell/hhconcrete
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/hhconcrete
+	    diffusemap		textures/hell/hhconcrete
+		bumpmap		    addnormals( textures/hell/hhconcrete_local.tga, heightmap( textures/hell/hhconcrete_h.tga, 8 ) )
+		specularmap	    textures/hell/hhconcrete_s
+}
+
+textures/hell/hhstairs2
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/hhstairs2
+	    diffusemap		textures/hell/hhstairs2
+		bumpmap		    addnormals( textures/hell/hhstairs2_local.tga, heightmap( textures/hell/hhstairs_h.tga, 8 ) )
+		specularmap	    textures/hell/hhstairs2_s
+}
+
+textures/hell/hhrubble
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/hhrubble
+	    diffusemap		textures/hell/hhrubble
+		bumpmap		    addnormals( textures/hell/hhrubble_local.tga, heightmap( textures/hell/hhrubble_h.tga, 8 ) )
+		specularmap	    textures/hell/hhrubble_s
+}
+
+textures/hell/hhbannister
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/hhbannister
+	    diffusemap		textures/hell/hhbannister
+		bumpmap		    textures/hell/hhbannister_local
+		specularmap	    textures/hell/hhbannister_s
+}
+
+
+textures/hell/spinalcrap
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/spinalcrap.tga
+	    diffusemap		textures/hell/spinalcrap.tga
+		bumpmap		    addnormals( textures/hell/spinalcrap_local.tga, heightmap( textures/hell/spinalcrap_h.tga, 8 ) )
+		specularmap	    textures/hell/spinalcrap_s.tga
+}
+
+textures/hell/spinalcrap2
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/spinalcrap2.tga
+	    diffusemap		textures/hell/spinalcrap2.tga
+		bumpmap		    addnormals( textures/hell/spinalcrap2_local.tga, heightmap( textures/hell/spinalcrap2_h.tga, 8 ) )
+		specularmap	    textures/hell/spinalcrap2_s.tga
+}
+
+textures/hell/spinalcrap2alpha
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/spinalcrap2.tga
+
+		{
+			blend diffusemap		
+			map  textures/hell/spinalcrap2.tga
+			alphatest .5
+        }
+		bumpmap		    addnormals( textures/hell/spinalcrap2_local.tga, heightmap( textures/hell/spinalcrap2_h.tga, 8 ) )
+		specularmap	    textures/hell/spinalcrap2_s.tga
+}
+
+textures/hell/skullspinalcrap
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/skullspinalcrap.tga
+	    diffusemap		textures/hell/skullspinalcrap.tga
+		bumpmap		    addnormals( textures/hell/skullspinalcrap_local.tga, heightmap( textures/hell/skullspinalcrap_h.tga, 8 ) )
+		specularmap	    textures/hell/skullspinalcrap_s.tga
+}
+
+textures/hell/hellbark
+{
+	  noSelfShadow
+	    noshadows
+	    wood
+	qer_editorimage		textures/hell/hellbark.tga
+	    diffusemap		textures/hell/hellbark.tga
+		bumpmap		    textures/hell/hellbark_local.tga
+		specularmap	    textures/hell/hellbark_s.tga
+}
+
+
+
+
+
+textures/hell/pentabase2
+{
+	   noSelfShadow
+	    noshadows
+		stone
+	qer_editorimage		textures/hell/pentabase.tga
+	    diffusemap		textures/hell/pentabase.tga
+		bumpmap		    addnormals( textures/hell/pentabase_local.tga, heightmap( textures/hell/pentabase_h.tga, 4 ) )
+		specularmap	    textures/hell/pentabase_s.tga
+	{
+		maskcolor
+		map makealpha(textures/hell/pentastic1.tga)
+		//	scroll	time * 3 , time * 0	
+		//clamp
+	
+	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+		map textures/hell/pentastic1fx.tga
+		rotate	( time * .05 )
+		clamp
+	}
+	{
+		blend add
+		map textures/hell/pentastic1.tga
+		rgb		fireballtable[ time * .07 ]
+		clamp
+	}
+
+}
+
+textures/hell/pentabase_decal
+{
+	   noSelfShadow
+	    noshadows
+		translucent
+		
+
+	qer_editorimage		textures/hell/pentabase.tga
+	{
+		maskcolor
+		map makealpha(textures/hell/pentastic1.tga)
+		//	scroll	time * 3 , time * 0	
+		//clamp
+	
+	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+		map textures/hell/pentastic1fx.tga
+		rotate	( time * .05 )
+		clamp
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+		map textures/hell/pentastic1fx.tga
+		rotate	( time * -.06 )
+		clamp
+	}
+
+}
+
+textures/hell/pentabase
+{
+	   noSelfShadow
+	    noshadows
+	    stone
+
+	qer_editorimage		textures/hell/pentabase.tga
+	    diffusemap		textures/hell/pentabase.tga
+		bumpmap		    addnormals( textures/hell/pentabase_local.tga, heightmap( textures/hell/pentabase_h.tga, 4 ) )
+		specularmap	    textures/hell/pentabase_s.tga
+	{
+		maskcolor
+		map makealpha(textures/hell/pentastic1.tga)
+		//	scroll	time * 3 , time * 0	
+		//clamp
+	
+	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+		map textures/hell/pentastic1fx.tga
+		rotate	( time * .05 )
+		clamp
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+		map textures/hell/pentastic1fx.tga
+		rotate	( time * -.06 )
+		clamp
+	}
+
+}
+
+textures/hell/pentabloodtastic1
+{
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	qer_editorimage textures/hell/pentabloodtastic1.tga
+
+	{       
+      		blend		gl_dst_color,gl_zero
+		map		textures/hell/pentabloodtastic1	
+		
+	}
+
+
+
+}
+
+textures/hell/pentastic1_spectrum
+{
+	qer_editorimage textures/hell/pentastic1.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map textures/hell/pentastic1.tga
+
+	}
+     
+}
+
+textures/decals/yesno
+{
+	qer_editorimage textures/decals/yesno.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	{       
+      	blend	add
+		map textures/decals/yesno.tga
+		//vertexcolor
+
+	}
+     
+}
+
+textures/hell/pentastic2
+{
+	qer_editorimage textures/hell/pentastic1.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	{       
+      	blend	add
+		map textures/hell/pentastic1.tga
+		vertexcolor
+
+	}
+     
+}
+
+
+textures/hell/pentastic1
+{
+	qer_editorimage		textures/hell/pentastic1.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		maskcolor
+		map makealpha(textures/hell/pentastic1.tga)
+		//	scroll	time * 3 , time * 0	
+		//clamp
+	
+	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	    maskalpha
+		map textures/hell/pentastic1fx.tga
+		rotate	( time * .05 )
+		clamp
+	}
+	{
+		blend add
+		map textures/hell/pentastic1.tga
+		rgb		fireballtable[ time * .07 ]
+		clamp
+	}
+	
+}
+
+
+textures/hell/hellcrystal
+
+{
+	noshadows
+	noselfShadow
+	glass
+	{       
+      		 blend	diffuseMap 
+		     map	textures/hell/hellcrystal.tga
+		    clamp
+	}
+	{
+		blend gl_dst_color,gl_zero
+		cubeMap		env/souls
+		texgen		reflect
+	}
+	{       
+      		 blend	specularMap 
+		     map	textures/hell/hellcrystal_s.tga
+		    clamp
+	}	
+}
+
+textures/hell/peekaboo
+{
+	qer_editorimage textures/hell/peekaboo.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+		blend	diffusemap
+		map     textures/hell/peekaboo.tga
+	}   
+}
+
+
+
+textures/hell/lava1sharprock02noshadow
+{
+	   noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage	textures/hell/lava1sharprock02noshadow.tga
+	deform particle lava2move    	
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		vertexColor
+	}
+        {
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .05 ]
+                vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/lava1_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+}
+
+textures/hell/lava1move2sharprock02noshadow
+{
+	   qer_editorimage		textures/hell/lava1move2sharprock02noshadow.tga
+	   noSelfShadow
+	    noshadows
+	    stone
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/dirt02_s.tga
+		vertexColor
+	}
+	{
+		maskcolor
+		map textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+		vertexColor
+	}
+	{
+		blend gl_dst_alpha , gl_one_minus_dst_alpha
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .6 ]
+		translate	time * 0.02 , time * 0.1
+		vertexColor
+	}
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+} 
+
+textures/hell/lava1move3sharprock02ns
+{
+	   qer_editorimage		textures/hell/lava1move3sharprock02ns.tga
+	   noSelfShadow
+	    noshadows
+	    stone
+           deform particle lava2move
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.03
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/dirt02_s.tga
+		vertexColor
+	}
+	{
+		maskcolor
+		map textures/hell/lava1.tga
+		translate	time * 0 , time * -0.03
+		vertexColor
+	}
+	{
+		blend gl_dst_alpha , gl_one_minus_dst_alpha
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .08 ]
+		translate	time * 0.02 , time * 0.03
+		vertexColor
+	}
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .04 ]
+		translate	time * 0 , time * -0.03
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+} 
+
+textures/hell/lava1movenoshadow
+{
+	qer_editorimage		textures/hell/lava1movenoshadow.tga
+	 noSelfShadow
+	    noshadows
+	    	
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+	}   
+	{
+		maskcolor
+		map textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+	}
+	{
+		blend gl_dst_alpha , gl_one_minus_dst_alpha
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .6 ]
+		translate	time * 0.02 , time * 0.1
+	}
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+	}
+ }
+
+/*
+
+textures/hell/lava1movenoshadow
+{
+	qer_editorimage		textures/hell/lava1.tga
+	 noSelfShadow
+	    noshadows
+	    	
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+	}   
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+	}
+ }
+
+*/
+
+textures/hell/dirt02sharprock02noshadow
+{
+	   noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage	textures/hell/dirt02sharprock02noshadow.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/dirt02.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/dirt02_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+} 
+
+textures/hell/dirt02noshadow
+{
+	   noSelfShadow
+	    noshadows
+	    stone
+
+	qer_editorimage		textures/hell/dirt02.tga
+	    diffusemap		textures/hell/dirt02.tga
+		bumpmap		    addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+		specularmap	    textures/hell/dirt02_s.tga
+}
+
+
+textures/hell/sharprock2noshadow
+{
+	  noSelfShadow
+	    noshadows
+	    stone
+	qer_editorimage		textures/hell/sharprock2noshadow.tga
+	    diffusemap		textures/hell/sharprock2.tga
+		bumpmap		    addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+		specularmap	    textures/hell/sharprock2_s.tga
+}
+
+
+
+textures/hell/pentagram2
+{
+	qer_editorimage		textures/hell/pentagram2.tga
+	stone
+	    diffusemap		textures/hell/pentagram2.tga
+		bumpmap		    addnormals( textures/hell/pentagram2_local.tga, heightmap( textures/hell/pentagram2_h.tga, 8 ) )
+		specularmap	    textures/hell/pentagram2_s.tga
+		{
+				blend add
+				map     textures/hell/pentagramfx.tga
+				rgb		fireballtable[ time * .1 ]
+
+		}
+}
+
+
+
+
+textures/hell/lava2
+{
+	qer_editorimage		textures/hell/lava2.tga
+				{
+				map     textures/hell/lava2.tga
+				scale	1 , 1
+				translate	time * 0.005, time * -0.01
+				rgb		fireballtable[ time * .05 ]
+				}
+				{
+				blend add
+				map     textures/hell/lava2.tga
+				scale	1.4, 1.5
+				translate	time * 0, time * -0.03
+				rgb		fireballtable[ time * .04 ]
+
+				}
+				{
+				blend add
+				map     textures/hell/lava2.tga
+				scale	.8, 1.1
+				translate	time * -0.001, time * -0.02
+				rgb		fireballtable[ time * .1 ]
+
+				}
+}
+
+textures/hell/lava1
+{
+	qer_editorimage		textures/hell/lava1.tga
+	    diffusemap		textures/hell/lava1.tga
+		bumpmap		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+		translate	time * .02 , time * -0.05
+
+
+	}   
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .05 ]
+	}
+}
+
+textures/hell/lava1move
+{
+	qer_editorimage		textures/hell/lava1move.tga
+	deform particle lava1move    	
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+	}   
+	{
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .5 ]
+		translate	time * 0 , time * -0.1
+	}
+}
+
+
+textures/hell/dirt02
+{
+	qer_editorimage		textures/hell/dirt02.tga
+	stone
+	    diffusemap		textures/hell/dirt02.tga
+		bumpmap		    addnormals( textures/hell/dirt02_local.tga, heightmap( textures/hell/dirt02_h.tga, 8 ) )
+		specularmap	    textures/hell/dirt02_s.tga
+}
+
+
+
+textures/hell/dirt01
+{
+	qer_editorimage		textures/hell/dirt01.tga
+	stone
+	
+	    diffusemap		textures/hell/dirt01.tga
+		bumpmap		    addnormals( textures/hell/dirt01_local.tga, heightmap( textures/hell/dirt01_h.tga, 8 ) )
+		specularmap	    textures/hell/dirt01_s.tga
+}
+
+
+textures/hell/qbrick1
+{
+	qer_editorimage		textures/hell/qbrick1.tga
+	stone
+	    diffusemap		textures/hell/qbrick1.tga
+		bumpmap		    addnormals( textures/hell/qbrick1_local.tga, heightmap( textures/hell/cbrick4_h.tga, 8 ) )
+		specularmap	    textures/hell/qbrick1_s.tga
+}
+
+
+textures/hell/sharpbreakblend
+{
+	stone
+	qer_editorimage textures/hell/sharpbreakblend.tga
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/breakage1_local.tga, heightmap( textures/hell/breakage1_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/breakage1.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/breakage1_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock1_local.tga, heightmap( textures/hell/sharprock1_h.tga, 7 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock1.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock1_s.tga
+		inverseVertexColor
+	}
+} 
+
+
+textures/hell/cracksharpblend
+{
+	qer_editorimage textures/hell/cracksharpblend.tga
+	stone
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/cracked1_local.tga, heightmap( textures/hell/cracked1_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/cracked1.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/cracked1_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock1_local.tga, heightmap( textures/hell/sharprock1_h.tga, 7 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock1.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock1_s.tga
+		inverseVertexColor
+	}
+} 
+
+
+
+
+textures/hell/breakageblend
+{
+	qer_editorimage		textures/hell/sharprock1.tga
+	stone
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/sharprock1_local.tga, heightmap( textures/hell/sharprock1_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/sharprock1.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/sharprock1_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+		translate	time * -.1 , time * -0.1
+	}
+	{
+		blend		diffusemap
+		map		models/kenneth/tunnel.tga
+		translate	time * .047 , time * .03
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		models/kenneth/tunnel_s.tga
+		//translate	time * .02 , time * -0.4
+		inverseVertexColor
+	}
+} 
+
+textures/hell/bloodsharpblend
+{
+	qer_editorimage		textures/hell/bloodsharpblend.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/sharprock1_local.tga, heightmap( textures/hell/sharprock1_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/sharprock1.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/sharprock1_s.tga
+		vertexColor
+	}
+    {
+		blend		bumpmap
+		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
+		translate	time * -.01 , time * -0.01
+	}
+		{
+		blend		diffusemap
+		map		textures/hell/blood_stream1.tga   
+		translate	time * .015 , time * -.03
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/blood_stream1_s.tga
+		translate	time * .02 , time * -0.05
+		inverseVertexColor
+
+	}
+} 
+
+
+textures/hell/bloodcrackblend
+{
+	qer_editorimage		textures/hell/bloodsharpblend.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/cracked1_local.tga, heightmap( textures/hell/cracked1_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/cracked1.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/cracked1_s.tga
+		vertexColor
+	}
+
+
+	{
+		blend		diffusemap
+		map		textures/hell/blood_stream1.tga   
+		translate	time * .015 , time * -.03
+		inverseVertexColor
+	}
+    {
+		blend		bumpmap
+		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
+		translate	time * -.01 , time * -0.01
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/blood_stream1_s.tga
+		translate	time * .02 , time * -0.05
+		inverseVertexColor
+
+	}
+} 
+
+
+textures/hell/blood_stream1
+{
+	qer_editorimage		textures/hell/blood_stream1.tga
+	      
+	{
+		blend		diffusemap
+		map		textures/hell/blood_stream1.tga   
+		translate	time * .015 , time * -.03
+	}
+    {
+		blend		bumpmap
+		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
+		translate	time * -.01 , time * -0.01
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/blood_stream1_s.tga
+		translate	time * .02 , time * -0.05
+
+	}
+
+}
+
+
+
+textures/hell/steamtrim1
+{
+	qer_editorimage		textures/hell/steamtrim1.tga
+	    diffusemap		textures/hell/steamtrim1.tga
+		bumpmap		    addnormals( textures/hell/steamtrim1_local.tga, heightmap( textures/hell/steamtrim1_h.tga, 8 ) )
+		specularmap	    textures/hell/steamtrim1_s.tga
+}
+
+
+
+textures/hell/skulltrim1
+{
+	qer_editorimage		textures/hell/skulltrim1.tga
+	stone
+	    diffusemap		textures/hell/skulltrim1.tga
+		bumpmap		    addnormals( textures/hell/skulltrim1_local.tga, heightmap( textures/hell/skulltrim1_h.tga, 4 ) )
+		specularmap	    textures/hell/skulltrim1_s.tga
+}
+
+
+
+textures/hell/bushes
+{
+	qer_editorimage		textures/hell/bushes.tga
+	wood
+	   	
+		{       
+      		blend	diffusemap
+			 map	textures/hell/bushes.tga
+			 alphaTest 0.5
+		}	
+		bumpmap		    addnormals( textures/hell/bushes_local.tga, heightmap( textures/hell/bushes_h.tga, 4 ) )
+		specularmap	    textures/hell/bushes_s.tga
+}
+
+
+
+models/kenneth/tunnel
+{
+        noSelfShadow
+		//unsmoothedTangents
+renderbump  -size 2048 1024 -trace .2  -colorMap -aa 2 models/kenneth/tunnel_local.tga models/kenneth/tunnel_hi.lwo
+
+
+
+        	
+		//  bumpmap		addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+	{ 
+            blend	bumpmap
+	 		map	addnormals( models/kenneth/tunnel_local.tga, heightmap( models/kenneth/tunnel_h.tga, 7 ) )
+			translate	time * -.1 , time * -0.1
+	}
+	{ 
+            blend	diffusemap
+	 		map	models/kenneth/tunnel.tga
+			translate	time * .047 , time * .03
+	}
+	{ 
+        	blend	specularmap
+	 		map	models/kenneth/tunnel_s.tga
+			//translate	time * .02 , time * -0.4
+	}
+   
+    
+}
+
+
+
+textures/hell/wood1
+{
+	wood
+	qer_editorimage		textures/hell/wood1.tga
+	    diffusemap		textures/hell/wood1.tga
+		bumpmap		    addnormals( textures/hell/wood1_local.tga, heightmap( textures/hell/wood1_h.tga, 4 ) )
+		specularmap	    textures/hell/wood1_s.tga
+}
+
+
+
+textures/hell/breakage1
+{
+		noSelfShadow
+	qer_editorimage		textures/hell/breakage1.tga
+	    diffusemap		textures/hell/breakage1.tga
+		bumpmap		    addnormals( textures/hell/breakage1_local.tga, heightmap( textures/hell/breakage1_h.tga, 8 ) )
+		specularmap	    textures/hell/breakage1_s.tga
+}
+
+textures/hell/stone1nsf
+{
+	noselfshadow
+	noshadows
+	stone
+	qer_editorimage		textures/hell/stone1.tga
+
+	    diffusemap		textures/hell/stone1.tga
+		bumpmap		    addnormals( textures/hell/stone1_local.tga, heightmap( textures/hell/stone1_h.tga, 5 ) )
+		specularmap	    textures/hell/stone1_s.tga
+}
+
+
+textures/hell/stone1
+{
+	qer_editorimage		textures/hell/stone1.tga
+	stone
+	    diffusemap		textures/hell/stone1.tga
+		bumpmap		    addnormals( textures/hell/stone1_local.tga, heightmap( textures/hell/stone1_h.tga, 5 ) )
+		specularmap	    textures/hell/stone1_s.tga
+}
+
+textures/hell/stone2
+{
+	qer_editorimage		textures/hell/stone2.tga
+	stone
+
+		
+	    {       
+        blend	diffusemap
+	    map	textures/hell/stone2.tga
+	    alphaTest 0.8
+		}	
+		bumpmap		    addnormals( textures/hell/stone2_local.tga, heightmap( textures/hell/stone2_h.tga, 5 ) )
+		specularmap	    textures/hell/stone2_s.tga
+		
+}
+
+
+textures/hell/stone2fx
+{
+	discrete
+	stone
+	//translucent
+	noshadows
+	qer_editorimage	textures/hell/stone2fx.tga
+	{
+		mirrorRenderMap		512 256
+		blend	blend
+		red		1
+		green	0.65
+		blue	0.6
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+    }
+
+	{
+		blend diffuseMap
+		map textures/hell/stone2fx.tga
+	    
+	}
+
+}
+
+textures/hell/cracked2lava
+{
+	qer_editorimage		textures/hell/cracked2lava.tga
+	    diffusemap		textures/hell/cracked2lava.tga
+		bumpmap		    addnormals( textures/hell/cracked2b_local.tga, heightmap( textures/hell/cracked2_h.tga, 9 ) )
+		specularmap	    textures/hell/cracked2lava_s.tga
+	{
+		blend add
+		map textures/hell/cracked2fx.tga
+		rgb		fireballtable[ time * .15 ]
+	}
+}
+
+textures/hell/cracked2
+{
+	qer_editorimage		textures/hell/cracked2.tga
+	    diffusemap		textures/hell/cracked2.tga
+		bumpmap		    addnormals( textures/hell/cracked2b_local.tga, heightmap( textures/hell/cracked2_h.tga, 9 ) )
+		specularmap	    textures/hell/cracked2_s.tga
+}
+
+textures/hell/cracked1
+{
+	qer_editorimage		textures/hell/cracked1.tga
+	    diffusemap		textures/hell/cracked1.tga
+		bumpmap		    addnormals( textures/hell/cracked1_local.tga, heightmap( textures/hell/cracked1_h.tga, 6 ) )
+		specularmap	    textures/hell/cracked1_s.tga
+}
+
+textures/hell/sharprock3
+{
+	//noSelfShadow
+	stone
+	qer_editorimage		textures/hell/sharprock3.tga
+	    diffusemap		textures/hell/sharprock3.tga
+		bumpmap		    addnormals( textures/hell/sharprock3_local.tga, heightmap( textures/hell/sharprock1_h.tga, 3 ) )
+		specularmap	    textures/hell/sharprock3_s.tga
+}
+
+
+
+
+textures/hell/sharprock2
+{
+	//noSelfShadow
+	stone
+	qer_editorimage		textures/hell/sharprock2.tga
+	    diffusemap		textures/hell/sharprock2.tga
+		bumpmap		    addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+		specularmap	    textures/hell/sharprock2_s.tga
+}
+
+
+
+
+
+
+textures/hell/sharprock1
+{
+	//noSelfShadow
+	stone
+	qer_editorimage		textures/hell/sharprock1.tga
+	    diffusemap		textures/hell/sharprock1.tga
+		bumpmap		    addnormals( textures/hell/sharprock1_local.tga, heightmap( textures/hell/sharprock1_h.tga, 7 ) )
+		specularmap	    textures/hell/sharprock1_s.tga
+}
+
+textures/hell/cbrick4
+{
+	qer_editorimage		textures/hell/cbrick4.tga
+	stone
+	    diffusemap		textures/hell/cbrick4.tga
+		bumpmap		    addnormals( textures/hell/cbrick4_local.tga, heightmap( textures/hell/cbrick4_h.tga, 8 ) )
+		specularmap	    textures/hell/cbrick4_s.tga
+}
+
+textures/hell/cbrick3
+{
+	qer_editorimage		textures/hell/cbrick3.tga
+	stone
+	    diffusemap		textures/hell/cbrick3.tga
+		bumpmap		    addnormals( textures/hell/cbrick3b_local.tga, heightmap( textures/hell/cbrick3_h.tga, 8 ) )
+		specularmap	    textures/hell/cbrick3_s.tga
+}
+
+
+textures/hell/cbrick1
+{
+	qer_editorimage		textures/hell/cbrick1.tga
+	stone
+	    diffusemap		textures/hell/cbrick1.tga
+		bumpmap		    addnormals( textures/hell/cbrick1_local.tga, heightmap( textures/hell/cbrick1_h.tga, 8 ) )
+		specularmap	    textures/hell/cbrick1_s.tga
+}
+
+textures/hell/cbrick2
+{
+	qer_editorimage		textures/hell/cbrick2.tga
+	stone
+	    diffusemap		textures/hell/cbrick2.tga
+		bumpmap		    addnormals( textures/hell/cbrick2_local.tga, heightmap( textures/hell/breakage1_h.tga, 3 ) )
+		specularmap	    textures/hell/cbrick2_s.tga
+}
+
+textures/hell/cbrick2b
+{
+	qer_editorimage		textures/hell/cbrick2b.tga
+	stone
+	    diffusemap		textures/hell/cbrick2b.tga
+		bumpmap		    addnormals( textures/hell/cbrick2b_local.tga, heightmap( textures/hell/breakage1_h.tga, 3 ) )
+		specularmap	    textures/hell/cbrick2b_s.tga
+}
+
+textures/hell/cbrick2c
+{
+	qer_editorimage		textures/hell/cbrick2c.tga
+	stone
+	    diffusemap		textures/hell/cbrick2c.tga
+		bumpmap		    addnormals( textures/hell/cbrick2c_local.tga, heightmap( textures/hell/breakage1_h.tga, 3 ) )
+		specularmap	    textures/hell/cbrick2c_s.tga
+}
+
+textures/hell/cbrick_id
+{
+	qer_editorimage		textures/hell/cbrick_id_d.tga
+	stone
+	    diffusemap		textures/hell/cbrick_id_d.tga
+		bumpmap		    addnormals( textures/hell/cbrick_id_local.tga, heightmap( textures/hell/cbrick_id_h.tga, 5 ) )
+		specularmap	    textures/hell/cbrick_id_s.tga
+}
+
+textures/hell/cbrick_rage
+{
+	qer_editorimage		textures/hell/cbrick_rage_d.tga
+	stone
+	    diffusemap		textures/hell/cbrick_rage_d.tga
+		bumpmap		    addnormals( textures/hell/cbrick_id_local.tga, heightmap( textures/hell/cbrick_rage_h.tga, 5 ) )
+		specularmap	    textures/hell/cbrick_id_s.tga
+}
+
+textures/hell/cbrick2c2
+{
+	qer_editorimage		textures/hell/cbrick2c.tga
+	stone
+	    diffusemap		textures/hell/cbrick2c.tga
+		bumpmap		    addnormals( textures/hell/cbrick2c_local.tga, heightmap( textures/hell/breakage1_h.tga, 3 ) )
+		specularmap	    textures/hell/cbrick2c_s.tga
+}
+textures/hell/cbrick2c3
+{
+	qer_editorimage		textures/hell/cbrick2c.tga
+	stone
+	    diffusemap		textures/hell/cbrick2c.tga
+		bumpmap		    addnormals( textures/hell/cbrick2c_local.tga, heightmap( textures/hell/breakage1_h.tga, 3 ) )
+		specularmap	    textures/hell/cbrick2c_s.tga
+}
+
+textures/helltemp/afloor1b_f
+{
+	qer_editorimage		textures/helltemp/afloor1b_f.tga
+	stone
+	diffusemap		textures/helltemp/afloor1b_f.tga
+}
+
+textures/helltemp/awall2h
+{
+	qer_editorimage		textures/helltemp/awall2h.tga
+	stone
+	diffusemap		textures/helltemp/awall2h.tga
+}
+
+textures/helltemp/awall4j
+{
+	qer_editorimage		textures/helltemp/awall4j.tga
+	stone
+	diffusemap		textures/helltemp/awall4j.tga
+}
+textures/hell/spine02a
+{
+	qer_editorimage		textures/hell/spine02a.tga
+	stone
+	diffusemap		textures/hell/spine02a_d.tga
+        bumpmap                 heightmap( textures/hell/spine02a_b.tga, 4)
+}
+
+textures/hell/spine02a_2
+{
+	qer_editorimage		textures/hell/spine02a_2.tga
+	stone
+	diffusemap		textures/hell/spine02a_d2.tga
+        bumpmap                 heightmap( textures/hell/spine02a_b2.tga, 4)
+}
+
+
+textures/hell/spine01a
+{
+	qer_editorimage		textures/hell/spine01a.tga
+	stone
+	diffusemap		textures/hell/spine01a_d.tga
+        bumpmap                 heightmap( textures/hell/spine01a_b.tga, 4)
+}
+
+textures/hell/askin_02d
+{
+	qer_editorimage		textures/hell/askin_02d.tga
+	flesh
+	diffusemap		textures/hell/askin_d02d.tga
+        bumpmap                 heightmap( textures/hell/askin_b02d.tga, 5)
+}
+
+textures/hell/askin_02e
+{
+	qer_editorimage		textures/hell/askin_02e.tga
+	flesh
+	diffusemap		textures/hell/askin_d02e.tga
+        bumpmap                 heightmap( textures/hell/askin_b02d.tga, 5)
+}
+
+
+textures/hell/askin_03a
+{
+	qer_editorimage		textures/hell/askin_03a.tga
+	flesh
+	diffusemap		textures/hell/askin_d03a.tga
+        bumpmap                 addnormals( textures/hell/askin_local.tga  , heightmap( textures/hell/askin_b02d.tga, 5 ) )
+}
+
+textures/hell/askin_03c
+{
+	qer_editorimage		textures/hell/askin_03c.tga
+	flesh
+	{       
+      	 blend	diffuseMap 
+	 map	textures/hell/askin_d03c.tga
+	 alphaTest 0.5
+	}
+        bumpmap                 addnormals( textures/hell/askin_local.tga  , heightmap( textures/hell/askin_b02d.tga, 5 ) )
+}
+
+textures/hell/askin_03e
+{
+	qer_editorimage		textures/hell/askin_03e.tga
+	flesh
+	{       
+      	 blend	diffuseMap 
+	 map	textures/hell/askin_d03e.tga
+	 alphaTest 0.5
+	}
+        bumpmap                 heightmap( textures/hell/askin_b02d.tga, 5 ) 
+}
+
+textures/hell/askin_d06b
+{
+	qer_editorimage		textures/hell/askin_d06b.tga
+	flesh
+	diffusemap		textures/hell/askin_d06b.tga
+        specularmap	        textures/hell/askin_s06b.tga
+        bumpmap                 heightmap( textures/hell/askin_b06b, 5)
+}
+textures/hell/slime_d05b
+{
+	qer_editorimage		textures/hell/slime_05b.tga
+	diffusemap		textures/hell/slime_d05b.tga
+        specularmap	        textures/hell/slime_s05b.tga
+        bumpmap                 heightmap( textures/hell/slime_b05b.tga, 6)
+}
+
+textures/hell/slime_d05c
+{
+	qer_editorimage		textures/hell/slime_05b.tga
+	diffusemap		textures/hell/slime_d05c.tga
+        specularmap	        textures/hell/slime_s05b.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_d05e
+{
+	qer_editorimage		textures/hell/slime_05b.tga
+	diffusemap		textures/hell/slime_d05e.tga
+        specularmap	        textures/hell/slime_s05b.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_d05f
+{
+	qer_editorimage		textures/hell/slime_05b.tga
+	diffusemap		textures/hell/slime_d05f.tga
+        specularmap	        textures/hell/slime_s05b.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_d05g
+{
+	qer_editorimage		textures/hell/slime_05b.tga
+	diffusemap		textures/hell/slime_d05g.tga
+        specularmap	        textures/hell/slime_s05b.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_d05h
+{
+	qer_editorimage		textures/hell/slime_05b.tga
+	diffusemap		textures/hell/slime_d05h.tga
+        specularmap	        textures/hell/slime_s05b.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_dblood01
+{
+	qer_editorimage		textures/hell/slime_dblood01.tga
+	diffusemap		textures/hell/slime_dblood01.tga
+        specularmap	        textures/hell/slime_sblood01.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_bblood01.tga, 6))
+}
+
+textures/hell/slime_dblood02
+{
+	qer_editorimage		textures/hell/slime_dblood02.tga
+	diffusemap		textures/hell/slime_dblood02.tga
+        specularmap	        textures/hell/slime_sblood02.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_bblood01.tga, 6))
+}
+
+
+textures/hell/slime_dblood03
+{
+	qer_editorimage		textures/hell/slime_dblood03.tga
+	diffusemap		textures/hell/slime_dblood03.tga
+        specularmap	        textures/hell/slime_sblood02.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_bblood01.tga, 6))
+}
+
+textures/hell/slime_dblood04
+{
+	qer_editorimage		textures/hell/slime_dblood04.tga
+	diffusemap		textures/hell/slime_dblood04.tga
+        specularmap	        textures/hell/slime_sblood02.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_bblood01.tga, 6))
+}
+
+
+textures/hell/slime_dblood05
+{
+	qer_editorimage		textures/hell/slime_dblood05.tga
+	diffusemap		textures/hell/slime_dblood05.tga
+        specularmap	        textures/hell/slime_sblood02.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_bblood01.tga, 6))
+}
+
+textures/hell/slime_dblood_wall01
+{
+	qer_editorimage		textures/hell/slime_dblood_wall01.tga
+	diffusemap		textures/hell/slime_dblood_wall01.tga
+        specularmap	        textures/hell/slime_sblood_wall01.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_dblood_wall02
+{
+	qer_editorimage		textures/hell/slime_dblood_wall02.tga
+	diffusemap		textures/hell/slime_dblood_wall02.tga
+        specularmap	        textures/hell/slime_sblood_wall01.tga
+        bumpmap                 addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/slime_dblood_wall03
+{
+	qer_editorimage		textures/hell/slime_dblood_wall03.tga
+	diffusemap			textures/hell/slime_dblood_wall03.tga
+    specularmap	        textures/hell/slime_sblood_wall01.tga
+    bumpmap             addnormals( textures/hell/hellbubbles_local.tga  , heightmap( textures/hell/slime_b05b.tga, 6))
+}
+
+textures/hell/spectrum_symbol_letters_01
+{
+	qer_editorimage textures/decals/symbol_letters_31d.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol_letters_31d.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol_letters_31d.tga
+	}
+}
+
+textures/hell/spectrum_symbol_letters_02
+{
+	qer_editorimage textures/decals/symbol_letters_32d.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol_letters_32d.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol_letters_32d.tga
+	}
+}
+
+textures/hell/symbol_spawn_d01a
+{
+	qer_editorimage textures/decals/symbol_spawn_d01a.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol_spawn_d01a.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol_spawn_d01a.tga
+	}
+}
+
+textures/hell/symbol_spawn_d02a
+{
+	qer_editorimage textures/decals/symbol_spawn_d02a.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol_spawn_d02a.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol_spawn_d02a.tga
+	}
+}
+
+textures/hell/symbol_spawn_d03a
+{
+	qer_editorimage textures/decals/symbol_spawn_d03a.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol_spawn_d03a.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol_spawn_d03a.tga
+	}
+}
+
+
+
+
+
+textures/hell/spectrum_symbol03
+{
+	qer_editorimage textures/decals/symbol03.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol03.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol03.tga
+	}
+}
+
+textures/hell/spectrum_symbol04
+{
+	qer_editorimage textures/decals/symbol04.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol04.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol04.tga
+	}
+}
+
+
+
+textures/hell/spectrum_symbol05
+{
+	qer_editorimage textures/decals/symbol05.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol05.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol05.tga
+	}
+}
+
+
+
+textures/hell/spectrum_symbol06
+{
+	qer_editorimage textures/decals/symbol06.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 1
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol06.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol06.tga
+	}
+}
+
+
+textures/hell/hellbones_d02a
+{
+	qer_editorimage		textures/hell/hellbones_d02a.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d02a.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d02b_local.tga  , heightmap( textures/hell/hellbones_b02a.tga, 2)) 
+}
+
+textures/hell/hellbones_d02b
+{
+	qer_editorimage		textures/hell/hellbones_d02b.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d02b.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d02b_local.tga  , heightmap( textures/hell/hellbones_b02b.tga, 2))   
+}
+
+textures/hell/hellbones_d02d
+{
+	qer_editorimage		textures/hell/hellbones_d02d.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d02d.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d02d_local.tga  , heightmap( textures/hell/hellbones_b02d.tga, 2))   
+}
+
+textures/hell/hellbones_d04d
+{
+	qer_editorimage		textures/hell/hellbones_d04d.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d04d.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d02d_local.tga  , heightmap( textures/hell/hellbones_b04d.tga, 2))  
+}
+
+textures/hell/hellbones_d04ddarker
+{
+	qer_editorimage		textures/hell/hellbones_d04ddarker.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d04ddarker.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d02d_local.tga  , heightmap( textures/hell/hellbones_b04d.tga, 2))    
+}
+
+textures/hell/hellbones_d04f
+{
+	qer_editorimage		textures/hell/hellbones_d04f.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d04f.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d02d_local.tga  , heightmap( textures/hell/hellbones_b04f.tga, 2)) 
+}
+
+textures/hell/hellbones_d05b
+{
+	qer_editorimage		textures/hell/hellbones_d05b.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d05b.tga
+      bumpmap                 addnormals( textures/hell/hellbones_d05b_local.tga  , heightmap( textures/hell/hellbones_b05b.tga, 2)) 
+}
+
+textures/hell/hellflesh_d01e
+{
+	qer_editorimage		textures/hell/hellflesh_d01e.tga
+	flesh
+	diffusemap		      textures/hell/hellflesh_d01e.tga
+      bumpmap                 heightmap( textures/hell/hellflesh_b01e.tga, 6)
+      specularmap	            textures/hell/hellflesh_s01e.tga   
+}
+
+textures/hell/hellflesh_d01edarker
+{
+	qer_editorimage		textures/hell/hellflesh_d01edarker.tga
+	flesh
+	diffusemap		      textures/hell/hellflesh_d01edarker.tga
+      bumpmap                 heightmap( textures/hell/hellflesh_b01e.tga, 6) 
+      specularmap	            textures/hell/hellflesh_s01e.tga 
+}
+
+textures/hell/hellbones_d07a
+{
+	qer_editorimage		textures/hell/hellbones_d07a.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07a.tga
+      specularmap	            textures/hell/hellbones_s07a.tga
+      bumpmap                 heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07adarker
+{
+	qer_editorimage		textures/hell/hellbones_d07adarker.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07adarker.tga
+      specularmap	            textures/hell/hellbones_s07adarker.tga
+      bumpmap                  heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07b
+{
+	qer_editorimage		textures/hell/hellbones_d07b.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07b.tga
+      specularmap	            textures/hell/hellbones_s07b.tga
+      bumpmap                 addnormals( textures/hell/hellbones_local07b.tga, heightmap( textures/hell/hellbones_d07bbump.tga, 8))  
+}
+
+
+
+textures/hell/hellbones_d07bchg1
+{
+	qer_editorimage		textures/hell/hellbones_d07bchg1.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07bchg1.tga
+      specularmap	            textures/hell/hellbones_s07bchg1.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+
+
+textures/hell/hellbones_d07c
+{
+	qer_editorimage		textures/hell/hellbones_d07c.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07c.tga
+      specularmap	            textures/hell/hellbones_s07c.tga
+      bumpmap                 heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07d
+{
+	qer_editorimage		textures/hell/hellbones_d07d.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07d.tga
+      specularmap	            textures/hell/hellbones_s07d.tga
+      bumpmap                  heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07dchg1
+{
+	qer_editorimage		textures/hell/hellbones_d07dchg1.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07dchg1.tga
+      specularmap	            textures/hell/hellbones_s07dchg1.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+
+textures/hell/hellbones_d07e
+{
+	qer_editorimage		textures/hell/hellbones_d07e.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07e.tga
+      specularmap	            textures/hell/hellbones_s07e.tga
+      bumpmap                  heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07echg1
+{
+	qer_editorimage		textures/hell/hellbones_d07echg1.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07echg1.tga
+      specularmap	            textures/hell/hellbones_s07echg1.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+
+textures/hell/hellbones_d07f
+{
+	qer_editorimage		textures/hell/hellbones_d07f.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07f.tga
+      specularmap	            textures/hell/hellbones_s07f.tga
+      bumpmap                  heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07g
+{
+	qer_editorimage		textures/hell/hellbones_d07g.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07g.tga
+      specularmap	            textures/hell/hellbones_s07g.tga
+      bumpmap                  heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07gchg1
+{
+	qer_editorimage		textures/hell/hellbones_d07gchg1.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07gchg1.tga
+      specularmap	            textures/hell/hellbones_s07gchg1.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+textures/hell/hellbones_d07j
+{
+	qer_editorimage		textures/hell/hellbones_d07j.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07j.tga
+      specularmap	            textures/hell/hellbones_s07j.tga
+      bumpmap                 heightmap( textures/hell/hellbones_d07jbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07jchg1
+{
+	qer_editorimage		textures/hell/hellbones_d07jchg1.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07jchg1.tga
+      specularmap	            textures/hell/hellbones_s07jchg1.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+
+
+textures/hell/hellbones_d07k
+{
+	qer_editorimage		textures/hell/hellbones_d07k.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07k.tga
+      specularmap	            textures/hell/hellbones_s07k.tga
+      bumpmap                 heightmap( textures/hell/hellbones_d07bbump.tga, 8)  
+}
+
+textures/hell/hellbones_d07kchg1
+{
+	qer_editorimage		textures/hell/hellbones_d07kchg1.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d07kchg1.tga
+      specularmap	            textures/hell/hellbones_s07kchg1.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+
+
+
+
+
+
+textures/hell/hellbones_d08c
+{
+	qer_editorimage		textures/hell/hellbones_d08c.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d08c.tga
+      specularmap	            textures/hell/hellbones_s08c.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b08c.tga, 8)   
+}
+
+textures/hell/hellbones_d09b
+{
+	qer_editorimage		textures/hell/hellbones_d09b.tga
+	stone
+	diffusemap		      textures/hell/hellbones_d09b.tga
+      specularmap	            textures/hell/hellbones_s09b.tga
+      bumpmap                  heightmap( textures/hell/hellbones_b09b.tga, 8)   
+}
+
+textures/hell/a_hellmetal_d03
+{
+	qer_editorimage		textures/hell/a_hellmetal_d03.tga
+	diffusemap		      textures/hell/a_hellmetal_d03.tga
+      specularmap	            textures/hell/a_hellmetal_s03.tga
+      bumpmap                 heightmap( textures/hell/a_hellmetal_b03.tga, 2) 
+}
+
+textures/hell/a_hellmetal_d03b
+{
+	qer_editorimage		textures/hell/a_hellmetal_d03b.tga
+	diffusemap		      textures/hell/a_hellmetal_d03b.tga
+      specularmap	            textures/hell/a_hellmetal_s03b.tga
+      bumpmap                 heightmap( textures/hell/a_hellmetal_b03b.tga, 3) 
+}
+
+textures/hell/a_hellmetal_d06a
+{
+	qer_editorimage		textures/hell/a_hellmetal_d06a.tga
+	diffusemap		      textures/hell/a_hellmetal_d06a.tga
+      specularmap	            textures/hell/a_hellmetal_s06a.tga
+      bumpmap                  textures/hell/a_hellmetal_local06a.tga 
+}
+
+textures/hell/a_hellmetal_d06b
+{
+	qer_editorimage		textures/hell/a_hellmetal_d06b.tga
+	diffusemap		      textures/hell/a_hellmetal_d06b.tga
+      specularmap	            textures/hell/a_hellmetal_s06b.tga
+      bumpmap                  addnormals( textures/hell/a_hellmetal_local06a.tga , heightmap( textures/hell/a_hellmetal_d06b.tga, 3))
+ 
+}
+
+textures/hell/a_circles_d01b
+{
+	qer_editorimage		textures/hell/a_circles_d01b.tga
+	diffusemap		      textures/hell/a_circles_d01b.tga
+      specularmap	            textures/hell/a_circles_s01b.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+textures/hell/a_circles_d01c
+{
+	qer_editorimage		textures/hell/a_circles_d01c.tga
+	diffusemap		      textures/hell/a_circles_d01c.tga
+      specularmap	            textures/hell/a_circles_s01c.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+
+textures/hell/a_circles_d01d
+{
+	qer_editorimage		textures/hell/a_circles_d01d.tga
+	diffusemap		      textures/hell/a_circles_d01d.tga
+      specularmap	            textures/hell/a_circles_s01d.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+textures/hell/a_circles_d01e
+{
+	qer_editorimage		textures/hell/a_circles_d01e.tga
+	diffusemap		      textures/hell/a_circles_d01e.tga
+      specularmap	            textures/hell/a_circles_s01e.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+
+textures/hell/a_circles_d04a
+{
+	qer_editorimage		textures/hell/a_circles_d04a.tga
+	diffusemap		      textures/hell/a_circles_d04a.tga
+      specularmap	            textures/hell/a_circles_s01b.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+textures/hell/a_circles_d04b
+{
+	qer_editorimage		textures/hell/a_circles_d04b.tga
+	diffusemap		      textures/hell/a_circles_d04b.tga
+      specularmap	            textures/hell/a_circles_s01b.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+
+textures/hell/a_circles_d04c
+{
+	qer_editorimage		textures/hell/a_circles_d04c.tga
+	diffusemap		      textures/hell/a_circles_d04c.tga
+      specularmap	            textures/hell/a_circles_s01c.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+textures/hell/a_circles_d04d
+{
+	qer_editorimage		textures/hell/a_circles_d04d.tga
+	diffusemap		      textures/hell/a_circles_d04d.tga
+      specularmap	            textures/hell/a_circles_s01d.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+textures/hell/a_circles_d04e
+{
+	qer_editorimage		textures/hell/a_circles_d04e.tga
+	diffusemap		      textures/hell/a_circles_d04e.tga
+      specularmap	            textures/hell/a_circles_s01e.tga
+      bumpmap                  textures/hell/a_circles_local01a.tga 
+}
+
+textures/hell/a_helldoor_d01d
+{
+	qer_editorimage		textures/hell/a_helldoor_d01d.tga
+	diffusemap		      textures/hell/a_helldoor_d01d.tga
+      bumpmap                 heightmap( textures/hell/a_helldoor_b01d.tga, 6) 
+      specularmap	            textures/hell/a_helldoor_s01d.tga
+
+}
+
+textures/hell/a_helldoor_d02d
+{
+	qer_editorimage		textures/hell/a_helldoor_d02d.tga
+	stone
+	diffusemap		      textures/hell/a_helldoor_d02d.tga
+      bumpmap                 heightmap( textures/hell/a_helldoor_b01d.tga, 8) 
+      specularmap	            textures/hell/a_helldoor_s02d.tga
+
+}
+
+textures/hell/a_helldoor_d03d
+{
+	qer_editorimage		textures/hell/a_helldoor_d03d.tga
+	stone
+	diffusemap		      textures/hell/a_helldoor_d03d.tga
+      bumpmap                 heightmap( textures/hell/a_helldoor_b01d.tga, 8) 
+      specularmap	            textures/hell/a_helldoor_s02d.tga
+
+}
+
+textures/hell/a_helldoor_d03e
+{
+	qer_editorimage		textures/hell/a_helldoor_d03e.tga
+	stone
+	diffusemap		      textures/hell/a_helldoor_d03e.tga
+      bumpmap                 heightmap( textures/hell/a_helldoor_b01d.tga, 8) 
+      specularmap	            textures/hell/a_helldoor_s02d.tga
+
+}
+
+textures/hell/a_hellwall_d01a
+{
+	qer_editorimage		textures/hell/a_hellwall_d01a.tga
+	stone
+	diffusemap		      textures/hell/a_hellwall_d01a.tga
+      bumpmap                 heightmap( textures/hell/a_hellwall_b01a.tga, 8) 
+      specularmap	            textures/hell/a_hellwall_s01a.tga
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

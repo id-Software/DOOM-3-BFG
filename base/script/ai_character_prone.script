@@ -1,0 +1,303 @@
+/***********************************************************************
+
+ai_character_prone.script
+
+editor keys:
+"die_after_speaking"		character dies after being talked to twice.
+
+***********************************************************************/
+
+object ai_character_prone : ai {
+	float		talkMode;
+	float		talk_secondary_index;
+
+	//
+	// States
+	//
+	void		state_Idle();
+	void		state_Pain();
+	void		state_Dead();
+	void		state_Killed();
+
+	//
+	// actions
+	//
+	void		idle_talk();
+	void		init();
+		
+	// torso anim states
+	void 		Torso_TalkPrimary();
+	void 		Torso_TalkTrigger();
+	void 		Torso_TalkSecondary();
+	void		Torso_Idle();
+	void		Torso_Dead();
+	void		Torso_PlayDead();
+	void		Torso_Pain();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void ai_character_prone::Torso_Dead() {
+	stopAnim( ANIMCHANNEL_TORSO, 4 );
+	playAnim( ANIMCHANNEL_HEAD, "dead" );
+	waitFrame();
+	finishAction( "dead" );
+}
+
+void ai_character_prone::Torso_PlayDead() {
+	setBoneMod( false );
+	if ( hasAnim( ANIMCHANNEL_HEAD, "dead" ) ) {
+		playAnim( ANIMCHANNEL_HEAD, "dead" );
+	}
+	if ( hasAnim( ANIMCHANNEL_TORSO, "dead" ) ) {
+		playAnim( ANIMCHANNEL_TORSO, "dead" );
+	}
+	waitFrame();
+	finishAction( "dead" );
+}
+
+void ai_character_prone::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+
+	while( 1 ) {
+		waitFrame();
+	}
+}
+
+void ai_character_prone::Torso_TalkPrimary() {
+	playAnim( ANIMCHANNEL_TORSO, "talk_primary" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+}
+
+void ai_character_prone::Torso_TalkTrigger() {
+	playAnim( ANIMCHANNEL_TORSO, "talk_trigger" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+}
+
+void ai_character_prone::Torso_TalkSecondary() {
+	playAnim( ANIMCHANNEL_TORSO, "talk_secondary" + talk_secondary_index );
+	talk_secondary_index = talk_secondary_index + 1;
+	if ( !hasAnim( ANIMCHANNEL_TORSO, "talk_secondary" + talk_secondary_index ) ) {
+		talk_secondary_index = 1;
+	}
+
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	
+	if ( getIntKey( "die_after_speaking" ) ) {
+		playAnim( ANIMCHANNEL_HEAD, "dead" );
+		animState( ANIMCHANNEL_TORSO, "Torso_PlayDead", 0 );
+	} else {
+		animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	}
+}
+
+void ai_character_prone::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+
+	stopSound( SND_CHANNEL_VOICE, false );
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "pain" );
+
+	setState( "state_Dead" );
+	animState( ANIMCHANNEL_TORSO, "Torso_PlayDead", 0 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+ai_character_prone::init
+=====================
+*/
+void ai_character_prone::init() {
+	talkMode = getIntKey( "talk_mode" );
+	talk_secondary_index = 1;
+	setBoneMod( true );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+ai_character_prone::state_Idle
+=====================
+*/
+void ai_character_prone::state_Idle() {
+	AI_ACTIVATED = false;
+	while( !AI_ACTIVATED ) {
+		if ( AI_PAIN ) {
+			setState( "state_Pain" );
+		}
+		waitFrame();
+	}
+
+	setTalkTarget( $player1 );
+	
+	idle_talk();
+	while( 1 ) {
+		while( !AI_TALK ) {
+			if ( AI_PAIN ) {
+				setState( "state_Pain" );
+			}
+			waitFrame();
+		}
+		idle_talk();
+	}
+}
+
+/*
+=====================
+ai_character_prone::state_Pain
+=====================
+*/
+void ai_character_prone::state_Pain() {
+	setTalkState( TALK_BUSY );
+	stopMove();
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 2 );
+	waitAction( "pain" );
+	setState( "state_Dead" );
+}
+
+/*
+=====================
+ai_character_prone::state_Dead
+=====================
+*/
+void ai_character_prone::state_Dead() {
+	setTalkState( TALK_DEAD );
+	setBoneMod( false );
+	animState( ANIMCHANNEL_TORSO, "Torso_PlayDead", 0 );
+	stopThinking();
+}
+
+/*
+=====================
+ai_character_prone::state_Killed
+=====================
+*/
+void ai_character_prone::state_Killed() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Dead", 0 );
+	waitAction( "dead" );
+	stopThinking();
+}
+
+/*
+=====================
+ai_character_prone::idle_talk
+=====================
+*/
+void ai_character_prone::idle_talk() {
+	float	talktime;
+	float	endtime;
+	float	talkradius;
+	float	currentTime;
+	entity	talkTo;
+
+	talkTo = getTalkTarget();
+	
+	lookAt( talkTo, 5 );
+	
+	// wait at least half a second
+	wait( 0.5 );
+	
+	talkradius = getFloatKey( "talkradius" );
+
+	if ( talkMode == 0 ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_TalkTrigger", 4 );
+		talkMode = 1;
+		setTalkState( TALK_BUSY );
+		while( inAnimState( ANIMCHANNEL_TORSO, "Torso_TalkTrigger" ) ) {
+			if ( AI_PAIN ) {
+				setState( "state_Pain" );
+			}
+			if ( distanceTo( talkTo ) > talkradius ) {
+				break;
+			}
+			lookAt( talkTo, 2 );
+			waitFrame();
+		}
+		setTalkState( TALK_OK );
+	} else if ( talkMode == 1 ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_TalkPrimary", 4 );
+		talkMode = 2;
+		setTalkState( TALK_BUSY );
+		while( inAnimState( ANIMCHANNEL_TORSO, "Torso_TalkPrimary" ) ) {
+			if ( AI_PAIN ) {
+				setState( "state_Pain" );
+			}
+			if ( distanceTo( talkTo ) > talkradius ) {
+				break;
+			}
+			lookAt( talkTo, 2 );
+			waitFrame();
+		}
+		setTalkState( TALK_OK );
+	} else if ( getFloatKey( "die_after_speaking" ) ) {
+		setTalkState( TALK_BUSY );
+		animState( ANIMCHANNEL_TORSO, "Torso_TalkSecondary", 4 );
+		while( !inAnimState( ANIMCHANNEL_TORSO, "Torso_PlayDead" ) ) {
+			lookAt( talkTo, 0.1 );
+			waitFrame();
+		}
+		setState( "state_Dead" );
+	} else {
+		setTalkState( TALK_BUSY );
+        animState( ANIMCHANNEL_TORSO, "Torso_TalkSecondary", 4 );
+		while( inAnimState( ANIMCHANNEL_TORSO, "Torso_TalkSecondary" ) ) {
+			if ( AI_PAIN ) {
+				setState( "state_Pain" );
+			}
+			if ( distanceTo( talkTo ) > talkradius ) {
+				break;
+			}
+			lookAt( talkTo, 2 );
+			waitFrame();
+		}
+		setTalkState( TALK_OK );
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	setTalkTarget( $null_entity );
+	
+	talktime = getFloatKey( "talktime" );
+	currentTime = sys.getTime();
+	endtime = currentTime + talktime;
+	while( ( currentTime < endtime ) && ( distanceTo( talkTo ) <= talkradius ) ) {
+		lookAt( talkTo, 2 );
+		if ( AI_PAIN ) {
+			setState( "state_Pain" );
+		}
+		if ( AI_TALK ) {
+			return;
+		}
+		waitFrame();
+		currentTime = sys.getTime();
+	}
+
+	lookAt( self, 0 );
+	stopSound( SND_CHANNEL_VOICE, false );
+}

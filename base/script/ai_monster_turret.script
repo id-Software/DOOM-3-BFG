@@ -1,0 +1,384 @@
+/***********************************************************************
+
+ai_monster_turret.script
+
+monster_turret
+
+***********************************************************************/
+
+#define TURRET_FIRE_RATE		0.1
+#define TURRET_MIN_ATTACK_TIME	1.5
+#define TURRET_SHUTDOWN_TIME	4
+
+object monster_turret : monster_base {
+	boolean		fire;
+	boolean		attack_monsters;
+	entity		light;
+	boolean		light_is_on;
+	float		attackTime;
+
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+	void		state_Combat();
+	void		state_Killed();
+	boolean		checkForEnemy( float use_fov );
+
+	//
+	// actions
+	//
+	void		combat_attack();
+
+	void		init();
+	void		destory();
+
+	void		spawn_light();
+	void		light_off();
+	void		light_on();
+	
+	// anim states
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Attack();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_turret::Torso_Death() {
+	finishAction( "dead" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void monster_turret::Torso_Idle() {
+	playCycle( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Attack", 0 );
+		}
+	}
+}
+
+void monster_turret::Torso_Attack() {
+	float soundLen;
+
+	playCycle( ANIMCHANNEL_TORSO, "idle" );
+
+	soundLen = startSound( "snd_windup", SND_CHANNEL_BODY, false );
+	soundLen += sys.getTime();
+	while( sys.getTime() < soundLen ) {
+		waitFrame();
+	}
+
+	attackTime = sys.getTime() + TURRET_MIN_ATTACK_TIME;
+	while( fire || ( sys.getTime() < attackTime ) ) {
+		if ( sys.influenceActive() ) {
+			break;
+		}
+		startSound( "snd_fire", SND_CHANNEL_WEAPON, false );
+		attackMissile( "barrel" );
+		sys.wait( TURRET_FIRE_RATE );
+	}
+	
+	soundLen = startSound( "snd_winddown", SND_CHANNEL_BODY2, false );
+	soundLen += sys.getTime();
+	while( sys.getTime() < soundLen ) {
+		waitFrame();
+	}
+
+	finishAction( "attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_turret::init
+=====================
+*/
+void monster_turret::init() {
+	float team;
+
+	// don't take damage
+	ignoreDamage();
+
+	// can't move, so only fire on sight
+	ambush = true;
+
+	team = getFloatKey( "team" );
+	if ( team != 1  ) {
+		attack_monsters = true;
+	}
+
+	if ( getIntKey( "light" ) ) {
+		spawn_light();
+	}
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_turret::destory
+=====================
+*/
+void monster_turret::destory() {
+	light.remove();
+}
+
+/*
+=====================
+monster_turret::spawn_light
+=====================
+*/
+void monster_turret::spawn_light() {
+	string texture;
+	float distance;
+
+	distance = getFloatKey( "light_distance" );
+	if ( !distance ) {
+		distance = 640;
+	}
+	
+	// spot light
+	sys.setSpawnArg( "light_target", "1 0 0" );
+	sys.setSpawnArg( "light_up", "0 0 .5" );
+	sys.setSpawnArg( "light_right", "0 -.5 0" );	
+	sys.setSpawnArg( "light_end", distance + " 0 0" );
+
+	texture = getKey( "mtr_light" );
+	sys.setSpawnArg( "texture", texture );
+
+	sys.setSpawnArg( "name", getName() + "_light" );
+	light = sys.spawn( "light" );
+	light.setAngles( getAngles() );
+	//light.bindToJoint( self, "light", true );
+	light.bindToJoint( self, "flash", true );
+	light.setOrigin( '0 0 0' );
+
+	light_off();
+}
+
+/*
+=====================
+monster_turret::light_off
+=====================
+*/
+void monster_turret::light_off() {
+	string skin;
+
+	if ( light ) {
+		light.Off();
+		skin = getKey( "skin_light_off" );
+		setSkin( skin );
+		light_is_on = false;
+	}
+}
+	
+/*
+=====================
+monster_turret::light_on
+=====================
+*/
+void monster_turret::light_on() {
+	string skin;
+
+	if ( light ) {
+		light.On();
+		skin = getKey( "skin_light_on" );
+		setSkin( skin );
+		light_is_on = true;
+	}
+}
+
+/*
+=====================
+monster_turret::state_Begin
+=====================
+*/
+void monster_turret::state_Begin() {
+	setMoveType( MOVETYPE_STATIC );
+
+	if ( getIntKey( "trigger" ) ) {
+		setState( "state_Disabled" );
+	} else {
+		wait_for_enemy();
+		setState( "state_Combat" );
+	}
+}
+
+/*
+=====================
+monster_turret::state_Idle
+=====================
+*/
+void monster_turret::state_Idle() {
+	startSound( "snd_shutdown", SND_CHANNEL_VOICE, false );
+	light_off();
+	wait_for_enemy();
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_turret::state_Disabled
+=====================
+*/
+void monster_turret::state_Disabled() {
+	entity enemy;
+
+	startSound( "snd_shutdown", SND_CHANNEL_VOICE, false );
+
+	lookAtEnemy( 0 );
+
+	// wait till we stop firing and bullets are out of the air
+	attackTime = 0;
+	fire = false;
+	while( inAnimState( ANIMCHANNEL_TORSO, "Torso_Attack" ) ) {
+		waitFrame();
+	}
+	sys.wait( 0.2 );
+
+	// tell all enemies to forget about us
+	enemy = nextEnemy( $null_entity );
+	while( !( !enemy ) ) {
+		sys.print( sys.getTime() + ": clear enemy: " + enemy.getName() + "\n" );
+		enemy.clearEnemy();
+		enemy = nextEnemy( $null_entity );
+	}
+
+	// clear our enemy
+	clearEnemy();
+
+	// wait for trigger
+	AI_ACTIVATED = false;
+	while( !AI_ACTIVATED ) {
+		waitFrame();
+	}
+	AI_ACTIVATED = false;
+
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_turret::state_Killed
+=====================
+*/
+void monster_turret::state_Killed() {
+	stopMove();
+
+	light_off();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	waitAction( "dead" );
+	stopThinking();
+}
+
+/*
+=====================
+monster_turret::checkForEnemy
+=====================
+*/
+boolean	monster_turret::checkForEnemy( float use_fov ) {
+	entity enemy;
+
+	enemy = findEnemy( false );
+	if ( !enemy ) {
+		if ( !attack_monsters ) {
+			return false;
+		}
+        
+		enemy = findEnemyAI( false );
+		if ( !enemy ) {
+			return false;
+		}
+	}
+
+	setEnemy( enemy );
+	return true;
+}
+
+/***********************************************************************
+
+	Combat
+
+***********************************************************************/
+
+/*
+=====================
+monster_turret::state_Combat
+=====================
+*/
+void monster_turret::state_Combat() {
+	float shutdownTime;
+
+	startSound( "snd_wakeup", SND_CHANNEL_VOICE, false );
+	
+	light_on();
+	shutdownTime = sys.getTime() + TURRET_SHUTDOWN_TIME;
+	eachFrame {
+		lookAtEnemy( 1 );
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+			continue;
+		}
+
+		if ( AI_ACTIVATED ) {
+			setState( "state_Disabled" );
+			break;
+		}
+
+		if ( AI_ENEMY_VISIBLE ) {
+			if ( canHitEnemyFromJoint( "barrel" ) ) {
+				combat_attack();
+			} else {
+				checkForEnemy( false );
+			}
+			shutdownTime = sys.getTime() + TURRET_SHUTDOWN_TIME;
+		} else if ( !checkForEnemy( false ) ) {
+			if ( shutdownTime < sys.getTime() ) {
+				lookAtEnemy( 0 );
+				clearEnemy();
+				setState( "state_Idle" );
+			}
+		}
+	}
+}
+
+/*
+=====================
+monster_turret::combat_attack
+=====================
+*/
+void monster_turret::combat_attack() {
+	faceEnemy();
+
+	fire = true;
+	while( AI_ENEMY_VISIBLE && canHitEnemyFromJoint( "barrel" ) ) {
+		lookAtEnemy( 1 );
+		waitFrame();
+		if ( sys.influenceActive() ) {
+			break;
+		}
+		if ( AI_ACTIVATED ) {
+			setState( "state_Disabled" );
+			break;
+		}
+	}
+	fire = false;
+}

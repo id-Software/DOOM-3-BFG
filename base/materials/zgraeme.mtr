@@ -1,0 +1,576 @@
+
+table spark_neontable1 { { 1.3, 0, 0, 0, 0, 1.3, 0, 0, 0, 0, 1.3, 0, 0, 1.1, .075, 1.15, 1.22, 1.3, 1.3, 1.45, 1.52, .6, .67, .75, .82, .9, .95, 1, 0, 0, 0, .3, 0, 0, 0, 0, 0, 0, 0, .3, 0, 0, 0, 0, 0, 0, 0, 0, 1, .6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .3, 0, 0, 0, 0 } }
+
+textures/zaphod/rocketl.TGA
+{
+	qer_editorimage	textures/zaphod/rocketl.TGA
+	diffusemap		textures/zaphod/rocketl.TGA
+}
+
+textures/zaphod/f_rocketl.TGA
+{
+	qer_editorimage	textures/zaphod/f_rocketl.TGA
+	translucent
+	noShadows
+	{ if ( parm4 != 0 )
+		blend add
+		map		textures/zaphod/f_rocketl.TGA
+	}
+}
+
+textures/zaphod/bfg.TGA
+{
+	qer_editorimage	textures/zaphod/bfg.TGA
+	diffusemap		textures/zaphod/bfg.TGA
+}
+
+textures/zaphod/shotgun.TGA
+{
+	qer_editorimage	textures/zaphod/shotgun.TGA
+	diffusemap		textures/zaphod/shotgun.TGA
+}
+
+textures/zaphod/f_shotgun.TGA
+{
+	qer_editorimage	textures/zaphod/f_shotgun.TGA
+	translucent
+	noShadows
+	{ if ( parm4 != 0 )
+		blend add
+		map		textures/zaphod/f_shotgun.TGA
+	}
+}
+
+textures/zaphod/shotgun_laser.TGA
+{
+	qer_editorimage	textures/zaphod/shotgun_laser.TGA
+	translucent
+	noShadows
+	{
+		blend add
+		map		textures/zaphod/shotgun_laser.TGA
+	}
+}
+
+textures/zaphod/f_bfg.TGA
+{
+	qer_editorimage	textures/zaphod/f_bfg.TGA
+	translucent
+	noShadows
+	{ if ( parm4 != 0 )
+		blend add
+		map		textures/zaphod/f_bfg.TGA
+	}
+}
+
+textures/zaphod/plasma.TGA
+{
+	qer_editorimage	textures/zaphod/plasma.TGA
+	diffusemap		textures/zaphod/plasma.TGA
+}
+
+textures/zaphod/plasma_glass.TGA
+{
+	qer_editorimage	textures/zaphod/plasma_glass.TGA
+	translucent
+	noShadows
+	{
+		blend add
+		map		textures/zaphod/plasma_glass.TGA
+	}
+}
+
+textures/zaphod/plasma_glo.TGA
+{
+	qer_editorimage	textures/zaphod/plasma_glo.TGA
+	translucent
+	noShadows
+	{
+		blend add
+		map	textures/zaphod/plasma_glo.TGA
+		rgb  sintable [time] + 2.5
+	}
+}
+
+textures/zaphod/f_plasma.TGA
+{
+	qer_editorimage	textures/zaphod/f_plasma.TGA
+	translucent
+	noShadows
+	{ if ( parm4 != 0 )
+		blend add
+		map		textures/zaphod/f_plasma.TGA
+	}
+}
+
+textures/zaphod/vulcan.TGA
+{
+	qer_editorimage	textures/zaphod/vulcan.TGA
+	diffusemap		textures/zaphod/vulcan.TGA
+}
+
+textures/zaphod/f_vulcan.TGA
+{
+	qer_editorimage	textures/zaphod/f_vulcan.TGA
+	translucent
+	noShadows
+	{ if ( parm4 != 0 )
+		blend add
+		map		textures/zaphod/f_vulcan.TGA
+	}
+}
+
+textures/particles/smokepuff
+{
+	qer_editorimage textures/particles/smokepuff.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/smokepuff.tga
+		vertexColor
+		//colored
+	}
+}
+
+textures/particles/ember_mid
+{
+	qer_editorimage textures/particles/smokepuff.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/ember_mid.tga
+		vertexColor
+	}
+}
+
+textures/particles/spike
+{
+	qer_editorimage textures/particles/spike.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/spike.tga
+		vertexColor
+	}
+}
+
+textures/particles/gember_small
+{
+	qer_editorimage textures/particles/gember_small.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/gember_small.tga
+		vertexColor
+	}
+}
+
+textures/particles/ember_small
+{
+	qer_editorimage textures/particles/ember_small.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/ember_small.tga
+		vertexColor
+	}
+}
+
+textures/particles/smokepuffalpha
+{
+	qer_editorimage textures/particles/smokepuffalpha.tga
+	translucent
+	noShadows
+	{
+		blend gl_one,gl_one
+//		blend add
+		map textures/particles/smokepuffalpha.tga
+		vertexColor
+	}
+}
+
+textures/particles/muzzleflash
+{
+	qer_editorimage textures/particles/muzzleflash.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/muzzleflash.tga
+		vertexColor
+	}
+}
+
+textures/particles/mgmuzzleflash
+{
+	qer_editorimage textures/particles/machinegun.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/particles/machinegun.tga
+		vertexColor
+	}
+}
+
+
+textures/particles/spawnpuff
+{
+	qer_editorimage models/monsters/spawn/demonspawnpuff.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map models/monsters/spawn/demonspawnpuff.tga
+		vertexColor
+	}
+}
+
+textures/particles/plasmapuff
+{
+	qer_editorimage textures/particles/plasmapuff.tga
+	translucent
+	noShadows						 
+	{
+      	blend		gl_zero, gl_one_minus_src_color
+		map textures/particles/plasmapuff.tga
+		vertexColor
+	}
+}
+
+textures/particles/orangespark
+{
+	qer_editorimage textures/particles/orangespark.tga
+	translucent
+	noShadows						 
+	{
+		blend add
+		map textures/particles/orangespark.tga
+		vertexColor
+	}
+}
+
+textures/particles/firestrip
+{
+	qer_editorimage textures/sfx/fire_strip.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/sfx/fire_strip.tga
+		vertexColor
+	}
+}
+
+textures/particles/bamstrip
+{
+	qer_editorimage textures/particles/bamstrip.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/bamstrip.tga
+		vertexColor
+	}
+}
+
+textures/particles/spawnstrip
+{
+	qer_editorimage textures/particles/spawnstrip.tga
+	translucent
+	noShadows
+	sort 10
+	{
+		blend add
+		map textures/particles/spawnstrip.tga
+		vertexColor
+	}
+}
+
+textures/particles/foopstrip
+{
+	qer_editorimage textures/particles/foopstrip.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/foopstrip.tga
+		vertexColor
+	}
+}
+
+textures/particles/popstrip
+{
+	qer_editorimage textures/particles/popstrip.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/popstrip.tga
+		vertexColor
+	}
+}
+
+textures/particles/video
+{
+	qer_editorimage	textures/editor/video.tga
+	translucent
+	noShadows
+	{
+		blend add
+		videoMap	video/test.roq
+		vertexColor
+	}
+}
+
+textures/particles/pixel
+{
+	qer_editorimage textures/particles/pixel.tga
+	translucent
+	noShadows						 
+	{
+		blend add
+		map textures/particles/pixel.tga
+		vertexColor
+	}
+}
+
+textures/particles/lightning
+{
+	qer_editorimage textures\zaphod\crackle1.tga
+	translucent
+	noshadows
+	{
+		if ( ( time * 8 ) % 8 == 0 )
+		blend 	add
+		map	textures\zaphod\crackle1.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 1 )
+		blend 	add
+		map	textures\zaphod\crackle2.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 2 )
+		blend 	add
+		map	textures\zaphod\crackle3.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 3 )
+		blend 	add
+		map	textures\zaphod\crackle4.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 4 )
+		blend 	add
+		map	textures\zaphod\crackle5.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 5 )
+		blend 	add
+		map	textures\zaphod\crackle6.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 6 )
+		blend 	add
+		map	textures\zaphod\crackle7.tga
+		vertexColor
+	}
+	{
+		if ( ( time * 8 ) % 8 == 7 )
+		blend 	add
+		map	textures\zaphod\crackle8.tga
+		vertexColor
+	}
+}
+
+textures/particles/blooddrip
+{
+	qer_editorimage textures/decals/bloodpool01.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend add
+		map textures/decals/bloodpool01.tga
+		vertexColor
+	}
+}
+
+lights/sparks_sound
+{
+	{
+		map	lights/duolight02grey.tga
+		colored
+		clamp
+
+		red 	( spark_neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm0 * sound * 2
+		green 	( spark_neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm1 * sound * 1.8
+		blue 	( spark_neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm2 * sound * 1
+	}
+}
+
+textures/decals/ballburn_rev
+{
+	qer_editorimage textures/decals/ballburn01.tga
+
+	DECAL_MACRO
+	{       
+//		blend		gl_dst_color, gl_zero
+      	blend		gl_zero, gl_one_minus_src_color
+		map			textures/decals/ballburn01.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		rgb			decalFade[(time - Parm3)/(parm4 - parm3)]
+		vertexColor	// oblique projections will be slightly faded down
+	}
+
+	{
+      	blend	add  
+		map		textures/decals/expmark1_add.tga
+		rgb		fireballtable[ time * .1 ]
+		vertexColor	// oblique projections will be slightly faded down
+	}
+}
+
+
+lights/impflyflash
+{
+	noShadows
+	{
+		
+		map lights/impflash.tga
+		zeroClamp
+		rotate	time * 3.7
+		rgb		flickerblink[ time * 1 ]
+		colored
+		
+	}
+}
+
+textures/particles/bloodwound
+{
+	qer_editorimage textures/particles/bloodcolor.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/bloodcolor.tga
+		vertexColor
+	}
+}
+
+textures/particles/bloodstream
+{
+	qer_editorimage textures/particles/bloodstream.tga
+	translucent
+	noShadows
+	{
+		blend blend
+		map textures/particles/bloodstream.tga
+		vertexColor
+	}
+}
+
+textures/particles/bloodcloud
+{
+	qer_editorimage textures/particles/blooddrop.tga
+	translucent
+	noShadows
+	{
+		blend blend
+		map textures/particles/blooddrop.tga
+		vertexColor
+	}
+}
+
+textures/particles/bloodstream2
+{
+	qer_editorimage textures/particles/bloodstream2.tga
+	{
+      	blend		gl_zero, gl_one_minus_src_color
+		map textures/particles/bloodstream2.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}
+}
+
+textures/particles/blooddrop2
+{
+	qer_editorimage textures/particles/blooddrop2.tga
+	{
+      	blend		gl_zero, gl_one_minus_src_color
+		map textures/particles/blooddrop2.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}
+}
+
+textures/particles/bloodfoopstrip
+{
+	qer_editorimage textures/particles/bloodfoopstrip.tga
+	translucent
+	noShadows
+	sort		10		// sort very late, so no translucent objects in the world draws over it
+	{
+		blend blend
+		map textures/particles/bloodfoopstrip.tga
+		vertexColor
+	}
+}
+
+textures/particles/teststrip
+{
+	qer_editorimage textures/particles/fireball_strip.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/fireball_strip.tga
+		vertexColor
+	}
+}
+
+textures/particles/testvideo
+{
+	qer_editorimage	textures/editor/video.tga
+	translucent
+	noShadows
+	{
+		blend add
+		videoMap	video/fireball.roq
+		vertexColor
+	}
+}
+
+textures/particles/firefly
+{
+	qer_editorimage textures/particles/fireplume.tga
+	translucent
+	noShadows
+	{
+		blend add
+		map textures/particles/fireplume.tga
+		vertexColor
+	}
+}
+

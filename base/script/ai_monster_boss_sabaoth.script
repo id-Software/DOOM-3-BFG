@@ -1,0 +1,494 @@
+/***********************************************************************
+
+ai_monster_boss_sabaoth.script
+
+monster_boss_sabaoth
+
+***********************************************************************/
+
+#define SABAOTH_ATTACK_RATE			4
+#define SABAOTH_ATTACK_RATE_MELEE	1
+#define	SABAOTH_SLOW_DIST			64
+#define SECTION_MOVE_DIST			190
+#define CENTER_DIST					304
+#define MELEE_INIT					290
+
+object monster_boss_sabaoth : monster_base {
+	float		nextAttack;
+	float		movespeed;
+	entity		projectile;
+
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+	void		state_Combat();
+	void		state_Killed();
+
+	// attacks
+	float		check_attacks( float meleeOnly );
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+	void		fire_bfg();
+
+	void		init();
+	
+	void 		move_to_corner( entity path, boolean noslowtostop );
+	void 		turn_to_corner( entity path );
+	void 		closeSection( entity path );
+	void 		openSection( entity path );
+
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_RangeAttack();
+	void		Torso_MeleeAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	
+	void 		open_section_1();
+	void 		close_section_1();
+	void 		open_section_2();
+	void 		close_section_2();
+	void 		close_section_3();
+	void 		open_section_3();
+	void 		close_section_4();
+	void 		open_section_4();
+	void 		open_section_5();
+	void 		close_section_5();
+	void 		open_section_6();
+	void 		close_section_6();
+	void 		open_section_7();
+	void 		close_section_7();
+	void 		open_section_8();
+	void 		close_section_8();
+
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_boss_sabaoth::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+}
+
+void monster_boss_sabaoth::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		lookAtEnemy( 1 );	
+		waitFrame();
+	}
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+
+void monster_boss_sabaoth::Torso_RangeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		lookAtEnemy( 1 );	
+		waitFrame();
+	}
+	finishAction( "range_attack" );
+	nextAttack = DelayTime( SABAOTH_ATTACK_RATE );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_boss_sabaoth::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 4 ); }
+	}
+}
+
+void monster_boss_sabaoth::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "move_forward" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 ); }
+	}
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_sabaoth::init
+=====================
+*/
+void monster_boss_sabaoth::init() {
+	open_section_2();
+	open_section_3();
+	open_section_4();
+	open_section_5();
+	open_section_6();
+	open_section_7();
+	open_section_8();
+	
+	// bring center section up	
+	$func_mover_13.move( UP, CENTER_DIST );
+	
+
+	movespeed = getFloatKey( "fly_speed" );
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_sabaoth::state_Killed
+=====================
+*/
+void monster_boss_sabaoth::state_Killed() {
+	stopMove();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+	waitAction( "dead" );
+	setState( "state_Dead" );
+}
+
+/*
+=====================
+monster_boss_sabaoth::state_Begin
+=====================
+*/
+void monster_boss_sabaoth::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );	
+	monster_begin();
+	setMoveType( MOVETYPE_SLIDE );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_boss_sabaoth::state_Idle
+=====================
+*/
+void monster_boss_sabaoth::state_Idle() {
+	wait_for_enemy();
+
+	nextAttack = 0;
+	current_path = randomPath();
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_boss_sabaoth::move_to_corner
+=====================
+*/
+void monster_boss_sabaoth::move_to_corner( entity path, boolean noslowtostop ) {
+	float attack_flags;
+	float dist;
+	float randomSpeed = sys.random ( 100 ) + 75;
+	float currentMoveSpeed = movespeed + randomSpeed;
+	setFlySpeed( currentMoveSpeed );
+	
+	startSound ("snd_move_start", SND_CHANNEL_BODY, false );
+	startSound ("snd_move", SND_CHANNEL_BODY2, false );
+	
+	moveToEntity( path );
+	while( !AI_MOVE_DONE ) {
+		dist = distanceTo( path );
+		if ( dist < SABAOTH_SLOW_DIST ) {
+			if ( noslowtostop ) {
+				return;
+			}
+			setFlySpeed( currentMoveSpeed * ( dist / SABAOTH_SLOW_DIST ) );
+		}
+
+		if ( AI_ENEMY_VISIBLE ) {
+			lookAtEnemy( 1 );
+		}
+		
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+		
+		attack_flags = check_attacks( 0 );
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			continue;
+		}
+		
+		if ( !enemyPositionValid() ) {
+			locateEnemy();
+		}
+		
+		waitFrame();
+	}
+	if ( !noslowtostop ) {
+		setFlySpeed( 0 );
+	}
+	startSound ("snd_move_stop", SND_CHANNEL_BODY2, false );
+	stopMove();
+}
+
+/*
+=====================
+monster_boss_sabaoth::turn_to_corner
+=====================
+*/
+void monster_boss_sabaoth::turn_to_corner( entity path ) {
+	float attack_flags;
+
+	startSound ("snd_move_start", SND_CHANNEL_BODY, false );
+	startSound ("snd_move", SND_CHANNEL_BODY2, false );
+
+	turnToEntity( path );
+	while( !facingIdeal() ) {
+		if ( AI_ENEMY_VISIBLE ) {
+			lookAtEnemy( 1 );
+		}
+		
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+
+		attack_flags = check_attacks( 1 );
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			continue;
+		}
+		
+
+		if ( !enemyPositionValid() ) {
+			locateEnemy();
+		}
+		
+		waitFrame();
+	}
+	stopMove();
+}
+
+/*
+=====================
+monster_boss_sabaoth::closeSection
+=====================
+*/
+void monster_boss_sabaoth::closeSection( entity path ) {
+	string func;
+
+	func = path.getKey( "close" );
+	if ( func != "" ) {
+		callFunction( func );
+	}
+}
+
+/*
+=====================
+monster_boss_sabaoth::openSection
+=====================
+*/
+void monster_boss_sabaoth::openSection( entity path ) {
+	string func;
+
+	func = path.getKey( "open" );
+	if ( func != "" ) {
+		callFunction( func );
+	}
+}
+
+/*
+=====================
+monster_boss_sabaoth::state_Combat
+=====================
+*/
+void monster_boss_sabaoth::state_Combat() {
+	entity next_path;
+	entity prev_path;
+	boolean no_turn;
+
+	next_path = current_path.randomPath();
+	no_turn = false;
+	while( current_path ) {
+		if ( !no_turn ) {
+			turn_to_corner( current_path );
+		} else {
+			sys.print( "no turn to " + current_path.getName() + "\n" );
+		}
+		no_turn = current_path.getIntKey( "no_turn" );
+		if ( no_turn ) {
+			sys.print( "no slow to " + current_path.getName() + "\n" );
+		}
+		move_to_corner( current_path, no_turn );
+		
+		openSection( prev_path );
+
+		prev_path = current_path;
+		current_path = next_path;
+		next_path = current_path.randomPath();
+
+		closeSection( next_path );
+	}
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_sabaoth::do_attack
+=====================
+*/
+void monster_boss_sabaoth::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	}
+}
+
+/*
+=====================
+monster_boss_sabaoth::check_attacks
+=====================
+*/
+float monster_boss_sabaoth::check_attacks( float meleeOnly ) {
+	float attack_flags;
+	float checkMelee;
+	
+	attack_flags = 0;
+	if ( !inAnimState( ANIMCHANNEL_TORSO, "Torso_Idle" ) ) {
+		return attack_flags;
+	}
+	if ( AI_ENEMY_VISIBLE ) {
+		if ( enemyRange() < MELEE_INIT ) {
+			attack_flags |= ATTACK_MELEE;
+		} else if ( !meleeOnly && ( !projectile || ( projectile.getProjectileState() != PROJECTILE_LAUNCHED ) ) && ( !canReachEnemy() || ( sys.getTime() >= nextAttack ) ) ) {
+			if ( canHitEnemyFromJoint( "mech_bfg" ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+		}
+	}
+	return attack_flags;
+}
+
+/*
+=====================
+monster_boss_sabaoth::combat_range
+=====================
+*/
+void monster_boss_sabaoth::combat_range() {
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+	
+	// animation will set the next attack time, so just delay it for a long time for now
+	nextAttack = sys.getTime() + 10000;
+}
+
+/*
+=====================
+monster_boss_sabaoth::combat_melee
+=====================
+*/
+void monster_boss_sabaoth::combat_melee() {
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 4 );
+}
+
+/*
+=====================
+monster_boss_sabaoth::fire_bfg
+=====================
+*/
+void monster_boss_sabaoth::fire_bfg() {
+	projectile = attackMissile( "mech_bfg" );
+}
+
+void monster_boss_sabaoth::open_section_1() {
+    $func_mover_7.move( NORTH, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_1() {
+    $func_mover_7.move( NORTH, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_2() {
+    $func_mover_8.move( NORTH, SECTION_MOVE_DIST );
+	$func_mover_9.move( EAST, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_2() {
+    $func_mover_8.move( NORTH, -SECTION_MOVE_DIST );
+	$func_mover_9.move( EAST, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_3() {
+    $func_mover_10.move( EAST, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_3() {
+    $func_mover_10.move( EAST, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_4() {
+    $func_mover_11.move( EAST, SECTION_MOVE_DIST );
+	$func_mover_12.move( SOUTH, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_4() {
+    $func_mover_11.move( EAST, -SECTION_MOVE_DIST );
+	$func_mover_12.move( SOUTH, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_5() {
+    $func_mover_1.move( SOUTH, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_5() {
+    $func_mover_1.move( SOUTH, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_6() {
+    $func_mover_2.move( SOUTH, SECTION_MOVE_DIST );
+	$func_mover_3.move( WEST, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_6() {
+    $func_mover_2.move( SOUTH, -SECTION_MOVE_DIST );
+	$func_mover_3.move( WEST, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_7() {
+    $func_mover_4.move( WEST, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_7() {
+    $func_mover_4.move( WEST, -SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::open_section_8() {
+    $func_mover_5.move( WEST, SECTION_MOVE_DIST );
+	$func_mover_6.move( NORTH, SECTION_MOVE_DIST );
+}
+
+void monster_boss_sabaoth::close_section_8() {
+    $func_mover_5.move( WEST, -SECTION_MOVE_DIST );
+	$func_mover_6.move( NORTH, -SECTION_MOVE_DIST );
+}

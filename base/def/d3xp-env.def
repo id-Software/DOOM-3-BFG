@@ -1,0 +1,533 @@
+model env_harvest_lab1 {
+	skin							skins/characters/npcs/labcoat_harvest.skin
+	//skin							skins/monsters/zombies/labcoat.skin
+	mesh							models/md5/monsters/zombies/labcoatzombie.md5mesh
+	anim af_pose					models/md5/chars/af_pose.md5anim
+}
+
+model env_harvest_marine1 {
+	skin							skins/characters/npcs/soldier_bald_bloody_harvest.skin
+	mesh							models/md5/characters/NPCS/npcs.md5mesh
+	anim af_pose					models/md5/characters/NPCS/af_pose.md5anim
+}
+
+model env_harvest_marine2 {
+	skin							skins/characters/npcs/bloody_marine_body_harvest.skin
+	mesh							models/md5/chars/marine.md5mesh
+	anim af_pose					models/md5/chars/af_pose.md5anim
+}
+
+model env_harvest_maint1 {
+	skin							skins/characters/npcs/harvest_maint1.skin
+	mesh							models/md5/monsters/zombies/jumpsuitzombie.md5mesh
+	anim af_pose					models/md5/chars/af_pose.md5anim
+}
+
+model head_harvest_marine_helmet {
+	skin 							skins/characters/npcs/harvest_marine_helmet1
+	mesh							models/md5/characters/npcs/heads/mhelmet.md5mesh
+	anim idle						models/md5/characters/npcs/heads/mhelmetidle.md5anim
+	anim stand						models/md5/characters/npcs/heads/mhelmetidle.md5anim
+}
+
+model head_harvest_bloodybald {
+	skin							skins/characters/npcs/head_bald_bloody_harvest.skin
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+}
+
+
+entityDef env_harvest_default {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"editor_usage"					"Harvest Ragdoll"
+
+	"spawnclass"					"idHarvestable"
+	"triggersize"					"40"
+	"give_item"						"ammo_bloodstone"
+	"give_value"					"1000"
+	"give_delay"					"2"
+	"burn"							"1"
+	"required_weapons"				"weapon_bloodstone_passive, weapon_bloodstone_active1, weapon_bloodstone_active2, weapon_bloodstone_active3"
+	"remove_delay"					"3"
+
+	"fx"							"fx/soulharvest"
+	"fx_bind"						"0"
+	"fx_orient"						"player"    //up,weapon,player,source
+	"fx_weapon_joint"				"flash"
+	"fx_follow_player"				"1"
+
+	//Precache some materials...just in case
+	"mtr_vp2"						"textures/sfx/vp2"
+	"mtr_soul3"						"textures/particles/d3xp/soul3"
+	"mtr_ember_mid"					"textures/particles/ember_mid"
+}
+
+entityDef env_harvest {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"editor_usage"					"Harvest Ragdoll"
+
+	"spawnclass"					"idAFEntity_Harvest"
+	"def_harvest_type"				"env_harvest_default"
+
+	"gib"							"1"
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+
+	//"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+
+}
+
+entityDef env_harvest_lab1 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"inherit"						"env_harvest"
+
+	"editor_usage"					"Harvest Ragdoll for char_lab1"
+
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"gib"							"1"
+	"bleed"							"1"
+	"sleep"							"1"
+	"def_head"						"head_harvest_bloodybald"
+	"head_joint"					"Shoulders"
+	"model"							"env_harvest_lab1"
+	"articulatedFigure"				"char_npcs"
+	"snd_bounce"					"bodyparts"
+
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+	"skin_harvest_burn"				"skins/characters/npcs/labcoat_harvest_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/head_bald_bloody_harvest_burn.skin"
+
+	"harvest_sound"					"snd_harvest_whisper"
+	"snd_harvest_whisper"			"harvest_whisper"
+}
+
+entityDef env_harvest_marine1 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"inherit"						"env_harvest"
+
+	"editor_usage"					"Harvest Ragdoll for char_marine1"
+
+
+
+	"bleed"							"1"
+	"sleep"							"1"
+	"gib"							"1"
+	"def_head"						"head_harvest_bloodybald"
+	"head_joint"					"Shoulders"
+	"model"							"env_harvest_marine1"
+	"articulatedFigure"				"char_npcs"
+	"snd_bounce"					"bodyparts"
+
+	"skin_harvest_burn"				"skins/characters/npcs/soldier_bald_bloody_harvest_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/head_bald_bloody_harvest_burn.skin"
+
+	"harvest_sound"					"snd_harvest_whisper"
+	"snd_harvest_whisper"			"harvest_whisper"
+
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+}
+
+entityDef env_harvest_marine2 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"inherit"						"env_harvest"
+
+	"editor_usage"					"Harvest Ragdoll for char_marine2"
+
+
+
+	"bleed"							"1"
+	"sleep"							"1"
+	"gib"							"1"
+	"def_head"						"head_harvest_marine_helmet"
+	"head_joint"					"Shoulders"
+	"model"							"env_harvest_marine2"
+	"articulatedFigure"				"char_npcs"
+	"snd_bounce"					"bodyparts"
+
+
+	"skin_harvest_burn"				"skins/characters/npcs/bloody_marine_body_harvest_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/harvest_marine_helmet1_burn.skin"
+
+	"harvest_sound"					"snd_harvest_whisper"
+	"snd_harvest_whisper"			"harvest_whisper"
+
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+}
+
+entityDef env_harvest_maint1 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"inherit"						"env_harvest"
+
+	"editor_usage"					"Harvest Ragdoll for char_maint1"
+
+	"bleed"							"1"
+	"sleep"							"1"
+	"gib"							"1"
+	"def_head"							"head_harvest_bloodybald"
+	"head_joint"					"Shoulders"
+	"model"							"env_harvest_maint1"
+	"articulatedFigure"				"char_npcs"
+	"snd_bounce"					"bodyparts"
+
+	"skin_harvest_burn"				"skins/characters/npcs/harvest_maint1_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/head_bald_bloody_harvest_burn.skin"
+
+	"harvest_sound"					"snd_harvest_whisper"
+	"snd_harvest_whisper"			"harvest_whisper"
+
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+}
+
+model env_harvest_hazmat {
+	mesh							models/md5/chars/hazmat.md5mesh
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	skin							skins/characters/npcs/harvest_bloodyhazmat.skin
+}
+
+entityDef env_harvest_hazmat {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"inherit"						"env_harvest"
+
+	"editor_usage"					"Harvest Ragdoll for char_maint1"
+
+	"bleed"							"1"
+	"sleep"							"1"
+	"gib"							"1"
+	"model"							"env_harvest_hazmat"
+	"articulatedFigure"				"char_hazmat"
+	"snd_bounce"					"bodyparts"
+
+	"skin_harvest_burn"				"skins/characters/npcs/harvest_bloodyhazmat_burn.skin"
+
+	"harvest_sound"					"snd_harvest_whisper"
+	"snd_harvest_whisper"			"harvest_whisper"
+
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old_new.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+}
+
+entityDef monster_dummy_target {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_dummy_target"
+
+	"editor_var death_timer"		"Time in seconds for the dummy to live once it is activated."
+
+	"model"							"models/mapobjects/filler/tbox1.ase"
+	"skin"							"skins/models/mapobjects/filler/tbox1_invis"
+
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"size"							"8 8 8"
+	"gravityDir"					"0 0 0"
+	"gravity"						"0"
+	"health"						"100"
+
+	"death_timer"					"5"
+	"mass"							"99999"
+
+}
+
+/***************************************************
+ragdoll zsecm XRAY
+***************************************************/
+model env_ragdoll_zsecm_xray {
+	skin							skins/monsters/zombies/zsecurity.skin
+	mesh							models/md5/monsters/zombies/zsec_machinegun/zsecmachinegun.md5mesh
+	anim af_pose					models/md5/monsters/zombies/zsec_machinegun/af_pose.md5anim
+}
+
+entityDef env_ragdoll_zsecm_xray {
+	"inherit"						"env_ragdoll_gibbable_base"
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"editor_usage"					"Ragdoll for zsecm that can be used with xray machines"
+
+	"spawnclass"					"idAFEntity_WithAttachedHead"
+	"bleed"							"1"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"sleep"							"1"
+
+	"def_head"						"head_security_helmet"
+	"head_joint"					"Shoulders"
+	"model"							"env_ragdoll_zsecm"
+	"articulatedFigure"				"monster_zombie_security_machinegun"
+	"snd_bounce"					"bodyparts"
+	"skin_dropGib"					"skins/monsters/zombies/securitygib"
+
+	"skin_xray"						"skins/monsters/zombies/security_xray"
+	"skin_head_xray"				"skins/monsters/zombies/dsechelmet"
+}
+/****************************************************/
+
+// Damage Def for ragdolls impacting something after being thrown by the grabber
+entityDef damage_thrown_ragdoll {
+	"damage"						"60"
+	"kickDir"						"0 0 -1"
+	"knockback"						"10"
+	"kick_time"						"300"
+	"kick_amplitude"				"1"
+}
+
+
+skin skins\models\mapobjects\filler\tbox1_invis {
+	models/mapobjects/filler/tbox1 models/mapobjects/filler/tbox1_invis
+}
+
+material models/mapobjects/filler/tbox1_invis
+{
+	//cardboard
+	//bumpmap 		addnormals ( models/mapobjects/filler/tbox_local.tga, heightmap (models/mapobjects/filler/tbox1_bmp.tga, 3) )
+	//diffusemap		models/mapobjects/filler/tbox1_d.tga
+	//specularmap		models/mapobjects/filler/tbox1_s.tga
+
+}
+
+entityDef teleport_shockwave {
+	"inherit"						"func_shockwave"
+	"start_on"						"1"
+}
+
+entityDef harvest_shockwave {
+	"inherit"						"func_shockwave"
+	"start_on"						"1"
+
+	"duration"						"250"
+	"startsize"						"8"
+	"endsize"						"64"
+	"magnitude"						"10000"
+}
+
+/***************************************************
+ragdoll marine2  (stump & gibs)
+***************************************************/
+
+entityDef env_ragdoll_marine_stump_gib {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"editor_usage"					"Ragdoll for helmet marine"
+
+	"spawnclass"					"idAFEntity_WithAttachedHead"
+	"bleed"							"1"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"sleep"							"1"
+	"gib"							"1"
+
+	"def_head"						"head_stump"
+	"head_joint"					"Shoulders"
+	"model"							"env_ragdoll_marine_stump"
+	"articulatedFigure"				"char_npc_misc.af"
+	"snd_bounce"					"bodyparts"
+
+	"skin_dropGib"					"skins/characters/npcs/labcoat_old.skin"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+}

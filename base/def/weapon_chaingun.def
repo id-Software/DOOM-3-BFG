@@ -1,0 +1,254 @@
+/***********************************************************************
+
+	weapon_chaingun.def
+
+***********************************************************************/
+
+export fred {
+	// viewmodel chaingun
+
+	options -prefix CHAINGUN_ -keep eject muzzle barrel flash guilight -parent eject chaingun -parent flash chaingun -parent guilight chaingun -parent barrel chaingun -rename barrel spinner -rename muzzle barrel -rename origin blah
+
+	mesh	models/weapons/chaingun/cycles/idle.mb -dest models/md5/weapons/chaingun_view/viewchaingun
+	anim	models/weapons/chaingun/cycles/raise.mb -dest models/md5/weapons/chaingun_view/raise
+	anim	models/weapons/chaingun/cycles/idle.mb -dest models/md5/weapons/chaingun_view/idle
+	anim	models/weapons/chaingun/cycles/fireloop.mb -dest models/md5/weapons/chaingun_view/fireloop
+	anim	models/weapons/chaingun/cycles/reload.mb -dest models/md5/weapons/chaingun_view/reload
+	anim	models/weapons/chaingun/cycles/noammo.mb -dest models/md5/weapons/chaingun_view/noammo	
+	anim	models/weapons/chaingun/cycles/lower.mb -dest models/md5/weapons/chaingun_view/lower
+	anim	models/weapons/chaingun/cycles/windup.mb -dest models/md5/weapons/chaingun_view/windup
+	anim	models/weapons/chaingun/cycles/winddown.mb -dest models/md5/weapons/chaingun_view/winddown
+
+	// world model chaingun
+	options -ignorescale -prefix PLAYER_CHAINGUN_ -keep ATTACHER barrel eject flash -parent barrel body -parent eject body -parent flash body -rename ATTACHER origin -clearorigin 
+
+	mesh	models/characters/player/mocap/chaingun_idle.mb -dest models/md5/weapons/chaingun_world/worldchaingun
+	anim	models/characters/player/mocap/chaingun_idle.mb -range 1 80 -dest models/md5/weapons/chaingun_world/chaingun_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_fire.mb -range 16 30 -dest models/md5/weapons/chaingun_world/chaingun_fire
+}
+
+entityDef weapon_chaingun {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Chaingun"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model"						"models/weapons/chaingun/w_chaingun.lwo"
+	"model_view" 				"viewmodel_chaingun"
+	"model_world" 				"worldmodel_chaingun"
+	"joint_attach"				"CHAINGUN_ATTACHER"
+	"def_dropItem"				"moveable_item_chaingun"
+
+	"inv_name"					"#str_00100181"
+	"inv_weapon"				"weapon_chaingun"
+	"inv_ammo_belt"				"30"
+	"inv_item"					"5"
+	"inv_desc"					"#str_02536"
+	"display_name"				"#str_02477"
+
+	"icon"						"guis/assets/hud/wpn_11"
+	"pdaIcon"					"guis/assets/hud/icons/chaingun_new.tga"
+	"hudIcon"					"guis/assets/hud/icons/chaingunw.tga"	
+
+	"gui"						"guis/weapons/chaingun.gui"
+	"mtr_guiLightShader"		"lights/viewWeaponGuiLight"
+	
+	"weapon_scriptobject"		"weapon_chaingun"
+	"def_projectile"			"projectile_chaingunbullet"
+	"ammoType"					"ammo_belt"
+	"ammoRequired"				"1"
+	"clipSize"					"60"
+	"lowAmmo"					"10"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"220"
+	"silent_fire"				"0"
+	"muzzle_kick_time"			".1"
+	"muzzle_kick_maxtime"		".6"
+	"muzzle_kick_angles"		"-4 -5 -10"
+	"muzzle_kick_offset"		"1 1 2"
+	"recoilTime"				"100"
+	"recoilAngles"				"-1 0 0"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-25"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"weaponAngleOffsetAverages" "10"
+	"weaponAngleOffsetScale" 	".5"
+	"weaponAngleOffsetMax"		"25"
+	"weaponOffsetTime"			"400"
+	"weaponOffsetScale"			"0.005"
+
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+
+	"smoke_muzzle"				"cgmuzzlesmoke.prt"
+
+	"snd_acquire"				"player_chaingun_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+	"snd_fire"					"player_chaingun_fire"
+	"snd_winddown"				"player_chaingun_winddown"
+	"snd_windup"				"player_chaingun_windup"
+	"snd_lowammo" 				"player_machinegun_lowammo"
+	"snd_spin"					"player_chaingun_motorloop"
+
+	"skin_invisible"			"skins/chaingun_invis"
+
+	"def_ejectBrass"			"debris_brass"
+	"ejectBrassDelay"			"10"
+	
+	"spread"					"5"
+
+	"controllerShakeHighMag"	"1.0"
+	"controllerShakeHighTime"	"100"
+	"controllerShakeLowMag"		"0.9"
+	"controllerShakeLowTime"	"250"
+}
+
+entityDef moveable_item_chaingun {
+	"inherit"					"weapon_chaingun"
+	"spawnclass"				"idMoveableItem"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+}
+
+model worldmodel_chaingun {
+	mesh						models/md5/weapons/chaingun_world/worldchaingun.md5mesh
+		
+	anim idle 					models/md5/weapons/chaingun_world/chaingun_idle.md5anim
+	anim fire					models/md5/weapons/chaingun_world/chaingun_fire.md5anim
+	anim chaingun_fire			models/md5/weapons/chaingun_world/chaingun_fire.md5anim
+}
+
+model viewmodel_chaingun {
+	mesh 						models/md5/weapons/chaingun_view/viewchaingun.md5mesh
+	offset						( 0.5 -2.5 -8.5 )
+
+	anim raise					models/md5/weapons/chaingun_view/raise.md5anim {
+		frame	1				sound_body player_chaingun_acquire
+	}
+	anim idle1 					models/md5/weapons/chaingun_view/idle.md5anim
+	anim windup					models/md5/weapons/chaingun_view/windup.md5anim {
+		frame	1				sound_body3 player_chaingun_windup
+		//frame	10				sound_body3 player_chaingun_motorloop
+	}
+	/*
+	anim fire 					models/md5/weapons/chaingun_view/fireloop.md5anim {
+		frame	1				sound_weapon player_chaingun_fire
+	}
+	*/
+	anim winddown				models/md5/weapons/chaingun_view/winddown.md5anim {
+			frame	1				sound_body3 player_chaingun_winddown
+	}
+	anim putaway				models/md5/weapons/chaingun_view/lower.md5anim
+	anim reload					models/md5/weapons/chaingun_view/reload.md5anim {
+		frame	17				sound_body player_chaingun_reload
+	}
+	anim noammo					models/md5/weapons/chaingun_view/noammo.md5anim
+}
+
+entityDef projectile_chaingunbullet {
+	"spawnclass"				"idProjectile"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+	"cone"						"3"
+	"scale"						"0.1"
+	"noshadows"					"1"
+	"tracers"					"1"
+	"model_tracer"				"models/particles/tracer/tracer.lwo"
+	
+	"def_damage"				"damage_bullet_chaingun"
+								
+	"launchFromBarrel"			"1"
+	"health"					"0"
+	"velocity"					"2000 0 0"	// .38 Special 600 fps.  Source: Petzal, David E. "How fast is a speeding bullet." Field and Stream. 97 (1992): 23
+	"angular_velocity"			"0 0 0"
+	"thrust"					"0"
+	"thrust_start"				"0"
+	"thrust_end"				"0"
+	"linear_friction"			"0"
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"
+	"mass"						"8"
+	"push"						"2000"
+	"gravity"					"0"
+	"fuse"						"4"
+
+	"detonate_on_fuse"			"0"
+	"detonate_on_death"			"0"
+	"detonate_on_world"			"1"
+	"detonate_on_actor"			"1"
+
+	"impact_damage_effect"		"1"
+	"impact_gib"				"1"
+
+	"mtr_detonate"				"textures/decals/bulleth02"
+	"mtr_detonate_glass"		"textures/decals/testbulletglass1"
+	"decal_size"				"10"
+
+	"model_smokespark"			"cgsmokeandspark.prt"
+	"model_ricochet"			"bulletricochet.prt"
+	
+	"smoke_wound_flesh"			"burstysquirt.prt"
+	"smoke_detonate"			"smokeandspark.smoke"
+	"smoke_residue" 			""	//particles/chaingun_residue.particle"
+	"smoke_bounce"				""	//particles/chaingun_bounce.particle"
+	"smoke_fuse"				""
+
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0"
+	"light_radius"				"0"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	""
+	"explode_light_color"		"0 0 0"
+	"explode_light_radius"		"0"
+	"explode_light_fadetime"	"0"
+
+	"snd_flesh"					"bullet_impact_flesh"
+	"snd_metal"					"bullet_impact_metal"
+	"snd_stone"					"bullet_impact_stone"
+	"snd_wood"					"bullet_impact_wood"
+	"snd_cardboard"				"bullet_impact_cardboard"
+	"snd_glass"					"bullet_impact_glass"
+	"snd_liquid"				"bullet_impact_liquid"
+	"snd_plastic"				"small_plastic"
+	"snd_ricochet"				"bullet_ricochet"
+//	"snd_impact"				""			// we need a much smaller impact sound for the chaingun bullet  "bullet_impact_metal"
+	"snd_tracer"				"bullet_flight"
+}
+
+entityDef	damage_bullet_chaingun {
+	"damage"			"20"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"1"
+	
+	"gib"				"1"
+	"smoke_wound_flesh"	"bloodwound.ptr"
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+	"mtr_wound_metal"	"textures/decals/hurtmetal"
+	"mtr_wound_ricochet"	"textures/decals/hurtmetal"
+	"mtr_splat_flesh"	"textures/decals/dsplat2"
+	"mtr_splat_flesh2"	"textures/decals/dsplat5"
+	"mtr_splat_flesh3"	"textures/decals/dsplat7"
+	"mtr_splat_flesh4"	"textures/decals/dsplat11"
+
+	"kick_time"		"100"
+	//"kick_time"		"10"
+	"kick_amplitude"	"0.1"
+
+	//"dv_time"			"100"
+
+}

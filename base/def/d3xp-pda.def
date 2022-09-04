@@ -1,0 +1,16 @@
+/***********************************************************************
+
+ pdas
+
+***********************************************************************/
+
+entityDef pda_erebus4_ron_gibbons_pda {
+	"inherit"						"item_pda"
+	"gui"							"guis/pda/pda_npc.gui"
+	"pda_name"						"erebus4_ron"
+	"notpushable"						"1"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"5 -6.5 -4.5"
+	"angles"						"0 93 90"
+	"inv_name"						"Ron's PDA"
+}

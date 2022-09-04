@@ -1,0 +1,1414 @@
+/***********************************************************************
+
+ characters
+
+***********************************************************************/
+
+entityDef character_default {
+	"editor_color"								"1 .5 0"
+	"editor_mins"								"-16 -16 0"
+	"editor_maxs"								"16 16 74"
+	"editor_copy"								"anim"
+
+	"editor_var hide"							"Causes character to be hfidden and nonsolid until triggered."
+	"editor_var noDamage"						"if set, monster won't take damage."
+	"editor_var teleport"						"if set, character teleports in when triggered."	
+	"editor_var no_idle_chatter"				"When set, character will not make idle sounds"
+	"editor_var target"							"set of path_* entities to visit."
+	"editor_var wander"							"if set to 1, visit path_* targets randomly, otherwise visit them in order."
+	"editor_var ignore_obstacles"				"If set, character doesn't avoid obstacles.  Generally should only be used for cinematics when you need character to exactly follow a path."
+	"editor_var dont_push_others"				"If set, character doesn't say 'excuse me' when blocked by another character, but only waits for them to get out of the way on their own."
+	"editor_var wait"							"How long to wait before following path.  Character will be unresponsive until this time has passed."
+	"editor_var talkradius"						"If the player steps outside this distance from the character, the conversation is over and the character goes back to what he was doing."
+	"editor_var talktime"						"How long the character will wait for the player to press the talk button before returning to what he was doing."
+	"editor_var talktrigger"					"When set, character will wait in an animation until triggered and then talk to the player before following the path."
+	"editor_var no_cower"						"Don't cower when hearing gun fire."
+	"editor_var anim"							"Anim to play when talktrigger is set."
+	"editor_var num_cinematics"					"When set, character is in cinematic mode.  Remains hidden until triggered, then plays each anim in sequence, then triggers targets becomes hidden once more.  Anims are specified by setting 'anim1', 'anim2', 'anim3', etc."
+	"editor_var cinematic_no_hide"				"When set, character won't hide after playing cinematics."
+	"editor_var talk_no_turn"					"Don't turn body toward player when talking, just his head."
+	"editor_var talk0_blendin"					"# frames to blend into triggered talk anim."
+	"editor_var talk0_blendout"					"# frames to blend out of triggered talk anim."
+	"editor_var talk1_blendin"					"# frames to blend into primary talk anim."
+	"editor_var talk1_blendout"					"# frames to blend out of primary talk anim."
+	"editor_var talk2_blendin"					"# frames to blend into secondary talk anim."
+	"editor_var talk2_blendout"					"# frames to blend out of secondary talk anim."
+	"editor_var alt_path1"						"alternate path for character.  use target_aI_followalternatepath1 to cause character to follow."
+	"editor_var alt_path2"						"alternate path for character.  use target_aI_followalternatepath2 to cause character to follow."
+	"editor_var alt_path3"						"alternate path for character.  use target_aI_followalternatepath3 to cause character to follow."
+
+	"editor_var noshadows"						"turns off shadows on character."
+	"editor_var animate_z"						"disables gravity on character until he wakes up.  used for on_activate anims where the bounding box needs to move up and down."
+	
+	"editor_var kick_force"						"how much force to apply to blocking obstacles to get them out of the way."
+
+	"editor_var team"							"Monsters do not actively attack players or monsters with the same team #."
+	"editor_var rank"							"Monsters only fight back when attacked by members of it's own team when its rank is greater than or equal to the attacker's rank.  A rank of 0 will never fight back."
+
+	"editor_var turn_rate"						"Maximum # of degrees character can turn per second"
+	"editor_var ignore_push"					"Set to 1 to prevent character from moving out of the way when player pushes him."
+
+	"editor_var mass"							"character's mass."
+	"editor_var ragdoll"            			"Specifies the .af file to use for a ragdoll when the creature dies"
+	"editor_var ragdoll_slomoStart"				"Start time of ragdoll slow motion relative to death time, defaults to -0.2"
+	"editor_var ragdoll_slomoEnd"				"End time of ragdoll slow motion relative to death time, defaults to 1.0"
+	"editor_var ragdoll_jointFrictionDent"		"Joint friction dent on ragdoll."
+	"editor_var ragdoll_jointFrictionStart" 	"Start time for joint friction dent"
+	"editor_var ragdoll_jointFrictionEnd"		"End time for joint friction dent"
+	"editor_var ragdoll_contactFrictionDent"	"Contact friction dent on ragdoll."
+	"editor_var ragdoll_contactFrictionStart"	"Start time for contact friction dent"
+	"editor_var ragdoll_contactFrictionEnd"		"End time for contact friction dent"
+	"editor_var af_push_moveables"				"whether the character's articulated figure pushes obstacles while they're alive."
+	
+	"editor_var blink_min"						"Minimum time to wait between eye blinks."
+	"editor_var blink_max"						"Maximum time to wait between eye blinks."
+
+	"editor_var fly_offset"						"Prefered fly height relative to the player's view"
+	"editor_var fly_speed"						"Speed to fly at"
+	"editor_var fly_bob_strength"				"How far flying creatures should bob."
+	"editor_var fly_bob_vert"					"Rate at which flying creatures bob up and down."
+	"editor_var fly_bob_horz"					"Rate at which flying creatures bob left and right."
+
+	"editor_var def_projectile"					"name of entityDef to launch as projectile"
+	"editor_var num_projectiles"				"how many projectiles to launch at a time."
+	"editor_var projectile_spread"				"how much to spread out projectiles when they're fired.  Works in conjunction with attack_accuracy.  Good for things like shotgun blasts."
+	"editor_var attack_accuracy"				"Maximum angular offset to randomly offset the character's aim when firing missiles"
+	"editor_var attack_cone"					"Monster can only throw projectile within this cone relative to his direction."
+
+	"editor_var melee_range"					"do melee attack when within this range"
+	"editor_var talks"							"whether character can be engaged in conversation"
+	"editor_var	def_drops"						"entityDefs to drop when killed.  Multiple drop items are defined by adding suffixes: 'def_drops1', 'def_drops2', etc."
+
+	"editor_var smokeParticleSystem"			"particle system to attach to entity.  To attach to a specific joint, add - and the name of the joint.  For example 'fire-firejoint' attaches the 'fire' particle to the joint 'firejoint'."
+
+	"editor_var chatter_min"					"minimum amount of time to wait till playing chat sounds when idle"
+	"editor_var chatter_max"					"maximum amount of time to wait till playing chat sounds when idle"
+	"editor_var snd_chatter"					"chat sound to play when idle"
+
+	"editor_var chatter_combat_min"				"minimum amount of time to wait till playing chat sounds when in combat"
+	"editor_var chatter_combat_max"				"maximum amount of time to wait till playing chat sounds when in combat"
+	"editor_var snd_chatter_combat"				"chat sound to play when in combat"
+
+	"editor_var pain_delay"						"How long to wait between pain animations before triggering another pain animation."
+	"editor_var pain_threshold"					"How much damage character has to recieve in one blow for it to play a pain animation."
+
+	"editor_var damage_zone X"					"List of bones that comprise damage zone 'X'.  Pain anims are based on the name of the zone, for example: 'pain_chest', 'pain_rightleg_forward', etc.  Directions are categorized as 'forward', 'left', 'right', or 'back'."
+	"editor_var damage_scale X"					"How much to scale damage recieved to zone 'X'.  For example 'damage_scale head' '10' would make head shots cause 10 times the normal amount of damage."
+	
+	"editor_var bone_leftEye"					"Which bone to modify to adjust the left eye"
+	"editor_var bone_rightEye"					"Which bone to modify to adjust the right eye"
+	"editor_var bone_focus"						"Where the character's eyes are in his head"
+	
+	"editor_var look_min"						"minimum angles for head looks"
+	"editor_var look_max"						"maximum angles for head looks"
+	"editor_var look_joint jointname"			"specifies the scale in 'pitch yaw roll' to modify the joint based on head looking.  you can specify any number of joints to be affected by the head look.  the scale of the joints that lead up to the head should always add up to 1 on yaw and pitch to ensure that the character looks directly at the player."
+	"editor_var copy_joint jointname"			"specifies a joint in the head to copy the specified body joint's animation from"
+
+	"editor_var eye_turn_min"					"min angular offset for eye joint before head has to turn."
+	"editor_var eye_turn_max"					"max angular offset for eye joint before head has to turn."
+	"editor_var eye_verticle_offset"			"verticle offset from the player's view that the character's eyes should focus on."
+	"editor_var eye_horizontal_offset"			"horizontal offset from the player's view that the character's eyes should focus on.  negative values bring eyes closer together."
+	"editor_var eye_focus_rate"					"how quickly the eyes focus on a target"
+	"editor_var head_focus_rate"				"how quickly the head focuses on a target"
+	"editor_var focus_align_time"				"how long character should glance at the player before turning his head."
+	
+	"editor_var mtr_flashShader"				"shader to use for muzzleflash"
+	"editor_var flashColor"						"color of muzzleflash"
+	"editor_var flashRadius"					"radius of muzzleflash"
+	"editor_var flashTime"						"how long muzzleflash lasts"
+	
+	"editor_var use_aas"						"extension of the aas file to use for navigation."
+	
+	"editor_var use_combat_bbox"				"Use a bounding box for damage and not per-poly hit detection."
+	"editor_var offsetModel"					"Vector to offset the visual model from the movement bounding box."
+	"editor_var def_attach"						"Name of entityDef to attach to model.  Set 'joint' in the attached entity def to the joint to attach to, and use 'origin' and 'angles' to offset it."
+	"editor_var head"							"Name of entityDef to attach as character's head.  Copies animation from certain bones into the head model."
+	
+	"editor_var eye_height"						"The height off the ground of the character's eyes.  All sight checks are done from this point.  When set, overrides determining the height from the position of the eye joint."
+	"editor_var fov"							"Character's field of view.  Characters initially become aware of the player when he enters this cone.  Also controls when the character sees the player as shootable.  Character's will not use fov for sight checks after their initial wake up."
+	
+	"editor_var mtr_splat_flesh"				"Material to use for blood splats."
+	"editor_var mtr_wound_flesh"				"Material to use for wounds."	
+	"editor_var smoke_wound_flesh"				"Smoke effect to emit from wounds."
+	
+	"editor_var gravityDir"						"Direction of gravity.  Defines the character's concept of 'down'."	
+
+	"spawnclass"								"idAI"
+	"scriptobject"								"character"
+	"health"									"1"
+	"team"										"0"
+	"rank"										"0"
+	"anim"										"idle"
+	"on_activate"								"sight"
+	"state"										"state_Inactive"
+	"head_look"									"1"
+	"chatter_min"								"5"
+	"chatter_max"								"10"
+	"bleed"										"1"
+	"blink_min"									"2.5"
+	"blink_max"									"8.0"
+	"talks"										"1"
+	"talkradius"								"300"					// when player exits this radius, go back to idle
+	"talktime"									"10"					// how long to pay attention to player after speaking
+	"turn_rate"									"360"
+	
+	"talk0_blendin"								"8"
+	"talk0_blendout"							"8"
+	"talk1_blendin"								"8"
+	"talk1_blendout"							"8"
+	"talk2_blendin"								"8"
+	"talk2_blendout"							"8"
+
+	"eye_turn_min"								"-20 -30 0"
+	"eye_turn_max"								"20 30 0"
+	"eye_verticle_offset"						"5"
+	"eye_horizontal_offset"						"-8"
+	"eye_focus_rate"							"0.5"
+	"head_focus_rate"							"0.1"
+	"focus_align_time"							"0"
+
+	"bone_focus"								"head"
+	"bone_leftEye"								"Lfteye_Focus"
+	"bone_rightEye"								"Rteye_Focus"
+	"kick_force"								"60"
+	
+	"copy_joint neckcontrol"					"neckcontrol"
+	"copy_joint headcontrol"					"headcontrol"
+	"copy_joint_world eyecontrol"				"eyecontrol"
+	
+	"snd_cower"									""						// set to sound to play when he cowers
+	"snd_bounce"					"ragdoll_impact"
+}
+
+
+
+
+
+// NPCS
+
+export fred {
+	options -prefix ZOMBIE_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -sourcedir models/monsters/zombie/cycles/idles -destdir models/md5/chars
+	
+	addoptions -align ALL
+
+		mesh	npcs_mesh2.mb -range 1 1 -dest labcoat -keepmesh labcoatmesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest suit -keepmesh suitmesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest jumpsuit -keepmesh jumpsuitmesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest tshirt -keepmesh soldiermesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest marine -keepmesh marinebodymesh
+		mesh	npcs_mesh.mb -range 1 1 -dest player -keepmesh npcplayermesh -keepmesh npcplayerarmmesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest security -keepmesh securitybodymesh -keepmesh sec_rshldrmesh -keepmesh sec_lshldrmesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest skeleton  -keepmesh skeletonmesh
+		mesh	npcs_mesh2.mb -range 1 1 -dest skeleton_w_mgun  -keepmesh skeletonmesh -keep eject flash barrel machinegun -rename mgeject eject -rename mgflash flash -rename mgbarrel barrel
+	
+
+		mesh	makemesh.mb -range 1 1 -dest hazmat -sourcedir models/characters/male_npc/hazmat/cycles/ -keepmesh hazmatbodymesh -keepmesh hazmatvisormesh -prefix HAZ_
+
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER 
+
+	addoptions -keepmesh marinebodymesh
+
+	//MARSCITY CINEMATICS
+	
+		anim	models/characters/male_npc/cycles/working/gui_look_right.mb -rotate 90 -dest models/md5/chars/gui_look_right
+		anim	models/characters/male_npc/cycles/working/gui_operate.mb -rotate 90 -dest models/md5/chars/gui_operate
+		anim	models/characters/male_npc/cycles/idles/cower4.mb -rotate 90 -dest models/md5/chars/cower4_ian
+		anim	models/characters/male_npc/cycles/working/gui_operate_iansecondary.mb -rotate 90 -dest models/md5/chars/gui_operate_iansecondary
+		anim	models/characters/male_npc/cycles/idles/point_forward.mb -rotate 90 -dest models/md5/chars/point_forward
+		anim	models/characters/male_npc/cycles/idles/startle_left.mb -rotate 90 -dest models/md5/chars/startle_left
+
+		anim	maps/fred/cyberdemon/rescue1.mb -dest models/md5/cinematics/hellhole/rescue_marine1
+		anim	maps/fred/cyberdemon/rescue1.mb -dest models/md5/cinematics/hellhole/rescue_marine2 -prefix SUIT2_
+		anim	maps/fred/cyberdemon/rescue2.mb -dest models/md5/cinematics/hellhole/rescue_marine1b
+		anim	maps/fred/cyberdemon/rescue2.mb -dest models/md5/cinematics/hellhole/rescue_marine2b -prefix SUIT2_
+
+		anim	maps/fred/marscity/window.mb -dest models/md5/chars/betruger/marscity/window
+		anim	maps/fred/marscity/window.mb -dest models/md5/cinematics/marscity/sec_window -prefix SOL_
+
+		anim 	maps/fred/marscity/hangar_characters.mb -range 360 678 -dest models/md5/chars/swann/marscity/hangar_a -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 679 766 -dest models/md5/chars/swann/marscity/hangar_b -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 767 863 -dest models/md5/chars/swann/marscity/hangar_c -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 864 937 -dest models/md5/chars/swann/marscity/hangar_d -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 938 980 -dest models/md5/chars/swann/marscity/hangar_e -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 981 1160 -dest models/md5/chars/swann/marscity/hangar_f -prefix SUIT_
+
+		anim 	maps/fred/marscity/hangar_characters.mb -range 360 678 -dest models/md5/cinematics/marscity/hangar_player_a -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 679 766 -dest models/md5/cinematics/marscity/hangar_player_b -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 767 863 -dest models/md5/cinematics/marscity/hangar_player_c -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 864 937 -dest models/md5/cinematics/marscity/hangar_player_d -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 938 980 -dest models/md5/cinematics/marscity/hangar_player_e -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 981 1050 -dest models/md5/cinematics/marscity/hangar_player_f -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 1051 1125 -dest models/md5/cinematics/marscity/hangar_player_g -prefix SUIT3_
+		anim 	maps/fred/marscity/hangar_characters.mb -range 1126 1236 -dest models/md5/cinematics/marscity/hangar_player_h -prefix SUIT3_
+	
+		anim	maps/fred/marscity/betrugercin1.mb -range 1 54 -dest models/md5/chars/betruger/marscity/meeting_a -prefix BETRUGER_
+		anim	maps/fred/marscity/betrugercin1.mb -range 55 92 -dest models/md5/chars/betruger/marscity/meeting_b -prefix BETRUGER_
+		anim	maps/fred/marscity/betrugercin1.mb -range 93 137 -dest models/md5/chars/betruger/marscity/meeting_c -prefix BETRUGER_
+		anim	maps/fred/marscity/betrugercin1.mb -range 138 1737 -dest models/md5/chars/betruger/marscity/meeting_d -prefix BETRUGER_
+
+		anim	maps/fred/marscity/betrugercin1.mb -range 1 54 -dest models/md5/chars/swann/marscity/meeting_a -prefix SWANN2_
+		anim	maps/fred/marscity/betrugercin1.mb -range 55 92 -dest models/md5/chars/swann/marscity/meeting_b -prefix SWANN2_
+		anim	maps/fred/marscity/betrugercin1.mb -range 93 138 -dest models/md5/chars/swann/marscity/meeting_c -prefix SWANN2_
+		anim	maps/fred/marscity/betrugercin1.mb -range 139 1709 -dest models/md5/chars/swann/marscity/meeting_d -prefix SWANN_
+
+		anim	maps/fred/marscity/betrugercin1.mb -range 1 54 -dest models/md5/cinematics/marscity/betrugercin1_player_a -prefix PLAYER_
+		anim	maps/fred/marscity/betrugercin1.mb -range 55 92 -dest models/md5/cinematics/marscity/betrugercin1_player_b -prefix PLAYER_
+		anim	maps/fred/marscity/betrugercin1.mb -range 93 137 -dest models/md5/cinematics/marscity/betrugercin1_player_c -prefix PLAYER_
+		anim	maps/fred/marscity/betrugercin1.mb -range 138 1737 -dest models/md5/cinematics/marscity/betrugercin1_player_d -prefix PLAYER_
+
+		anim	maps/fred/marscity/sargecin_eric.mb -range 120 120 -dest models/md5/chars/sarge/marscity/missionloop -prefix SARGE_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 120 176 -dest models/md5/chars/sarge/marscity/mission1 -prefix SARGE_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 177 380 -dest models/md5/chars/sarge/marscity/mission2 -prefix SARGE_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 381 555 -dest models/md5/chars/sarge/marscity/mission3 -prefix SARGE_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 556 700 -dest models/md5/chars/sarge/marscity/mission4 -prefix SUIT2_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 701 814 -dest models/md5/chars/sarge/marscity/mission5 -prefix SUIT2_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 815 920 -dest models/md5/chars/sarge/marscity/mission6 -prefix SARGE_
+		anim	maps/fred/marscity/sargecin_eric.mb -range 921 960 -dest models/md5/chars/sarge/marscity/mission7 -prefix SARGE_
+
+		anim 	maps/fred/marscity/sargecin_eric_idle2.mb -range 0 80 -dest models/md5/chars/sarge/marscity/mc_sarge_primary -prefix SUIT_ -align ALL
+		anim 	maps/fred/marscity/sargecin_eric_idle2.mb -range 80 165 -dest models/md5/chars/sarge/marscity/mc_sarge_secondary -prefix SUIT_ -align ALL
+		anim 	maps/fred/marscity/sargecin_eric_idle2.mb -range 166 300 -dest models/md5/chars/sarge/marscity/mc_sarge_secondary2 -prefix SUIT_ -align ALL
+		anim	maps/fred/marscity/sargecin_eric.mb -range 221 380 -dest models/md5/cinematics/marscity/sargecin_player2 -prefix SOL_	
+		anim	maps/fred/marscity/sargecin_eric.mb -range 381 555 -dest models/md5/cinematics/marscity/sargecin_player3 -prefix SOL_	
+		anim	maps/fred/marscity/sargecin_eric.mb -range 556 700 -dest models/md5/cinematics/marscity/sargecin_player4 -prefix SOL_	
+		anim	maps/fred/marscity/sargecin_eric.mb -range 701 814 -dest models/md5/cinematics/marscity/sargecin_player5 -prefix SOL_	
+		anim	maps/fred/marscity/sargecin_eric.mb -range 815 920 -dest models/md5/cinematics/marscity/sargecin_player6 -prefix SOL_	
+		anim	maps/fred/marscity/sargecin_eric.mb -range 921 960 -dest models/md5/cinematics/marscity/sargecin_player7 -prefix SOL_			
+		anim 	maps/eric/delta1/sarge_video.mb -dest models/md5/chars/sarge/delta1/sarge_vcd -prefix SUIT_ -align ALL
+		anim	maps/fred/marscity/sargecin_eric.mb -range 120 220 -dest sargecin_player1 -sourcedir maps/fred/marscity/ -destdir models/md5/cinematics/marscity/ -prefix MP_
+		
+		anim 	maps/fred/marscity/sargecin_eric_idle.mb -range 0 24 -dest models/md5/chars/sarge/marscity/mc_sarge_wait -prefix SUIT_ -align ALL
+		anim 	maps/fred/marscity/sargecin_eric_idle.mb -range 24 580 -dest models/md5/chars/sarge/marscity/mc_sarge_wait_loop -prefix SUIT_ -align ALL
+				
+
+		anim	maps/fred/marscity/reception_redo.mb -range 24 100 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_a -prefix SUIT_
+		anim	maps/fred/marscity/reception_redo.mb -range 101 145 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_b -prefix SUIT_
+		anim	maps/fred/marscity/reception_redo_handlock.mb -range 146 339 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_c -prefix SUIT_
+		anim	maps/fred/marscity/reception_redo.mb -range 340 475 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_d -prefix SUIT_
+		anim	maps/fred/marscity/reception_redo.mb -range 476 803 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_e -prefix SUIT_
+		anim	maps/fred/marscity/reception_redo.mb -range 804 820 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_f -prefix SUIT_
+
+		anim	maps/fred/marscity/marscity_reception_typing1.mb -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing -prefix SUIT_
+		anim	maps/fred/marscity/marscity_reception_typing2.mb -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2 -prefix SUIT_
+		anim	maps/fred/marscity/marscity_reception_secondaries_fix.mb -range 0 100 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_primary -prefix SUIT_
+		anim	maps/fred/marscity/marscity_reception_secondaries_fix.mb -range 100 294 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary1 -prefix SUIT_
+		anim	maps/fred/marscity/marscity_reception_secondaries_fix.mb -range 294 396 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary2 -prefix SUIT_
+		anim	maps/fred/marscity/marscity_reception_secondaries2.mb -range 0 35 -dest models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3 -prefix SUIT_
+		
+		anim	maps/fred/marscity/reception.mb -range 24 100  -dest models/md5/cinematics/marscity/receptioncin1_player_a -prefix PLAYER_
+		anim	maps/fred/marscity/reception.mb -range 101 145 -dest models/md5/cinematics/marscity/receptioncin1_player_b -prefix PLAYER_
+		anim	maps/fred/marscity/reception_redo_handlock.mb -range 146 339 -dest models/md5/cinematics/marscity/receptioncin1_player_c -prefix PLAYER_
+		anim	maps/fred/marscity/reception.mb -range 340 475 -dest models/md5/cinematics/marscity/receptioncin1_player_d -prefix PLAYER_
+		anim	maps/fred/marscity/reception.mb -range 476 803 -dest models/md5/cinematics/marscity/receptioncin1_player_e -prefix PLAYER_
+		anim	maps/fred/marscity/reception.mb -range 804 820 -dest models/md5/cinematics/marscity/receptioncin1_player_f -prefix PLAYER_
+
+
+
+		anim	maps/fred/marscity/patient.mb -range 1 40 -dest models/md5/cinematics/marscity/patient_victim_start
+		anim	maps/fred/marscity/patient.mb -range 1 160 -dest models/md5/cinematics/marscity/patient_victim
+		anim	maps/fred/marscity/patient.mb -range 161 240 -dest models/md5/cinematics/marscity/patient_victim_end
+
+		anim	maps/fred/marscity/patient.mb -range 1 40 -rotate -100 -dest models/md5/cinematics/marscity/patient_security_start -prefix SOL_
+		anim	maps/fred/marscity/patient.mb -range 1 240 -rotate -100 -dest models/md5/cinematics/marscity/patient_security -prefix SOL_
+		anim	maps/fred/marscity/patient.mb -range 240 290 -rotate -100 -dest models/md5/cinematics/marscity/patient_security_end -prefix SOL_
+
+		anim	maps/fred/marscity/patient.mb -range 1 40 -rotate 90 -dest models/md5/cinematics/marscity/patient_doctor_start -prefix ZOMBIE_
+		anim	maps/fred/marscity/patient.mb -range 1 240 -rotate 90 -dest models/md5/cinematics/marscity/patient_doctor -prefix ZOMBIE_
+		anim	maps/fred/marscity/patient.mb -range 240 290 -rotate 90 -dest models/md5/cinematics/marscity/patient_doctor_end -prefix ZOMBIE_
+
+		anim	maps/eric/marscity/sci_team_request.mb -range 0 215 -rotate -90 -dest models/md5/chars/marscity/sci_team_request -prefix SUIT_
+
+		anim	maps/kevinc/marscity/IPN_News_Body.mb -rotate 90 -dest models/md5/chars/marscity/ipn_news -prefix SUIT_
+
+
+
+	//MARSCITY2 CINEMATICS
+
+		anim	maps/kevinc/marscity_2/sarge_mc2_video.mb -rotate -90 -dest models/md5/chars/sarge/marscity2/mission_brief -prefix SUIT_
+		anim	maps/kevinc/marscity_2/ceiling_idle.mb -rotate 135 -dest models/md5/chars/ceiling_mc2/ceiling_idle -prefix SUIT_
+		anim	maps/kevinc/marscity_2/ceiling_trigger.mb -rotate 135 -dest models/md5/chars/ceiling_mc2/ceiling_trigger -prefix SUIT_
+		anim	maps/kevinc/marscity_2/ceiling_primary.mb -rotate 135 -dest models/md5/chars/ceiling_mc2/ceiling_primary -prefix SUIT_
+		anim	maps/kevinc/marscity_2/ceiling_secondary1.mb -rotate 135 -dest models/md5/chars/ceiling_mc2/ceiling_secondary1 -prefix SUIT_
+		anim	maps/kevinc/marscity_2/ceiling_secondary2.mb -rotate 135 -dest models/md5/chars/ceiling_mc2/ceiling_secondary2 -prefix SUIT_
+
+		anim	maps/fred/marscity_2/zombie_eats_marine.mb -range 35 99 -rotate 180 -dest models/md5/cinematics/marscity_2/zkiller_marine
+
+
+	// ADMIN CINEMATICS
+
+		anim	maps/fred/admin/campbell_overhear_1_n_2_n_3.mb -range 1 313 -dest models/md5/cinematics/admin/overhearswann1 -prefix SWANN_
+		anim	maps/fred/admin/campbell_overhear_4.mb -range 432 736 -dest models/md5/cinematics/admin/overhearswann2 -prefix SWANN_
+		anim	maps/fred/admin/swann_campbell_overhear.mb -range 737 1033 -dest models/md5/cinematics/admin/overhearswann3 -prefix SWANN_
+		anim	maps/eric/admin/typing.mb -range 1 60 -rotate 180 -dest models/md5/cinematics/admin/typingswann_loop -prefix SWANN_ -align ALL
+		anim	maps/eric/admin/typing.mb -range 1 317 -rotate 180 -dest models/md5/cinematics/admin/typingswann -prefix SWANN_ -align ALL
+
+		anim	models/characters/male_npc/cycles/idles/af_pose.mb -dest models/md5/characters/npcs/woundedmarine_af_pose -align ALL
+		anim	models/characters/male_npc/cycles/wounded/wounded_marine_trigger.mb -dest models/md5/chars/wounded_marine_trigger -align ALL
+		anim	models/characters/male_npc/cycles/wounded/wounded_marine_primary.mb -dest models/md5/chars/wounded_marine_primary -align ALL
+		anim	models/characters/male_npc/cycles/wounded/wounded_marine_secondary.mb -dest models/md5/chars/wounded_marine_secondary -align ALL
+		anim	models/characters/male_npc/cycles/wounded/wounded_marine_idle.mb -dest models/md5/chars/wounded_marine_idle -align ALL
+		anim	maps/fred/admin/betruger_operation.mb -rotate 90 -dest models/md5/cinematics/admin/overhearbetruger -prefix SUIT_
+
+
+	// DELTA2A CINEMATICS
+
+		anim	maps/fred/delta2a/ian_shot1.mb -range 5 40 -rotate 90 -dest models/md5/chars/ian_d2a/ianstart	
+		anim	maps/fred/delta2a/ian_shot1.mb -range 41 165 -rotate 90 -dest models/md5/chars/ian_d2a/ianpart1
+		anim	maps/fred/delta2a/ian_shot1.mb -range 166 710 -rotate 90 -dest models/md5/chars/ian_d2a/ianpart2
+		anim	maps/fred/delta2a/ian_shot1.mb -range 711 756 -rotate 90 -dest models/md5/chars/ian_d2a/ianpart3
+		anim	maps/fred/delta2a/ian_shot4.mb -rotate 90 -dest models/md5/chars/ian_d2a/ianpart4
+		anim	maps/fred/delta2a/ian_shot4_talk.mb -rotate 90 -dest models/md5/chars/ian_d2a/ianpart4_talk
+		anim	maps/fred/delta2a/ian_shot4_talk_trigger.mb -rotate 90 -dest models/md5/chars/ian_d2a/ianpart4_talk_trigger
+		anim	maps/fred/delta2a/ian_shot4_stand.mb -rotate 90 -dest models/md5/chars/ian_d2a/ianpart4_stand
+		anim	maps/fred/delta2a/ian_talk_one.mb -rotate 90 -dest models/md5/chars/ian_d2a/ian_talk_one
+		anim	maps/fred/delta2a/ian_talk_two.mb -rotate 90 -dest models/md5/chars/ian_d2a/ian_talk_two
+		anim	maps/fred/delta2a/ian_cower.mb -rotate 90 -dest models/md5/chars/ian_d2a/iancower
+		
+	// DELTA2B CINEMATICS
+
+		anim	maps/kevinc/delta2b/hazmat_trigger.mb -rotate 90 -dest models/md5/chars/hazmat_d2b/trigger
+		anim	maps/kevinc/delta2b/hazmat_idle.mb -rotate 90 -dest models/md5/chars/hazmat_d2b/hazmat_idle
+		anim	maps/kevinc/delta2b/hazmat_primary.mb -rotate 90 -dest models/md5/chars/hazmat_d2b/primary
+		anim	maps/kevinc/delta2b/hazmat_secondary1.mb -rotate 90 -dest models/md5/chars/hazmat_d2b/secondary1
+		anim	maps/kevinc/delta2b/hazmat_secondary2.mb -rotate 90 -dest models/md5/chars/hazmat_d2b/secondary2
+
+	// DELTA3 CINEMATICS
+
+		anim	models/characters/male_npc/cycles/idles/betruger_point.mb -rotate 90 -dest models/md5/chars/betruger/delta3/betruger_point
+		anim	models/characters/male_npc/cycles/idles/betruger_point_down.mb -rotate 90 -dest models/md5/chars/betruger/delta3/betruger_point_down
+	
+	// DELTA4 CINEMATICS
+
+		anim	maps/fred/delta4/hkintro.mb -rotate 180 -dest models/md5/chars/betruger/delta4/betrugerlaugh
+
+		anim	maps/fred/delta4/hkthrowshaz1.mb -range 182 260 -dest models/md5/cinematics/delta4/hkintro_hazgetsgrabbed -prefix HAZ_
+		anim	maps/fred/delta4/hkthrowshaz2.mb -range 261 409 -dest models/md5/cinematics/delta4/hkintro_hazgetsthrown -prefix HAZ_
+	
+		anim	maps/fred/delta4/pooped.mb -range 182 500 -dest models/md5/cinematics/bloopers/hkintro_hazpooped -prefix HAZ_
+		anim	maps/fred/bloopers/haz_monsters.mb -range 1 250 -dest models/md5/cinematics/bloopers/haz_monsters -prefix HAZ_
+		
+		anim	maps/fred/delta4/hazrunoutcough.mb -dest models/md5/cinematics/delta4/hkintro_runoutcough -prefix SUIT_
+
+	// DELTA5 CINEMATICS
+
+		anim	maps/kevinc/delta5/wounded_swann.mb -rotate -45 -range 0 1260 -dest models/md5/cinematics/delta5/swann_trigger -prefix SWANN_
+		anim	maps/kevinc/delta5/wounded_swann_idle.mb -rotate -45 -dest models/md5/cinematics/delta5/swann_idle -prefix SWANN_
+
+
+	// MONORAIL CINEMATICS	
+
+		anim	maps/fred/monorail/raisecommando2.mb -dest models/md5/chars/betruger/monorail/raise -prefix BETRUGER_
+		anim	maps/fred/monorail/raisecommando2.mb -rotate 180 -dest models/md5/cinematics/monorail/fallingsoldier
+		anim	maps/fred/monorail/raisecommando2.mb -rotate 180 -dest models/md5/cinematics/monorail/transforming -prefix SOL_
+
+		anim	maps/fred/monorail/rider_eric.mb -range 1 1 -dest models/md5/cinematics/monorail/rider_hidden 
+		anim	maps/fred/monorail/rider_eric.mb -range 50 150 -dest models/md5/cinematics/monorail/rider_stand
+		//anim	maps/fred/monorail/rider_eric.mb -range 151 680 -dest models/md5/cinematics/monorail/rider_trigger
+		anim	maps/fred/monorail/rider_eric.mb -range 127 680 -dest models/md5/cinematics/monorail/rider_trigger
+		anim	maps/fred/monorail/rider_eric.mb -range 680 780 -dest models/md5/cinematics/monorail/rider_sit
+		anim	maps/fred/monorail/rider_eric.mb -range 780 890 -dest models/md5/cinematics/monorail/rider_primary
+		anim	maps/fred/monorail/rider_eric.mb -range 890 995 -dest models/md5/cinematics/monorail/rider_secondary1
+		anim	maps/fred/monorail/rider_eric.mb -range 995 1100 -dest models/md5/cinematics/monorail/rider_secondary2
+		anim	maps/fred/monorail/rider_eric_suprise.mb -range 1 60 -dest models/md5/cinematics/monorail/rider_surprise
+		anim	maps/fred/monorail/rider_eric_notrig.mb -range 150 256 -dest models/md5/cinematics/monorail/rider_notrig
+		anim	maps/fred/monorail/rider_before_trigger.mb -dest models/md5/cinematics/monorail/before_trigger
+
+
+
+	// CPU CINEMATICS
+
+		anim	maps/fred/cpu1/camp_wounded.mb -rotate 180 -range 1 1 -dest models/md5/chars/campbell/cpu/deathidle -prefix CAMPBELL_
+		anim	maps/fred/cpu1/camp_wounded.mb -rotate 180 -dest models/md5/chars/campbell/cpu/death -prefix CAMPBELL_
+		anim	maps/fred/cpu1/camp_wounded.mb -rotate 180 -range 300 300 -dest models/md5/chars/campbell/cpu/deathend -prefix CAMPBELL_
+
+	// RECYCLING CINEMATICS
+
+		anim	maps/fred/recycling/betruger_video1.mb -dest models/md5/chars/betruger/recycling/betruger_vid1 -align ALL
+		anim	maps/fred/recycling/betruger_video2.mb -dest models/md5/chars/betruger/recycling/betruger_vid2 -align ALL
+
+	// COMM1 CINEMATICS
+
+		anim	maps/fred/comm1/swann_video1.mb -dest models/md5/chars/swann/comm1/swann_vid1 -align ALL
+		anim	maps/kevinc/comm1/swann_video2.mb -dest models/md5/chars/swann/comm1/swann_vid2 -align ALL
+		anim	maps/kevinc/comm1/swann_video3.mb -dest models/md5/chars/swann/comm1/swann_vid3 -align ALL
+
+	//SITE3 CINEMATICS
+
+		anim	maps/kevinc/site3/trigger.mb -rotate -90 -dest models/md5/chars/site3_sci/trigger -prefix SUIT_ -align ALL
+		anim	maps/kevinc/site3/trigger.mb -rotate -90 -range 1 1 -dest models/md5/chars/site3_sci/initial_frame -prefix SUIT_ -align ALL
+		anim	maps/kevinc/site3/primary.mb -dest models/md5/chars/site3_sci/primary -prefix SUIT_ -align ALL
+
+		anim	maps/kevinc/site3/stand_site3.mb -dest models/md5/chars/site3_sci/stand_site3 -prefix SUIT_ -align ALL
+
+		anim	maps/kevinc/site3/secondary1.mb -dest models/md5/chars/site3_sci/secondary1 -prefix SUIT_ -align ALL
+		anim	maps/kevinc/site3/secondary2.mb -dest models/md5/chars/site3_sci/secondary2 -prefix SUIT_ -align ALL
+		anim	maps/kevinc/site3/operate_computer_site3.mb -rotate -180 -dest models/md5/chars/site3_sci/operate_computer_site3
+		anim	maps/kevinc/site3/turn_left_rotation180_site3.mb -dest models/md5/chars/site3_sci/turn_left_rotation180_site3 -prefix SUIT_ -align ALL
+
+	//ENPRO CINEMATICS
+		
+		anim	maps/eric/enpro/wounded_marine.mb -range 1 92 -dest models/md5/chars/enpro_wounded_marine/marine_wounded1 -prefix SUIT2_
+		anim	maps/eric/enpro/wounded_marine.mb -range 93 194 -dest models/md5/chars/enpro_wounded_marine/marine_wounded2 -prefix SUIT4_
+		anim	maps/eric/enpro/wounded_marine.mb -range 195 340 -dest models/md5/chars/enpro_wounded_marine/marine_wounded3 -prefix SUIT4_
+		anim	maps/eric/enpro/wounded_marine.mb -range 341 476 -dest models/md5/chars/enpro_wounded_marine/marine_wounded4 -prefix SUIT4_
+		anim	maps/eric/enpro/wounded_marine.mb -range 477 571 -dest models/md5/chars/enpro_wounded_marine/marine_wounded5 -prefix SUIT4_
+		anim	maps/eric/enpro/wounded_marine.mb -range 572 598 -dest models/md5/chars/enpro_wounded_marine/marine_wounded6 -prefix SUIT4_
+
+		anim	maps/fred/enpro/escape_shot1.mb -range 1 90 -dest models/md5/cinematics/enpro/swann_escape1 -prefix SUIT2_
+		anim	maps/fred/enpro/escape_shot2.mb -range 91 236 -dest models/md5/cinematics/enpro/swann_escape2 -prefix SUIT2_
+
+		anim	maps/fred/enpro/escape_shot3.mb -range 316 461 -dest models/md5/cinematics/enpro/marine_escape -prefix SOL_
+
+
+
+
+
+	// HELLHOLE CINEMATICS
+
+		anim	maps/fred/cyberdemon/swanndead.mb -dest models/md5/cinematics/hellhole/rescue_swanndead -prefix SWANN_
+		anim	maps/fred/cyberdemon/pdamarine.mb -dest models/md5/cinematics/hellhole/rescue_pdamarine -prefix MARINE_
+		anim	maps/fred/cyberdemon/bodylook.mb -dest models/md5/cinematics/hellhole/rescue_bodylook -prefix SUIT_
+
+	// UNDERGROUND STUFF
+
+		anim	maps/fred/underground/brooksidle.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooksidle
+		anim	maps/fred/underground/brookswelcome.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks01welcome
+		anim	maps/fred/underground/brooksimgonnaneed.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks02imgonnaneed
+		anim	maps/fred/underground/brooksgrabyourgear.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks03grabyourgear
+		anim	maps/fred/underground/brooksletme.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks04letmeradiotest
+		anim	maps/fred/underground/brooksradiocheck.mb -rotate -90 -dest models/md5/chars/mcu_brooks/brooks05radiocheck
+		anim	maps/fred/underground/brookslookslike.mb -rotate -90 -dest models/md5/chars/mcu_brooks/brooks06mission
+		anim	maps/fred/underground/brooksallset.mb -rotate -90 -dest models/md5/chars/mcu_brooks/brooks07allset
+		anim	maps/fred/underground/brooksohyeah.mb -rotate -90 -dest models/md5/chars/mcu_brooks/brooks08dontshootcivilians
+		anim	maps/fred/underground/brooksneedtosecure.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks09re_secureyourgear
+		anim	maps/fred/underground/brooksyourstuff.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks13re_storagecabinet
+		anim	maps/fred/underground/brooksnowyouready.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks14readyforcombat
+		anim	maps/fred/underground/brookswatchtheshootin.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brookscowerwatch
+		anim	maps/fred/underground/brooksdontfire.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brookscowerdontfire
+		anim	maps/fred/underground/brooksyoudont.mb -rotate 90 -dest models/md5/chars/mcu_brooks/brooks18re_moveout
+
+		anim	maps/fred/underground/airlockencounter.mb  -range 1 80 -dest models/md5/chars/airlockzdragged -prefix ZOMBIE_
+		anim	maps/fred/underground/airlockencounter.mb  -range 81 150 -dest models/md5/chars/airlockzeatenloop -prefix ZOMBIE_
+		anim	maps/fred/underground/airlockencounter.mb  -range 150 186 -dest models/md5/chars/airlockzgetup -prefix ZOMBIE_
+		anim	maps/fred/underground/invasion2b.mb -range 52 99 -dest models/md5/cinematics/underground/invasion_runshoot
+		anim	maps/fred/underground/invasion6a.mb	-range 25 80 -dest models/md5/cinematics/underground/invasion_runfall
+		anim	maps/fred/underground/newsec.mb -dest models/md5/cinematics/underground/hallway_sec2zombie
+		anim	maps/fred/underground/invasion6c.mb -dest models/md5/cinematics/underground/hallway_sec2zombie2
+		anim	maps/fred/underground/invasion4.mb -dest models/md5/cinematics/underground/invasion_window
+		anim	maps/fred/underground/invasion6a.mb	-range 25 80 -dest models/md5/cinematics/underground/invasion_runbackscared -prefix SUIT2_
+		anim	maps/fred/underground/npcbackup.mb -dest models/md5/cinematics/underground/npcbackup
+		anim	maps/fred/underground/npcbackup_start.mb -dest models/md5/cinematics/underground/npcbackup_start
+		anim	maps/fred/underground/npcbackup_death.mb -dest models/md5/cinematics/underground/npcbackup_death
+		//anim	maps/fred/underground/npcbackup_cower.mb -rotate 90 -dest models/md5/cinematics/underground/npcbackup_cower
+		anim	maps/fred/underground/crazysci.mb -range 1 1 -dest models/md5/cinematics/underground/crazy_sci_start
+		anim	maps/fred/underground/crazysci.mb -range 1 114 -dest models/md5/cinematics/underground/crazy_sci1
+		anim	maps/fred/underground/crazysci.mb -range 115 224 -dest models/md5/cinematics/underground/crazy_sci2
+		anim	maps/fred/underground/crazysci2.mb -range 200 648 -dest models/md5/cinematics/underground/crazy_sci3 -prefix SUIT2_
+
+		anim	maps/fred/underground/crazysciend.mb -dest models/md5/cinematics/underground/crazy_sci_end1 -prefix SUIT2_
+		anim	maps/fred/underground/zintro_reversed_new.mb -range 1 120 -dest models/md5/cinematics/underground/zintro_beater1
+		anim	maps/fred/underground/zintro_reversed_new.mb -range 121 230 -dest models/md5/cinematics/underground/zintro_beater2
+		anim	maps/fred/underground/zintro_reversed_new.mb -range 1 120 -dest models/md5/cinematics/underground/zintro_victim1 -prefix SUIT2_
+		anim	maps/fred/underground/zintro_reversed_new.mb -range 121 230 -dest models/md5/cinematics/underground/zintro_victim2 -prefix SUIT2_
+		anim	maps/fred/underground/zintro_part2.mb -dest models/md5/cinematics/underground/zintro_eater_loop
+		anim	maps/fred/underground/zintro_part2.mb -dest models/md5/cinematics/underground/zintro_eaten_loop -prefix SUIT2_
+		anim	maps/fred/underground/zintro_part3.mb -dest models/md5/cinematics/underground/zintro_eaten_end -prefix SUIT2_
+		anim	maps/fred/underground/zintro_part3.mb -range 447 447 -dest models/md5/cinematics/underground/zintro_eaten_end_loop -prefix SUIT2_
+
+		anim	maps/fred/underground/zintro_part3.mb -dest models/md5/cinematics/underground/zintro_eater_getup
+		anim	maps/fred/underground/choke.mb -range 14 45 -dest models/md5/cinematics/underground/invasion_choke_victim_a
+		anim	maps/fred/underground/choke.mb -range 46 103 -dest models/md5/cinematics/underground/invasion_choke_victim_b
+		anim	maps/fred/underground/choke.mb -range 104 180 -dest models/md5/cinematics/underground/invasion_choke_victim_c
+		anim	maps/fred/underground/choke.mb -range 14 45 -dest models/md5/cinematics/underground/invasion_choke_zombie_a -prefix ZOMBIE_
+		anim	maps/fred/underground/choke.mb -range 46 103 -dest models/md5/cinematics/underground/invasion_choke_zombie_b -prefix ZOMBIE_
+		anim	maps/fred/underground/choke.mb -range 104 180 -dest models/md5/cinematics/underground/invasion_choke_zombie_c -prefix ZOMBIE_
+
+		anim	maps/kevinc/marscity/checkin_cleared.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_cleared
+		anim	maps/kevinc/marscity/checkin_gonnaneed.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_need
+		anim	maps/kevinc/marscity/checkin_holdstill.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_holdstill
+		anim	maps/kevinc/marscity/checkin_idle.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_idle
+		anim	maps/kevinc/marscity/checkin_idle2.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_idle_norot
+		anim	maps/kevinc/marscity/checkin_letmeget.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_letmeget
+		anim	maps/kevinc/marscity/checkin_waisting.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_waisting
+		anim	maps/kevinc/marscity/checkin_welcome.mb -rotate 90 -dest models/md5/cinematics/marscity/sec_checkin_welcome
+
+		anim 	maps/fred/marscity/office1.mb -dest models/md5/chars/office1working
+		
+		// ALPHALABS1 STUFF
+		
+		anim	models/characters/male_npc/cycles/idles/cower4.mb -rotate 180 -dest models/md5/chars/alphalabs1/cower4_hydrocon
+		anim	models/characters/male_npc/cycles/idles/startle.mb -rotate 180 -dest models/md5/chars/alphalabs1/startle
+		anim	models/characters/male_npc/cycles/working/PDA_idle_look_hydrocon.mb -rotate 180 -dest models/md5/chars/alphalabs1/pda_idle_look_hydrocon
+		anim	models/characters/male_npc/cycles/working/PDA_idle_look_hydrocon_talk.mb -rotate 180 -dest models/md5/chars/alphalabs1/pda_idle_look_hydrocon_talk
+		
+		// ALPHALABS4 STUFF
+		
+		anim	models/characters/male_npc/cycles/fragchamber_scientist/freaked_out.mb -rotate 90 -dest models/md5/chars/alphalabs4/freaked_out
+		anim	models/characters/male_npc/cycles/walks/walk_thankyou.mb -rotate 90 -dest models/md5/chars/alphalabs4/walk_thankyou
+		anim	models/characters/male_npc/cycles/fragchamber_scientist/hey_you.mb -rotate 90 -dest models/md5/chars/alphalabs4/hey_you
+		anim	models/characters/male_npc/cycles/talking/talk_secondary2.mb -rotate 90 -dest models/md5/chars/alphalabs4/talk_secondary2
+		anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist_die.mb -range 0 0 -rotate 90 -dest models/md5/chars/alphalabs4/die_start
+		anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist_die.mb -rotate 90 -dest models/md5/chars/alphalabs4/die
+		anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist_die.mb -range 70 70 -rotate 90 -dest models/md5/chars/alphalabs4/die_end
+		
+	
+	// GENERIC CYCLES
+
+	addoptions -align ALL
+	addoptions -destdir models/md5/chars
+
+		anim	models/characters/male_npc/cycles/idles/af_pose.mb -dest af_pose
+		anim	models/characters/male_npc/cycles/idles/stand.mb -dest stand
+		anim	models/characters/male_npc/cycles/talking/stand_talk.mb -dest stand_talk
+		anim	models/characters/male_npc/cycles/talking/stand_talk_primary_mark.mb -dest stand_talk_primary_mark
+		anim    models/characters/male_npc/cycles/talking/stand_talk_secondary_mark.mb -dest stand_talk_secondary_mark
+		anim	models/characters/male_npc/cycles/talking/talk_primary_ross.mb -dest talk_primary_ross
+		anim	models/characters/male_npc/cycles/walks/walk_normal.mb -dest walk_normal
+		anim	models/characters/male_npc/cycles/pain/painchest.mb -dest painchest
+		anim	models/characters/male_npc/cycles/pain/painhead.mb -dest painhead
+		anim	models/characters/male_npc/cycles/pain/painleft.mb -dest painleft
+		anim	models/characters/male_npc/cycles/pain/painright.mb -dest painright
+		anim	models/characters/male_npc/cycles/idles/cower4.mb -dest cower4
+		anim	models/characters/male_npc/cycles/idles/turn_right.mb -dest turn_right
+		anim	models/characters/male_npc/cycles/idles/turn_left.mb -dest turn_left
+		anim	models/characters/male_npc/cycles/idles/turn_right_rotation90.mb -dest turn_right_rotation90
+		anim	models/characters/male_npc/cycles/idles/turn_left_rotation90.mb -dest turn_left_rotation90
+		anim	models/characters/male_npc/cycles/idles/turn_right_rotation180.mb -dest turn_right_rotation180
+		anim	models/characters/male_npc/cycles/idles/turn_left_rotation180.mb -dest turn_left_rotation180
+		anim	models/characters/male_npc/cycles/wounded/eric_hurt_loop_2.mb -range 0 60 -dest models/md5/chars/npc_stagger_loop
+		anim	models/characters/male_npc/cycles/runs/medrun1.mb -rotate 90 -dest models/md5/chars/medrun1
+
+		anim	models/characters/male_npc/cycles/working/PDA_idle_look.mb -dest models/md5/chars/PDA_idle_look
+		anim	models/characters/male_npc/cycles/working/PDA_idle.mb -dest models/md5/chars/PDA_idle
+		anim	models/characters/male_npc/cycles/working/PDA_idle_daniel.mb -dest models/md5/chars/PDA_idle_daniel
+
+		anim	models/characters/male_npc/cycles/working/gui_operate_daniel.mb -dest models/md5/chars/gui_operate_daniel
+		anim	models/characters/male_npc/cycles/talking/stand_talk.mb -dest models/md5/chars/stand_talk
+		anim	models/characters/male_npc/cycles/working/gui_look.mb -dest models/md5/chars/gui_look
+		anim	models/characters/male_npc/cycles/working/box_look.mb -dest models/md5/chars/box_look
+
+		anim	models/characters/male_npc/cycles/working/look_in_hole_scratch_head.mb -dest models/md5/chars/look_in_hole_scratch_head
+		anim	models/characters/male_npc/cycles/working/look_in_hole.mb -dest models/md5/chars/look_in_hole
+		anim	models/characters/male_npc/cycles/talking/talk_listen_scotty_ross.mb -dest models/md5/chars/talk_listen_scotty_ross
+		anim	models/characters/male_npc/cycles/idles/stand_point_forward.mb -dest models/md5/chars/stand_point_forward
+		anim	models/characters/male_npc/cycles/idles/stand_point_forward_charles.mb -dest models/md5/chars/stand_point_forward_charles
+		anim	models/characters/male_npc/cycles/idles/idle_charles.mb -dest models/md5/chars/idle_charles
+
+		anim	models/characters/male_npc/cycles/talking/talk_primary_todd.mb  -dest models/md5/chars/talk_primary_todd
+		anim	models/characters/male_npc/cycles/talking/talk_secondary2_todd.mb  -dest models/md5/chars/talk_secondary2_todd
+
+		anim	models/characters/male_npc/cycles/working/gui_operate.mb -dest models/md5/chars/npcs/gui_operate_eric
+		anim	models/characters/male_npc/cycles/working/operate_computer_eric_thankyou.mb -dest models/md5/chars/operate_computer_eric_thankyou
+		anim	models/characters/male_npc/cycles/working/operate_computer_eric_worktalk1.mb -dest models/md5/chars/operate_computer_eric_worktalk1
+		anim	models/characters/male_npc/cycles/working/operate_computer_eric_worktalk2.mb -dest models/md5/chars/operate_computer_eric_worktalk2
+		anim	models/characters/male_npc/cycles/working/operate_computer_talk.mb -dest models/md5/chars/operate_computer_talk
+		
+		anim	models/characters/male_npc/cycles/working/operate_computer_james3.mb -dest models/md5/chars/operate_computer_loop3
+		anim	maps/fred/underground/james_fall.mb -dest models/md5/chars/invasion_ledgefall
+		anim	maps/fred/underground/invasion2.mb -range 68 118 -dest models/md5/chars/invasion_runcover
+		anim	models/characters/male_npc/cycles/idles/stand_sitting_PDAidle.mb -dest models/md5/chars/stand_sitting_idle
+		anim	models/characters/male_npc/cycles/idles/stand_sitting.mb -dest models/md5/chars/stand_sitting
+		anim	models/characters/male_npc/cycles/idles/mcu_thanku.mb -dest models/md5/chars/mcu_thanku
+
+		anim	models/characters/male_npc/cycles/talking/PDA_talk_security_guard.mb -dest models/md5/chars/PDA_talk_security_guard
+		anim	models/characters/male_npc/cycles/talking/PDA_talk.mb -dest models/md5/chars/PDA_talk
+		
+		anim	models/characters/male_npc/cycles/sitting/mc_civ1_idle.mb -dest models/md5/chars/mc_civ1_idle
+		anim	models/characters/male_npc/cycles/sitting/mc_civ1_look.mb -dest models/md5/chars/mc_civ1_look
+		anim	models/characters/male_npc/cycles/sitting/mc_civ1_trigger.mb -dest models/md5/chars/mc_civ1_trigger
+		anim	models/characters/male_npc/cycles/sitting/mc_civ1_primary.mb -dest models/md5/chars/mc_civ1_primary
+		anim	models/characters/male_npc/cycles/sitting/mc_civ1_secondary1.mb -dest models/md5/chars/mc_civ1_secondary1
+		anim	models/characters/male_npc/cycles/sitting/mc_civ1_secondary2.mb -dest models/md5/chars/mc_civ1_secondary2
+		
+		anim	models/characters/male_npc/cycles/working/operate_computer_sitting.mb -dest models/md5/chars/operate_computer_sitting
+		anim	models/characters/male_npc/cycles/working/operate_computer_sitting_higher.mb -dest models/md5/chars/operate_computer_sitting_higher
+		anim	models/characters/male_npc/cycles/walks/walk_machinegun.mb -xyzprecision 0.01 -quatprecision 0.00006 -dest models/md5/chars/walk_machinegun
+
+		anim	models/characters/male_npc/cycles/idles/p90_stand.mb -rotate 90 -dest models/md5/chars/p90_stand
+		anim	models/characters/male_npc/cycles/idles/p90_idle.mb -rotate 90 -dest models/md5/chars/p90_idle
+		anim	models/characters/male_npc/cycles/idles/p90_point_left.mb -rotate 90 -dest models/md5/chars/p90_point_left
+		anim	models/characters/male_npc/cycles/idles/p90_talk.mb -rotate 90 -dest models/md5/chars/p90_talk
+
+		anim	models/characters/male_npc/cycles/talking/marscity_marine1_ver1_hq_primary.mb -rotate 90 -dest models/md5/chars/marscity_marine1_ver1_hq_primary
+		anim	models/characters/male_npc/cycles/talking/marscity_marine1_ver1_hq_secondary1.mb -rotate 90 -dest models/md5/chars/marscity_marine1_ver1_hq_secondary1
+		anim	models/characters/male_npc/cycles/talking/marscity_marine1_ver1_hq_secondary2.mb -rotate 90 -dest models/md5/chars/marscity_marine1_ver1_hq_secondary2
+
+		anim	models/characters/male_npc/cycles/idles/drinkfoamcup3.mb -dest models/md5/chars/drinkfoamcup
+		anim	models/characters/male_npc/cycles/idles/drink_idle.mb -dest models/md5/chars/drink_idle
+
+		anim	models/characters/male_npc/cycles/working/gui_operate_main_worker.mb -dest models/md5/chars/gui_operate_main_worker
+		anim	models/characters/male_npc/cycles/idles/stand_hands_at_waist.mb -dest models/md5/chars/stand_hands_at_waist
+		
+		//CAVERNS STUFF
+		
+		addoptions -destdir models/md5/chars/caverns
+		
+		anim	models/characters/male_npc/cycles/talking/scared_maint_guy/cav2_scared_all.mb  -range 1 200 -dest models/md5/chars/caverns/cav2_idle
+		anim	models/characters/male_npc/cycles/talking/scared_maint_guy/cav2_scared_all.mb  -range 200 290 -dest models/md5/chars/caverns/cav2_primary
+		anim	models/characters/male_npc/cycles/talking/scared_maint_guy/cav2_scared_all.mb  -range 290 399 -dest models/md5/chars/caverns/cav2_secondary1
+		anim	models/characters/male_npc/cycles/talking/scared_maint_guy/cav2_scared_all.mb  -range 399 475 -dest models/md5/chars/caverns/cav2_secondary2
+		anim	models/characters/male_npc/cycles/talking/scared_maint_guy/cav2_scared_all.mb  -range 475 710 -dest models/md5/chars/caverns/cav2_trigger
+
+
+//		MARINES WITH MACHINEGUN
+
+
+
+options -prefix ZOMBIE_ -keep eject flash barrel machinegun eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -rename mgeject eject -rename mgflash flash -rename mgbarrel barrel
+	
+	addoptions -keepmesh marinebodymesh
+	addoptions -keepmesh w_machinegunmesh 
+	addoptions -keepmesh mgflash1 
+	addoptions -keepmesh mgflash2 
+	addoptions -keepmesh mgflash3 
+	addoptions -keepmesh mgflash4
+
+
+		mesh	models/monsters/zombie/cycles/idles/npcs_mesh2.mb -align ALL -range 1 1 -dest models/md5/chars/marine_w_mgun
+
+		anim	maps/fred/enpro/marine_battle_shot1.mb -range 1 170 -dest models/md5/cinematics/enpro/exitsoldier1_shot1 -prefix SUIT_		
+		anim	maps/fred/enpro/marine_battle_shot2.mb -range 171 259 -dest models/md5/cinematics/enpro/exitsoldier1_shot2 -prefix ASUIT_	
+		anim	maps/fred/enpro/marine_battle_shot3.mb -range 260 321 -dest models/md5/cinematics/enpro/exitsoldier1_shot3 -prefix SUIT_		
+		anim	maps/fred/enpro/marine_battle_shot4.mb -range 350 420 -dest models/md5/cinematics/enpro/exitsoldier1_shot4 -prefix ASUIT_	
+		anim	maps/fred/enpro/marine_battle_shot5.mb -range 452 510 -dest models/md5/cinematics/enpro/exitsoldier1_shot5 -prefix SUIT_		
+		anim	maps/fred/enpro/enpro_exit2.mb -range 511 698 -dest models/md5/cinematics/enpro/exitsoldier1_shot6 -prefix ASUIT_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 699 740 -dest models/md5/cinematics/enpro/exitsoldier1_shot7 -prefix ASUIT_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitsoldier1_shot8 -prefix ASUIT_
+
+		anim	maps/fred/enpro/marine_battle_shot1.mb -range 1 170 -dest models/md5/cinematics/enpro/exitsoldier2_shot1 -prefix SUIT2_
+		anim	maps/fred/enpro/marine_battle_shot2.mb -range 171 259 -dest models/md5/cinematics/enpro/exitsoldier2_shot2 -prefix SUIT_
+		anim	maps/fred/enpro/marine_battle_shot3.mb -range 260 321 -dest models/md5/cinematics/enpro/exitsoldier2_shot3 -prefix SUIT2_
+		anim	maps/fred/enpro/marine_battle_shot4.mb -range 350 420 -dest models/md5/cinematics/enpro/exitsoldier2_shot4 -prefix SUIT_
+		anim	maps/fred/enpro/marine_battle_shot5.mb -range 452 510 -dest models/md5/cinematics/enpro/exitsoldier2_shot5 -prefix SUIT2_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 511 698 -dest models/md5/cinematics/enpro/exitsoldier2_shot6 -prefix SUIT_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 699 740 -dest models/md5/cinematics/enpro/exitsoldier2_shot7 -prefix SUIT_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitsoldier2_shot8 -prefix SUIT_
+
+		anim	maps/fred/enpro/marine_battle_shot1.mb -range 1 170 -dest models/md5/cinematics/enpro/exitsoldier3_shot1 -prefix SUIT3_
+		anim	maps/fred/enpro/marine_battle_shot2.mb -range 171 259 -dest models/md5/cinematics/enpro/exitsoldier3_shot2 -prefix SOL_
+		anim	maps/fred/enpro/marine_battle_shot3.mb -range 260 321 -dest models/md5/cinematics/enpro/exitsoldier3_shot3 -prefix SUIT3_
+		anim	maps/fred/enpro/marine_battle_shot4.mb -range 350 420 -dest models/md5/cinematics/enpro/exitsoldier3_shot4 -prefix SOL_
+		anim	maps/fred/enpro/marine_battle_shot5.mb -range 452 510 -dest models/md5/cinematics/enpro/exitsoldier3_shot5 -prefix SUIT3_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 511 698 -dest models/md5/cinematics/enpro/exitsoldier3_shot6 -prefix SOL_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 699 740 -dest models/md5/cinematics/enpro/exitsoldier3_shot7 -prefix SOL_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitsoldier3_shot8 -prefix SOL_
+
+		anim	maps/fred/enpro/enpro_exit2.mb -range 511 698 -dest models/md5/cinematics/enpro/exitsoldier4_shot6 -prefix PLAYER_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 699 740 -dest models/md5/cinematics/enpro/exitsoldier4_shot7 -prefix PLAYER_
+		anim	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitsoldier4_shot8 -prefix PLAYER_
+
+		addoptions -align ALL
+		anim	models/characters/male_npc/cycles/runs/al2_run_anim_30.mb -rotate 90 -range 79 98 -dest models/md5/chars/mgrun -prefix ZOMBIE_ 
+		anim	models/characters/male_npc/cycles/runs/al2_run_anim_30.mb -rotate 90 -range 99 207 -dest models/md5/chars/mgrunstoplookback -prefix ZOMBIE_
+
+		
+}
+
+model npc_base {
+	mesh							models/md5/chars/skeleton.md5mesh
+
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+	
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+	anim pain						models/md5/chars/npc_stagger_loop.md5anim
+	anim stand						models/md5/chars/stand.md5anim
+	anim talk_excuseme				models/md5/chars/stand.md5anim 
+	anim talk_trigger				models/md5/chars/stand.md5anim 
+	anim talk_primary				models/md5/chars/stand.md5anim 
+	anim talk_secondary1			models/md5/chars/stand.md5anim 
+ 	anim idle						models/md5/chars/stand.md5anim
+	anim cower						models/md5/chars/cower4.md5anim
+	anim walk						models/md5/chars/walk_normal.md5anim {
+		frame 3							sound_body snd_footstep
+		frame 17						sound_body snd_footstep
+		frame 30						sound_body snd_footstep
+		frame 46						sound_body snd_footstep
+	}
+	anim run1						models/md5/chars/medrun1.md5anim
+	anim turn_left					models/md5/chars/turn_left.md5anim, models/md5/chars/turn_left_rotation180.md5anim {
+		anim_turn
+	}
+	
+	anim turn_right					models/md5/chars/turn_right.md5anim, models/md5/chars/turn_right_rotation180.md5anim {
+		anim_turn
+	}
+
+}
+
+
+model npc_labcoat {
+	inherit							npc_base
+	mesh							models/md5/chars/labcoat.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_suit {
+	inherit							npc_base
+	mesh							models/md5/chars/suit.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_suit2 {
+	inherit							npc_base
+	mesh							models/md5/chars/suit.md5mesh
+	skin							skins/characters/npcs/brownsuit.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_jumpsuit {
+	inherit							npc_base
+	mesh							models/md5/chars/jumpsuit.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_tshirt {
+	inherit							npc_base
+	mesh							models/md5/chars/tshirt.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_marine {
+	inherit							npc_base
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_marine_w_mgun {
+	mesh							models/md5/chars/marine_w_mgun.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_player {
+	inherit							npc_base
+	mesh							models/md5/chars/player.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+
+model npc_security {
+	inherit							npc_base
+	mesh							models/md5/chars/security.md5mesh
+	skin							skins/characters/npcs/regsec.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model npc_skeleton {
+	inherit							npc_base
+	mesh							models/md5/chars/skeleton.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model char_betruger {
+	inherit							npc_labcoat
+	anim operate_computer6			models/md5/chars/operate_computer_loop3.md5anim
+}
+
+
+entityDef char_betruger {
+	"inherit"						"npc_base"
+	"model"							"char_betruger"
+	"def_head"						"head_betruger"
+	"head_joint"					"Shoulders"
+}
+
+model char_swann {
+	inherit							npc_suit
+	anim stand						models/md5/chars/stand.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim stand						models/md5/chars/stand.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+}
+
+entityDef char_swann {
+	"inherit"						"npc_base"
+	"model"							"char_swann"
+
+	"eye_verticle_offset"			"10"
+	"eye_horizontal_offset"			"5"
+
+	"def_head"						"head_swann"
+	"head_joint"					"Shoulders"
+}
+
+model char_campbell {
+	inherit							npc_marine
+	
+	anim stand						models/md5/chars/stand.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim stand						models/md5/chars/stand.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+}
+
+entityDef char_campbell {
+	"inherit"						"npc_base"
+	"model"							"char_campbell"
+
+	"eye_verticle_offset"			"10"
+	"eye_horizontal_offset"			"5"
+
+	//"joint_attach Rhand1"			"env_bfgcase"
+
+	"def_head"						"head_campbell"
+	"head_joint"					"Shoulders"
+}
+
+model char_campbell_bfg {
+	mesh							models/md5/chars/campbell/campbell.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol)
+
+	anim stand						models/md5/chars/campbell/bfg_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim idle						models/md5/chars/campbell/bfg_idle.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim idle_for_roq				models/md5/chars/campbell/bfg_idle_eric.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim talk_primary				models/md5/chars/campbell/bfg_idle.md5anim
+	anim talk_secondary1			models/md5/chars/campbell/bfg_idle.md5anim
+	anim walk						models/md5/chars/campbell/bfg_walk.md5anim
+	anim run						models/md5/chars/campbell/bfg_run.md5anim
+	anim af_pose					models/md5/chars/campbell/af_pose.md5anim
+	anim ik_pose					models/md5/chars/campbell/af_pose.md5anim
+	anim runbackfire				models/md5/chars/campbell/bfg_runback_fire.md5anim {
+		frame 1					 		trigger bfglight1
+		frame 4					 		trigger bfglight1
+		frame 6					 		trigger bfglight1
+		frame 9					 		trigger bfglight1
+		frame 53						fire_missile_at_target BFG duffy_target_null_2
+	}
+	anim runbackfire2				models/md5/chars/campbell/bfg_runback_fire2.md5anim {
+		frame 51						fire_missile_at_target BFG duffy_target_null_2
+	}
+	anim runbackstart				models/md5/chars/campbell/bfg_runback_fire2_start.md5anim
+	
+	anim bfgaim						models/md5/chars/campbell/bfg_aim.md5anim
+	anim turn_left					models/md5/chars/campbell/campbellturn_left.md5anim, models/md5/chars/campbell/campbellturn_left_rotation180.md5anim {
+		anim_turn
+	}
+	anim turn_right					models/md5/chars/campbell/campbellturn_right.md5anim, models/md5/chars/campbell/campbellturn_right_rotation180.md5anim {
+		anim_turn
+	}
+
+	anim casewalk					models/md5/chars/campbell/bfg_casewalk.md5anim
+}
+
+model char_campbell_bfgcase {
+	inherit  						char_campbell_bfg
+	anim walk 						models/md5/chars/campbell/bfg_casewalk.md5anim
+	anim stand						models/md5/chars/campbell/campbell_idle.md5anim
+	anim idle						models/md5/chars/campbell/campbell_idle.md5anim
+}
+
+entityDef char_campbell_bfg {
+	"inherit"						"character_default"
+	"scriptobject"					"character"
+	"size"							"32 32 74"
+	"use_aas"						"aas48"
+	"team"							"0"
+	"rank"							"0"
+	"mass"							"2000"
+	
+	"ik_numLegs"					"2"
+	"ik_footSize"					"0"
+	"ik_waist"						"Body2"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.1"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*loneckcontrol"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"origin Body2"
+	
+	"snd_footstep"					"npc_sounds_footstep"
+
+	"model"							"char_campbell_bfg"
+	"ragdoll"						"char_campbell_bfg"
+
+	"sound_bone"					"Chest"
+	
+	"def_head"						"head_campbell"
+	"head_joint"					"Shoulders"
+
+	"def_projectile"				"projectile_bfg_cinematic"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"attack_accuracy"				"0"
+
+	"def_dropDeathItem"				"moveable_item_bfg"
+	"dropDeathItemJoint"			"BFG"
+	"skin_dropDeath"				"skins/characters/npcs/marine_campbell.skin"
+
+}
+
+
+
+/***********************************************************************
+
+	Haz. Materials
+
+***********************************************************************/
+
+model npc_hazmat {
+	inherit							npc_base
+	mesh							models/md5/chars/hazmat.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model char_hazmat {
+	inherit							npc_base
+	mesh							models/md5/chars/hazmat.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair )
+}
+
+entityDef char_hazmat {
+	"inherit"						"npc_base"
+	"model"							"char_hazmat"	
+}
+
+
+entityDef npc_base {
+	"inherit"						"character_default"
+	"scriptobject"					"character"
+	"model"							"npc_base"
+	"ragdoll"						"char_npc_base"
+	"size"							"32 32 74"
+	"use_aas"						"aas48"
+	"team"							"0"
+	"rank"							"0"
+
+	"gib"							"1"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body2"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+	"bone_focus"					"headcontrol"
+	"bone_orientation"				"Body"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+	
+	"copy_joint neckcontrol"		"neckcontrol"
+	"copy_joint headcontrol"		"headcontrol"
+	"copy_joint_world eyecontrol"	"eyecontrol"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.1"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*loneckcontrol"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"origin Body2"
+
+	"snd_death"						"generic_npc_death"
+	"snd_footstep"					"player_sounds_footstep"
+	"snd_talk_primary"				"default_primary"
+	"snd_talk_secondary"			"default_secondary"
+	"snd_talk_trigger"				"default_trigger"
+}
+
+
+
+
+//PROPS
+
+export fred {
+
+	options -prefix ZOMBIE_ -keep RHANDCONNECTOR -rename origin blah -rename RHANDCONNECTOR origin -clearorigin -sourcedir models/monsters/zombie/cycles/idles -destdir models/md5/props
+
+	mesh	npcs_mesh.mb -range 1 1 -dest tabletpc -keepmesh tabletpcmesh -keepmesh tabletpcguimesh
+	mesh	npcs_mesh.mb -range 1 1 -dest foamcup -keepmesh foamcup_layer1
+
+	options -prefix ZOMBIE_ -keep RHANDCONNECTOR -rename origin blah -rename RHANDCONNECTOR origin -clearorigin -sourcedir models/monsters/zombie/cycles/idles -destdir models/md5/props
+
+	mesh	npcs_mesh.mb -range 1 1 -dest adrenaline -keepmesh adrenalinemesh -keepmesh adrenalinefxmesh
+	mesh	npcs_mesh.mb -range 1 1 -dest pda -keepmesh pdamodel -keepmesh pdaguimodel
+	mesh	npcs_mesh.mb -range 1 1 -dest cola -keepmesh cola1_layer1
+
+	mesh	npcs_mesh.mb -range 1 1 -dest shotgun -keepmesh w_shotgunmesh -keepmesh w_shotgunloadermesh
+	mesh	npcs_mesh.mb -range 1 1 -keep mgeject -keep mgflash -keep mgbarrel -dest machinegun -keepmesh w_machinegunmesh -keepmesh mgflash1 -keepmesh mgflash2 -keepmesh mgflash3 -keepmesh mgflash4
+	mesh	npcs_mesh.mb -range 1 1 -dest pistol -keepmesh w_pistolmesh
+	mesh	npcs_mesh.mb -range 1 1 -dest flashlight -keepmesh flashlightflaremodel -keepmesh flashlightbeammodel -keepmesh flashlightlensmodel -keepmesh flashlightmodel
+	mesh	npcs_mesh.mb -range 1 1 -dest wrench -keepmesh monkeywrench
+	mesh	npcs_mesh.mb -range 1 1 -dest dufflebag -keepmesh dufflebagmesh
+
+	options -prefix ZOMBIE_ -keep LHANDCONNECTOR -rename origin blah -rename LHANDCONNECTOR origin -clearorigin -sourcedir models/monsters/zombie/cycles/idles -destdir models/md5/props
+	mesh	npcs_mesh.mb -range 1 1 -dest leftflashlight -keepmesh flashlightflaremodel -keepmesh flashlightbeammodel -keepmesh flashlightlensmodel -keepmesh flashlightmodel
+
+	options -prefix ZOMBIE_ -keep chair -rename origin blah -rename chair origin -clearorigin -sourcedir models/monsters/zombie/cycles/idles -destdir models/md5/props
+
+	mesh	npcs_mesh.mb -range 1 1 -dest metal_lounge_chair -keepmesh metalloungechairframemesh -keepmesh metalloungechairmesh
+	mesh	npcs_mesh.mb -range 1 1 -dest metal_kitchen_chair -keepmesh metalkitchenchairmesh
+	mesh	npcs_mesh.mb -range 1 1 -dest big_cushy_chair -keepmesh bigcushychairmesh
+	mesh	npcs_mesh.mb -range 1 1 -dest soft_desk_chair1 -keepmesh softdeskchairmesh1
+	mesh	npcs_mesh.mb -range 1 1 -dest soft_desk_chair2 -keepmesh softdeskchairmesh2
+
+//	options -prefix SUIT_ -sourcedir maps/fred/marscity/ -destdir models/md5/chars/receptionist/marscity/
+//	mesh	reception.mb -dest receptioncin1_smallpda -prefix SUIT_ -keepmesh pdamodel -keepmesh pdaguimodel
+//	anim	reception.mb -range 24 338 -dest receptioncin1_smallpda -prefix SUIT_ -keepmesh pdamodel -keepmesh pdaguimodel
+
+	options -prefix SUIT_ -sourcedir maps/fred/marscity/ -destdir models/md5/chars/receptionist/marscity/
+	mesh	reception_redo.mb -dest receptioncin1_smallpda -prefix SUIT_ -keepmesh pdamodel -keepmesh pdaguimodel
+	anim	reception_redo.mb -range 24 100 -dest receptioncin1_smallpda_a -prefix SUIT_ -keepmesh pdamodel -keepmesh pdaguimodel
+	anim	reception_redo.mb -range 101 145 -dest receptioncin1_smallpda_b -prefix SUIT_ -keepmesh pdamodel -keepmesh pdaguimodel
+	anim	reception_redo_handlock.mb -range 146 339 -dest receptioncin1_smallpda_c -prefix SUIT_ -keepmesh pdamodel -keepmesh pdaguimodel
+
+	
+	
+	options -prefix PLAYER_ -sourcedir maps/fred/marscity/ -destdir models/md5/chars/receptionist/marscity/
+	mesh	reception.mb  -dest receptioncin1_dufflebag -prefix PLAYER_ -keepmesh dufflebagmesh
+	anim	reception.mb  -dest receptioncin1_dufflebag -prefix PLAYER_ -keepmesh dufflebagmesh
+	
+}
+
+model prop_adrenaline {
+	mesh					models/md5/props/adrenaline.md5mesh
+ 
+}
+
+entityDef prop_adrenaline {
+	"inherit"						"cin_base"
+	"model"							"prop_adrenaline"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_tabletpc {
+	mesh					models/md5/props/tabletpc.md5mesh
+ 
+}
+
+entityDef prop_tabletpc {
+	"inherit"						"cin_base"
+	"model"							"prop_tabletpc"
+	"joint"							"LHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_pda {
+	mesh					models/md5/props/pda.md5mesh
+ 
+}
+
+entityDef prop_pda {
+	"inherit"						"cin_base"
+	"model"							"prop_pda"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+
+
+
+model prop_cola {
+	mesh					models/md5/props/cola.md5mesh
+ 
+}
+
+entityDef prop_cola {
+	"inherit"						"cin_base"
+	"model"							"prop_cola"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_foamcup {
+	mesh					models/md5/props/foamcup.md5mesh
+ 
+}
+
+entityDef prop_foamcup {
+	"inherit"						"cin_base"
+	"model"							"prop_foamcup"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"-2 -1 -1"
+	"angles"						"-10 0 -40"
+	"remove"						"1"
+}
+
+model prop_flashlight {
+	mesh					models/md5/props/flashlight.md5mesh
+ 
+}
+
+entityDef prop_flashlight {
+	"inherit"						"cin_base"
+	"model"							"prop_flashlight"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_lftflashlight {
+	mesh					models/md5/props/leftflashlight.md5mesh
+}
+
+entityDef prop_lftflashlight {
+	"inherit"						"cin_base"
+	"model"							"prop_lftflashlight"
+	"joint"							"LHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_wrench {
+	mesh					models/md5/props/wrench.md5mesh
+ 
+}
+
+entityDef prop_wrench {
+	"inherit"						"cin_base"
+	"model"							"prop_wrench"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_dufflebag {
+	mesh					models/md5/props/dufflebag.md5mesh
+ 
+}
+
+entityDef prop_dufflebag {
+	"inherit"						"cin_base"
+	"model"							"prop_dufflebag"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_pistol {
+	mesh					models/md5/props/pistol.md5mesh
+ 
+}
+
+entityDef prop_pistol {
+	"inherit"						"cin_base"
+	"model"							"prop_pistol"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_shotgun {
+	mesh					models/md5/props/shotgun.md5mesh
+ 
+}
+
+entityDef prop_shotgun {
+	"inherit"						"cin_base"
+	"model"							"prop_shotgun"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_machinegun {
+	mesh					models/md5/props/machinegun.md5mesh
+ 
+}
+
+entityDef prop_machinegun {
+	"inherit"						"cin_base"
+	"model"							"prop_machinegun"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_metal_lounge_chair {
+	mesh					models/md5/props/metal_lounge_chair.md5mesh
+ 
+}
+
+entityDef prop_metal_lounge_chair {
+	"inherit"						"cin_base"
+	"model"							"prop_metal_lounge_chair"
+	"joint"							"chair"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_metal_kitchen_chair {
+	mesh					models/md5/props/metal_kitchen_chair.md5mesh
+ 
+}
+
+entityDef prop_metal_kitchen_chair {
+	"inherit"						"cin_base"
+	"model"							"prop_metal_kitchen_chair"
+	"joint"							"chair"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_big_cushy_chair {
+	mesh					models/md5/props/big_cushy_chair.md5mesh
+ 
+}
+
+entityDef prop_big_cushy_chair {
+	"inherit"						"cin_base"
+	"model"							"prop_big_cushy_chair"
+	"joint"							"chair"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_soft_desk_chair1 {
+	mesh					models/md5/props/soft_desk_chair1.md5mesh
+ 
+}
+
+entityDef prop_soft_desk_chair1 {
+	"inherit"						"cin_base"
+	"model"							"prop_soft_desk_chair1"
+	"joint"							"chair"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+model prop_soft_desk_chair2 {
+	mesh					models/md5/props/soft_desk_chair2.md5mesh
+ 
+}
+
+entityDef prop_soft_desk_chair2 {
+	"inherit"						"cin_base"
+	"model"							"prop_soft_desk_chair2"
+	"joint"							"chair"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}

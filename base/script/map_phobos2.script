@@ -1,0 +1,1570 @@
+namespace map_phobos2 {
+
+	float	security_platform_position = 1;
+	float	envirosuit_on = 0;
+	float	hunter_stage = 1;
+	float	dungeon_lift_position = 1;
+	float   pumps_running = 1;
+
+	float	turretEast_on = 0;
+	float	turretSouth_on = 0;
+
+	float	rod_nw_damaged = 1;
+	float	rod_ne_damaged = 0;
+	float	rod_sw_damaged = 0;
+	float	rod_se_damaged = 0;
+
+	float	rod_nw_door_open = 0;
+	float	rod_ne_door_open = 0;
+	float	rod_sw_door_open = 0;
+	float	rod_se_door_open = 0;
+
+	float 	f_bruiser1 = 0;
+	float   f_vulgar1 = 0;
+
+	void close_mcneil_shutters() {
+		// run this after the mcneil cinematic to close the mcshutters over her mcglass
+		$mcshutter1.time( 4 );
+		$mcshutter1.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter2.time( 4 );
+		$mcshutter2.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter3.time( 4 );
+		$mcshutter3.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter4.time( 4 );
+		$mcshutter4.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter5.time( 4 );
+		$mcshutter5.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter6.time( 4 );
+		$mcshutter6.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter7.time( 4 );
+		$mcshutter7.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter8.time( 4 );
+		$mcshutter8.move( DOWN, 104 );
+		sys.wait(1);
+		$mcshutter9.time( 4 );
+		$mcshutter9.move( DOWN, 104 );
+	}
+
+	void open_mcneil_door() {
+		$adam_securitydoor_03.open();
+	}
+
+	void close_mcneil_door() {
+		$mcneil_buddy.setShaderParm( 7, 0 );
+		$adam_securitydoor_03.close();
+		$adam_securitydoor_03.lock( 2 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	COMBAT FUNCTIONS
+	//
+	////////////////////////////////////////////////////
+	void set_bruiser1() {
+		f_bruiser1 = 1;
+	}
+
+	void teleport_bruiser1() {
+		if( f_bruiser1 == 0 ) {
+			return;
+		}
+		if( f_bruiser1 == 1 ) {
+			sys.trigger( $p2_bruiser1 );
+			sys.trigger( $p2_bruiser1_inf );
+			f_bruiser1 = 0;
+			return;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	SECURITY PLATFORM
+	//
+	////////////////////////////////////////////////////
+	void SecurityPlatformSeat() {
+
+		$security_platform.time( 0.5 );
+		$security_platform.accelTime( 0.1 );
+		$security_platform.decelTime( 0.1 );
+		$security_arm_upper.time( 0.5 );
+		$security_arm_upper.accelTime( 0.1 );
+		$security_arm_upper.decelTime( 0.1 );
+		$security_platform.startSoundShader ( "p2_seating_05s", SND_CHANNEL_VOICE2 );		// -Xian
+		$security_platform.rotateOnce( '5 0 0' );
+		$security_arm_upper.startSoundShader ( "p2_seating_05s", SND_CHANNEL_VOICE2 );		// -Xian
+		$security_arm_upper.rotateOnce( '-5 0 0' );
+		sys.waitFor( $security_arm_upper );
+	}
+
+	void SecurityPlatformUnseat() {
+
+		$security_platform.time( 0.5 );
+		$security_platform.accelTime( 0.1 );
+		$security_platform.decelTime( 0.1 );
+		$security_arm_upper.time( 0.5 );
+		$security_arm_upper.accelTime( 0.1 );
+		$security_arm_upper.decelTime( 0.1 );
+		$security_platform.startSoundShader ( "p2_seating_05s", SND_CHANNEL_VOICE2 );		// -Xian
+		$security_platform.rotateOnce( '-5 0 0' );
+		$security_arm_upper.startSoundShader ( "p2_seating_05s", SND_CHANNEL_VOICE2 );		// -Xian
+		$security_arm_upper.rotateOnce( '5 0 0' );
+		sys.waitFor( $security_arm_upper );
+	}
+
+	void SecurityPlatformLowerToMid() {
+
+		$security_platform.time( 2.0 );
+		$security_platform.accelTime( 0.5 );
+		$security_platform.decelTime( 0.5 );
+		$security_arm_lower.time( 2.0 );
+		$security_arm_lower.accelTime( 0.5 );
+		$security_arm_lower.decelTime( 0.5 );
+		$security_platform.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_platform.rotateOnce( '-20 0 0' );
+		$security_arm_lower.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_arm_lower.rotateOnce( '20 0 0' );
+		sys.waitFor( $security_arm_lower );
+	}
+
+	void SecurityPlatformMidToLower() {
+
+		$security_platform.time( 2.0 );
+		$security_platform.accelTime( 0.5 );
+		$security_platform.decelTime( 0.5 );
+		$security_arm_lower.time( 2.0 );
+		$security_arm_lower.accelTime( 0.5 );
+		$security_arm_lower.decelTime( 0.5 );
+		$security_platform.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_platform.rotateOnce( '20 0 0' );
+		$security_arm_lower.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_arm_lower.rotateOnce( '-20 0 0' );
+		sys.waitFor( $security_arm_lower );
+	}
+
+	void SecurityPlatformUpperToMid() {
+
+		$security_platform.time( 2.0 );
+		$security_platform.accelTime( 0.5 );
+		$security_platform.decelTime( 0.5 );
+		$security_arm_upper.time( 2.0 );
+		$security_arm_upper.accelTime( 0.5 );
+		$security_arm_upper.decelTime( 0.5 );
+		$security_arm_lower.time( 2.0 );
+		$security_arm_lower.accelTime( 0.5 );
+		$security_arm_lower.decelTime( 0.5 );
+		$security_platform.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_platform.rotateOnce( '14 0 0' );
+		$security_arm_upper.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_arm_upper.rotateOnce( '30 0 0' );
+		$security_arm_lower.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_arm_lower.rotateOnce( '-44 0 0' );
+		sys.waitFor( $security_arm_lower );
+	}
+
+	void SecurityPlatformMidToUpper() {
+
+		$security_platform.time( 2.0 );
+		$security_platform.accelTime( 0.5 );
+		$security_platform.decelTime( 0.5 );
+		$security_arm_upper.time( 2.0 );
+		$security_arm_upper.accelTime( 0.5 );
+		$security_arm_upper.decelTime( 0.5 );
+		$security_arm_lower.time( 2.0 );
+		$security_arm_lower.accelTime( 0.5 );
+		$security_arm_lower.decelTime( 0.5 );
+		$security_platform.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_platform.rotateOnce( '-14 0 0' );
+		$security_arm_upper.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_arm_upper.rotateOnce( '-30 0 0' );
+		$security_arm_lower.startSoundShader ( "p2_arms_2s", SND_CHANNEL_VOICE );		// -Xian
+		$security_arm_lower.rotateOnce( '44 0 0' );
+		sys.waitFor( $security_arm_lower );
+	}
+
+	void SecurityWestToSouthSequence() {
+
+		security_platform_position = 666;
+
+		SecurityPlatformUnseat();
+		sys.wait( 1.0 );
+
+		SecurityPlatformLowerToMid();
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.25 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_lower.startSoundShader ( "p2_movement_5s", SND_CHANNEL_ITEM );	// -Xian
+		$security_arm_base.move( SOUTH, 104 );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 3.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.rotateOnce( '0 90 0' );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.25 );
+		$security_arm_base.move( EAST, 104 );
+		sys.waitFor( $security_arm_base );
+
+		SecurityPlatformMidToUpper();
+		sys.wait( 1.0 );
+
+		SecurityPlatformSeat();
+
+		security_platform_position = 2;
+	}
+
+	void SecuritySouthToWestSequence() {
+
+		security_platform_position = 666;
+
+		SecurityPlatformUnseat();
+		sys.wait( 1.0 );
+
+		SecurityPlatformUpperToMid();
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.25 );
+		$security_arm_lower.startSoundShader ( "p2_movement_5s", SND_CHANNEL_ITEM );	// -Xian
+		$security_arm_base.move( WEST, 104 );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 3.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.rotateOnce( '0 -90 0' );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.25 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.move( NORTH, 104 );
+		sys.waitFor( $security_arm_base );
+
+		SecurityPlatformMidToLower();
+		sys.wait( 1.0 );
+
+		SecurityPlatformSeat();
+
+		security_platform_position = 1;
+	}
+
+	void SecurityWestToEastSequence() {
+
+		security_platform_position = 666;
+
+		SecurityPlatformUnseat();
+		sys.wait( 1.0 );
+
+		SecurityPlatformLowerToMid();
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.25 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_lower.startSoundShader ( "p2_movement_10s", SND_CHANNEL_ITEM );	// -Xian
+		$security_arm_base.move( SOUTH, 104 );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 3.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.rotateOnce( '0 90 0' );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 2.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.move( EAST, 208 );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 3.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.rotateOnce( '0 90 0' );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.25 );
+		$security_arm_base.move( NORTH, 104 );
+		sys.waitFor( $security_arm_base );
+
+		SecurityPlatformMidToLower();
+		sys.wait( 1.0 );
+
+		SecurityPlatformSeat();
+
+		security_platform_position = 4;
+	}
+
+	void SecurityEastToWestSequence() {
+
+		security_platform_position = 666;
+
+		SecurityPlatformUnseat();
+		sys.wait( 1.0 );
+
+		SecurityPlatformLowerToMid();
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.25 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_lower.startSoundShader ( "p2_movement_10s", SND_CHANNEL_ITEM );	// -Xian
+		$security_arm_base.move( SOUTH, 104 );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 3.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.rotateOnce( '0 -90 0' );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 2.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.move( WEST, 208 );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 3.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.0 );
+		$security_arm_base.rotateOnce( '0 -90 0' );
+		sys.waitFor( $security_arm_base );
+
+		$security_arm_base.time( 1.0 );
+		$security_arm_base.accelTime( 0.0 );
+		$security_arm_base.decelTime( 0.25 );
+		$security_arm_base.move( NORTH, 104 );
+		sys.waitFor( $security_arm_base );
+
+		SecurityPlatformMidToLower();
+		sys.wait( 1.0 );
+
+		SecurityPlatformSeat();
+
+		security_platform_position = 3;
+	}
+
+	void SetupSecurityPlatform() {
+
+		$security_arm_lower.bind( $security_arm_base );
+		$security_arm_upper.bind( $security_arm_lower );
+
+		$security_arm_lower.time( 0.1 );
+		$security_arm_lower.rotateOnce( '-62 0 0' );
+		sys.waitFor( $security_arm_lower );
+
+		$security_arm_upper.time( 0.1 );
+		$security_arm_upper.rotateOnce( '17 0 0' );
+		sys.waitFor( $security_arm_upper );
+
+		$security_platform.bind( $security_arm_upper );
+	}
+
+	void security_platform_move () {
+
+		if ( security_platform_position == 1 )
+		{
+			//move to south
+			SecurityWestToSouthSequence();
+		}
+		else if ( security_platform_position == 2 )
+		{
+			//move back to west
+			SecuritySouthToWestSequence();
+		}
+		else if ( security_platform_position == 3 )
+		{
+			//move to east
+			SecurityWestToEastSequence();
+		}
+		else if ( security_platform_position == 4 )
+		{
+			//move back to west
+			SecurityEastToWestSequence();
+		}
+	}
+
+	void security_platform_call_south () {
+
+		if ( security_platform_position == 1 )
+		{
+			//move to south
+			SecurityWestToSouthSequence();
+		}
+	}
+
+	void security_platform_call_east () {
+
+		if ( security_platform_position == 3 )
+		{
+			//move to east
+			SecurityWestToEastSequence();
+		}
+	}
+
+	void security_platform_call_west () {
+
+		if ( security_platform_position == 2 )
+		{
+			//move back to west
+			SecuritySouthToWestSequence();
+		}
+		else if ( security_platform_position == 4 )
+		{
+			//move back to west
+			SecurityEastToWestSequence();
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	SECURITY TURRETS
+	//
+	////////////////////////////////////////////////////
+	void turret_east_on() {
+		if ( turretEast_on == 0 ) {
+			sys.trigger( $braaaaaant );
+			sys.trigger( $turret_east );
+			turretEast_on = 1;
+		}
+	}
+
+	void turret_east_off() {
+		if ( turretEast_on == 1 ) {
+			sys.trigger( $turret_east );
+			turretEast_on = 0;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	SECURITY BRIDGE
+	//
+	////////////////////////////////////////////////////
+	void SetupTopbridge() {
+
+		sys.trigger( $topbridge_aas );
+
+		$topbridge_railing_east_north.bind( $topbridge_rails_east );
+		$topbridge_railing_east_south.bind( $topbridge_rails_east );
+		$topbridge_railing_west_north.bind( $topbridge_rails_west );
+		$topbridge_railing_west_south.bind( $topbridge_rails_west );
+
+		$topbridge_railing_east_north.time( 0.1 );
+		$topbridge_railing_east_south.time( 0.1 );
+		$topbridge_railing_west_north.time( 0.1 );
+		$topbridge_railing_west_south.time( 0.1 );
+		$topbridge_railing_east_north.rotateOnce( '0 0 90' );
+		$topbridge_railing_east_south.rotateOnce( '0 0 -90' );
+		$topbridge_railing_west_north.rotateOnce( '0 0 90' );
+		$topbridge_railing_west_south.rotateOnce( '0 0 -90' );
+		sys.waitFor( $topbridge_railing_west_south );
+
+		$topbridge_rails_east.time( 0.1 );
+		$topbridge_rails_west.time( 0.1 );
+		$topbridge_floor_east.time( 0.1 );
+		$topbridge_floor_west.time( 0.1 );
+		$topbridge_rails_east.rotateOnce( '60 0 0' );
+		$topbridge_rails_west.rotateOnce( '-60 0 0' );
+		$topbridge_floor_east.move( EAST, 200 );
+		$topbridge_floor_west.move( WEST, 200 );
+		sys.waitFor( $topbridge_floor_west );
+	}
+
+	void RaiseTopbridgeSequence()
+	{
+		sys.trigger( $topbridge_aas );
+
+		$topbridge_floor_east.time( 1.0 );
+		$topbridge_floor_east.accelTime( 0.2 );
+		$topbridge_floor_east.decelTime( 0.2 );
+		$topbridge_floor_west.time( 1.0 );
+		$topbridge_floor_west.accelTime( 0.2 );
+		$topbridge_floor_west.decelTime( 0.2 );
+		$topbridge_floor_east.startSoundShader ( "p2_floor_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_floor_east.move( EAST, 200 );
+		$topbridge_floor_west.startSoundShader ( "p2_floor_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_floor_west.move( WEST, 200 );
+		sys.wait( 0.5 );
+
+		$topbridge_railing_east_north.time( 1.0 );
+		$topbridge_railing_east_south.time( 1.0 );
+		$topbridge_railing_west_north.time( 1.0 );
+		$topbridge_railing_west_south.time( 1.0 );
+		$topbridge_railing_east_north.startSoundShader ( "p2_bridge_rails_1s", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_railing_east_north.rotateOnce( '0 0 90' );
+		$topbridge_railing_east_south.rotateOnce( '0 0 -90' );
+		$topbridge_railing_west_south.startSoundShader ( "p2_bridge_rails_1s", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_railing_west_north.rotateOnce( '0 0 90' );
+		$topbridge_railing_west_south.rotateOnce( '0 0 -90' );
+		sys.waitFor( $topbridge_railing_west_south );
+
+		$topbridge_rails_east.time( 2.0 );
+		$topbridge_rails_east.accelTime( 0.25 );
+		$topbridge_rails_east.decelTime( 0.25 );
+		$topbridge_rails_west.time( 2.0 );
+		$topbridge_rails_west.accelTime( 0.25 );
+		$topbridge_rails_west.decelTime( 0.25 );
+		$topbridge_rails_east.startSoundShader ( "p2_bridge_2s", SND_CHANNEL_VOICE );		// -Xian
+		$topbridge_rails_east.rotateOnce( '60 0 0' );
+		$topbridge_rails_west.rotateOnce( '-60 0 0' );
+		sys.waitFor( $topbridge_rails_west );
+	}
+
+	void LowerTopbridgeSequence()
+	{
+		sys.trigger( $turret_shutdown_speaker );
+		thread turret_east_off();
+
+		$topbridge_rails_east.time( 2.0 );
+		$topbridge_rails_east.accelTime( 0.25 );
+		$topbridge_rails_east.decelTime( 0.25 );
+		$topbridge_rails_west.time( 2.0 );
+		$topbridge_rails_west.accelTime( 0.25 );
+		$topbridge_rails_west.decelTime( 0.25 );
+		$topbridge_rails_east.startSoundShader ( "p2_bridge_2s", SND_CHANNEL_VOICE );		// -Xian
+		$topbridge_rails_east.rotateOnce( '-60 0 0' );
+		$topbridge_rails_west.rotateOnce( '60 0 0' );
+		sys.waitFor( $topbridge_rails_west );
+		sys.wait( 0.25 );
+
+		$topbridge_railing_east_north.time( 1.0 );
+		$topbridge_railing_east_south.time( 1.0 );
+		$topbridge_railing_west_north.time( 1.0 );
+		$topbridge_railing_west_south.time( 1.0 );
+		$topbridge_railing_east_north.startSoundShader ( "p2_bridge_rails_1s", SND_CHANNEL_VOICE );		// -Xian
+		$topbridge_railing_east_north.rotateOnce( '0 0 -90' );
+		$topbridge_railing_east_south.rotateOnce( '0 0 90' );
+		$topbridge_railing_west_south.startSoundShader ( "p2_bridge_rails_1s", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_railing_west_north.rotateOnce( '0 0 -90' );
+		$topbridge_railing_west_south.rotateOnce( '0 0 90' );
+		sys.waitFor( $topbridge_railing_west_south );
+		sys.wait( 0.25 );
+
+		$topbridge_floor_east.time( .75 );
+		$topbridge_floor_east.accelTime( 0.2 );
+		$topbridge_floor_east.decelTime( 0.2 );
+		$topbridge_floor_west.time( .75 );
+		$topbridge_floor_west.accelTime( 0.2 );
+		$topbridge_floor_west.decelTime( 0.2 );
+		$topbridge_floor_east.startSoundShader ( "p2_floor_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_floor_east.move( WEST, 200 );
+		$topbridge_floor_west.startSoundShader ( "p2_floor_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+		$topbridge_floor_west.move( EAST, 200 );
+
+		sys.wait(.25);
+		sys.trigger( $bridge_clip );
+
+		sys.wait(.5);
+		sys.trigger( $service_bridge_speaker );
+		sys.trigger( $topbridge_aas );
+		sys.trigger( $security_guards );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN AIRLOCK ACTIVATION
+	//
+	////////////////////////////////////////////////////
+	void airlock1_activate ()
+	{
+		sys.trigger( $phobos2_airlock1_clipper );
+
+		thread airlock_main_activate(1 , 2);
+
+		sys.wait(2);
+
+		// Turn on or Off the enviroment suit - Commented out by BJ
+		if ( envirosuit_on == 0 )
+		{
+			//$player1.setPowerupTime( ENVIROSUIT, 999999999 );
+			envirosuit_on = 1;
+		}
+		else
+		{
+			//$player1.setPowerupTime( ENVIROSUIT, 0 );
+			envirosuit_on = 0;
+		}
+	}
+
+	void airlock2_activate ()
+	{
+		sys.trigger( $phobos2_airlock2_clipper );
+
+		thread airlock_main_activate(2 , 1);
+
+		sys.wait(5);
+		if( f_vulgar1 == 0 ) {
+			f_vulgar1 = 1;
+			sys.trigger( $p2_vulgar1 );
+			sys.trigger( $p2_vulgar1_base );
+			sys.trigger( $p2_vulgar1_snd );
+			return;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK EXTERNAL DOORS
+	//
+	////////////////////////////////////////////////////
+	void airlock1_door1_open ()
+	{
+		airlock_door_activate(1 , 1 , 2 , 1);
+	}
+
+	void airlock1_door2_open ()
+	{
+		airlock_door_activate(1 , 2 , 2 , 1);
+	}
+
+	void airlock2_door1_open ()
+	{
+		airlock_door_activate(2 , 1 , 1 , 1);
+	}
+
+	void airlock2_door2_open ()
+	{
+		airlock_door_activate(2 , 2 , 1 , 1);
+	}
+	void airlock1_door2_close ()
+	{
+		airlock_door_activate(1 , 2 , 2 , 2);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	PUMPING STATION FOG
+	//
+	////////////////////////////////////////////////////
+	void pstation_fog_fadein()
+	{
+		$pstation_fog_on1.disable();
+		$pstation_fog_on2.disable();
+		$pstation_fog_off1.enable();
+		$pstation_fog_off2.enable();
+
+		$pstation_fog_mover.time( 0.1 );
+		$pstation_fog_mover.move( NORTH, 1024 );
+		sys.waitFor( $pstation_fog_mover );
+
+		$pstation_fog.On();
+		sys.trigger( $pstation_fog_on );
+	}
+
+
+	void pstation_fog_fadeout()
+	{
+		$pstation_fog_on1.enable();
+		$pstation_fog_on2.enable();
+		$pstation_fog_off1.disable();
+		$pstation_fog_off2.disable();
+		sys.trigger( $pstation_fog_off );
+		sys.wait( 2.0 );
+
+		$pstation_fog_mover.time( 0.1 );
+		$pstation_fog_mover.move( SOUTH, 1024 );
+		sys.waitFor( $pstation_fog_mover );
+		$office_fog.Off();
+	}
+
+	void pstation_fog_darken() {
+		thread crossFadeEnt ($pstation_fog, '0.29 0.21 0.14', '0.22 0.16 0.11', 2);
+		$pstation_fog_off.setColor( 0.22, 0.16, 0.11 );
+		$pstation_fog_on.setColor( 0.22, 0.16, 0.11 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	PUMPING STATION MACHINE
+	//
+	////////////////////////////////////////////////////
+	void pumpingMachine_loop ()
+	{
+		while ( pumps_running == 1 ) //begin while
+		{
+
+		$piston1.move ( DOWN, 6 );
+		$pistrod1.rotateOnce ( '0 0 -26.56' );
+		$piston2.move ( UP, 6 );
+		$pistrod2.rotateOnce ( '0 0 26.56' );
+		$piston3.move ( DOWN, 6 );
+		$pistrod3.rotateOnce ( '0 0 -26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( DOWN, 6 );
+		$pistrod1.rotateOnce ( '0 0 26.56' );
+		$piston2.move ( UP, 6 );
+		$pistrod2.rotateOnce ( '0 0 -26.56' );
+		$piston3.move ( DOWN, 6 );
+		$pistrod3.rotateOnce ( '0 0 26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( UP, 6 );
+		$pistrod1.rotateOnce ( '0 0 26.56' );
+		$piston2.move ( DOWN, 6 );
+		$pistrod2.rotateOnce ( '0 0 -26.56' );
+		$piston3.move ( UP, 6 );
+		$pistrod3.rotateOnce ( '0 0 26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		$piston1.move ( UP, 6 );
+		$pistrod1.rotateOnce ( '0 0 -26.56' );
+		$piston2.move ( DOWN, 6 );
+		$pistrod2.rotateOnce ( '0 0 26.56' );
+		$piston3.move ( UP, 6 );
+		$pistrod3.rotateOnce ( '0 0 -26.56' );
+		$crankshaft.rotateOnce ( '0 0 90' );
+		sys.waitFor ($piston1);
+
+		} //end while
+
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	PUMPING STATION SHUTDOWN
+	//
+	////////////////////////////////////////////////////
+	void pumping_shutdown () {
+
+		sys.wait(1);
+		$piston1.time (.25);
+		$pistrod1.time (.25);
+		$piston2.time (.25);
+		$pistrod2.time (.25);
+		$piston3.time (.25);
+		$pistrod3.time (.25);
+		$crankshaft.time (.25);
+		sys.wait(1.5);
+
+		$piston1.time (.5);
+		$pistrod1.time (.5);
+		$piston2.time (.5);
+		$pistrod2.time (.5);
+		$piston3.time (.5);
+		$pistrod3.time (.5);
+		$crankshaft.time (.5);
+		sys.wait(1.5);
+
+		$piston1.time (.75);
+		$pistrod1.time (.75);
+		$piston2.time (.75);
+		$pistrod2.time (.75);
+		$piston3.time (.75);
+		$pistrod3.time (.75);
+		$crankshaft.time (.75);
+		sys.wait(1);
+
+		$piston1.time (1);
+		$pistrod1.time (1);
+		$piston2.time (1);
+		$pistrod2.time (1);
+		$piston3.time (1);
+		$pistrod3.time (1);
+		$crankshaft.time (1);
+		sys.wait(1);
+
+		sys.trigger( $ps_steam1 );
+		sys.trigger( $ps_steam1_speaker );
+
+		pumps_running = 0;
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	BUSTED BACKTRACKER DOOR
+	//
+	////////////////////////////////////////////////////
+	void rd_door () {
+		//hide the real door
+		$rd_frame.remove();
+		$adam_func_door_27.remove();
+		$adam_func_door_28.remove();
+		$rd_light_white.Off();
+
+		//show the broken fake door
+		$rd_bustedframe.show();
+		$rd_light_red.On();
+		$func_static_6396.setGui( 1, "guis/screens/malfunction.gui" );
+		$func_static_6396.setGuiParm( "noninteractive", "1" );
+		$func_static_6396.setShaderParm (7, 0);
+		sys.trigger ( $func_static_6859 );
+		$func_static_6859.setColor( 1, 0, 0 );
+		sys.trigger ( $rd_sparks );
+		//sys.trigger ( $rd_portal );
+		sys.wait(.25);
+		sys.trigger ( $rd_bustedframe_setcolor );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	BUSTED BATHROOM DOOR
+	//
+	////////////////////////////////////////////////////
+	void bathroom_door ()
+	{
+		sys.trigger ( $bathroom_sparks );
+		$bathroom_door.time (.25);
+		$bathroom_door.move ( WEST, 16 );
+		sys.wait(.25);
+		$bathroom_door.time (.15);
+		$bathroom_door.move ( EAST, 16 );
+
+		$bathroom_door_frame.remove();
+		$bathroom_door_frame2.show();
+		sys.wait(.75);
+
+		$bathroom_door.time (.25);
+		$bathroom_door.move ( WEST, 4 );
+		sys.wait(.35);
+		$bathroom_door.time (.15);
+		$bathroom_door.move ( EAST, 4 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	INVULNERABILITY HUNTER BOSS FIGHT
+	//
+	////////////////////////////////////////////////////
+
+	// called by the master rod gui console
+	void rod_nw_door () {
+
+		// open the door and make the rod damageable
+		if ( rod_nw_door_open == 0 ) {
+			rod_nw_door_open = 1;
+
+			$rod_nw_damageable.show();
+			$rod_door_nw.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_nw.rotateOnce( '0 -180 0' );
+			sys.waitFor( $rod_door_nw );
+		}
+
+		sys.wait(3.5);
+
+		// close the door if the rod has not been destroyed already
+		if ( rod_nw_damaged == 0 ) {
+			$rod_nw_damageable.hide();
+			$rod_door_nw.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_nw.rotateOnce( '0 180 0' );
+			sys.waitFor( $rod_door_nw );
+			rod_nw_door_open = 0;
+			hunter_stage = 1;
+		}
+		else if ( rod_nw_damaged == 1 ) {
+			hunter_stage = 1;
+		}
+	}
+
+	// called by the master rod gui console
+	void rod_ne_door () {
+
+		// open the door and make the rod damageable
+		if ( rod_ne_door_open == 0 ) {
+			rod_ne_door_open = 1;
+
+			//Call Named GUI Event Here: openCore
+			$gui_rod1.guiNamedEvent( 1, "openCore" );
+
+			$rod_ne_damageable.show();
+			$rod_door_ne.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_ne.rotateOnce( '0 180 0' );
+			sys.waitFor( $rod_door_ne );
+		}
+
+		sys.wait(3.5);
+
+		// close the door if the rod has not been destroyed already
+		if ( rod_ne_damaged == 0 ) {
+
+			//Call Named GUI Event Here: closeCore
+			//$gui_rod1.guiNamedEvent( 1, "closeCore" );
+			//$gui_main.guiNamedEvent( 1, "coreReady" );
+
+			$rod_ne_damageable.hide();
+			$rod_door_ne.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_ne.rotateOnce( '0 -180 0' );
+			sys.waitFor( $rod_door_ne );
+			rod_ne_door_open = 0;
+			hunter_stage = 2;
+		}
+		else if ( rod_ne_damaged == 1 ) {
+			hunter_stage = 3;
+		}
+	}
+
+	// called by the master rod gui console
+	void rod_sw_door () {
+
+		// open the door and make the rod damageable
+		if ( rod_sw_door_open == 0 ) {
+			rod_sw_door_open = 1;
+
+			//Call Named GUI Event Here: openCore
+			$gui_rod4.guiNamedEvent( 1, "openCore" );
+
+			$rod_sw_damageable.show();
+			$rod_door_sw.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_sw.rotateOnce( '0 180 0' );
+			sys.waitFor( $rod_door_sw );
+		}
+
+		sys.wait(3.5);
+
+		// close the door if the rod has not been destroyed already
+		if ( rod_sw_damaged == 0 ) {
+
+			//Call Named GUI Event Here: closeCore
+			//$gui_rod4.guiNamedEvent( 1, "closeCore" );
+			//$gui_main.guiNamedEvent( 1, "coreReady" );
+
+			$rod_sw_damageable.hide();
+			$rod_door_sw.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_sw.rotateOnce( '0 -180 0' );
+			sys.waitFor( $rod_door_sw );
+			rod_sw_door_open = 0;
+			hunter_stage = 3;
+		}
+		else if ( rod_sw_damaged == 1 ) {
+			hunter_stage = 4;
+		}
+	}
+
+	// called by the master rod gui console
+	void rod_se_door () {
+
+		// open the door and make the rod damageable
+		if ( rod_se_door_open == 0 ) {
+			rod_se_door_open = 1;
+
+			//Call Named GUI Event Here: openCore
+			$gui_rod2.guiNamedEvent( 1, "openCore" );
+
+			$rod_se_damageable.show();
+			$rod_door_se.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_se.rotateOnce( '0 -180 0' );
+			sys.waitFor( $rod_door_se );
+		}
+
+		sys.wait(3.5);
+
+		// close the door if the rod has not been destroyed already
+		if ( rod_se_damaged == 0 ) {
+
+			//Call Named GUI Event Here: closeCore
+			//$gui_rod2.guiNamedEvent( 1, "closeCore" );
+			//$gui_main.guiNamedEvent( 1, "coreReady" );
+
+			$rod_se_damageable.hide();
+			$rod_door_se.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+			$rod_door_se.rotateOnce( '0 180 0' );
+			sys.waitFor( $rod_door_se );
+			rod_se_door_open = 0;
+			hunter_stage = 1;
+		}
+		else if ( rod_se_damaged == 1 ) {
+			hunter_stage = 2;
+		}
+
+	}
+
+	// -Xian Start
+	void rod_se_offline() {
+		sys.wait (1.5);
+		$rod_se_red.startSoundShader ( "p2_core2_failure", SND_CHANNEL_VOICE );
+	}
+
+	void rod_ne_offline() {
+		sys.wait (1.5);
+		$rod_ne_red.startSoundShader ( "p2_core3_failure", SND_CHANNEL_VOICE );
+	}
+
+	void rod_sw_offline() {
+		sys.wait (1.5);
+		$rod_sw_red.startSoundShader ( "p2_core4_failure", SND_CHANNEL_VOICE );
+	}
+	// -Xian End
+
+	// called when north west rod is damaged (in the hunter intro cinematic)
+	void rod_nw_damage () {
+
+		if ( rod_nw_damaged == 0 ) {
+			sys.print( "NW Rod Damaged\n");
+			rod_nw_damaged = 1;
+			$rod_nw_damageable.hide();
+			sys.trigger( $rod_nw_rodexplode );
+			sys.trigger( $nw_speaker_explode );
+			sys.wait(0.25);
+			sys.trigger( $nw_explosion_emitter );
+			sys.trigger( $rod_nw_shockwave );
+			sys.trigger( $rod_nw_force );
+
+			//sys.killthread ( "map_phobos2::rod_nw_door" );
+
+			$rod_nw_beam.hide();
+			$rod_nw_electricity.stopSound ( SND_CHANNEL_BODY, false );
+			$rod_nw_electricity.hide();
+			$rod_nw_glow.Off();
+
+			// hide the blue rod
+			$rod_nw_blue.hide();
+			$rod_nw_blue_top_fx.hide();
+			$rod_nw_blue_bot_fx.hide();
+			$rod_nw_blue_top_light.Off();
+			$rod_nw_blue_bot_light.Off();
+
+			// show the red rod
+			$rod_nw_red.show();
+			$rod_nw_red_shimmer.show();
+			$rod_nw_red_smoke.show();
+			$rod_nw_red_fire.startSoundShader ( "p2_flames", SND_CHANNEL_BODY );
+			$rod_nw_red_fire.show();
+			$rod_nw_red_light.On();
+			$rod_nw_red_top_fx.show();
+			$rod_nw_red_bot_fx.show();
+
+			// bring the hunter out of invulnerability
+			$hunter.callFunction( "endInvuln" );
+		}
+	}
+
+	// called when north east rod is damaged
+	void rod_ne_damage () {
+
+		if ( rod_ne_damaged == 0 ) {
+
+			//Call Named GUI Event Here: coreCompensating
+			//$gui_main.guiNamedEvent( 1, "coreCompensating" );
+			//$gui_rod1.guiNamedEvent( 1, "breakCore" );
+
+			sys.print( "NE Rod Damaged\n");
+			rod_ne_damaged = 1;
+			$rod_ne_damageable.hide();
+			sys.trigger( $rod_ne_rodexplode );
+			sys.trigger( $rod_ne_force );
+			sys.trigger( $ne_speaker_explode );
+			sys.wait(0.25);
+			sys.trigger( $ne_explosion_emitter );
+			//sys.trigger( $rod_ne_speaker );
+			//sys.killthread ( "map_phobos2::rod_ne_door" );
+			sys.trigger( $rod_ne_shockwave );
+			sys.trigger( $rod_ne_triggerhurt );
+			sys.trigger( $endInvulnSurvival_lights  );
+
+
+			sys.trigger ( $speaker_rod_ne_fixed );		// turn it off	-Xian
+
+			$rod_ne_beam.hide();
+			$rod_ne_electricity.stopSound ( SND_CHANNEL_BODY, false );
+			$rod_ne_electricity.hide();
+			$rod_ne_glow.Off();
+
+			// hide the blue rod
+			$rod_ne_blue.hide();
+			$rod_ne_blue_top_fx.hide();
+			$rod_ne_blue_bot_fx.hide();
+			$rod_ne_blue_top_light.Off();
+			$rod_ne_blue_bot_light.Off();
+
+			// show the red rod
+			$rod_ne_red.show();
+			$rod_ne_red_shimmer.show();
+			$rod_ne_red_smoke.show();
+			$rod_ne_red_fire.startSoundShader ( "p2_flames", SND_CHANNEL_BODY );
+			$rod_ne_red_fire.show();
+			$rod_ne_red_light.On();
+			$rod_ne_red_top_fx.show();
+			$rod_ne_red_bot_fx.show();
+
+			thread ( rod_ne_offline() );
+
+			// bring the hunter out of invulnerability
+			$hunter.callFunction( "endInvuln" );
+		}
+	}
+
+	// called when south west rod is damaged
+	void rod_sw_damage () {
+
+		if ( rod_sw_damaged == 0 ) {
+
+			//Call Named GUI Event Here: coreDestroyed
+			//$gui_main.guiNamedEvent( 1, "coreDestroyed" );
+			//$gui_rod4.guiNamedEvent( 1, "breakCore" );
+
+			sys.print( "SW Rod Damaged\n");
+			rod_sw_damaged = 1;
+			$rod_sw_damageable.hide();
+			sys.trigger( $rod_sw_rodexplode );
+			sys.trigger( $rod_sw_force );
+			sys.trigger( $sw_speaker_explode );
+			sys.wait(0.25);
+			sys.trigger( $sw_explosion_emitter );
+			//sys.trigger( $rod_sw_speaker );
+			sys.trigger( $rod_sw_shockwave );
+			sys.trigger( $rod_sw_triggerhurt );
+			sys.trigger( $endInvulnSurvival_lights );
+
+			//sys.killthread ( "map_phobos2::rod_sw_door" );
+
+			sys.trigger ( $speaker_rod_sw_fixed );		// turn it off	-Xian
+
+			$rod_sw_beam.hide();
+			$rod_sw_electricity.stopSound ( SND_CHANNEL_BODY, false );
+			$rod_sw_electricity.hide();
+			$rod_sw_glow.Off();
+
+			// hide the blue rod
+			$rod_sw_blue.hide();
+			$rod_sw_blue_top_fx.hide();
+			$rod_sw_blue_bot_fx.hide();
+			$rod_sw_blue_top_light.Off();
+			$rod_sw_blue_bot_light.Off();
+
+			// show the red rod
+			$rod_sw_red.show();
+			$rod_sw_red_shimmer.show();
+			$rod_sw_red_smoke.show();
+			$rod_sw_red_fire.startSoundShader ( "p2_flames", SND_CHANNEL_BODY );
+			$rod_sw_red_fire.show();
+			$rod_sw_red_light.On();
+			$rod_sw_red_top_fx.show();
+			$rod_sw_red_bot_fx.show();
+
+			thread ( rod_sw_offline() );
+
+			// bring the hunter out of invulnerability
+			$hunter.callFunction( "endInvuln" );
+		}
+	}
+
+	// called when south east rod is damaged
+	void rod_se_damage () {
+
+		if ( rod_se_damaged == 0 ) {
+
+			//Call Named GUI Event Here: coreCompensating
+			//$gui_main.guiNamedEvent( 1, "coreCompensating" );
+			//$gui_rod2.guiNamedEvent( 1, "breakCore" );
+
+			sys.print( "SE Rod Damaged\n");
+			rod_se_damaged = 1;
+			$rod_se_damageable.hide();
+			sys.trigger( $rod_se_rodexplode );
+			sys.trigger( $rod_se_force );
+			sys.trigger( $se_speaker_explode );
+			sys.wait(0.25);
+			sys.trigger( $se_explosion_emitter );
+			//sys.trigger( $rod_se_speaker );
+			sys.trigger( $rod_se_shockwave );
+			sys.trigger( $rod_se_triggerhurt );
+			sys.trigger( $endInvulnSurvival_lights );
+
+			//sys.killthread ( "map_phobos2::rod_se_door" );
+
+			sys.trigger ( $speaker_rod_se_fixed );		// turn it off	-Xian
+
+			$rod_se_beam.hide();
+			$rod_se_electricity.stopSound ( SND_CHANNEL_BODY, false );
+			$rod_se_electricity.hide();
+			$rod_se_glow.Off();
+
+			// hide the blue rod
+			$rod_se_blue.hide();
+			$rod_se_blue_top_fx.hide();
+			$rod_se_blue_bot_fx.hide();
+			$rod_se_blue_top_light.Off();
+			$rod_se_blue_bot_light.Off();
+
+			// show the red rod
+			$rod_se_red.show();
+			$rod_se_red_shimmer.show();
+			$rod_se_red_smoke.show();
+			$rod_se_red_fire.startSoundShader ( "p2_flames", SND_CHANNEL_BODY );
+			$rod_se_red_fire.show();
+			$rod_se_red_light.On();
+			$rod_se_red_top_fx.show();
+			$rod_se_red_bot_fx.show();
+
+			thread ( rod_se_offline() );
+
+			// bring the hunter out of invulnerability
+			$hunter.callFunction( "endInvuln" );
+		}
+	}
+
+	// called when the master rod gui console is activated
+	// opens the doors exposing the rods
+	void rod_master_gui() {
+
+		if( hunter_stage == 1 ) {
+			// open the southeastern door
+			hunter_stage = 4;
+			sys.print( "SE Door Opening\n");
+			rod_se_door();
+		}
+		else if( hunter_stage == 2 ) {
+			// open the northeastern door
+			hunter_stage = 4;
+			sys.print( "NE Door Opening\n");
+			rod_ne_door();
+		}
+		else if( hunter_stage == 3 ) {
+			// open the southwestern door
+			hunter_stage = 4;
+			sys.print( "SW Door Opening\n");
+			rod_sw_door();
+		}
+	}
+
+	// called after a rod is damaged
+	// hunter comes out of invulnerable mode
+	void hunter_beginNormal () {
+
+		// hide the rod electricity
+		if( rod_nw_damaged == 0 ) {
+			$rod_nw_electricity.stopSound ( SND_CHANNEL_BODY, false );	// -Xian
+			$rod_nw_electricity.hide();
+			$rod_nw_glow.Off();
+		}
+		if( rod_ne_damaged == 0 ) {
+			$rod_ne_electricity.stopSound ( SND_CHANNEL_BODY, false );	// -Xian
+			$rod_ne_electricity.hide();
+			$rod_ne_glow.Off();
+		}
+		if( rod_se_damaged == 0 ) {
+			$rod_se_electricity.stopSound ( SND_CHANNEL_BODY, false );	// -Xian
+			$rod_se_electricity.hide();
+			$rod_se_glow.Off();
+		}
+		if( rod_sw_damaged == 0 ) {
+			$rod_sw_electricity.stopSound ( SND_CHANNEL_BODY, false );	// -Xian
+			$rod_sw_electricity.hide();
+			$rod_sw_glow.Off();
+		}
+	}
+
+	// called after the damage cap has been hit
+	// hunter moves to his node
+	void hunter_movingToInvuln () {
+
+		//Call Named GUI Event Here: coreLoadTest
+		//$gui_main.guiNamedEvent( 1, "coreLoadTest" );
+
+		$ceiling_light1.setKey ("color_demonic", "0.28 0 0");
+		$ceiling_light2.setKey ("color_demonic", "0.28 0 0");
+		$ceiling_light3.setKey ("color_demonic", "0.28 0 0");
+		$ceiling_light4.setKey ("color_demonic", "0.28 0 0");
+		$ceiling_highlight.setKey ("color_demonic", "0.28 0 0");
+		$ceiling_biglight.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_01.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_02.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_03.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_04.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_05.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_06.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_07.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_08.setKey ("color_demonic", "0.28 0 0");
+		$lowerlight_big.setKey ("color_demonic", "0.28 0 0");
+		$console_light.setKey ("color_demonic", "0.28 0 0");
+
+		sys.trigger( $movingToInvuln_lights );
+	}
+
+	// called after the hunter gets to his node
+	// begin the survival period
+	void hunter_beginInvulnSurvival () {
+
+		sys.wait(1.5);
+
+		// show the energy beams and rod electricity
+		if( rod_nw_damaged == 0 ) {
+			$rod_nw_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_BODY );	// -Xian
+			$rod_nw_electricity.show();
+			$rod_nw_glow.On();
+			$rod_nw_beam.show();
+		}
+		if( rod_ne_damaged == 0 ) {
+			$rod_ne_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_BODY );	// -Xian
+			$rod_ne_electricity.show();
+			$rod_ne_glow.On();
+			$rod_ne_beam.show();
+		}
+		if( rod_se_damaged == 0 ) {
+			$rod_se_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_BODY );	// -Xian
+			$rod_se_electricity.show();
+			$rod_se_glow.On();
+			$rod_se_beam.show();
+		}
+		if( rod_sw_damaged == 0 ) {
+			$rod_sw_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_BODY );	// -Xian
+			$rod_sw_electricity.show();
+			$rod_sw_glow.On();
+			$rod_sw_beam.show();
+		}
+
+		$ceiling_light1.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_light2.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_light3.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_light4.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_highlight.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_biglight.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_01.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_02.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_03.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_04.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_05.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_06.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_07.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_08.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_big.setKey ("color_demonic", "0.24 0.46 0.75");
+		$console_light.setKey ("color_demonic", "0.24 0.46 0.75");
+
+		sys.trigger( $beginInvulnSurvival_lights );
+
+		// make a gui operable based on the hunters stage
+		if( hunter_stage == 1 ) {
+			$rod_se_gui.guiNamedEvent( 1, "openCore" );
+			$rod_se_electricity.hide();
+		}
+		else if( hunter_stage == 2 ) {
+			$rod_ne_gui.guiNamedEvent( 1, "openCore" );
+			$rod_ne_electricity.hide();
+		}
+		else if( hunter_stage == 3 ) {
+			$rod_sw_gui.guiNamedEvent( 1, "openCore" );
+			$rod_sw_electricity.hide();
+		}
+	}
+
+	// called after the survival period
+	// hunter is free to move around
+	void hunter_endSurvival () {
+
+		//Call Named GUI Event Here: coreReady
+		//$gui_main.guiNamedEvent( 1, "coreReady" );
+
+		if( rod_nw_damaged == 0 ) {
+			$rod_nw_beam.hide();
+		}
+		if( rod_ne_damaged == 0 ) {
+			$rod_ne_beam.hide();
+		}
+		if( rod_se_damaged == 0 ) {
+			$rod_se_beam.hide();
+		}
+		if( rod_sw_damaged == 0 ) {
+			$rod_sw_beam.hide();
+		}
+	}
+
+	// called when the hunter dies
+	// player gets bloodstone active power number 3
+	void hunter_defeated ()
+	{
+		$player1.giveInventoryItem("weapon_bloodstone_active3");
+		sys.wait( 1 );
+		$player1.giveInventoryItem( "ammo_bloodstone_normal" );
+
+		// reset stamina
+		sys.setcvar( "pm_stamina", "24" );
+
+		if ( security_platform_position == 1 ) {
+			security_platform_position = 3;
+		}
+		else if ( security_platform_position == 2 ) {
+			SecuritySouthToWestSequence();
+			security_platform_position = 3;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	DUNGEON LIFT
+	//
+	////////////////////////////////////////////////////
+	void dungeon_lift_up() {
+
+		if ( dungeon_lift_position == 2 ) {
+			dungeon_lift_position = 666;
+			$dungeon_lift_down_trigger1.disable();
+			$dungeon_lift_down_trigger2.disable();
+
+			$dungeon_lift.move (UP, 128);
+			sys.waitFor($dungeon_lift);
+			dungeon_lift_position = 1;
+		}
+	}
+
+	void dungeon_lift_down() {
+
+		if ( dungeon_lift_position == 1 ) {
+			dungeon_lift_position = 666;
+			$dungeon_lift_up_trigger1.disable();
+			$dungeon_lift_up_trigger2.disable();
+
+			$dungeon_lift.move (DOWN, 128);
+			sys.waitFor($dungeon_lift);
+			dungeon_lift_position = 2;
+		}
+	}
+
+	void dungeon_lift_up_reset() {
+
+		if ( dungeon_lift_position == 2 ) {
+			$dungeon_lift_up_trigger1.enable();
+			$dungeon_lift_up_trigger2.enable();
+		}
+		else if ( dungeon_lift_position == 1 ) {
+			dungeon_lift_down();
+			$dungeon_lift_up_trigger1.enable();
+			$dungeon_lift_up_trigger2.enable();
+		}
+	}
+
+	void dungeon_lift_down_reset() {
+
+		if ( dungeon_lift_position == 1 ) {
+			$dungeon_lift_down_trigger1.enable();
+			$dungeon_lift_down_trigger2.enable();
+		}
+		else if ( dungeon_lift_position == 2 ) {
+			dungeon_lift_up();
+			$dungeon_lift_down_trigger1.enable();
+			$dungeon_lift_down_trigger2.enable();
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MCNEIL RADIO EVENTS
+	//
+	////////////////////////////////////////////////////
+	void mcneil_power ()
+	{
+		sys.trigger( $mcneil_power1 );
+		sys.wait(5);
+		sys.trigger( $mcneil_power2 );
+		sys.wait(6.25);
+		sys.trigger( $update_objectives );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MCNEIL CINEMATIC EVENTS
+	//
+	////////////////////////////////////////////////////
+	void mcneil_viewer_start() {
+		$mcneil_viewer.setGui( 1, "guis/phobos2/p2_mcneil_ancient2.gui" );
+		$mcneil_viewer.guiNamedEvent( 1, "startMcNeil" );
+	}
+	void mcneil_viewer_maps() {
+		$mcneil_viewer.guiNamedEvent( 1, "startMap" );
+	}
+	void mcneil_typing_hide() {
+		$phobos2_mcneil_typing_1.hide();
+	}
+	void mcneil_typing_show() {
+		$phobos2_mcneil_typing_1.show();
+	}
+	void mcneil_viewer_reset() {
+		$mcneil_viewer.setGui(1, "guis/phobos2/p2_mcneil_ancient3.gui" );
+		close_mcneil_shutters();
+		//$mcneil_viewer.guiNamedEvent( 1, "backToStart" );
+	}
+	////////////////////////////////////////////////////
+	//
+	//	SETUP
+	//
+	////////////////////////////////////////////////////
+	void setup_objects ()
+	{
+		// set airlock door guis initial state to 1
+		$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+
+		// override the states of the airlocks so the lights will cooperate
+		$airlock2_door2_light.setColor (0.84 , 0.84 , 0.90);
+		$airlock2_door1_light.setColor (0.37 , 0.05 , 0.01);
+		$airlock2_door1_portal.setKey ("state", "3");
+		$airlock1_door1_portal.setKey ("state", "2");
+
+		// setup the pumping station fog
+		$pstation_fog_off1.disable();
+		$pstation_fog_off2.disable();
+
+		//pumping station machine binds and times
+		$pistrod1.bind ($piston1);
+		$pistrod2.bind ($piston2);
+		$pistrod3.bind ($piston3);
+
+		$piston1.time (.125);
+		$pistrod1.time (.125);
+		$piston2.time (.125);
+		$pistrod2.time (.125);
+		$piston3.time (.125);
+		$pistrod3.time (.125);
+		$crankshaft.time (.125);
+
+		// precache guis
+		$func_static_6396.precacheGui("guis/screens/malfunction.gui");
+		$mcneil_viewer.precacheGui("guis/phobos2/p2_mcneil_ancient.gui");
+		$mcneil_viewer.precacheGui("guis/phobos2/p2_mcneil_ancient3.gui");
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ( "p2_seating_05s" );		// -Xian
+		sys.cacheSoundShader ( "p2_arms_2s" );		// -Xian
+		sys.cacheSoundShader ( "p2_movement_5s" );	// -Xian
+		sys.cacheSoundShader ( "p2_movement_10s" );	// -Xian
+		sys.cacheSoundShader ( "p2_floor_1s_inout" );	// -Xian
+		sys.cacheSoundShader ( "p2_bridge_rails_1s" );	// -Xian
+		sys.cacheSoundShader ( "p2_bridge_2s" );		// -Xian
+		sys.cacheSoundShader ( "p2_flames" );
+		sys.cacheSoundShader ( "p2_electrical" );
+
+		sys.cacheSoundShader ( "p2_core1_failure" );
+		sys.cacheSoundShader ( "p2_core2_failure" );
+		sys.cacheSoundShader ( "p2_core3_failure" );
+		sys.cacheSoundShader ( "p2_core4_failure" );
+		
+		sys.cacheSoundShader ( "e4_fingers_1s_inout" );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main ()
+	{
+		setup_objects();
+		cache_sounds();
+		thread SetupTopbridge();
+		thread SetupSecurityPlatform();
+		thread pumpingMachine_loop();
+
+		$pstation_fog_mover.time( 0.1 );
+		$pstation_fog_mover.move( SOUTH, 1024 );
+		sys.waitFor( $pstation_fog_mover );
+	}
+
+}// namespace

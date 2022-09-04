@@ -1,0 +1,101 @@
+/***********************************************************************
+
+weapon_soulcube.script
+
+***********************************************************************/
+
+// blend times
+#define SOULCUBE_IDLE_TO_LOWER		4
+#define SOULCUBE_IDLE_TO_FIRE		4
+#define SOULCUBE_RAISE_TO_IDLE		4
+#define SOULCUBE_SPIN_TO_IDLE		0
+#define SOULCUBE_IDLE_TO_SPIN		0
+
+object weapon_soulcube : weapon_base {
+	void		init();
+	void		UpdateShaderParms();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		Launch();
+	void		ExitCinematic();
+};
+
+void weapon_soulcube::init() {
+	weaponState( "Raise", 0 );
+}
+
+void weapon_soulcube::UpdateShaderParms() {
+	setShaderParm( SHADERPARM_MODE, totalAmmoCount() );
+}
+
+void weapon_soulcube::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	while( !animDone( ANIMCHANNEL_ALL, SOULCUBE_RAISE_TO_IDLE ) ) {
+		UpdateShaderParms();
+		waitFrame();
+	}
+	weaponState( "Idle", SOULCUBE_RAISE_TO_IDLE );
+}
+
+void weapon_soulcube::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	while( !animDone( ANIMCHANNEL_ALL, 0 ) ) {
+		UpdateShaderParms();
+		waitFrame();
+	}
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_soulcube::Idle() {
+	float count;
+
+	weaponReady();
+
+	count = 8 + sys.random( 8 );
+	while( 1 ) {
+		count--;
+		if ( count <= 0 ) {
+			playAnim( ANIMCHANNEL_ALL, "spin" );
+			count = 8 + sys.random( 8 );
+		} else {
+			playAnim( ANIMCHANNEL_ALL, "idle" );
+		}
+		while( !animDone( ANIMCHANNEL_ALL, 0 ) ) {
+			UpdateShaderParms();
+			if ( WEAPON_LOWERWEAPON ) {
+				weaponState( "Lower", SOULCUBE_IDLE_TO_LOWER );
+			}
+			if ( WEAPON_ATTACK ) {
+				weaponState( "Fire", SOULCUBE_IDLE_TO_FIRE );
+			}
+			waitFrame();
+		}
+	}
+}
+
+void weapon_soulcube::Fire() {
+	WEAPON_START_FIRING = true;
+	playAnim( ANIMCHANNEL_ALL, "fire" );
+	while( !animDone( ANIMCHANNEL_ALL, 0 ) ) {
+		UpdateShaderParms();
+		waitFrame();
+	}
+
+	WEAPON_START_FIRING = false;
+	weaponHolstered();
+}
+
+void weapon_soulcube::Launch() {
+	launchProjectiles( 1, 0, 0, 1.0, 1.0 );
+}
+
+void weapon_soulcube::ExitCinematic() {
+	weaponState( "Idle", 0 );
+}

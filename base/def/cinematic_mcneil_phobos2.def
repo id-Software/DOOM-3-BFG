@@ -1,0 +1,333 @@
+
+//////////////////////////////////////////////
+//mcneil cinematic phobos2
+//////////////////////////////////////////////
+
+
+//////////////////////////////////////////////
+//Exports
+//////////////////////////////////////////////
+
+export eric {
+
+
+	//cameras
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1 50			-dest models/md5/cinematics/phobos2/cam_a
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 51 114		-dest models/md5/cinematics/phobos2/cam_b
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 115 144		-dest models/md5/cinematics/phobos2/cam_c
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 145 275		-dest models/md5/cinematics/phobos2/cam_d
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 276 354		-dest models/md5/cinematics/phobos2/cam_e
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 355 523		-dest models/md5/cinematics/phobos2/cam_f
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 524 567		-dest models/md5/cinematics/phobos2/cam_g
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 568 793		-dest models/md5/cinematics/phobos2/cam_h
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 794 959		-dest models/md5/cinematics/phobos2/cam_i
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 960 1194		-dest models/md5/cinematics/phobos2/cam_j
+	camera	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1195 1316	-dest models/md5/cinematics/phobos2/cam_k
+
+	//mcneil
+	options -prefix mcn_
+	anim	models/characters/mocap/mcneil_cine/lipsync_test.mb				-dest models/md5/cinematics/mcneil_cine/test
+	anim	models/characters/mocap/mcneil_cine/lipsync.mb					-dest models/md5/cinematics/mcneil_cine/lipsync
+
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1 50			-dest models/md5/cinematics/phobos2/mcneil_a
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 51 114		-dest models/md5/cinematics/phobos2/mcneil_b
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 115 144		-dest models/md5/cinematics/phobos2/mcneil_c
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 145 275		-dest models/md5/cinematics/phobos2/mcneil_d
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 276 354		-dest models/md5/cinematics/phobos2/mcneil_e
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 355 523		-dest models/md5/cinematics/phobos2/mcneil_f
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 524 567		-dest models/md5/cinematics/phobos2/mcneil_g
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 568 793		-dest models/md5/cinematics/phobos2/mcneil_h
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 794 959		-dest models/md5/cinematics/phobos2/mcneil_i
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 960 1194		-dest models/md5/cinematics/phobos2/mcneil_j
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1195 1316	-dest models/md5/cinematics/phobos2/mcneil_k
+
+
+	//player
+	options -prefix player_
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1 50			-dest models/md5/cinematics/phobos2/player_a
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 51 114		-dest models/md5/cinematics/phobos2/player_b
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 115 144		-dest models/md5/cinematics/phobos2/player_c
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 145 275		-dest models/md5/cinematics/phobos2/player_d
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 276 354		-dest models/md5/cinematics/phobos2/player_e
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 355 523		-dest models/md5/cinematics/phobos2/player_f
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 524 567		-dest models/md5/cinematics/phobos2/player_g
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 568 793		-dest models/md5/cinematics/phobos2/player_h
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 794 959		-dest models/md5/cinematics/phobos2/player_i
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 960 1194		-dest models/md5/cinematics/phobos2/player_j
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1195 1316	-dest models/md5/cinematics/phobos2/player_k
+
+
+	//CHAIR
+	options	-prefix chair_
+	mesh	models/characters/mocap/mcneil/chair_setup.mb -dest models/md5/cinematics/phobos2/phobos2_mcneil_chair
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1 50			-dest models/md5/cinematics/phobos2/chair_a
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 51 114		-dest models/md5/cinematics/phobos2/chair_b
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 115 144		-dest models/md5/cinematics/phobos2/chair_c
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 145 275		-dest models/md5/cinematics/phobos2/chair_d
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 276 354		-dest models/md5/cinematics/phobos2/chair_e
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 355 523		-dest models/md5/cinematics/phobos2/chair_f
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 524 567		-dest models/md5/cinematics/phobos2/chair_g
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 568 793		-dest models/md5/cinematics/phobos2/chair_h
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 794 959		-dest models/md5/cinematics/phobos2/chair_i
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 960 1194		-dest models/md5/cinematics/phobos2/chair_j
+	anim	models/characters/mocap/mcneil/mcneil_wsync_fix.mb	-range 1195 1316	-dest models/md5/cinematics/phobos2/chair_k
+
+}
+
+
+//////////////////////////////////////////////
+//Cameras
+//////////////////////////////////////////////
+
+entityDef phobos2_mcneil_camera {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim mcn_cam_a"				"models/md5/cinematics/phobos2/cam_a.camera"
+	"anim mcn_cam_b"				"models/md5/cinematics/phobos2/cam_b.camera"
+	"anim mcn_cam_c"				"models/md5/cinematics/phobos2/cam_c.camera"
+	"anim mcn_cam_d"				"models/md5/cinematics/phobos2/cam_d.camera"
+	"anim mcn_cam_e"				"models/md5/cinematics/phobos2/cam_e.camera"
+	"anim mcn_cam_f"				"models/md5/cinematics/phobos2/cam_f.camera"
+	"anim mcn_cam_g"				"models/md5/cinematics/phobos2/cam_g.camera"
+	"anim mcn_cam_h"				"models/md5/cinematics/phobos2/cam_h.camera"
+	"anim mcn_cam_i"				"models/md5/cinematics/phobos2/cam_i.camera"
+	"anim mcn_cam_j"				"models/md5/cinematics/phobos2/cam_j.camera"
+	"anim mcn_cam_k"				"models/md5/cinematics/phobos2/cam_k.camera"
+
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//Mcneil
+//////////////////////////////////////////////
+
+
+model phobos2_cinematic_mcneil {
+
+	mesh								models/md5/cinematics/intro/mcneil.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	//anim test							models/md5/cinematics/mcneil_cine/test.md5anim
+	//anim lipsync						models/md5/cinematics/mcneil_cine/lipsync.md5anim {
+	//	frame 12								sound_voice p2_mcneil_meeting1
+	//}
+
+	anim mcn_a							models/md5/cinematics/phobos2/mcneil_a.md5anim {
+		frame 1								call map_phobos2::mcneil_typing_hide
+	}
+	anim mcn_b							models/md5/cinematics/phobos2/mcneil_b.md5anim {
+		frame	6							sound_body	p2_mcn_swivel 
+		frame 39							sound_voice snd_speech_a
+	}
+	anim mcn_c							models/md5/cinematics/phobos2/mcneil_c.md5anim {
+		frame 18							sound_voice snd_speech_b
+	}
+	anim mcn_d							models/md5/cinematics/phobos2/mcneil_d.md5anim
+	anim mcn_e							models/md5/cinematics/phobos2/mcneil_e.md5anim {
+		frame	29							sound_body	p2_mnc_chair
+	}
+	anim mcn_f							models/md5/cinematics/phobos2/mcneil_f.md5anim {
+		frame	4							sound_body	player_sounds_footstep
+		frame	17							sound_body2	player_sounds_footstep
+		frame	27							sound_body	player_sounds_footstep
+		frame	35							sound_voice	snd_speech_d
+		frame	35							trigger		func_static_54066
+		frame	37							sound_body2	player_sounds_footstep
+		frame	56							sound_item	p2_mcn_screenbeep
+	}
+	anim mcn_g							models/md5/cinematics/phobos2/mcneil_g.md5anim {
+		
+	}
+	anim mcn_h							models/md5/cinematics/phobos2/mcneil_h.md5anim {
+		frame 14							sound_voice snd_speech_e
+		frame	17							sound_global	p2_mcn_loadingdata
+		frame 20							call map_phobos2::mcneil_viewer_start
+		frame 67							sound_voice snd_speech_f
+		frame	75							sound_global	p2_mcn_screenup
+		frame	92							sound_voice2	p2_mcn_dataup
+		frame	124							sound_voice2	p2_mcn_dataup
+		frame	156							sound_voice2	p2_mcn_dataup
+		frame	188							sound_voice2	p2_mcn_dataup
+	}
+	anim mcn_i							models/md5/cinematics/phobos2/mcneil_i.md5anim {
+		frame 10							sound_voice snd_speech_g
+
+	}
+	anim mcn_j							models/md5/cinematics/phobos2/mcneil_j.md5anim {
+
+		frame 18								sound_voice p2_mcneil_meeting2
+		frame 60							call map_phobos2::mcneil_viewer_maps
+		frame	60							sound_voice2	p2_mcn_screenup1
+		frame	91							sound_voice2	p2_mcn_screenup1
+		frame	113							sound_voice2	p2_mcn_screenup1
+		frame	138							sound_voice2	p2_mcn_screenup1
+		
+	}
+	anim mcn_k							models/md5/cinematics/phobos2/mcneil_k.md5anim {
+		frame 10							sound_voice p2_mcneil_meeting3
+		frame 40							call map_phobos2::open_mcneil_door
+		frame 120							call map_phobos2::mcneil_typing_show
+	}
+
+}
+
+entityDef phobos2_cinematic_mcneil {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"phobos2_cinematic_mcneil"
+	"anim"							"mcn_a"
+
+	"num_cinematics"				"11"
+	"anim1"							"mcn_a"
+	"anim2"							"mcn_b"
+	"anim3"							"mcn_c"
+	"anim4"							"mcn_d"
+	"anim5"							"mcn_e"
+	"anim6"							"mcn_f"
+	"anim7"							"mcn_g"
+	"anim8"							"mcn_h"
+	"anim9"							"mcn_i"
+	"anim10"						"mcn_j"
+	"anim11"						"mcn_k"
+
+	"cinematic"						"1"
+
+	"snd_speech_a"					"p2_mcneil_speech_01"
+	"snd_speech_b"					"p2_mcneil_speech_02a"
+	"snd_speech_c"					"p2_mcneil_speech_03"
+	"snd_speech_d"					"p2_mcneil_speech_04"
+	"snd_speech_e"					"p2_mcneil_speech_05"
+	"snd_speech_f"					"p2_mcneil_speech_06"
+	"snd_speech_g"					"p2_mcneil_speech_07"
+
+
+
+}
+
+
+//////////////////////////////////////////////
+//Player
+//////////////////////////////////////////////
+
+
+model phobos2_cinematic_player {
+
+	mesh								models/md5/cinematics/erebus5/e5_player.md5mesh
+
+	channel torso							()
+	channel legs							(*origin)
+
+	anim player_a							models/md5/cinematics/phobos2/player_a.md5anim {
+		frame	11							sound_body	player_sounds_footstep
+		frame	28							sound_body2	player_sounds_footstep
+		frame	43							sound_body	player_sounds_footstep
+	}
+	anim player_b							models/md5/cinematics/phobos2/player_b.md5anim
+	anim player_c							models/md5/cinematics/phobos2/player_c.md5anim
+	anim player_d							models/md5/cinematics/phobos2/player_d.md5anim
+	anim player_e							models/md5/cinematics/phobos2/player_e.md5anim
+	anim player_f							models/md5/cinematics/phobos2/player_f.md5anim
+	anim player_g							models/md5/cinematics/phobos2/player_g.md5anim
+	anim player_h							models/md5/cinematics/phobos2/player_h.md5anim
+	anim player_i							models/md5/cinematics/phobos2/player_i.md5anim
+	anim player_j							models/md5/cinematics/phobos2/player_j.md5anim
+	anim player_k							models/md5/cinematics/phobos2/player_k.md5anim {
+		frame	65							sound_body	player_sounds_footstep
+		frame	94							sound_body	player_sounds_footstep
+		frame	106							sound_body	player_sounds_footstep
+		frame	119							sound_body	player_sounds_footstep
+	}
+
+}
+
+entityDef phobos2_cinematic_player {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"phobos2_cinematic_player"
+	"anim"							"player_a"
+
+	"num_cinematics"				"11"
+	"anim1"							"player_a"
+	"anim2"							"player_b"
+	"anim3"							"player_c"
+	"anim4"							"player_d"
+	"anim5"							"player_e"
+	"anim6"							"player_f"
+	"anim7"							"player_g"
+	"anim8"							"player_h"
+	"anim9"							"player_i"
+	"anim10"						"player_j"
+	"anim11"						"player_k"
+
+	"cinematic"						"1"
+
+}
+
+
+
+model phobos2_mcneil_chair_cine {
+	mesh								models/md5/cinematics/phobos2/phobos2_mcneil_chair.md5mesh
+
+	channel torso							()
+	channel legs							(*origin)
+
+	anim chair_a							models/md5/cinematics/phobos2/chair_a.md5anim
+	anim chair_b							models/md5/cinematics/phobos2/chair_b.md5anim
+	anim chair_c							models/md5/cinematics/phobos2/chair_c.md5anim
+	anim chair_d							models/md5/cinematics/phobos2/chair_d.md5anim
+	anim chair_e							models/md5/cinematics/phobos2/chair_e.md5anim
+	anim chair_f							models/md5/cinematics/phobos2/chair_f.md5anim
+	anim chair_g							models/md5/cinematics/phobos2/chair_g.md5anim
+	anim chair_h							models/md5/cinematics/phobos2/chair_h.md5anim
+	anim chair_i							models/md5/cinematics/phobos2/chair_i.md5anim
+	anim chair_j							models/md5/cinematics/phobos2/chair_j.md5anim
+	anim chair_k							models/md5/cinematics/phobos2/chair_k.md5anim
+
+}
+
+entityDef phobos2_mcneil_chair_cine {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"phobos2_mcneil_chair_cine"
+	"anim"							"chair_a"
+
+	"num_cinematics"				"11"
+	"anim1"							"chair_a"
+	"anim2"							"chair_b"
+	"anim3"							"chair_c"
+	"anim4"							"chair_d"
+	"anim5"							"chair_e"
+	"anim6"							"chair_f"
+	"anim7"							"chair_g"
+	"anim8"							"chair_h"
+	"anim9"							"chair_i"
+	"anim10"						"chair_j"
+	"anim11"						"chair_k"
+
+	"cinematic"						"1"
+}

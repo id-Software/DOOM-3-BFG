@@ -1,0 +1,414 @@
+namespace map_erebus1
+{
+
+	void p_giveItems() {
+       	$player1.toggleBloom( 0 );
+		sys.wait( 2.5 );
+		$player1.selectWeapon( "weapon_pistol" );
+	}
+
+	void Setup_Objects()
+	{
+		$Lift_Part_01.speed (100);
+		$Lift_Part_02.speed (100);
+		$Lift_Part_03.speed (100);
+		$Lift_Part_04.speed (100);
+		$Lift_Part_05.speed (100);
+		$Lift_Part_06.speed (100);
+
+		$Lift_Part_01.setWorldOrigin ('896 6096 -208');
+		$Lift_Part_02.setWorldOrigin ('896 5904 368');
+		$Lift_Part_03.setWorldOrigin ('896 5712 944');
+		$Lift_Part_04.setWorldOrigin ('896 5520 1520');
+		$Lift_Part_05.setWorldOrigin ('896 5328 2096');
+		$Lift_Part_06.setWorldOrigin ('896 5136 2672');
+
+	}
+
+	void bigroom_entrance() {
+		$func_static_55090.startSoundShader ( "e1_bigentrance", SND_CHANNEL_VOICE );
+	}
+
+	void bigsting() {
+		$speaker_bigsting.startSoundShader ( "e1_bigsting", SND_CHANNEL_VOICE );
+	}
+
+	void portal_rotate()
+	{
+//		sys.print ("rotating portals");
+
+		$portal_rotate.time(8);
+		$portal_rotate2.time(8);
+		$portal_rotate.accelTime(5);
+		$portal_rotate2.accelTime(5);
+
+		$portal_rotate.rotateOnce ('720 0 0');
+		sys.wait(.2);
+		$portal_rotate2.rotateOnce ('-720 0 0');
+	}
+
+	void Lift_Part_01_Move()
+	{
+		while (1)
+		{
+			$Lift_Part_01.moveTo ($Lift_Endpoint);
+			sys.waitFor ($Lift_Part_01);
+
+			$Lift_Part_01.setWorldOrigin ('896 6096 -208');
+			sys.wait(.1);
+		}
+	}
+
+	void Lift_Part_02_Move()
+	{
+		while (1)
+		{
+			$Lift_Part_02.moveTo ($Lift_Endpoint);
+			sys.waitFor ($Lift_Part_02);
+
+			$Lift_Part_02.setWorldOrigin ('896 6096 -208');
+			sys.wait(.1);
+		}
+	}
+
+	void Lift_Part_03_Move()
+	{
+		while (1)
+		{
+			$Lift_Part_03.moveTo ($Lift_Endpoint);
+			sys.waitFor ($Lift_Part_03);
+
+			$Lift_Part_03.setWorldOrigin ('896 6096 -208');
+			sys.wait(.1);
+		}
+	}
+
+	void Lift_Part_04_Move()
+	{
+		while (1)
+		{
+			$Lift_Part_04.moveTo ($Lift_Endpoint);
+			sys.waitFor ($Lift_Part_04);
+
+			$Lift_Part_04.setWorldOrigin ('896 6096 -208');
+			sys.wait(.1);
+		}
+	}
+
+	void Lift_Part_05_Move()
+	{
+		while (1)
+		{
+			$Lift_Part_05.moveTo ($Lift_Endpoint);
+			sys.waitFor ($Lift_Part_05);
+
+			$Lift_Part_05.setWorldOrigin ('896 6096 -208');
+			sys.wait(.1);
+		}
+	}
+
+	void Lift_Part_06_Move()
+	{
+		while (1)
+		{
+			$Lift_Part_06.moveTo ($Lift_Endpoint);
+			sys.waitFor ($Lift_Part_06);
+
+			$Lift_Part_06.setWorldOrigin ('896 6096 -208');
+			sys.wait(.1);
+		}
+	}
+
+	void Lift_Start()
+	{
+		sys.trigger($Lift_Light_01);
+		sys.trigger($Lift_Light_01_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_02);
+		sys.trigger($Lift_Light_02_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_03);
+		sys.trigger($Lift_Light_03_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_04);
+		sys.trigger($Lift_Light_04_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_05);
+		sys.trigger($Lift_Light_05_Sound);
+		sys.wait(.2);
+
+		thread Lift_Part_01_Move();
+		thread Lift_Part_02_Move();
+		thread Lift_Part_03_Move();
+		thread Lift_Part_04_Move();
+		thread Lift_Part_05_Move();
+		thread Lift_Part_06_Move();
+
+		//turn on the Tripod light near the lift generator
+		$Lift_Trilight_Flare.show();
+		$Lift_Trilight.On();
+	}
+
+	void Lift_Stop()
+	{
+		sys.trigger($Lift_Light_05);
+		sys.trigger($Lift_Light_05_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_04);
+		sys.trigger($Lift_Light_04_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_03);
+		sys.trigger($Lift_Light_03_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_02);
+		sys.trigger($Lift_Light_02_Sound);
+		sys.wait(.2);
+		sys.trigger($Lift_Light_01);
+		sys.trigger($Lift_Light_01_Sound);
+
+		sys.killthread ( "map_erebus1::Lift_Part_01_Move" );
+		sys.killthread ( "map_erebus1::Lift_Part_02_Move" );
+		sys.killthread ( "map_erebus1::Lift_Part_03_Move" );
+		sys.killthread ( "map_erebus1::Lift_Part_04_Move" );
+		sys.killthread ( "map_erebus1::Lift_Part_05_Move" );
+		sys.killthread ( "map_erebus1::Lift_Part_06_Move" );
+
+		$Lift_Part_01.stopMoving();
+		$Lift_Part_02.stopMoving();
+		$Lift_Part_03.stopMoving();
+		$Lift_Part_04.stopMoving();
+		$Lift_Part_05.stopMoving();
+		$Lift_Part_06.stopMoving();
+
+		//turn off the Tripod light near the lift generator
+		$Lift_Trilight_Flare.hide();
+		$Lift_Trilight.Off();
+	}
+
+	void Gen1_Lights_Off()
+	{
+		sys.trigger($Gen1_Light_Sound_02);
+		$Gen1_Light_09.Off();
+		$Gen1_Light_10.Off();
+
+		sys.wait(.4);
+		sys.trigger($Gen1_Light_Sound_01);
+		$Gen1_Light_01.Off();
+		$Gen1_Light_02.Off();
+		$Gen1_Light_03.Off();
+		$Gen1_Light_04.Off();
+		$Gen1_Light_05.Off();
+		$Gen1_Light_06.Off();
+		$Gen1_Light_07.Off();
+		$Gen1_Light_08.Off();
+
+		sys.trigger($Gen1_Lift_Sound_Off);
+		$Gen1_Lift.move(DOWN, 72);
+
+	}
+
+	void Gen1_Lights_On()
+	{
+		sys.trigger($Gen1_Light_Sound_01);
+		$Gen1_Light_01.On();
+		$Gen1_Light_02.On();
+		$Gen1_Light_03.On();
+		$Gen1_Light_04.On();
+		$Gen1_Light_05.On();
+		$Gen1_Light_06.On();
+		$Gen1_Light_07.On();
+		$Gen1_Light_08.On();
+
+		sys.trigger($Gen1_Lift_Sound_Off);
+		$Gen1_Lift.move(UP, 72);
+
+		sys.wait(.4);
+		sys.trigger($Gen1_Light_Sound_02);
+		$Gen1_Light_09.On();
+		$Gen1_Light_10.On();
+	}
+
+	void Generator_01_Insert_Powercell_Sounds()
+	{
+		sys.trigger( $generator_01_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $generator_01_pcell_loop );
+	}
+
+	void Generator_01_Delete_Powercell_Sounds() {
+		sys.trigger( $generator_01_pcell_stop );
+		sys.trigger( $generator_01_pcell_loop );
+	}
+
+	void Generator_01_Powercell_Delete_Event()
+	{
+		thread Generator_01_Delete_Powercell_Sounds();
+		sys.wait( 1.0 );
+		$generator_01.setAnimation( "opening" );
+		sys.trigger( $generator_01 );
+		sys.trigger( $generator_01_pcell_openclose1 );
+		sys.trigger( $generator_01_pcell_idle1 );
+		sys.wait( 0.5 );
+		$powercell_01.hide();
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+
+		Gen1_Lights_Off();
+	}
+
+	void Generator_01_Powercell_Insert_Event()
+	{
+		thread Generator_01_Insert_Powercell_Sounds();
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$powercell_01.show();
+		sys.wait( 1.0 );
+		$generator_01.setAnimation( "closing" );
+		sys.trigger( $generator_01 );
+		sys.trigger( $generator_01_pcell_openclose1 );
+		sys.trigger( $generator_01_pcell_idle1 );
+		$exitlift_gui.guiNamedEvent( 1, "powercellDeviceStarted" );
+
+		Gen1_Lights_On();
+	}
+
+	void Generator_02_Insert_Powercell_Sounds()
+	{
+		sys.trigger( $generator_02_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $generator_02_pcell_loop );
+	}
+
+	void Generator_02_Delete_Powercell_Sounds() {
+		sys.trigger( $generator_02_pcell_stop );
+		sys.trigger( $generator_02_pcell_loop );
+	}
+
+	void Generator_02_Powercell_Delete_Event()
+	{
+		thread Generator_02_Delete_Powercell_Sounds();
+		sys.wait( 1.0 );
+		$generator_02.setAnimation( "opening" );
+		sys.trigger( $generator_02 );
+		sys.trigger( $generator_02_pcell_openclose1 );
+		sys.trigger( $generator_02_pcell_idle1 );
+		sys.wait( 0.5 );
+		$powercell_02.hide();
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+		thread Lift_Stop();
+	}
+
+	void Generator_02_Powercell_Insert_Event()
+	{
+		thread Generator_02_Insert_Powercell_Sounds();
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$powercell_02.show();
+
+		thread Lift_Start();
+
+		sys.wait( 1.0 );
+		$generator_02.setAnimation( "closing" );
+		sys.trigger( $trigger_radiochatter );
+		sys.trigger( $generator_02 );
+		sys.trigger( $generator_02_pcell_openclose1 );
+		sys.trigger( $generator_02_pcell_idle1 );
+		$exitlift_gui.guiNamedEvent( 1, "powercellDeviceStarted" );
+	}
+
+	void zombie_drop ()
+	{
+            $zombie1.unbind ();
+      	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Corpse pullunder
+	//
+	////////////////////////////////////////////////////
+	void dragaway_marine()
+	{
+		$dragaway_marine_mover.time (1.25);
+		$dragaway_marine_mover.accelTime (1);
+		$dragaway_marine_mover.decelTime (0);
+
+		$dragaway_marine_mover.moveTo ( $dragaway_marine_movepoint );
+		sys.waitFor ($dragaway_marine_mover);
+
+		$dragaway_marine.unbind();
+		$dragaway_marine_mover.remove ();
+		$dragaway_marine.remove ();
+	}
+
+	void main()
+	{
+		Setup_Objects();
+		sys.cacheSoundShader( "e1_bigentrance" );
+		sys.cacheSoundShader( "e1_bigsting" );
+		sys.cacheSoundShader( "guisounds_item" );
+		sys.cacheSoundShader( "e1_gui_intro" );
+
+	}
+	////////////////////////////////////////////////////
+	//
+	//	GRABBER INTRO
+	//
+	////////////////////////////////////////////////////
+
+	void InitImpLight()
+	{
+//		sys.print("INIT!");
+		$implight.bindToJoint($erebus1_cinematic_imp_2, "fireball", 1);
+		$implight.Off();
+	}
+	void ImpLightOn()
+	{
+//		sys.print("ON!");
+		$implight.On();
+	}
+	void ImpLightOff()
+	{
+//		sys.print("OFF!");
+		$implight.Off();
+	}
+
+	/// BLOOM //
+
+	//textures/smf/basic/white
+
+	void bloom_on() {
+		$player1.setBloomParms( 0, -0.01 );
+		$player1.toggleBloom( 1 );
+	}
+
+	void bloom_off() {
+       	$player1.toggleBloom( 0 );
+	}
+
+	void hide_white() {
+//		sys.print("hide white \n");
+		$func_static_doorbloom.hide();
+	}
+
+	void hide_introdoor_light() {
+		$jay_introdoor_light.Off();
+	}
+
+	void door_bloom() {
+		$player1.toggleBloom( 1 );
+		$player1.setBloomParms( 0, -0.015 );
+		setShaderTime( $func_static_doorbloom );
+		sys.wait( 2.0 );
+		$player1.setBloomParms( 0, -0.01 );
+	}
+	void door_bloom2() {
+		$func_static_doorbloom.hide();
+		$func_static_doorbloom2.show();
+		$player1.setBloomParms( 0, -0.015 );
+		$player1.toggleBloom( 1 );
+		setShaderTime( $func_static_doorbloom2 );
+		sys.wait( 1.0 );
+		$player1.setBloomParms( 0, -0.01 );
+	}
+
+
+}

@@ -1,0 +1,139 @@
+/***********************************************************************
+
+	monster_flying_forgotten.def
+
+***********************************************************************/
+
+export eric {
+	options -prefix FORGOTTEN_ - rotate 90 -sourcedir models/monsters/forgotten/cycles -destdir models/md5/monsters/forgotten
+
+	mesh	idle.mb -dest forgotten
+
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	charge1.mb
+	anim	charge2.mb
+	anim	idle.mb
+	anim	pain1.mb
+	anim	pain2.mb
+	anim	sight.mb
+
+}
+
+//
+// NOTE: charge1 is intended to be used leading into attack1....charge2 is intended to be used leading into attact2
+//
+
+
+model monster_flying_forgotten {
+	mesh							models/md5/monsters/forgotten/forgotten.md5mesh
+	channel torso					( *origin )
+
+	anim af_pose					models/md5/monsters/forgotten/idle.md5anim
+
+	anim initial					models/md5/monsters/forgotten/idle.md5anim
+	anim idle						models/md5/monsters/forgotten/idle.md5anim
+	anim fly						models/md5/monsters/forgotten/idle.md5anim
+	anim sight						models/md5/monsters/forgotten/sight.md5anim {
+		frame 12						sound_voice snd_sight
+	}
+	anim melee_attack1				models/md5/monsters/forgotten/attack1.md5anim {
+		frame 9							melee melee_forgotten
+	}
+	anim melee_attack2				models/md5/monsters/forgotten/attack2.md5anim {
+		frame 19						melee melee_forgotten
+	}
+	anim pain1						models/md5/monsters/forgotten/pain1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain2						models/md5/monsters/forgotten/pain2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim charge1					models/md5/monsters/forgotten/charge1.md5anim
+	anim charge2					models/md5/monsters/forgotten/charge2.md5anim
+
+}
+
+entityDef monster_flying_forgotten {
+	"inherit"					"monster_default"
+	"scriptobject"				"monster_flying_forgotten"
+	"model"						"monster_flying_forgotten"
+	"ragdoll"					"monster_demon_lost"
+	"size"						"24 24 24"
+	"use_aas"					"aas48"
+	"team"						"1"
+	"rank"						"0"
+	"health"					"20" // Changed from 30 by BJ on 12/30
+	"melee_range"				"20"
+	"fly_offset"				"-20"
+	"turn_rate"					"900"
+	"fly_speed"					"140"
+
+	"burnaway"					"0.25"
+
+	"damage_zone head"			"*head"
+
+	//Light that spawns in front of the lost soul
+	"forgotten_light"			"1"
+	"mtr_forgotten_light"		"lights/square"
+	"forgotten_light_radius"	"32"
+	"forgotten_light_offset"	"30 0 15"
+	"forgotten_light_color"		".8 .4 .15"
+
+	"def_attack"				"melee_lostsoul_charge"
+
+	"smokeparticleSystem"		"lost_flame1-head"
+	"smokeparticleSystem2"		"lost_flame2-head"
+	"smoke_pain"				"lostsoulpain.smoke"
+	"smoke_death"				"lostsouldeath.smoke"
+	//"particleBone"				"head"
+
+	"snd_sight"					"forgotten_sight"
+	"snd_chatter"				"forgotten_chatter"
+	"snd_chatter_combat"		"forgotten_chatter"
+	"snd_pain"					"forgotten_pain"
+	"snd_charge"				"forgotten_chargeloop"
+	"snd_chomp"					"forgotten_chomp"
+	"snd_death"					"forgotten_death"
+	"snd_ambient"				"forgotten_idleburn"
+}
+
+entityDef melee_forgotten {
+	// melee specific parameters
+	"snd_hit"						"forgotten_chomp"
+	"snd_miss"						"monster_demon_revenant_melee_miss"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"8" // Changed from 12 by BJ on 12/30
+	"mtr_blob"						"lostSoulSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"20" // Changed from 40 by BJ on 12/30
+	"kick_time"						"500"
+	"kick_amplitude"				"1"
+	"dv_time"						"200"
+}
+
+entityDef melee_forgotten_charge {
+	// melee specific parameters
+	"snd_hit"						"forgotten_chomp"
+	"snd_miss"						"monster_demon_revenant_melee_miss"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"10" // Changed from 12 by BJ on 12/30
+	"mtr_blob"						"lostSoulSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"60"
+	"kick_time"						"500"
+	"kick_amplitude"				"1"
+	"dv_time"						"200"
+}

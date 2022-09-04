@@ -1,0 +1,1219 @@
+/***********************************************************************
+
+ai_monster_hunter_invul.script
+
+monster_hunter_invul
+
+***********************************************************************/
+
+#define INVUL_STATE_WAIT			0
+#define INVUL_STATE_INVUL_SURVIVAL		1
+#define INVUL_STATE_INVUL			2
+#define INVUL_STATE_NORMAL			3
+	
+#define INVUL_ATTACK_RATE_NORMAL		3
+#define INVUL_ATTACK_RATE_INVUL			4
+#define INVUL_ATTACK_RATE_INVUL_SURVIVAL	0
+
+#define SURVIVAL_MODE_TIME			15
+
+
+#define ATTACK_GROUNDPOUND_NODAMAGE		ATTACK_SPECIAL1
+#define	ATTACK_GROUNDPOUND			ATTACK_SPECIAL2
+#define ATTACK_ELECTRIC_WALL			ATTACK_SPECIAL3
+
+
+#define BEGIN_HEALTH			5500
+#define STAGE_0_HEALTH			3900
+#define STAGE_1_HEALTH			2400
+#define STAGE_2_HEALTH			1000
+
+
+#define	ARCH_ELECTRIC_WALL_NUM			20
+#define	ARCH_ELECTRIC_WALL_SEPERATION		48
+#define	ARCH_ELECTRIC_WALL_RANGE		( ARCH_ELECTRIC_WALL_NUM * ARCH_ELECTRIC_WALL_SEPERATION )
+
+
+
+/***********************************************************************
+
+	monster_hunter_invul
+
+***********************************************************************/
+object monster_hunter_invul : monster_base {
+	
+	
+	float		nextAttack;
+	
+	string		range_attack_anim;
+	
+	float		survivalStart;
+	float		endInvul;
+	
+	//vector		invul_location;
+	
+	float		combatStage;
+	float		hunterState;
+	
+	
+		
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_ElectricWallAttack();
+	void		Torso_InvulRange_Short();
+	void		Torso_InvulRange_Tall();
+	void		Torso_Shockwave();
+	void		Torso_ShockwaveNoDamage();
+	void		Torso_SummonShell();
+	void		Torso_PreSummon();
+	void		Torso_ShutdownShell();
+	
+
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	
+	//Initialization
+	void		init();
+	void		destroy();
+	void		endInvuln();
+		
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+	void		state_Dead();
+	
+	//Invulnerability States
+	void		state_Invulnerability();
+	void		state_MoveToInvul();
+	
+	void		state_BeginInvulSurvival();
+	void		state_EndInvulSurvival();
+	
+	void		state_BeginInvul();
+	void		state_EndInvul();
+	
+	//Normal States
+	//void		state_Normal();
+	void		state_BeginNormal();
+	//void		state_EndNormal();
+	
+	//Combat States
+	void		state_CombatNormal();
+	void		state_CombatInvul();
+	void		state_CombatInvulSurvival();
+	
+	//Testing States
+	void		state_EasyKill();
+
+	// attacks
+	float		check_attacks();
+	float		check_attacks_normal();
+	float		check_attacks_invul();
+	float		check_attacks_invul_survival();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+	
+	void		combat_shockwave();
+	void		combat_electricwall();
+	void		combat_shockwave_nodamage();
+	//void		combat_invulrange_short();
+	//void		combat_invulrange_tall();
+	
+	
+	void 			spawn_electric_wall( vector org );
+	void 			electric_wall_loop();
+	void 			electric_wall();
+	
+	void			electric_effect_loop();
+	
+	float			attackCount;
+	float			attack0;
+	float			attack1;
+	float			attack2;
+	float			attack3;
+	float			attack4;
+	
+	void			ClearAttacks();
+	void			PushAttack(float attack);
+	float			SelectRandomAttack();
+	
+	
+};
+
+void monster_hunter_invul::ClearAttacks() {
+	attackCount = 0;
+}
+
+void monster_hunter_invul::PushAttack(float attack) {
+
+	if (attackCount == 0) {
+		attack0 = attack;
+	} else if (attackCount == 1) {
+		attack1 = attack;
+	} else if (attackCount == 2) {
+		attack2 = attack;
+	} else if (attackCount == 3) {
+		attack3 = attack;
+	} else if (attackCount == 4) {
+		attack4 = attack;
+	}
+	attackCount++;
+}
+
+float monster_hunter_invul::SelectRandomAttack() {
+	
+	if(attackCount == 0) {
+		return 0;
+	}
+	
+	float selectedAttack;
+	selectedAttack = sys.randomInt(attackCount);
+	
+	if (selectedAttack == 0) {
+		return attack0;
+	} else if (selectedAttack == 1) {
+		return attack1;
+	} else if (selectedAttack == 2) {
+		return attack2;
+	} else if (selectedAttack == 3) {
+		return attack3;
+	} else if (selectedAttack == 4) {
+		return attack4;
+	}
+	return 0;
+}
+
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_hunter_invul::Torso_Idle() {
+	
+	if(hunterState == INVUL_STATE_NORMAL) {
+		idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	} else {
+		idleAnim( ANIMCHANNEL_TORSO, "invuln_idle" );
+	}
+	
+	
+	eachFrame {
+		if ( AI_PAIN ) { 
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 ); 
+		}
+		waitFrame();
+	}
+}
+
+void monster_hunter_invul::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 6 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+			}
+		}
+		waitFrame();
+	}
+	
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+	
+	
+}
+
+void monster_hunter_invul::Torso_MeleeAttack() {
+
+	if(hunterState == INVUL_STATE_INVUL) {
+		playAnim( ANIMCHANNEL_TORSO, "invuln_melee_attack" );
+	} else {
+		playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+	}
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_hunter_invul::Torso_RangeAttack() {
+	string anim;
+	
+	disablePain();
+
+	
+	allowMovement( false );
+	if(range_attack_anim == "") {
+		sys.print("No range attack defined\n");
+		range_attack_anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+	}
+	playAnim( ANIMCHANNEL_TORSO, range_attack_anim );
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		lookAt( getEnemy(), 1 );	
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+
+void monster_hunter_invul::Torso_ElectricWallAttack() {
+	string anim;
+	
+	disablePain();
+
+	setShaderParm( 4, -sys.getTime() );
+	setSmokeVisibility( ALL_PARTICLES, 1 );
+	anim = chooseAnim( ANIMCHANNEL_TORSO, "electricwall_attack" );
+	if ( testAnimMoveTowardEnemy( anim ) ) {
+		playAnim( ANIMCHANNEL_TORSO, anim );
+	} else {
+		allowMovement( false );
+		anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+		playAnim( ANIMCHANNEL_TORSO, anim );
+	}
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "electricwall_attack" );
+	setSmokeVisibility( ALL_PARTICLES, 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_hunter_invul::Torso_InvulRange_Short() {
+	playAnim( ANIMCHANNEL_TORSO, "missile_low" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "invulrange_short" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_hunter_invul::Torso_InvulRange_Tall() {
+	playAnim( ANIMCHANNEL_TORSO, "missile_high" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "invulrange_tall" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+	
+void monster_hunter_invul::Torso_Shockwave() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "invuln_shockwave" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "shockwave" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+	
+}
+
+void monster_hunter_invul::Torso_ShockwaveNoDamage() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "invuln_shockwave_nodamage" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "shockwave" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+	
+}
+
+
+void monster_hunter_invul::Torso_SummonShell() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "invuln_summon" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "summonshell" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+	
+}
+
+void monster_hunter_invul::Torso_PreSummon() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "pre_summon" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "presummon" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+	
+}
+
+void monster_hunter_invul::Torso_ShutdownShell() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "invuln_shutdown" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "shutdownshell" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+	
+}
+
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_hunter_invul::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 4 ); }
+	}
+}
+
+void monster_hunter_invul::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 ); }
+	}
+}
+
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_invul::init
+=====================
+*/
+void monster_hunter_invul::init() {	
+	
+	endInvul = 0;
+	
+	combatStage = 0;
+	setDamageCap(STAGE_0_HEALTH);
+	setHealth(BEGIN_HEALTH);
+	
+	nextAttack	= 0;
+	
+	// Tatoos start off blue
+	setColor( 0.68, 0.95, 1 );
+	
+	setState( "state_Begin" );
+}
+
+void monster_hunter_invul::destroy() {
+}
+
+void monster_hunter_invul::endInvuln() {
+	endInvul = 1;
+}
+	
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_invul::state_Begin
+=====================
+*/
+void monster_hunter_invul::state_Begin() {
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );	
+	monster_begin();
+		
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_hunter_invul::state_Idle
+=====================
+*/
+void monster_hunter_invul::state_Idle() {
+	
+	setEnemy($player1);
+	//wait_for_enemy();
+	
+	//Start a thread to spawn some effects
+	//thread electric_effect_loop();
+	
+	setState("state_BeginNormal");
+}
+
+/*
+=====================
+monster_base::state_Dead
+=====================
+*/
+void monster_hunter_invul::state_Dead() {
+
+	//Todo: Probably need to warp to a point for the cutscene
+	//I am dead so for now just stop moving
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 8 );	
+	waitAction( "pain" );
+	
+	remove();
+}
+
+
+//Invulnerability States
+
+void monster_hunter_invul::state_Invulnerability() {
+	setState("state_MoveToInvul");
+}
+
+void monster_hunter_invul::state_MoveToInvul() {
+
+	//Let the level know we are moving to the center of the room to begin invulnerability
+	sys.trigger($movingToInvuln);
+	
+	//According to the level designers we want to make this last at least 3 seconds to
+	//let the level play some effects
+	//float waitTime;
+	//waitTime = 4;
+	
+	float startTime, currentTime;
+	startTime = sys.getTime();
+	currentTime = sys.getTime();
+	
+	//The hunter does not take damage while moving to the invulnerable point
+	ignoreDamage();
+	
+	//The hunter moves to the center of the room before he goes into invulnerability mode
+	entity ent;
+	ent = sys.getEntity("hunter_invul_location");
+	
+	moveToEntity(ent);
+	//while( ((currentTime-startTime) < waitTime) || !AI_MOVE_DONE && !AI_DEST_UNREACHABLE ) {
+	while( !AI_MOVE_DONE && !AI_DEST_UNREACHABLE ) {
+		currentTime = sys.getTime();
+		
+		//If the player gets in my way dole out a world of hurt
+		float canMelee;
+		canMelee = testMeleeAttack();
+		if ( AI_ENEMY_IN_FOV ) {
+			if ( canMelee ) {
+				combat_melee();
+			}
+		}
+		waitFrame();
+	}
+	
+	slideTo(ent.getOrigin(), 0);
+	
+	//Play little pre invuln animation to give the level some time
+	//animState( ANIMCHANNEL_TORSO, "Torso_PreSummon", 4 );
+	//waitAction( "presummon" );
+	
+	stopMove();
+	
+	
+
+	setState("state_BeginInvulSurvival");
+}
+
+void monster_hunter_invul::state_BeginInvulSurvival() {
+	hunterState = INVUL_STATE_INVUL_SURVIVAL;
+	
+	//Let the level know we are starting the invulnerability survival phase
+	sys.trigger($beginInvulnSurvival);
+	
+	//Hunter is invulnerable
+	ignoreDamage();
+	
+	stopMove();
+	
+	//Skin changing and summon
+	setSkin("skins/monsters/hunter_invul/invuln_summon_shell");
+	setShaderTime( self );
+
+	//Crossfade the color for the tatoos
+	//thread crossFadeEnt( self, '1 0.18 0', '0.68 0.95 1', 1 );
+	
+	//Play an animation when he goes into berserk mode
+	animState( ANIMCHANNEL_TORSO, "Torso_SummonShell", 4 );
+	waitAction( "summonshell" );
+	
+	setSkin("skins/monsters/hunter_invul/invuln_shell");
+	
+	survivalStart = sys.getTime();
+	
+	setState( "state_CombatInvulSurvival" );
+}
+
+void monster_hunter_invul::state_EndInvulSurvival() {
+	
+	//Let the level know we are going out of survival mode
+	sys.trigger($endSurvival);
+	
+	//Go into a move invulnerable mode
+	//setState( "state_BeginInvul" );
+
+	/*
+		Copied from EndInvul because he is going to skip the move around invul state
+		and go directly to vulnerable
+	*/
+	
+	stopMove();
+	
+	//Switching the skin back to normal
+	setSkin("skins/monsters/hunter_invul/invuln_shutdown_shell");
+	setShaderTime( self );
+
+	//Play an animation when he turns off his invuln shell
+	animState( ANIMCHANNEL_TORSO, "Torso_ShutdownShell", 4 );
+	waitAction( "shutdownshell" );
+	
+	if(combatStage >= 0) {
+		setSkin("skins/monsters/hunter_invul/invuln_no_shell2");
+	} else {
+		setSkin("skins/monsters/hunter_invul/invuln_no_shell");
+	}
+	
+	//Let the level know we are done with invulnerability
+	sys.trigger($beginNormal);
+	
+	setState( "state_BeginNormal");
+	
+}
+
+void monster_hunter_invul::state_BeginInvul() {
+	hunterState = INVUL_STATE_INVUL;
+	
+	//Hunter is invulnerable
+	ignoreDamage();
+	
+	allowMovement(true);
+	
+	//nextInvAttack = DelayTime( INVUL_ATTACK_RATE_INV );
+
+	//Already changed skin during survival mode
+	/*setSkin("skins/monsters/hunter_invul/invuln_summon_shell");
+	setShaderTime( self );
+
+	//Crossfade the color for the tatoos
+	//thread crossFadeEnt( self, '1 0.18 0', '0.68 0.95 1', 1 );
+
+	//Play an animation when he goes into berserk mode
+	animState( ANIMCHANNEL_TORSO, "Torso_SummonShell", 4 );
+	waitAction( "summonshell" );
+	
+	setSkin("skins/monsters/hunter_invul/invuln_shell");*/
+	
+	setState( "state_CombatInvul" );
+}
+
+void monster_hunter_invul::state_EndInvul() {
+	
+	stopMove();
+	
+	//Switching the skin back to normal
+	setSkin("skins/monsters/hunter_invul/invuln_shutdown_shell");
+	setShaderTime( self );
+
+	//Crossfade the color for the tatoos
+	//thread crossFadeEnt( self, '1 0.18 0', '0.68 0.95 1', 1 );
+
+	//Play an animation when he goes into berserk mode
+	animState( ANIMCHANNEL_TORSO, "Torso_ShutdownShell", 4 );
+	waitAction( "shutdownshell" );
+	
+	if(combatStage >= 0) {
+		setSkin("skins/monsters/hunter_invul/invuln_no_shell2");
+	} else {
+		setSkin("skins/monsters/hunter_invul/invuln_no_shell");
+	}
+	
+	//Let the level know we are done with invulnerability
+	sys.trigger($beginNormal);
+	
+	setState( "state_BeginNormal");
+}
+
+/*void monster_hunter_invul::state_Normal() {
+	setState("state_EndInvul");
+}*/
+
+//Normal States
+void monster_hunter_invul::state_BeginNormal() {
+
+	allowMovement(true);
+	
+	hunterState = INVUL_STATE_NORMAL;
+	
+	stopMove();
+	
+	//Turn on damage while in normal mode
+	allowDamage();
+	
+	setState( "state_CombatNormal" );
+}
+
+/*void monster_hunter_invul::state_EndNormal() {
+	
+	setState( "state_BeginInvul");
+}*/
+
+
+
+
+void monster_hunter_invul::state_CombatNormal() {
+	
+	//Reset So we attack immediate
+	nextAttack = 0;
+	
+	//Use the default combat code while in normal mode
+	setState("state_Combat");
+}
+
+void monster_hunter_invul::state_CombatInvul() {
+
+	//Reset So we attack immediate
+	nextAttack = 0;
+	
+	//Use the default combat code while in invul mode
+	setState( "state_Combat" );
+}
+
+void monster_hunter_invul::state_CombatInvulSurvival() {
+	
+	float currentTime;
+	float attack;
+	
+	stopMove();
+	
+	//Reset So we attack immediate
+	nextAttack = 0;
+	
+	eachFrame {
+		currentTime = sys.getTime();
+		
+		//Don't timeout...we will just wait until the level tells us to end
+		/*if((currentTime - survivalStart) > SURVIVAL_MODE_TIME) {
+			//We are done with survival mode
+			setState("state_EndInvulSurvival");
+		}*/
+		
+		
+		
+		if ( AI_ENEMY_VISIBLE ) {
+			lookAt( getEnemy(), 1 );
+		}
+		
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+	
+		faceEnemy();
+		
+		attack = check_attacks();
+		if(attack) {
+			do_attack(attack);
+		}	
+	}
+}
+
+/*
+=====================
+monster_hunter_invul::state_EasyKill
+Sets the hunter immediately into a state ready to die
+=====================
+*/
+void monster_hunter_invul::state_EasyKill() {
+	sys.print("Easy Kill!!!!\n");
+	combatStage = 3;
+	setHealth(1);
+	setDamageCap(-1);
+	setState("state_BeginNormal");
+}
+
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+float monster_hunter_invul::check_attacks() {
+
+	if(hunterState == INVUL_STATE_NORMAL) {
+		return check_attacks_normal();
+	} else if (hunterState == INVUL_STATE_INVUL) {
+		return check_attacks_invul();
+	} else if (hunterState == INVUL_STATE_INVUL_SURVIVAL) {
+		return check_attacks_invul_survival();
+	}
+	
+	return 0;
+}
+
+float monster_hunter_invul::check_attacks_normal() {
+	
+	//Check for damage so we know when it is time to jump out of normal mode
+	float health;
+	health = getHealth();
+	
+	if(combatStage == 0) {
+		if(health <= STAGE_0_HEALTH) {
+			//sys.print("Moving To Stage 2\n");
+			setHealth(STAGE_0_HEALTH);
+			setDamageCap(STAGE_1_HEALTH);
+			combatStage = 1;
+			setState("state_Invulnerability");
+		}
+	}
+	if(combatStage == 1) {
+		if(health <= STAGE_1_HEALTH) {
+			//sys.print("Moving To Stage 3\n");
+			setHealth(STAGE_1_HEALTH);
+			setDamageCap(STAGE_2_HEALTH);
+			combatStage = 2;
+			setState("state_Invulnerability");
+		}
+	}
+	if(combatStage == 2) {
+		if(health <= STAGE_2_HEALTH) {
+			//sys.print("Moving To Final Stage\n");
+			setHealth(STAGE_2_HEALTH);
+			setDamageCap(-1); //Let him die
+			combatStage = 3;
+			setState("state_Invulnerability");
+		}
+	}
+	
+	float attack_flags;
+	attack_flags = 0;
+	
+	float currentTime;
+	currentTime = sys.getTime();
+	
+	float canMelee;
+	canMelee = testMeleeAttack();
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+	
+	float playerHeight;
+	vector origin;
+	vector playerOrigin;
+	origin = getOrigin();
+	playerOrigin = $player1.getOrigin();
+	playerHeight = playerOrigin_z - origin_z;
+	
+	//The player is below me so pound the ground just to scare hime
+	if(!AI_ENEMY_IN_FOV && currentTime >= nextAttack ) {
+		if(playerHeight < -10) {
+			attack_flags |= ATTACK_GROUNDPOUND;		
+		}
+	}
+	
+	if(AI_ENEMY_IN_FOV ) {
+		
+		ClearAttacks();
+	
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			
+			string anim;
+			anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+			if ( testAnimMoveTowardEnemy( anim ) ) {
+				if ( canHitEnemyFromAnim( anim ) ) {
+					range_attack_anim = anim;
+					
+					PushAttack(ATTACK_MISSILE);
+				}
+			}
+		}
+		
+		if(( currentTime >= nextAttack ) && playerHeight <= 16) {
+			//sys.print("player height = " + playerHeight + "\n");
+			PushAttack(ATTACK_GROUNDPOUND);
+				
+		}
+		
+		attack_flags |= SelectRandomAttack();	
+	}
+	
+	return attack_flags;
+}
+
+float monster_hunter_invul::check_attacks_invul() {
+	
+	//Check if the level has told us it is time to end invuln mode
+	if(endInvul) {
+		endInvul = 0;
+		setState("state_EndInvul");
+	}
+	
+	float	attack_flags;
+	attack_flags = 0;
+	
+	float currentTime;
+	currentTime = sys.getTime();
+	
+	float canMelee;
+	canMelee = testMeleeAttack();
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+	
+	float playerHeight;
+	vector origin;
+	vector playerOrigin;
+	origin = getOrigin();
+	playerOrigin = $player1.getOrigin();
+	playerHeight = playerOrigin_z - origin_z;
+	
+	//The player is below me so pound the ground just to scare hime
+	if(!AI_ENEMY_IN_FOV && currentTime >= nextAttack ) {
+		if(playerHeight < -10) {
+			//sys.print("player height = " + playerHeight + "\n");
+			attack_flags |= ATTACK_GROUNDPOUND;		
+		}
+	}
+	
+	if(AI_ENEMY_IN_FOV ) {
+		
+		ClearAttacks();
+	
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			
+			string anim;
+			anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+			if ( testAnimMoveTowardEnemy( anim ) ) {
+				if ( canHitEnemyFromAnim( anim ) ) {
+					range_attack_anim = anim;
+					
+					PushAttack(ATTACK_MISSILE);
+				}
+			}
+		}
+		
+		if(( currentTime >= nextAttack ) && playerHeight <= 16) {
+			//sys.print("player height = " + playerHeight + "\n");
+			PushAttack(ATTACK_GROUNDPOUND);
+				
+		}
+		
+		attack_flags |= SelectRandomAttack();
+	}
+	
+	return attack_flags;
+}
+
+float monster_hunter_invul::check_attacks_invul_survival() {
+	float attack_flags;
+	attack_flags = 0;
+	
+	//Check if the level has told us it is time to end invuln mode
+	if(endInvul) {
+		endInvul = 0;
+		setState("state_EndInvulSurvival");
+	}
+	
+	
+	
+	//If the player is dumb enough to get close while invulnerable then give em a world of hurt
+	float canMelee;
+	canMelee = testMeleeAttack();
+	if ( AI_ENEMY_IN_FOV ) {
+		if ( canMelee ) {
+			attack_flags |= ATTACK_MELEE;
+		}
+	}
+	
+	float currentTime;
+	currentTime = sys.getTime();
+	
+	if(currentTime >= nextAttack) {
+	
+		ClearAttacks();
+	
+		//Add attacks that are always available
+		PushAttack(ATTACK_MISSILE);
+		PushAttack(ATTACK_ELECTRIC_WALL);
+		
+		//Add the groundpund attack if the player is near the ground level
+		float playerHeight;
+		vector origin;
+		vector playerOrigin;
+		origin = getOrigin();
+		playerOrigin = $player1.getOrigin();
+		playerHeight = playerOrigin_z - origin_z;
+		
+		attackCount = 2;
+		if(playerHeight <= 16) {
+			PushAttack(ATTACK_GROUNDPOUND);
+		}
+		
+		attack_flags |= SelectRandomAttack();
+	}
+	
+	return attack_flags;
+}
+
+void monster_hunter_invul::do_attack( float attack_flags ) {
+		
+	if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	} else if ( attack_flags & ATTACK_GROUNDPOUND_NODAMAGE) {
+		combat_shockwave_nodamage();
+	} else if ( attack_flags & ATTACK_GROUNDPOUND) {
+		combat_shockwave();
+	} else if ( attack_flags & ATTACK_ELECTRIC_WALL) {
+		combat_electricwall();
+	}
+	
+	if(hunterState == INVUL_STATE_NORMAL) {
+		nextAttack = DelayTime( INVUL_ATTACK_RATE_NORMAL );
+	} else if (hunterState == INVUL_STATE_INVUL) {
+		nextAttack = DelayTime( INVUL_ATTACK_RATE_INVUL );
+	} else if (hunterState == INVUL_STATE_INVUL_SURVIVAL) {
+		nextAttack = DelayTime( INVUL_ATTACK_RATE_INVUL_SURVIVAL );
+	} 
+}
+
+
+/*
+=====================
+monster_hunter_invul::combat_range
+=====================
+*/
+void monster_hunter_invul::combat_range() {
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+	waitAction( "range_attack" );
+}
+
+/*
+=====================
+monster_hunter_invul::combat_melee
+=====================
+*/
+void monster_hunter_invul::combat_melee() {
+	lookAt( getEnemy(), 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAt( getEnemy(), 1 );
+	stopMove();
+}
+
+/*void monster_hunter_invul::combat_electroblast() {
+	
+	
+	entity ent;
+	vector loc;
+	ent = sys.getEntity("hunter_invul_location");
+	loc = ent.getOrigin();
+	slideTo(loc, 0);
+	allowMovement(false);
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_ElectroBlast", 5 );
+	waitAction( "electroblast" );
+	
+	allowMovement(true);
+	
+}*/
+
+void monster_hunter_invul::combat_shockwave() {
+
+	/*entity ent;
+	vector loc;
+	ent = sys.getEntity("hunter_invul_location");
+	loc = ent.getOrigin();
+	slideTo(loc, 0);*/
+	
+	faceEnemy();
+	stopMove();
+	
+	allowMovement(false);
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Shockwave", 5 );
+	waitAction( "shockwave" );
+	
+	allowMovement(true);
+	
+}
+
+void monster_hunter_invul::combat_electricwall() {
+	
+	faceEnemy();
+	stopMove();
+	lookAtEnemy( 0 );
+
+	animState( ANIMCHANNEL_TORSO, "Torso_ElectricWallAttack", 4 );
+	waitAction( "electricwall_attack" );
+}
+
+void monster_hunter_invul::combat_shockwave_nodamage() {
+
+	/*entity ent;
+	vector loc;
+	ent = sys.getEntity("hunter_invul_location");
+	loc = ent.getOrigin();
+	slideTo(loc, 0);*/
+	
+	faceEnemy();
+	stopMove();
+	
+	allowMovement(false);
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_ShockwaveNoDamage", 5 );
+	waitAction( "shockwave" );
+	
+	allowMovement(true);
+}
+
+void monster_hunter_invul::combat_invulrange_short() {
+	//sys.print("Range Attack Short\n");
+	allowMovement(false);
+	animState( ANIMCHANNEL_TORSO, "Torso_InvulRange_Short", 5 );
+	waitAction( "invulrange_short" );
+	allowMovement(true);
+
+}
+
+void monster_hunter_invul::combat_invulrange_tall() {
+	//sys.print("Range Attack Tall\n");
+	allowMovement(false);
+	animState( ANIMCHANNEL_TORSO, "Torso_InvulRange_Tall", 5 );
+	waitAction( "invulrange_tall" );
+	allowMovement(true);
+}
+
+
+void monster_hunter_invul::spawn_electric_wall( vector org ) {
+	entity ent;
+	vector ang;
+
+	ang_y = sys.random( 360 );
+	ent = sys.spawn( "invul_electricwall" );
+	ent.setKey( "cinematic_remove", "1" );	// make sure it gets removed in cinematics
+	ent.setShaderParm( 4, -sys.getTime() );
+	ent.setShaderParm( 5, sys.random( 1 ) );
+	ent.setOrigin( org );
+	ent.setAngles( ang );
+	ent.setOwner( self );
+	ent.disable();
+	sys.wait( 0.2 );
+	ent.enable();
+	sys.wait( 0.5 );
+	ent.disable();
+	sys.wait( 2.0 );
+	ent.remove();
+}
+
+void monster_hunter_invul::electric_wall_loop() {
+	float	i;
+	vector	dir;
+	vector	ang;
+	vector	pos;
+	float	frac;
+
+	ang = getAngles();
+	dir = sys.angToForward( ang ) * ARCH_ELECTRIC_WALL_SEPERATION;
+	pos = getOrigin();
+	for( i = 0; i < ARCH_ELECTRIC_WALL_NUM; i++ ) {
+		pos_z += 48;
+		if ( sys.trace( pos, pos + dir, '-8 -8 0', '8 8 16', MASK_SOLID, self ) < 1 ) {
+			break;
+		}
+		pos = pos + dir;
+		frac = sys.trace( pos, pos - '0 0 96', '-8 -8 0', '8 8 16', MASK_SOLID, self );
+		if ( frac == 1 ) {
+			break;
+		}
+		pos_z -= 96 * frac;
+		thread spawn_electric_wall( pos );
+		sys.wait( 0.075 );
+	}
+}
+
+
+void monster_hunter_invul::electric_wall() {
+	thread electric_wall_loop();
+}
+
+#define EFFECT_DELAY 2
+
+void monster_hunter_invul::electric_effect_loop() {
+	
+	float currentTime;
+	
+	float nextEffect;
+	nextEffect = 0;
+	
+	/*while(1) {
+		if(hunterState == INVUL_STATE_INVUL_SURVIVAL || hunterState == INVUL_STATE_INVUL) {
+			currentTime = sys.getTime();
+			if(currentTime >= nextEffect) {
+				
+				float selectedEffect;
+				entity ent;
+				
+				selectedEffect = sys.randomInt(2);
+				
+				//sys.print("Playing Effect " + selectedEffect + "\n");
+				if(selectedEffect == 0) {
+					sys.setSpawnArg( "fx", "fx/hunter/invulnerability/lightning_fx1" );
+				} else {
+					sys.setSpawnArg( "fx", "fx/hunter/invulnerability/lightning_fx2" );
+				}
+				
+				sys.setSpawnArg( "start", "1" );
+				ent = sys.spawn( "func_fx" );
+				
+				ent.setOrigin( getOrigin() );
+				
+				nextEffect = DelayTime(EFFECT_DELAY);
+			}
+		}
+		waitFrame();
+	}*/
+}

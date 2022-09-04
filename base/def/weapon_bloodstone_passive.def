@@ -1,0 +1,114 @@
+/***********************************************************************
+
+ Bloodstone Passive
+
+***********************************************************************/
+
+export fredorb {
+	// view model blood_orb
+	options -prefix ART_ -keep flash
+	mesh	models/weapons/artifact/cycles/makemesh.mb -dest models/md5/weapons/blood_orb_view/new/bloodorb
+	anim	models/weapons/artifact/cycles/idle_normal.mb -dest models/md5/weapons/blood_orb_view/new/idle_normal
+	anim	models/weapons/artifact/cycles/idle_charged.mb -dest models/md5/weapons/blood_orb_view/new/idle_charged
+	anim	models/weapons/artifact/cycles/raise.mb -range 1 15 -dest models/md5/weapons/blood_orb_view/new/raise
+	anim	models/weapons/artifact/cycles/raise.mb -range 15 20 -dest models/md5/weapons/blood_orb_view/new/putaway
+	anim	models/weapons/artifact/cycles/fire.mb -dest models/md5/weapons/blood_orb_view/new/fire
+	anim	models/weapons/artifact/cycles/absorb.mb -range 1 15 -dest models/md5/weapons/blood_orb_view/new/absorb
+	anim	models/weapons/artifact/cycles/idle_inactive.mb -dest models/md5/weapons/blood_orb_view/new/idle_inactive
+}
+
+export jayorbworld {
+
+	options -prefix PLAYER_ARTIFACT_ -keep ATTACHER -rename ATTACHER origin -clearorigin
+
+	mesh	models/characters/player_character/cycles/artifact_w_idle.mb -dest models/md5/weapons/artifact_world/artifactworld
+	anim	models/characters/player_character/cycles/artifact_w_idle.mb -dest models/md5/weapons/artifact_world/artifactworld_idle
+
+}
+
+model worldmodel_bloodstone_passive {
+	mesh						models/md5/weapons/artifact_world/artifactworld.md5mesh
+
+	anim raise 					models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+	anim idle 					models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+	anim aim					models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+	anim fire					models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+	anim reload					models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+	anim noammo					models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+	anim putaway				models/md5/weapons/artifact_world/artifactworld_idle.md5anim
+}
+
+model viewmodel_bloodstone_passive {
+	mesh						models/md5/weapons/blood_orb_view/new/bloodorb.md5mesh
+	offset						( 1 3 .5 )
+	skin						skins/weapons/artifact_normal.skin
+
+	anim raise					models/md5/weapons/blood_orb_view/new/raise.md5anim {
+		frame 1						sound_body artifact_raise
+		frame 1						skin skins/weapons/artifact_charged.skin
+		frame 1						call setShaderTime
+	}
+	anim raise_petrified		models/md5/weapons/blood_orb_view/new/raise.md5anim {
+		frame 1						sound_body artifact_raise
+		frame 1						skin skins/weapons/artifact_petrified.skin
+	}
+	anim putaway				models/md5/weapons/blood_orb_view/new/putaway.md5anim
+
+	anim idle 					models/md5/weapons/blood_orb_view/new/idle_normal.md5anim {
+		frame 1						sound_weapon artifact_idle
+	}
+	anim idle_charged			models/md5/weapons/blood_orb_view/new/idle_charged.md5anim {
+		frame 1						sound_weapon artifact_idlecharged
+	}
+	anim idle_petrified			models/md5/weapons/blood_orb_view/new/idle_inactive.md5anim
+
+	anim absorb					models/md5/weapons/blood_orb_view/new/absorb.md5anim
+	anim fire					models/md5/weapons/blood_orb_view/new/fire.md5anim {
+		frame 1						sound_weapon artifact_fire
+		frame 12					object_call Launch
+	}
+}
+
+entityDef weapon_bloodstone_passive {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Artifact"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"_DEFAULT"
+	"model_view"				"viewmodel_bloodstone_passive"
+	"model_world" 				"worldmodel_bloodstone_passive"
+	"joint_attach"				"SOUL_ATTACHER"
+
+	"inv_name"					"#str_00100186"
+	"inv_weapon"				"weapon_bloodstone_passive"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_11"
+
+	"inv_desc"					"#str_00100213"
+	"display_name"				"#str_00100209"
+	"pdaIcon"					"guis/assets/hud/icons/shotgun_new.tga"	
+	"hudIcon"					"guis/assets/hud/icons/bloodorbw.tga"
+
+	"weapon_scriptobject"		"weapon_bloodstone_passive"
+
+	"ammoType"					"ammo_bloodstone"
+	"ammoRequired"				"1000"
+	"clipSize"					"0"
+	"lowAmmo"					"-1"
+
+	"mtr_flashShader"			"lights/d3xp/lights/bloodstonelight"
+	"flashColor"				"1 1 1"
+	"flashTime"					"0.016"
+	"flashRadius"				"400"
+	"silent_fire"				"1"
+	"flashPointLight"			"1"
+
+	"snd_chargewhisper"			"artifact_charge_whisper"
+	"snd_idleloop"				"artifact_idleloop"
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+}

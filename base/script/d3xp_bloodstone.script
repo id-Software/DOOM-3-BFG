@@ -1,0 +1,180 @@
+/*
+To use this script you will need 4 objects named a specific way
+
+MyName_trigger - A trigger_multiple (EX. BloodstoneWall_trigger) that defines the area
+in which the player can have the bloodstone selected and cause the wall to fade away.
+
+MyName_model - A func_static (EX. BloodstoneWall_model) which is the object that fades in and out.
+
+MyName_clip - A func_static (EX. BloodstoneWall_clip) that allows the player to pass once
+the fading out is completely done.
+
+MyName_hurt - A trigger_hurt (EX. BloodstoneWall_hurt) which kills the player if they are within the
+clip brush when it turns back on.
+
+For every fading bloodstone object call this function with the tread command passing the base name
+of your objects
+
+EX:
+
+	void main()
+	{
+		// ... other code
+
+		thread bloodstoneWallLoop( "bloodstonewall1" );
+		thread bloodstoneWallLoop( "bloodstonewall2" );
+		thread bloodstoneWallLoop( "secret_by_console" );
+
+		// ... other code
+	}
+
+*/
+void bloodstoneWallLoop( string strName )
+{
+	entity eTrigger;
+	entity eModel;
+	entity eClip;
+//	entity eHurt;
+
+	float bWallState = 1;
+	float bWallTrans = 0;
+
+	string strTemp;
+
+	strTemp = strName + "_trigger";
+	eTrigger = sys.getEntity( strTemp );
+
+	strTemp = strName + "_model";
+	eModel = sys.getEntity( strTemp );
+
+	strTemp = strName + "_clip";
+	eClip = sys.getEntity( strTemp );
+
+//	strTemp = strName + "_hurt";
+//	eHurt = sys.getEntity( strTemp );
+
+//	eHurt.Off();
+
+	while( true )
+	{
+		sys.wait( 0.25 );
+
+		if( bWallTrans == 0 )
+		{
+			if( $player1.touches( eTrigger ) )
+			{
+				if( bWallState == 1 && $player1.getCurrentWeapon() == "weapon_bloodstone_passive" )
+				{
+					// Fade out
+					bWallTrans = 1;
+
+					eModel.setShaderParm( 7, sys.getTime() );
+					eModel.setShaderParm( 8, 0 );
+
+					sys.wait( 3.0 );
+
+					bWallState = 0;
+					bWallTrans = 0;
+
+//					eHurt.Off();
+					eClip.hide();
+				}
+				else if( bWallState == 0 && $player1.getCurrentWeapon() != "weapon_bloodstone_passive" )
+				{
+					// Fade in
+					bWallTrans = 1;
+
+					eModel.setShaderParm( 8, sys.getTime() );
+					eModel.setShaderParm( 7, 0 );
+
+					eClip.show();
+//					eHurt.On();
+
+					sys.wait( 3.0 );
+
+					bWallState = 1;
+					bWallTrans = 0;
+				}
+			}
+			else
+			{
+				if( bWallState == 0 )
+				{
+					// Fade in
+					bWallTrans = 1;
+
+					eModel.setShaderParm( 8, sys.getTime() );
+					eModel.setShaderParm( 7, 0 );
+
+					eClip.show();
+//					eHurt.On();
+
+					sys.wait( 3.0 );
+
+					bWallState = 1;
+					bWallTrans = 0;
+				}
+			}
+		}
+	}
+}
+
+
+/*
+This wraps up the logic for triggering or calling scripts when the player has the bloodstone
+selected and is standing within a trigger field
+
+eTriggerField - The name of the trigger_multiple that defines the bloodstone activated area
+
+eActivateTarget - Fired off once when the player enters the area with the bloodstone exposed.
+This can be any type of object that can be triggered in the game.  If you wish to call a script
+a trigger_relay with the call key value pair set works well.
+
+eActivateTarget - Fired off once when the player exits the area or deselectes the bloodstone.
+This can be any type of object that can be triggered in the game.  If you wish to call a script
+a trigger_relay with the call key value pair set works well.
+*/
+void bloodstoneTriggerLoop( entity eTriggerField, entity eActivateTarget, entity eDeactivateTarget )
+{
+	float bActivated = 0;
+	float bRunning = 0;
+
+	while( true )
+	{
+		sys.wait( 0.5 );
+
+		if( bRunning == 0 )
+		{
+			if( $player1.touches( eTriggerField ) )
+			{
+				if( bActivated == 0 && $player1.getCurrentWeapon() == "weapon_bloodstone_passive" )
+				{
+					sys.print( "Activating\n" );
+					bRunning = 1;
+					sys.trigger( eActivateTarget );
+					bActivated = 1;
+					bRunning = 0;
+				}
+				else if( bActivated == 1 && $player1.getCurrentWeapon() != "weapon_bloodstone_passive" )
+				{
+					sys.print( "Deactivating\n" );
+					bRunning = 1;
+					sys.trigger( eDeactivateTarget );
+					bActivated = 0;
+					bRunning = 0;
+				}
+			}
+			else
+			{
+				if( bActivated == 1 )
+				{
+					sys.print( "Deactivating\n" );
+					bRunning = 1;
+					sys.trigger( eDeactivateTarget );
+					bActivated = 0;
+					bRunning = 0;
+				}
+			}
+		}
+	}
+}

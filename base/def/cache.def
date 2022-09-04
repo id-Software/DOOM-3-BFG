@@ -1,0 +1,8 @@
+
+//
+// things we don't cache elsewhere right now
+//
+
+entityDef preCacheExtras {
+	"def_item_powercell"	"item_powercell"
+}

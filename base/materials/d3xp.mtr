@@ -1,0 +1,328 @@
+
+//************************************************************************************************
+//************************************************************************************************
+//MODELS
+//************************************************************************************************
+//************************************************************************************************
+
+models/weapons/artifact/artifact_tech
+{
+	renderbump		-size 512 512 -aa 2 -colormap models/weapons/artifact/artifact_tech_local.tga models/weapons/artifact/work/artifact_tech_hp.lwo
+	noselfshadow
+	noshadows
+	bumpmap			addnormals (models/weapons/artifact/artifact_tech_local, heightmap (models/weapons/artifact/artifact_tech_bmp,4 ) )
+    {
+		blend		diffusemap
+		map			models/weapons/artifact/artifact_tech
+		alphatest	.5
+	}
+	specularmap		models/weapons/artifact/artifact_tech_s
+}
+
+textures/sfx/spotlight2
+{
+	qer_editorimage	textures/sfx/spotlight2
+	translucent
+	nonsolid
+	{
+		blend		add
+		map			textures/sfx/spotlight2
+		colored
+	}
+}
+
+textures/caves/d3xp_door2
+{
+	qer_editorimage	textures/caves/d3xp_door2
+	bumpmap			models/mapobjects/hellhole/d3xp_door2_local
+	diffusemap		models/mapobjects/hellhole/d3xp_door2
+	specularmap		models/mapobjects/hellhole/d3xp_door2_s
+}
+
+models/mapobjects/hellhole/d3xp_orbholder
+{
+	renderbump  -size 512 512 -aa 2 -trace .2 models/mapobjects/hellhole/d3xp_orbholder_local.tga models/mapobjects/hellhole/work/d3xp_orbholder_hp.lwo
+	bumpmap		models/mapobjects/hellhole/d3xp_orbholder_local
+	diffusemap	models/mapobjects/hellhole/d3xp_orbholder
+	specularmap	models/mapobjects/hellhole/d3xp_orbholder_s
+}
+
+models/mapobjects/hellhole/d3xp_arch
+{
+	renderbump  -size 256 512 -aa 2 models/mapobjects/hellhole/d3xp_arch_local.tga models/mapobjects/hellhole/work/d3xp_arch_hp.lwo
+	bumpmap		models/mapobjects/hellhole/d3xp_arch_local
+	diffusemap	models/mapobjects/hellhole/d3xp_arch
+	specularmap	models/mapobjects/hellhole/d3xp_arch_s
+}
+
+models/mapobjects/hellhole/d3xp_shrinedeco2
+{
+	renderbump  -size 256 256 -aa 2 models/mapobjects/hellhole/d3xp_shrinedeco2_local.tga models/mapobjects/hellhole/work/d3xp_shrinedeco2_hp.lwo
+	bumpmap		models/mapobjects/hellhole/d3xp_shrinedeco2_local
+	diffusemap	models/mapobjects/hellhole/d3xp_shrinedeco2
+	specularmap	models/mapobjects/hellhole/d3xp_shrinedeco2_s
+}
+
+models/mapobjects/hellhole/d3xp_shrinedeco
+{
+	renderbump  -size 512 512 -aa 2 -colormap models/mapobjects/hellhole/d3xp_shrinedeco_local.tga models/mapobjects/hellhole/work/d3xp_shrinedeco_hp.lwo
+	{
+		blend	bumpmap
+		map		models/mapobjects/hellhole/d3xp_shrinedeco_local
+	}
+	diffusemap	models/mapobjects/hellhole/d3xp_shrinedeco
+	specularmap	models/mapobjects/hellhole/d3xp_shrinedeco_s
+}
+
+models/mapobjects/hellhole/d3xp_shrine
+{
+	renderbump  -size 256 512 -aa 2 -colormap models/mapobjects/hellhole/d3xp_shrine_local.tga models/mapobjects/hellhole/work/d3xp_shrine_hp.lwo
+	{
+		blend	bumpmap
+		map		models/mapobjects/hellhole/d3xp_shrine_local
+	}
+	diffusemap	models/mapobjects/hellhole/d3xp_shrine
+	specularmap	models/mapobjects/hellhole/d3xp_shrine_s
+}
+
+models/mapobjects/hellhole/d3xp_pillar
+{
+	renderbump  -size 256 512 -aa 2 -colormap models/mapobjects/hellhole/d3xp_pillar_local.tga models/mapobjects/hellhole/work/d3xp_pillar_hp.lwo
+	{
+		blend	bumpmap
+		map		addnormals (models/mapobjects/hellhole/d3xp_pillar_local, heightmap (models/mapobjects/hellhole/d3xp_pillar_bmp.tga, 2) )
+	}
+	diffusemap	models/mapobjects/hellhole/d3xp_pillar
+	specularmap	models/mapobjects/hellhole/d3xp_pillar_s
+}
+
+
+models/mapobjects/hellhole/d3xp_deco4
+{
+	renderbump  -size 256 512 -aa 2 -colormap models/mapobjects/hellhole/d3xp_deco4_local.tga models/mapobjects/hellhole/work/d3xp_deco4_hp.lwo
+	bumpmap		models/mapobjects/hellhole/d3xp_deco4_local
+	//{
+	//	blend	bumpmap
+	//	map		addnormals (models/mapobjects/hellhole/d3xp_deco4_local, heightmap (models/mapobjects/hellhole/d3xp_deco4_bmp, 4) )
+	//}
+	diffusemap	models/mapobjects/hellhole/d3xp_deco4
+	specularmap	models/mapobjects/hellhole/d3xp_deco4_s
+}
+
+models/mapobjects/hellhole/d3xp_deco1
+{
+	noselfshadow
+	renderbump  -size 512 512 -aa 2 -colormap models/mapobjects/hellhole/d3xp_deco1_local.tga models/mapobjects/hellhole/work/d3xp_deco1_hp.lwo
+	bumpmap		models/mapobjects/hellhole/d3xp_deco1_local
+	//{
+	//	blend	bumpmap
+	//	map		addnormals (models/mapobjects/hellhole/d3xp_deco1_local, heightmap (models/mapobjects/hellhole/d3xp_deco1_bmp, 4) )
+	//}
+	diffusemap	models/mapobjects/hellhole/d3xp_deco1
+	specularmap	models/mapobjects/hellhole/d3xp_deco1_s
+}
+
+models/mapobjects/hellhole/d3xp_pillartop
+{
+	noselfshadow
+	renderbump  -size 128 128 -aa 2 -colormap models/mapobjects/hellhole/d3xp_pillartop_local.tga models/mapobjects/hellhole/work/d3xp_pillartop_hp.lwo
+	bumpmap		models/mapobjects/hellhole/d3xp_pillartop_local
+	diffusemap	models/mapobjects/hellhole/d3xp_pillartop
+	specularmap	models/mapobjects/hellhole/d3xp_pillartop_s
+}
+
+//************************************************************************************************
+//************************************************************************************************
+//TEXTURES
+//************************************************************************************************
+//************************************************************************************************
+
+
+textures/caves/d3xp_shrinetrim
+{
+	stone
+	qer_editorimage		textures/caves/d3xp_shrinetrim
+	bumpmap				textures/caves/d3xp_shrinetrim_local
+	diffusemap			textures/caves/d3xp_shrinetrim
+	specularmap			textures/caves/d3xp_shrinetrim_s
+}
+
+textures/rock/sharprock_red
+{
+	stone
+	bumpmap				textures/caves/rubble_local
+	{
+		blend			diffusemap
+		map				textures/caves/rubble
+		red				.85
+		green			.7
+		blue			.7
+	}
+	//qer_editorimage		textures/rock/sharprock_red
+	//stone
+	//bumpmap				addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) )
+	//diffusemap			textures/rock/sharprock_red
+	//{
+	//	blend			specularmap
+	//	map				textures/rock/sharprock_red
+	//	rgb				.4
+	//}
+}
+
+textures/rock/layerrock
+{
+	qer_editorimage	textures/rock/layerrock
+	bumpmap			textures/rock/layerrock_local
+	diffusemap		textures/rock/layerrock_d
+	specularmap		textures/rock/layerrock_s
+}
+
+textures/caves/rubble_sharprock
+{
+	qer_editorimage	textures/caves/rubble_sharprock
+	stone
+	{
+		blend 		bumpmap
+		map			textures/caves/rubble_local
+		scale		3,3
+	}
+	{
+		blend 		diffusemap
+		map			textures/caves/rubble
+		scale		3,3
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map			addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) )
+	}
+	{
+		blend		diffusemap
+		map			textures/rock/sharprock
+		inverseVertexColor
+	}
+	{
+		blend		specularmap
+		map			textures/rock/sharprock_s
+		inverseVertexColor
+	}
+}
+
+textures/caves/sbricks6
+{
+	qer_editorimage	textures/caves/sbricks6
+	{
+		blend		bumpmap
+		map			addnormals (textures/caves/sbricks6_local.tga, heightmap (textures/caves/sbricks6_bmp.tga, 4) )
+	}
+    //bumpmap			textures/caves/sbricks6_local
+	diffusemap		textures/caves/sbricks6_d
+	specularmap		textures/caves/sbricks6_s
+}
+
+textures/caves/sbricks5
+{
+	qer_editorimage	textures/caves/sbricks5
+	bumpmap		textures/caves/sbricks5_local
+	diffusemap		textures/caves/sbricks5_d
+	specularmap		textures/caves/sbricks5_s
+}
+
+textures/caves/d3xp_shrine_roof
+{
+	qer_editorimage	textures/caves/d3xp_shrine_roof
+	bumpmap			textures/caves/d3xp_shrine_roof_local
+	diffusemap		textures/caves/d3xp_shrine_roof_d
+	specularmap		textures/caves/d3xp_shrine_roof_s
+}
+
+
+// DHM - slime water
+textures/liquid/erebus5_slime
+{
+	qer_editorimage textures/hell/lava1movenoshadow.tga
+	nonsolid
+	noimpact
+	noshadows
+	water
+	deform particle slimepuffs
+	{
+		blend			bumpmap
+		map				addnormals( textures/hell/lava1_local.tga, heightmap( textures/pat/slime1.tga, 20 ) )
+		translate	time * 0 , time * -0.02
+	}
+	{
+		blend			diffusemap
+		map		textures/pat/slimescroll
+		translate	time * 0 , time * -0.02
+	}
+	{
+		map		textures/pat/slimescroll
+		maskcolor
+		translate	time * 0 , time * -0.02
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+		translate	time * -0.02 , time * 0.05
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map 		textures/pat/slime1fx.tga
+		rgb		fireballtable[ time * .05 ]
+		translate	time * .01 , time * -0.025
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map 		textures/pat/slime1fx.tga
+		rgb		fireballtable[ time *.25 ]
+		translate	time * -.02 , 1
+	}
+}
+
+// DHM - Invisible slime water volume to use under curve patches
+textures/liquid/invisible_slime
+{
+	qer_editorimage textures/common/slick.tga
+	nonsolid
+	noimpact
+	noshadows
+	water
+}
+
+
+//************************************************************************************************
+//************************************************************************************************
+//WEAPONS
+//************************************************************************************************
+//************************************************************************************************
+
+models/weapons/doublebarrel/doublebarrel
+{
+	noselfshadow
+	renderbump  -size 1024 512 -aa 2 -trace .05 models/weapons/doublebarrel/doublebarrel_local.tga models/weapons/doublebarrel/work/doublebarrel_hp.lwo
+	bumpmap		addnormals (models/weapons/doublebarrel/doublebarrel_local, heightmap (models/weapons/doublebarrel/doublebarrel_bmp.tga, 2) )
+	{
+		blend	diffusemap
+		map		models/weapons/doublebarrel/doublebarrel
+		rgb		.3
+	}
+	specularmap	models/weapons/doublebarrel/doublebarrel_s
+
+}
+
+models/weapons/doublebarrel/doublebarrel_invis
+{
+	noShadows
+	noselfShadow
+	unsmoothedTangents
+	translucent
+
+    bumpmap addnormals (models/weapons/doublebarrel/doublebarrel_local, heightmap (models/weapons/doublebarrel/doublebarrel_bmp.tga, 2) )
+	{
+		blend specularmap
+		map	models/invis_s.tga
+		translate	0, time * 0.6
+	}
+
+}

@@ -1,0 +1,93 @@
+/***********************************************************************
+
+ai_monster_demon_trite_jump.script
+
+monster_demon_trite_jump
+
+***********************************************************************/
+
+#define TRITE_JUMP_RUNDISTANCE		192
+#define TRITE_JUMP_WALKTURN			65
+#define TRITE_JUMP_LEAP_RATE			2
+#define TRITE_JUMP_DODGE_RATE		2
+#define TRITE_JUMP_LEAP_RANGE_MIN	64
+#define TRITE_JUMP_LEAP_RANGE_MAX	1024
+#define TRITE_JUMP_LEAP_SPEED		650
+#define TRITE_JUMP_LEAP_MAXHEIGHT	48
+
+
+object monster_demon_trite_jump : monster_demon_trite {
+
+	void		init();
+	
+	void		state_Idle();
+	void		state_JumpAttack();
+	
+};
+
+
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_trite::init
+=====================
+*/
+void monster_demon_trite_jump::init() {
+	explode = !getIntKey( "no_explode" );
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+
+/*
+=====================
+monster_demon_trite::state_Idle
+=====================
+*/
+void monster_demon_trite_jump::state_Idle() {
+	wait_for_enemy();
+
+	nextLeap		= RandomTime( TRITE_JUMP_LEAP_RATE );
+	nextDodge		= RandomTime( TRITE_JUMP_DODGE_RATE );
+
+	setState( "state_JumpAttack" );
+}
+
+void monster_demon_trite_jump::state_JumpAttack() {
+
+	float range;
+	float t;
+	vector jumpTarget;	
+	
+	//Perfrom an immediate jump attack if possible
+	if ( AI_ENEMY_IN_FOV ) {
+		range = enemyRange();
+
+		if ( ( range >= TRITE_JUMP_LEAP_RANGE_MIN ) && ( range < TRITE_JUMP_LEAP_RANGE_MAX ) ) {
+			if ( canHitEnemy() ) {
+				t = animLength( ANIMCHANNEL_TORSO, "jump_start" );
+				jumpTarget = predictEnemyPos( t );
+				jumpVelocity = getJumpVelocity( jumpTarget, TRITE_JUMP_LEAP_SPEED, TRITE_JUMP_LEAP_MAXHEIGHT );
+				if ( jumpVelocity != '0 0 0' ) {
+					combat_leap();
+				} else {
+					// check if we can leap again in 2 seconds
+					nextLeap = DelayTime( 2 );
+				}
+			}
+		}
+	}
+	setState( "state_Combat" );
+}
+

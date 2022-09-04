@@ -1,0 +1,445 @@
+/***********************************************************************
+
+ai_monster_demon_d3xp_bruiser.script
+
+monster_demon_d3xp_bruiser
+
+***********************************************************************/
+
+#define B_WALKTURN		85
+#define B_ATTACK_RATE		1.2
+//#define B_ATTACK_RATE		10
+#define B_DODGE_RATE		8
+
+object monster_demon_d3xp_bruiser : monster_base {
+	float		nextDodge;
+	float		nextAttack;
+	entity		combat_node;
+	string		range_attack_anim;
+
+	// States
+	void		state_Begin();
+	void		state_Idle();
+	
+	void		state_Dead();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+
+	void		init();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Sight();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_TurretAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_DodgeLeft();
+	void		Legs_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_d3xp_bruiser::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( AI_PAIN ) { animState( ANIMCHANNEL_TORSO, "Torso_Pain", 4 ); }
+	}
+}
+
+void monster_demon_d3xp_bruiser::Torso_Sight() {
+	string animname;
+	float blendFrames;
+	
+	guiNamedEvent(1, "onSight");
+	
+	if ( !getIntKey( "walk_on_sight" ) ) {
+		overrideAnim( ANIMCHANNEL_LEGS );
+	}
+
+	animname = self.getKey( "on_activate" );
+	if ( self.getKey( "on_activate_blend" ) ) {
+		blendFrames = self.getIntKey( "on_activate_blend" );
+	} else {
+		blendFrames = 4;
+	}
+
+	if ( animname != "" ) {
+		if ( hasAnim( ANIMCHANNEL_TORSO, animname ) ) {
+			playAnim( ANIMCHANNEL_TORSO, animname );
+		
+			while( !animDone( ANIMCHANNEL_TORSO, blendFrames ) ) {
+				waitFrame();
+			}
+		}
+	}
+	
+	finishAction( "sight" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", blendFrames );
+}
+
+void monster_demon_d3xp_bruiser::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	guiNamedEvent(1, "onDamage");
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+	
+	
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 8 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+void monster_demon_d3xp_bruiser::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+void monster_demon_d3xp_bruiser::Torso_RangeAttack() {
+	string anim;
+	
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, range_attack_anim );
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		lookAt( getEnemy(), 1 );	
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+void monster_demon_d3xp_bruiser::Torso_TurretAttack() {
+	allowMovement( false );
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "turret_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 8 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "turret_attack" );
+	allowMovement( true );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_demon_d3xp_bruiser::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 2 ); }
+	}
+}
+
+void monster_demon_d3xp_bruiser::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 ); }
+	}
+}
+
+void monster_demon_d3xp_bruiser::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 2 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 );
+}
+
+void monster_demon_d3xp_bruiser::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 2 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 2 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_d3xp_bruiser::init
+=====================
+*/
+void monster_demon_d3xp_bruiser::init() {
+	walk_turn = B_WALKTURN;
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_d3xp_bruiser::state_Begin
+=====================
+*/
+void monster_demon_d3xp_bruiser::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );	
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_d3xp_bruiser::state_Idle
+=====================
+*/
+void monster_demon_d3xp_bruiser::state_Idle() {
+	guiNamedEvent(1, "onIdle");
+	
+	wait_for_enemy();
+	
+	
+	nextAttack	= 0;
+	nextDodge	= RandomTime( B_DODGE_RATE );
+	
+	guiNamedEvent(1, "onAngry");
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_base::state_Dead
+=====================
+*/
+void monster_demon_d3xp_bruiser::state_Dead() {
+
+	guiNamedEvent(1, "onDeath");
+	
+	float burnDelay = getFloatKey( "burnaway" );
+	if ( burnDelay != 0 ) {
+		preBurn();
+		sys.wait( burnDelay );
+		burn();
+		startSound( "snd_burn", SND_CHANNEL_BODY, false );
+	}
+	
+	sys.wait( 3 );
+	
+	if ( resurrect ) {
+		hide();
+		stopRagdoll();
+		restorePosition();
+
+		// wait until we're resurrected
+		waitUntil( 0 );
+	}
+	remove();
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_d3xp_bruiser::do_attack
+=====================
+*/
+void monster_demon_d3xp_bruiser::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_demon_d3xp_bruiser::check_attacks
+=====================
+*/
+float monster_demon_d3xp_bruiser::check_attacks() {
+	float	currentTime;
+	float	canMelee;
+	float	attack_flags;
+	float	range;
+	string	anim;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+	
+	if ( AI_ENEMY_IN_FOV ) {
+		if ( canMelee ) {
+			attack_flags |= ATTACK_MELEE;
+		}
+		
+		/*if(AI_ENEMY_REACHABLE) {
+			sys.print("Enemy is reachable\n");
+		} else {
+			sys.print("Enemy is NOT reachable\n");
+		}*/
+		
+		//if ( !AI_ENEMY_REACHABLE || ( currentTime >= nextAttack ) ) {
+		if ( currentTime >= nextAttack ) {
+			range_attack_anim = chooseAnim( ANIMCHANNEL_LEGS, "turret_attack" );
+			if ( canHitEnemyFromAnim( range_attack_anim ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+
+			anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+			if ( testAnimMove( anim ) ) {
+				if ( canHitEnemyFromAnim( anim ) ) {
+					range_attack_anim = anim;
+					attack_flags |= ATTACK_MISSILE;
+				}
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_d3xp_bruiser::combat_range
+=====================
+*/
+void monster_demon_d3xp_bruiser::combat_range() {
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 8 );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( B_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_demon_d3xp_bruiser::combat_melee
+=====================
+*/
+void monster_demon_d3xp_bruiser::combat_melee() {
+	lookAt( getEnemy(), 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAt( getEnemy(), 1 );
+}
+
+/*
+=====================
+monster_demon_d3xp_bruiser::combat_dodge_left
+=====================
+*/
+void monster_demon_d3xp_bruiser::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", 8 );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( B_DODGE_RATE );
+	moveToEnemy();
+}
+
+/*
+=====================
+monster_demon_d3xp_bruiser::combat_dodge_right
+=====================
+*/
+void monster_demon_d3xp_bruiser::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", 8 );	
+	waitAction( "strafe" );
+	nextDodge = DelayTime( B_DODGE_RATE );
+	moveToEnemy();
+}

@@ -1,0 +1,54 @@
+export david {
+
+	options -prefix SCI_
+
+	mesh	models/david/work/cinematics/npcgroup4.mb -dest models/md5/cinematics/david/scientist1
+	anim	models/david/work/cinematics/npcgroup4.mb -dest models/md5/cinematics/david/scientist1anim
+
+	options -prefix SCI2_
+
+	mesh	models/david/work/cinematics/npcgroup4.mb -dest models/md5/cinematics/david/scientist2
+	anim	models/david/work/cinematics/npcgroup4.mb -dest models/md5/cinematics/david/scientist2anim
+
+}
+
+
+export david {
+
+	camera	models/david/work/cinematics/npcgroup4.mb -dest models/md5/cinematics/david/npcgroup
+
+}
+
+entityDef npcgroup_cinematic_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim npcgroup_cinematic_cam_1"			"models/md5/cinematics/david/npcgroup.md5camera"
+}
+
+model npcgroup_cinematic_scientist1 {
+	mesh							models/md5/cinematics/david/scientist1.md5mesh
+	anim cinematic						models/md5/cinematics/david/scientist1anim.md5anim 
+
+}
+
+entityDef npcgroup_cinematic_scientist1 {
+	"inherit"					"cin_base"
+	"anim"						"cinematic"
+	"model"						"npcgroup_cinematic_scientist1"
+}
+
+model npcgroup_cinematic_scientist2 {
+	mesh							models/md5/cinematics/david/scientist2.md5mesh
+	anim cinematic						models/md5/cinematics/david/scientist2anim.md5anim 
+
+}
+
+entityDef npcgroup_cinematic_scientist2 {
+	"inherit"					"cin_base"
+	"anim"						"cinematic"
+	"model"						"npcgroup_cinematic_scientist2"
+}

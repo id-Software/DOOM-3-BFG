@@ -1,0 +1,363 @@
+entityDef damage_moveable_tiny {
+	"damage"						"5"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				""
+	"snd_flesh"						"bullet_impact_flesh"
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"10"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_moveable_carton {
+	"damage"						"15"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				""
+	"snd_flesh"						"bullet_impact_flesh"
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"15"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_moveable_small {
+	"damage"						"25"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				""
+	"snd_flesh"						"bullet_impact_flesh"
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"25"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_moveable_medium {
+	"damage"						"120"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				""
+	"snd_flesh"						"bullet_impact_flesh"
+	"gib"							"1"
+
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"50"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_moveable_large {
+	"damage"						"150"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				""
+	"snd_flesh"						"bullet_impact_flesh"
+	"gib"							"1"
+
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"100"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_moveable_xlarge {
+	"damage"						"300"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				""
+	"snd_flesh"						"bullet_impact_flesh"
+	"gib"							"1"
+
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"150"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_moveable_player {
+	"damage"						"8"
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"10"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef moveable_berserkerbox {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/filler/tbox4.ase"
+	"density"					"0.01"
+	"friction"					"0.2"
+	"bouncyness"				"0.4"
+	"snd_bounce"				"smallbox"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_tiny"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_jackhammer {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/caves/jackhammer/d3xp_jackhammer.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_xlarge"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_pickaxe {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/caves/digtools/d3xp_pickaxe.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_shovel {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/caves/digtools/d3xp_shovel.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_notakeg1 {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/fuel_barrel4/barrelv2_lo.lwo"
+	"density"					"0.005"
+	"friction"					"0.05"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_barrelv2 {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/fuel_barrel4/barrelv2_lo.lwo"
+	"density"					"0.005"
+	"friction"					"0.05"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_notakeg2 {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/fuel_barrel4/barrelv3_lo.lwo"
+	"density"					"0.005"
+	"friction"					"0.05"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_barrelv2b {
+	"inherit"					"moveable_base_barrel"
+	"model"						"models/mapobjects/fuel_barrel4/barrelv2b_lo.lwo"
+	"density"					"0.005"
+	"friction"					"0.05"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+
+}
+
+entityDef moveable_deadsentry_head {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/dead_sentry/dead_sentry_head.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_deadsentry_body {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/dead_sentry/dead_sentry_body.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_deadsentry_leg1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/dead_sentry/dead_sentry_leg1.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_deadsentry_leg2 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/dead_sentry/dead_sentry_leg2.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_bot_tech_bag {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/bot_tech_bag/bot_tech_bag_lo.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_marine_helmet {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/helmet/helmet_collision.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"large_plastic"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_player_helmet {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/characters/player_character/helmet/d3xp_cine_helmet_lo.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0.2"
+	"snd_bounce"				"large_plastic"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_barrel_lid {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/barrel_lid/barrel_lid_lo.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+
+
+entityDef moveable_ancient_staff {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/ancient_artifacts/staff/ancient_staff_lo2.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_d3xp_bench1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/d3xp_benches/d3xp_bench1.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_d3xp_lamp1 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/lamp_test/d3xp_lamp1.lwo"
+	"mass"						"200"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_ancient_buzz_blade {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/ancient_artifacts/buzz_blade/buzz_blade2_lo.lwo"
+	"mass"						"0.005"
+	"friction"					"0.1"
+	"bouncyness"				".1"
+	"snd_bounce"				"metal_barrel_impact"
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_large"
+	"damageWhenActive"			"1"
+}
+

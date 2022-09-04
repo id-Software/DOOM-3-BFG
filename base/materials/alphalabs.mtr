@@ -1,0 +1,180 @@
+
+
+textures/alphalabs/a_lfwall21b
+{
+	qer_editorimage	textures/alphalabs/a_lfwall21b
+	bumpmap		textures/base_wall/lfwall21_local
+	diffusemap		textures/alphalabs/a_lfwall21b
+	specularmap		textures/alphalabs/a_lfwall21b_s
+}
+
+textures/alphalabs/a_lfwall18a
+{
+	qer_editorimage	textures/alphalabs/a_lfwall18a
+	bumpmap		textures/base_wall/lfwall18_local
+	diffusemap		textures/alphalabs/a_lfwall18a
+	specularmap		textures/alphalabs/a_lfwall18a_s
+}
+
+textures/alphalabs/a_lfwall17a
+{
+	qer_editorimage	textures/alphalabs/a_lfwall17a
+	bumpmap		textures/base_wall/lfwall17_local
+	diffusemap		textures/alphalabs/a_lfwall17a
+	specularmap		textures/alphalabs/a_lfwall17a_s
+}
+
+textures/alphalabs/a_lfwall16a
+{
+	qer_editorimage	textures/alphalabs/a_lfwall16a
+	bumpmap		textures/base_wall/lfwall16_local
+	diffusemap		textures/alphalabs/a_lfwall16a
+	specularmap		textures/alphalabs/a_lfwall16a_s
+}
+
+textures/alphalabs/a_lfwall14g4
+{
+	qer_editorimage	textures/alphalabs/a_lfwall14g4
+	bumpmap		textures/base_wall/lfwall14g2_local
+	diffusemap		textures/alphalabs/a_lfwall14g4
+	specularmap		textures/alphalabs/a_lfwall14g_s
+}
+
+textures/alphalabs/a_lfwall13g4
+{
+		qer_editorimage	textures/alphalabs/a_lfwall13g4
+		bumpmap			textures/base_wall/lfwall13g_local
+		diffusemap		textures/alphalabs/a_lfwall13g4
+		specularmap		textures/alphalabs/a_lfwall13g4_s
+}
+
+textures/alphalabs/a_lfwall13f3
+{
+	qer_editorimage	textures/alphalabs/a_lfwall13f3
+	bumpmap			textures/base_wall/lfwall13f_local
+	diffusemap		textures/alphalabs/a_lfwall13f3
+	specularmap		textures/alphalabs/a_lfwall13f3_s
+}
+
+textures/alphalabs/a_lfwall13e
+{
+	qer_editorimage	textures/alphalabs/a_lfwall13e
+	bumpmap			textures/base_wall/lfwall13e_local
+	diffusemap		textures/alphalabs/a_lfwall13e
+	specularmap		textures/alphalabs/a_lfwall13e_s
+}
+
+textures/alphalabs/a_lfwall13d
+{
+	qer_editorimage	textures/alphalabs/a_lfwall13d
+	bumpmap			textures/base_wall/lfwall13d_local
+	diffusemap		textures/alphalabs/a_lfwall13d
+	specularmap		textures/alphalabs/a_lfwall13d_s
+}
+
+textures/alphalabs/a_lfwall13c
+{
+	qer_editorimage	textures/alphalabs/a_lfwall13c
+	bumpmap			textures/base_wall/lfwall13c_local
+	diffusemap		textures/alphalabs/a_lfwall13c
+	specularmap		textures/alphalabs/a_lfwall13c_s
+}
+
+textures/alphalabs/a_lfwall13b
+{
+	qer_editorimage	textures/alphalabs/a_lfwall13b
+	bumpmap			textures/base_wall/lfwall13b_local
+	diffusemap		textures/alphalabs/a_lfwall13b
+	specularmap		textures/alphalabs/a_lfwall13b_s
+}
+
+textures/alphalabs/a_lfwall13a
+{
+	qer_editorimage	textures/alphalabs/a_lfwall13a
+	bumpmap			textures/base_wall/lfwall13a_local
+	diffusemap		textures/alphalabs/a_lfwall13a
+	specularmap		textures/alphalabs/a_lfwall13a_s
+}
+
+textures/alphalabs/a_lfwall12b2
+{
+	qer_editorimage	textures/alphalabs/a_lfwall12b2
+	{
+		blend		bumpmap			
+		map			textures/base_wall/lfwall12b_local
+		
+	}
+	diffusemap		textures/alphalabs/a_lfwall12b2
+	specularmap		textures/alphalabs/a_lfwall12b_s
+}
+
+textures/alphalabs/a_lfwall12a2
+{
+	qer_editorimage	textures/alphalabs/a_lfwall12a2
+	{
+		blend		bumpmap			
+		map		textures/base_wall/lfwall12a_local
+		
+	}
+	diffusemap		textures/alphalabs/a_lfwall12a2
+	specularmap		textures/alphalabs/a_lfwall12a_s
+}
+
+textures/alphalabs/a_enwall22b
+{
+	qer_editorimage		textures/alphalabs/a_enwall22b
+	bumpmap				textures/base_wall/snpanel18_local
+	diffusemap			textures/alphalabs/a_enwall22b
+	specularmap			textures/alphalabs/a_enwall22a_s
+}
+
+textures/alphalabs/a_enwall21a
+{
+	qer_editorimage		textures/alphalabs/a_enwall21a
+	bumpmap				textures/base_wall/snpanel17_local
+	diffusemap			textures/alphalabs/a_enwall21a
+	specularmap			textures/alphalabs/a_enwall21_s
+}
+
+textures/alphalabs/a_enwall20d
+{
+	qer_editorimage		textures/alphalabs/a_enwall20d
+	bumpmap				textures/enpro/enwall20_local
+	diffusemap			textures/alphalabs/a_enwall20d
+	specularmap			textures/alphalabs/a_enwall20a_s
+}
+
+textures/alphalabs/a_enwall13c
+{
+	qer_editorimage		textures/alphalabs/a_enwall13c
+	bumpmap				textures/enpro/enwall13_local
+	diffusemap			textures/alphalabs/a_enwall13c
+	specularmap			textures/alphalabs/a_enwall13_s
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     

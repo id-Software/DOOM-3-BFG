@@ -1,0 +1,112 @@
+//REVENANT INTRO CINEMATICS
+
+
+	
+export james {
+	camera	maps/james/revenant/revenant_intro.mb -dest models/md5/cinematics/revenant/revintro_cam
+
+	addoptions -prefix IMPACT_
+	mesh    maps/james/revenant/revenant_intro.mb -dest models/md5/cinematics/revenant/revintro_impact
+	anim    maps/james/revenant/revenant_intro.mb -dest models/md5/cinematics/revenant/revintro_impact
+}
+
+entityDef recycling1_revintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"anim"							"revintro"
+	"cinematic"						"1"
+	"anim revintro"					"models/md5/cinematics/revenant/revintro_cam.md5camera"
+}
+
+model recycling1_revintro_player {
+	skin							skins/player/noweapon.skin
+	mesh							models/md5/characters/player/mocap/player.md5mesh
+	anim revintro					models/md5/cinematics/revenant/revintro_player.md5anim {
+		frame 27						sound_body snd_footstep
+		frame 35						sound_body snd_footstep
+		frame 49						sound_body snd_footstep
+		frame 55						sound_body snd_footstep
+
+	}
+}
+
+entityDef recycling1_revintro_player {
+	"inherit"						"cin_base"
+	"model"							"recycling1_revintro_player"
+	"anim"							"revintro"
+	"cinematic"						"1"
+	
+	"snd_footstep"					"monster_demon_revenant_footstep"
+}
+
+model recycling1_revintro_player2 {
+	//skin							skins/player/noweapon.skin
+	mesh							models/md5/cinematics/revenant/revintro_player2.md5mesh
+	anim revintro					models/md5/cinematics/revenant/revintro_player2.md5anim
+}
+
+entityDef recycling1_revintro_player2 {
+	"inherit"						"cin_base"
+	"model"							"recycling1_revintro_player2"
+	"anim"							"revintro"
+	"cinematic"						"1"
+}
+
+model recycling1_revintro_rev {
+	mesh							models/md5/monsters/revenant/james/revenant.md5mesh
+	anim revintro					models/md5/cinematics/revenant/revintro_rev.md5anim {
+		frame 70						sound_voice2 revcin_yell1
+		frame 103						sound_body snd_footstep
+		frame 109						sound_body snd_footstep
+		frame 114						sound_body snd_footstep
+		frame 117						sound_voice2 revcin_fire
+		frame 117						call rev_rocketa
+		frame 118						sound_body snd_footstep
+		frame 150						sound_voice2 revcin_fire
+		frame 150						call rev_rocketb
+		frame 270						sound_voice2 revcin_yell2
+		//frame 1							trigger trigger_relay_79 
+	}
+}
+
+entityDef recycling1_revintro_rev {
+	"inherit"						"cin_base"
+	"model"							"recycling1_revintro_rev"
+	"anim"							"revintro"
+	"cinematic"						"1"
+
+	"def_projectile"				"projectile_rev_rocket_cinematic"
+	
+	"snd_footstep"					"monster_demon_revenant_footstep"
+}
+
+model recycling1_revintro_impact {
+	mesh							models/md5/cinematics/revenant/revintro_impact.md5mesh
+	anim revintro					models/md5/cinematics/revenant/revintro_impact.md5anim {
+		
+		frame 149						sound_body2 recycling1_revintro_explo1
+		frame 150						sound_body recycling1_revintro_stress
+		frame 169						sound_body2 recycling_revintro_clang1
+		frame 181						sound_body2 recycling1_revintro_explo2
+		frame 186						sound_body recycling_revintro_clang2
+		frame 192						sound_body2 recycling_revintro_clang3
+		frame 239						sound_body recycling_revintro_clang4
+		frame 213						trigger trigger_relay_79 
+		frame 204						trigger rev_fire1
+		frame 205						trigger speaker_rev_angryfire
+		frame 213						trigger rev_steam1
+		frame 214						trigger speaker_rev_steam
+
+	}
+}
+
+entityDef recycling1_revintro_impact {
+	"inherit"						"cin_base"
+	"model"							"recycling1_revintro_impact"
+	"anim"							"revintro"
+	"cinematic"						"1"
+}
+

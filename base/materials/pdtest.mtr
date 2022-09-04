@@ -1,0 +1,120 @@
+gui/logoanim2
+{
+	translucent
+	{
+		if ( ( time * 11 ) % 11 == 0 )
+		blend add
+		map		guis/assets/logoanim/logofr01.tga
+	}	
+	{
+		if ( ( time * 11 ) % 11 == 1 )
+		blend add
+		map		guis/assets/logoanim/logofr02.tga
+      	}	
+	{
+		if ( ( time * 11 ) % 11 == 2 )
+		blend add
+		map		guis/assets/logoanim/logofr03.tga
+	}	
+	{
+		if ( ( time * 11 ) % 11 == 3 )
+		blend add
+		map		guis/assets/logoanim/logofr04.tga
+	}	
+	{
+		if ( ( time * 11 ) % 11 == 4 )
+		blend add
+		map		guis/assets/logoanim/logofr05.tga
+	}	
+	{
+		if ( ( time * 11 ) % 11 == 5 )
+		blend add
+		map		guis/assets/logoanim/logofr06.tga
+	}
+	{
+		if ( ( time * 11 ) % 11 == 6 )
+		blend add
+		map		guis/assets/logoanim/logofr07.tga
+	}
+	{
+		if ( ( time * 11 ) % 11 == 7 )
+		blend add
+		map		guis/assets/logoanim/logofr08.tga
+	}
+	{
+		if ( ( time * 11 ) % 11 == 8 )
+		blend add
+		map		guis/assets/logoanim/logofr09.tga
+	}
+	{
+		if ( ( time * 11 ) % 11 == 9 )
+		blend add
+		map		guis/assets/logoanim/logofr10.tga
+	}
+	{
+		if ( ( time * 11 ) % 11 == 10 )
+		blend add
+		map		guis/assets/logoanim/logofr01.tga
+	}
+}
+
+gui/logoanim
+{
+	translucent
+	{
+		rgb		pdcommTable[time * 0.3]
+		blend add
+		map		guis/assets/logoanim/logofr01.tga
+	}	
+	{
+		rgb		pdcommTable[time * 0.3 + ( 1 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr02.tga
+      	}	
+	{
+		rgb		pdcommTable[time * 0.3 + ( 2 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr03.tga
+	}	
+	{
+		rgb		pdcommTable[time * 0.3 + ( 3 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr04.tga
+	}	
+	{
+		rgb		pdcommTable[time * 0.3 + ( 4 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr05.tga
+	}	
+	{
+		rgb		pdcommTable[time * 0.3 + ( 5 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr06.tga
+	}
+	{
+		rgb		pdcommTable[time * 0.3 + ( 6 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr07.tga
+	}
+	{
+		rgb		pdcommTable[time * 0.3 + ( 7 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr08.tga
+	}
+	{
+		rgb		pdcommTable[time * 0.3 + ( 8 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr09.tga
+	}
+	{
+		rgb		pdcommTable[time * 0.3 + ( 9 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr10.tga
+	}
+	{
+		rgb		pdcommTable[time * 0.3 + ( 10 / 11 ) ]
+		blend add
+		map		guis/assets/logoanim/logofr01.tga
+	}
+
+}

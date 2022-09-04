@@ -1,0 +1,49 @@
+//CINEMATICS
+	
+export fred {
+	options -prefix ENV_
+	mesh	maps/fred/maledict/worldfall.mb -dest models/md5/cinematics/maledict/world	
+	anim	maps/fred/maledict/worldfall.mb -range 1 1 -dest models/md5/cinematics/maledict/worldfallidle
+	anim	maps/fred/maledict/worldfall.mb -dest models/md5/cinematics/maledict/worldfall
+
+	options -prefix ENV_
+	mesh	maps/fred/maledict/debris1.mb -dest models/md5/cinematics/maledict/debris1
+	anim	maps/fred/maledict/debris1.mb -dest models/md5/cinematics/maledict/debris1
+
+}
+
+
+model maledict_world {
+	mesh					models/md5/cinematics/maledict/world.md5mesh
+	anim idle				models/md5/cinematics/maledict/worldfallidle.md5anim 
+	anim fall				models/md5/cinematics/maledict/worldfall.md5anim 
+}
+
+entityDef maledict_world {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"fall"
+	"model"					"maledict_world"
+}
+
+model maledict_debris1 {
+	mesh					models/md5/cinematics/maledict/debris1.md5mesh
+	anim break				models/md5/cinematics/maledict/debris1.md5anim  
+}
+
+entityDef maledict_debris1 {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"break"
+	"model"					"maledict_debris1"
+}

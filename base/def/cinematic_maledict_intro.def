@@ -1,0 +1,249 @@
+//////////////////////////////////////////////
+//Maledict Intro Cinematic
+//////////////////////////////////////////////
+
+
+//////////////////////////////////////////////
+//Exports
+//////////////////////////////////////////////
+
+export james {
+
+	camera	models/characters/mocap/maledict_intro/maledict_intro.mb	-range 1 170	-dest models/md5/cinematics/maledict_intro/m_intro_camera_a
+	camera	models/characters/mocap/maledict_intro/maledict_intro.mb	-range 171 313	-dest models/md5/cinematics/maledict_intro/m_intro_camera_b
+	camera	models/characters/mocap/maledict_intro/maledict_intro.mb	-range 314 439	-dest models/md5/cinematics/maledict_intro/m_intro_camera_c
+	camera	models/characters/mocap/maledict_intro/maledict_intro.mb	-range 440 535	-dest models/md5/cinematics/maledict_intro/m_intro_camera_d
+	camera	models/characters/mocap/maledict_intro/maledict_intro.mb	-range 536 727	-dest models/md5/cinematics/maledict_intro/m_intro_camera_e
+	camera	models/characters/mocap/maledict_intro/maledict_intro.mb	-range 728 780	-dest models/md5/cinematics/maledict_intro/m_intro_camera_f
+
+	options -prefix MALEDICT_ -keep tongue1 -parent tongue1 Dhead
+	mesh	models/characters/cinematic_models/maledict_makemesh.mb -dest models/md5/cinematics/maledict_intro/maledict
+
+	options -prefix MALEDICT_ -keep tongue1 -parent tongue1 Dhead
+	anim	models/characters/mocap/maledict_intro/maledict_intro.mb -dest models/md5/cinematics/maledict_intro/maledict_intro
+
+}
+
+//////////////////////////////////////////////
+//Cameras
+//////////////////////////////////////////////
+
+entityDef maledict_intro_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_camera_a"			"models/md5/cinematics/maledict_intro/m_intro_camera_a.md5camera"
+	"anim maledict_camera_b"			"models/md5/cinematics/maledict_intro/m_intro_camera_b.md5camera"
+	"anim maledict_camera_c"			"models/md5/cinematics/maledict_intro/m_intro_camera_c.md5camera"
+	"anim maledict_camera_d"			"models/md5/cinematics/maledict_intro/m_intro_camera_d.md5camera"
+	"anim maledict_camera_e"			"models/md5/cinematics/maledict_intro/m_intro_camera_e.md5camera"
+	"anim maledict_camera_f"			"models/md5/cinematics/maledict_intro/m_intro_camera_f.md5camera"
+
+}
+
+//////////////////////////////////////////////
+// MALEDICT
+//////////////////////////////////////////////
+
+model maledict_intro_cinematic {
+
+	mesh									models/md5/cinematics/maledict_intro/maledict.md5mesh
+	anim maledict_intro						models/md5/cinematics/maledict_intro/maledict_intro.md5anim {
+		frame 1								call map_erebus1::bloom_off
+		frame 1								sound_body2		e1_scream_02			// Shorten
+		frame 5								sound_body		e1_headlift				// Shorten
+		frame 28							sound_voice		snd_hellreachesout
+		frame 117							sound_voice2	snd_unbound
+
+
+		frame 165							sound_body3		e1_scream_01
+
+		frame 170							sound_body		e1_headlift
+
+		frame 185							sound_body2     e1_wingbillow_04
+
+		frame 199							sound_voice		snd_theyhavearrived
+		frame 274							sound_voice2	snd_asipromised
+
+		frame 315							sound_body2		e1_wingbillow_01
+
+		frame 342							sound_body		snd_wingflap_01
+
+		frame 350							sound_body2		e1_wingbillow_02
+
+		frame 325							sound_voice		snd_riseup
+
+		frame 374							sound_body		snd_wingflap_02
+
+		frame 421							sound_body		snd_wingflap_03
+
+		frame 465							sound_body		snd_wingflap_04
+
+		frame 484							sound_body		snd_wingflap_05
+
+		frame 369							sound_voice		snd_awaken
+
+		frame 400							sound_voice2	e1_dscream_03
+
+		frame 509							sound_body		snd_wingflap_01
+
+		frame 560							sound_body2		e1_scream_02
+
+		frame 553							sound_body		snd_wingflap_02
+
+		frame 595							sound_body		snd_wingflap_03
+
+		frame 624							sound_body		e1_land
+
+		frame 635							sound_body2		snd_wingflap_02
+
+		frame 636							sound_body2		e1_scream_03
+
+		frame 720							sound_body		e1_headlift
+
+		frame 735							sound_voice		snd_huntthemdown
+
+	}
+
+}
+
+entityDef maledict_intro_cinematic {
+	"inherit"						"cin_base"
+	"anim"							"maledict_intro"
+	"model"							"maledict_intro_cinematic"
+	"cinematic"						"1"
+
+	"snd_asipromised"				"e1_bet_asipromised"
+	"snd_awaken"					"e1_bet_awaken"
+	"snd_hellreachesout"			"e1_bet_hellreachesout"
+	"snd_huntthemdown"				"e1_bet_huntthemdown"
+	"snd_returnwhatisours"			"e1_bet_returnwhatisours"
+	"snd_riseup"					"e1_bet_riseup"
+	"snd_theyhavearrived"			"e1_bet_arrived"
+	"snd_unbound"					"e1_bet_unbound"
+	"snd_wingflap"					"e1_maledict_wingflap"
+	"snd_wingflap_01"				"e1_wingflap_01"
+	"snd_wingflap_02"				"e1_wingflap_03"
+	"snd_wingflap_03"				"e1_wingflap_04"
+	"snd_wingflap_04"				"e1_wingflap_07"
+	"snd_wingflap_05"				"e1_wingflap_08"
+	"snd_footstep"					"e1_maledict_fs1"
+
+}
+
+//////////////////////////////////////////////
+// MALEDICT HELL INTRODUCTION -- EXPORTS
+//////////////////////////////////////////////
+export james {
+
+	camera	models/characters/mocap/maledict_hell_intro/maledict_hell_intro.mb -dest models/md5/cinematics/hell/maledict_intro/intro_camera
+
+	options -prefix MAL_
+	mesh	models/characters/mocap/maledict_hell_intro/maledict_makemesh.mb -dest models/md5/cinematics/hell/maledict_intro/maledict_hell_intro
+
+	options -prefix MAL_
+	anim	models/characters/mocap/maledict_hell_intro/maledict_hell_intro.mb -dest models/md5/cinematics/hell/maledict_intro/maledict_intro_anim
+
+}
+
+//////////////////////////////////////////////
+// MALEDICT HELL INTRODUCTION -- CAMERA DEF
+//////////////////////////////////////////////
+
+entityDef hell_intro_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_intro_cam"			"models/md5/cinematics/hell/maledict_intro/intro_camera.md5camera"
+
+}
+
+//////////////////////////////////////////////
+// MALEDICT HELL INTRODUCTION -- MODEL DEFS
+//////////////////////////////////////////////
+model hell_maledict_intro_cinematic {
+	mesh									models/md5/cinematics/hell/maledict_intro/maledict_hell_intro.md5mesh
+	anim maledict_intro						models/md5/cinematics/hell/maledict_intro/maledict_intro_anim.md5anim {
+		frame 1									call map_hell::hidePlayer
+		frame	1								sound_global	hell_malintro_ambience
+		//frame 90								call map_erebus1::bloom_on
+		frame 100								trigger jay_intro_func_fx
+		frame 150								call map_hell::showPlayer
+		//frame 170								call map_erebus1::bloom_off
+		
+		frame	195								sound_body		hell_arrival_whoosh
+		frame	195								sound_voice		hell_arrival_scream
+		
+		frame 198								call map_hell::restorePlayer
+		
+		frame	217								sound_body		hell_dland
+		
+		frame	229								sound_body2		hell_awflap_01
+		
+		frame	257								sound_voice2	hell_awflap_02
+		
+		frame	293								sound_voice2	hell_awflap_02
+		frame	277								sound_body		hell_head_extend
+		
+		frame 297								sound_voice		xp_maledict_whatdid
+		frame 386								sound_voice		xp_maledict_mortal2
+		
+		frame	408								sound_voice2	hell_swflap_01
+		frame	416								sound_body		hell_gun_clack
+		
+		frame 477								sound_voice		xp_maledict_iwantit
+		
+		frame	573								sound_body		hell_swflap_01
+		
+		frame	666								sound_body2		hell_swflap_02
+		
+		frame	726								sound_body		hell_swflap_03
+		
+		frame	656								sound_voice2	hell_depart
+	}
+}
+
+entityDef hell_maledict_intro_cinematic {
+	"inherit"						"cin_base"
+	"anim"							"maledict_intro"
+	"model"							"hell_maledict_intro_cinematic"
+	"skin"							"skins/models/monsters/maledict"
+	"cinematic"						"1"
+	"snd_wingflap"					"e1_maledict_wingflap"
+	"snd_wingflap_01"				"e1_wingflap_01"
+	"snd_wingflap_02"				"e1_wingflap_03"
+	"snd_wingflap_03"				"e1_wingflap_04"
+	"snd_wingflap_04"				"e1_wingflap_07"
+	"snd_wingflap_05"				"e1_wingflap_08"
+	"snd_footstep"					"e1_maledict_fs1"
+	"snd_landing"					"xp_maledict_fs1"
+}
+
+model hell_player_maledict_intro {
+	mesh						models/md5/cinematics/hell/maledict_intro/player_maledict_intro.md5mesh
+	anim maledict_intro			models/md5/cinematics/hell/maledict_intro/player_maledict_intro_anim.md5anim
+}
+
+entityDef hell_player_maledict_intro {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+
+	"model"						"hell_player_maledict_intro"
+	"anim"						"maledict_intro"
+
+	"cinematic"					"1"
+
+	"snd_footstep"				"player_sounds_footstep"
+}

@@ -1,0 +1,66 @@
+/***********************************************************************
+
+	d3le-projectile.def
+
+***********************************************************************/
+entityDef projectile_plasma {
+	"spawnclass"				"idProjectile"
+	"mins"						"-6 -6 -4"
+	"maxs"						"6 6 4"
+	"cone"						"3"
+	"model" 					"models/particles/plasma/plasma.lwo"
+
+	"def_damage"				"damage_plasmablast"
+
+	"launchFromBarrel"			"0"
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"700 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_shader_spin"		"1"					// sets shader parm 5 which if appropriate the projectile shader will use this as an alternating spin
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"50"
+	"push"						"4000"				// additional impulse when projectile collides
+	"gravity"					"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"		"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"				"textures/decals/ballburn_plasma"
+	"decal_size"				"70" 
+
+	"smoke_fly"					"plasmatrail.prt"	// particle effect while in the air
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_residue"				""					// particle effect while in the air
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+
+	"model_detonate"			"plasmaimpact.prt"
+
+	"mtr_light_shader"			"lights/biground1"
+	"light_color"				"0.54 0.73 0.64"
+	"light_radius"				"175 175 150"
+	"light_offset"				"-8 0 0"
+
+//	"mtr_explode_light_shader"	"muzzleflash"
+//	"explode_light_color"		"0 0 1"
+//	"explode_light_radius"		"160"
+//	"explode_light_fadetime"	"0.25"
+
+	"snd_fly"					"plasma_flight"					// sound effect while in the air
+	"snd_explode"				"plasma_impact"
+
+	"touch_triggers"			"1"
+	"no_explode_disappear"		"1"
+}

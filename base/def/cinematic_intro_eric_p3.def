@@ -1,0 +1,209 @@
+//////////////////////////////////////////////
+//Intro Cinematic Part 3
+//////////////////////////////////////////////
+
+
+//////////////////////////////////////////////
+//Exports
+//////////////////////////////////////////////
+
+export eric {
+
+	//cameras part 3
+	camera	maps/eric/intro_animation/intro_part3.mb		-range 0 71			-dest models/md5/cinematics/intro_eric/intro_cam_p3_a
+	camera	maps/eric/intro_animation/intro_part3.mb		-range 72 181		-dest models/md5/cinematics/intro_eric/intro_cam_p3_b
+	camera	maps/eric/intro_animation/intro_part3.mb		-range 182 371		-dest models/md5/cinematics/intro_eric/intro_cam_p3_c
+	camera	maps/eric/intro_animation/intro_part3.mb		-range 372 390		-dest models/md5/cinematics/intro_eric/intro_cam_p3_d
+
+
+	//player part 3
+	options -prefix player_heart_
+	anim	maps/eric/intro_animation/intro_part3.mb		-range 0 71			-dest models/md5/cinematics/intro_eric/intro_plyr_heart_p3_a
+	anim	maps/eric/intro_animation/intro_part3.mb		-range 72 181		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_p3_b
+	anim	maps/eric/intro_animation/intro_part3.mb		-range 182 371		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_p3_c
+	anim	maps/eric/intro_animation/intro_part3.mb		-range 372 390		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_p3_d
+
+
+	//falling rocks
+	options -prefix rock_
+	mesh 	maps/eric/new_rocks/dynamic_rocks.mb 		-dest models/md5/cinematics/intro_eric/intro_rocks_p3
+	anim 	maps/eric/new_rocks/dynamic_rocks.mb		-dest models/md5/cinematics/intro_eric/intro_rocks_p3
+
+	//exploding door
+	options -prefix rocks_
+	mesh 	maps/eric/new_rocks/dynamic_wall_fix3.mb 		-dest models/md5/cinematics/intro_eric/intro_wall_rocks
+	anim 	maps/eric/new_rocks/dynamic_wall_fix3.mb		-dest models/md5/cinematics/intro_eric/intro_wall_rocks
+
+
+}
+
+
+//////////////////////////////////////////////
+//rocks
+//////////////////////////////////////////////
+
+model erebus1_rocks_p3 {
+	mesh						models/md5/cinematics/intro_eric/intro_rocks_p3.md5mesh
+	anim fall					models/md5/cinematics/intro_eric/intro_rocks_p3.md5anim
+}
+
+entityDef erebus1_rocks_p3 {
+	"inherit"						"cin_base"
+
+	//"editor_color"					"1 .5 0"
+	//"editor_mins"					"-16 -16 0"
+	//"editor_maxs"					"16 16 64"
+	//"editor_ragdoll"				"1"
+
+	//"spawnclass"					"idAFEntity_Generic"
+	"model"							"erebus1_rocks_p3"
+	//"articulatedFigure"			""
+}
+
+//////////////////////////////////////////////
+//exploding wall rocks
+//////////////////////////////////////////////
+
+model erebus1_wall_explode {
+	mesh						models/md5/cinematics/intro_eric/intro_wall_rocks.md5mesh
+	anim explode				models/md5/cinematics/intro_eric/intro_wall_rocks.md5anim
+}
+
+entityDef erebus1_wall_explode {
+	"inherit"						"cin_base"
+
+	//"editor_color"				"1 .5 0"
+	//"editor_mins"					"-16 -16 0"
+	//"editor_maxs"					"16 16 64"
+	//"editor_ragdoll"				"1"
+
+	//"spawnclass"					"idAFEntity_Generic"
+	"model"							"erebus1_wall_explode"
+	//"articulatedFigure"			""
+}
+
+
+//////////////////////////////////////////////
+//cameras part 3
+//////////////////////////////////////////////
+
+entityDef erebus1_intro_camera_p3 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim e1_intro_cam_p3_a"			"models/md5/cinematics/intro_eric/intro_cam_p3_a.camera"
+	"anim e1_intro_cam_p3_b"			"models/md5/cinematics/intro_eric/intro_cam_p3_b.camera"
+	"anim e1_intro_cam_p3_c"			"models/md5/cinematics/intro_eric/intro_cam_p3_c.camera"
+	"anim e1_intro_cam_p3_d"			"models/md5/cinematics/intro_eric/intro_cam_p3_d.camera"
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//player heart part 3
+//////////////////////////////////////////////
+
+model erebus1_intro_plyr_heart_p3 {
+
+	mesh								models/md5/cinematics/intro/player_heartartifact.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_plyr_heart_p3_a					models/md5/cinematics/intro_eric/intro_plyr_heart_p3_a.md5anim{
+		frame 1										trigger func_fx_p3
+		frame 1										trigger intro_emitter_left
+		frame 1										trigger intro_emitter_right
+		frame 2										sound_global e1_endquake
+		frame 60									trigger intro_emitter_left
+		frame 60									trigger intro_emitter_right
+	}
+	anim intro_plyr_heart_p3_b					models/md5/cinematics/intro_eric/intro_plyr_heart_p3_b.md5anim
+	anim intro_plyr_heart_p3_c					models/md5/cinematics/intro_eric/intro_plyr_heart_p3_c.md5anim
+	anim intro_plyr_heart_p3_d					models/md5/cinematics/intro_eric/intro_plyr_heart_p3_d.md5anim
+
+}
+
+entityDef erebus1_intro_plyr_heart_p3 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_plyr_heart_p3"
+	"anim"							"intro_plyr_heart_p3_a"
+
+	"num_cinematics"				"4"
+	"anim1"							"intro_plyr_heart_p3_a"
+	"anim2"							"intro_plyr_heart_p3_b"
+	"anim3"							"intro_plyr_heart_p3_c"
+	"anim4"							"intro_plyr_heart_p3_d"
+
+	"cinematic"						"1"
+	"skin"							"skins/intro/playerartifact"
+
+}
+
+
+
+//////////////////////////////////////////////
+//rocks
+//////////////////////////////////////////////
+
+model erebus1_intro_rocks2 {
+	mesh								models/md5/cinematics/intro_eric/rock2.md5mesh
+	anim fall							models/md5/cinematics/intro_eric/rock2.md5anim
+}
+
+entityDef erebus1_intro_rocks2 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"
+
+	"model"							"erebus1_intro_rocks2"
+	"spawnclass"					"idAFEntity_Generic"
+}
+
+
+
+model erebus1_intro_rocks4 {
+	mesh								models/md5/cinematics/intro_eric/rock4.md5mesh
+	anim fall							models/md5/cinematics/intro_eric/rock4.md5anim
+}
+
+entityDef erebus1_intro_rocks4 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"
+
+	"model"							"erebus1_intro_rocks4"
+	"spawnclass"					"idAFEntity_Generic"
+}
+
+
+
+model erebus1_intro_rocks6 {
+	mesh								models/md5/cinematics/intro_eric/rock6.md5mesh
+	anim fall							models/md5/cinematics/intro_eric/rock6.md5anim
+}
+
+entityDef erebus1_intro_rocks6 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"
+
+	"model"							"erebus1_intro_rocks6"
+	"spawnclass"					"idAFEntity_Generic"
+}

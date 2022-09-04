@@ -1,0 +1,520 @@
+
+table candled3xp 		{ { .5 , 1 , .6 , .8 , .5 , 1 , .7 , .62 , .9 , .71 , 1 , .48 , .9 , .85 , .56 , .7 , 1 ,.5, .85 , .5, .62 , .99 , 1 , .48 , .82 , 1 , .65} }
+
+
+
+textures\helld3xp\candlewax
+{
+
+	noShadows
+      	noselfShadow
+	nonsolid
+	noimpact
+
+
+	bumpmap			textures\helld3xp\candlewax_local
+	diffusemap		textures\helld3xp\candlewax_d
+	specularmap		textures\helld3xp\candlewax_s
+
+   {
+			blend	 add
+			map	textures\helld3xp\candlewax_add.tga
+			rgb 	candled3xp[ time * .4 ]
+    }
+
+}
+
+textures\helld3xp\candlewaxb
+{
+	noShadows
+      	noselfShadow
+	nonsolid
+	noimpact
+
+	bumpmap			textures\helld3xp\candlewax_local
+	diffusemap		textures\helld3xp\candlewaxb_d
+	specularmap		textures\helld3xp\candlewax_s
+
+   {
+			blend	 add
+			map	textures\helld3xp\candlewaxb_add.tga
+			rgb 	candled3xp[ time * .4 ]
+    }
+
+}
+
+models\mapobjects\hell\catacomb\candles\candle_a
+
+{
+		noShadows
+      		noselfShadow
+		nonsolid
+		noimpact
+
+		qer_editorimage	models\mapobjects\hell\catacomb\candles\candle_a
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models\mapobjects\hell\catacomb\candles\candle_a_local.tga models\mapobjects\hell\catacomb\candles\candle_a_hi.lwo
+
+
+
+
+
+		diffusemap		models\mapobjects\hell\catacomb\candles\candle_a.tga
+		bumpmap			models\mapobjects\hell\catacomb\candles\candle_a_local.tga
+		specularmap	 	models\mapobjects\hell\catacomb\candles\candle_a_s.tga
+
+	   {
+			blend	 add
+			map	models\mapobjects\hell\catacomb\candles\candle_a_add.tga
+			rgb 	candled3xp[ time * .4 ]
+
+	   }
+
+
+}
+
+
+models\mapobjects\hell\catacomb\candles\candle_b
+
+{
+		noShadows
+      		noselfShadow
+		nonsolid
+		noimpact
+
+		qer_editorimage	models\mapobjects\hell\catacomb\candles\candle_b
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models\mapobjects\hell\catacomb\candles\candle_b_local.tga models\mapobjects\hell\catacomb\candles\candle_b_hi.lwo
+
+
+
+
+
+		diffusemap		models\mapobjects\hell\catacomb\candles\candle_b.tga
+		bumpmap			models\mapobjects\hell\catacomb\candles\candle_b_local.tga
+		specularmap	 	models\mapobjects\hell\catacomb\candles\candle_b_s.tga
+	 {
+			blend	 add
+			map	models\mapobjects\hell\catacomb\candles\candle_b_add.tga
+			rgb  	candled3xp[ time * .4 ]
+	 }
+
+}
+
+
+models\mapobjects\hell\catacomb\candles\candle_c
+
+{
+		noShadows
+      		noselfShadow
+		nonsolid
+		noimpact
+
+		qer_editorimage	models\mapobjects\hell\catacomb\candles\candle_c
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models\mapobjects\hell\catacomb\candles\candle_c_local.tga models\mapobjects\hell\catacomb\candles\candle_c_hi.lwo
+
+
+		diffusemap		models\mapobjects\hell\catacomb\candles\candle_c
+		bumpmap			models\mapobjects\hell\catacomb\candles\candle_c_local
+		specularmap	 	models\mapobjects\hell\catacomb\candles\candle_c_s
+	   {
+			blend	 add
+			map	models\mapobjects\hell\catacomb\candles\candle_c_add.tga
+			rgb	candled3xp[ time * .4 ]
+	   }
+
+}
+
+
+
+models\mapobjects\hell\catacomb\candles\candle_d
+
+{
+		noShadows
+      		noselfShadow
+		nonsolid
+		noimpact
+
+		qer_editorimage	models\mapobjects\hell\catacomb\candles\candle_d
+
+		renderbump  -size 512 512 -colorMap -aa 1 -trace .125 models\mapobjects\hell\catacomb\candles\candle_d_local.tga models\mapobjects\hell\catacomb\candles\candle_d_hi.lwo
+
+
+
+
+
+		diffusemap		models\mapobjects\hell\catacomb\candles\candle_d.tga
+		bumpmap			models\mapobjects\hell\catacomb\candles\candle_d_local.tga
+		specularmap	 	models\mapobjects\hell\catacomb\candles\candle_d_s.tga
+   	   {
+			blend	 add
+			map	models\mapobjects\hell\catacomb\candles\candle_d_add.tga
+			rgb	candled3xp[ time * .4 ]
+
+	   }
+
+
+}
+
+textures/decals/webdangle_noimpact
+{
+	qer_editorimage textures/decals/webdangle.tga
+        noSelfShadow
+		noshadows
+	    	nonsolid
+		noimpact
+		twosided
+		translucent
+
+		diffusemap	textures/decals/webdangle.tga
+
+}
+textures/decals/webstrand_noimpact
+{
+	qer_editorimage textures/decals/webstrand.tga
+        noSelfShadow
+		noshadows
+	    	nonsolid
+		noimpact
+		twosided
+		translucent
+
+		diffusemap	textures/decals/webstrand.tga
+
+}
+
+textures/decals/webtile_noimpact
+{
+	qer_editorimage textures/decals/webtile.tga
+        noSelfShadow
+		noshadows
+	    	nonsolid
+		noimpact
+		twosided
+		translucent
+
+		diffusemap	textures/decals/webtile.tga
+
+}
+
+textures/decals/websquare_noimpact
+{
+	qer_editorimage textures/decals/websquare.tga
+        	noSelfShadow
+		noshadows
+	   	nonsolid
+		noimpact
+		twosided
+		translucent
+
+		diffusemap	textures/decals/websquare.tga
+
+}
+
+textures/decals/webcorner_noimpact
+{
+	qer_editorimage textures/decals/corner.tga
+        noSelfShadow
+		noshadows
+	   	nonsolid
+		noimpact
+		twosided
+		translucent
+
+		diffusemap	models/mapobjects/webs/corner.tga
+
+
+}
+
+
+models/mapobjects/ruins/balcony_aa
+{
+	noSelfShadow
+ 	noShadows
+
+	{
+
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_a
+	alphatest 0.5
+
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_a_local
+	specularmap		models/mapobjects/ruins/balcony_a_s
+
+}
+
+
+models/mapobjects/ruins/balcony_a_filter
+
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_a_filter.tga
+
+	{
+	blend	filter
+	map	models/mapobjects/ruins/balcony_a_filter.tga
+
+	}
+
+}
+
+models/mapobjects/ruins/balcony_b
+{
+	noSelfShadow
+ 	noShadows
+
+	{
+
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_b
+	alphatest 0.5
+
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_b_local
+	specularmap		models/mapobjects/ruins/balcony_b_s
+
+}
+models/mapobjects/ruins/balcony_b_filter
+
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_b_filter.tga
+
+	{
+	blend	filter
+	map	models/mapobjects/ruins/balcony_b_filter.tga
+
+	}
+
+}
+
+
+models/mapobjects/ruins/balcony_c
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_c.tga
+
+	{
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_c.tga
+	alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_c_local.tga
+	specularmap		models/mapobjects/ruins/balcony_c_s.tga
+}
+
+models/mapobjects/ruins/balcony_c2_filter
+
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_c2_filter.tga
+
+	{
+	blend	filter
+	map	models/mapobjects/ruins/balcony_c2_filter.tga
+
+	}
+
+}
+
+
+models/mapobjects/ruins/balcony_c2
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_c.tga
+
+
+	{
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_c
+	alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_c_local.tga
+	specularmap		models/mapobjects/ruins/balcony_c_s.tga
+}
+
+models/mapobjects/ruins/balcony_e
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_e.tga
+
+
+	{
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_e.tga
+	alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_e_local.tga
+	specularmap		models/mapobjects/ruins/balcony_e_s.tga
+}
+
+
+
+models/mapobjects/ruins/balcony_f
+{
+	noSelfShadow
+ 	noShadows
+	qer_editorimage		models/mapobjects/ruins/balcony_f.tga
+
+
+	{
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_f.tga
+	alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_f_local.tga
+	specularmap		models/mapobjects/ruins/balcony_f_s.tga
+}
+
+models/mapobjects/ruins/balcony_f_filter
+
+{
+	noSelfShadow
+ 	noShadows
+
+	qer_editorimage		models/mapobjects/ruins/balcony_f_filter.tga
+
+	{
+	blend	filter
+	map	models/mapobjects/ruins/balcony_f_filter.tga
+
+	}
+
+}
+models/mapobjects/ruins/balcony_g
+
+{
+	noSelfShadow
+ 	noShadows
+
+	qer_editorimage		models/mapobjects/ruins/balcony_g.tga
+
+	{
+	blend	diffusemap
+	map	models/mapobjects/ruins/balcony_g.tga
+	alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/ruins/balcony_g_local.tga
+	specularmap		models/mapobjects/ruins/balcony_g_s.tga
+}
+
+
+models/mapobjects/ruins/balcony_g_filter
+
+{
+	noSelfShadow
+ 	noShadows
+
+
+	qer_editorimage		models/mapobjects/ruins/balcony_g_filter.tga
+
+	{
+	blend	filter
+	map	models/mapobjects/ruins/balcony_g_filter.tga
+
+	}
+
+}
+
+
+models/mapobjects/patrick/branch_pine_d_02
+
+{
+	noSelfShadow
+ 	noShadows
+	twosided
+
+	qer_editorimage		models/mapobjects/patrick/branch_pine_d_02.tga
+
+	{
+		blend	diffusemap
+		map	models/mapobjects/patrick/branch_pine_d_02.tga
+		alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/patrick/branch_pine_local_02.tga
+	specularmap		models/mapobjects/patrick/branch_pine_s_02.tga
+
+
+
+}
+
+models/mapobjects/patrick/branch_pine_d_02b
+
+{
+	noSelfShadow
+ 	noShadows
+	twosided
+
+	qer_editorimage		models/mapobjects/patrick/branch_pine_d_02b.tga
+
+	{
+		blend	diffusemap
+		map	models/mapobjects/patrick/branch_pine_d_02b.tga
+		alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/patrick/branch_pine_local_02b.tga
+	specularmap		models/mapobjects/patrick/branch_pine_s_02b.tga
+
+
+
+}
+
+models/mapobjects/patrick/branch_pine_d_02c
+
+{
+	noSelfShadow
+ 	noShadows
+	twosided
+
+	qer_editorimage		models/mapobjects/patrick/branch_pine_d_02c.tga
+
+	{
+		blend	diffusemap
+		map	models/mapobjects/patrick/branch_pine_d_02c.tga
+		alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/patrick/branch_pine_local_02c.tga
+	specularmap		models/mapobjects/patrick/branch_pine_s_02c.tga
+
+
+
+}
+
+models/mapobjects/patrick/trunk_pine_d_01
+
+{
+	//noSelfShadow
+ 	//noShadows
+
+	qer_editorimage		models/mapobjects/patrick/trunk_pine_d_01.tga
+
+	{
+			blend	diffusemap
+			map	models/mapobjects/patrick/trunk_pine_d_01.tga
+			alphatest 0.5
+	}
+
+	bumpmap			models/mapobjects/patrick/trunk_pine_local_01.tga
+	specularmap		models/mapobjects/patrick/trunk_pine_s_01.tga
+
+
+
+}

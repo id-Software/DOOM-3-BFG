@@ -1,0 +1,237 @@
+/***********************************************************************
+
+	monster_flying_cacodemon.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix CACO_ -align ALL -keep caco_launch caco_mouthfire caco_mouthfire2 caco_mouthfire2a -parent caco_launch Head -sourcedir models/monsters/cacodemon/cycles -destdir models/md5/monsters/cacodemon
+
+	mesh	cacodemon_mesh.mb -dest cacodemon
+	anim	idle.mb
+	anim	initial.mb
+	anim	walk.mb
+	anim	run.mb
+	anim	sight.mb
+	anim	attack1.mb
+	anim	range_attack1.mb
+	anim	left_pain.mb
+	anim	right_pain.mb
+	anim	tail_pain.mb
+	anim	head_pain.mb
+	anim	death1.mb
+}
+
+model monster_flying_cacodemon {
+	mesh							models/md5/monsters/cacodemon/cacodemon.md5mesh
+	offset							( 0 0 56 )
+	channel torso					( *origin )
+	
+	anim af_pose					models/md5/monsters/cacodemon/initial.md5anim
+									
+	anim idle						models/md5/monsters/cacodemon/idle.md5anim
+	anim initial					models/md5/monsters/cacodemon/initial.md5anim
+	anim sight1						models/md5/monsters/cacodemon/sight.md5anim {
+		frame 3							sound_voice monster_demon_cacodemon_sight
+	}
+	anim fly						models/md5/monsters/cacodemon/walk.md5anim {
+		//frame 1							sound_body snd_walk
+	}
+	anim walk						models/md5/monsters/cacodemon/walk.md5anim {
+		//frame 1							sound_body snd_walk
+	}
+	anim run						models/md5/monsters/cacodemon/run.md5anim {
+		//frame 1							sound_body snd_walk
+	}
+	anim melee_attack1				models/md5/monsters/cacodemon/attack1.md5anim {
+		frame 1							sound_weapon monster_demon_cacodemon_melee
+		frame 14						melee melee_cacodemon
+	}
+	anim range_attack1				models/md5/monsters/cacodemon/range_attack1.md5anim {
+		frame 13						create_missile caco_launch
+		frame 13						sound_weapon monster_demon_cacodemon_attackmissile
+		frame 15						launch_missile caco_launch
+	}
+
+	anim pain_head					models/md5/monsters/cacodemon/head_pain.md5anim {
+		frame 1							sound_voice monster_demon_cacodemon_pain
+	}
+	anim pain_left_arm				models/md5/monsters/cacodemon/left_pain.md5anim {
+		frame 1							sound_voice monster_demon_cacodemon_pain
+	}
+	anim pain_right_arm				models/md5/monsters/cacodemon/right_pain.md5anim {
+		frame 1							sound_voice monster_demon_cacodemon_pain
+	}
+	anim pain_legs					models/md5/monsters/cacodemon/tail_pain.md5anim {
+		frame 1							sound_voice monster_demon_cacodemon_pain
+	}
+	anim pain						models/md5/monsters/cacodemon/tail_pain.md5anim {
+		frame 1							sound_voice monster_demon_cacodemon_pain
+	}
+}
+
+entityDef monster_flying_cacodemon {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_flying_cacodemon"
+	"model"							"monster_flying_cacodemon"
+	"ragdoll"						"monster_demon_cacodemon"
+	"size"							"48 48 80"
+	
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"200"
+	"melee_range"					"48"
+	"def_projectile"				"projectile_cacodemon_fireball"
+	"attack_cone"					"50"
+	"attack_accuracy"				"0"
+	"turn_rate"						"150"
+	"fly_offset"					"-56"
+	"fly_speed"						"175"
+	"fly_seek_scale"				"4"
+	"fly_roll_max"					"60"
+	"fly_roll_scale"				"100"
+	"fly_pitch_scale"				"45"
+	"fly_pitch_max"					"15"
+	"mass"							"200"
+	
+	"bone_flytilt"					"Body2"
+
+	//"smokeParticleSystem"			"barrel-caco_launch"   //this was going to be the particle spawned out the sides of his mouth when he shoots, but no.
+	"smokeParticleSystem2"			"caco_mouthfire"
+	"smokeParticleSystem3"			"caco_mouthfire2"
+	"smokeParticleSystem4"			"caco_mouthfire2a"
+	
+	"useBoneAxis"					"1"
+
+	"burnaway"						"0.25"
+	"smoke_burnParticleSystem"			"burn_imp.prt-Head"
+	
+	"damage_zone head"				"*Head -*LeftSide -*RightSide"
+	//"damage_zone chest"			"*Waist -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*LeftSide"
+	"damage_zone right_arm"			"*RightSide"
+	"damage_zone legs"				"*Tail1"
+
+	"snd_ambient"					"monster_demon_cacodemon_walk"
+	"snd_sight"						"monster_demon_cacodemon_sight"
+	"snd_sight2"					"monster_demon_cacodemon_sight2"
+	"snd_chatter"					"monster_demon_cacodemon_chatter"
+	"snd_chatter_combat"			"monster_demon_cacodemon_chatter"
+	"snd_melee"						"monster_demon_cacodemon_melee"
+	"snd_pain"						"monster_demon_cacodemon_pain"
+	"snd_attackmissile"				"monster_demon_cacodemon_attackmissile"
+	"snd_death"						"monster_demon_cacodemon_die"
+	"snd_burn"						"monster_demon_cacodemon_burn"
+	
+	"fx_teleport"					"fx/teleporter_fly.fx"
+	"fx_teleport1"					"fx/teleporter1_fly.fx"
+	"fx_teleport2"					"fx/teleporter2_fly.fx"
+	"fx_teleport3"					"fx/teleporter3_fly.fx"
+}
+
+entityDef damage_cacodemon_fireball {
+	"damage"						"12"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef	damage_cacodemon_fireball_splash {
+	"damage"						"5"
+	"radius"						"48"
+}
+
+entityDef projectile_cacodemon_fireball {
+	"spawnclass"					"idProjectile"
+	"mins"							"-6 -6 -6"
+	"maxs"							"6 6 6"
+	"model" 						"caco_lightningball.prt"
+
+	"def_damage"					"damage_cacodemon_fireball"
+	"def_splash_damage"				"damage_cacodemon_fireball_splash"
+
+	"launchFromBarrel"				"1"
+	"health"						"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"325 0 -350"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"500"
+	"gravity"						"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75" 
+
+	//"smoke_fly"						"caco_lightningball.prt"	// particle effect while in the air
+	"smoke_detonate"				""							// particle effect when detonates
+	"smoke_residue"					""							// particle effect while in the air
+	"smoke_bounce"					""							// particle effect when bounces
+	"smoke_fuse"					""							// particle effect when removed from fuse expiring
+	
+	"model_detonate"				"caco_lightninghit.prt"
+										
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+	
+	"mtr_light_shader"				"lights/impflyflash"
+	"light_color"					"0.9 0.7 0.05"
+	"light_radius"					"160"
+	"light_offset"					"0 0 0"
+
+
+	"mtr_explode_light_shader"		"lights/impflash"
+	"explode_light_color"			"3.6 3.0 0.5"
+	"explode_light_radius"			"320"
+	"explode_light_fadetime"		"1"
+
+	"snd_explode"					"caco_projectile_impact"
+	"snd_fly"						"caco_projectile"					// particle effect while in the air
+}
+
+entityDef melee_cacodemon {
+	"damage"						"20"
+	"kickDir"						"1 0 0"
+	//"snd_hit"						"monster_flying_cacodemon_hit"
+	//"snd_miss"					"monster_flying_cacodemon_miss"
+	"snd_hit"						"monster_demon_pinky_melee_hit"
+	"snd_miss"						"monster_demon_pinky_melee_miss"
+
+	"mtr_blob"						"bite"
+	"blob_time"						"300"
+	"blob_x"						"0"
+	"blob_y"						"-90"
+	"blob_width"					"650"
+	"blob_height"					"650"
+	
+	"knockback"						"100"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}

@@ -1,0 +1,1078 @@
+namespace map_recycling1 {
+
+        //this variable tracks which door is the entrance
+        float airlock_state = 0;
+        float airlock2_state = 0;
+
+	void mover_startsound (entity ent) {
+		ent.startSoundShader ("m1_start", SND_CHANNEL_VOICE);
+		sys.wait (0.75);
+		ent.startSoundShader ("m1_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound (entity ent) {
+		ent.startSoundShader ("m1_stop", SND_CHANNEL_VOICE2);
+		ent.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_ITEM );
+	}
+
+	void setup_objects ()
+	{
+
+        //set airlock door guis initial states to 1
+		$airlock_door1_gui.setGuiParm ( "gui_parm1" , 1);
+        $airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+        $airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+                    
+	    //airlock door1 times            
+		$airlock_door1_left.time (1.2);
+		$airlock_door1_right.time (1.2);
+		$airlock_door1_left.accelTime (.2);
+		$airlock_door1_left.decelTime (1);
+		$airlock_door1_right.accelTime (.2);
+		$airlock_door1_right.decelTime (1);
+
+		$airlock_door1_top_lock.time (.25);
+		$airlock_door1_bottom_lock.time (.25);
+		
+		$airlock_door1_left_lock.time (.75);
+		$airlock_door1_right_lock.time (.75);
+		$airlock_door1_left_lock.accelTime (.1);
+		$airlock_door1_left_lock.decelTime (.65);
+		$airlock_door1_right_lock.accelTime (.1);
+		$airlock_door1_right_lock.decelTime (.65);
+
+		//airlock door2 times
+		$airlock_door2_left.time (1.2);
+		$airlock_door2_right.time (1.2);
+		$airlock_door2_left.accelTime (.2);
+		$airlock_door2_left.decelTime (1);
+		$airlock_door2_right.accelTime (.2);
+		$airlock_door2_right.decelTime (1);
+
+		$airlock_door2_top_lock.time (.25);
+		$airlock_door2_bottom_lock.time (.25);
+		
+		$airlock_door2_left_lock.time (.75);
+		$airlock_door2_right_lock.time (.75);
+		$airlock_door2_left_lock.accelTime (.1);
+		$airlock_door2_left_lock.decelTime (.65);
+		$airlock_door2_right_lock.accelTime (.1);
+		$airlock_door2_right_lock.decelTime (.65);
+
+        //airlock2 door1 times
+		$airlock2_door1_left.time (1.2);
+		$airlock2_door1_right.time (1.2);
+		$airlock2_door1_left.accelTime (.2);
+		$airlock2_door1_left.decelTime (1);
+		$airlock2_door1_right.accelTime (.2);
+		$airlock2_door1_right.decelTime (1);
+
+		$airlock2_door1_top_lock.time (.25);
+		$airlock2_door1_bottom_lock.time (.25);
+		
+		$airlock2_door1_left_lock.time (.75);
+		$airlock2_door1_right_lock.time (.75);
+		$airlock2_door1_left_lock.accelTime (.1);
+		$airlock2_door1_left_lock.decelTime (.65);
+		$airlock2_door1_right_lock.accelTime (.1);
+		$airlock2_door1_right_lock.decelTime (.65);
+
+		//airlock2 door2 times
+		$airlock2_door2_left.time (1.2);
+		$airlock2_door2_right.time (1.2);
+		$airlock2_door2_left.accelTime (.2);
+		$airlock2_door2_left.decelTime (1);
+		$airlock2_door2_right.accelTime (.2);
+		$airlock2_door2_right.decelTime (1);
+
+		$airlock2_door2_top_lock.time (.25);
+		$airlock2_door2_bottom_lock.time (.25);
+		
+		$airlock2_door2_left_lock.time (.75);
+		$airlock2_door2_right_lock.time (.75);
+		$airlock2_door2_left_lock.accelTime (.1);
+		$airlock2_door2_left_lock.decelTime (.65);
+		$airlock2_door2_right_lock.accelTime (.1);
+		$airlock2_door2_right_lock.decelTime (.65);
+
+		//leaking pump room
+		$bpipes.bind ($bpipes_anchor);
+		$arm_pivot.bind ($arm_pivot_anchor);
+		$arm_top.bind ($arm_top_anchor);
+		$arm_bottom.bind ($arm_bottom_anchor);
+		$arm_bottom_anchor.bind ($arm_top_anchor);
+		$arm_top_anchor.bind ($arm_pivot_anchor);
+                     
+                //revenant room
+                $walkway1.bind ($walkway1_anchor);
+                $walkway2.bind ($walkway2_anchor);
+                $walkway3.bind ($walkway3_anchor);
+                    
+                $walkway1_anchor.accelTime (1);
+                //$walkway2_anchor.accelTime (.5);
+                $walkway3_anchor.accelTime (.5);
+                 
+                $walkway1_anchor.time (1);
+                $walkway2_anchor.time (.5);
+                $walkway3_anchor.time (.8);
+              
+	        
+	}
+
+    ////////////////
+	//misc
+	////////////////
+
+
+        void walkway2_fall ()
+       { 
+                 sys.wait (7.8);
+
+                 $walkway1_anchor.rotateOnce ('-80 0 0');
+                 sys.waitFor ($walkway1_anchor);
+                                
+                 $walkway3_anchor.rotateOnce ('0 0 -45');
+                 sys.waitFor ($walkway3_anchor);
+
+                 sys.wait (4.7);
+
+               //sys.trigger ($walkway2_explosion);
+         
+                 $walkway2_anchor.rotateOnce ('-56 0 0');
+                 sys.waitFor ($walkway2_anchor);
+                                                                                
+        }
+
+	void skcube_fall ()
+	{
+		$skcube_mover.accelTime (.4);
+                $skcube_mover.time (.5);
+                $skcube_mover.rotateOnce ('0 0 90');
+                sys.waitFor ($skcube_mover);
+
+                sys.trigger ($skcube_dust);
+                
+                $skcube_mover.accelTime (.05);
+                $skcube_mover.time (.05);
+                $skcube_mover.rotateOnce ('0 0 -4');
+                sys.waitFor ($skcube_mover);
+                $skcube_mover.rotateOnce ('0 0 4');
+                sys.waitFor ($skcube_mover);
+ 
+                $skcube_mover.time (.05);
+                $skcube_mover.rotateOnce ('0 0 -2');
+                sys.waitFor ($skcube_mover);
+                $skcube_mover.rotateOnce ('0 0 2');
+                        
+	}
+
+        void skcube2_fall ()
+	{
+		$skcube2_mover.accelTime (.4);
+                $skcube2_mover.time (.5);
+                $skcube2_mover.rotateOnce ('0 0 90');
+                sys.waitFor ($skcube2_mover);
+
+                sys.trigger ($skcube2_dust);
+                
+                $skcube2_mover.accelTime (.05);
+                $skcube2_mover.time (.05);
+                $skcube2_mover.rotateOnce ('0 0 -4');
+                sys.waitFor ($skcube2_mover);
+                $skcube2_mover.rotateOnce ('0 0 4');
+                sys.waitFor ($skcube2_mover);
+
+                $skcube2_mover.time (.05);
+                $skcube2_mover.rotateOnce ('0 0 -2');
+                sys.waitFor ($skcube2_mover);
+                $skcube2_mover.rotateOnce ('0 0 2');
+                        
+	}
+        void skcube3_fall ()
+	{
+		$skcube3_mover.accelTime (.4);
+        $skcube3_mover.time (.5);
+        $skcube3_mover.rotateOnce ('0 0 90');
+        sys.waitFor ($skcube3_mover);
+
+        sys.trigger ($skcube3_dust);
+        
+        $skcube3_mover.accelTime (.05);
+        $skcube3_mover.time (.05);
+        $skcube3_mover.rotateOnce ('0 0 -4');
+        sys.waitFor ($skcube3_mover);
+        $skcube3_mover.rotateOnce ('0 0 4');
+        sys.waitFor ($skcube3_mover);
+
+        $skcube3_mover.time (.05);
+        $skcube3_mover.rotateOnce ('0 0 -2');
+        sys.waitFor ($skcube3_mover);
+        $skcube3_mover.rotateOnce ('0 0 2');
+                        
+	}
+
+        void ceilingpipe_mover1_rumble()
+	{
+		$ceilingpipe_mover1.time (.1);
+		
+		while(1){
+			$ceilingpipe_mover1.rotateOnce ( '0.5 1 0' );
+			sys.waitFor ($ceilingpipe_mover1);
+			$ceilingpipe_mover1.rotateOnce ( '-0.5 -1 0' );
+			sys.waitFor ($ceilingpipe_mover1);
+					
+		}
+	}
+
+        void ladder1_lower()
+	{		
+		$ladder1.time(2);
+		sys.trigger ($speaker_ladder1);
+		$ladder1.moveTo ($ladder_down);
+	}
+
+        void pipesteam1_cycle ()
+        {
+	while (1)
+	{                        
+                sys.trigger ($pipesteam1);
+                sys.trigger ($pipesteam1_speaker);
+                sys.wait (2);
+                sys.trigger ($pipesteam1);
+                sys.wait (3);                                               
+	}                 
+	}
+
+	////////////////
+	//break skywalk
+	////////////////
+
+	void skywalk_fall ()
+	{
+        sys.trigger ($recycling1_skybridge);
+	}
+
+     
+
+	////////////////
+	//big tank pump room
+	////////////////
+
+	void bigtank_pumps_on1 ()
+	{
+		while (1)
+		{        
+			$piston_left.accelTime (.4);
+			$piston_left.time (1.2);
+			thread mover_startsound ($piston_left);
+			$piston_left.move (DOWN,128);
+			$piston_left.rotateOnce ('0 20 0');
+			sys.waitFor ($piston_left);
+			mover_stopsound ($piston_left);
+			
+			sys.wait (0.5);
+			
+			$piston_left.time (1.6);
+			thread mover_startsound ($piston_left);
+			$piston_left.move (UP,128);
+			$piston_left.rotateOnce ('0 -20 0');
+			sys.waitFor ($piston_left);
+			mover_stopsound ($piston_left);
+			
+			sys.wait (0.5);
+			
+		}
+	}
+
+	void bigtank_pumps_on2 ()
+	{
+		while (1)
+		{ 
+			$piston_right.accelTime (.4); 
+			thread mover_startsound ($piston_right);
+			$piston_right.time (1);
+			$piston_right.move (DOWN,128);
+			$piston_right.rotateOnce ('0 -20 0');
+			sys.waitFor ($piston_right);
+			mover_stopsound ($piston_right);
+			
+			sys.wait (0.5);
+		   
+			$piston_right.time (1.5);
+			thread mover_startsound ($piston_right);
+			$piston_right.move (UP,128);
+			$piston_right.rotateOnce ('0 20 0');
+			sys.waitFor ($piston_right);
+			mover_stopsound ($piston_right);
+			
+			sys.wait (0.5);
+		}
+	}
+
+	void bigtank_pumps_on3 ()
+	{
+		while (1)
+			{  
+				$piston_center.time (3);
+				$piston_center.startSoundShader ("rec1_3s_piston", SND_CHANNEL_VOICE );
+				$piston_center.move (EAST,96);
+				$piston_center.rotateOnce ('0 0 360');
+				sys.waitFor ($piston_center);
+
+				$bigtank_smoke.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE );
+				sys.trigger ($bigtank_smoke);
+				sys.wait (2);
+				$bigtank_smoke.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE2 );
+				sys.trigger ($bigtank_smoke);
+
+				$piston_center.time (3);
+				$piston_center.startSoundShader ("rec1_3s_piston", SND_CHANNEL_VOICE );
+				$piston_center.move (WEST,96);
+				$piston_center.rotateOnce ('0 0 -360');
+				sys.waitFor ($piston_center);
+			        
+				$piston_center.startSoundShader ("rec1_2s_rotation", SND_CHANNEL_VOICE2 );
+				$piston_center.time (2);
+				$piston_center.rotateOnce ('0 0 360');
+				sys.waitFor ($piston_center);
+			}                                    
+	}
+
+	void bigtank_pumps_off ()
+	{
+
+			sys.killthread ( "map_recycling1::bigtank_pumps_on1" );
+			sys.killthread ( "map_recycling1::bigtank_pumps_on2" );
+			sys.killthread ( "map_recycling1::bigtank_pumps_on3" );
+	        
+	}
+
+	////////////////
+	//pump1 room
+	////////////////
+
+	void pump1apiston_start ()
+	{
+	while (1)
+	{          
+            $pump1apiston.accelTime (.3);
+            $pump1apiston.decelTime (.3);
+			$pump1apiston.startSoundShader ("rec1_pump_movement_1_5s", SND_CHANNEL_VOICE );
+			$pump1apiston.time (1);
+			$pump1apiston.moveTo ($pump1aspot1);
+			$pump1apiston.rotateOnce ('0 20 0');
+			sys.waitFor ($pump1apiston);
+			$pump1apiston.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_VOICE2 );
+            
+            $pump1apiston_steam.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE );
+            sys.trigger ($pump1apiston_steam);
+
+			$pump1apiston.time (.5);
+			$pump1apiston.startSoundShader ("rec1_pump_movement_0_5s", SND_CHANNEL_VOICE );
+			$pump1apiston.moveTo ($pump1aspot2);
+			$pump1apiston.rotateOnce ('0 -20 0');
+			sys.waitFor ($pump1apiston);
+			$pump1apiston.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_VOICE2 );
+
+            sys.trigger ($pump1apiston_steam);                        
+	}                 
+	}
+
+	void pump1bpiston_start ()
+	{
+	while (1)
+	{   
+            $pump1bpiston.accelTime (.3);
+            $pump1bpiston.decelTime (.3);     
+			$pump1bpiston.startSoundShader ("rec1_pump_movement_1_5s", SND_CHANNEL_VOICE );
+			$pump1bpiston.time (1.2);
+			$pump1bpiston.moveTo ($pump1bspot1);
+			$pump1bpiston.rotateOnce ('0 -15 0');
+			$pump1bpiston.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_VOICE2 );
+			sys.waitFor ($pump1bpiston);
+
+            $pump1bpiston_steam.startSoundShader ("rec1_steamchuff", SND_CHANNEL_VOICE );
+            sys.trigger ($pump1bpiston_steam);
+
+			$pump1bpiston.time (.4);
+			$pump1bpiston.startSoundShader ("rec1_pump_movement_0_4s", SND_CHANNEL_VOICE );
+			$pump1bpiston.moveTo ($pump1bspot2);
+			
+			$pump1bpiston.rotateOnce ('0 15 0');
+			sys.waitFor ($pump1bpiston);
+			$pump1bpiston.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_VOICE2 );
+			
+            sys.trigger ($pump1bpiston_steam);
+	}                 
+	}
+
+	///////////////////
+	//leaking pump room
+	///////////////////
+
+	void bpump_on ()
+	{ 
+	while (1)
+		{  
+		        
+				
+				$bpipes_anchor.time (.5);       
+				$bpipes_anchor.startSoundShader ("rec1_1_rotation", SND_CHANNEL_VOICE );
+				$bpipes_anchor.rotateOnce ('0 0 -120');       
+		       
+				sys.waitFor ($bpipes_anchor);
+		       
+				$arm_pivot_anchor.time (1.2);
+				$arm_pivot_anchor.startSoundShader ("rec1_1_2s_movement", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.moveTo ($arm_spot2); 
+				
+				$arm_top_anchor.time (.3);
+				$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+				$arm_top_anchor.rotateOnce ('-30 0 0');
+				sys.waitFor ($arm_pivot_anchor);
+				
+				$arm_pivot_anchor.time (.7);
+				$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.rotateOnce ('0 -180 0');
+				$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+				$arm_top_anchor.time (.3);
+				$arm_top_anchor.rotateOnce ('30 0 0');
+				sys.waitFor ($arm_pivot_anchor);
+				
+				$arm_bottom_anchor.time (.8);
+				$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_8s", SND_CHANNEL_VOICE );
+				$arm_bottom_anchor.rotateOnce ('90 0 0');
+				sys.waitFor ($arm_bottom_anchor);
+				
+				sys.trigger ($pipefill);
+				sys.trigger ($speaker_pipefill);
+				sys.wait (3.5);
+				
+				sys.trigger ($pipefill);
+				
+				$arm_bottom_anchor.time (.4);
+				$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_4s", SND_CHANNEL_VOICE );
+				$arm_bottom_anchor.rotateOnce ('-90 0 0');
+				sys.waitFor ($arm_bottom_anchor);
+				
+				$arm_pivot_anchor.time (.7);
+				$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.rotateOnce ('0 180 0');
+				sys.waitFor ($arm_pivot_anchor);
+				
+				$arm_pivot_anchor.time (1.5);
+				$arm_pivot_anchor.startSoundShader ("rec1_1_5s_movement", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.moveTo ($arm_spot1);
+				sys.waitFor ($arm_pivot_anchor);
+		        
+				sys.wait (.5);
+		        
+				$bpipes_anchor.time (1);       
+				$bpipes_anchor.startSoundShader ("rec1_2_rotation", SND_CHANNEL_VOICE );
+				$bpipes_anchor.rotateOnce ('0 0 240');
+		        
+				sys.waitFor ($bpipes_anchor);
+		      
+				$arm_pivot_anchor.time (1.2);
+				$arm_pivot_anchor.startSoundShader ("rec1_1_2s_movement", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.moveTo ($arm_spot2); 
+				$arm_top_anchor.time (.3);
+				$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+				$arm_top_anchor.rotateOnce ('-30 0 0');
+				sys.waitFor ($arm_pivot_anchor);
+
+				$arm_pivot_anchor.time (.7);
+				$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.rotateOnce ('0 -180 0');
+				$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+				$arm_top_anchor.time (.3);
+				$arm_top_anchor.rotateOnce ('30 0 0');
+				sys.waitFor ($arm_pivot_anchor);
+
+				$arm_bottom_anchor.time (.8);
+				$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_8s", SND_CHANNEL_VOICE );
+				$arm_bottom_anchor.rotateOnce ('90 0 0');
+				sys.waitFor ($arm_bottom_anchor);
+
+				sys.trigger ($speaker_pipefill);
+				sys.trigger ($pipefill);
+
+				sys.wait (3.5);
+
+				sys.trigger ($pipefill);
+				
+				$arm_bottom_anchor.time (.4);
+				$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_4s", SND_CHANNEL_VOICE );
+				$arm_bottom_anchor.rotateOnce ('-90 0 0');
+				sys.waitFor ($arm_bottom_anchor);
+
+				$arm_pivot_anchor.time (.7);
+				$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.rotateOnce ('0 180 0');
+				sys.waitFor ($arm_pivot_anchor);
+
+				$arm_pivot_anchor.time (1.5);
+				$arm_pivot_anchor.startSoundShader ("rec1_1_5s_movement", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.moveTo ($arm_spot1);
+				sys.waitFor ($arm_pivot_anchor);
+
+				sys.wait (.5);
+
+				$bpipes_anchor.time (2);       
+				$bpipes_anchor.startSoundShader ("rec1_3_rotation", SND_CHANNEL_VOICE );
+				$bpipes_anchor.rotateOnce ('0 0 -480');
+		        
+				sys.waitFor ($bpipes_anchor);
+
+				$arm_pivot_anchor.time (1.2);
+				$arm_pivot_anchor.startSoundShader ("rec1_1_2s_movement", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.moveTo ($arm_spot2); 
+				$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+				$arm_top_anchor.time (.3);
+				$arm_top_anchor.rotateOnce ('-30 0 0');
+				sys.waitFor ($arm_pivot_anchor);
+
+				$arm_pivot_anchor.time (.7);
+				$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.rotateOnce ('0 -180 0');
+				$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+				$arm_top_anchor.time (.3);
+				$arm_top_anchor.rotateOnce ('30 0 0');
+				sys.waitFor ($arm_pivot_anchor);
+
+				$arm_bottom_anchor.time (.8);
+				$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_8s", SND_CHANNEL_VOICE );
+				$arm_bottom_anchor.rotateOnce ('90 0 0');
+				sys.waitFor ($arm_bottom_anchor);
+
+				sys.trigger ($speaker_pipefill);
+				sys.trigger ($pipefill);
+
+				sys.wait (3.5);
+
+				sys.trigger ($pipefill);
+
+				$arm_bottom_anchor.time (.4);
+				$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_4s", SND_CHANNEL_VOICE );
+				$arm_bottom_anchor.rotateOnce ('-90 0 0');
+				sys.waitFor ($arm_bottom_anchor);
+
+				$arm_pivot_anchor.time (.7);
+				$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.rotateOnce ('0 180 0');
+				sys.waitFor ($arm_pivot_anchor);
+
+				$arm_pivot_anchor.time (1.5);
+				$arm_pivot_anchor.startSoundShader ("rec1_1_5s_movement", SND_CHANNEL_VOICE );
+				$arm_pivot_anchor.moveTo ($arm_spot1);
+				sys.waitFor ($arm_pivot_anchor);
+		 
+				sys.wait (.5);        
+		}                             
+	}
+
+	void bpump_off ()
+	{
+			sys.killthread ( "map_recycling1::bpump_on" );
+	        sys.trigger ($func_remove_2);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Open airlock door1
+	//
+	////////////////////////////////////////////////////
+	void airlock_door1_open()
+	{
+		entity ent;
+
+        //disable the gui on door1		
+		$airlock_door1_gui.setGuiParm ( "gui_parm1" , 0);
+
+		//turn door1 light on and door2 light off
+		thread crossFadeEnt ($door2_light, '.82 .76 .56', '0.4 0 0', 1);
+		sys.wait(1);
+		thread crossFadeEnt ($door1_light, '0.4 0 0', '.82 .76 .56', 1);
+
+		//move the 4 locks to unlock position
+		
+		sys.trigger ($speaker_airlock_door1_bottom_lock);	// SOUND
+		
+		$airlock_door1_top_lock.move ( UP, 15 );
+		$airlock_door1_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock_door1_bottom_lock);
+
+		sys.trigger ($speaker_airlock_door1_right_lock);	// SOUND
+		sys.trigger ($speaker_airlock_door1_left_lock);		// SOUND
+
+		$airlock_door1_left_lock.move ( NORTH, -16 );
+		$airlock_door1_right_lock.move ( NORTH, -16 );
+		sys.waitFor ($airlock_door1_right_lock);
+
+		//open doors
+		
+		sys.trigger ($speaker_airlock_door1_open);			// SOUND
+		
+		$airlock_door1_left.rotateOnce ( '0 45 0' );
+		$airlock_door1_right.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		sys.trigger ($airlock_door1_portal);
+
+		sys.waitFor ($airlock_door1_right);
+		sys.waitFor ($airlock_door1_left);
+				
+		//set airlock state to door 1
+		ent=sys.getEntity( "airlock_door1_portal" );
+		ent.setKey( "state", 1 );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Open airlock door2
+	//
+	////////////////////////////////////////////////////
+	void airlock_door2_open()
+	{
+		entity ent;
+
+		//turn door2 light on and door1 light off
+		thread crossFadeEnt ($door1_light, '.82 .76 .56', '0.4 0 0', 1);
+		sys.wait(1);
+		thread crossFadeEnt ($door2_light, '0.4 0 0', '.82 .76 .56', 1);
+
+		//move the 4 locks to unlock position
+				
+		sys.trigger ($speaker_airlock_door2_bottom_lock);		// SOUND
+		
+		$airlock_door2_top_lock.move ( UP, 15 );
+		$airlock_door2_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock_door2_bottom_lock);
+
+		sys.trigger ($speaker_airlock_door2_right_lock);		// SOUND
+		sys.trigger ($speaker_airlock_door2_left_lock);			// SOUND
+
+		$airlock_door2_left_lock.move ( NORTH, 16 );
+		$airlock_door2_right_lock.move ( NORTH, 16 );
+		sys.waitFor ($airlock_door2_right_lock);
+
+		//open doors
+		
+		sys.trigger ($speaker_airlock_door2_open);				// SOUND
+		
+		$airlock_door2_left.rotateOnce ( '0 45 0' );
+		$airlock_door2_right.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		sys.trigger ($airlock_door2_portal);
+
+		sys.waitFor ($airlock_door2_right);
+		sys.waitFor ($airlock_door2_left);
+
+		//set airlock state
+		ent=sys.getEntity( "airlock_door1_portal" );
+		ent.setKey( "state", 2 );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Close airlock door1
+	//
+	////////////////////////////////////////////////////
+	void airlock_door1_close()
+	{
+		//close doors
+		
+		sys.trigger ($speaker_airlock_door1_close);			// SOUND
+		
+		$airlock_door1_left.rotateOnce ( '0 -45 0' );
+		$airlock_door1_right.rotateOnce ( '0 45 0' );
+		sys.waitFor ($airlock_door1_right);
+
+		//trigger the portal
+		sys.trigger ($airlock_door1_portal);
+
+		//fire sound trigger
+		sys.trigger ($airlock_speaker);
+
+		//move the 4 locks to lock position
+		sys.trigger ($speaker_airlock_door1_right_lock);	// SOUND
+		sys.trigger ($speaker_airlock_door1_left_lock);		// SOUND
+
+		$airlock_door1_left_lock.move ( NORTH, 16 );
+		$airlock_door1_right_lock.move ( NORTH, 16 );
+		sys.waitFor ($airlock_door1_right_lock);
+
+		sys.trigger ($speaker_airlock_door1_bottom_lock);	// SOUND
+
+		$airlock_door1_top_lock.move ( DOWN, 15 );
+		$airlock_door1_bottom_lock.move ( UP, 15 );
+		sys.waitFor ($airlock_door1_top_lock);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Close airlock door2
+	//
+	////////////////////////////////////////////////////
+	void airlock_door2_close()
+	{
+		//close doors
+		
+		sys.trigger ($speaker_airlock_door2_close);				// SOUND
+		
+		$airlock_door2_left.rotateOnce ( '0 -45 0' );
+		$airlock_door2_right.rotateOnce ( '0 45 0' );
+		sys.waitFor ($airlock_door2_right);
+
+		//trigger the portal
+		sys.trigger ($airlock_door2_portal);
+
+		//fire sound trigger
+		sys.trigger ($airlock_speaker);
+
+		//move the 4 locks to lock position
+		sys.trigger ($speaker_airlock_door2_right_lock);	// SOUND
+		sys.trigger ($speaker_airlock_door2_left_lock);		// SOUND
+
+		$airlock_door2_left_lock.move ( NORTH, -16 );
+		$airlock_door2_right_lock.move ( NORTH, -16 );
+		sys.waitFor ($airlock_door2_right_lock);
+
+		sys.trigger ($speaker_airlock_door2_bottom_lock);	// SOUND
+		
+		$airlock_door2_top_lock.move ( DOWN, 15 );
+		$airlock_door2_bottom_lock.move ( UP, 15 );
+		sys.waitFor ($airlock_door2_top_lock);
+
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Main Activate airlock
+	//	conditionally chooses based on entrance
+	//
+	////////////////////////////////////////////////////
+	void airlock_main_activate()
+	{
+		entity ent;
+		
+		//check to see which way the player entered by checking the airlock_state
+		//if 1 then close 1 and open 2
+
+		ent=sys.getEntity ("airlock_door1_portal" );
+
+		if (ent.getFloatKey ("state")==1) {
+			airlock_door1_close();
+			airlock_door2_open();
+			
+		} else { //else close 2 and open 1
+			airlock_door2_close();
+			airlock_door1_open();
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK main activation
+	//	
+	////////////////////////////////////////////////////
+	void airlock1_activate()
+	{
+		//disable the guis on the doors
+		$airlock_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock_innerguiholder.setGuiParm ( "gui_parm11" , 0);
+	
+		airlock_main_activate();
+
+		//check the airlock state and enable the guis on the closed door
+		if ($airlock_door1_portal.getFloatKey ("state")==1) {
+			$airlock_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		} else { //else close 2 and open 1
+			$airlock_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		}
+
+		$airlock_innerguiholder.setGuiParm ( "gui_parm11" , 1);
+	}
+
+
+//////////////////////////
+////////////airlock2
+//////////////////////////
+
+    ////////////////////////////////////////////////////
+	//
+	//	Open airlock2 door1
+	//
+	////////////////////////////////////////////////////
+	void airlock2_door1_open()
+	{
+		entity ent;
+
+        //disable the gui on door1		
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 0);
+
+		//turn door1 light on and door2 light off
+		thread crossFadeEnt ($airlock2_door2_light, '.82 .76 .56', '0.4 0 0', 1);
+		sys.wait(1);
+		thread crossFadeEnt ($airlock2_door1_light, '0.4 0 0', '.82 .76 .56', 1);
+
+		//move the 4 locks to unlock position
+		sys.trigger ($speaker_airlock2_door1_bottom_lock);	// SOUND
+		$airlock2_door1_top_lock.move ( UP, 15 );
+		$airlock2_door1_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock2_door1_bottom_lock);
+
+		sys.trigger ($speaker_airlock2_door1_left_lock);	// SOUND
+		sys.trigger ($speaker_airlock2_door1_right_lock);	// SOUND
+		$airlock2_door1_left_lock.move ( WEST, -16 );
+		$airlock2_door1_right_lock.move ( WEST, -16 );
+		sys.waitFor ($airlock2_door1_right_lock);
+
+		//open doors
+		
+		sys.trigger ($speaker_airlock2_door1_open);
+		
+		$airlock2_door1_left.rotateOnce ( '0 45 0' );
+		$airlock2_door1_right.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		sys.trigger ($airlock2_door1_portal);
+
+		sys.waitFor ($airlock2_door1_right);
+		sys.waitFor ($airlock2_door1_left);
+				
+		//set airlock state
+		ent=sys.getEntity( "airlock2_door1_portal" );
+		ent.setKey( "state", 1 );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Open airlock2 door2
+	//
+	////////////////////////////////////////////////////
+	void airlock2_door2_open()
+	{
+		entity ent;
+
+        //disable the gui on door2		
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 0);
+
+		//turn door2 light on and door1 light off
+		thread crossFadeEnt ($airlock2_door1_light, '.82 .76 .56', '0.4 0 0', 1);
+		sys.wait(1);
+		thread crossFadeEnt ($airlock2_door2_light, '0.4 0 0', '.82 .76 .56', 1);
+
+		//move the 4 locks to unlock position
+		
+		sys.trigger ($speaker_airlock2_door2_bottom_lock);
+		
+		$airlock2_door2_top_lock.move ( UP, 15 );
+		$airlock2_door2_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock2_door2_bottom_lock);
+	
+		sys.trigger ($speaker_airlock2_door2_left_lock);		// SOUND
+		sys.trigger ($speaker_airlock2_door2_right_lock);		// SOUND
+
+		$airlock2_door2_left_lock.move ( WEST, 16 );
+		$airlock2_door2_right_lock.move ( WEST, 16 );
+		sys.waitFor ($airlock2_door2_right_lock);
+
+		//open doors
+		
+		sys.trigger ($speaker_airlock2_door2_open);
+		
+		$airlock2_door2_left.rotateOnce ( '0 45 0' );
+		$airlock2_door2_right.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		sys.trigger ($airlock2_door2_portal);
+
+		sys.waitFor ($airlock2_door2_right);
+		sys.waitFor ($airlock2_door2_left);
+
+		//set airlock state
+		ent=sys.getEntity( "airlock2_door1_portal" );
+		ent.setKey( "state", 2 );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Close airlock2 door1
+	//
+	////////////////////////////////////////////////////
+	void airlock2_door1_close()
+	{
+		//close doors
+		
+		sys.trigger ($speaker_airlock2_door1_close);		// SOUND
+		
+		$airlock2_door1_left.rotateOnce ( '0 -45 0' );
+		$airlock2_door1_right.rotateOnce ( '0 45 0' );
+		sys.waitFor ($airlock2_door1_right);
+
+		//trigger the portal
+		sys.trigger ($airlock2_door1_portal);
+
+		//fire sound trigger
+		sys.trigger ($airlock2_speaker);
+
+		sys.trigger ($speaker_airlock2_door1_left_lock);	// SOUND
+		sys.trigger ($speaker_airlock2_door1_right_lock);	// SOUND
+
+		//move the 4 locks to lock position
+		$airlock2_door1_left_lock.move ( WEST, 16 );
+		$airlock2_door1_right_lock.move ( WEST, 16 );
+		sys.waitFor ($airlock2_door1_right_lock);
+
+		sys.trigger ($speaker_airlock2_door1_bottom_lock);	// SOUND
+		
+		$airlock2_door1_top_lock.move ( DOWN, 15 );
+		$airlock2_door1_bottom_lock.move ( UP, 15 );
+		sys.waitFor ($airlock2_door1_top_lock);
+ 	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Close airlock2 door2
+	//
+	////////////////////////////////////////////////////
+	void airlock2_door2_close()
+	{
+		//close doors
+		
+		sys.trigger ($speaker_airlock2_door2_close);
+		
+		$airlock2_door2_left.rotateOnce ( '0 -45 0' );
+		$airlock2_door2_right.rotateOnce ( '0 45 0' );
+		sys.waitFor ($airlock2_door2_right);
+
+		//trigger the portal
+		sys.trigger ($airlock2_door2_portal);
+
+		//fire sound trigger
+		sys.trigger ($airlock2_speaker);
+
+		//move the 4 locks to lock position
+		
+		sys.trigger ($speaker_airlock2_door2_left_lock);
+		sys.trigger ($speaker_airlock2_door2_right_lock);
+		
+		$airlock2_door2_left_lock.move ( WEST, -16 );
+		$airlock2_door2_right_lock.move ( WEST, -16 );
+		sys.waitFor ($airlock2_door2_right_lock);
+
+		sys.trigger ($speaker_airlock2_door2_bottom_lock);
+
+		$airlock2_door2_top_lock.move ( DOWN, 15 );
+		$airlock2_door2_bottom_lock.move ( UP, 15 );
+		sys.waitFor ($airlock2_door2_top_lock);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Main Activate airlock
+	//	conditionally chooses based on entrance
+	//
+	////////////////////////////////////////////////////
+	void airlock2_main_activate()
+	{
+		entity ent;
+		
+		//check to see which way the player entered by checking the airlock_state
+		//if 1 then close 1 and open 2
+
+		ent=sys.getEntity ("airlock2_door1_portal" );
+
+		if (ent.getFloatKey ("state")==1) {
+			airlock2_door1_close();
+			airlock2_door2_open();
+			
+		} else { //else close 2 and open 1
+			airlock2_door2_close();
+			airlock2_door1_open();
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK main activation
+	//	
+	////////////////////////////////////////////////////
+	void airlock2_activate()
+	{
+		//disable the guis on the doors
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 0);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 0);
+		$func_static_3817.setGuiParm ( "gui_parm11" , 0);
+	
+		airlock2_main_activate();
+
+		//check the airlock state and enable the guis on the closed door
+		if ($airlock2_door1_portal.getFloatKey ("state")==1) {
+			$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		} else { //else close 2 and open 1
+			$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		}
+
+		$func_static_3817.setGuiParm ( "gui_parm11" , 1);
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("rec1_1_2s_movement");
+		sys.cacheSoundShader ("rec1_1_5s_movement");
+		sys.cacheSoundShader ("rec1_pivot_0_8s");
+		sys.cacheSoundShader ("rec1_pivot_0_7s");
+		sys.cacheSoundShader ("rec1_pivot_0_4s");
+		sys.cacheSoundShader ("rec1_pivot_0_3s");
+		sys.cacheSoundShader ("rec1_3_rotation");
+		sys.cacheSoundShader ("rec1_2_rotation");
+		sys.cacheSoundShader ("rec1_1_rotation");
+		sys.cacheSoundShader ("rec1_pump_endclack_01");
+		sys.cacheSoundShader ("rec1_pump_movement_0_4s");
+		sys.cacheSoundShader ("rec1_pump_movement_0_5s");
+		sys.cacheSoundShader ("rec1_pump_movement_1_5s");
+		sys.cacheSoundShader ("rec1_2s_rotation");
+		sys.cacheSoundShader ("rec1_steamchuff");
+		sys.cacheSoundShader ("rec1_3s_piston");
+		sys.cacheSoundShader ("m1_start");
+		sys.cacheSoundShader ("m1_stop");
+		sys.cacheSoundShader ("m1_loop");
+	}
+
+	void main ()
+	{
+		cache_sounds();
+		setup_objects();
+		thread map_recycling1::pump1apiston_start();
+		thread map_recycling1::pump1bpiston_start();
+
+		//setup the airlocks in the correct states
+		thread map_recycling1::airlock_door2_open();
+		thread map_recycling1::airlock2_door1_open();
+	}
+}
+
+
+
+//James's Rev Rockets
+
+void rev_rocketa( entity self ) {
+	self.launchMissiles( "projectile_rev_rocket_cinematic", "snd_fire", "Lmissile", "target1", 1, 0 );
+}
+
+void rev_rocketb( entity self ) {
+	self.launchMissiles( "projectile_rev_rocket_cinematic", "snd_fire", "Rmissile", "target2", 1, 0 );
+}

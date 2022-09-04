@@ -1,0 +1,1224 @@
+/***********************************************************************
+
+events.script
+
+Defines game events available to script.
+
+***********************************************************************/
+
+/***********************************************************************
+
+	all entities
+
+***********************************************************************/
+
+// Removes this entity from the game.
+scriptEvent	void 	remove();
+
+// Returns the name of this entity.
+scriptEvent	string	getName();
+
+// Sets the name of this entity.
+scriptEvent	void 	setName( string name );
+
+// Activates this entity as if it was activated by a trigger.
+// Activator is the entity that caused the action (usually the player).
+scriptEvent	void 	activate( entity activator );
+
+// Causes this entity to activate all it's targets. Similar to how a trigger activates entities.
+// Activator is the entity that caused the action (usually the player).
+scriptEvent	void 	activateTargets( entity activator );
+
+// Returns the number of entities this entity has targeted.
+scriptEvent	float	numTargets();
+
+// Returns the requested target entity.
+scriptEvent	entity	getTarget( float num );
+
+// Returns a random targeted entity. Pass in an entity name to skip that entity.
+scriptEvent	entity	randomTarget( string ignoreName );
+
+// Fixes this entity's position and orientation relative to another entity,
+// such that when the master entity moves, so does thisentity.
+scriptEvent	void 	bind( entity master );
+
+// Fixes this entity's position (but not orientation) relative to another entity,
+// such that when the master entity moves, so does this entity.
+scriptEvent	void 	bindPosition( entity master );
+
+// Fixes this entity's position and orientation relative to a bone on another entity,
+// such that when the master's bone moves, so does this entity.
+scriptEvent	void 	bindToJoint( entity master, string boneName, float rotateWithMaster );
+
+// Detaches this entity from its master.
+scriptEvent	void 	unbind();
+
+// Removes all attached entities from the game.
+scriptEvent	void 	removeBinds();
+
+// Sets the owner of this entity.  Entity's will never collide with their owner.
+scriptEvent	void 	setOwner( entity owner );
+
+// Sets the model this entity uses.
+scriptEvent	void 	setModel( string modelName );
+
+// Sets the skin this entity uses.  Set to "" to turn off the skin.
+scriptEvent	void 	setSkin( string skinName );
+
+// Returns the current worldspace position of this entity (regardless of any bind parent).
+scriptEvent	vector	getWorldOrigin();
+
+// Sets the current position of this entity (regardless of any bind parent).
+scriptEvent	void	setWorldOrigin( vector origin );
+
+// Returns the current position of this entity (relative to bind parent if any).
+scriptEvent	vector	getOrigin();
+
+// Sets the current position of this entity (relative to it's bind parent if any).
+scriptEvent	void 	setOrigin( vector origin );
+
+// Returns the current orientation of this entity (relative to bind parent if any).
+scriptEvent	vector	getAngles();
+
+// Sets the current orientation of this entity (relative to bind parent if any).
+scriptEvent	void 	setAngles( vector angles );
+
+// Gets the current linear velocity of this entity. The linear velocity of a physics
+// object is a vector that defines the translation of the center of mass in units per second.
+scriptEvent	vector	getLinearVelocity();
+
+// Sets the current linear velocity of this entity in units per second. The linear velocity of
+// a physics object is a vector that defines the translation of the center of mass in units per second.
+scriptEvent	void 	setLinearVelocity( vector velocity );
+
+// Gets the current angular velocity of this entity. The angular velocity of
+// a physics object is a vector that passes through the center of mass. The
+// direction of this vector defines the axis of rotation and the magnitude
+// defines the rate of rotation about the axis in radians per second.
+scriptEvent	vector	getAngularVelocity();
+
+// Sets the current angular velocity of this entity. The angular velocity of
+// a physics object is a vector that passes through the center of mass. The
+// direction of this vector defines the axis of rotation and the magnitude
+// defines the rate of rotation about the axis in radians per second.
+scriptEvent	void 	setAngularVelocity( vector velocity );
+
+// Gets the size of this entity's bounding box.
+scriptEvent	vector	getSize();
+
+// Sets the size of this entity's bounding box.
+scriptEvent	void 	setSize( vector min, vector max );
+
+// Gets the minimum corner of this entity's bounding box.
+scriptEvent	vector	getMins();
+
+// Gets the maximum corner of this entity's bounding box.
+scriptEvent	vector	getMaxs();
+
+// checks if the entity's model is invisible.
+scriptEvent	float	isHidden();
+
+// Makes this entity invisible.
+scriptEvent	void 	hide();
+
+// Makes this entity visible if it has a model.
+scriptEvent	void 	show();
+
+// Returns true if this entity touches the other entity.
+scriptEvent	float	touches( entity other );
+
+// Disables the callback function on the specified signal.
+scriptEvent	void 	clearSignal( float signalNum );
+
+// Gets the value of the specified shader parm.
+scriptEvent	float	getShaderParm( float parm );
+
+// Sets the value of the specified shader parm.
+scriptEvent	void 	setShaderParm( float parm, float value );
+
+// Sets shader parms Parm0, Parm1, Parm2, and Parm3 (red, green, blue, and alpha respectively).
+scriptEvent	void 	setShaderParms( float parm0, float parm1, float parm2, float parm3 );
+
+// Sets the RGB color of this entity (shader parms Parm0, Parm1, Parm2).
+scriptEvent	void 	setColor( float red, float green, float blue );
+
+// Gets the color of this entity (shader parms Parm0, Parm1, Parm2).
+scriptEvent	vector	getColor();
+
+// ensure the specified sound shader is loaded by the system.  prevents cache hits when playing sound shaders.
+scriptEvent	void 	cacheSoundShader( string shaderName );
+
+// Plays a specific sound shader on the channel and returns the length of the sound in
+// seconds. This is not the prefered method of playing a sound since you must ensure
+// that the sound is loaded.
+scriptEvent	float	startSoundShader( string shaderName, float channel );
+
+// Stops a specific sound shader on the channel.
+scriptEvent	void 	stopSound( float channel, float netSync );
+
+// Plays the sound specified by the snd_* key/value pair on the channel and returns
+// the length of the sound. This is the preferred method for playing sounds on an
+// entity since it ensures that the sound is precached.
+scriptEvent	float	startSound( string sound, float channel, float netSync );
+
+// Fades the sound on this entity to a new level over a period of time.  Use SND_CHANNEL_ANY for all currently playing sounds.
+scriptEvent	void 	fadeSound( float channel, float newLevel, float fadeTime );
+
+// Sets a parameter on this entity's GUI.
+scriptEvent	void 	setGuiParm( string key, string value );
+
+// Sets a parameter on this entity's GUI.
+scriptEvent	void 	setGuiFloat( string key, float value );
+
+// searches for the name of a spawn arg that matches the prefix.  for example,
+// passing in "attack_target" matches "attack_target1", "attack_targetx", "attack_target_enemy", 
+// etc. The returned string is the name of the key which can then be passed into
+// functions like getKey() to lookup the value of that spawn arg.  This
+// is usefull for when you have multiple values to look up, like when you
+// target multiple objects.  To find the next matching key, pass in the previous
+// result and the next key returned will be the first one that matches after
+// the previous result.  pass in "" to get the first match.  returns "" when no 
+// more keys match.  Note to coders: this is the same as MatchPrefix in the game code.
+scriptEvent	string	getNextKey( string prefix, string lastMatch );
+
+// Sets a key on this entity's spawn args. Note that most spawn args are evaluated when
+// this entity spawns in, so this will not change the entity's behavior in most cases.
+// This is chiefly for saving data the script needs in an entity for later retrieval.
+scriptEvent	void 	setKey( string key, string value );
+
+// Retrieves the value of a specific spawn arg.
+scriptEvent	string	getKey( string key );
+
+// Retrieves the integer value of a specific spawn arg.
+scriptEvent	float	getIntKey( string key );
+
+// Retrieves the floating point value of a specific spawn arg.
+scriptEvent	float	getFloatKey( string key );
+
+// Retrieves the vector value of a specific spawn arg.
+scriptEvent	vector	getVectorKey( string key );
+
+// Retrieves the entity specified by the spawn arg.
+scriptEvent	entity	getEntityKey( string key );
+
+// Returns this entity to the position stored in the "origin" spawn arg.
+// This is the position the entity was spawned in unless the "origin" key is changed.
+// Note that there is no guarantee that the entity won't be stuck in another entity
+// when moved, so care should be taken to make sure that isn't possible.
+scriptEvent	void 	restorePosition();
+
+// Returns the distance of this entity to another entity.
+scriptEvent	float	distanceTo( entity other );
+
+// Returns the distance of this entity to a point.
+scriptEvent	float	distanceToPoint( vector point );
+
+// Starts an FX on this entity.
+scriptEvent	void 	startFx( string fx );
+
+// Suspends execution of current thread for one game frame.
+scriptEvent	void 	waitFrame();
+
+// Suspends execution of the current thread for the given number of seconds.
+scriptEvent	void 	wait( float time );
+
+// checks if an entity's script object has a specific function
+scriptEvent float	hasFunction( string functionName );
+
+// calls a function on an entity's script object
+scriptEvent void	callFunction( string functionName );
+
+// enables or prevents an entity from going dormant
+scriptEvent void	setNeverDormant( float enable );
+
+/***********************************************************************
+
+	system events (called via 'sys.')
+
+***********************************************************************/
+
+// Terminates a thread.
+scriptEvent	void 	terminate( float threadNumber );
+
+// Pauses the current thread.
+scriptEvent	void 	pause();
+
+// Suspends execution of the current thread for the given number of seconds.
+scriptEvent	void 	wait( float time );
+
+// Suspends execution for one game frame.
+scriptEvent	void 	waitFrame();
+
+// Waits for the given entity to complete it's move.
+scriptEvent	void 	waitFor( entity mover );
+
+// Waits for the given thread to terminate.
+scriptEvent	void 	waitForThread( float threadNumber );
+
+// Prints the given string to the console.
+scriptEvent	void 	print( string text );
+
+// Prints the given line to the console.
+scriptEvent	void 	println( string text );
+
+// Multiplayer - Print this line on the network
+scriptEvent void	say( string text );
+
+// Breaks if the condition is zero. (Only works in debug builds.)
+scriptEvent	void 	assert( float condition );
+
+// Triggers the given entity.
+scriptEvent	void 	trigger( entity entityToTrigger );
+
+// Sets a cvar.
+scriptEvent	void 	setcvar( string name, string value );
+
+// Returns the string for a cvar.
+scriptEvent	string	getcvar( string name );
+
+// Returns a random value X where 0 <= X < range.
+scriptEvent	float	random( float range );
+
+// Returns the current game time in seconds.
+scriptEvent	float	getTime();
+
+// Kills all threads with the specified name
+scriptEvent	void 	killthread( string threadName );
+
+// Sets the name of the current thread.
+scriptEvent	void 	threadname( string name );
+
+// Returns a reference to the entity with the specified name.
+scriptEvent	entity	getEntity( string name );
+
+// Creates an entity of the specified classname and returns a reference to the entity.
+scriptEvent	entity	spawn( string classname );
+
+// Respawn
+scriptEvent void	respawn();
+
+// copies the spawn args from an entity
+scriptEvent	void 	copySpawnArgs( entity ent );
+
+// Sets a key/value pair to be used when a new entity is spawned.
+scriptEvent	void 	setSpawnArg( string key, string value );
+
+// Returns the string for the given spawn argument.
+scriptEvent	string	SpawnString( string key, string default );
+
+// Returns the floating point value for the given spawn argument.
+scriptEvent	float	SpawnFloat( string key, float default );
+
+// Returns the vector for the given spawn argument.
+scriptEvent	vector	SpawnVector( string key, vector default );
+
+// clears data that persists between maps
+scriptEvent	void 	clearPersistantArgs();
+
+// Sets a key/value pair that persists between maps
+scriptEvent	void 	setPersistantArg( string key, string value );
+
+// Returns the string for the given persistant arg
+scriptEvent	string	getPersistantString( string key );
+
+// Returns the floating point value for the given persistant arg
+scriptEvent	float	getPersistantFloat( string key );
+
+// Returns the vector for the given persistant arg
+scriptEvent	vector	getPersistantVector( string key );
+
+// Returns a forward vector for the given Euler angles.
+scriptEvent	vector	angToForward( vector angles );
+
+// Returns a right vector for the given Euler angles.
+scriptEvent	vector	angToRight( vector angles );
+
+// Returns an up vector for the given Euler angles.
+scriptEvent	vector	angToUp( vector angles );
+
+// Returns the sine of the given angle in degrees.
+scriptEvent	float	sin( float degrees );
+
+// Returns the cosine of the given angle in degrees.
+scriptEvent	float	cos( float degrees );
+
+// Returns the square root of the given number.
+scriptEvent	float	sqrt( float square );
+
+// Returns the normalized version of the given vector.
+scriptEvent	vector	vecNormalize( vector vec );
+
+// Returns the length of the given vector.
+scriptEvent	float	vecLength( vector vec );
+
+// Returns the dot product of the two vectors.
+scriptEvent	float	DotProduct( vector vec1, vector vec2 );
+
+// Returns the cross product of the two vectors.
+scriptEvent	vector	CrossProduct( vector vec1, vector vec2 );
+
+// Returns Euler angles for the given direction.
+scriptEvent	vector	VecToAngles( vector vec );
+
+// Sets a script callback function for when the given signal is raised on the given entity.
+scriptEvent	void 	onSignal( float signalNum, entity ent, string functionName );
+
+// Clears the script callback function set for when the given signal is raised on the given entity.
+scriptEvent	void 	clearSignalThread( float signalNum, entity ent );
+
+// Turns over view control to the given camera entity.
+scriptEvent	void 	setCamera( entity cameraEnt );
+
+// Returns view control to the player entity.
+scriptEvent	void 	firstPerson();
+
+// Returns the fraction of movement completed before the box from 'mins' to 'maxs' hits solid geometry
+// when moving from 'start' to 'end'. The 'passEntity' is considered non-solid during the move.
+scriptEvent	float	trace( vector start, vector end, vector mins, vector maxs, float contents_mask, entity passEntity );
+
+// Returns the fraction of movement completed before the trace hits solid geometry
+// when moving from 'start' to 'end'. The 'passEntity' is considered non-solid during the move.
+scriptEvent	float	tracePoint( vector start, vector end, float contents_mask, entity passEntity );
+
+// Returns the fraction of movement completed during the last call to trace or tracePoint.
+scriptEvent	float	getTraceFraction();
+
+// Returns the position the trace stopped due to a collision with solid geometry during the last call to trace or tracePoint
+scriptEvent	vector	getTraceEndPos();
+
+// Returns the normal of the hit plane during the last call to trace or tracePoint
+scriptEvent	vector	getTraceNormal();
+
+// Returns a reference to the entity which was hit during the last call to trace or tracePoint
+scriptEvent	entity	getTraceEntity();
+
+// Returns the number of the skeletal joint closest to the location on the entity which was hit
+// during the last call to trace or tracePoint
+scriptEvent	string	getTraceJoint();
+
+// Returns the number of the body part of the entity which was hit during the last call to trace or tracePoint
+scriptEvent	string	getTraceBody();
+
+// Fades towards the given color over the given time in seconds.
+scriptEvent	void 	fadeIn( vector color, float time );
+
+// Fades from the given color over the given time in seconds.
+scriptEvent	void 	fadeOut( vector color, float time );
+
+// Fades to the given color up to the given alpha over the given time in seconds.
+scriptEvent	void 	fadeTo( vector color, float alpha, float time );
+
+// Starts playing background music.
+scriptEvent	void 	music( string shaderName );
+
+// Issues an error.
+scriptEvent	void 	error( string text );
+
+// Issues a warning.
+scriptEvent	void 	warning( string text );
+
+// Returns the number of characters in the string
+scriptEvent	float	strLength( string text );
+
+// Returns a string composed of the first num characters
+scriptEvent	string	strLeft( string text, float num );
+
+// Returns a string composed of the last num characters
+scriptEvent	string	strRight( string text, float num );
+
+// Returns the string following the first num characters
+scriptEvent	string	strSkip( string text, float num );
+
+// Returns a string composed of the characters from start to start + num
+scriptEvent	string	strMid( string text, float start, float num );
+
+// Returns the numeric value of a string
+scriptEvent float strToFloat( string text );
+
+// damages entities within a radius defined by the damageDef.  inflictor is the entity causing the damage and can be the same as the attacker (in the case
+// of projectiles, the projectile is the inflictor, while the attacker is the character that fired the projectile).  ignore is an entity to not cause damage to.
+// dmgPower scales the damage (for cases where damage is dependent on time).
+scriptEvent void radiusDamage( vector origin, entity inflictor, entity attacker, entity ignore, string damageDefName, float dmgPower );
+
+// networking - checks for client
+scriptEvent float	isClient();
+
+// checks if it's a multiplayer game
+scriptEvent float	isMultiplayer();
+
+// returns the length of time between game frames.  this is not related to renderer frame rate.
+scriptEvent float	getFrameTime();
+
+// returns the number of game frames per second.  this is not related to renderer frame rate.
+scriptEvent float	getTicsPerSecond();
+
+// ensure the specified sound shader is loaded by the system.  prevents cache hits when playing sound shaders.
+scriptEvent	void 	cacheSoundShader( string shaderName );
+
+// line drawing for debug visualization.  lifetime of 0 == 1 frame.
+scriptEvent	void 	debugLine( vector color, vector start, vector end, float lifetime );
+scriptEvent	void 	debugArrow( vector color, vector start, vector end, float size, float lifetime );
+scriptEvent	void 	debugCircle( vector color, vector origin, vector dir, float radius, float numSteps, float lifetime );
+scriptEvent	void 	debugBounds( vector color, vector mins, vector maxs, float lifetime );
+
+// text drawing for debugging.  align can be 0-left, 1-center, 2-right.  lifetime of 0 == 1 frame.
+scriptEvent	void 	drawText( string text, vector origin, float scale, vector color, float align, float lifetime );
+
+// checks if an influence is active
+scriptEvent float	influenceActive();
+
+/***********************************************************************
+
+	cameras
+
+***********************************************************************/
+
+// Starts a spline or anim camera moving.
+scriptEvent	void 	start();
+
+// Stops a spline or anim camera moving.
+scriptEvent	void 	stop();
+
+
+/***********************************************************************
+
+	lights
+
+***********************************************************************/
+
+// Sets the shader to be used for the light.
+scriptEvent	void 	setShader( string shader );
+
+// Gets a shader parameter.
+scriptEvent	float	getLightParm( float parmNum );
+
+// Sets a shader parameter.
+scriptEvent	void 	setLightParm( float parmNum, float value );
+
+// Sets the red/green/blue/alpha shader parms on the light and the model.
+scriptEvent	void 	setLightParms( float parm0, float parm1, float parm2, float parm3 );
+
+// Sets the width/length/height of the light bounding box.
+scriptEvent	void 	setRadiusXYZ( float x, float y, float z );
+
+// Sets the size of the bounding box.
+scriptEvent	void 	setRadius( float radius );
+
+// Turns the light on.
+scriptEvent	void 	On();
+
+// Turns the light off.
+scriptEvent	void 	Off();
+
+// Turns the light out over the given time in seconds.
+scriptEvent	void 	fadeOutLight( float time );
+
+// Turns the light on over the given time in seconds.
+scriptEvent	void 	fadeInLight( float time );
+
+
+/***********************************************************************
+
+	func_forcefield
+
+***********************************************************************/
+
+// Turns the forcefield on and off.
+scriptEvent	void 	Toggle();
+
+
+/***********************************************************************
+
+	func_animate
+
+***********************************************************************/
+
+// Launches a projectile.
+scriptEvent	void 	launchMissiles( string projectilename, string sound, string launchbone, string targetbone, float numshots, float framedelay );
+
+// Switches to a ragdoll taking over the animation.
+scriptEvent	void 	startRagdoll();
+
+// Changes to left foot and plays footstep sound.
+scriptEvent	void	leftFoot();
+
+// Changes to right foot and plays footstep sound.
+scriptEvent	void	rightFoot();
+
+
+/***********************************************************************
+
+	func_movers
+
+***********************************************************************/
+
+// Stops any translational movement.
+scriptEvent	void 	stopMoving();
+
+// Stops any rotational movement.
+scriptEvent	void 	stopRotating();
+
+// Sets the movement speed. Set this speed before initiating a new move.
+scriptEvent	void 	speed( float speed );
+
+// Sets the movement time. Set this time before initiating a new move.
+scriptEvent	void 	time( float time );
+
+// Sets the deceleration time. Set this deceleration time before initiating a new move.
+scriptEvent	void 	decelTime( float time );
+
+// Sets the acceleration time. Set this acceleration time before initiating a new move.
+scriptEvent	void 	accelTime( float time );
+
+// Initiates a translation to the position of an entity.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	moveTo( entity targetEntity );
+
+// Initiates a translation to an absolute position.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	moveToPos( vector pos );
+
+// Initiates a translation with the given distance in the given yaw direction.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	move( float angle, float distance );
+
+// Initiates an acceleration to the given speed over the given time in seconds.
+scriptEvent	void 	accelTo( float speed, float time );
+
+// Initiates a deceleration to the given speed over the given time in seconds.
+scriptEvent	void 	decelTo( float speed, float time );
+
+// Initiates a rotation about the given axis by decreasing the current angle towards the given angle.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	rotateDownTo( float axis, float angle );
+
+// Initiates a rotation about the given axis by increasing the current angle towards the given angle.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	rotateUpTo( float axis, float angle );
+
+// Initiates a rotation towards the given Euler angles.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	rotateTo( vector angles );
+
+// Initiates a rotation with the given angular speed.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	rotate( vector angleSpeed );
+
+// Initiates a rotation towards the current angles plus the given Euler angles.
+// Uses the current speed/time and acceleration and deceleration settings.
+scriptEvent	void 	rotateOnce( vector angles );
+
+// Initiates a translation back and forth along the given vector with the given speed and sphase.
+scriptEvent	void 	bob( float speed, float phase, vector distance );
+
+// Initiates a rotation back and forth along the given angles with the given speed and phase.
+scriptEvent	void 	sway( float speed, float phase, vector angles );
+
+// Opens the renderer portal associated with this mover.
+scriptEvent	void 	openPortal();
+
+// Closes the renderer portal associated with this mover.
+scriptEvent	void 	closePortal();
+
+// Sets the sound to be played when the mover accelerates.
+scriptEvent	void 	accelSound( string sound );
+
+// Sets the sound to be played when the mover decelerates.
+scriptEvent	void 	decelSound( string sound );
+
+// Sets the sound to be played when the moving.
+scriptEvent	void 	moveSound( string sound );
+
+// Enables aligning the mover with the spline direction.
+scriptEvent void	enableSplineAngles();
+
+// Disables aligning the mover with the spline direction.
+scriptEvent void	disableSplineAngles();
+
+// Subtracts the initial spline angles to maintain the initial orientation of the mover.
+scriptEvent void	removeInitialSplineAngles();
+
+// Starts moving along a spline stored on the given entity.
+scriptEvent void	startSpline( entity spline );
+
+// Stops moving along a spline.
+scriptEvent void	stopSpline();
+
+// Returns true if a mover is moving
+scriptEvent float	isMoving();
+
+// Returns true if a mover is rotating
+scriptEvent float	isRotating();
+
+/***********************************************************************
+
+	doors
+
+***********************************************************************/
+
+// Enables the door.
+scriptEvent	void 	enable();
+
+// Disables the door.
+scriptEvent	void 	disable();
+
+// Opens the door.
+scriptEvent	void 	open();
+
+// Closes the door.
+scriptEvent	void 	close();
+
+// Locks or unlocks the door.
+scriptEvent	void 	lock( float locked );
+
+// Returns true if the door is open.
+scriptEvent	float	isOpen();
+
+// Returns true if the door is locked.
+scriptEvent	float	isLocked();
+
+
+/***********************************************************************
+
+	four fingered claw
+
+***********************************************************************/
+
+scriptEvent	void 	setFingerAngle( float angle );
+scriptEvent	void 	stopFingers();
+
+
+/***********************************************************************
+
+	func_moveable
+
+***********************************************************************/
+
+// Makes the moveable non-solid for other entities.
+scriptEvent	void 	becomeNonSolid();
+
+// returns true if object is not moving
+scriptEvent	float	isAtRest();
+
+// enable/disable damage
+scriptEvent void	enableDamage( float enable );
+
+
+/***********************************************************************
+
+	skeletal animation (weapons, players, ai, func_animated)
+
+***********************************************************************/
+
+// Looks up the number of the specified joint. Returns INVALID_JOINT if the joint is not found.
+scriptEvent	float	getJointHandle( string jointname );
+
+// Removes any custom transforms on all joints.
+scriptEvent	void	clearAllJoints();
+
+// Removes any custom transforms on the specified joint.
+scriptEvent	void	clearJoint( float jointnum );
+
+// Modifies the position of the joint based on the transform type.
+scriptEvent	void	setJointPos( float jointnum, float transform_type, vector pos );
+
+// Modifies the orientation of the joint based on the transform type.
+scriptEvent	void	setJointAngle( float jointnum, float transform_type, vector angles );
+
+// returns the position of the joint in world space
+scriptEvent	vector	getJointPos( float jointnum );
+
+// returns the angular orientation of the joint in world space
+scriptEvent	vector	getJointAngle( float jointnum );
+
+/***********************************************************************
+
+	weapons
+
+***********************************************************************/
+
+scriptEvent	entity	getOwner();
+scriptEvent	void 	nextWeapon();
+scriptEvent	void 	weaponState( string stateFunction, float blendFrames );
+
+// eats the specified amount of ammo
+scriptEvent	void 	useAmmo( float amount );
+
+scriptEvent	void 	addToClip( float amount );
+scriptEvent	float	ammoInClip();
+
+// number of shots left in inventory
+scriptEvent	float	ammoAvailable();
+
+// amount of ammo in inventory. since each shot may use more than 1 ammo, this is different than ammoAvailable()
+scriptEvent	float	totalAmmoCount();
+scriptEvent	float	clipSize();
+scriptEvent float	isInvisible();
+
+// Plays the given animation on the given channel.  Returns false if anim doesn't exist.
+// NOTE: weapons only use ANIMCHANNEL_ALL
+scriptEvent	float	playAnim( float channel, string animName );
+
+// Continuously repeats the given animation on the given channel.  Returns false if anim doesn't exist.
+// NOTE: weapons only use ANIMCHANNEL_ALL
+scriptEvent	float	playCycle( float channel, string animName );
+
+// Returns true if the animation playing on the given channel
+// is completed considering a number of blend frames.
+// NOTE: weapons only use ANIMCHANNEL_ALL
+scriptEvent	float	animDone( float channel, float blendOutFrames );
+
+// Sets the number of frames to blend between animations on the given channel.
+// NOTE: weapons only use ANIMCHANNEL_ALL
+scriptEvent	void 	setBlendFrames( float channel, float blendFrame );
+
+// Returns the number of frames to blend between animations on the given channel.
+// NOTE: weapons only use ANIMCHANNEL_ALL
+scriptEvent	float 	getBlendFrames( float channel );
+
+scriptEvent	void 	weaponReady();
+scriptEvent void	weaponOutOfAmmo();
+scriptEvent	void 	weaponReloading();
+scriptEvent	void 	weaponHolstered();
+scriptEvent	void 	weaponRising();
+scriptEvent	void 	weaponLowering();
+scriptEvent	void 	flashlight( float enable );
+scriptEvent	void 	launchProjectiles( float num_projectiles, float spread, float fuseOffset, float launchPower, float dmgPower );
+scriptEvent entity  createProjectile();
+scriptEvent	float	melee();
+scriptEvent void	allowDrop( float allow ); // disables/enables owner dropping weapon when killed
+scriptEvent float	autoReload();	// ui_autoReload check
+scriptEvent void	netReload();	// network client
+scriptEvent void	netEndReload();	// network client - force end of a reload
+
+// Sets a shader parameter on the muzzleflash/light
+scriptEvent	void 	setLightParm( float parmNum, float value );
+
+// Sets the red/green/blue/alpha shader parms on the muzzleflash/light
+scriptEvent	void 	setLightParms( float parm0, float parm1, float parm2, float parm3 );
+
+// Returns the entity that controls the world model
+scriptEvent	entity	getWorldModel();
+
+/***********************************************************************
+
+	projectiles
+
+***********************************************************************/
+
+// gets the current state of the projectile.  states are defined in doom_defs.script
+scriptEvent	float	getProjectileState();
+
+/***********************************************************************
+
+	combat nodes
+
+***********************************************************************/
+
+// Disables the combat node if "use_once" is set on the entity.
+scriptEvent	void 	markUsed();
+
+
+/***********************************************************************
+
+	actors (players and AI)
+
+***********************************************************************/
+
+// Moves the constraint with the given name that binds this entity to another entity.
+scriptEvent	void	SetConstraintPosition( string constraintName, vector position );
+
+// Enables eye focus.
+scriptEvent	void 	enableEyeFocus();
+
+// Disables eye focus.
+scriptEvent	void 	disableEyeFocus();
+
+// Changes to left foot and plays footstep sound.
+scriptEvent	void 	leftFoot();
+
+// Changes to right foot and plays footstep sound.
+scriptEvent	void 	rightFoot();
+
+// Stops the animation currently playing on the given channel over the given number of frames.
+scriptEvent	void 	stopAnim( float channel, float frames );
+
+// Plays the given animation on the given channel.  Returns false if anim doesn't exist.
+scriptEvent	float	playAnim( float channel, string animName );
+
+// Continuously repeats the given animation on the given channel.  Returns false if anim doesn't exist.
+scriptEvent	float	playCycle( float channel, string animName );
+
+// Plays the given idle animation on the given channel.  Returns false if anim doesn't exist.
+scriptEvent	float	idleAnim( float channel, string animName );
+
+// sets the blend amount on multi-point anims.
+scriptEvent	void	setSyncedAnimWeight( float channel, float animindex, float weight );
+
+// Sets the number of frames to blend between animations on the given channel.
+scriptEvent	void 	setBlendFrames( float channel, float blendFrame );
+
+// Returns the number of frames to blend between animations on the given channel.
+scriptEvent	float 	getBlendFrames( float channel );
+
+// Sets a new animation state script function for the given channel.
+scriptEvent	void 	animState( float channel, string stateFunction, float blendFrame );
+
+// Returns the name of the current animation state script function used for the given channel.
+scriptEvent	string	getAnimState( float channel );
+
+// Returns true if the given animation state script function is currently used for the given channel.
+scriptEvent	float	inAnimState( float channel, string stateFunc );
+
+// Finishes the given wait action.
+scriptEvent	void 	finishAction( string action );
+
+// Returns true if the animation playing on the given channel
+// is completed considering a number of blend frames.
+scriptEvent	float	animDone( float channel, float blendOutFrames );
+
+// Disables the animation currently playing on the given channel and syncs
+// the animation with the animation of the nearest animating channel.
+scriptEvent	void 	overrideAnim( float channel );
+
+// Prevents any pain animation from being played for the given time in seconds.
+scriptEvent	void 	preventPain( float duration );
+
+// Enables animation on the given channel.
+scriptEvent	void 	enableAnim( float channel, float blendFrames );
+
+// Disables pain animations.
+scriptEvent	void 	disablePain();
+
+// Enables pain animations.
+scriptEvent	void 	enablePain();
+
+// Returns the name of the pain animation.
+scriptEvent	string	getPainAnim();
+
+// Sets a string which is placed in front of any animation names.
+scriptEvent	void 	setAnimPrefix( string prefix );
+
+// Returns true when an entity has a specific animation.
+scriptEvent	float	hasAnim( float channel, string animName );
+
+// Ensures that the animation exists and causes an error if it doesn't.
+scriptEvent	void 	checkAnim( float channel, string animName );
+
+// Chooses a random anim and returns the name. Useful for doing move tests on anims.
+scriptEvent	string	chooseAnim( float channel, string animName );
+
+// Returns the length of the anim in seconds. If the entity has multiple anims with animName,
+// length may not match the anim that is played. Use chooseAnim to get a non-random anim
+// and pass that string into animLength.
+scriptEvent	float	animLength( float channel, string animName );
+
+// Returns the distance that the anim travels. If the entity has multiple anims with animName,
+// the distance may not match the anim that is played. Use chooseAnim to get a non-random anim
+// and pass that string into animDistance.
+scriptEvent	float	animDistance( float channel, string animName );
+
+// Returns true if the actor has one or more enemies.
+scriptEvent	float	hasEnemies();
+
+// Returns the next enemy the actor has acquired.
+scriptEvent	entity	nextEnemy( entity lastEnemy );
+
+// Returns the enemy closest to the given location.
+scriptEvent	entity	closestEnemyToPoint( vector point );
+
+// sets the next state and waits until thread exits, or a frame delay before calling it.  handy for setting the state in the constructor.
+scriptEvent	void 	setNextState( string stateFunc );
+
+// sets the next state and goes to it immediately
+scriptEvent	void 	setState( string stateFunc );
+scriptEvent	string  getState();
+
+// returns the entity used for the character's head, if it has one.
+scriptEvent	entity	getHead();
+
+/***********************************************************************
+
+	players
+
+***********************************************************************/
+
+// Returns the button state from the current user command.
+scriptEvent	float	getButtons();
+
+// Returns the movement relative to the player's view angles from the current user command.
+// vector_x = forward, vector_y = right, vector_z = up
+scriptEvent	vector	getMove();
+
+// Returns the player view angles.
+scriptEvent	vector	getViewAngles();
+
+// Enables the player weapon.
+scriptEvent void	enableWeapon();
+
+// Lowers and disables the player weapon.
+scriptEvent void	disableWeapon();
+
+// Returns "weaponX" where X is the number of the weapon the player is currently holding.
+scriptEvent string	getCurrentWeapon();
+
+// Returns "weaponX" where X is the number of the weapon the player was previously holding.
+scriptEvent string	getPreviousWeapon();
+
+// Selects the weapon the player is holding.
+scriptEvent void	selectWeapon( string weapon );
+
+// Returns the entity for the player's weapon
+scriptEvent entity	getWeaponEntity();
+
+// Opens the player's PDA.
+scriptEvent void	openPDA();
+
+// Returns true if the player has the PDA open.
+scriptEvent float	inPDA();
+
+/***********************************************************************
+
+	path nodes
+
+***********************************************************************/
+
+// chooses a random path from the entity's targets, ignoring non-path entities.
+scriptEvent	entity  randomPath();
+
+
+/***********************************************************************
+
+	AI characters and monsters
+
+***********************************************************************/
+
+// finds enemy player in PVS
+scriptEvent	entity	findEnemy( float onlyInFov );
+
+// finds enemy monster in PVS
+scriptEvent	entity	findEnemyAI( float onlyInFov );
+
+// finds enemy player in attack cones
+scriptEvent	entity	findEnemyInCombatNodes();
+
+// finds another character's closest reachable enemy
+scriptEvent	entity	closestReachableEnemyOfEntity( entity team_mate );
+
+scriptEvent	entity	heardSound( float ignore_team );
+scriptEvent	void 	setEnemy( entity enemy );
+scriptEvent	void 	clearEnemy();
+scriptEvent	void 	muzzleFlash( string jointname );
+
+// returns projectile created
+scriptEvent	entity	createMissile( string jointname );
+
+// returns projectile fired
+scriptEvent	entity	attackMissile( string jointname );
+
+// launches a missile at entity specified by 'attack_target'.  returns projectile fired
+scriptEvent	entity	fireMissileAtTarget( string jointname, string targetname );
+
+// returns the projectile entity
+scriptEvent	entity	launchMissile( vector origin, vector angles );
+
+// returns true if the attack hit
+scriptEvent	float	attackMelee( string damageDef );
+scriptEvent void	directDamage( entity damageTarget, string damageDef );
+scriptEvent void	radiusDamageFromJoint( string jointname, string damageDef );
+scriptEvent	void 	attackBegin( string damageDef );
+scriptEvent	void 	attackEnd();
+scriptEvent	float	meleeAttackToJoint( string joint, string damageDef );
+scriptEvent	entity  randomPath();
+scriptEvent	float	canBecomeSolid();
+scriptEvent	void 	becomeSolid();
+scriptEvent	void 	becomeNonSolid();
+
+// enables the ragdoll if the entity has one
+scriptEvent	float	becomeRagdoll();
+
+// turns off the ragdoll
+scriptEvent	void	stopRagdoll();
+
+scriptEvent	void 	setHealth( float health );
+scriptEvent	float	getHealth();
+scriptEvent	void 	allowDamage();
+scriptEvent	void 	ignoreDamage();
+scriptEvent	float	getCurrentYaw();
+scriptEvent	void 	turnTo( float yaw );
+scriptEvent	void 	turnToPos( vector pos );
+scriptEvent	void 	turnToEntity( entity ent );
+scriptEvent float	moveStatus();
+scriptEvent	void 	stopMove();
+scriptEvent	void 	moveToCover();
+scriptEvent	void 	moveToEnemy();
+scriptEvent	void 	moveToEnemyHeight();
+scriptEvent	void 	moveOutOfRange( entity ent, float range );
+scriptEvent	void 	moveToAttackPosition( entity ent, string attack_anim );
+scriptEvent	void 	wander();
+scriptEvent	void 	moveToEntity( entity destination );
+scriptEvent	void 	moveToPosition( vector position );
+scriptEvent	void 	slideTo( vector position, float time );
+scriptEvent	float	facingIdeal();
+scriptEvent	void 	faceEnemy();
+scriptEvent	void 	faceEntity( entity ent );
+scriptEvent	entity	getCombatNode();
+scriptEvent	float	enemyInCombatCone( entity combatNode, float use_current_enemy_location );
+scriptEvent	void 	waitMove();
+scriptEvent	vector	getJumpVelocity( vector pos, float speed, float max_jump_height );
+scriptEvent float	entityInAttackCone( entity ent );
+scriptEvent	float	canSee( entity ent );
+scriptEvent	float	enemyRange();
+scriptEvent float	enemyRange2D();
+
+// sets the entity (player) trying to talk to the character
+scriptEvent	void	setTalkTarget( entity target );
+
+// returns the entity (player) trying to talk to the character
+scriptEvent	entity	getTalkTarget();
+
+scriptEvent	entity	getEnemy();
+scriptEvent	vector	getEnemyPos();
+scriptEvent	vector	getEnemyEyePos();
+
+// Tries to predict the player's movement based on the AAS and his direction of movement.
+scriptEvent	vector	predictEnemyPos( float time );
+
+scriptEvent	float	canHitEnemy();
+scriptEvent	float	canHitEnemyFromAnim( string anim );
+scriptEvent	float	canHitEnemyFromJoint( string jointname );
+scriptEvent float	enemyPositionValid();
+scriptEvent	void 	chargeAttack( string damageDef );
+scriptEvent	float	testChargeAttack();
+scriptEvent	float	testAnimMoveTowardEnemy( string animname );
+scriptEvent	float	testAnimMove( string animname );
+scriptEvent float	testMoveToPosition( vector position );
+scriptEvent	float	testMeleeAttack();
+scriptEvent	float	testAnimAttack( string animname );
+scriptEvent void	preBurn();
+scriptEvent	void 	burn();
+scriptEvent	void 	clearBurn();
+
+// enables/disables smoke particles on bones.  pass in the particle #, or ALL_PARTICLES for turning on/off all particle systems.
+// particles are spawned in the order they appear in the entityDef
+scriptEvent void	setSmokeVisibility( float particle_num, float on );	
+
+// returns the # of emitters defined by 'smokeParticleSystem' in the entitydef
+scriptEvent float	numSmokeEmitters();	
+
+scriptEvent	void 	waitAction( string name );
+scriptEvent	void 	stopThinking();
+scriptEvent	float	getTurnDelta();
+
+// returns the current movetype
+scriptEvent	float	getMoveType();
+
+// set the current movetype.  movetypes are defined in ai_base.script
+scriptEvent	void 	setMoveType( float movetype );
+
+scriptEvent	void 	saveMove();
+scriptEvent	void 	restoreMove();
+scriptEvent	void 	allowMovement( float allow );
+scriptEvent	void 	enableClip();
+scriptEvent	void 	disableClip();
+scriptEvent	void 	enableGravity();
+scriptEvent	void 	disableGravity();
+scriptEvent	void 	enableAFPush();
+scriptEvent	void 	disableAFPush();
+
+// set the speed flying creatures move at.  also sets speed for moveTypeSlide.
+scriptEvent	void 	setFlySpeed( float speed );
+
+// sets the prefered height relative to the player's view height to fly at
+scriptEvent	void 	setFlyOffset( float offset );
+
+// sets the prefered height relative to the player's view height to fly at to the value set in the def file
+scriptEvent	void 	clearFlyOffset();
+
+// Finds the closest targeted entity of the specified type.
+scriptEvent	entity	getClosestHiddenTarget( string entity_type );
+
+// Finds a random targeted entity of the specified type.
+scriptEvent	entity	getRandomTarget( string entity_type );
+
+// Approximate travel distance to point.
+scriptEvent	float	travelDistanceToPoint( vector destination );
+
+// Approximate travel distance to entity.
+scriptEvent	float	travelDistanceToEntity( entity destination );
+
+// Approximate travel distance between two entities.
+scriptEvent	float	travelDistanceBetweenEntities( entity source, entity dest );
+
+// Approximate travel distance between two points.
+scriptEvent	float	travelDistanceBetweenPoints( vector source, vector dest );
+
+// Aims the character's eyes and head toward an entity for a period of time.
+scriptEvent	void	lookAt( entity focusEntity, float duration );
+
+// Aims the character's eyes and head toward the current enemy for a period of time.
+scriptEvent	void	lookAtEnemy( float duration );
+
+// Enables or disables head looking (may be obsolete).
+scriptEvent	void 	setBoneMod( float allowBoneMod );
+
+// Kills the monster.
+scriptEvent void	kill();
+
+// Tells the monster to activate when flashlight shines on them.
+scriptEvent void	wakeOnFlashlight( float enable );
+
+// Sets whether the player can talk to this character or not.
+scriptEvent void	setTalkState( float state );
+
+// Updates the last known position of the enemy independent
+// from whether or not the enemy is visible.
+scriptEvent void	locateEnemy();
+
+// kicks any obstacle in the character's path.  pass in $null_entity if you don't have a specific entity to kick.
+scriptEvent void	kickObstacles( entity kickEnt, float force );
+
+// gets the obstacle in the character's path
+scriptEvent entity	getObstacle();
+
+// tries to push the point into a valid AAS area
+scriptEvent vector	pushPointIntoAAS( vector pos );
+
+// gets the rate the character turns
+scriptEvent float	getTurnRate();
+
+// set the rate the character turns at
+scriptEvent void	setTurnRate( float rate );
+
+// enable/disable animation controlled turning.  pass in the maximum # of degrees the animation turns.  use an amount of 0 to disable.
+scriptEvent void	animTurn( float angle );
+
+// normally, when hidden, monsters do not run physics.  this enables physics when hidden.
+scriptEvent void	allowHiddenMovement( float enable );
+
+// returns an entity within the bounds specified
+scriptEvent entity	findActorsInBounds( vector mins, vector maxs );
+
+// returns true if character can walk to specified position.  for walking monsters, position should be near the floor.
+scriptEvent float	canReachPosition( vector pos );
+
+// returns true if character can walk to entity's position.  for walking monsters, entity should be near the floor.
+scriptEvent float	canReachEntity( entity ent );
+
+// returns true if character can walk to enemy's position.  for walking monsters, enemy should be near the floor.
+scriptEvent float	canReachEnemy();
+
+// returns the position of the entity within the aas if possible, otherwise just the entity position.
+scriptEvent vector	getReachableEntityPosition( entity ent );
+
+/***********************************************************************
+
+	AI - Vagary
+
+***********************************************************************/
+
+// finds a moveable object to throw at the enemy
+scriptEvent entity	vagary_ChooseObjectToThrow( vector mins, vector maxs, float speed, float minDist, float offset );
+
+// throws object at enemy
+scriptEvent void	vagary_ThrowObjectAtEnemy( entity ent, float speed );

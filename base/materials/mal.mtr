@@ -1,0 +1,335 @@
+//===============================================================
+//Mal's attempt at lights
+//===============================================================
+
+table alarmstrobe { snap { 1, 0, 0, 0, 0, 0 } }
+table decomlight1 { clamp { 1, .9, .8, .7, .6, .5, .4, .3, .2, .1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1 } }
+table firetable_m { { .3, .2, .8, .1, .2, .3, .1, .5, .1, 1, .2, .3, .3, .2, .1, .1, .7 } }
+table eyeblinktable { snap { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0 } }
+
+//builds then goes out
+lights/square_decomlight1
+{
+	{
+		map	lights/squarelight1.tga
+//		red 	( decomlight1 [ (time + Parm4) * 0.1 ]) * Parm0
+		green	( decomlight1 [ (time + Parm4) * 0.1 ]) * Parm1
+		blue	( decomlight1 [ (time + Parm4) * 0.1 ]) * Parm2
+		zeroclamp
+	}
+}
+
+lights/eye_blink_spectrum
+{
+					lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+					spectrum 1		
+	{
+		map			lights/biground1.tga
+		red 		eyeblinktable[time*.12] * Parm0
+		green 		eyeblinktable[time*.12] * Parm1
+		blue 		eyeblinktable[time*.12] * Parm2
+		zeroclamp
+	}
+}
+
+lights/squareishlight_snd
+{	
+	{
+
+		map	lights/squareishlight.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/squareishlight_spectrum
+{
+					lightFalloffImage	makeintensity( lights/squareishlight.tga )
+					spectrum 1			
+	{
+		
+		map	lights/squareishlight.tga
+		colored
+		zeroClamp
+	}
+}
+
+lights/biground1_snd
+{	
+	{
+
+		map	lights/biground1.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/newalphagrate1_snd
+{	
+	{
+
+		map	lights/newalphagrate1
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/newalphagrate2_snd
+{	
+	{
+
+		map	lights/newalphagrate2
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/newalphagrate3b_snd
+{	
+	{
+
+		map	lights/newalphagrate3b
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/newalphagrate4_snd
+{	
+	{
+
+		map	lights/newalphagrate4
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/newalphagrate5_snd
+{	
+	{
+
+		map	lights/newalphagrate5
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroClamp
+	}
+}
+
+lights/roundfire_spectrumLight
+{
+	lightFalloffImage	makeintensity( lights/roundfire.tga )
+	spectrum 1	
+	{
+		map	lights/roundfire.tga
+		red 	( firetable_m [Parm4 + (time / 6 * (Parm3)) ]) * Parm0
+		green 	( firetable_m [Parm4 + (time / 6 * (Parm3)) ]) * Parm1
+		blue 	( firetable_m [Parm4 + (time / 6 * (Parm3)) ]) * Parm2
+		rotate	firelightrot [ time * 2 ]
+		zeroClamp
+	}
+}
+
+//alarm strobe lights
+lights/alarm_strobe
+{
+	{
+		map		lights/squarelight1.tga
+		colored
+		//rgb		alarmstrobe[time]
+		red 		( alarmstrobe[Parm4 + (time * Parm3) ]) * Parm0
+		green 		( alarmstrobe[Parm4 + (time * Parm3) ]) * Parm1
+		blue 		( alarmstrobe[Parm4 + (time * Parm3) ]) * Parm2
+		zeroClamp
+	}
+}
+
+//textures/base_light/m_striplight3
+//{
+//	colored
+//	qer_editorimage		textures/base_light/striplight3.tga
+//	bumpmap				textures/base_light/striplight3_local.tga
+//	diffusemap			textures/base_light/striplight3_d.tga
+//	specularmap			textures/base_light/striplight3_s.tga
+//	{
+//		if ( parm7 == 0 )
+//		blend 	add
+//		map			textures/base_light/striplight3_add.tga
+//	}
+//	{
+//		if ( parm7 == 1 )
+//		blend 	add
+//		map			textures/base_light/striplight3_add.tga
+//	}
+//
+//	}
+//}
+
+textures/base_trim/comptrim2_ns
+{
+	noShadows
+	qer_editorimage		textures/base_trim/comptrim2.tga
+	bumpmap				textures/base_trim/comptrim2_local.tga
+	diffusemap			textures/base_trim/comptrim2_d.tga
+	specularmap			textures/base_trim/comptrim2_s.tga
+}
+
+textures/base_trim/a_reactorpipe_02blackb_fin_ns.tga
+{
+	nonsolid
+	qer_editorimage	textures/base_trim/a_reactorpipe_02blackb_fin.tga
+	diffusemap		textures/base_trim/a_reactorpipe_d02blackb_fin.tga    
+	specularmap		textures/base_trim/a_reactorpipe_s02blackb_fin.tga         
+    bumpmap	        addnormals( textures/base_trim/a_reactorpipe_local_fin, heightmap( textures/base_trim/a_reactorpipe_b02blackb_fin, 3 ) )
+    description    	"non solid warning stripes, etc."
+
+}
+
+textures/base_trim/stesilverswatch_ns
+{
+	noShadows
+	qer_editorimage	textures/base_trim/stesilverswatch.tga
+	bumpmap			textures/base_trim/stesilverswatch_local.tga
+	diffusemap		textures/base_trim/stesilverswatch_d.tga
+	specularmap		textures/base_trim/stesilverswatch_s.tga
+}
+
+textures/base_trim/stesilverswatch_noshadow_ns
+{
+	noShadows
+	nonsolid
+	qer_editorimage	textures/base_trim/stesilverswatch.tga
+	bumpmap			textures/base_trim/stesilverswatch_local.tga
+	diffusemap		textures/base_trim/stesilverswatch_d.tga
+	specularmap		textures/base_trim/stesilverswatch_s.tga
+}
+
+
+textures/decals/ind_logo1a
+{
+	qer_editorimage	textures/decals/ind_logo1.tga
+	noshadows
+	twoSided
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		colored
+		blend gl_one,gl_one
+		map textures/decals/ind_logo1.tga
+	}
+}
+
+lights/floorvent01ax_cv
+{
+	{
+		map	lights/floorvent01x_cv.tga
+		colored
+		//red 		( flickerblink [Parm4 + (time * (1 * Parm3)) ]) * Parm0
+		//green 	( flickerblink [Parm4 + (time * (1 * Parm3)) ]) * Parm1
+		//blue 		( flickerblink [Parm4 + (time * (1 * Parm3)) ]) * Parm2
+		//rgb		eyestable[ time * 1 ]
+		zeroClamp
+	}
+}
+
+textures/rock/rockblend
+{
+		noshadows
+		stone
+// blended part
+	{
+		blend 		bumpmap
+		map		heightmap (textures/rock/rock02_h.tga, 24)
+	}
+	{
+		blend 		diffusemap
+		map		textures/rock/rock02_d.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map		textures/rock/rock02_s.tga
+		vertexColor
+	}
+// inverse blended part
+	{
+		blend		bumpmap
+		map		heightmap (textures/rock/skysand1_bmp.tga, 4)
+	}
+	{
+		blend		diffusemap
+		map		textures/rock/skysand1_d.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/rock/skysand1_s.tga
+		inverseVertexColor
+	}
+}
+
+
+textures/object/windowpane1ss
+{
+	qer_editorimage		textures/object/windowpane1.tga
+	glass
+	noshadows
+
+	bumpmap		textures/object/windowpane1_local.tga
+
+	{       
+	blend	diffuseMap
+	map		textures/object/windowpane1_d.tga
+	alphaTest	0.5
+	}
+	specularmap		textures/object/windowpane1_s.tga
+}
+
+
+
+textures/object/windowpane2ss
+{
+	qer_editorimage	textures/object/windowpane2.tga
+	glass
+	noshadows
+
+		bumpmap		textures/object/windowpane2_local.tga
+
+	{       
+      	 blend	diffuseMap
+	 map	textures/object/windowpane2_d.tga
+	 alphaTest 0.5
+	}
+	specularmap		textures/object/windowpane2_s.tga
+}
+
+textures/object/windowpane3ss
+{
+	qer_editorimage	textures/object/windowpane3.tga
+	glass
+	noshadows
+
+	bumpmap		textures/object/windowpane2_local.tga
+
+	{       
+	blend	diffuseMap
+	map		textures/object/windowpane3_d.tga
+	alphaTest		0.5
+	}
+
+	specularmap		textures/object/windowpane2_s.tga
+}

@@ -1,0 +1,1807 @@
+/***********************************************************************
+
+ai_monster_hunter_berserk.script
+
+monster_hunter_berserk
+
+***********************************************************************/
+
+//Hunter States
+#define BERSERK_STATE_WAIT				0
+#define BERSERK_STATE_BERSERK			1
+#define BERSERK_STATE_NORMAL			2
+#define BERSERK_STATE_BERSERK_START		3
+
+//Movement States
+#define HUNTER_MOVE_WALK				0
+#define HUNTER_MOVE_RUN					1
+#define HUNTER_MOVE_CHARGE				2 
+
+//Leap Variables
+#define BERSERK_LEAP_RANGE_MIN			50
+#define BERSERK_LEAP_RANGE_MAX			10000
+#define BERSERK_LEAP_RATE				1
+#define BERSERK_LEAP_SPEED				900
+#define BERSERK_LEAP_MAXHEIGHT			1000
+
+#define MAX_BERSERK_DAMAGE				2000
+
+
+#define BERSERK_RANGE_ATTACK_RATE		1
+
+#define BERSERK_DAMAGE_MULTIPLIER_HELLTIME		30
+#define BERSERK_DAMAGE_MULTIPLIER_NORMAL		0
+
+
+
+
+#define HUNTER_BERSERK_HOP_RATE		2
+#define HUNTER_BERSERK_IDEAL_RANGE	256
+#define HUNTER_EVADE_RANGE			200
+#define HUNTER_EVADE_RATE				1
+
+
+#define HUNTER_BERSERK_DURATION		15
+
+//1/5/2005: Decrease normal time
+//#define HUNTER_NORMAL_DURATION	15
+#define HUNTER_NORMAL_DURATION		10
+
+#define HUNTER_CHARGE_SPEED			440
+#define HUNTER_CHARGE_RUNPAST_DIST  100
+#define CHARGE_CONTINUE_ANGLE		10
+
+
+
+#define ATTACK_EVADE_LEFT			1
+#define ATTACK_EVADE_RIGHT			2
+#define ATTACK_EVADE_BACK			4
+#define ATTACK_EVADE_BACK_LONG		8
+#define ATTACK_EVADE_BACK_LEFT		16
+#define ATTACK_EVADE_BACK_RIGHT		32
+#define ATTACK_EVADE_FRONT			64
+#define ATTACK_EVADE_FRONT_LEFT		128
+#define ATTACK_EVADE_FRONT_RIGHT	256
+
+
+
+/***********************************************************************
+
+	monster_hunter_berserk
+
+***********************************************************************/
+object monster_hunter_berserk : monster_base {
+	float		nextEvade;
+	float		nextDodge;
+	float		nextAttack;
+	float		nextLeap;
+	float		nextHop;
+	
+	vector		jumpVelocity;
+	
+	float		hunterState;
+	float		stateEndTime;
+	float		moveState;
+	
+	vector		chargeTarget;
+	
+	string		range_attack_anim;
+	
+	float		leavingBerserkDamage;
+	float		hitEnemy;
+	
+	float		minBerserkHealth;
+	
+	
+	//Hack Array
+	float		array0;
+	float		array1;
+	float		array2;
+	float		array3;
+	float		array4;
+	float		array5;
+	float		array6;
+	float		array7;
+	float		array8;
+	
+	float		GetArrayVal(float index);
+	void		SetArrayVal(float index, float val);
+	
+	void		SetHeartDamage(float damage);
+	
+	
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+	void		state_Dead();
+	
+	
+	//berserk States
+	void		state_BeginBerserk();
+	void		state_Berserk();
+	void		state_EndBerserk();
+	void		state_BerserkPain();
+	
+	//Normal States
+	void		state_BeginNormal();
+	void		state_EndNormal();
+	
+	//Combat States
+	void		state_Combat();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	float		combat_berserk();
+	float		combat_normal();
+	void		combat_range();
+	void		combat_leap();
+	void		combat_melee();
+	void		combat_melee_berserk();
+	
+	void		path_jump();
+	
+	void		combat_evade_left();
+	void		combat_evade_right();
+	void		combat_evade_back();
+	void		combat_evade_back_long();
+	void		combat_evade_back_left();
+	void		combat_evade_back_right();
+	void		combat_evade_front();
+	void		combat_evade_front_left();
+	void		combat_evade_front_right();
+	
+	void		combat_berserk_charge();
+	
+	boolean		combat_chase_berserk();
+	float		combat_evade();
+	float		combat_hop();
+	
+	void		checkDamage();
+
+	void		init();
+	void		destroy();
+	
+	//A couple of skin changing functions used by the intro cinematic
+	void		setSkinToBerserk();
+	void		setSkinToBerserkCinematic();
+	void		setSkinBerserk();
+	void		setSkinToNormal();
+	void		setSkinNormal();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_Death();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_LeapAttack();
+	
+	void		Torso_BerserkBegin();
+	void		Torso_BerserkEnd();
+	void		Torso_BerserkRage();
+	void		Torso_BerserkCharge();
+	void		Torso_BerserkPain();
+	
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_Run();
+	void		Legs_Charge();
+	void		Legs_EvadeLeft();
+	void		Legs_EvadeRight();
+	void		Legs_EvadeBack();
+	void		Legs_EvadeBackLong();
+	void		Legs_EvadeBackLeft();
+	void		Legs_EvadeBackRight();
+	void		Legs_EvadeFront();
+	void		Legs_EvadeFrontLeft();
+	void		Legs_EvadeFrontRight();
+	void		Legs_Slide();
+};
+
+
+float monster_hunter_berserk::GetArrayVal(float index) {
+	if (index == 0) {
+		return array0;
+	} else if (index == 1) {
+		return array1;
+	} else if (index == 2) {
+		return array2;
+	} else if (index == 3) {
+		return array3;
+	} else if (index == 4) {
+		return array4;
+	} else if (index == 5) {
+		return array5;
+	} else if (index == 6) {
+		return array6;
+	} else if (index == 7) {
+		return array7;
+	} else if (index == 8) {
+		return array8;
+	}
+}
+
+void monster_hunter_berserk::SetArrayVal(float index, float val) {
+	if (index == 0) {
+		array0 = val;
+	} else if (index == 1) {
+		array1 = val;
+	} else if (index == 2) {
+		array2 = val;
+	} else if (index == 3) {
+		array3 = val;
+	} else if (index == 4) {
+		array4 = val;
+	} else if (index == 5) {
+		array5 = val;
+	} else if (index == 6) {
+		array6 = val;
+	} else if (index == 7) {
+		array7 = val;
+	} else if (index == 8) {
+		array8 = val;
+	}
+}
+
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_hunter_berserk::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( AI_PAIN ) { 
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 ); 
+		}
+		waitFrame();
+	}
+}
+
+void monster_hunter_berserk::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+		
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 6 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 3 );
+			}
+		}
+		waitFrame();
+	}
+	
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+void monster_hunter_berserk::Torso_Death() {
+	
+	//sys.print("Torso Death!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	if (hunterState == BERSERK_STATE_NORMAL) {
+		//sys.print("Summon\n");
+		
+		setSkinToBerserk();
+		playAnim( ANIMCHANNEL_TORSO, "berzerk_summon_death" );
+		while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+			waitFrame();
+		}
+	} else {
+		//sys.print("Already Berserk\n");
+		playAnim( ANIMCHANNEL_TORSO, "berzerk_death" );
+		while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+			waitFrame();
+		}
+	}
+	
+	finishAction( "dead" );
+}
+
+void monster_hunter_berserk::Torso_MeleeAttack() {
+	if (hunterState == BERSERK_STATE_BERSERK) {
+		playAnim( ANIMCHANNEL_TORSO, "berzerk_hit" );
+	} else {
+		playAnim( ANIMCHANNEL_TORSO, "melee" );
+	} 
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_hunter_berserk::Torso_RangeAttack() {
+	string anim;
+	
+	disablePain();
+
+	allowMovement( false );
+	playAnim( ANIMCHANNEL_TORSO, "ranged" );
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		lookAt( getEnemy(), 1 );	
+		waitFrame();
+	}
+
+	allowMovement( true );
+	enablePain();
+	
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+
+void monster_hunter_berserk::Torso_LeapAttack() {
+	overrideAnim( ANIMCHANNEL_LEGS );
+	disablePain();
+	playAnim( ANIMCHANNEL_TORSO, "berzerk_leap_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		if(leavingBerserkDamage) {
+			leavingBerserkDamage = false;
+			setState("state_BerserkPain");
+			return;
+		}
+		waitFrame();
+	}
+	
+	setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+	attackBegin( "melee_hunter_berserk_ChargeAttack" );
+	setLinearVelocity( jumpVelocity );
+	
+	float changedLoop;
+	changedLoop = false;
+	
+	playCycle( ANIMCHANNEL_TORSO, "berzerk_leap_loop" );
+	do {
+		if(leavingBerserkDamage) {
+			if(!changedLoop) {
+				setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+				playCycle( ANIMCHANNEL_TORSO, "berzerk_leap_loop_pain" );
+				changedLoop = true;
+			}
+			attackEnd();
+		}
+		waitFrame();
+	} while( !AI_ONGROUND );
+	
+	attackEnd();
+	
+	if(leavingBerserkDamage) {
+		//sys.print("Playing pain landing\n");
+		playAnim( ANIMCHANNEL_TORSO, "berzerk_leap_pain" );
+	} else {
+		if(hitEnemy) {
+			hitEnemy = false;
+			//sys.print("playing hit landing\n");
+			playAnim( ANIMCHANNEL_TORSO, "berzerk_leap_hit" );
+		} else {
+			//sys.print("playing miss landing\n");
+			playAnim( ANIMCHANNEL_TORSO, "berzerk_leap_miss" );
+		} 
+	}
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "leap_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_hunter_berserk::Torso_BerserkBegin() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "berzerk_summon" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "berserkbegin" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+void monster_hunter_berserk::Torso_BerserkEnd() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "berzerk_2_norm" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "berserkend" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+void monster_hunter_berserk::Torso_BerserkRage() {
+
+	finishAction( "beginrage" );
+	
+	playAnim( ANIMCHANNEL_TORSO, "berzerk_rage" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "berserkrage" );
+}
+
+void monster_hunter_berserk::Torso_BerserkCharge() {
+	
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		waitFrame();
+	}
+}
+
+void monster_hunter_berserk::Torso_BerserkPain() {
+
+	playAnim( ANIMCHANNEL_TORSO, "berzerk_pain" );
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "berserkpain" );
+	
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_hunter_berserk::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( moveState == HUNTER_MOVE_CHARGE && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Charge", 4 ); }
+		if ( moveState == HUNTER_MOVE_RUN && AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( moveState == HUNTER_MOVE_WALK && AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 4 ); }
+	}
+}
+
+void monster_hunter_berserk::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( moveState == HUNTER_MOVE_CHARGE && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Charge", 4 ); }
+		if ( moveState == HUNTER_MOVE_RUN && AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( !AI_FORWARD )										{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 ); }
+	}
+}
+
+void monster_hunter_berserk::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "berzerk_run" );
+	
+	eachFrame {
+		if ( moveState == HUNTER_MOVE_CHARGE && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Charge", 4 ); }
+		if ( moveState == HUNTER_MOVE_WALK && AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 4 ); }
+		if ( !AI_FORWARD )										{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 ); }
+	}
+}
+
+void monster_hunter_berserk::Legs_Charge() {
+	playCycle( ANIMCHANNEL_LEGS, "berzerk_charge" );
+	
+	eachFrame {
+		if ( moveState == HUNTER_MOVE_RUN && AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( moveState == HUNTER_MOVE_WALK && AI_FORWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 4 ); }
+		if ( !AI_FORWARD )										{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 ); }
+	}
+}
+
+void monster_hunter_berserk::Legs_EvadeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeBack() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_back" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeBackLong() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_back_192" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeBackLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_backleft" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeBackRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_backright" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeFront() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_front" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeFrontLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_frontleft" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_EvadeFrontRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_frontright" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "evade" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_berserk::Legs_Slide() {
+
+	playAnim( ANIMCHANNEL_LEGS, "berzerk_miss" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+	finishAction( "legslide" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_berserk::init
+=====================
+*/
+void monster_hunter_berserk::init() {
+	
+	nextHop			= 0;
+	moveState		= HUNTER_MOVE_RUN;
+	nextLeap		= 0;
+	nextAttack		= 0;
+	
+	leavingBerserkDamage = false;
+
+	setState( "state_Begin" );
+}
+
+void monster_hunter_berserk::destroy() {
+}
+
+
+void monster_hunter_berserk::setSkinToBerserk() {
+	setSkin("skins/monsters/hunter_berserk/hunter_berserk_toberserk");
+	setShaderTime( self );
+}
+
+void monster_hunter_berserk::setSkinToBerserkCinematic() {
+	setSkin("skins/monsters/hunter_berserk/hunter_berserk_cinematic");
+	setShaderTime( self );
+}
+
+void monster_hunter_berserk::setSkinBerserk() {
+	setSkin("skins/monsters/hunter_berserk/hunter_berserk_enrage");
+}
+
+void monster_hunter_berserk::setSkinToNormal() {
+	setSkin("skins/monsters/hunter_berserk/hunter_berserk_tonormal");
+	setShaderTime( self );
+}
+
+void monster_hunter_berserk::setSkinNormal() {
+	setSkin("skins/monsters/hunter_berserk/hunter_berserk");
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_berserk::state_Begin
+=====================
+*/
+void monster_hunter_berserk::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );	
+	monster_begin();
+	
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_hunter_berserk::state_Idle
+=====================
+*/
+void monster_hunter_berserk::state_Idle() {
+	
+	hunterState = BERSERK_STATE_WAIT;
+	
+	wait_for_enemy();
+
+
+	nextAttack	= 0;
+	nextEvade	= RandomTime( HUNTER_EVADE_RATE );
+	nextDodge	= 0;
+	
+	//Bouncy Monster - Tests the random evade selection
+	/*while(1) {
+		combat_evade();
+		waitFrame();
+	}*/
+	
+	setState( "state_Berserk" );
+}
+
+/*
+=====================
+monster_base::state_Dead
+=====================
+*/
+void monster_hunter_berserk::state_Dead() {
+
+
+	//Todo: Probably need to warp to a point for the cutscene
+	//I am dead so for now just stop moving
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );	
+	animState( ANIMCHANNEL_TORSO, "Torso_BerserkPain", 8 );	
+	waitAction( "berserkpain" );
+	
+	remove();
+}
+
+
+//berserk States
+void monster_hunter_berserk::state_BeginBerserk() {
+	hunterState = BERSERK_STATE_BERSERK_START;
+	
+	
+	setSkinToBerserk();
+	
+	//Play an animation when he goes into berserk mode
+	animState( ANIMCHANNEL_TORSO, "Torso_BerserkBegin", 4 );
+	setWaitState("berserkbegin");
+	while(getWaitState() == "berserkbegin") {
+		checkDamage();
+		waitFrame();
+	}
+	
+	setState("state_Berserk");
+}
+
+void monster_hunter_berserk::state_Berserk() {
+	
+	hunterState = BERSERK_STATE_BERSERK;
+	stateEndTime = sys.getTime() + HUNTER_BERSERK_DURATION;
+	
+	minBerserkHealth = getHealth() - MAX_BERSERK_DAMAGE;
+	//sys.print("Min Berserk Health " + minBerserkHealth + "\n");
+	
+	//Hunter is invulnerable while in berserk
+	//Use damage group scales to set invulnerability
+	setDamageGroupScaleAll(0);
+	SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_HELLTIME);
+	
+	startEmitter("heartemitter", "heart1", "hunter_bezerk_heart_burn.prt");
+	
+	avoidObstacles(0);
+	
+	setSkinBerserk();
+	setState( "state_Combat" );
+}
+
+void monster_hunter_berserk::state_EndBerserk() {
+	
+	setSkinToNormal();
+	
+	
+	
+	//1/5/2005: The hunter is now invulnerable in normal mode
+	//setDamageGroupScaleAll(1);
+	setDamageGroupScaleAll(0);
+	
+	SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_NORMAL);
+	stopEmitter("heartemitter");
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_BerserkEnd", 4 );
+	waitAction( "berserkend" );
+	
+	avoidObstacles(1);
+	
+	setSkinNormal();
+	
+	setState( "state_BeginNormal");
+}
+
+void monster_hunter_berserk::state_BerserkPain() {
+	
+	
+	if(AI_FORWARD) {
+		//He was moving forward so blend in a slide animation to the legs
+		animState( ANIMCHANNEL_LEGS, "Legs_Slide", 4 );
+	}
+	animState( ANIMCHANNEL_TORSO, "Torso_BerserkPain", 4 );
+	waitAction( "berserkpain" );
+	
+	stopMove();
+	
+	setState( "state_EndBerserk");
+		
+}
+
+//Normal States
+void monster_hunter_berserk::state_BeginNormal() {
+	hunterState = BERSERK_STATE_NORMAL;
+	stateEndTime = sys.getTime() + HUNTER_NORMAL_DURATION;
+	
+	//The end of berserk will play any appropriate animations
+	
+	stopMove();
+	
+	//Turn on damage while in normal mode
+	//Turn damage back on using the damage scale
+	setDamageGroupScaleAll(0);
+	SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_NORMAL);
+	
+	stopEmitter("heartemitter");
+	
+	setState( "state_Combat" );
+}
+
+void monster_hunter_berserk::state_EndNormal() {
+	
+	//The beginning of berserk will play the animations
+	setState( "state_BeginBerserk");
+}
+
+/*
+=====================
+monster_base::state_Combat
+=====================
+*/
+void monster_hunter_berserk::state_Combat() {
+	float attack_flags;
+	float currentTime;
+	
+	
+	eachFrame {
+		currentTime = sys.getTime();
+		
+		//Check for damage group settings and shader settings
+		checkDamage();
+		
+		if(leavingBerserkDamage) {
+			leavingBerserkDamage = false;
+			setState( "state_EndBerserk" );
+		}
+		
+		//Are we ready to switch out of our current state
+		if(currentTime > stateEndTime) {
+			if (hunterState == BERSERK_STATE_BERSERK) {
+				setState( "state_EndBerserk" );
+			} else if (hunterState == BERSERK_STATE_NORMAL) {
+				setState( "state_EndNormal" );
+			}
+		}
+				
+		
+		
+		///////////////////////////////////////////////////////////////////
+		//This section is the same as the state_combat in the monster_base		
+		faceEnemy();
+		if ( AI_ENEMY_IN_FOV ) {
+			lookAtEnemy( 1 );
+		}
+
+		if ( sys.influenceActive() ) {
+			waitFrame();
+			continue;
+		}
+
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+		///////////////////////////////////////////////////////////////////
+		
+		if (hunterState == BERSERK_STATE_BERSERK) {
+			if(combat_berserk()) {
+				continue;
+			}
+		} else if (hunterState == BERSERK_STATE_NORMAL) {
+			// Do some hopping around occasionally
+			if ( currentTime >= nextHop ) {
+
+				if(combat_hop()) {
+					waitFrame();
+				}
+				nextHop = DelayTime( HUNTER_BERSERK_HOP_RATE );
+			}
+
+			if(combat_normal()) {
+				continue;
+			}
+		}
+		
+		/*if ( !enemyPositionValid() ) {
+			locateEnemy();
+		}*/
+		
+		
+		
+		waitFrame();
+	}
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+
+
+/*
+=====================
+monster_hunter_berserk::combat_berserk
+
+berserk combat is a single sequnce of actions than are not interrupted
+- If in melee range then melee attack
+- Otherwise charge
+
+=====================
+*/
+float monster_hunter_berserk::combat_berserk() {
+	
+	/*float canMelee;
+	
+	faceEnemy();
+	
+	canMelee = testMeleeAttack();
+	
+	if ( AI_ENEMY_IN_FOV ) {
+		
+		if ( canMelee ) {
+			combat_melee();
+			return 1;
+		}
+		combat_berserk_charge();
+	}
+	return 0;*/
+	
+	float	attack_flags;
+
+	attack_flags = check_attacks();
+	if ( attack_flags ) {
+		do_attack( attack_flags );
+		return 1;
+	}
+
+	if ( !combat_chase_berserk() ) {
+		locateEnemy();
+		if ( !combat_chase_berserk() ) {
+			combat_lost();
+		}
+	}
+	
+	return 0;
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_chase_berserk
+=====================
+*/
+boolean monster_hunter_berserk::combat_chase_berserk() {
+	float	delta;
+	boolean do_run;
+	float	range;
+	float	attack_flags;
+	
+	moveToEnemy();
+	if ( AI_MOVE_DONE ) {
+		return false;
+	}
+
+	waitFrame();
+	if ( AI_MOVE_DONE ) {
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			return true;
+		}
+		return false;
+	}
+	while( !AI_MOVE_DONE && !AI_DEST_UNREACHABLE ) {
+	
+		checkDamage();
+		if(leavingBerserkDamage) {
+			//Go immediately into a berserk pain state
+			leavingBerserkDamage = false;
+			setState("state_BerserkPain");
+		}
+		
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+
+		if ( sys.influenceActive() ) {
+			return true;
+		}
+		
+		if ( AI_ENEMY_IN_FOV ) {
+			lookAtEnemy( 1 );
+		}
+
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			return true;
+		}
+
+		if ( check_blocked() ) {
+			return true;
+		}
+		waitFrame();
+	}
+
+	return true;
+}
+
+/***********************************************************************
+	attacks
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_berserk::do_attack
+=====================
+*/
+void monster_hunter_berserk::do_attack( float attack_flags ) {
+
+	/*if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else*/ if ( attack_flags & ATTACK_MELEE ) {
+		if(hunterState == BERSERK_STATE_NORMAL) {
+			combat_melee();
+		} else {
+			combat_melee_berserk();
+		}
+	} else if ( attack_flags & ATTACK_LEAP ) {
+		combat_leap();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_hunter_berserk::check_attacks
+=====================
+*/
+float monster_hunter_berserk::check_attacks() {
+	float range;
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	float checkLeap;
+	vector vel;
+	float t;
+	string anim;
+	vector jumpTarget;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		//Check for a dodge attack...He won't dodge in berserk mode
+		if ( hunterState == BERSERK_STATE_NORMAL && AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	}
+
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	if ( AI_ENEMY_IN_FOV ) {
+		range = enemyRange();
+		//Only leap in berserk mode
+		if ( hunterState == BERSERK_STATE_BERSERK && ( range >= BERSERK_LEAP_RANGE_MIN ) && ( range < BERSERK_LEAP_RANGE_MAX ) && ( currentTime >= nextLeap ) ) {
+			if ( canHitEnemy() ) {
+				t = animLength( ANIMCHANNEL_TORSO, "berzerk_leap_start" );
+				jumpTarget = predictEnemyPos( t );
+				jumpVelocity = getJumpVelocity( jumpTarget, BERSERK_LEAP_SPEED, BERSERK_LEAP_MAXHEIGHT );
+				if ( jumpVelocity != '0 0 0' ) {
+					attack_flags |= ATTACK_LEAP;
+				} else {
+					nextLeap = DelayTime( BERSERK_LEAP_RATE );
+				}
+			}
+		}
+		
+		//Only missle attack while in normal mode
+		if ( hunterState == BERSERK_STATE_NORMAL && (!canReachEnemy() || ( currentTime >= nextAttack )) ) {
+			
+			anim = chooseAnim( ANIMCHANNEL_TORSO, "ranged" );
+			if ( testAnimMoveTowardEnemy( anim ) ) {
+				if ( canHitEnemyFromAnim( anim ) ) {
+					range_attack_anim = anim;
+					attack_flags |= ATTACK_MISSILE;
+				}
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+
+/*
+=====================
+monster_hunter_berserk::combat_normal
+=====================
+*/
+float monster_hunter_berserk::combat_normal() {
+
+	float currentTime;
+	float range;
+	float canMelee;
+	
+	
+	
+	currentTime = sys.getTime();
+	
+	canMelee = testMeleeAttack();
+	if ( AI_ENEMY_IN_FOV ) {	
+		if ( canMelee ) {
+			combat_melee();
+			return 1;
+		}
+	}
+	
+	range = enemyRange();
+	if(range <= HUNTER_EVADE_RANGE) {
+		
+		//The player is too close...I'm sooooo scared
+		if(combat_evade() == 1) {
+			return 1;
+		}
+	}
+	
+	
+	if ( currentTime >= nextAttack ) {
+		if ( canHitEnemy() ) {
+			combat_range();
+			return 1;
+		}
+	}
+	return 0;
+	
+}
+
+float monster_hunter_berserk::combat_evade() {
+
+	float selection;
+	float selectedEvade;
+	float evadeCount;
+
+	selectedEvade = 0;
+	evadeCount = 0;
+
+	//Which directions can we evade
+	if ( testAnimMove( "evade_left" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_LEFT);
+		evadeCount++;
+	}
+	if ( testAnimMove( "evade_right" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_RIGHT);
+		evadeCount++;
+	}
+	if ( testAnimMove( "evade_back" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_BACK);
+		evadeCount++;
+	}
+	//if ( testAnimMove( "evade_back_192" ) ) {
+		//SetArrayVal(evadeCount, ATTACK_EVADE_BACK_LONG);
+		//evadeCount++;
+	//}
+	if ( testAnimMove( "evade_backleft" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_BACK_LEFT);
+		evadeCount++;
+	}
+	if ( testAnimMove( "evade_backright" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_BACK_RIGHT);
+		evadeCount++;
+	}
+
+	// Check front evades as a last resort
+	if ( evadeCount == 0 ) {
+		if ( testAnimMove( "evade_frontleft" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_FRONT_LEFT);
+			evadeCount++;
+		}
+		if ( testAnimMove( "evade_frontright" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_FRONT_RIGHT);
+			evadeCount++;
+		}
+	}
+
+	if(evadeCount > 0) {
+
+		selection = sys.randomInt( evadeCount );
+		selectedEvade = GetArrayVal(selection);
+
+		if(selectedEvade == ATTACK_EVADE_LEFT) {
+			combat_evade_left();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_RIGHT) {
+			combat_evade_right();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_BACK) {
+			combat_evade_back();
+			return 1;
+		}
+		//if(selectedEvade == ATTACK_EVADE_BACK_LONG) {
+			//combat_evade_back_long();
+			//return 1;
+		//}
+		if(selectedEvade == ATTACK_EVADE_BACK_LEFT) {
+			combat_evade_back_left();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_BACK_RIGHT) {
+			combat_evade_back_right();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_FRONT_LEFT) {
+			combat_evade_front_left();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_FRONT_RIGHT) {
+			combat_evade_front_right();
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_hop
+=====================
+*/
+float monster_hunter_berserk::combat_hop() {
+	float selection;
+	float selectedEvade;
+	float evadeCount;
+	float range;
+
+	selectedEvade = 0;
+	evadeCount = 0;
+
+	// Always allow a side hop
+	if ( testAnimMove( "evade_left" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_LEFT);
+		evadeCount++;
+	}
+	if ( testAnimMove( "evade_right" ) ) {
+		SetArrayVal(evadeCount, ATTACK_EVADE_RIGHT);
+		evadeCount++;
+	}
+
+	// We should try and keep a steady range from the enemy
+	range = enemyRange();
+
+	if ( range > HUNTER_BERSERK_IDEAL_RANGE ) {
+		if ( testAnimMove( "evade_front" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_FRONT);
+			evadeCount++;
+		}
+		if ( testAnimMove( "evade_frontleft" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_FRONT_LEFT);
+			evadeCount++;
+		}
+		if ( testAnimMove( "evade_frontright" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_FRONT_RIGHT);
+			evadeCount++;
+		}
+	} else {
+		if ( testAnimMove( "evade_back" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_BACK);
+			evadeCount++;
+		}
+		if ( testAnimMove( "evade_backleft" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_BACK_LEFT);
+			evadeCount++;
+		}
+		if ( testAnimMove( "evade_backright" ) ) {
+			SetArrayVal(evadeCount, ATTACK_EVADE_BACK_RIGHT);
+			evadeCount++;
+		}
+	}
+
+	if(evadeCount > 0) {
+
+		selection = sys.randomInt( evadeCount );
+		selectedEvade = GetArrayVal(selection);
+
+		if(selectedEvade == ATTACK_EVADE_LEFT) {
+			combat_evade_left();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_RIGHT) {
+			combat_evade_right();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_FRONT) {
+			combat_evade_front();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_FRONT_LEFT) {
+			combat_evade_front_left();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_FRONT_RIGHT) {
+			combat_evade_front_right();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_BACK) {
+			combat_evade_back();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_BACK_LEFT) {
+			combat_evade_back_left();
+			return 1;
+		}
+		if(selectedEvade == ATTACK_EVADE_BACK_RIGHT) {
+			combat_evade_back_right();
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_range
+=====================
+*/
+void monster_hunter_berserk::combat_range() {
+	faceEnemy();
+//	stopMove();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( BERSERK_RANGE_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_leap
+=====================
+*/
+void monster_hunter_berserk::combat_leap() {
+	stopMove();
+	turnToPos( getOrigin() + jumpVelocity );
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );
+	
+	//While he is leaping check for damage to we know the player has knocked him out of berserk mode
+	setWaitState("leap_attack");
+	while(getWaitState() == "leap_attack") {
+		
+		//Check for a hit so the torso will know which land animation to play
+		if(AI_HIT_ENEMY) {
+			hitEnemy = true;
+		}
+		checkDamage();
+		waitFrame();
+	}
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_berserk_charge
+=====================
+*/
+void monster_hunter_berserk::combat_berserk_charge() {
+	
+	vector chargeBegin;
+	
+	vector dir;
+	float dist;
+	float endtime;
+	
+	float animD;
+	float animT;
+	entity curEnemy;
+	
+	disablePain();
+	moveState = HUNTER_MOVE_CHARGE;
+	avoidObstacles(0);
+	
+	float canMelee;
+	animState( ANIMCHANNEL_TORSO, "Torso_BerserkRage", 4);
+	waitAction("beginrage");
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		
+		checkDamage();
+		
+		//While raging make sure the player is not to close
+		faceEnemy();
+		canMelee = testMeleeAttack();
+		if ( canMelee ) {
+			combat_melee();
+			return;
+		}
+		waitFrame();
+	}
+	
+	
+	
+	attackBegin( "melee_hunter_berserk_ChargeAttack" );	
+	animState( ANIMCHANNEL_TORSO, "Torso_BerserkCharge", 4);
+	
+	
+	
+	
+	curEnemy = getEnemy();
+	
+	stopMove();
+	
+	while(1) {
+	
+		//sys.print("Beginning Charge...\n");
+			
+		turnToPos( curEnemy.getOrigin() );
+		
+		chargeBegin = getOrigin();		
+		chargeTarget = curEnemy.getOrigin();
+		
+		dir = chargeTarget - chargeBegin;
+			
+		moveToPosition(chargeTarget);
+		
+		animD = animDistance( ANIMCHANNEL_LEGS, "berzerk_charge" );
+		animT = animLength( ANIMCHANNEL_LEGS, "berzerk_charge" );
+		
+		dist  = sys.vecLength(dir) + 256;
+		endtime = sys.getTime() + (dist / animD * animT);
+		while( !AI_HIT_ENEMY && !AI_MOVE_DONE && !AI_BLOCKED && ( sys.getTime() < endtime ) ) {
+		//while( !AI_HIT_ENEMY && !AI_MOVE_DONE && !AI_BLOCKED) {
+		
+			kickObstacles(getObstacle(), 200);
+			
+			checkDamage();
+			waitFrame();
+		}
+				
+		if(!AI_HIT_ENEMY) {
+		
+			//sys.print("Missed the enemy\n");
+		
+			//Check to see if the enemy is still right in front of me
+			vector newDir;
+			float ang;
+			
+			newDir = curEnemy.getOrigin() - chargeBegin;
+			ang = sys.DotProduct(sys.vecNormalize(dir), sys.vecNormalize(newDir));
+			ang = sys.acos(ang);
+			if(ang > CHARGE_CONTINUE_ANGLE || ang < -CHARGE_CONTINUE_ANGLE) {
+				
+				//sys.print("Sliding...\n");
+				attackEnd();
+				
+				//The player got out of the way so lets get pissed and end the charge
+				playAnim( ANIMCHANNEL_TORSO, "berzerk_miss" );
+				while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+					checkDamage();
+					waitFrame();
+				}
+				break;
+			}
+
+			if ( AI_BLOCKED ) {
+				faceEnemy();
+				waitFrame();
+				break;
+			}
+
+		} else {
+		
+			//sys.print("Hit the enemy\n");
+			//We hit the player...do a quick melee attack
+			playAnim( ANIMCHANNEL_TORSO, "berzerk_hit" );
+			while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+				checkDamage();
+				waitFrame();
+			}
+			stopMove();
+			attackEnd();
+			break;
+		}
+		
+		waitFrame();
+	}
+
+	avoidObstacles(1);
+	moveState = HUNTER_MOVE_RUN;
+	enablePain();
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4);
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_melee
+=====================
+*/
+void monster_hunter_berserk::combat_melee() {
+	lookAt( getEnemy(), 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	waitAction( "melee_attack" );
+	lookAt( getEnemy(), 1 );
+	stopMove();
+	combat_evade();
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_melee_berserk
+=====================
+*/
+void monster_hunter_berserk::combat_melee_berserk() {
+	lookAt( getEnemy(), 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 5 );
+	setWaitState("melee_attack");
+	while(getWaitState() == "melee_attack") {
+		checkDamage();
+		if(leavingBerserkDamage) {
+			//Go immediately into a berserk pain state
+			leavingBerserkDamage = false;
+			setState("state_BerserkPain");
+		}
+		waitFrame();
+	}
+	lookAt( getEnemy(), 1 );
+	stopMove();
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_left
+=====================
+*/
+void monster_hunter_berserk::combat_evade_left() {
+	//sys.print("Evade Left\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeLeft", 2 );
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_right
+=====================
+*/
+void monster_hunter_berserk::combat_evade_right() {
+	//sys.print("Evade Right\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeRight", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_back
+=====================
+*/
+void monster_hunter_berserk::combat_evade_back() {
+	//sys.print("Evade Back\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeBack", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_back_long
+=====================
+*/
+void monster_hunter_berserk::combat_evade_back_long() {
+	//sys.print("Evade Back Long\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeBackLong", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_back_left
+=====================
+*/
+void monster_hunter_berserk::combat_evade_back_left() {
+	//sys.print("Evade Back Left\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeBackLeft", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_back_right
+=====================
+*/
+void monster_hunter_berserk::combat_evade_back_right() {
+	//sys.print("Evade Back Right\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeBackRight", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_front
+=====================
+*/
+void monster_hunter_berserk::combat_evade_front() {
+	//sys.print("Evade Front\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeFront", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_front_left
+=====================
+*/
+void monster_hunter_berserk::combat_evade_front_left() {
+	//sys.print("Evade Front Left\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeFrontLeft", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::combat_evade_front_right
+=====================
+*/
+void monster_hunter_berserk::combat_evade_front_right() {
+	//sys.print("Evade Front Right\n");
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_LEGS, "Legs_EvadeFrontRight", 2 );	
+	waitAction( "evade" );
+	nextEvade = DelayTime( HUNTER_EVADE_RATE );
+}
+
+/*
+=====================
+monster_hunter_berserk::path_jump
+=====================
+*/
+void monster_hunter_berserk::path_jump() {
+	entity target;
+	vector dir;
+	vector jumpTarget;
+
+	// walk to the path entity first
+	path_corner();
+
+	if ( checkForEnemy( true ) ) {
+		return;
+	}
+
+	target = current_path.randomTarget( current_path.getName() );
+	if ( !target ) {
+		sys.error( "missing target for '" + current_path.getName() + "'" );
+	}
+	jumpTarget = target.getOrigin();
+	if ( !current_path.getKey( "up" ) ) {
+		jumpVelocity = getJumpVelocity( jumpTarget, BERSERK_LEAP_SPEED, 1024 );
+		if ( jumpVelocity == '0 0 0' ) {
+			sys.error( "Monster '" + getName() + "' couldn't make jump from '" + current_path.getName() + "' to '" + target.getName() + "'" );
+		}
+	} else {
+		float forward = current_path.getFloatKey( "forward" );
+		if ( forward <= 0 ) {
+			sys.error( "Invalid forward velocity on path_jump entity '" + current_path.getName() + "'\n" );
+		}
+		dir = jumpTarget - getOrigin();
+		dir_z = 0;
+		dir = sys.vecNormalize( dir );
+		dir = dir * forward;
+		dir_z = current_path.getFloatKey( "up" );
+		jumpVelocity = dir;
+	}
+	
+	stopMove();
+	turnToPos( jumpTarget );
+	while( !facingIdeal() ) {
+		if ( checkForEnemy( true ) ) {
+			return;
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_TORSO, "Torso_LeapAttack", 4 );	
+	waitAction( "leap_attack" );
+
+	stopMove();
+}
+
+
+
+void monster_hunter_berserk::checkDamage() {
+	
+	if (hunterState == BERSERK_STATE_BERSERK || hunterState == BERSERK_STATE_BERSERK_START) {
+	
+		//Helltime Damage will knock the hunter out of berserk mode
+		//Need to check the scale to make sure the code has executed and the player is able to do the serious damage
+		//before knocking the monster out of berserk
+		float scale;
+		scale = getDamageGroupScale("heart");
+		
+		if(hunterState == BERSERK_STATE_BERSERK && AI_DAMAGE && $player1.isPowerupActive(HELLTIME) && scale == BERSERK_DAMAGE_MULTIPLIER_HELLTIME) { 
+			AI_DAMAGE = false;
+			if(!leavingBerserkDamage) {
+				//sys.print("!!!!!!!!!!!!!!!!!!!! Damage While In Berserk !!!!!!!!!!!!!!!!!\n");
+				leavingBerserkDamage = true;
+				//SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_NORMAL);
+				
+			}
+		}	
+		
+		/*if($player1.isPowerupActive(HELLTIME)) {
+			//if(!leavingBerserkDamage) {
+				//You can only damage him while he is in berserk when you are in hell time
+				if(hunterState == BERSERK_STATE_BERSERK) {
+					SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_HELLTIME);
+				}
+				startEmitter("heartemitter", "heart1", "hunter_bezerk_heart_burn.prt");
+			//}
+			
+			
+		} else {
+			SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_NORMAL);
+			stopEmitter("heartemitter");
+		}*/
+	} /*else {
+		SetHeartDamage(BERSERK_DAMAGE_MULTIPLIER_NORMAL);
+		stopEmitter("heartemitter");
+	}*/
+	
+	if(AI_DAMAGE) {
+		AI_DAMAGE = false;
+	}
+}
+
+void monster_hunter_berserk::SetHeartDamage(float damage) {
+	//sys.print("Heart Damage Scale = " + damage + "\n");
+	setDamageGroupScale("heart", damage);
+	
+	if(damage == BERSERK_DAMAGE_MULTIPLIER_HELLTIME) {
+		setDamageCap(minBerserkHealth);
+	} else {
+		setDamageCap(-1);
+	}
+	
+}

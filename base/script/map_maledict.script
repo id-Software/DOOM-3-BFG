@@ -1,0 +1,11 @@
+namespace map_maledict
+{
+	void maledict_ep3() {
+		sys.wait( 7 );
+		$end_piece3.remove();
+	}
+
+	void main() {
+		sys.print( "Hello World!\n" );
+	}
+}

@@ -1,0 +1,673 @@
+namespace map_phobos3 {
+
+	float	lift1_position = 1; //set the start position of lift 1
+	float	lift2_position = 1; //set the start position of lift 2
+	float	lift3_position = 1; //set the start position of lift 3
+	float	reactor_on = 1; //set the initial reactor state
+	float	envirosuit_on = 0;
+
+	void comp_lifesupport() {
+		sys.wait( 1 );
+		sys.trigger( $comp_lifesupport1 );
+		sys.wait( 3.5 );
+		sys.trigger( $comp_lifesupport2 );
+		sys.wait( 4 );
+		sys.trigger( $comp_lifesupport3 );
+		sys.wait( 4 );
+		sys.trigger( $comp_lifesupport4 );
+		sys.wait( 6 );
+		while( 1 ) {
+			sys.trigger( $comp_lifesupport_start1 );
+			sys.wait( 3 );
+			sys.trigger( $comp_lifesupport_start2 );
+			sys.wait( 2.7 );
+			sys.trigger( $comp_lifesupport2 );
+			sys.wait( 4 );
+			sys.trigger( $comp_lifesupport3 );
+			sys.wait( 4 );
+			sys.trigger( $comp_lifesupport4 );
+			sys.wait( 10 );
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	REACTOR ON LOOP
+	//
+	////////////////////////////////////////////////////
+	void reactor_start () {
+
+		while (reactor_on == 1) {
+			return;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	REACTOR SHUTDOWN EVENT
+	//
+	////////////////////////////////////////////////////
+	void reactor_lightbusiness () {
+
+		thread crossFadeEnt ($reactor_toplight1, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight2, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight3, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight4, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight5, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight6, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight7, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight8, '0 0 0', '0.47 0.03 0.03', 4);
+		thread crossFadeEnt ($reactor_toplight9, '0 0 0', '0.47 0.03 0.03', 4);
+
+		sys.wait(4);
+
+		$reactor_toplight1.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight2.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight3.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight4.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight5.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight6.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight7.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight8.setKey ("texture", "lights/strobevent01");
+		$reactor_toplight9.setKey ("texture", "lights/strobevent01");
+
+		sys.trigger( $reactor_alarm );
+	}
+
+	void mcneil_radio_support() {
+		sys.trigger( $mcneil_support1 );
+	}
+
+	void mcneil_radio_reactor() {
+
+		sys.trigger( $comp_reactor1 );
+		sys.wait( 3.5 );
+		sys.trigger( $comp_reactor2 );
+		sys.wait( 3 );
+		sys.trigger( $reactor_fadelightsout ); // start fading out the lights in the reactor room
+		sys.wait( 5 );
+		sys.trigger( $reactor_fadeout ); // turn off the reactor
+		sys.wait( 3 );
+		sys.trigger( $comp_reactor3 );
+		sys.trigger( $obj_reactorcomp );
+		sys.wait( 2 );
+		sys.trigger( $mcneil_reactor1 );
+		sys.wait( 7 );
+		thread reactor_lightbusiness(); // turn of the emergency lights
+		$reactor_bridgecontrolpanel.setGui(1, "guis/phobos/reactor_bridgecontrol2.gui"); // activate the bridge gui
+		$reactor_bridgecontrolpanel.setGuiParm( "noninteractive", "0" );
+		sys.trigger( $obj_lifesupport );
+	}
+
+	void reactor_shutdown () {
+
+		reactor_on = 0;
+
+		// Make McNeil say things
+		thread mcneil_radio_reactor();
+	}
+
+	// -Xian
+	void gondola_sound( float fWait ) {
+		$gondola_01.startSoundShader ( "p1_gondola_start", SND_CHANNEL_VOICE );
+		sys.wait (fWait);
+		$gondola_01.startSoundShader ( "p1_gondola_stop", SND_CHANNEL_VOICE );
+	}
+	////////////////////////////////////////////////////
+	//
+	//	GONDOLA RIDE
+	//
+	////////////////////////////////////////////////////
+	void gondola_01_start () {
+		$gondola_01_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+
+		$gondola_01_doorclip.show();
+		$gondola_01_door_left.move ( NORTH , 28 );
+		$gondola_01_door_right.move ( SOUTH , 28 );
+		sys.waitFor( $gondola_01_door_right );
+
+		sys.wait (.5);
+
+		$gondola_01_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_01_door_left.move ( WEST , 2 );
+		$gondola_01_door_right.move ( WEST , 2 );
+		sys.waitFor( $gondola_01_door_right );
+
+		$player1.disableWeapon();
+
+		sys.wait (.5);
+		$gondola_01_arm.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+
+		$gondola_01_arm.move ( UP , 16);
+		sys.waitFor( $gondola_01_arm );
+
+		sys.wait (1);
+
+		sys.trigger( $trigger_once_103 );
+		sys.trigger( $trigger_once_102 );
+		sys.trigger( $trigger_once_101 );
+		sys.trigger( $trigger_once_100 );
+		sys.trigger( $trigger_once_99 );
+		sys.trigger( $trigger_once_98 );
+
+		//thread trackhitch();
+		//thread ambient_squeals();
+
+		$gondola_01_base.time( 20 );
+		$gondola_01_base.accelTime( 3 );
+		$gondola_01_base.decelTime( 3 );
+		thread gondola_sound(17);								// -Xian
+		$gondola_01_base.startSpline( $p3_sp1 );
+		$gondola_01_base.removeInitialSplineAngles();
+		sys.waitFor( $gondola_01_base );
+
+		// FIRST STOP (airlock)
+		sys.wait(.5);
+		sys.trigger( $p3_tdoor1 );
+		sys.wait(1.5);
+
+		sys.trigger( $p3_a1_speaker );
+		sys.trigger( $p3_a1_fadein );
+
+		sys.wait(3);
+		//sys.trigger( $p3_a1_speaker );
+		sys.trigger( $p3_a1_fadeout );
+
+		sys.wait(.5);
+		sys.trigger( $p3_tdoor2 );
+
+		$gondola_01_base.time( 25 );
+		$gondola_01_base.accelTime( 3 );
+		$gondola_01_base.decelTime( 3 );
+		thread gondola_sound(22);								// -Xian
+		$gondola_01_base.startSpline( $p3_sp2 );
+		$gondola_01_base.removeInitialSplineAngles();
+
+		sys.wait(.25);
+		sys.trigger( $p3_a1_steamspeaker );
+		$p3_a1_doorsteam1.show();
+		$p3_a1_doorsteam2.show();
+		sys.wait(1.5);
+		sys.trigger( $p3_a1_doorfade );
+
+		sys.waitFor( $gondola_01_base );
+
+		// FINAL STOP (station)
+		sys.wait (1);
+
+		$gondola_01_arm.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_01_arm.move ( DOWN , 16);
+		sys.waitFor( $gondola_01_arm );
+
+		sys.wait (.5);
+
+		$gondola_01_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_01_door_left.move ( SOUTH , 2 );
+		$gondola_01_door_right.move ( SOUTH , 2 );
+		sys.waitFor( $gondola_01_door_right );
+
+		sys.wait (.5);
+
+		$gondola_01_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_01_doorclip.hide();
+		$gondola_01_door_left.move ( WEST , 28 );
+		$gondola_01_door_right.move ( EAST , 28 );
+		sys.waitFor( $gondola_01_door_right );
+
+		sys.wait (.5);
+
+		$player1.enableWeapon();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	UNDERGROUND TUNNEL SHUTTERS
+	//
+	////////////////////////////////////////////////////
+	void open_shutters () {
+
+		sys.trigger( $shutter_sequence );
+
+		// Open Shutters 01
+		$adam_shutter_top_01.time (3);
+		$adam_shutter_top_01.accelTime (.5);
+		$adam_shutter_top_01.decelTime (1);
+		$adam_shutter_top_01.move ( 270, 56 );
+
+		$adam_shutter_bottom_01.time (3);
+		$adam_shutter_bottom_01.accelTime (.5);
+		$adam_shutter_bottom_01.decelTime (1);
+		$adam_shutter_bottom_01.moveTo ($adam_shutter_bottom_01_open);
+
+		sys.wait (1);
+
+		// Open Shutters 02
+		$adam_shutter_top_02.time (3);
+		$adam_shutter_top_02.accelTime (.5);
+		$adam_shutter_top_02.decelTime (1);
+		$adam_shutter_top_02.move ( 270, 56 );
+
+		$adam_shutter_bottom_02.time (3);
+		$adam_shutter_bottom_02.accelTime (.5);
+		$adam_shutter_bottom_02.decelTime (1);
+		$adam_shutter_bottom_02.moveTo ($adam_shutter_bottom_02_open);
+
+		sys.wait (1);
+
+		// Open Shutters 03
+		$adam_shutter_top_03.time (3);
+		$adam_shutter_top_03.accelTime (.5);
+		$adam_shutter_top_03.decelTime (1);
+		$adam_shutter_top_03.move ( 270, 56 );
+
+		$adam_shutter_bottom_03.time (4);
+		$adam_shutter_bottom_03.accelTime (.5);
+		$adam_shutter_bottom_03.decelTime (1);
+		$adam_shutter_bottom_03.moveTo ($adam_shutter_bottom_03_open);
+
+		sys.wait (1);
+
+		// Open Shutters 04
+		$adam_shutter_top_04.time (3);
+		$adam_shutter_top_04.accelTime (.5);
+		$adam_shutter_top_04.decelTime (1);
+		$adam_shutter_top_04.move ( 270, 56 );
+
+		$adam_shutter_bottom_04.time (3);
+		$adam_shutter_bottom_04.accelTime (.5);
+		$adam_shutter_bottom_04.decelTime (1);
+		$adam_shutter_bottom_04.moveTo ($adam_shutter_bottom_04_open);
+	}
+
+	void close_shutters () {
+
+		// Close Shutters 01
+		$adam_shutter_top_01.time (3);
+		$adam_shutter_top_01.accelTime (.5);
+		$adam_shutter_top_01.decelTime (1);
+		$adam_shutter_top_01.move ( 90, 56 );
+
+		$adam_shutter_bottom_01.time (3);
+		$adam_shutter_bottom_01.accelTime (.5);
+		$adam_shutter_bottom_01.decelTime (1);
+		$adam_shutter_bottom_01.moveTo ($adam_shutter_bottom_01_close);
+
+		sys.wait (1);
+
+		// Close Shutters 02
+		$adam_shutter_top_02.time (3);
+		$adam_shutter_top_02.accelTime (.5);
+		$adam_shutter_top_02.decelTime (1);
+		$adam_shutter_top_02.move ( 90, 56 );
+
+		$adam_shutter_bottom_02.time (3);
+		$adam_shutter_bottom_02.accelTime (.5);
+		$adam_shutter_bottom_02.decelTime (1);
+		$adam_shutter_bottom_02.moveTo ($adam_shutter_bottom_02_close);
+
+		sys.wait (1);
+
+		// Close Shutters 03
+		$adam_shutter_top_03.time (3);
+		$adam_shutter_top_03.accelTime (.5);
+		$adam_shutter_top_03.decelTime (1);
+		$adam_shutter_top_03.move ( 90, 56 );
+
+		$adam_shutter_bottom_03.time (4);
+		$adam_shutter_bottom_03.accelTime (.5);
+		$adam_shutter_bottom_03.decelTime (1);
+		$adam_shutter_bottom_03.moveTo ($adam_shutter_bottom_03_close);
+
+		sys.wait (1);
+
+		// Close Shutters 04
+		$adam_shutter_top_04.time (3);
+		$adam_shutter_top_04.accelTime (.5);
+		$adam_shutter_top_04.decelTime (1);
+		$adam_shutter_top_04.move ( 90, 56 );
+
+		$adam_shutter_bottom_04.time (3);
+		$adam_shutter_bottom_04.accelTime (.5);
+		$adam_shutter_bottom_04.decelTime (1);
+		$adam_shutter_bottom_04.moveTo ($adam_shutter_bottom_04_close);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAINTENANCE LIFTS
+	//
+	////////////////////////////////////////////////////
+	void lift1_call() {
+
+		if ( lift1_position == 1 )
+		{
+			lift1_position = 666;
+			$phobos_lift1.moveTo ($phobos_lift1_down);
+			sys.waitFor($phobos_lift1);
+			$phobos_lift1.setGuiParm( "gui_parm1", 1 );
+			lift1_position = 2;
+		}
+	}
+
+	void lift1_operate() {
+
+		if ( lift1_position == 1 )
+		{
+			lift1_position = 666;
+			$phobos_lift1.moveTo ($phobos_lift1_down);
+			sys.waitFor($phobos_lift1);
+			$phobos_lift1.setGuiParm( "gui_parm1", 1 );
+			lift1_position = 2;
+		}
+		else if( lift1_position == 2 )
+		{
+			lift1_position = 666;
+			$phobos_lift1.moveTo ($phobos_lift1_up);
+			sys.waitFor($phobos_lift1);
+			$phobos_lift1.setGuiParm( "gui_parm1", 2 );
+			lift1_position = 1;
+		}
+	}
+
+	void lift2_call() {
+
+		if ( lift2_position == 1 )
+		{
+			lift2_position = 666;
+			$phobos_lift2.moveTo ($phobos_lift2_down);
+			sys.waitFor($phobos_lift2);
+			$phobos_lift2.setGuiParm( "gui_parm1", 1 );
+			lift2_position = 2;
+		}
+	}
+
+	void lift2_operate() {
+
+		if ( lift2_position == 1 )
+		{
+			lift2_position = 666;
+			$phobos_lift2.moveTo ($phobos_lift2_down);
+			sys.waitFor($phobos_lift2);
+			$phobos_lift2.setGuiParm( "gui_parm1", 1 );
+			lift2_position = 2;
+		}
+		else if( lift2_position == 2 )
+		{
+			lift2_position = 666;
+			$phobos_lift2.moveTo ($phobos_lift2_up);
+			sys.waitFor($phobos_lift2);
+			$phobos_lift2.setGuiParm( "gui_parm1", 2 );
+			lift2_position = 1;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN AIRLOCK ACTIVATION
+	//
+	////////////////////////////////////////////////////
+	void airlock1_activate () {
+
+		sys.trigger( $phobos3_airlock1_clipper );
+
+		thread airlock_main_activate(1 , 2);
+
+		sys.wait(2);
+
+		// Turn on or off the enviroment suit - Commented out by BJ
+		if ( envirosuit_on == 0 )
+		{
+			//$player1.setPowerupTime( ENVIROSUIT, 999999999 );
+			envirosuit_on = 1;
+		}
+		else
+		{
+			//$player1.setPowerupTime( ENVIROSUIT, 0 );
+			envirosuit_on = 0;
+		}
+	}
+
+	void airlock2_activate () {
+
+		sys.trigger( $phobos3_airlock2_clipper );
+
+		thread airlock_main_activate(2 , 1);
+
+		sys.wait(2);
+
+		// Turn on or off the enviroment suit - Commented out by BJ
+		if ( envirosuit_on == 0 )
+		{
+			//$player1.setPowerupTime( ENVIROSUIT, 999999999 );
+			envirosuit_on = 1;
+		}
+		else
+		{
+			//$player1.setPowerupTime( ENVIROSUIT, 0 );
+			envirosuit_on = 0;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	AIRLOCK EXTERNAL DOORS
+	//
+	////////////////////////////////////////////////////
+	void airlock1_door1_open ()
+	{
+		airlock_door_activate(1 , 1 , 2 , 1);
+	}
+
+	void airlock1_door2_open ()
+	{
+		airlock_door_activate(1 , 2 , 2 , 1);
+	}
+
+	void airlock2_door1_open ()
+	{
+		airlock_door_activate(2 , 1 , 1 , 1);
+	}
+
+	void airlock2_door2_open ()
+	{
+		airlock_door_activate(2 , 2 , 1 , 1);
+	}
+	void airlock1_door2_close ()
+	{
+		airlock_door_activate(1 , 2 , 2 , 2);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	TUNNEL FOG
+	//
+	////////////////////////////////////////////////////
+	void tunnel_fog_fadein()
+	{
+		$tunnel_fog_on1.disable();
+		$tunnel_fog_off1.enable();
+		$tunnel_fog.On();
+		sys.trigger( $tunnel_fog_on );
+	}
+
+
+	void tunnel_fog_fadeout()
+	{
+		$tunnel_fog_on1.enable();
+		$tunnel_fog_off1.disable();
+		sys.trigger( $tunnel_fog_off );
+		sys.wait( 2.0 );
+		$tunnel_fog.Off();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	SETUP
+	//
+	////////////////////////////////////////////////////
+	void setup_objects() {
+
+		//Move the Gondolas into position and open the doors
+		$gondola_01_arm.move ( DOWN , 16);
+		$gondola_02_arm.move ( DOWN , 16);
+		$gondola_01_door_left.move ( EAST , 2 );
+		$gondola_01_door_right.move ( EAST , 2 );
+		$gondola_01_door_left.move ( SOUTH , 28 );
+		$gondola_01_door_right.move ( NORTH , 28 );
+		sys.trigger( $p3_a1_fadeout );
+
+		//Set airlock door guis initial state to 1
+		$airlock1_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock1_door2_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door1_gui.setGuiParm ( "gui_parm1" , 1);
+		$airlock2_door2_gui.setGuiParm ( "gui_parm1" , 1);
+
+		//Override the states of the airlocks so the lights will cooperate
+		$airlock1_door2_light.setColor (0.84 , 0.84 , 0.90);
+		$airlock1_door1_light.setColor (0.37 , 0.05 , 0.01);
+		$airlock2_door2_light.setColor (0.84 , 0.84 , 0.90);
+		$airlock2_door1_light.setColor (0.37 , 0.05 , 0.01);
+		$airlock2_door2_portal.setKey ("state", "1");
+		$airlock1_door2_portal.setKey ("state", "2");
+
+		//Precache Guis
+		$reactor_bridgecontrolpanel.precacheGui("guis/phobos/reactor_bridgecontrol2.gui");
+
+		//Setup the fog
+		$tunnel_fog_on1.disable();
+
+		//Setup Reactor Lifts
+		$phobos_lift1.setGuiParm( "gui_parm1", 2 );
+		$phobos_lift2.setGuiParm( "gui_parm1", 2 );
+	}
+
+	// -- Xian Start
+
+	// Bridge Extension
+
+	void p3_bridge1() {
+		$bridge_speaker1.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge2() {
+		$bridge_speaker2.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge3() {
+		$bridge_speaker3.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge4() {
+		$bridge_speaker4.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge5() {
+		$bridge_speaker5.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge6() {
+		$bridge_speaker6.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge7() {
+		$bridge_speaker7.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	void p3_bridge8() {
+		$bridge_speaker8.startSoundShader ( "p3_movement_03s", SND_CHANNEL_VOICE );
+	}
+
+	// Bridge Rotation
+
+	void p3_bridge1a() {
+		$bridge_speaker1.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge2a() {
+		$bridge_speaker2.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge3a() {
+		$bridge_speaker3.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge4a() {
+		$bridge_speaker4.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge5a() {
+		$bridge_speaker5.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge6a() {
+		$bridge_speaker6.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge7a() {
+		$bridge_speaker7.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	void p3_bridge8a() {
+		$bridge_speaker8.startSoundShader ( "p3_movement_03s_02", SND_CHANNEL_VOICE2 );
+	}
+
+	// Rail Rotation
+
+	void p3_bridge1b() {
+		$bridge_speaker1.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge2b() {
+		$bridge_speaker2.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge3b() {
+		$bridge_speaker3.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge4b() {
+		$bridge_speaker4.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge5b() {
+		$bridge_speaker5.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge6b() {
+		$bridge_speaker6.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge7b() {
+		$bridge_speaker7.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	void p3_bridge8b() {
+		$bridge_speaker8.startSoundShader ( "p3_movement_03s_03", SND_CHANNEL_ITEM );
+	}
+
+	// -- Xian End
+
+	void cache_sounds() {
+		sys.cacheSoundShader ( "p1_gondola_start" );
+		sys.cacheSoundShader ( "p1_gondola_stop" );
+		sys.cacheSoundShader ( "p1_gondola_doors" );		// -Xian
+		sys.cacheSoundShader ( "e4_shoulder_1s_updown" );		// -Xian
+		sys.cacheSoundShader ( "p3_movement_03s" );
+		sys.cacheSoundShader ( "p3_movement_03s_02" );
+		sys.cacheSoundShader ( "p3_movement_03s_03" );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main () {
+
+		thread setup_objects();
+		thread reactor_start();
+		cache_sounds();
+	}
+
+}// namespace

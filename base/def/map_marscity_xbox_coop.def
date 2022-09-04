@@ -1,0 +1,531 @@
+
+// NPCS
+
+export fred {
+
+	camera	maps/fred/marscity/hangar_characters_coop.mb -range 360 678 -dest models/md5/coop/cinematics/marscity/hangar_cam_e
+	camera	maps/fred/marscity/hangar_characters_coop.mb -range 679 766 -dest models/md5/coop/cinematics/marscity/hangar_cam_f
+	//camera	maps/fred/marscity/hangar_characters_coop.mb -range 767 863 -dest models/md5/coop/cinematics/marscity/hangar_cam_g
+	camera	maps/fred/marscity/hangar_characters_coop.mb -range 864 937 -dest models/md5/coop/cinematics/marscity/hangar_cam_h
+	camera	maps/fred/marscity/hangar_characters_coop.mb -range 938 980 -dest models/md5/coop/cinematics/marscity/hangar_cam_i
+
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER 
+
+	
+	addoptions -keepmesh marinebodymesh
+
+	//MARSCITY CINEMATICS
+	
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 360 678 -dest models/md5/coop/marscity/hangar_coop1_a -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 679 766 -dest models/md5/coop/marscity/hangar_coop1_b -prefix SUIT_
+		//anim 	maps/fred/marscity/hangar_characters_coop.mb -range 767 863 -dest models/md5/coop/marscity/hangar_coop1_c -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 864 937 -dest models/md5/coop/marscity/hangar_coop1_d -prefix SUIT_
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 938 980 -dest models/md5/coop/marscity/hangar_coop1_e -prefix SUIT_
+
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 360 678 -dest models/md5/coop/marscity/hangar_coop2_a -prefix SUIT2_
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 679 766 -dest models/md5/coop/marscity/hangar_coop2_b -prefix SUIT2_
+		//anim 	maps/fred/marscity/hangar_characters_coop.mb -range 767 863 -dest models/md5/coop/marscity/hangar_coop2_c -prefix SUIT2_
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 864 937 -dest models/md5/coop/marscity/hangar_coop2_d -prefix SUIT2_
+		anim 	maps/fred/marscity/hangar_characters_coop.mb -range 938 980 -dest models/md5/coop/marscity/hangar_coop2_e -prefix SUIT2_
+
+		anim 	maps/eric/marscity_xbox/sarge_coop_curves.mb -range 1 540 -rotate 90 -dest models/md5/coop/marscity/sarge_mc_coop -prefix SARGE_
+		anim 	maps/eric/marscity_xbox/recep_coop1.mb -range 1 60 -dest models/md5/coop/marscity/recep_coop_loop -prefix SUIT_
+		anim 	maps/eric/marscity_xbox/recep_coop1.mb -range 61 193 -dest models/md5/coop/marscity/recep_coop -prefix SUIT_
+		anim 	maps/fred/marscity/sargecin_eric_idle.mb -range 24 580 -rotate 180 -dest models/md5/chars/sarge/marscity/mc_sarge_wait_loop_180 -prefix SUIT_ -align ALL
+
+
+	addoptions -align ALL
+	addoptions -destdir models/md5/chars
+
+		anim	models/characters/male_npc/cycles/idles/stand_lookaround.mb -dest stand_lookaround
+	
+}
+
+model xmarscity_hangar {
+	mesh							models/md5/cinematics/marscity/marscityhangar.md5mesh
+	anim hangar						models/md5/cinematics/marscity/marscityhangar.md5anim {
+		frame 1						sound_global xbox_ship_entry
+		frame 2						sound_global xbox_vo_darkstar_on_final
+		frame 53					sound_global xbox_ship_afterburners
+		frame 75					sound_global xbox_hangar_door_open
+		frame 130					sound_global xbox_vo_welcome_back
+	}
+}
+
+entityDef xmarscity_hangar {
+	"inherit"						"cin_base"
+	"model"							"xmarscity_hangar"
+	"anim"							"hangar"
+	"cinematic"						"1"
+}
+
+entityDef marscity_coop_cinematic_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim hangar_a"					"models/md5/cinematics/marscity/hangar_cam_a.camera"
+	"anim hangar_b"					"models/md5/cinematics/marscity/hangar_cam_b.camera"
+	"anim hangar_c"					"models/md5/cinematics/marscity/hangar_cam_c.camera"
+	"anim hangar_d"					"models/md5/cinematics/marscity/hangar_cam_d.camera"
+
+	"anim hangar_e"					"models/md5/coop/cinematics/marscity/hangar_cam_e.camera"
+	"anim hangar_f"					"models/md5/coop/cinematics/marscity/hangar_cam_f.camera"
+	//"anim hangar_g"					"models/md5/coop/cinematics/marscity/hangar_cam_g.camera"
+	"anim hangar_h"					"models/md5/coop/cinematics/marscity/hangar_cam_h.camera"
+	"anim hangar_i"					"models/md5/coop/cinematics/marscity/hangar_cam_i.camera"
+}
+
+
+
+
+model marscity_head_coop_player1 {
+	inherit							head_player
+	//anim hangar_a					models/md5/heads/swann/marscity/mc_hangar_a.md5anim
+	//anim hangar_b					models/md5/heads/swann/marscity/mc_hangar_b.md5anim
+	//anim hangar_c					models/md5/heads/swann/marscity/mc_hangar_c.md5anim
+	//anim hangar_d					models/md5/heads/swann/marscity/mc_hangar_d.md5anim
+	//anim hangar_e					models/md5/heads/swann/marscity/mc_hangar_e.md5anim
+}
+
+model marscity_coop_player1 {	
+	inherit							npc_tshirt
+
+	anim hangar_a					models/md5/coop/marscity/hangar_coop1_a.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_b					models/md5/coop/marscity/hangar_coop1_b.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	//anim hangar_c					models/md5/coop/marscity/hangar_coop1_c.md5anim {
+	//	frame 1		 					event disableEyeFocus
+	//}
+
+	anim hangar_d					models/md5/coop/marscity/hangar_coop1_d.md5anim {
+		frame 1		 					event disableEyeFocus
+		
+	}
+
+	anim hangar_e					models/md5/coop/marscity/hangar_coop1_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+}
+
+entityDef marscity_coop_player1 {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_coop_player1"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_coop_player1"
+	"head_joint"					"Shoulders"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"2"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	//"anim3"							"hangar_c"
+	"cinematic"						"1"
+}
+
+entityDef marscity_coop_player1b {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_coop_player1"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_coop_player1"
+	"head_joint"					"Shoulders"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"2"
+	"anim1"							"hangar_d"
+	"anim2"							"hangar_e"
+	"cinematic"						"1"
+}
+
+
+
+model marscity_coop_player1c {	
+	inherit							npc_tshirt
+	anim idle							models/md5/chars/stand_lookaround.md5anim {
+	random_cycle_start
+	}
+	anim stand							models/md5/chars/stand_lookaround.md5anim {
+	random_cycle_start
+	}
+
+}
+
+entityDef marscity_coop_player1c {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_coop_player1c"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_coop_player1"
+	"head_joint"					"Shoulders"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+}
+
+
+model marscity_head_coop_player2 {
+	inherit							head_player
+	
+	//skin 							skins/player/coophead
+}
+
+model marscity_coop_player2 {	
+	inherit							npc_tshirt
+
+	anim hangar_a					models/md5/coop/marscity/hangar_coop2_a.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_b					models/md5/coop/marscity/hangar_coop2_b.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	//anim hangar_c					models/md5/coop/marscity/hangar_coop2_c.md5anim {
+	//	frame 1		 					event disableEyeFocus
+	//}
+	anim hangar_d					models/md5/coop/marscity/hangar_coop2_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_e					models/md5/coop/marscity/hangar_coop2_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+}
+
+entityDef marscity_coop_player2 {	
+	"inherit"						"npc_base"
+	"model"							"marscity_coop_player2"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_coop_player2"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"2"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	//"anim3"							"hangar_c"
+	"cinematic"						"1"
+}
+
+entityDef marscity_coop_player2b {	
+	"inherit"						"npc_base"
+	"model"							"marscity_coop_player2"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_coop_player2"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"2"
+	"anim1"							"hangar_d"
+	"anim2"							"hangar_e"
+	"cinematic"						"1"
+}
+
+model marscity_coop_player2c {	
+	inherit							npc_tshirt
+	anim idle							models/md5/chars/stand_lookaround.md5anim
+	anim stand							models/md5/chars/stand_lookaround.md5anim
+
+}
+
+entityDef marscity_coop_player2c {	
+	"inherit"						"npc_base"
+	"model"							"marscity_coop_player2c"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_coop_player2"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"cinematic"						"1"
+}
+
+model marscity_coop_sec_checkin {	
+	inherit							marscity_sec_checkin
+
+	anim welcome_coop				models/md5/cinematics/marscity/sec_checkin_welcome.md5anim {
+		frame 1							event disableEyeFocus
+		frame 7							event enableEyeFocus
+		frame 40 						event disableEyeFocus
+	} 
+
+}
+
+entityDef marscity_coop_sec_checkin {	
+	"inherit"						"npc_base"
+	"model"							"marscity_coop_sec_checkin"
+	"anim"							"idle"
+	"size"							""
+	"ik_numlegs"					"0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		".6 .6 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+
+	"def_head"						"marscity_coop_sec_checkin_head"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"headcontrol"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_soft_desk_chair2"
+
+	"snd_welcome"					"xbox_coop_security_checkpoint"
+	"snd_need"						"marscity_sec_checkin_need"
+	"snd_hold"						"marscity_sec_checkin_hold"
+	"snd_waisting"					"marscity_sec_checkin_waisting"
+	"snd_letmeget"					"marscity_sec_checkin_letmeget"
+	"snd_cleared"					"marscity_sec_checkin_cleared"
+}
+
+model marscity_coop_sec_checkin_head {
+	inherit							marscity_sec_checkin_head
+	skin 							skins/characters/npcs/prettyoldhead.skin
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim welcome_coop				models/md5/characters/npcs/heads/marscity/checkin_welcome.md5anim {
+		//frame 1							sound_voice snd_welcome	
+		frame 13								sound_voice snd_welcome									
+	}
+}
+
+model marscity_ship3_coop {
+	mesh							models/md5/cinematics/marscity/spaceship.md5mesh
+	skin							skins/dropship.skin 
+	anim hangarend					models/md5/cinematics/marscity/hangarshipbigend_coop.md5anim {
+		
+		frame 25						sound_global xbox_ship_doors_open
+		
+		
+		frame 120						trigger func_emitter_dropshifloor
+
+		frame 140						trigger shipinnerlight
+		frame 140						trigger trigger_remove_gui_block
+
+		frame 154						trigger func_emitter_doorleft
+		frame 154						trigger func_emitter_doorright
+		
+		frame 330						sound_global ship_liftoff
+
+	}
+	anim hangarloop					models/md5/cinematics/marscity/hangarshipbigendloop.md5anim
+	anim bind						models/md5/cinematics/marscity/spaceship_bindme.md5anim
+}
+
+entityDef marscity_ship3_coop {
+	"inherit"						"cin_base"
+	"model"							"marscity_ship3_coop"
+	"anim"							"hangarend"
+	"loop_last_anim"				"1"
+	"auto_advance"					"1"
+	"num_anims"						"2"
+	"anim1"							"hangarend"
+	"anim2"							"hangarloop"
+	"cinematic"						"1"
+}
+
+model marscity_recep_head_coop {
+	mesh							models/md5/heads/head02young/h2_cinematic.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim recep_coop_typing			models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim recep_coop					models/md5/heads/head02young/marscity/reception_xbox.md5anim
+	
+	anim talk_primary				models/md5/heads/head02young/marscity/reception_secondary3.md5anim {
+		frame 5							sound_voice marscity_receptionist_secondary3
+	}
+	anim talk_secondary1			models/md5/heads/head02young/marscity/reception_secondary3.md5anim {
+		frame 5							sound_voice marscity_receptionist_secondary3
+	}
+	anim talk_secondary2			models/md5/heads/head02young/marscity/reception_secondary3.md5anim {
+		frame 5							sound_voice marscity_receptionist_secondary3
+	}
+
+}
+
+
+model marscity_recep_coop {
+	inherit							npc_suit
+ 	offset							(0 0 -3)
+	anim recep_coop					models/md5/coop/marscity/recep_coop.md5anim {
+		frame 9							sound_voice snd_marscity_coop_recep
+
+	}
+	anim idle						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim stand						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim recep_coop_typing			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim  {
+		frame 1							sound_body2 typing
+		frame 4							sound_body typing
+		frame 10						sound_body2 typing
+		frame 15						sound_body typing
+		frame 21						sound_body2 typing
+		frame 25						sound_body typing
+		frame 30						sound_body2 typing
+		frame 35						sound_body typing
+		frame 40						sound_body2 typing
+		frame 45						sound_body typing
+		frame 52						sound_body2 typing
+		frame 57						sound_body typing
+	}
+	anim talk_primary				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3.md5anim
+	anim talk_secondary1			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3.md5anim
+	anim talk_secondary2			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3.md5anim 
+	anim turn_left					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim turn_right					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+		
+}
+
+entityDef marscity_recep_coop {
+	"inherit"						"npc_base"
+	"model"							"marscity_recep_coop"
+	"size"							"12 12 74"
+	"def_attach"					"prop_soft_desk_chair2"	
+
+	"ik_numLegs"					"0"
+	"def_head"						"marscity_recep_head_coop"
+	"head_joint"					"Shoulders"
+
+
+	"talk_time"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0.2 0 0"
+	"look_joint headcontrol"		"0.4 0.3 0"
+	"look_joint neckcontrol"		"0.4 0.5 0"
+	"look_joint Ruparm"				"-0.5 0 0"
+	"look_joint Luparm"				"-0.5 0 0"
+	"look_min"						"-40 -80 0"
+	"look_max"						"40 45 0"
+
+	"no_cower"						"1"
+
+	"turn_rate"						"0"
+	"talktime"						"0"
+
+	"sound_bone"					"headcontrol"
+
+	"snd_marscity_coop_recep"		"marscity_coop_recep"
+	"snd_talk_primary"				"marscity_receptionist_primary"
+	"snd_talk_secondary1"			"marscity_receptionist_secondary1"
+	"snd_talk_secondary2"			"marscity_receptionist_secondary2"
+}
+
+
+model marscity_sarge_coop_head {
+	mesh							models/md5/heads/sarge/sarge.md5mesh
+	anim idle						models/md5/heads/sarge/sargeidle.md5anim
+	anim sarge_mc_coop				models/md5/heads/sarge/marscity/sarge_coop_xbox.md5anim {
+		frame 11						sound_voice snd_sarge_coop
+	}
+	anim talk_primary				models/md5/heads/sarge/marscity/mc_sarge_primary.md5anim {
+		frame 1							sound_voice marscity_sarge_primary
+	}
+	anim talk_secondary1			models/md5/heads/sarge/marscity/mc_sarge_secondary.md5anim {
+		frame 1							sound_voice marscity_sarge_secondary
+	}
+	anim talk_secondary2			models/md5/heads/sarge/marscity/mc_sarge_secondary2.md5anim {
+		frame 1							sound_voice marscity_sarge_secondary2
+	}
+
+}
+
+model marscity_sarge_coop {
+	inherit							npc_marine
+
+	anim sarge_mc_coop				models/md5/coop/marscity/sarge_mc_coop.md5anim {
+		frame 1							event disableEyeFocus
+		frame 40						event enableEyeFocus
+	}
+	anim stand						models/md5/chars/sarge/marscity/mc_sarge_wait_loop.md5anim 
+	anim idle						models/md5/chars/sarge/marscity/mc_sarge_wait_loop.md5anim
+	anim flippedwait				models/md5/chars/sarge/marscity/mc_sarge_wait_loop_180.md5anim
+	anim wait						models/md5/chars/sarge/marscity/mc_sarge_wait.md5anim
+	anim wait_loop					models/md5/chars/sarge/marscity/mc_sarge_wait_loop.md5anim {
+		frame 1							event disableEyeFocus
+		frame 500 						sound_voice marscity_sarge_cough
+	}
+	anim talk_primary				models/md5/chars/sarge/marscity/mc_sarge_primary.md5anim {
+		frame 1							event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/sarge/marscity/mc_sarge_secondary.md5anim {
+		frame 1							event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/sarge/marscity/mc_sarge_secondary2.md5anim {
+		frame 1							event enableEyeFocus
+	}
+
+}
+
+entityDef marscity_sarge_coop {
+	"inherit"						"npc_base"
+	"model"							"marscity_sarge_coop"
+	"size"							"12 12 74"
+	
+	"follow_once"					"1"
+	"def_head"						"marscity_sarge_coop_head"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"Chest"
+	"talktime"						"1"
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+	"bone_orientation"				"Body2"
+	"ik_numLegs"					"0"
+	"talk_no_turn"					"1"
+	"blink_min"						"2.5"
+	"blink_max"						"8.0"
+
+	"look_min"						"-90 -85 0"
+	"look_max"						"25 85 0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				".1 .12 0"
+	"look_joint Shoulders"			".2 .23 0"
+	"look_joint headcontrol"		".7 .65 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"0"
+	"eye_horizontal_offset"			"3"
+
+	"eye_focus_rate"				"0.005"
+	"head_focus_rate"				"0.07"
+
+	"snd_sarge_coop"				"mc_coop_sarge"
+
+}
+
+
+

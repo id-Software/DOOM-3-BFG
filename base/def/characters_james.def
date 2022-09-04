@@ -1,0 +1,288 @@
+/***********************************************************************
+
+ james human stuff
+
+***********************************************************************/
+
+
+/***********************************************************************
+
+-----------------HUMANS ------------------
+BODIES ---->  (maintenence, labcoat, t-shirt marine, suit, skeleton, security)
+HEADS------>  (young, old, asian, bald, black, swann, betruger, skull, sarge, security(goggles), security(helmet), player, zombie1)
+
+***********************************************************************/
+
+export james {
+	
+	options -prefix SUIT_ -keep Lknee Rknee Body Body2 Lhand1 Rhand headcontrol neckcontrol loneckcontrol lanternlight SPINNER -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent tabletpc Lhand1 -parent flashlight Rhand1 -parent pda Rhand1 -parent lantern Rhand1 -parent lanternlight lantern -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent shield Lloarm -parent pistol Rhand1 -parent shotgun Rhand1 -parent machinegun Rhand1 -parent wrench Rhand1 -parent cola Rhand1 -parent foamcup Rhand1 -parent dufflebag Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+	
+	addoptions -keepmesh labcoatnametagmesh
+	addoptions -keepmesh jumpsuitnametagmesh
+	addoptions -keepmesh labcoatmesh
+	addoptions -keepmesh soldiermesh
+	addoptions -keepmesh jumpsuitmesh
+	addoptions -keepmesh suitmesh
+	addoptions -keepmesh skeletonmesh
+	addoptions -keepmesh securitybodymesh
+	addoptions -keepmesh sec_rshldrmesh
+	addoptions -keepmesh sec_lshldrmesh
+	addoptions -keepmesh marinebodymesh 
+	addoptions -keepmesh tabletpcmesh
+	addoptions -keepmesh tabletpcguimesh
+	addoptions -keepmesh pdaguimodel
+	addoptions -keepmesh pdamodel
+	addoptions -keepmesh cola1_layer1
+	addoptions -keepmesh foamcup_layer1
+	addoptions -keepmesh secsheild_outerglass
+	addoptions -keepmesh secsheild_innerglass
+	addoptions -keepmesh secsheild_innermesh
+	addoptions -keepmesh secsheild_outermesh
+	addoptions -keepmesh w_shotgunmesh
+	addoptions -keepmesh w_shotgunloadermesh
+	addoptions -keepmesh w_machinegunmesh
+	addoptions -keepmesh w_pistolmesh
+	addoptions -keepmesh flashlightflaremodel
+	addoptions -keepmesh flashlightbeammodel
+	addoptions -keepmesh flashlightlensmodel
+	addoptions -keepmesh monkeywrench
+	addoptions -keepmesh flashlightmodel
+	addoptions -keepmesh metalloungechairframemesh
+	addoptions -keepmesh metalloungechairmesh
+	addoptions -keepmesh metalkitchenchairmesh
+	addoptions -keepmesh bigcushychairmesh
+	addoptions -keepmesh softdeskchairmesh2
+	addoptions -keepmesh softdeskchairmesh1
+	addoptions -keepmesh metaldeskchairmesh
+	addoptions -keepmesh dufflebagmesh
+
+//EXPORT CINEMATICS
+
+
+//EXPORT NPCS
+
+	addoptions -align ALL
+	
+	//anim	models/characters/male_npc/cycles/idles/startle.mb -rotate 90 -dest models/md5/characters/npcs/startle
+
+	
+	anim	models/characters/male_npc/cycles/idles/stand.mb -dest models/md5/characters/npcs/stand
+	
+	
+	anim	models/characters/male_npc/cycles/idles/stand_lean.mb -dest models/md5/characters/npcs/stand_lean
+	anim	models/characters/male_npc/cycles/idles/stand.mb -rotate -90 -dest models/md5/characters/npcs/gui_stand
+	
+	
+
+	anim	models/characters/male_npc/cycles/working/repair_work.mb -dest models/md5/characters/npcs/repair_work
+	
+	anim	models/characters/male_npc/cycles/working/kneeling.mb -dest models/md5/characters/npcs/kneeling
+	anim	models/characters/male_npc/cycles/working/kneeling_talking.mb -dest models/md5/characters/npcs/kneeling_talking
+	anim	models/characters/male_npc/cycles/working/kneeling_talking2.mb -dest models/md5/characters/npcs/kneeling_talking2
+	
+	anim	models/characters/male_npc/cycles/walks/walk_normal.mb -xyzprecision 0.01 -quatprecision 0.00006 -dest models/md5/characters/npcs/walk_normal
+
+	//anim	models/characters/male_npc/cycles/walks/walk_thankyou.mb -xyzprecision 0.01 -quatprecision 0.00006 -dest models/md5/characters/npcs/walk_thankyou
+	
+	anim	models/characters/male_npc/cycles/working/doorgui.mb -dest models/md5/characters/npcs/doorgui
+
+	//anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist1.mb -dest models/md5/characters/npcs/fragchamber_scientist1
+	//anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist2.mb -dest models/md5/characters/npcs/fragchamber_scientist2
+	//anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist3.mb -dest models/md5/characters/npcs/fragchamber_scientist3
+	//anim	models/characters/male_npc/cycles/fragchamber_scientist/fragchamber_scientist4.mb -dest models/md5/characters/npcs/fragchamber_scientist4
+	//anim	models/characters/male_npc/cycles/fragchamber_scientist/freaked_out.mb -dest models/md5/characters/npcs/freaked_out
+	//anim	models/characters/male_npc/cycles/fragchamber_scientist/thank_you.mb -dest models/md5/characters/npcs/thank_you
+	anim	models/characters/male_npc/cycles/fragchamber_scientist/hey_you.mb -dest models/md5/characters/npcs/hey_you
+	anim	models/characters/male_npc/cycles/fragchamber_scientist/wave_hand.mb -dest models/md5/characters/npcs/wave_hand
+
+	//anim	models/characters/male_npc/cycles/working/PDA_idle_look_hydrocon.mb -rotate 90 -dest models/md5/characters/npcs/PDA_idle_look_hydrocon
+	//anim	models/characters/male_npc/cycles/working/PDA_idle_look_hydrocon_talk.mb -rotate 90 -dest models/md5/characters/npcs/PDA_idle_look_hydrocon_talk
+	anim	models/characters/male_npc/cycles/working/operate_computer.mb -dest models/md5/characters/npcs/operate_computer
+	anim	models/characters/male_npc/cycles/working/operate_computer_eric.mb -dest models/md5/characters/npcs/operate_computer_loop
+	anim	models/characters/male_npc/cycles/working/operate_computer_james.mb -dest models/md5/characters/npcs/operate_computer_loop2
+
+	anim	models/characters/male_npc/cycles/working/operate_computer_look.mb -dest models/md5/characters/npcs/operate_computer_look
+	
+	anim	models/characters/male_npc/cycles/working/repair_work.mb -dest models/md5/characters/npcs/repair_work
+	
+	anim	models/characters/male_npc/cycles/working/walking_to_sit_002.mb -dest models/md5/characters/npcs/walking_to_sit_002
+
+	anim	models/characters/male_npc/cycles/walks/people_pain_walk_loop.mb -rotate 90 -dest models/md5/characters/npcs/pain_walk1
+	anim	models/characters/male_npc/cycles/walks/people_pickup_walk_loop.mb -rotate 90 -dest models/md5/characters/npcs/pickup_walk1
+	anim	models/characters/male_npc/cycles/walks/Z_dead_walks.mb -rotate 90 -dest models/md5/characters/npcs/zdead_walk1
+
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_walk.mb -dest models/md5/characters/npcs/freaked_walk
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_deadwalk.mb -dest models/md5/characters/npcs/freaked_deadwalk
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_run.mb -dest models/md5/characters/npcs/freaked_run
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_idle.mb -dest models/md5/characters/npcs/freaked_idle
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_reaction.mb -dest models/md5/characters/npcs/freaked_reaction
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_GUI.mb -dest models/md5/characters/npcs/freaked_GUI
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_headache.mb -dest models/md5/characters/npcs/freaked_headache
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_possessed.mb -dest models/md5/characters/npcs/freaked_possessed
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_throwup.mb -dest models/md5/characters/npcs/freaked_throwup
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_pound1.mb -dest models/md5/characters/npcs/freaked_pound1
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_pound2.mb -dest models/md5/characters/npcs/freaked_pound2
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_wrench.mb -dest models/md5/characters/npcs/freaked_wrench
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_drinkfoamcup.mb -dest models/md5/characters/npcs/freaked_drinkfoamcup
+	anim	models/characters/male_npc/cycles/freaked_out/freaked_cower.mb -dest models/md5/characters/npcs/freaked_cower
+		
+	anim	models/characters/male_npc/cycles/vo/hydrocon_dude_primary.mb -dest models/md5/characters/npcs/hydrocon_dude_primary
+	anim	models/characters/male_npc/cycles/vo/hydrocon_dude_secondary2.mb -dest models/md5/characters/npcs/hydrocon_dude_secondary2
+	anim	models/characters/male_npc/cycles/vo/hydrocon_dude_secondary.mb -dest models/md5/characters/npcs/hydrocon_dude_secondary
+	anim	models/characters/male_npc/cycles/vo/hydrocon_dude_trigger2.mb -dest models/md5/characters/npcs/hydrocon_dude_trigger2
+	anim	models/characters/male_npc/cycles/vo/hydrocon_dude_trigger.mb -dest models/md5/characters/npcs/hydrocon_dude_trigger
+	
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_stand.mb -dest models/md5/characters/npcs/marscity_marine1_stand
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_talk.mb -dest models/md5/characters/npcs/marscity_marine1_talk
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_idle1.mb -dest models/md5/characters/npcs/marscity_marine1_idle1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_idle2.mb -dest models/md5/characters/npcs/marscity_marine1_idle2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine1_idle3.mb -dest models/md5/characters/npcs/marscity_marine1_idle3
+	
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_stand.mb -dest models/md5/characters/npcs/marscity_marine2_stand
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_talk.mb -dest models/md5/characters/npcs/marscity_marine2_talk
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_idle1.mb -dest models/md5/characters/npcs/marscity_marine2_idle1
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_idle2.mb -dest models/md5/characters/npcs/marscity_marine2_idle2
+	anim	models/characters/male_npc/cycles/sitting/marscity_marine2_idle3.mb -dest models/md5/characters/npcs/marscity_marine1_idle3
+	
+
+	//	CONVERTED BY FRED
+
+	//	anim	models/characters/male_npc/cycles/working/operate_computer_eric_thankyou.mb -dest models/md5/characters/npcs/operate_computer_eric_thankyou
+	//	anim	models/characters/male_npc/cycles/working/operate_computer_eric_worktalk1.mb -dest models/md5/characters/npcs/operate_computer_eric_worktalk1
+	//	anim	models/characters/male_npc/cycles/working/operate_computer_eric_worktalk2.mb -dest models/md5/characters/npcs/operate_computer_eric_worktalk2
+	//	anim	models/characters/male_npc/cycles/working/look_in_hole_scratch_head.mb -dest models/md5/characters/npcs/look_in_hole_scratch_head
+	//	anim	models/characters/male_npc/cycles/working/PDA_idle_look.mb -dest models/md5/characters/npcs/PDA_idle_look
+	//	anim	models/characters/male_npc/cycles/working/gui_operate_daniel.mb -dest models/md5/characters/npcs/gui_operate_daniel
+	//	anim	models/characters/male_npc/cycles/working/look_in_hole.mb -dest models/md5/characters/npcs/look_in_hole
+	//	anim	models/characters/male_npc/cycles/working/gui_operate.mb -dest models/md5/characters/npcs/gui_operate_eric
+	//	anim	models/characters/male_npc/cycles/working/gui_look.mb -dest models/md5/characters/npcs/gui_look
+	//	anim	models/characters/male_npc/cycles/working/box_look.mb -dest models/md5/characters/npcs/box_look
+	//	anim	models/characters/male_npc/cycles/idles/stand_point_forward.mb -dest models/md5/characters/npcs/stand_point_forward
+	//	anim	models/characters/male_npc/cycles/idles/stand_point_forward_charles.mb -dest models/md5/characters/npcs/stand_point_forward_charles
+	//	anim	models/characters/male_npc/cycles/talking/stand_talk.mb -dest models/md5/characters/npcs/stand_talk
+	//	anim	models/characters/male_npc/cycles/working/gui_operate_iansecondary.mb -rotate -90 -dest models/md5/characters/npcs/gui_operate_iansecondary
+	//	anim	models/characters/male_npc/cycles/idles/cower4.mb -rotate -90 -dest models/md5/characters/npcs/cower4_ian
+	//	anim	models/characters/male_npc/cycles/working/gui_operate.mb -rotate -90 -dest models/md5/characters/npcs/gui_operate
+	//	anim	models/characters/male_npc/cycles/working/gui_look_right.mb -rotate -90 -dest models/md5/characters/npcs/gui_look_right
+	//	anim	models/characters/male_npc/cycles/idles/point_forward.mb -rotate -90 -dest models/md5/characters/npcs/point_forward
+	//	anim	models/characters/male_npc/cycles/idles/startle_left.mb -rotate -90 -dest models/md5/characters/npcs/startle_left
+	//	anim	models/characters/male_npc/cycles/working/operate_computer_james3.mb -dest models/md5/characters/npcs/operate_computer_loop3
+	//	anim	models/characters/male_npc/cycles/idles/stand_sitting.mb -dest models/md5/characters/npcs/stand_sitting
+	//	anim	models/characters/male_npc/cycles/idles/stand_sitting_PDAidle.mb -dest models/md5/characters/npcs/stand_sitting_idle
+	//	anim	models/characters/male_npc/cycles/idles/mcu_thanku.mb -dest models/md5/characters/npcs/mcu_thanku
+	//	anim	models/characters/male_npc/cycles/talking/PDA_talk_security_guard.mb -dest models/md5/characters/npcs/PDA_talk_security_guard
+	//	anim	models/characters/male_npc/cycles/talking/PDA_talk.mb -dest models/md5/characters/npcs/PDA_talk
+	//	anim	models/characters/male_npc/cycles/working/PDA_idle.mb -dest models/md5/characters/npcs/PDA_idle
+	//	anim	models/characters/male_npc/cycles/working/operate_computer_sitting.mb -dest models/md5/characters/npcs/operate_computer_sitting
+	//  anim	models/characters/male_npc/cycles/walks/walk_machinegun.mb -xyzprecision 0.01 -quatprecision 0.00006 -dest models/md5/characters/npcs/walk_machinegun
+	//	anim	models/characters/male_npc/cycles/idles/drink_idle.mb -dest models/md5/characters/npcs/drink_idle	//	anim	models/characters/male_npc/cycles/working/gui_operate_main_worker.mb -dest models/md5/characters/npcs/gui_operate_main_worker
+	//	anim	models/characters/male_npc/cycles/talking/talk_primary_todd.mb  -dest models/md5/characters/npcs/talk_primary_todd
+	//	anim	models/characters/male_npc/cycles/talking/talk_secondary2_todd.mb  -dest models/md5/characters/npcs/talk_secondary2_todd
+	//	anim	models/characters/male_npc/cycles/working/operate_computer_talk.mb -dest models/md5/characters/npcs/operate_computer_talk
+	//	anim	models/characters/male_npc/cycles/idles/stand_hands_at_waist.mb -dest models/md5/characters/npcs/stand_hands_at_waist
+	//	anim	models/characters/male_npc/cycles/idles/af_pose.mb -dest models/md5/characters/npcs/woundedmarine_af_pose
+	//	anim	models/characters/male_npc/cycles/wounded/wounded_marine_trigger.mb -dest models/md5/characters/npcs/wounded_marine_trigger
+	//	anim	models/characters/male_npc/cycles/wounded/wounded_marine_primary.mb -dest models/md5/characters/npcs/wounded_marine_primary
+	//	anim	models/characters/male_npc/cycles/wounded/wounded_marine_secondary.mb -dest models/md5/characters/npcs/wounded_marine_secondary
+	//	anim	models/characters/male_npc/cycles/wounded/wounded_marine_idle.mb -dest models/md5/characters/npcs/wounded_marine_idle
+
+
+
+
+
+
+}	
+
+		
+/****
+export security machinegun guy
+****/
+
+export james {
+
+	options -prefix SUIT_ -keep Lknee Rknee eject barrel flash Body2 headcontrol neckcontrol loneckcontrol SPINNER -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent machinegun Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER  -rename mgeject eject -rename mgbarrel barrel -rename mgflash flash -parent eject machinegun -parent flash machinegun -parent barrel machinegun
+
+
+	addoptions -keepmesh securitybodymesh
+	addoptions -keepmesh sec_rshldrmesh
+	addoptions -keepmesh sec_lshldrmesh
+	addoptions -keepmesh mgmflash1
+	addoptions -keepmesh mgmflash2
+	addoptions -keepmesh mgmflash3
+	addoptions -keepmesh mgmflash4
+	addoptions -keepmesh w_machinegunmesh
+	addoptions -keepmesh skeletonmesh
+	addoptions -align ALL
+
+	anim	models/characters/male_npc/cycles/idles/af_pose.mb -dest models/md5/monsters/zombies/zsec_machinegun/af_pose
+	anim	models/monsters/zombie/cycles/runs/machinegun_evade_left.mb -dest models/md5/monsters/zombies/zsec_machinegun/machinegun_evade_left
+	anim	models/monsters/zombie/cycles/runs/machinegun_evade_right.mb -dest models/md5/monsters/zombies/zsec_machinegun/machinegun_evade_right
+}
+
+
+/***
+export security shotgun guy
+***/
+
+export james {
+
+	options -prefix SUIT_ -keep Body Rhand Lhand Lhand1 Lknee Rknee eject barrel flash Body2 headcontrol neckcontrol loneckcontrol SPINNER -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent shield Lloarm -parent shotgun Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER  -rename sgeject eject -rename sgbarrel barrel -rename sgflash flash -parent eject shotgun -parent flash shotgun -parent barrel shotgun
+	
+	addoptions -keepmesh securitybodymesh
+	addoptions -keepmesh sec_rshldrmesh
+	addoptions -keepmesh sec_lshldrmesh
+	addoptions -keepmesh sgmflash1
+	addoptions -keepmesh sgmflash2
+	addoptions -keepmesh sgmflash3
+	addoptions -keepmesh w_shotgunmesh
+	addoptions -keepmesh w_shotgunloadermesh
+	addoptions -keepmesh skeletonmesh
+
+	
+	addoptions -align ALL
+
+	anim	models/characters/male_npc/cycles/idles/af_pose.mb -dest models/md5/monsters/zombies/zsec_shotgun/af_pose
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_left.mb -range 45 45 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotleftshotgun_A
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_left.mb -range 46 64 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotleftshotgun_B
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_left.mb -range 65 78 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotleftshotgun_C
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_left.mb -range 79 100 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotleftshotgun_D
+
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_right.mb -range 12 12 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotrightshotgun_A
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_right.mb -range 13 36 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotrightshotgun_B
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_right.mb -range 37 47 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotrightshotgun_C
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_right.mb -range 48 80 -dest models/md5/monsters/zombies/zsec_shotgun/wallrotrightshotgun_D
+
+	anim	models/monsters/zombie/cycles/runs/shotgun_activate_step_right.mb -dest models/md5/monsters/zombies/zsec_shotgun/shotgun_activate_step_right
+
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_left.mb -range 37 47 -dest models/md5/monsters/zombies/zsec_shotgun/fire1
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_rotate_right.mb -range 65 78 -dest models/md5/monsters/zombies/zsec_shotgun/fire2
+	anim	models/monsters/zombie/cycles/runs/shotgun_evade_left.mb -dest models/md5/monsters/zombies/zsec_shotgun/evade_left
+	anim	models/monsters/zombie/cycles/runs/shotgun_evade_right.mb -dest models/md5/monsters/zombies/zsec_shotgun/evade_right
+	anim	models/monsters/zombie/cycles/attacks/shotgun_raise.mb -dest models/md5/monsters/zombies/zsec_shotgun/raise
+	anim	models/monsters/zombie/cycles/attacks/shotgun_lower.mb -dest models/md5/monsters/zombies/zsec_shotgun/lower
+	anim	models/monsters/zombie/cycles/attacks/shotgun_stand_fire.mb -dest models/md5/monsters/zombies/zsec_shotgun/stand_fire
+
+	anim	models/monsters/zombie/cycles/attacks/shotgun_stand_crate.mb -range 52 52 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/crate_up_A
+	anim	models/monsters/zombie/cycles/attacks/shotgun_stand_crate.mb -range 53 61 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/crate_up_B
+	anim	models/monsters/zombie/cycles/attacks/shotgun_stand_crate.mb -range 61 82 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/crate_up_C
+	anim	models/monsters/zombie/cycles/attacks/shotgun_stand_crate.mb -range 82 90 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/crate_up_D
+
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_left.mb -range 1 1 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanleftshotgun_A
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_left.mb -range 1 17 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanleftshotgun_B
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_left.mb -range 18 35 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanleftshotgun_C
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_left.mb -range 36 50 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanleftshotgun_D
+
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_right.mb -range 1 1 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanrightshotgun_A
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_right.mb -range 1 17 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanrightshotgun_B
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_right.mb -range 18 35 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanrightshotgun_C
+	anim	models/monsters/zombie/cycles/attacks/shotgun_wall_lean_right.mb -range 36 50 -rotate 90 -dest models/md5/monsters/zombies/zsec_shotgun/wallleanrightshotgun_D
+	anim	models/monsters/zombie/cycles/walks/shotgun_step_left.mb -dest models/md5/monsters/zombies/zsec_shotgun/shotgun_step_left
+	anim	models/monsters/zombie/cycles/walks/shotgun_step_right.mb -dest models/md5/monsters/zombies/zsec_shotgun/shotgun_step_right
+	anim	models/monsters/zombie/cycles/attacks/shotgun_crouch_range_attack.mb -dest models/md5/monsters/zombies/zsec_shotgun/crouch_range_attack
+	anim	models/monsters/zombie/cycles/attacks/shotgun_crouch_range_attack_loop.mb -dest models/md5/monsters/zombies/zsec_shotgun/crouch_range_attack_loop
+	anim	models/monsters/zombie/cycles/attacks/shotgun_crouch_range_attack_end.mb -dest models/md5/monsters/zombies/zsec_shotgun/crouch_range_attack_end
+	anim	models/monsters/zombie/cycles/attacks/shotgun_crouch_range_attack_aim.mb -dest models/md5/monsters/zombies/zsec_shotgun/crouch_range_attack_aim
+	anim	models/monsters/zombie/cycles/attacks/shotgun_stand_aim.mb -dest models/md5/monsters/zombies/zsec_shotgun/stand_aim
+	anim	models/monsters/zombie/cycles/pains/shotgun_crouch_left_pain.mb -dest models/md5/monsters/zombies/zsec_shotgun/shotgun_crouch_left_pain
+	anim	models/monsters/zombie/cycles/pains/shotgun_crouch_right_pain.mb -dest models/md5/monsters/zombies/zsec_shotgun/shotgun_crouch_right_pain
+}

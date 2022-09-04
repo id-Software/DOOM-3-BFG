@@ -1,0 +1,480 @@
+namespace map_alphalabs1 {
+
+float PLAYMUSIC = TRUE;
+float monsterstatus = 1;
+float	GATE_OPEN = 0;
+
+void init_world()
+{
+	$epd_emlight.rotate ('0 -360 0');
+	$epd_light1.setColor (0,0,0);
+	$epd_light2.setColor (0,0,0);
+	//$epd_light3.setColor (0,0,0);
+	//$epd_light4.setColor (0,0,0);
+	//$epd_emlight.setColor (0,0,0);
+}
+
+void epd_phantasm_fadeout() {
+	$speaker_4.fadeSound ( SND_CHANNEL_ANY, -60, 1.5 );
+	$speaker_6.fadeSound ( SND_CHANNEL_ANY, -60, 1.5 );
+	$epd_alarm.fadeSound ( SND_CHANNEL_ANY, -60, 1.5 );
+	$epd_speaker_blast.fadeSound ( SND_CHANNEL_ANY, -60, 1.5 );
+	$epd_speaker_warmup.fadeSound ( SND_CHANNEL_ANY, -60, 1.5 );
+
+	sys.wait (10);
+	
+	$speaker_4.fadeSound ( SND_CHANNEL_ANY, -5, 1.5 );
+	$speaker_6.fadeSound ( SND_CHANNEL_ANY, -6, 1.5 );
+	$epd_alarm.fadeSound ( SND_CHANNEL_ANY, 3, 1.5 );
+	$epd_speaker_blast.fadeSound ( SND_CHANNEL_ANY, 0, 1.5 );
+	$epd_speaker_warmup.fadeSound ( SND_CHANNEL_ANY, 0, 1.5 );
+}
+
+
+
+
+void seq_2() {
+	monsterstatus = 2;
+}
+
+void seq_3() {
+	monsterstatus = 3;
+}
+
+void seq_end() {
+	monsterstatus = 4;
+}
+
+
+void music_engine() {
+	return;
+}
+
+void fan_init ()
+{
+	$fan_01.bind ($fan_01_anchor);
+	$fan_02.bind ($fan_02_anchor);
+	$fan_03.bind ($fan_03_anchor);
+	$fan_04.bind ($fan_04_anchor);
+
+	$fan_01_anchor.rotateOnce ('0 0 25');
+	$fan_02_anchor.rotateOnce ('0 0 25');
+	$fan_03_anchor.rotateOnce ('0 0 25');
+	$fan_04_anchor.rotateOnce ('0 0 25');
+
+	sys.waitFor ($fan_04_anchor);
+
+	$fan_01.rotate ('540 0 0');
+	$fan_02.rotate ('360 0 0');
+	$fan_03.rotate ('180 0 0');
+	$fan_04.rotate ('552 0 0');
+}
+
+void laser_ambience()
+{
+	float	numRandomWait;
+
+	numRandomWait = sys.random(2) + 1;
+	sys.wait (numRandomWait);
+
+	while (1)
+	{
+		sys.trigger ($e33_laser_rnd);
+		numRandomWait = sys.random(2) + 1;
+		sys.wait (numRandomWait);
+	}
+}
+
+	void pumplight1_move()
+
+	{
+		$pumplight1.time(1.5);
+		$pumplight1.accelTime(.1);
+		$pumplight1.decelTime(.1);
+		while (1){
+			$pumplight1.move(DOWN,96);
+			sys.trigger ($pumplight1_speaker);
+			sys.waitFor ($pumplight1);
+			$pumplight1.move(UP,96);
+			sys.waitFor ($pumplight1);
+		}
+	}
+
+		void pumplight2_move()
+
+	{
+		$pumplight2.time(1.45);
+		$pumplight2.accelTime(.1);
+		$pumplight2.decelTime(.1);
+		while (1){
+			$pumplight2.move(DOWN,96);
+			sys.trigger ($pumplight2_speaker);
+			sys.waitFor ($pumplight2);
+			$pumplight2.move(UP,96);
+			sys.waitFor ($pumplight2);
+		}
+	}
+
+void turkey_klax_on()
+{
+		//thread crossFadeEnt ($epd_light1, '0 0 0', '1 0.2 0', 2);
+		//thread crossFadeEnt ($epd_light2, '0 0 0', '1 0.2 0', 2);
+		thread crossFadeEnt ($epd_light3, '0 0 0', '1 0.2 0', 2);
+		thread crossFadeEnt ($epd_light4, '0 0 0', '1 0.2 0', 2);
+		thread crossFadeEnt ($epd_emlight, '0 0 0', '1 0.2 0', 2);
+}
+
+void turkey_klax_off()
+{
+		//thread crossFadeEnt ($epd_light1, '1 0.2 0', '0 0 0', 2);
+		//thread crossFadeEnt ($epd_light2, '1 0.2 0', '0 0 0', 2);
+		thread crossFadeEnt ($epd_light3, '1 0.2 0', '0 0 0', 2);
+		thread crossFadeEnt ($epd_light4, '1 0.2 0', '0 0 0', 2);
+		thread crossFadeEnt ($epd_emlight, '1 0.2 0', '0 0 0', 2);
+}
+
+	// ***
+	// New and improved UAC Turkey Baster v2.0
+	// ***
+
+	void turkey_baster() {
+		while (1) {
+
+			sys.wait (5);
+			turkey_klax_on();
+			sys.trigger ($epd_alarm);			// 8 seconds long
+			sys.wait (2);
+			
+			sys.trigger ($epd_speaker_warmup);
+			sys.wait (1);
+			
+			// Machine is on at this point...
+			sys.trigger ($epd_speaker_blast);
+			sys.trigger ($func_beam_1);
+			sys.trigger ( $ep_endEmitter );
+			sys.trigger ( $ep_emitter1 );
+			sys.trigger ($turkey_hurt_1);
+			sys.trigger ($tbbeam);
+			$tbbeamlight.fadeInLight(.5);
+			$ep_beam_source.fadeInLight( 0.2 );
+			$ep_endlight.fadeInLight(.5);
+
+			sys.wait (4);
+
+			// ... and toggle stuff off..
+
+			thread map_alphalabs1::turkey_klax_off();
+			sys.trigger ($func_beam_1);
+			sys.trigger ( $ep_endEmitter );
+			sys.trigger ( $ep_emitter1 );
+			sys.trigger ($turkey_hurt_1);
+			sys.trigger ($tbbeam);
+			$tbbeamlight.fadeOutLight(.5);
+			$ep_beam_source.fadeOutLight( 0.5 );
+			$ep_endlight.fadeOutLight(.5);
+		}
+	}
+
+void toggle_gate() {
+	if (GATE_OPEN == 0) {
+		$gatedoor_left.open();
+		$gatedoor_right.open();
+		sys.waitFor ($gatedoor_right);
+		GATE_OPEN = 1;
+	}	
+	else {
+		$gatedoor_left.close();
+		$gatedoor_right.close();
+		sys.waitFor ($gatedoor_right);
+		GATE_OPEN = 0;
+	}
+}
+
+void hc_loop()
+{
+	//times for the can mover
+	$hc_can.time (1);
+	$hc_can.accelTime (.25);
+	$hc_can.decelTime (.25);
+
+	while (1) {
+		//can move from start hole into door 176
+		$hc_can.move ( NORTH, 176 );
+		//sys.trigger ($speaker_hc_bolt);
+		
+		sys.waitFor ($hc_can);
+		sys.wait (.25);
+
+		//door move to down position 128
+		$hc_door.time (.5);
+		$hc_door.accelTime (.5);
+		$hc_door.decelTime (0);
+
+		$hc_can.bind ($hc_door);
+		//
+		sys.trigger ($speaker_hc_down);
+		
+		$hc_door.move ( DOWN, 128 );
+		sys.waitFor ($hc_door);
+		sys.wait (.25);
+
+		//can move into final hole 176
+		$hc_can.move ( NORTH, 176 );
+		sys.trigger ($speaker_hc_bolt);
+		sys.waitFor ($hc_can);
+		sys.wait (.25);
+
+		//door move to up position 128
+		$hc_door.time (1);
+		$hc_door.accelTime (.25);
+		$hc_door.decelTime (.25);
+
+		$hc_door.move ( UP, 128 );
+		sys.trigger ($speaker_hc_up);
+		sys.waitFor ($hc_door);
+		sys.wait (.25);
+		
+		//restore can position
+		$hc_can.unbind();
+		$hc_can.restorePosition();
+		sys.wait (.25);
+	}//end while
+}
+
+////////////////////////////////////////////////////
+//
+//	Hydrocon1 move
+//	
+////////////////////////////////////////////////////
+void hydrocon1_move()
+{
+	//bind ring
+	$hydrocon1_ring.bind ($hydrocon1_main);
+	
+	//move hydrocon_main with ring up to top positioin
+	$hydrocon1_main.time (1.5);
+	$hydrocon1_main.accelTime (1);
+	$hydrocon1_main.decelTime (.5);
+
+	$hydrocon1_main.move ( UP, 216 );
+	sys.trigger ($hydrocon1_main_speaker_up);
+	sys.waitFor ($hydrocon1_main);
+	
+	
+	//wait at top for the whole thing to start again
+	sys.wait (1);
+
+	//move hydrocon_ring down 64
+	$hydrocon1_ring.move ( DOWN, 64 );
+	sys.trigger ($hydrocon1_ring_speaker_down);
+	sys.waitFor ($hydrocon1_ring);
+	sys.wait (.25);
+
+	//move hydrocon_main down with ring extended
+	$hydrocon1_main.time (1.5);
+	$hydrocon1_main.accelTime (1.5);
+	$hydrocon1_main.decelTime (0);
+
+	$hydrocon1_main.move ( DOWN, 216 );
+	sys.trigger ($hydrocon1_main_speaker_down);
+	sys.waitFor ($hydrocon1_main);
+	
+	//unbind ring
+	$hydrocon1_ring.unbind();
+
+	//move hydrocon_main with ring down the remaining distance to nipple
+	$hydrocon1_main.time (1.5);
+	$hydrocon1_main.accelTime (0);
+	$hydrocon1_main.decelTime (1.5);
+
+	$hydrocon1_main.move ( DOWN, 64 );
+	sys.trigger ($hydrocon1_nipplemain_speaker_down);
+	sys.waitFor ($hydrocon1_main);
+	sys.wait (.25);
+
+	//bind nipple to hydrocon_main
+	$hydrocon1_nipple.bind ($hydrocon1_main);
+
+	//move hydrocon_main with nipple up to ring extended position
+	$hydrocon1_main.move ( UP, 64 );
+	sys.trigger ($hydrocon1_nipplemain_speaker_up);
+	sys.waitFor ($hydrocon1_main);
+	sys.wait (.25);
+
+	//activate effect
+	sys.trigger ($hydrocon1_emitter);
+	sys.trigger ($hydrocon1_emitter_speaker);
+	sys.trigger ($hydrocon1_light);
+	sys.wait (1);
+
+	//unbind nipple
+	$hydrocon1_nipple.unbind();
+	
+	//move nipple back down
+	$hydrocon1_nipple.time (1);
+	$hydrocon1_nipple.accelTime (.8);
+	$hydrocon1_nipple.decelTime (.2);
+
+	$hydrocon1_nipple.move ( DOWN, 64 );
+	sys.trigger ($hydrocon1_nipple_speaker_down);
+	sys.waitFor ($hydrocon1_nipple);
+	//turn off effect
+	sys.trigger ($hydrocon1_emitter);
+	sys.trigger ($hydrocon1_emitter_speaker);
+	sys.trigger ($hydrocon1_light);
+	sys.wait (.25);
+
+	//move hydrocon_ring up 64
+	$hydrocon1_ring.move ( UP, 64 );
+	sys.trigger ($hydrocon1_ring_speaker_up);
+	sys.waitFor ($hydrocon1_ring);
+	sys.wait (.25);
+}
+
+////////////////////////////////////////////////////
+//
+//	Hydrocon2 move
+//	
+////////////////////////////////////////////////////
+void hydrocon2_move()
+{
+	//bind ring
+	$hydrocon2_ring.bind ($hydrocon2_main);
+	
+	//move hydrocon_main with ring up to top positioin
+	$hydrocon2_main.time (1.5);
+	$hydrocon2_main.accelTime (1);
+	$hydrocon2_main.decelTime (.5);
+
+	$hydrocon2_main.move ( UP, 216 );
+	sys.trigger ($hydrocon2_main_speaker_up);
+	sys.waitFor ($hydrocon2_main);
+	
+	
+	//wait at top for the whole thing to start again
+	sys.wait (1);
+
+	//move hydrocon_ring down 64
+	$hydrocon2_ring.move ( DOWN, 64 );
+	sys.trigger ($hydrocon2_ring_speaker_down);
+	sys.waitFor ($hydrocon2_ring);
+	sys.wait (.25);
+
+	//move hydrocon_main down with ring extended
+	$hydrocon2_main.time (1.5);
+	$hydrocon2_main.accelTime (1.5);
+	$hydrocon2_main.decelTime (0);
+
+	$hydrocon2_main.move ( DOWN, 216 );
+	sys.trigger ($hydrocon2_main_speaker_down);
+	sys.waitFor ($hydrocon2_main);
+	
+	//unbind ring
+	$hydrocon2_ring.unbind();
+
+	//move hydrocon_main with ring down the remaining distance to nipple
+	$hydrocon2_main.time (1.5);
+	$hydrocon2_main.accelTime (0);
+	$hydrocon2_main.decelTime (1.5);
+
+	$hydrocon2_main.move ( DOWN, 64 );
+	sys.trigger ($hydrocon2_nipplemain_speaker_down);
+	sys.waitFor ($hydrocon2_main);
+	sys.wait (.25);
+
+	//bind nipple to hydrocon_main
+	$hydrocon2_nipple.bind ($hydrocon2_main);
+
+	//move hydrocon_main with nipple up to ring extended position
+	$hydrocon2_main.move ( UP, 64 );
+	sys.trigger ($hydrocon2_nipplemain_speaker_up);
+	sys.waitFor ($hydrocon2_main);
+	sys.wait (.25);
+
+	//activate effect
+	sys.trigger ($hydrocon2_emitter);
+	sys.trigger ($hydrocon2_emitter_speaker);
+	sys.trigger ($hydrocon2_light);
+	sys.wait (1);
+
+	//unbind nipple
+	$hydrocon2_nipple.unbind();
+	
+	//move nipple back down
+	$hydrocon2_nipple.time (1);
+	$hydrocon2_nipple.accelTime (.8);
+	$hydrocon2_nipple.decelTime (.2);
+
+	$hydrocon2_nipple.move ( DOWN, 64 );
+	sys.trigger ($hydrocon2_nipple_speaker_down);
+	sys.waitFor ($hydrocon2_nipple);
+	//turn off effect
+	sys.trigger ($hydrocon2_emitter);
+	sys.trigger ($hydrocon2_emitter_speaker);
+	sys.trigger ($hydrocon2_light);
+	sys.wait (.25);
+
+	//move hydrocon_ring up 64
+	$hydrocon2_ring.move ( UP, 64 );
+	sys.trigger ($hydrocon2_ring_speaker_up);
+	sys.waitFor ($hydrocon2_ring);
+	sys.wait (.25);
+}
+
+////////////////////////////////////////////////////
+//
+//	Hydrocon Loop
+//	
+////////////////////////////////////////////////////
+void hydrocon_loop()
+{
+	float hydrocon1_thread, hydrocon2_thread;
+			
+	while (1){
+		hydrocon1_thread = thread map_alphalabs1::hydrocon1_move();
+		hydrocon2_thread = thread map_alphalabs1::hydrocon2_move();
+
+		sys.waitForThread( hydrocon1_thread );
+		sys.waitForThread( hydrocon2_thread );
+	}//end while
+}
+
+////////////////////////////////////////////////////
+//
+//	Kill Hydrocon Loop
+//	
+////////////////////////////////////////////////////
+void kill_hydrocon_loop()
+{
+	sys.killthread ("map_alphalabs1::hydrocon_loop");
+	sys.killthread ("map_alphalabs1::hydrocon1_move");
+	sys.killthread ("map_alphalabs1::hydrocon2_move");
+}
+
+//---
+// Fade out the creepy sounds after the maggots all die
+//---
+
+void fade_maggot_sounds() {
+	$maggot_speaker_1.fadeSound (SND_CHANNEL_ANY, -60, 4);
+	$maggot_speaker_2.fadeSound (SND_CHANNEL_ANY, -60, 4);
+	$maggot_speaker_3.fadeSound (SND_CHANNEL_ANY, -60, 4);
+	$maggot_speaker_4.fadeSound (SND_CHANNEL_ANY, -60, 4);
+}
+
+void main ()
+{
+	init_world();
+	fan_init();
+	//bathroom_init();
+	//thread laser_ambience();
+	thread pumplight1_move();
+	thread pumplight2_move();
+	thread hc_loop();
+	thread hydrocon_loop();
+	thread turkey_baster();
+}
+
+
+
+}

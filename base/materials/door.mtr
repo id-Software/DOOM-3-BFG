@@ -1,0 +1,24 @@
+//******************
+// Material file for door shaders
+//******************
+
+textures/base_door/light_panel1
+{
+	qer_editorimage	textures/base_door/stedoorframe2.tga
+	bumpmap		textures/base_door/stedoorframe2_local.tga
+	diffusemap		textures/base_door/stedoorframe2_d.tga
+	specularmap		textures/base_door/stedoorframe2_s.tga
+	{
+		if ( parm7 == 0 )
+		blend 	add
+		map		textures/base_door/stedoorframered_add.tga
+		rgb		5
+	}
+	{
+		if ( parm7 == 1 )
+		blend 	add
+		map		textures/base_door/stedoorframegrn_add.tga
+		rgb		5
+	}
+}
+

@@ -1,0 +1,132 @@
+
+/***********************************************************************
+
+Wounded_Swann
+
+***********************************************************************/
+
+model delta5_swann_head {
+	skin 							skins/characters/npcs/swannbloody.skin
+	mesh							models/md5/heads/swann/swann.md5mesh
+
+	anim blink						models/md5/heads/swann/swannblink.md5anim
+	anim idle						models/md5/heads/swann/swannidle.md5anim
+	anim stand						models/md5/heads/swann/swannidle.md5anim
+	anim talk_secondary1			models/md5/heads/swann/delta5/swannhead_wounded_secondary1.md5anim {
+		frame 1							sound_voice delta5_swann_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/swann/delta5/swannhead_wounded_secondary2.md5anim {
+		frame 1							sound_voice delta5_swann_secondary2
+	}
+	anim talk_primary				models/md5/heads/swann/delta5/swannhead_wounded_primary.md5anim {
+		frame 1							sound_voice delta5_swann_primary
+	}
+	anim talk_trigger				models/md5/heads/swann/delta5/swannhead_wounded.md5anim {
+		frame 1							sound_voice delta5_swann_trigger
+	}
+}
+
+model delta5_wounded_swann {
+	mesh							models/md5/chars/suit.md5mesh
+	channel torso					( *origin )
+
+	skin							skins/characters/npcs/bloodysuit.skin
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim stand						models/md5/cinematics/delta5/swann_idle.md5anim
+	anim idle						models/md5/cinematics/delta5/swann_idle.md5anim
+	anim talk_trigger				models/md5/cinematics/delta5/swann_trigger.md5anim {
+		frame 1 						enableEyeFocus
+		frame 36						disableEyeFocus
+		frame 205						enableEyeFocus
+		frame 350						disableEyeFocus
+		frame 505						enableEyeFocus
+		frame 561						disableEyeFocus
+		frame 698						enableEyeFocus
+		frame 837						disableEyeFocus
+		frame 1110						enableEyeFocus
+	}
+	anim talk_primary				models/md5/cinematics/delta5/swann_idle.md5anim 
+	anim talk_secondary1			models/md5/cinematics/delta5/swann_idle.md5anim
+	anim talk_secondary2			models/md5/cinematics/delta5/swann_idle.md5anim
+}
+
+entityDef delta5_wounded_swann {
+	"inherit"						"character_default"
+	"scriptobject"					"character"
+	"model"							"delta5_wounded_swann"
+	"anim"							"idle"
+	"size"							"64 20 32"
+	"use_aas"						""
+	"turn_rate"						"0"
+	"eye_height"					"28"
+	"npc_name"						"Counselor Swann"
+
+	"animate_z"						"1"
+	"talktrigger"					"1"
+	"no_cower"						"1"
+	"talk_no_turn"					"1"
+
+	"bone_focus"					"headcontrol"
+	"bone_orientation"				"Body"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-0"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.1"
+
+	"look_min"						"-54 -39 0"
+	"look_max"						"9 39 0"
+	"look_joint headcontrol"		"1 1 0"
+
+	"copy_joint neckcontrol"		"neckcontrol"
+	"copy_joint headcontrol"		"headcontrol"
+	"copy_joint_world eyecontrol"	"eyecontrol"
+
+	//"look_joint headcontrol"		"1 1 1"
+
+	"def_head"						"delta5_swann_head"
+	"head_joint"					"Shoulders"
+	
+	"ragdoll"						"char_wounded_marine"
+
+	"damage_zone chest"				"*Waist -*loneckcontrol"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"origin Body2"
+	"gib"							"1"
+
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+	"snd_gibbed"				"sound_giblets"
+	"snd_bounce"				"ragdoll_impact"
+
+}
+

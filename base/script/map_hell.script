@@ -1,0 +1,135 @@
+// Hell Map Script
+
+namespace map_hell {
+
+	void forgotten_killed() {
+		$monster_boss_d3xp_maledict_1.callFunction( "forgotten_killed" );
+	}
+
+	void rof_hurt_on() {
+		$rof_hurt.show();
+	}
+
+	void rof_hurt_off() {
+		$rof_hurt.hide();
+	}
+
+	void fadeOut_McNeil() {
+		$speaker_118.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_117.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_116.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_115.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_114.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_113.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_112.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_111.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_110.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_109.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_108.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_107.fadeSound(SND_CHANNEL_ANY, -60, 12);
+		$speaker_106.fadeSound(SND_CHANNEL_ANY, -60, 12);
+	}
+
+	void tp_disable() {
+		$player1.disableWeapon();
+	}
+
+	void tp_disable2() {
+		$tp_speaker1.fadeSound(SND_CHANNEL_ANY, -60, 4);
+		$player1.disableWeapon();
+	}
+
+	void tp_enable() {
+		$player1.enableWeapon();
+	}
+
+	void remove_hellpiece1() {
+		$end_piece1.hide();
+	}
+
+	void remove_hellpiece2() {
+		$end_piece2.hide();
+	}
+
+	void remove_hellpiece3() {
+		$end_piece3.hide();
+	}
+
+	void remove_hellpiece4() {
+		$end_piece4.hide();
+	}
+
+	void show_hellpiece1() {
+		$end_piece1.show();
+	}
+
+	void show_hellpiece2() {
+		$end_piece2.show();
+	}
+
+	void show_hellpiece3() {
+		$end_piece3.show();
+	}
+
+	void show_hellpiece4() {
+		$end_piece4.show();
+	}
+////////////////////////////
+//  MALEDICT INTRO STUFF
+////////////////////////////
+	void hidePlayer() {
+		$jay_hell_player_maledict_intro_1.hide();
+	}
+
+	void showPlayer() {
+		$jay_hell_player_maledict_intro_1.show();
+		$jay_hell_player_maledict_intro_1.setShaderParm(7, sys.getTime());
+		$jay_hell_player_maledict_intro_1.setSkin("skins/hell/playerteleportin");
+		sys.wait( 2 );
+		$jay_hell_player_maledict_intro_1.setSkin("skins/hell/player");
+	}
+
+	void restorePlayer() {
+		$jay_hell_player_maledict_intro_1.setSkin("skins/hell/player_d3xp");
+	}
+
+	void hideFuncEmitterHeartFlyin() {
+		$func_emitter_player_heart_flyin.hide();
+	}
+	void hideFuncEmitterHeartCloseup() {
+		$func_emitter_player_heart_closeup.hide();
+	}
+	void hideFuncEmitterHeartcram() {
+		$func_emitter_player_heartcram.hide();
+	}
+
+	void showFuncEmitterHeartFlyin() {
+		$func_emitter_player_heart_flyin.show();
+	}
+	void showFuncEmitterHeartCloseup() {
+		$func_emitter_player_heart_closeup.show();
+	}
+	void showFuncEmitterHeartcram() {
+		$func_emitter_player_heartcram.show();
+	}
+
+	void hideFuncEmitterHeartSpew() {
+		$func_emitter_cinematic_heartspew.hide();
+	}
+
+	void hideskullsmoke() {
+		$maledict_death_skull_smoke_1.hide();
+	}
+	void showskullsmoke() {
+		$maledict_death_skull_smoke_1.show();
+	}
+
+	void SetupObjects() {
+		//sys.trigger( $tp_speaker1 );
+		$rof_hurt.hide();
+	}
+
+	void main() {
+		SetupObjects();
+	}
+}

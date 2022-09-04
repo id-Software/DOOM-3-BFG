@@ -1,0 +1,99 @@
+/***********************************************************************
+
+monster_zombie_bernie.def
+
+***********************************************************************/
+
+export jayfoo {
+//	options	-prefix HELLGROWTH_ -scale 1.1 -keep Lknee Rknee -align ALL -keep Neck SPINNER Flamewrist Flametrap Flamehips Flamebutt Flamehead Flamepelvis -parent SPINNER Body2 -parent Waist SPINNER  
+
+	options	-prefix HELLGROWTH_ -scale 1.1 -keep Lknee Rknee Body Body2 -align ALL -keep Neck SPINNER Flamewrist Flametrap Flamehips Flamebutt Flamehead Flamepelvis -parent SPINNER Body2 -parent Waist SPINNER  
+		
+	addoptions -keepmesh hellgrowth_mesh
+	addoptions -keepmesh skeleton
+	
+	mesh	models/monsters/zombie/hellgrowthzombie/cycles/hellgrowth_mesh.mb -dest models/md5/monsters/zombies/hellgrowthzombie/hellgrowth_mesh
+}	
+
+model monster_zombie_hellgrowth {
+	inherit							monster_zombie_bernie
+	mesh							models/md5/monsters/zombies/hellgrowthzombie/hellgrowth_mesh.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *origin -*Waist SPINNER )
+}
+
+entityDef monster_zombie_hellgrowth {
+
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie_bernie"
+	"ragdoll"						"monster_zombie_bernie"
+	"model"							"monster_zombie_hellgrowth"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"150"
+	"melee_range"					"32"
+	"anim"							"idle"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"mass"							"200"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.4 0.4 0"
+	"look_joint Head"				"0.6 0.6 0"
+
+	"dropGibItem9Joint"				"Head"
+
+	"chatter_min"					"3"
+	"chatter_max"					"4"
+	"chatter_combat_min"			"2"
+	"chatter_combat_max"			"2"
+	
+	"skin"							"skins/monsters/zombie/hellgrowthzombie.skin"
+
+	"skin_dropGib"					"skins/monsters/zombies/berniegib.skin"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Neck"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Hips origin Body2"
+	"damage_scale head"				"2"
+	
+	//"smokeParticleSystem"			"Flamebutt"
+	//"smokeParticleSystem2"			"Flametrap"
+	//"smokeParticleSystem3"			"Flamehead"
+	//"smokeParticleSystem4"			"Flamewrist"
+	//"smokeParticleSystem5"			"Flamehips"
+	//"smokeParticleSystem6"			"Flamepelvis"
+
+	"snd_sight"						"bernie_sight"
+	"snd_footstep"					"monster_zombie_commando_footstep"
+	"snd_footdrag"					"bernie_footdrag"
+	"snd_melee_attack_1"			"bernie_attack"
+	"snd_melee_attack_2"			"bernie_attack"
+	"snd_melee_attack_3"			"bernie_attack"
+	"snd_chatter"					"bernie_chatter"
+	"snd_chatter_combat"			"bernie_chatter_combat"
+	"snd_pain"						"bernie_pain"
+	"snd_death"						"bernie_death"
+	"snd_thud"						"monster_zombie_maint_thud"
+	"snd_swipe"						"monster_zombie_maint_swipe"
+	"snd_ambient"					"monster_zombie_ambient_burn"
+}

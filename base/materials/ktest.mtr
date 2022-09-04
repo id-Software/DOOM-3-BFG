@@ -1,0 +1,761 @@
+textures/sfx/vids
+{
+	noshadows
+	//translucent
+
+	qer_editorimage		textures/sfx/vids.tga
+
+    {
+		map    textures/sfx/vids.tga
+
+	}
+	{
+
+	    blend		add
+		scale 1 ,1
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		red .8
+		green .8
+		blue 1
+		map    textures/decals/statica.tga
+
+	}
+	{
+
+	    blend		add
+		scale 1 ,1
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		red .8
+		green .8
+		blue 1
+		map    textures/decals/statica.tga
+
+	}
+
+/*
+	{
+
+	    blend		filter
+		scale 2,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/oldfilm.tga
+
+	}
+	{
+
+	    blend		filter
+		scale 1, .005
+		translate time * 0, time * -40
+
+		map    textures/decals/oldfilm2.tga
+
+	}
+*/
+
+}
+
+
+
+textures/ktest/ktest1
+{
+	qer_editorimage textures/ktest/ktest1_ed.tga
+
+        // All textures need an editor image to show in the editor presently
+
+	diffusemap	textures/ktest/ktest1_d.tga
+
+        // Diffuse map = Color of the texture
+
+	specularmap	textures/ktest/ktest1_s.tga
+
+        // Specular is additive to the height/bump map. ie broad strokes of color will still                 // pick up the detail of the bump pass
+
+        bumpmap	        heightmap (textures/ktest/ktest1_b.tga, 1 )
+  
+        // greyscale bump map. # indicates dist between height/depth defined in gradation
+        
+}
+
+textures/ktest/tiletest
+{
+	qer_editorimage textures/ktest/tiletest_ed.tga
+
+	diffusemap	textures/ktest/tiletest_d.tga
+	specularmap	textures/ktest/tiletest_s.tga
+	bumpmap heightmap (textures/ktest/tiletest_b.tga, 1 )
+        
+}
+
+textures/ktest/storageceiling1
+{
+	qer_editorimage textures/ktest/storageceiling1_ed.tga
+
+	diffusemap	textures/ktest/storageceiling1_d.tga
+	specularmap	textures/ktest/storageceiling1_s.tga
+	bumpmap heightmap (textures/ktest/storageceiling1_b.tga, 1 )
+        
+}
+
+
+textures/ktest/bluetiletest
+{
+	qer_editorimage textures/ktest/bluetiletest_d.tga
+
+	diffusemap	textures/ktest/bluetiletest_d.tga
+	specularmap	textures/ktest/bluetiletest_s.tga
+	bumpmap heightmap (textures/ktest/bluetiletest_b.tga, 1 )
+        
+}
+
+textures/ktest/bluemet
+{
+	qer_editorimage textures/ktest/bluemet_d.tga
+
+	diffusemap	textures/ktest/bluemet_d.tga
+	specularmap	textures/ktest/bluemet_s.tga
+	bumpmap heightmap (textures/ktest/bluemet_b.tga, 1 )
+        
+}
+
+textures/ktest/redpaint
+{
+	qer_editorimage textures/ktest/redpaint_d.tga
+
+	diffusemap	textures/ktest/redpaint_d.tga
+	specularmap	textures/ktest/redpaint_s.tga
+	bumpmap heightmap (textures/ktest/redpaint_b.tga, 1 )
+        
+}
+textures/recyc_wall/rustpipe
+{
+	qer_editorimage textures/ktest/rustpipe_d.tga
+
+	diffusemap	textures/ktest/rustpipe_d.tga
+	specularmap	textures/ktest/rustpipe_s.tga
+	bumpmap heightmap (textures/ktest/rustpipe_b.tga, 1 )
+        
+}
+textures/ktest/metalvent
+{
+	qer_editorimage textures/ktest/metalvent_d.tga
+
+	diffusemap	textures/ktest/metalvent_d.tga
+	specularmap	textures/ktest/metalvent_s.tga
+	bumpmap heightmap (textures/ktest/metalvent_b.tga, 1 )
+        
+}
+textures/recyc_wall/metaltrain
+{
+	qer_editorimage textures/ktest/metaltrain_d.tga
+
+	diffusemap	textures/ktest/metaltrain_d.tga
+	specularmap	textures/ktest/metaltrain_s.tga
+	bumpmap heightmap (textures/ktest/metaltrain_b.tga, 1 )
+        
+}
+
+
+textures/ktest/concretetest
+{
+	qer_editorimage textures/ktest/concretetest_d.tga
+
+	diffusemap	textures/ktest/concretetest_d.tga
+	specularmap	textures/ktest/concretetest_s.tga
+	bumpmap heightmap (textures/ktest/concretetest_b.tga, 1 )
+        
+}
+
+
+
+textures/ktest/concretetest2
+{
+	qer_editorimage textures/ktest/concretetest2_d.tga
+
+	diffusemap	textures/ktest/concretetest2_d.tga
+	specularmap	textures/ktest/concretetest2_s.tga
+	bumpmap heightmap (textures/ktest/concretetest2_b.tga, 1 )
+        
+}
+
+
+textures/ktest/dirtmetal
+{
+	qer_editorimage textures/ktest/dirtmetal_d.tga
+
+	diffusemap	textures/ktest/dirtmetal_d.tga
+	specularmap	textures/ktest/dirtmetal_s.tga
+	bumpmap heightmap (textures/ktest/dirtmetal_b.tga, 1 )
+        
+}
+
+textures/ktest/dirtmetalplate
+{
+	qer_editorimage textures/ktest/dirtmetalplate_d.tga
+
+	diffusemap	textures/ktest/dirtmetalplate_d.tga
+	specularmap	textures/ktest/dirtmetalplate_s.tga
+	bumpmap heightmap (textures/ktest/dirtmetalplate_b.tga, 1 )
+        
+}
+textures/ktest/galvanizetrim
+{
+	qer_editorimage textures/ktest/galvanizetrim_d.tga
+
+	diffusemap	textures/ktest/galvanizetrim_d.tga
+	specularmap	textures/ktest/galvanizetrim_s.tga
+	bumpmap heightmap (textures/ktest/galvanizetrim_b.tga, 2 )
+        
+}
+
+textures/ktest/enginevent
+{
+	qer_editorimage textures/ktest/enginevent.tga
+	diffusemap	textures/ktest/enginevent_d.tga
+	specularmap	textures/ktest/enginevent_s.tga
+	bumpmap	addnormals ( textures/ktest/enginevent_local.tga  , heightmap ( textures/ktest/enginevent_b.tga, 1 ) )
+}
+
+
+
+textures/ktest/enginevent2
+{
+	qer_editorimage textures/ktest/enginevent2.tga
+	diffusemap	textures/ktest/enginevent2_d.tga
+	specularmap	textures/ktest/enginevent2_s.tga
+	bumpmap	addnormals ( textures/ktest/enginevent2_local.tga  , heightmap ( textures/ktest/enginevent2_b.tga, 1 ) )
+}
+
+
+textures/ktest/enginevent3
+{
+	qer_editorimage textures/ktest/enginevent3.tga
+	diffusemap	textures/ktest/enginevent3_d.tga		
+	specularmap	textures/ktest/enginevent3_s.tga
+	bumpmap	addnormals ( textures/ktest/enginevent3_local.tga  , heightmap ( textures/ktest/enginevent3_b.tga, 1 ) )
+}
+
+
+
+
+textures/recyc_wall/basepanel
+{
+	qer_editorimage textures/ktest/basepanel_d.tga
+
+	diffusemap	textures/ktest/basepanel_d.tga
+	specularmap	textures/ktest/basepanel_s.tga
+	bumpmap textures/ktest/basepanel_local.tga        
+}
+
+textures/ktest/malwall
+{
+	qer_editorimage textures/ktest/malwall_d.tga
+
+	bumpmap	addnormals ( textures/ktest/malwall_local.tga, heightmap ( textures/ktest/malwall_b.tga, 1 ) )
+	diffusemap	textures/ktest/malwall_d.tga
+	specularmap	textures/ktest/malwall_s.tga
+}
+textures/ktest/malwall2
+{
+	qer_editorimage textures/ktest/malwall2_d.tga
+
+	bumpmap	addnormals ( textures/ktest/malwall_local.tga, heightmap ( textures/ktest/malwall_b.tga, 1 ) )
+	diffusemap	textures/ktest/malwall2_d.tga
+	specularmap	textures/ktest/malwall_s.tga
+}
+
+textures/ktest/malwall3
+{
+	qer_editorimage textures/ktest/malwall3_d.tga
+
+	bumpmap	addnormals ( textures/ktest/malwall_local.tga, heightmap ( textures/ktest/malwall_b.tga, 1 ) )
+	diffusemap	textures/ktest/malwall3_d.tga
+	specularmap	textures/ktest/malwall_s.tga
+}
+
+textures/ktest/techpuzzle
+{
+	qer_editorimage textures/ktest/techpuzzle_d.tga
+
+	bumpmap	addnormals ( textures/ktest/techpuzzle_local.tga, heightmap ( textures/ktest/techpuzzle_b.tga, 1 ) )
+	diffusemap	textures/ktest/techpuzzle_d.tga
+	specularmap	textures/ktest/techpuzzle_s.tga
+}
+
+textures/ktest/techpuzzle2
+{
+	qer_editorimage textures/ktest/techpuzzle2_d.tga
+
+	bumpmap	addnormals ( textures/ktest/techpuzzle_local.tga, heightmap ( textures/ktest/techpuzzle_b.tga, 1 ) )
+	diffusemap	textures/ktest/techpuzzle2_d.tga
+	specularmap	textures/ktest/techpuzzle_s.tga
+}
+
+textures/ktest/techpuzzle3
+{
+	qer_editorimage textures/ktest/techpuzzle3_d.tga
+
+	bumpmap	addnormals ( textures/ktest/techpuzzle_local.tga, heightmap ( textures/ktest/techpuzzle_b.tga, 1 ) )
+	diffusemap	textures/ktest/techpuzzle3_d.tga
+	specularmap	textures/ktest/techpuzzle_s.tga
+}
+
+textures/ktest/techpuzzle4
+{
+	qer_editorimage textures/ktest/techpuzzle4_d.tga
+
+	bumpmap	addnormals ( textures/ktest/techpuzzle_local.tga, heightmap ( textures/ktest/techpuzzle_b.tga, 1 ) )
+	diffusemap	textures/ktest/techpuzzle4_d.tga
+	specularmap	textures/ktest/techpuzzle_s.tga
+}
+
+textures/ktest/mtexture2
+{
+	qer_editorimage textures/ktest/mtexture2_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2_d.tga
+	specularmap	textures/ktest/mtexture2_s.tga
+}
+textures/ktest/mtexture2b
+{
+	qer_editorimage textures/ktest/mtexture2b.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2b_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2b_d.tga
+	specularmap	textures/ktest/mtexture2b_s.tga
+}
+textures/ktest/mtexture2c
+{
+	qer_editorimage textures/ktest/mtexture2c.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2b_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2c_d.tga
+	specularmap	textures/ktest/mtexture2b_s.tga
+}
+textures/ktest/mtexture2d
+{
+	qer_editorimage textures/ktest/mtexture2d.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2b_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2d_d.tga
+	specularmap	textures/ktest/mtexture2b_s.tga
+}
+textures/ktest/mtexture2e
+{
+	qer_editorimage textures/ktest/mtexture2e.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2b_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2e_d.tga
+	specularmap	textures/ktest/mtexture2b_s.tga
+}
+textures/ktest/mtexture2f
+{
+	qer_editorimage textures/ktest/mtexture2f.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2b_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2f_d.tga
+	specularmap	textures/ktest/mtexture2b_s.tga
+}
+textures/ktest/mtexture2g
+{
+	qer_editorimage textures/ktest/mtexture2g.tga
+
+	bumpmap	addnormals ( textures/ktest/mtexture2_local.tga, heightmap ( textures/ktest/mtexture2_b.tga, 1 ) )
+	diffusemap	textures/ktest/mtexture2g_d.tga
+	specularmap	textures/ktest/mtexture2_s.tga
+}
+
+textures/ktest/adrianwall
+{
+	qer_editorimage textures/ktest/adrianwall_d.tga
+
+	bumpmap	addnormals ( textures/ktest/adrianwall_local.tga, heightmap ( textures/ktest/adrianwall_b.tga, 1 ) )
+	diffusemap	textures/ktest/adrianwall_d.tga
+	specularmap	textures/ktest/adrianwall_s.tga
+}
+
+textures/ktest/adrianwall4
+{
+	qer_editorimage textures/ktest/adrianwall4_d.tga
+
+	bumpmap	addnormals ( textures/ktest/adrianwall4_local.tga, heightmap ( textures/ktest/adrianwall4_b.tga, 1 ) )
+	diffusemap	textures/ktest/adrianwall4_d.tga
+	specularmap	textures/ktest/adrianwall4_s.tga
+}
+textures/ktest/adrianwall5
+{
+	qer_editorimage textures/ktest/adrianwall5_d.tga
+
+	bumpmap	addnormals ( textures/ktest/adrianwall5_local.tga, heightmap ( textures/ktest/adrianwall5_b.tga, 1 ) )
+	diffusemap	textures/ktest/adrianwall5_d.tga
+	specularmap	textures/ktest/adrianwall5_s.tga
+}
+
+textures/ktest/kbump
+{
+	qer_editorimage textures/ktest/kbump_d.tga
+
+	bumpmap	addnormals ( textures/ktest/kbump_local.tga, heightmap ( textures/ktest/kbump_b.tga, 1 ) )
+	diffusemap	textures/ktest/kbump_d.tga
+	specularmap	textures/ktest/kbump_s.tga
+}
+
+textures/ktest/kbump2
+{
+	qer_editorimage textures/ktest/kbump2_d.tga
+
+	bumpmap	addnormals ( textures/ktest/kbump2_local.tga, heightmap ( textures/ktest/kbump2_b.tga, 1 ) )
+	diffusemap	textures/ktest/kbump2_d.tga
+	specularmap	textures/ktest/kbump2_s.tga
+}
+
+textures/ktest/kbump3
+{
+	qer_editorimage textures/ktest/kbump3_d.tga
+
+	bumpmap	addnormals ( textures/ktest/kbump3_local.tga, heightmap ( textures/ktest/kbump3_b.tga, 1 ) )
+	diffusemap	textures/ktest/kbump3_d.tga
+	specularmap	textures/ktest/kbump3_s.tga
+}
+
+textures/base_wall/nurntest1
+{
+	qer_editorimage textures/ktest/nurntest1_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/nurntest1_local.tga, heightmap ( textures/ktest/nurntest1_b.tga, 1 ) )
+	diffusemap	textures/ktest/nurntest1_d.tga
+	specularmap	textures/ktest/nurntest1_s.tga
+}
+
+textures/base_wall/nurntest2
+{
+	qer_editorimage textures/ktest/nurntest2_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/nurntest2_local.tga, heightmap ( textures/ktest/nurntest2_b.tga, 1 ) )
+	diffusemap	textures/ktest/nurntest2_d.tga
+//	specularmap	textures/ktest/nurntest2_s.tga
+}
+
+textures/base_wall/nurntest3
+{
+	qer_editorimage textures/ktest/nurntest3_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/nurntest3_local.tga, heightmap ( textures/ktest/nurntest3_b.tga, 1 ) )
+	diffusemap	textures/ktest/nurntest3_d.tga
+	specularmap	textures/ktest/nurntest3_s.tga
+}
+textures/base_wall/nurntest4
+{
+	qer_editorimage textures/ktest/nurntest4_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/nurntest4_local.tga, heightmap ( textures/ktest/nurntest4_b.tga, 1 ) )
+	diffusemap	textures/ktest/nurntest4_d.tga
+	specularmap	textures/ktest/nurntest4_s.tga
+}
+textures/recyc_wall/storage1
+{
+	qer_editorimage textures/ktest/storage1_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage1_local.tga, heightmap ( textures/ktest/storage1_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage1_d.tga
+	specularmap	textures/ktest/storage1_s.tga
+}
+
+
+
+textures/recyc_wall/storage_rough1
+{
+	qer_editorimage textures/ktest/storage_rough1_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough1_local.tga, heightmap ( textures/ktest/storage_rough1_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough1_d.tga
+	specularmap	textures/ktest/storage_rough1_s.tga
+}
+
+textures/recyc_wall/storage_rough1_5
+{
+	qer_editorimage textures/ktest/storage_rough1_ed5.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough1_local5.tga, heightmap ( textures/ktest/storage_rough1_b5.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough1_d5.tga
+	specularmap	textures/ktest/storage_rough1_s5.tga
+}
+
+textures/recyc_wall/storage_rough3
+{
+	qer_editorimage textures/ktest/storage_rough3_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough3_local.tga, heightmap ( textures/ktest/storage_rough3_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough3_d.tga
+	specularmap	textures/ktest/storage_rough3_s.tga
+}
+
+
+
+
+
+textures/recyc_wall/storage1_5
+{
+	qer_editorimage textures/ktest/storage1_ed5.tga
+
+	bumpmap	addnormals ( textures/ktest/storage1_local5.tga, heightmap ( textures/ktest/storage1_b5.tga, 1 ) )
+	diffusemap	textures/ktest/storage1_d5.tga
+	specularmap	textures/ktest/storage1_s5.tga
+}
+
+textures/ktest/storage10
+{
+	qer_editorimage textures/ktest/storage10_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage10_local.tga, heightmap ( textures/ktest/storage10_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage10_d.tga
+	specularmap	textures/ktest/storage10_s.tga
+}
+
+textures/ktest/storage2c
+{
+	qer_editorimage textures/ktest/storage2c_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage2c_local.tga, heightmap ( textures/ktest/storage2c_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage2c_d.tga
+	specularmap	textures/ktest/storage2c_s.tga
+}
+
+textures/recyc_wall/storage3
+{
+	qer_editorimage textures/ktest/storage3_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage3_local.tga, heightmap ( textures/ktest/storage3_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage3_d.tga
+	specularmap	textures/ktest/storage3_s.tga
+}
+
+textures/recyc_wall/storage3_2
+{
+	qer_editorimage textures/ktest/storage3_ed2.tga
+
+	bumpmap	addnormals ( textures/ktest/storage3_local2.tga, heightmap ( textures/ktest/storage3_b2.tga, 1 ) )
+	diffusemap	textures/ktest/storage3_d2.tga
+	specularmap	textures/ktest/storage3_s2.tga
+}
+
+textures/recyc_wall/storage4
+{
+	qer_editorimage textures/ktest/storage4_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage4_local.tga, heightmap ( textures/ktest/storage4_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage4_d.tga
+	specularmap	textures/ktest/storage4_s.tga
+}
+
+
+textures/recyc_wall/storage5
+{
+	qer_editorimage textures/ktest/storage5_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage5_local.tga, heightmap ( textures/ktest/storage5_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage5_d.tga
+	specularmap	textures/ktest/storage5_s.tga
+}
+
+textures/recyc_wall/storage6
+{
+	qer_editorimage textures/ktest/storage6_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage6_local.tga, heightmap ( textures/ktest/storage6_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage6_d.tga
+	specularmap	textures/ktest/storage6_s.tga
+}
+
+textures/recyc_wall/storage7
+{
+	qer_editorimage textures/ktest/storage7_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage7_local.tga, heightmap ( textures/ktest/storage7_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage7_d.tga
+	specularmap	textures/ktest/storage7_s.tga
+}
+
+textures/recyc_wall/storage8
+{
+	qer_editorimage textures/ktest/storage8_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage8_local.tga, heightmap ( textures/ktest/storage8_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage8_d.tga
+	specularmap	textures/ktest/storage8_s.tga
+}
+
+
+textures/recyc_wall/storage_rough8
+{
+	qer_editorimage textures/ktest/storage_rough8_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough8_local.tga, heightmap ( textures/ktest/storage_rough8_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough8_d.tga
+	specularmap	textures/ktest/storage_rough8_s.tga
+
+}
+
+
+
+textures/recyc_wall/storage_rough8b
+{
+	qer_editorimage textures/ktest/storage_rough8b_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough8b_local.tga, heightmap ( textures/ktest/storage_rough8b_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough8b_d.tga
+	specularmap	textures/ktest/storage_rough8b_s.tga
+
+}
+
+
+textures/recyc_wall/storage_rough8c
+{
+	qer_editorimage textures/ktest/storage_rough8c_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough8c_local.tga, heightmap ( textures/ktest/storage_rough8c_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough8c_d.tga
+	specularmap	textures/ktest/storage_rough8c_s.tga
+
+}
+
+
+
+
+textures/recyc_wall/storage9
+{
+	qer_editorimage textures/ktest/storage9_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage9_local.tga, heightmap ( textures/ktest/storage9_b.tga, 1 ) )
+	diffusemap	textures/ktest/storage9_d2.tga
+	specularmap	textures/ktest/storage9_s.tga
+}
+
+textures/recyc_wall/storage9b
+{
+	qer_editorimage textures/ktest/storage9b_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage9b_local.tga, heightmap ( textures/ktest/storage9b_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage9b_d2.tga
+	specularmap	textures/ktest/storage9b_s.tga
+}
+
+
+
+textures/recyc_wall/storage_rough9
+{
+	qer_editorimage textures/ktest/storage_rough9_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/storage_rough9_local.tga, heightmap ( textures/ktest/storage_rough9_b.tga, 2 ) )
+	diffusemap	textures/ktest/storage_rough9_d.tga
+	specularmap	textures/ktest/storage_rough9_s.tga
+}
+
+textures/ktest/kcdoomfloor
+{
+	qer_editorimage textures/ktest/kcdoomfloor_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/kcdoomfloor_local.tga, heightmap ( textures/ktest/kcdoomfloor_b.tga, 1 ) )
+	diffusemap	textures/ktest/kcdoomfloor_d.tga
+	specularmap	textures/ktest/kcdoomfloor_s.tga
+}
+
+textures/base_floor/kcdoomfloor2
+{
+	qer_editorimage textures/ktest/kcdoomfloor2_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/kcdoomfloor_local.tga, heightmap ( textures/ktest/kcdoomfloor2_b.tga, 1 ) )
+	diffusemap	textures/ktest/kcdoomfloor2_d.tga
+	specularmap	textures/ktest/kcdoomfloor2_s.tga
+}
+
+textures/base_floor/kcdoomfloor3
+{
+	qer_editorimage textures/ktest/kcdoomfloor3_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/kcdoomfloor_local.tga, heightmap ( textures/ktest/kcdoomfloor3_b.tga, 1 ) )
+	diffusemap	textures/ktest/kcdoomfloor3_d.tga
+	specularmap	textures/ktest/kcdoomfloor3_s.tga
+}
+
+textures/base_floor/kcdoomfloor4
+{
+	qer_editorimage textures/ktest/kcdoomfloor4_ed.tga
+
+	bumpmap	addnormals ( textures/ktest/kcdoomfloor_local.tga, heightmap ( 
+textures/base_floor/kcdoomfloor4_b.tga, 1 ) )
+	diffusemap	textures/ktest/kcdoomfloor4_d.tga
+	specularmap	textures/ktest/kcdoomfloor4_s.tga
+}
+
+textures/ktest/offwall
+{
+	qer_editorimage textures/ktest/offwall_ed.tga
+
+	diffusemap	textures/ktest/offwall_d.tga
+	specularmap	textures/ktest/offwall_s.tga
+	bumpmap heightmap (textures/ktest/offwall_b.tga, 1 )
+        
+}
+
+
+textures/ktest/offwall2
+{
+	qer_editorimage textures/ktest/offwall2_ed.tga
+
+	diffusemap	textures/ktest/offwall2_d.tga
+	specularmap	textures/ktest/offwall2_s.tga
+	bumpmap heightmap (textures/ktest/offwall2_b.tga, 1 )
+        
+}
+
+
+textures/ktest/carpet
+{
+	qer_editorimage textures/ktest/carpet_ed.tga
+
+	diffusemap	textures/ktest/carpet_d.tga
+	specularmap	textures/ktest/carpet_s.tga
+	bumpmap heightmap (textures/ktest/carpet_b.tga, 1 )
+        
+}
+
+textures/ktest/carpet2
+{
+	qer_editorimage textures/ktest/carpet2_ed.tga
+
+	diffusemap	textures/ktest/carpet2_d.tga
+	specularmap	textures/ktest/carpet2_s.tga
+	bumpmap heightmap (textures/ktest/carpet2_b.tga, 1 )
+        
+}
+
+textures/ktest/carpet3
+{
+	qer_editorimage textures/ktest/carpet3_ed.tga
+
+	diffusemap	textures/ktest/carpet3_d.tga
+	specularmap	textures/ktest/carpet3_s.tga
+	bumpmap heightmap (textures/ktest/carpet3_b.tga, 1 )
+        
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
