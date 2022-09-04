@@ -109,14 +109,7 @@ You can fork RBDOOM-3-BFG and create a new renamed binary that includes all requ
 
 If you want to see what is planned or in progress in a Trello/Kanban style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
 
-Very certain short term goals are to port and extend some improvements from Justin Marshall's [Iced-Hellfire-Dev](https://github.com/jmarshall23/Doom3BFG) branch:
-* Assimp -> MD5 converter pipeline to generate .md5mesh/.md5anim files from any FBX, DAE, glTF2 files
-* Improve MD5 files with a new Version 11 that allows to store normals for better control of smoothing groups
-* Native C++ weapons code
-* Native C++ AI & monsters code
-* Quake 3 gladiator multiplayer bot
-
-Other short term goals:
+Short term goals:
 * DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi) by Stephen Pridham which will lead the path to advanced Ray Tracing techniques
 * Optional RmlUI support as an alternative to Flash
 

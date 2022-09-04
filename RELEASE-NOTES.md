@@ -18,6 +18,69 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - Sep 04, 2022
+
+This build based on the 635-nvrhi3 branch adds glTF2 support to RBDOOM-3-BFG and TrenchBroom.
+Big thanks to Harrie van Ginneken (VrKnight) for contributing this major feature.
+The glTF2 support doesn't rely on thirdparty loaders and is a native id Tech 4x implementation.
+
+Material names in Blender need to be 1:1 the material names defined in the corresponding materials/*.mtr files.
+
+Models are expected to be exported by Blender with the following settings:
+
+Format: glTF Binary (.glb)
+Transform: +Y Up
+Materials: Export
+Images: None
+Compression: Off
+
+Changelog:
+
+* Added glTF2 model loader for static and animated models
+
+* Changed dmap to support compiling maps from gtTF2 .glb models instead of .map files
+
+* Added support for MapPolygonMeshes to the AAS compiler
+
+## .plan - Jul 03, 2022
+
+This build targets several problems when using the bakeEnvironmentProbes and bakeLightGrid commands using the NVRHI/DX12 backend.
+So the commands are producing the same results as the OpenGL backend now.
+
+* Don't use TAA jitter when capturing env probes!
+
+* Always clear the envprobe FBO for lightgrid capturing
+
+* Print engine version when starting to write a qconsole.log
+
+* Fixed window icon by adding the missing doom.rc
+
+## .plan - Jun 27, 2022
+
+This build targets several problems when compiling maps with dmap and it adds GPU Skinning to the DX12 backend.
+
+* Merged GPU skinning code by SP and did additional refactoring
+
+* Don't generate collision models for every rendermodel in advance. Restored vanilla Doom 3 behaviour.
+
+* Dmap: always write a .cm file, especially when overwriting from a mod dir
+
+* Support the Valve 220 texture projection in MapPolygonMesh::ConvertFromBrush()
+
+* Automatically remove map collision .cm, .bcm files before running dmap
+
+* Crashfix: Don't refesh the screen using prints during engine shutdown
+
+## .plan - Jun 5, 2022
+
+This build targets the NVRHI/DX12 crash problems that have been reported since the last build.
+
+* Fixed rendering of FFmpeg, Binkdec videos and Doomclassic modes #648 677
+
+* Separate bind set for material textures in the light passes to avoid allocation problems #676
+
+* Fixed chromatic aberration on right/bottom screen corners
+
 ## .plan - May 29, 2022
 
 This version replaces OpenGL with DX12 using the NVRHI API.
