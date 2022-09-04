@@ -1,0 +1,743 @@
+namespace map_caves2 {
+
+	// variable to track the open close state of caves2_shutters
+	float cave2_shutter_state = 0;
+	float cave2_ladder_state = 0;
+
+	// variables to track crane movement states
+	float crane_main_state = 15;
+	float crane_carrier_state = 210;
+	float crane_carrier_load_state = 0;
+	float generator_on = FALSE;
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup objects
+	//
+	////////////////////////////////////////////////////
+	void setup_objects()
+	{
+
+		//move super_ladder down for keycard puzzle
+		$super_ladder.time(1);
+		$super_ladder.move ( DOWN, 632 );
+
+		$crane_carrier.bind ($crane_main);
+		$crane_carrier_load.bind ($crane_carrier);
+		$crane_main.setGuiParm ( "gui_parm3" , (crane_carrier_state / 4));
+		$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+		$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+
+		$crane_main.time (.05);
+		$crane_carrier.time (.01);
+		$crane_carrier_load.time (.02);
+	}
+
+	// Sound stuff for generator startup
+	void toggle_generator() {
+		if (generator_on) {
+			sys.trigger ($speaker_generator_stop);	// Play Stop Sound
+			sys.trigger ($speaker_generator_loop);	// Turn the loop off
+			generator_on = FALSE;
+		}
+		else {
+			sys.trigger ($speaker_generator_start);
+			sys.wait (1);
+			sys.trigger ($speaker_generator_loop);
+			generator_on = TRUE;
+		}
+	}
+
+	// This is so that we don't need one long 40 second looping sound for the ride down
+	void lift_sound_thread() {
+		sys.trigger ($lift_speaker_start);
+		sys.wait (4.75);
+		sys.trigger ($lift_speaker_loop);		// Turn on the loop
+		sys.wait (35);
+		sys.trigger ($lift_speaker_end);
+		sys.wait (0.2);
+		sys.trigger ($lift_speaker_loop);		// Turn off the loop
+	}
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 Small ladder at the lift
+	//
+	////////////////////////////////////////////////////
+	void lower_smallcave_ladder()
+	{
+		sys.wait( .5 );
+		sys.trigger( $snd_ladder_move );
+		$smallcave_ladder.move( DOWN, 120 );
+	}
+
+	void raise_smallcave_ladder()
+	{
+		sys.wait( .5 );
+		sys.trigger( $snd_ladder_move );
+		$smallcave_ladder.move( UP, 120 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 1st Elevator
+	//
+	////////////////////////////////////////////////////
+	void big_broke_start()
+	{
+		// times for big_broke mover
+		$big_broke.time (40);
+		$big_broke.accelTime (5);
+		$big_broke.decelTime (.5);
+
+		$big_broke.setKey ("snd_accel", "cav1_lift_start");
+		$big_broke.setKey ("snd_move", "cav1_lift_loop");
+		$big_broke.setKey ("snd_decel", "cav1_lift_stop");
+
+		// move the big_broke
+		//thread lift_sound_thread();
+		$big_broke.moveTo ($big_broke_start);
+		sys.waitFor ($big_broke);
+		sys.trigger ($big_broke);
+		sys.trigger ($func_aas_obstacle_1);
+	}
+
+void big_broke_end()
+	{
+		// times for big_broke mover
+
+		$big_broke.setKey ("snd_accel", "cav1_lift_start");
+		$big_broke.setKey ("snd_move", "cav1_lift_loop");
+		$big_broke.setKey ("snd_decel", "cav1_lift_stop");
+
+
+		$big_broke.time (40);
+		$big_broke.accelTime (5);
+		$big_broke.decelTime (.2);
+
+		// move the big_broke
+//		thread lift_sound_thread();
+		$big_broke.moveTo ($big_broke_end);
+		sys.trigger ($func_aas_obstacle_1);
+	}
+
+
+	////////////////////////////////////////////////////
+	//	Cave2 key card objective call
+	////////////////////////////////////////////////////
+	void callcavekey1()
+	{
+		sys.trigger ($caverns2_obj1);
+	}
+
+	////////////////////////////////////////////////////
+	//	Caverns2 Piston machine1 sream
+	////////////////////////////////////////////////////
+
+	void piston1steam()
+	{
+		sys.trigger ($piston_1_steamspeaker);
+		sys.trigger ($pm1_steam1);
+		sys.wait (1);
+		sys.trigger ($pm1_steam1);
+	}
+
+	////////////////////////////////////////////////////
+	//	Caverns2 Piston machine2 sream
+	////////////////////////////////////////////////////
+
+	void piston2steam()
+	{
+		sys.trigger ($piston_2_steamspeaker);
+		sys.trigger ($pm2_steam1);
+		sys.wait (1);
+		sys.trigger ($pm2_steam1);
+	}
+
+	////////////////////////////////////////////////////
+	//	Caverns2 Piston machine1
+	////////////////////////////////////////////////////
+
+	void cavepiston1()
+	{
+		while(1){
+		$cave_piston1.accelTime (.2);
+		$cave_piston1.decelTime	(.2);
+
+		$cave_piston1.time (6);
+		
+		sys.trigger ($cave_piston_1_speaker_start);
+		sys.trigger ($cave_piston_1_speaker_loop);		// Turn loop on
+		
+		$cave_piston1.move (SOUTH,64);
+		sys.waitFor ($cave_piston1);
+		
+		sys.trigger ($cave_piston_1_speaker_loop);		// Turn loop off
+		sys.trigger ($cave_piston_1_speaker_endclack);
+		
+		thread piston1steam();
+		
+		sys.wait (0.75);
+
+		$cave_piston1.time (.5);
+		sys.trigger ($cave_piston_1_speaker_back);
+		$cave_piston1.move (NORTH,64);
+		sys.wait (1.5);
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//	Caverns2 Piston machine2
+	////////////////////////////////////////////////////
+
+	void cavepiston2()
+	{
+		while(1){
+		$cave_piston2.accelTime (.2);
+		$cave_piston2.decelTime	(.2);
+
+		$cave_piston2.time (5.5);
+		
+		sys.trigger ($cave_piston_2_speaker_start);
+		sys.trigger ($cave_piston_2_speaker_loop);		// Turn loop on
+		
+		$cave_piston2.move (SOUTH,64);
+		sys.waitFor ($cave_piston2);
+		
+		sys.trigger ($cave_piston_2_speaker_loop);		// Turn loop off
+		sys.trigger ($cave_piston_2_speaker_endclack);
+		
+		thread piston2steam();
+
+		sys.wait (1);
+
+		$cave_piston2.time (.5);
+		
+		sys.trigger ($cave_piston_2_speaker_back);
+		$cave_piston2.move (NORTH,64);
+		
+		
+		sys.wait (1.5);
+		}
+	}
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 v81 rumble
+	//
+	////////////////////////////////////////////////////
+	void cave2_v81_rumble()
+	{
+		$c2_v81.time (.1);
+		
+		while(1){
+			$c2_v81.rotateOnce ( '2 0 0' );
+			sys.waitFor ($c2_v81);
+			$c2_v81.rotateOnce ( '-2 0 0' );
+			sys.waitFor ($c2_v81);
+					
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 v82 rumble
+	//
+	////////////////////////////////////////////////////
+	void cave2_v82_rumble()
+	{
+		$c2_v82.time (.1);
+
+		while(1){
+			$c2_v82.rotateOnce ( '2 0 0' );
+			sys.waitFor ($c2_v82);
+			$c2_v82.rotateOnce ( '-2 0 0' );
+			sys.waitFor ($c2_v82);
+		
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 cave eggs
+	//
+	////////////////////////////////////////////////////
+//	void cave_egg1_bob()
+//	{
+//		$cave_egg1.rotate ( '0 15 0' );
+//
+//		$cave_egg1.time (.5);
+//		$cave_egg1.accelTime (.25);
+//		$cave_egg1.decelTime (.25);
+//
+//		while(1){
+//			$cave_egg1.move ( DOWN, 2 );
+//			sys.waitFor ($cave_egg1);
+//			$cave_egg1.move ( UP, 2 );
+//			sys.waitFor ($cave_egg1);
+//					
+//		}
+//	}
+//
+//	void cave_egg2_bob()
+//	{
+//		$cave_egg2.rotate ( '0 16 0' );
+//
+//		$cave_egg2.time (.8);
+//		$cave_egg2.accelTime (.25);
+//		$cave_egg2.decelTime (.25);
+//
+//		while(1){
+//			$cave_egg2.move ( DOWN, 2 );
+//			sys.waitFor ($cave_egg2);
+//			$cave_egg2.move ( UP, 2 );
+//			sys.waitFor ($cave_egg2);
+//					
+//		}
+//	}
+//
+//
+//	void cave_egg3_bob()
+//	{
+//		$cave_egg3.rotate ( '0 15 0' );
+//
+//		$cave_egg3.time (.6);
+//		$cave_egg3.accelTime (.25);
+//		$cave_egg3.decelTime (.25);
+//
+//		while(1){
+//			$cave_egg3.move ( DOWN, 2 );
+//			sys.waitFor ($cave_egg3);
+//			$cave_egg3.move ( UP, 2 );
+//			sys.waitFor ($cave_egg3);
+//					
+//		}
+//	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 shutter open close
+	//
+	////////////////////////////////////////////////////
+	void cave2_shutter_openclose()
+	{
+		if (cave2_shutter_state==0){
+			sys.trigger ($shutter_speaker);
+			sys.trigger ($cave2_shutter_door);
+			$cave2_shutter1.rotateOnce ( '0 0 -75' );
+			$cave2_shutter2.rotateOnce ( '0 0 -75' );
+			$cave2_shutter3.rotateOnce ( '0 0 -75' );
+			sys.waitFor ($cave2_shutter1);
+			cave2_shutter_state = 1;
+		} else {
+			sys.trigger ($shutter_speaker);
+			sys.trigger ($cave2_shutter_door);
+			$cave2_shutter1.rotateOnce ( '0 0 75' );
+			$cave2_shutter2.rotateOnce ( '0 0 75' );
+			$cave2_shutter3.rotateOnce ( '0 0 75' );
+			sys.waitFor ($cave2_shutter1);
+			cave2_shutter_state = 0;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Cave2 ladder open close
+	//
+	////////////////////////////////////////////////////
+	void cave2_ladder_openclose()
+	{
+		if (cave2_ladder_state==0){
+			$cave2_dropladder.time (0.5);
+			sys.trigger ($cave2_ladder_door);
+			sys.trigger ($ladder_hinge_speaker);
+			$cave2_dropladder.rotateOnce ( '0 0 -90' );
+			sys.waitFor ($cave2_dropladder);
+			$ladder_rotate_gui.setShaderParm ( 7 , 1 );
+			cave2_ladder_state = 1;
+		} else {
+			sys.trigger ($cave2_ladder_door);
+			sys.trigger ($ladder_hinge_speaker);
+			$cave2_dropladder.time (0.5);
+			$cave2_dropladder.rotateOnce ( '0 0 90' );
+			sys.waitFor ($cave2_dropladder);
+			$ladder_rotate_gui.setShaderParm ( 7 , 0 );
+			cave2_ladder_state = 0;
+		}
+	}
+
+	void crane_start_thread() {
+		sys.trigger ($crane_start_speaker);
+		sys.wait (1);
+		$crane_main_speaker.On();
+	
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Main Move Right
+	//
+	////////////////////////////////////////////////////
+	void crane_main_right()
+	{
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_carrier_forward" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+
+		//start the sound
+//		sys.trigger ($crane_start_speaker);
+//		$crane_main_speaker.On();
+
+		thread crane_start_thread();
+
+		while ( crane_main_state < 105 ) {
+			$crane_main.rotateOnce ( '0 -1 0' );
+			sys.waitFor ($crane_main);
+			crane_main_state = crane_main_state + 1;
+			sys.print ("crane_main_state = " + crane_main_state + " \n");
+			$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+			sys.wait (.01);
+		}
+		sys.trigger ($crane_end_speaker);
+		//stop the sound
+		$crane_main_speaker.Off();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Main Move Left
+	//
+	////////////////////////////////////////////////////
+	void crane_main_left()
+	{
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_carrier_forward" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+
+		//start the sound
+		//sys.trigger ($crane_start_speaker);
+		//$crane_main_speaker.On();
+
+		thread crane_start_thread();
+
+		while ( crane_main_state > 15 ) {
+			$crane_main.rotateOnce ( '0 1 0' );
+			sys.waitFor ($crane_main);
+			crane_main_state = crane_main_state - 1;
+			sys.print ("crane_main_state = " + crane_main_state + " \n");
+			$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+			$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+			sys.wait (.01);
+		}
+
+		//stop the sound
+		$crane_main_speaker.Off();
+		sys.trigger ($crane_end_speaker);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Reset
+	//
+	////////////////////////////////////////////////////
+	void crane_main_reset()
+	{
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_carrier_forward" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+
+		//start the sound
+		$crane_main_speaker.On();
+
+		if (crane_main_state > 15) {
+			while ( crane_main_state > 15 ) {
+				$crane_main.rotateOnce ( '0 1 0' );
+				sys.waitFor ($crane_main);
+				crane_main_state = crane_main_state - 1;
+				sys.print ("crane_main_state = " + crane_main_state + " \n");
+				$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+				$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+				sys.wait (.01);
+			}
+		} else if (crane_main_state < 15) {
+			while ( crane_main_state < 15 ) {
+				$crane_main.rotateOnce ( '0 -1 0' );
+				sys.waitFor ($crane_main);
+				crane_main_state = crane_main_state + 1;
+				sys.print ("crane_main_state = " + crane_main_state + " \n");
+				$crane_main.setGuiParm ( "gui_parm2" , crane_main_state);
+				$crane_reset_button.setGuiParm ( "gui_parm2" , crane_main_state);
+				sys.wait (.01);
+			}
+		}
+
+		//stop the sound
+		$crane_main_speaker.Off();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Carrier Move Forward
+	//
+	////////////////////////////////////////////////////
+	void crane_carrier_forward()
+	{
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+
+		//start the sound
+		$crane_carrier_speaker.On();
+
+		while ( crane_carrier_state > 0 ) {
+			$crane_carrier.move ( FORWARD, -1 );
+			sys.waitFor ($crane_carrier);
+			crane_carrier_state = crane_carrier_state - 1;
+			sys.print ("crane_carrier_state = " + (crane_carrier_state / 4) + " \n");
+			$crane_main.setGuiParm ( "gui_parm3" , (crane_carrier_state / 4));
+			sys.wait (.01);
+		}
+
+		//stop the sound
+		$crane_carrier_speaker.Off();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Carrier Move Back
+	//
+	////////////////////////////////////////////////////
+	void crane_carrier_back()
+	{
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_carrier_foward" );
+
+		//start the sound
+		$crane_carrier_speaker.On();
+
+		while ( crane_carrier_state < 360 ) {
+			$crane_carrier.move ( FORWARD, 1 );
+			sys.waitFor ($crane_carrier);
+			crane_carrier_state = crane_carrier_state + 1;
+			sys.print ("crane_carrier_state = " + (crane_carrier_state / 4) + " \n");
+			$crane_main.setGuiParm ( "gui_parm3" , (crane_carrier_state / 4));
+			sys.wait (.01);
+		}
+
+		//stop the sound
+		$crane_carrier_speaker.Off();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Carrier Load Move UP
+	//
+	////////////////////////////////////////////////////
+	void crane_carrier_load_up()
+	{
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_carrier_foward" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+		sys.killthread ( "map_caves2::crane_carrier_load_down" );
+
+		while ( crane_carrier_load_state < 72 ) {
+			$crane_carrier_load.move ( UP, 1 );
+			sys.waitFor ($crane_carrier_load);
+			crane_carrier_load_state = crane_carrier_load_state + 1;
+			sys.print ("crane_carrier_load_state = " + crane_carrier_load_state + " \n");
+			sys.wait (.01);
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Crane Carrier Load Move DOWN
+	//
+	////////////////////////////////////////////////////
+	void crane_carrier_load_down()
+	{
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_carrier_foward" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+		sys.killthread ( "map_caves2::crane_carrier_load_up" );
+
+		while ( crane_carrier_load_state > -176 ) {
+			$crane_carrier_load.move ( DOWN, 1 );
+			sys.waitFor ($crane_carrier_load);
+			crane_carrier_load_state = crane_carrier_load_state - 1;
+			sys.print ("crane_carrier_load_state = " + crane_carrier_load_state + " \n");
+			sys.wait (.01);
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	stops all crane movement threads
+	//
+	////////////////////////////////////////////////////
+	void crane_stop()
+	{
+		//turn off speakers
+		$crane_carrier_speaker.Off();
+		$crane_main_speaker.Off();
+
+		sys.killthread ( "map_caves2::crane_main_right" );
+		sys.killthread ( "map_caves2::crane_main_left" );
+		sys.killthread ( "map_caves2::crane_carrier_forward" );
+		sys.killthread ( "map_caves2::crane_carrier_back" );
+		sys.killthread ( "map_caves2::crane_carrier_load_up" );
+		sys.killthread ( "map_caves2::crane_carrier_load_down" );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	show crane_carrier_load
+	//
+	////////////////////////////////////////////////////
+	void crane_load_show()
+	{
+		//show crane_load
+		$crane_carrier_load.show();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	move super_ladder up
+	//
+	////////////////////////////////////////////////////
+	void super_ladder_move()
+	{
+		//move super_ladder up for keycard puzzle
+		sys.trigger ($super_ladder_speaker);
+		$super_ladder.time(6);
+		$super_ladder.move(UP,632);
+	}
+
+	void stone_movement (entity ent, float fdirection, float fdistance, float ftime) {
+		ent.time (ftime);
+		ent.startSoundShader ("stone_movement_loop", SND_CHANNEL_VOICE);
+		ent.move (fdirection, fdistance);
+		
+		sys.wait (ftime - 0.25);
+				
+		ent.startSoundShader ( "stone_movement_end", SND_CHANNEL_VOICE2 );
+		ent.stopSound ( SND_CHANNEL_VOICE, false );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Vag Stairs
+	//
+	////////////////////////////////////////////////////
+	void raise_vag_stairs()
+	{
+		//raises stairs after vag fight
+
+/*		float i;
+		entity ent;
+		
+		for (i=8; i<=128; i+=8) {
+			ent=sys.getEntity ("step" + i);
+			
+			thread stone_movement ( ent, UP, i, (i / 8) );
+		}
+*/		
+		thread stone_movement ($step1, UP, 8, 1);
+		thread stone_movement ($step2, UP, 16, 2);
+		thread stone_movement ($step3, UP, 24, 3);
+		thread stone_movement ($step4, UP, 32, 4);
+		thread stone_movement ($step5, UP, 40, 5);
+		thread stone_movement ($step6, UP, 48, 6);
+		thread stone_movement ($step7, UP, 56, 7);
+		thread stone_movement ($step8, UP, 64, 8);
+		thread stone_movement ($step9, UP, 72, 9);
+		thread stone_movement ($step10, UP, 80, 10);
+		thread stone_movement ($step11, UP, 88, 11);
+		thread stone_movement ($step12, UP, 96, 12);
+		thread stone_movement ($step13, UP, 104, 13);
+		thread stone_movement ($step14, UP, 112, 14);
+		thread stone_movement ($step15, UP, 120, 15);
+		thread stone_movement ($step16, UP, 128, 16);
+		
+/*
+		$step1.time(1);
+		$step1.move(UP,8);
+		$step2.time(2);
+		$step2.move(UP,16);
+		$step3.time(3);
+		$step3.move(UP,24);
+		$step4.time(4);
+		$step4.move(UP,32);
+		$step5.time(5);
+		$step5.move(UP,40);
+		$step6.time(6);
+		$step6.move(UP,48);
+		$step7.time(7);
+		$step7.move(UP,56);
+		$step8.time(8);
+		$step8.move(UP,64);
+		$step9.time(9);
+		$step9.move(UP,72);
+		$step10.time(10);
+		$step10.move(UP,80);
+		$step11.time(11);
+		$step11.move(UP,88);
+		$step12.time(12);
+		$step12.move(UP,96);
+		$step13.time(13);
+		$step13.move(UP,104);
+		$step14.time(14);
+		$step14.move(UP,112);
+		$step15.time(15);
+		$step15.move(UP,120);
+		$step16.time(16);
+		$step16.move(UP,128);
+*/
+}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ( "cav1_lift_start" );
+		sys.cacheSoundShader ( "cav1_lift_loop" );
+		sys.cacheSoundShader ( "cav1_lift_stop" );
+		sys.cacheSoundShader ( "stone_movement_loop" );
+		sys.cacheSoundShader ( "stone_movement_end" );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Caverns 2 Main
+	//
+	////////////////////////////////////////////////////
+	void main()
+	{
+		cache_sounds();
+		setup_objects();
+		//starts swinging lamp swinging
+		$swingding.sway( 28, 0, '20 0 0' );
+//		thread big_broke();
+		thread cavepiston1();
+		thread cavepiston2();
+		thread cave2_v81_rumble();
+		thread cave2_v82_rumble();
+//		thread cave_egg1_bob();
+//		thread cave_egg2_bob();
+//		thread cave_egg3_bob();
+
+	}
+
+}// namespace
+
+
+//Fred's Bridge thing
+//
+//void hk_fireball( entity self ) {
+//	self.launchMissiles( "projectile_fireball_hellknight", "snd_fire", "rmissile", "target", 1, 0 );
+//}

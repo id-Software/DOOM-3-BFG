@@ -1,0 +1,368 @@
+/***********************************************************************
+
+	weapon_plasmagun.def
+
+***********************************************************************/
+
+export fred {
+	// view model plasmagun
+	options -prefix PLASMA_ -keep barrel eject flash guilight newguithing ventlight -parent ventlight pgbody2 -parent barrel pgbody2 -parent eject pgbody2 -parent gui pgscreen -parent newguithing pgupmon -parent guilight pgupmon -parent fx pgbody2 -parent nut pgbody2 -rename origin blah -sourcedir models/weapons/plasmagun/cycles -destdir models/md5/weapons/plasmagun_view
+	mesh	idle.mb -dest viewplasmagun
+	anim	raise.mb
+	anim	raise2.mb -range 1 90 -dest raise2up
+	anim	raise2.mb -range 90 90 -dest raise2idle
+	anim	idle.mb
+	anim	fire1.mb
+	anim	fire2.mb
+	anim	reload.mb
+	anim	lower.mb
+	
+	// world model plasmagun
+	options -ignorescale -prefix PLAYER_pg -keep ATTACHER barrel eject flash guilight -parent barrel body2 -parent eject body2 -parent flash body2 -parent eject body2 -parent guilight body2 -rename ATTACHER origin -clearorigin 
+	addoptions -skipmesh PLAYER_plasma_innerscopebot_mesh1
+	addoptions -skipmesh PLAYER_plasma_outerscopebot_mesh1
+	addoptions -skipmesh PLAYER_plasma_innerscopetop_mesh1
+	addoptions -skipmesh PLAYER_plasma_outerscopetop_mesh1
+	addoptions -skipmesh PLAYER_plasma_innerflap1_mesh1
+	addoptions -skipmesh PLAYER_plasma_outerflap1_mesh1
+	addoptions -skipmesh PLAYER_plasma_bolt_mesh1
+	addoptions -skipmesh PLAYER_plasma_screen_mesh1
+	addoptions -skipmesh PLAYER_plasma_body_mesh1
+	addoptions -skipmesh PLAYER_plasma_handle_mesh1
+	addoptions -skipmesh PLAYER_plasma_outerflap2_mesh1
+	addoptions -skipmesh PLAYER_plasma_innerflap2_mesh4
+	addoptions -skipmesh PLAYER_plasma_uppermon_mesh4
+
+	mesh	models/characters/player/mocap/plasmagun_idle.mb -dest models/md5/weapons/plasmagun_world/worldplasmagun
+	anim	models/characters/player/mocap/plasmagun_idle.mb -dest models/md5/weapons/plasmagun_world/plasmagun_idle
+}
+
+entityDef weapon_plasmagun {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Plasma Gun"
+	"editor_rotatable"		"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"models/weapons/plasmagun/plasmagun_world.lwo"
+	"model_view"				"viewmodel_plasmagun"
+	"model_world" 				"worldmodel_plasmagun"
+	"joint_attach"				"pgATTACHER"
+	"def_dropItem"				"moveable_item_plasmagun"
+
+	"inv_name"					"#str_01456"
+	"inv_weapon"				"weapon_plasmagun"
+	"inv_ammo_cells"			"50"
+	"inv_item"					"5"
+	"inv_desc"					"#str_02538"
+	"display_name"				"#str_02479"
+
+	"icon"						"guis/assets/hud/wpn_5"
+	"pdaIcon"					"guis/assets/hud/icons/plasmagun_new.tga"
+	"hudIcon"					"guis/assets/hud/icons/plasmagunw.tga"	
+
+	"gui"						"guis/weapons/plasmagun.gui"
+	"mtr_guiLightShader"		"lights/viewWeaponGuiLight"
+
+	"weapon_scriptobject"		"weapon_plasmagun"
+	"def_projectile"			"projectile_plasmablast"
+	"muzzle_launch"				"1"
+	"ammoType"					"ammo_cells"
+	"ammoRequired"				"1"
+	"clipSize"					"50"
+	"lowAmmo"					"10"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"0.18 0.70 0.82"
+	"flashRadius"				"120"
+	"silent_fire"				"0"
+	"smoke_muzzle"				"plasmamuzzlesmoke.prt"
+	"gib"				"1"
+
+	"weaponAngleOffsetAverages" "15"
+	"weaponAngleOffsetScale" 	".40"
+	"weaponAngleOffsetMax"		"20"
+	"weaponOffsetTime"			"500"
+	"weaponOffsetScale"			"0.005"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"nozzleFx"					"1"
+	"nozzleFxFade"				"100"
+	"nozzleGlowColor"			"0.18 0.70 0.82"
+	"nozzleGlowOffset"			"-6 2 1"
+	"nozzleGlowRadius"			"8"
+	"mtr_nozzleGlowShader"		"lights/plasmaglow"
+	
+	//"snd_acquire"				"sound_weapon_acquire"
+	"snd_acquire"				"player_plasma_raise"
+	"snd_respawn"				"sound_weapon_respawn"
+	"snd_hum"					"player_plasma_idle"
+	"skin_invisible"			"skins/plasma_invis"
+	
+	"spread"					"0"
+
+	"controllerShakeHighMag"	"0.7"
+	"controllerShakeHighTime"	"25"
+	"controllerShakeLowMag"		"0.5"
+	"controllerShakeLowTime"	"75"
+}
+
+entityDef moveable_item_plasmagun {
+	"inherit"					"weapon_plasmagun"
+	"spawnclass"				"idMoveableItem"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+}
+
+model worldmodel_plasmagun {
+	mesh						models/md5/weapons/plasmagun_world/worldplasmagun.md5mesh
+	//offset					( 1 2 1 )
+
+	anim raise					models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim	
+	anim idle 					models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim
+	anim aim					models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim
+	anim fire1 					models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim {
+		frame 1					sound_weapon plasma_fire
+	}
+	anim reload					models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim {
+		frame 1					sound_weapon plasma_reload
+	}
+	anim noammo					models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim {
+		frame 1					sound_weapon plasma_dryfire
+	}
+	anim putaway				models/md5/weapons/plasmagun_world/plasmagun_idle.md5anim
+}
+
+model viewmodel_plasmagun {
+	mesh 						models/md5/weapons/plasmagun_view/viewplasmagun.md5mesh
+	anim raise					models/md5/weapons/plasmagun_view/raise.md5anim {
+		frame	1				sound_weapon player_plasma_raise
+	}
+	anim guiup					models/md5/weapons/plasmagun_view/raise2up.md5anim
+	anim guiidle				models/md5/weapons/plasmagun_view/raise2idle.md5anim
+	anim idle 					models/md5/weapons/plasmagun_view/idle.md5anim
+	anim fire1 					models/md5/weapons/plasmagun_view/fire1.md5anim {
+		frame 1					sound_weapon plasma_fire
+	}
+	anim fire2 					models/md5/weapons/plasmagun_view/fire2.md5anim {
+		frame 1					sound_weapon plasma_fire	
+	}
+	anim putaway				models/md5/weapons/plasmagun_view/lower.md5anim
+	anim reload					models/md5/weapons/plasmagun_view/reload.md5anim {
+		frame 1					sound_weapon plasma_reload
+	}
+	anim noammo					models/md5/weapons/plasmagun_view/fire1.md5anim {
+		frame 1					sound_weapon plasma_dryfire
+	}
+}
+
+entityDef	damage_plasmablast {
+	"damage"					"16"
+	"smoke_wound_flesh"			"bloodwound.prt"
+	"gib"						"1"
+	
+}
+
+entityDef projectile_plasmablast {
+	"spawnclass"				"idProjectile"
+	"mins"						"-6 -6 -4"
+	"maxs"						"6 6 4"
+	"cone"						"3"
+	"model" 					"models/particles/plasma_bolt/plasma_bolt.lwo"
+
+	"def_damage"				"damage_plasmablast"
+
+	"launchFromBarrel"			"1"
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"700 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_shader_spin"		"1"					// sets shader parm 5 which if appropriate the projectile shader will use this as an alternating spin
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"50"
+	"push"						"4000"				// additional impulse when projectile collides
+	"gravity"					"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"		"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"				"textures/decals/ballburn_plasma"
+	"decal_size"				"70" 
+
+	"smoke_fly"					"plasmatrail.prt"	// particle effect while in the air
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_residue"				""					// particle effect while in the air
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+
+	"model_detonate"			"plasmaimpact.prt"
+
+//	"mtr_light_shader"			""
+//	"light_color"				"0 0 0.8"
+//	"light_radius"				"160"
+//	"light_offset"				"-8 0 0"
+
+//	"mtr_explode_light_shader"	"muzzleflash"
+//	"explode_light_color"		"0 0 1"
+//	"explode_light_radius"		"160"
+//	"explode_light_fadetime"	"0.25"
+
+	"snd_fly"					"plasma_flight"					// sound effect while in the air
+	"snd_explode"				"plasma_impact"
+}
+
+/*
+	Generated by the Particle Editor.
+	To use the particle editor, launch the game and type 'editParticles' on the console.
+*/
+particle plasmaimpact {
+	depthHack	10
+	{
+		count				1
+		material			textures/particles/boomboom2
+		time				1.400
+		cycles				1.000
+		bunching			0.050
+		distribution		sphere 10.000 10.000 0.000 
+		direction			cone 0.000 
+		orientation			view 
+		speed				 "0.000" 
+		size				 "10.000"  to "43.000"
+		aspect				 "1.000" 
+		randomDistribution				1
+		boundsExpansion				0.000
+		fadeIn				0.100
+		fadeOut				0.750
+		fadeIndex				0.000
+		color 				0.000 0.360 0.490 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 0.000
+		gravity 			world 0.000
+	}
+	{
+		count				1
+		material			textures/particles/boomboom
+		time				0.150
+		cycles				1.000
+		bunching			0.050
+		distribution		sphere 2.000 2.000 2.000 
+		direction			cone 0.000 
+		orientation			view 
+		speed				 "0.200"  to "0.000"
+		size				 "0.000"  to "35.000"
+		aspect				 "1.000" 
+		randomDistribution				1
+		boundsExpansion				0.000
+		fadeIn				0.050
+		fadeOut				0.450
+		fadeIndex				0.000
+		color 				0.200 0.880 1.000 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 0.000
+		gravity 			world 0.000
+	}
+	{
+		count				1
+		material			textures/particles/boomboom
+		time				0.150
+		cycles				1.000
+		bunching			0.050
+		distribution		sphere 2.000 2.000 2.000 
+		direction			cone 0.000 
+		orientation			view 
+		speed				 "0.000" 
+		size				 "5.000"  to "40.000"
+		aspect				 "1.000" 
+		randomDistribution				1
+		boundsExpansion				0.000
+		fadeIn				0.050
+		fadeOut				0.700
+		fadeIndex				0.000
+		color 				0.010 0.870 1.000 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 0.000
+		gravity 			world 0.000
+	}
+	{
+		count				1
+		material			textures/particles/boomboom2
+		time				0.150
+		cycles				1.000
+		bunching			0.050
+		distribution		sphere 7.000 7.000 7.000 
+		direction			cone 0.000 
+		orientation			view 
+		speed				 "0.000" 
+		size				 "0.000"  to "60.500"
+		aspect				 "1.000" 
+		randomDistribution				1
+		boundsExpansion				0.000
+		fadeIn				0.050
+		fadeOut				0.350
+		fadeIndex				0.000
+		color 				0.010 0.870 1.000 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 0.000
+		gravity 			world 0.000
+	}
+	{
+		count				1
+		material			textures/particles/bfgballblast
+		time				0.250
+		cycles				1.000
+		bunching			0.050
+		distribution		sphere 7.000 7.000 7.000 
+		direction			cone 0.000 
+		orientation			z 
+		speed				 "0.000" 
+		size				 "0.000"  to "30.000"
+		aspect				 "1.000" 
+		randomDistribution				1
+		boundsExpansion				0.000
+		fadeIn				0.050
+		fadeOut				0.350
+		fadeIndex				0.000
+		color 				0.000 0.400 1.000 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 0.000
+		gravity 			world 0.000
+	}
+	{
+		count				1
+		material			textures/particles/plasmablast
+		time				0.250
+		cycles				1.000
+		bunching			0.050
+		distribution		sphere 7.000 7.000 7.000 
+		direction			cone 0.000 
+		orientation			view 
+		speed				 "0.000" 
+		size				 "5.000"  to "35.000"
+		aspect				 "1.000" 
+		randomDistribution				1
+		boundsExpansion				0.000
+		fadeIn				0.050
+		fadeOut				0.350
+		fadeIndex				0.000
+		color 				0.000 0.400 1.000 1.000
+		fadeColor 			0.000 0.000 0.000 0.000
+		offset 				0.000 0.000 0.000
+		gravity 			world 0.000
+	}
+}

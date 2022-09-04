@@ -1,0 +1,185 @@
+/***********************************************************************
+
+ai_monster_zombie_morgues.script
+
+monster_zombie_morgue
+
+***********************************************************************/
+
+object monster_zombie_morgue : monster_zombie_base {
+	void		state_Begin();
+	void		state_Idle();
+	void		combat_melee();
+	void		init();
+		
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Run();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_zombie_morgue::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 2 );
+}
+
+void monster_zombie_morgue::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 8 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_zombie_morgue::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_zombie_morgue::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_FORWARD )					{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 ); }
+	}
+}
+
+void monster_zombie_morgue::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+	
+	eachFrame {
+		if ( !AI_FORWARD )					{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_morgue::init
+=====================
+*/
+void monster_zombie_morgue::init() {
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_zombie_morgue::state_Begin
+=====================
+*/
+void monster_zombie_morgue::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 8 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_zombie_morgue::state_Idle
+=====================
+*/
+void monster_zombie_morgue::state_Idle() {
+	wait_for_enemy();
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_morgue::do_attack
+=====================
+*/
+void monster_zombie_morgue::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	}
+}
+
+/*
+=====================
+monster_zombie_morgue::check_attacks
+=====================
+*/
+float monster_zombie_morgue::check_attacks() {
+	float attack_flags;
+
+	attack_flags = 0;
+	if ( testMeleeAttack() ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_zombie_morgue::combat_melee
+=====================
+*/
+void monster_zombie_morgue::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 8 );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 8 );
+}

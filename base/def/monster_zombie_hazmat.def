@@ -1,0 +1,72 @@
+export jay3 {
+
+	options -prefix ZOMBIE_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh Hazmatbeam
+	addoptions -keepmesh Hazmatbody
+	addoptions -keepmesh Hazmatflare
+	addoptions -keepmesh Hazmatlight
+	addoptions -keepmesh Hazmatvisor
+
+	mesh	models/monsters/zombie/hazmat_zombie/zombie_mesh.mb -rotate 90 -dest models/md5/monsters/zombies/hazmat_zombie/hazmat_zombie
+}
+
+
+material models/monsters/zombie/zombie_hazmat_head
+{
+	noshadows
+	noselfshadow
+	{
+		name	"Stage 1"
+		map	models/monsters/zombie/zombie01/invisihead_d.tga
+		alphaTest 0.1
+	}
+}
+
+skin skins/monsters/zombie_hazmat_head {
+	models/characters/common/tongue			textures/common/nodraw
+	models/characters/common/rightdead2		textures/common/nodraw
+	models/characters/common/leftdead2		textures/common/nodraw
+	models/monsters/zombie/zombie01/zhead02	models/monsters/zombie/zombie_hazmat_head
+	models/characters/common/teethdead		textures/common/nodraw
+}
+
+model head_zombie_hazmat {
+	mesh							models/md5/characters/npcs/zheads/z1.md5mesh
+	anim idle						models/md5/characters/npcs/zheads/z1idle.md5anim
+	skin							skins/monsters/zombie_hazmat_head.skin
+}
+
+
+model monster_zombie_hazmat {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/hazmat_zombie/hazmat_zombie.md5mesh
+	//skin							skins/monsters/zombies/jumpsuit2.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+}
+
+entityDef monster_zombie_hazmat {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_hazmat"
+	"anim"							"idle1"
+	"def_head"						"head_zombie_hazmat"
+	"head_joint"					"Shoulders"
+
+	//"def_dropDeathItem"				"moveable_item_envirotank"
+	"dropDeathItemJoint"			"Shoulders"
+
+	"skin_dropGib"					"skins/monsters/zombie/hazmat_zombie/hazmatdead.skin"
+
+	"snd_sight"						"zslime_sight"
+	"snd_sight1"					"zslime_sight"
+	"snd_footstep"					"monster_zombie_maint_footstep"
+	"snd_attack"					"zslime_attack"
+	"snd_chatter"					"zslime_chatter"
+	"snd_chatter_combat"			"zslime_chatter_combat"
+	"snd_pain"						"zslime_pain"
+	"snd_thud"						"monster_zombie_maint_thud"
+	"snd_swipe"						"monster_zombie_maint_swipe"
+	"snd_ambient"					"zslime_regulator"
+	"snd_death"						"zslime_death"
+}

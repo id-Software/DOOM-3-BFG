@@ -1,0 +1,59 @@
+entityDef item_grabbercd {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Video Disk"
+	"editor_var video"		"name of the .video file to give to the player"
+
+	"spawnclass"			"idVideoCDItem"
+	"model" 				"models/items/videocd/videocd_world.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"Video Disk"
+	"video"					"grabber"
+	"inv_carry"				"1"
+	"inv_item"				"1"
+	"snd_acquire"			"videocd_pickup"
+	"editor_copy101"		"video"
+}
+
+entityDef item_deploycd {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Video Disk"
+	"editor_var video"		"name of the .video file to give to the player"
+
+	"spawnclass"			"idVideoCDItem"
+	"model" 				"models/items/videocd/videocd_world.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"Video Disk"
+	"video"					"deployment"
+	"inv_carry"				"1"
+	"inv_item"				"1"
+	"snd_acquire"			"videocd_pickup"
+	"editor_copy101"		"video"
+}
+
+entityDef item_generatorcd {
+	"inherit"				"item_default"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+
+	"editor_usage"			"Video Disk"
+	"editor_var video"		"name of the .video file to give to the player"
+
+	"spawnclass"			"idVideoCDItem"
+	"model" 				"models/items/videocd/videocd_world.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"Video Disk"
+	"video"					"generator"
+	"inv_carry"				"1"
+	"inv_item"				"1"
+	"snd_acquire"			"videocd_pickup"
+	"editor_copy101"		"video"
+}

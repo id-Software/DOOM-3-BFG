@@ -1,0 +1,133 @@
+/***********************************************************************
+
+	monster_flying_lostsoul2.def
+
+***********************************************************************/
+
+export jay {
+	options -prefix LOST_ -keep flame -parent flame Head -sourcedir models/monsters/lostsoul2/cycles -destdir models/md5/monsters/lostsoul2
+
+	mesh	idle1.mb -dest lostsoul2
+
+	anim	initial.mb
+	anim	idle1.mb
+	anim	walk1.mb
+	anim	run1.mb
+	anim	sight.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	pain1.mb
+	anim	pain2.mb
+	anim	death1.mb
+	anim	charge.mb
+
+}
+
+model monster_flying_lostsoul2 {
+	mesh							models/md5/monsters/lostsoul2/lostsoul2.md5mesh
+	channel torso					( *origin )
+	
+	anim af_pose					models/md5/monsters/lostsoul2/initial.md5anim									
+
+	anim initial					models/md5/monsters/lostsoul2/initial.md5anim
+	anim idle						models/md5/monsters/lostsoul2/walk1.md5anim //models/md5/monsters/lostsoul/idle1.md5anim
+	anim fly						models/md5/monsters/lostsoul2/run1.md5anim
+	anim walk						models/md5/monsters/lostsoul2/walk1.md5anim
+	anim run						models/md5/monsters/lostsoul2/run1.md5anim
+	anim sight						models/md5/monsters/lostsoul2/sight.md5anim {
+		frame 23						sound_voice snd_sight
+	}
+	anim melee_attack1				models/md5/monsters/lostsoul2/attack1.md5anim {
+		frame 9							melee melee_lostsoul
+	}
+	anim melee_attack2				models/md5/monsters/lostsoul2/attack2.md5anim {
+		frame 19						melee melee_lostsoul
+	}
+	anim pain1						models/md5/monsters/lostsoul2/pain1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain2						models/md5/monsters/lostsoul2/pain2.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim death1						models/md5/monsters/lostsoul2/death1.md5anim {
+		frame 1							sound_voice snd_death
+	}
+	anim charge						models/md5/monsters/lostsoul2/charge.md5anim
+}
+
+entityDef monster_flying_lostsoul2 {
+	"inherit"					"monster_default"
+	"scriptobject"				"monster_flying_lostsoul"
+	"model"						"monster_flying_lostsoul2"
+	"ragdoll"					"monster_demon_lost"
+	"size"						"24 24 24"
+	"use_aas"					"aas48"
+	"team"						"1"
+	"rank"						"0"
+	"health"					"30"
+	"melee_range"					"20"
+	"fly_offset"					"-20"
+	"turn_rate"					"900"
+	"fly_speed"					"140"
+	"offsetModel"					"0 0 16"
+	
+	"burnaway"					"0.25"
+
+	"damage_zone head"				"*Head"
+
+	"smokeparticleSystem"			"lost_flame1-flame"
+	"smokeparticleSystem2"			"lost_flame2-flame"
+	"smoke_pain"					"lostsoulpain.smoke"
+	"smoke_death"					"lostsouldeath.smoke"
+
+	"def_attack"					"melee_lostsoul_charge"
+
+	"snd_sight"						"monster_demon_lostsoul_sight"
+	"snd_chatter"					"monster_demon_lostsoul_chatter"
+	"snd_chatter_combat"			"monster_demon_lostsoul_chatter"
+	"snd_pain"						"monster_demon_lostsoul_pain"
+	"snd_charge"					"monster_demon_lostsoul_charge"
+	"snd_chomp"						"monster_demon_lostsoul_chomp"
+	"snd_death"						"monster_demon_lostsoul_death"
+	"snd_ambient"					"monster_demon_lostsoul_ambient"
+}
+
+entityDef melee_lostsoul2 {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_lostsoul_chomp"
+	"snd_miss"						"monster_demon_lostsoul_chomp"
+	"kickDir"						"1 0 0"
+
+	// damage parameters			
+	"damage"						"12"
+	"mtr_blob"						"lostSoulSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"40"
+	"kick_time"						"500"
+	"kick_amplitude"				"1"
+	"dv_time"						"200"
+}
+
+entityDef melee_lostsoul2_charge {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_lostsoul_chomp"
+	"snd_miss"						"monster_demon_lostsoul_chomp"
+	"kickDir"						"1 0 0"
+
+	// damage parameters			
+	"damage"						"12"
+	"mtr_blob"						"lostSoulSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"120"
+	"kick_time"						"500"
+	"kick_amplitude"				"1"
+	"dv_time"						"200"
+}

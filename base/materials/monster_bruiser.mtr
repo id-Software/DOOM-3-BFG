@@ -1,0 +1,87 @@
+
+models/monsters/bruiser/gui
+{
+	qer_editorimage	textures/editor/entityGui.tga
+	discrete
+	playerclip
+	guiSurf	entity
+}
+
+models/monsters/bruiser/bruiser3
+{
+	    noSelfShadow
+		flesh
+		unsmoothedtangents
+		clamp
+
+	diffusemap	models/monsters/d3xp_bruiser/ted_bruiser_d.tga
+	bumpmap	addnormals (models/monsters/d3xp_bruiser/ted_bruiser_local.tga, heightmap (models/monsters/d3xp_bruiser/ted_bruiser_h.tga, 1) )
+	specularmap	models/monsters/d3xp_bruiser/ted_bruiser_s.tga
+	{
+		name	"Stage 4"
+		map	models/monsters/d3xp_bruiser/ted_bruiser_l.tga
+		blend	add
+		rgb	flickertable [ time * 2 ]
+	}
+	{
+		if	parm7
+
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+
+		map models/monsters/d3xp_bruiser/ted_bruiser_DIS.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{
+		if parm7
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+	    blend add
+	    blend gl_one, gl_zero
+
+		map models/monsters/d3xp_bruiser/ted_bruiser_DIS.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+}
+
+models/monsters/bruiser/bhead
+{
+	    noSelfShadow
+		metal
+		unsmoothedtangents
+		clamp
+
+	bumpmap	models/monsters/d3xp_bruiser/ted_bruiser_head_local.tga
+	specularmap	models/monsters/d3xp_bruiser/ted_bruiser_head_s.tga
+	{
+		name	"Stage 3"
+		map	models/monsters/d3xp_bruiser/ted_bruiser_head_d.tga
+		blend	diffusemap
+		alphatest	.9
+	}
+	{	// burning corpse effect
+		if	parm7			// only when dead
+
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+
+		map models/monsters/d3xp_bruiser/ted_bruiser_head_DIS.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+		blend add
+		blend gl_one, gl_zero
+
+		map models/monsters/d3xp_bruiser/ted_bruiser_head_DIS.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+}
+
+
+
+

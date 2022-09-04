@@ -1,0 +1,361 @@
+////////////////////////////////////////////////////
+//
+//	GLOBAL AIRLOCK DOOR FUCTION
+//	Opens or closes the actual airlock doors and does other fancy things.
+//	Last Updated: 4/9/2004 Adam
+//
+//	airlock = designated airlock number
+//	door = which door/side of the airlock to open (1 or 2)
+//	orientation = direction the airlock is oriented (1 = north/south and 2 = east/west)
+//	operation = whether to open or close the door (1 = open and 2 = close)
+//
+////////////////////////////////////////////////////
+void airlock_door_activate (float airlock , float door , float orientation , float operation)
+{
+	entity ent;
+	entity entdoorr, entdoorl;
+	entity speaker;
+
+	if (operation == 1) {
+		//turn on a clip brush so you cant break the damn thing
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_clip" );
+		ent.show();
+	}
+	else if ((operation == 2) && (door == 1)) {
+		//turn on a clip brush so you cant break the damn thing
+		ent=sys.getEntity ("airlock" + airlock + "_door2_clip" );
+		ent.show();
+	}
+	else if ((operation == 2) && (door == 2)) {
+		//turn on a clip brush so you cant break the damn thing
+		ent=sys.getEntity ("airlock" + airlock + "_door1_clip" );
+		ent.show();
+	}
+
+	//make the gui unclickable until the doors are open/closed... last ditch effort to make this bulletproof
+	ent=sys.getEntity ("airlock" + airlock + "_gui" );
+	ent.setGuiParm ( "gui_parm11" , 0);
+
+	//check to see if the door is being opened or closed
+	if (operation == 1) {
+
+		//disable the gui on the door
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_gui" );
+		ent.setGuiParm ( "gui_parm1" , 0);
+		
+		//turn the proper door lights on or off
+		ent=sys.getEntity ("airlock" + airlock + "_door1_portal" );
+
+		if (ent.getFloatKey ("state") == 1) {
+			ent=sys.getEntity ("airlock" + airlock + "_door1_light" );
+			thread crossFadeEnt (ent, '0.84 0.84 0.90', '0.37 0.05 0.01', 1);
+
+			sys.wait(1);
+
+			ent=sys.getEntity ("airlock" + airlock + "_door2_light" );
+			thread crossFadeEnt (ent, '0.37 0.05 0.01', '0.84 0.84 0.90', 1);
+		}
+		else if (ent.getFloatKey ("state") == 2) {
+			ent=sys.getEntity ("airlock" + airlock + "_door2_light" );
+			thread crossFadeEnt (ent, '0.84 0.84 0.90', '0.37 0.05 0.01', 1);
+
+			sys.wait(1);
+
+			ent=sys.getEntity ("airlock" + airlock + "_door1_light" );
+			thread crossFadeEnt (ent, '0.37 0.05 0.01', '0.84 0.84 0.90', 1);
+		}
+
+		//move the right horizontal lock into position
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_left_lock" );
+		ent.time (0.75);
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_left_lock" );
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_left_lock', not triggering\n");
+			}
+
+			if ( orientation == 1 && door == 1 ) {
+				ent.move ( SOUTH, 16 );
+			}
+			else if ( orientation == 1 && door == 2 ) {
+				ent.move ( NORTH, 16 );		
+			}
+			else if ( orientation == 2 && door == 1 ) {
+				ent.move ( WEST, 16 );		
+			}
+			else if ( orientation == 2 && door == 2 ) {
+				ent.move ( EAST, 16 );		
+			}
+
+		//move the left horizontal lock into position
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_right_lock" );
+		ent.time (0.75);
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_right_lock" );
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_right_lock', not triggering\n");
+			}
+	
+			if ( orientation == 1 && door == 1 ) {
+				ent.move ( SOUTH, 16 );
+			}
+			else if ( orientation == 1 && door == 2 ) {
+				ent.move ( NORTH, 16 );		
+			}
+			else if ( orientation == 2 && door == 1 ) {
+				ent.move ( WEST, 16 );		
+			}
+			else if ( orientation == 2 && door == 2 ) {
+				ent.move ( EAST, 16 );		
+			}
+
+		sys.waitFor (ent);
+
+		//move the top vertical lock into position
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_top_lock" );
+		ent.time (0.25);
+
+			ent.move ( UP, 15 );
+				
+		//move the bottom vertical lock into position
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_bottom_lock" );
+		ent.time (0.25);
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_bottom_lock" );
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_bottom_lock', not triggering\n");
+			}
+			
+			ent.move ( DOWN, 15 );
+
+		sys.waitFor (ent);
+
+		//operate the doors
+		entdoorl=sys.getEntity ("airlock" + airlock + "_door" + door + "_left" );
+		entdoorl.accelTime (.2);
+		entdoorl.decelTime (1);
+		entdoorl.time (1.2);
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_open");
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_open', not triggering\n");
+			}
+			
+			if ( orientation == 1) {
+				entdoorl.rotateOnce ( '0 -45 0' );
+			}
+			else {
+				entdoorl.rotateOnce ( '0 -45 0' );				
+			}
+				
+		entdoorr=sys.getEntity ("airlock" + airlock + "_door" + door + "_right" );
+		entdoorr.accelTime (.2);
+		entdoorr.decelTime (1);
+		entdoorr.time (1.2);
+
+			if ( orientation == 1) {
+				entdoorr.rotateOnce ( '0 45 0' );
+			}
+			else {
+				entdoorr.rotateOnce ( '0 45 0' );				
+			}
+
+		//trigger the portal
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_portal" );
+		sys.trigger (ent);
+
+		sys.wait(.55);
+		
+		//turn off the clip brush so you cant break the damn thing
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_clip" );
+		ent.hide();
+
+		sys.waitFor (entdoorr);
+		sys.waitFor (entdoorl);
+			
+		//set the airlock state to the correct door
+		ent=sys.getEntity ("airlock" + airlock + "_door1_portal" );
+
+		if (door == 1 ) {
+			ent.setKey ("state", "1");
+		}
+		else {
+			ent.setKey ("state", "2");
+		}
+	}
+	else {
+		//operate the doors
+		entdoorl=sys.getEntity ("airlock" + airlock + "_door" + door + "_left" );
+		entdoorl.accelTime (.2);
+		entdoorl.decelTime (1);
+		entdoorl.time (1.2);
+	
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_close");
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_close', not triggering\n");
+			}
+			
+			if ( orientation == 1) {
+				entdoorl.rotateOnce ( '0 45 0' );
+			}
+			else {
+				entdoorl.rotateOnce ( '0 45 0' );				
+			}
+	
+		entdoorr=sys.getEntity ("airlock" + airlock + "_door" + door + "_right" );
+		entdoorr.accelTime (.2);
+		entdoorr.decelTime (1);
+		entdoorr.time (1.2);
+
+			if ( orientation == 1) {
+				entdoorr.rotateOnce ( '0 -45 0' );
+			}
+			else {
+				entdoorr.rotateOnce ( '0 -45 0' );				
+			}
+
+		sys.waitFor (entdoorr);
+		sys.waitFor (entdoorl);
+
+		//trigger the portal
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_portal" );
+		sys.trigger (ent);
+
+		//move the 2 vertical locks into position if closed
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_top_lock" );
+		ent.time (0.25);
+
+			ent.move ( DOWN, 15 );
+		
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_bottom_lock" );
+		ent.time (0.25);
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_bottom_lock" );
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_bottom_lock', not triggering\n");
+			}
+			
+			ent.move ( UP, 15 );
+
+		//move the right horizontal lock into position
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_left_lock" );
+		ent.accelTime (.1);
+		ent.decelTime (.65);
+		ent.time (0.75);
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_left_lock" );
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_left_lock', not triggering\n");
+			}
+			
+			if ( orientation == 1 && door == 1 ) {
+				ent.move ( NORTH, 16 );
+			}
+			else if ( orientation == 1 && door == 2 ) {
+				ent.move ( SOUTH, 16 );		
+			}
+			else if ( orientation == 2 && door == 1 ) {
+				ent.move ( EAST, 16 );		
+			}
+			else if ( orientation == 2 && door == 2 ) {
+				ent.move ( WEST, 16 );		
+			}
+
+		//move the left horizontal lock into position
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_right_lock" );
+		ent.accelTime (.1);
+		ent.decelTime (.65);
+		ent.time (0.75);	
+
+			speaker=sys.getEntity ("speaker_airlock" + airlock + "_door" + door + "_right_lock" );
+			if ( ! ( !speaker ) && speaker.getName() != "world" ) {
+				sys.trigger (speaker);
+			}
+			else{
+				sys.print("WARNING: Can't find entity 'speaker_airlock_door_right_lock', not triggering\n");
+			}
+			
+			if ( orientation == 1 && door == 1 ) {
+				ent.move ( NORTH, 16 );
+			}
+			else if ( orientation == 1 && door == 2 ) {
+				ent.move ( SOUTH, 16 );		
+			}
+			else if ( orientation == 2 && door == 1 ) {
+				ent.move ( EAST, 16 );		
+			}
+			else if ( orientation == 2 && door == 2 ) {
+				ent.move ( WEST, 16 );		
+			}
+
+		sys.waitFor (ent);
+
+		sys.wait(.25);
+		//enable the gui on the door
+		ent=sys.getEntity ("airlock" + airlock + "_door" + door + "_gui" );
+		ent.setGuiParm ( "gui_parm1" , 1);
+	}
+
+	//make the gui unclickable until the doors are open/closed... last ditch effort to make this bulletproof
+	ent=sys.getEntity ("airlock" + airlock + "_gui" );
+	ent.setGuiParm ( "gui_parm11" , 1);
+}
+
+////////////////////////////////////////////////////
+//
+//	MAIN AIRLOCK LOGIC
+//	Conditionally chooses based on entrance
+//	Last Updated: 4/9/2004 Adam
+//
+//	airlock = designated airlock number
+//	orientation = direction the airlock is oriented (north/south = 1 and east/west = 2)
+//
+////////////////////////////////////////////////////
+void airlock_main_activate (float airlock , float orientation)
+{
+	float thread1;
+	entity ent;
+
+	//check to see which way the palyer entered by checking the airlock_state
+	ent=sys.getEntity ("airlock" + airlock + "_door1_portal" );
+
+	if (ent.getFloatKey ("state") == 1)
+	{
+		//if 1 then close 1 and open 2
+		thread1 = thread airlock_door_activate(airlock , 1 , orientation , 2);
+		sys.waitForThread( thread1 );
+
+		thread1 = thread airlock_door_activate(airlock , 2 , orientation , 1);
+		sys.waitForThread( thread1 );
+	}
+	else
+	{
+		//else close 2 and open 1
+		thread1 = thread airlock_door_activate(airlock , 2 , orientation , 2);
+		sys.waitForThread( thread1 );
+
+		thread1 = thread airlock_door_activate(airlock , 1 , orientation , 1);
+		sys.waitForThread( thread1 );
+	}
+}

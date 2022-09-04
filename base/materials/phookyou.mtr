@@ -1,0 +1,189 @@
+textures/phook/guide
+{
+	qer_editorimage	textures/phook/guide.tga
+	noShadows
+	{
+		map textures/phook/guide.tga
+		
+	}
+}
+
+lights/grate6_snd
+{
+	{
+//		forceHighQuality
+		map		lights/grate6.tga
+		red		sound * Parm0
+		green		sound * Parm1
+		blue		sound * Parm2
+		zeroClamp
+	}
+}
+
+textures/phook/sbricks1b_fade
+{
+	nonsolid	
+	noShadows	
+	qer_editorimage	textures/caves/sbricks1b
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if	parm8			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 1.0-(0.3 * (time - parm8))
+	}
+	{	// burning corpse effect
+		if parm8			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 1.0-(0.05 + 0.3 * (time - parm8))
+	}
+	{
+	blend		bumpmap				
+	map		addnormals (textures/caves/sbricks1b_local, heightmap (textures/caves/sbricks1b_bmp, 4) ) 
+	}
+	{
+	blend		diffusemap
+	map		textures/caves/sbricks1b
+	}
+	{
+	blend		specularmap			
+	map		textures/caves/sbricks1_s
+	scale		1,2
+	}
+}
+
+textures/phook/sbricks2_fade
+{
+	nonsolid	
+	noShadows	
+	qer_editorimage		textures/caves/sbricks2
+	stone
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if	parm8			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 1.0-(0.3 * (time - parm8))
+	}
+	{	// burning corpse effect
+		if parm8			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 1.0-(0.05 + 0.3 * (time - parm8))
+	}
+	{
+		blend			bumpmap				
+		map				addnormals (textures/caves/sbricks2_local, heightmap (textures/caves/sbricks1_bmp, 4) ) 
+	}
+		diffusemap		textures/caves/sbricks2
+	//	specularmap			textures/caves/sbricks1_s
+}
+
+lights/phook/helltimepuzzlelight
+{
+	ambientLight
+	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+	spectrum	666
+	{
+		map	lights/squarelight1.tga
+		zeroclamp	
+		colored	
+	}
+}
+
+textures/phook/dm3_slime
+{
+	qer_editorimage textures/hell/lava1movenoshadow.tga
+	nonsolid
+	noimpact
+	noshadows
+	water
+	deform particle slimepuffs
+	{
+		blend			bumpmap
+		map				addnormals( textures/hell/lava1_local.tga, heightmap( textures/pat/slime1.tga, 20 ) )
+		translate	time * 0 , time * -0.02
+	}
+	{
+		blend			diffusemap
+		map		textures/pat/slimescroll
+		translate	time * 0 , time * -0.02
+	}
+	{
+		map		textures/pat/slimescroll
+		maskcolor
+		translate	time * 0 , time * -0.02
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+		translate	time * -0.02 , time * 0.05
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map 		textures/pat/slime1fx.tga
+		rgb		fireballtable[ time * .05 ]
+		translate	time * .01 , time * -0.025
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map 		textures/pat/slime1fx.tga
+		rgb		fireballtable[ time *.25 ]
+		translate	time * -.02 , 1
+	}
+}

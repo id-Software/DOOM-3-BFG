@@ -1,0 +1,13 @@
+
+mapDef game/mp/d3ctf4 {
+	"name"		"#str_11603"
+	"Deathmatch"		"0"
+	"Team DM"		"0"
+	"Last Man"		"0"
+	"Tourney"		"0"
+	"CTF"		"1"
+	"size0"		"62841388"
+	"size1"		"62841388"
+	"size2"		"72376055"
+	"size3"		"93839147"
+}

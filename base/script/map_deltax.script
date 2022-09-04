@@ -1,0 +1,637 @@
+namespace map_deltax {
+
+	float power = 0;
+	float rgb_modifier = 0;
+
+	void tp_disable() {
+		$player1.disableWeapon();
+	}
+
+	void blow_window2() {
+		sys.trigger($bj_fract2);
+		sys.trigger($bj_ff2);
+		sys.wait( .5 );
+		sys.trigger($bj_fract3);
+		sys.trigger($bj_ff3);
+	}
+
+	void teleport3_klaxxon_on()
+	{
+		$klaxxon3_light1.setColor(0.77,0.49,0.00);
+		$klaxxon3_light2.setColor(0.77,0.49,0.00);
+		$klaxxon3_light_base.setColor(0.77,0.49,0.00);
+		$klaxxon3_light_base.rotate ('0 360 0');
+		sys.wait ( .5 );
+		sys.trigger ($klaxxon_speaker3);
+		sys.trigger( $klaxxon_speaker3a );
+		$klaxxon_speaker3.setKey ("klaxxon3_status", "1");
+		//turn on blinking blue tp light
+		sys.trigger ($teleport3_blightblink);
+		sys.wait ( .25 );
+
+		//trigger sounds for fx
+		sys.trigger ($t3_teleporterfx_startup);
+		sys.wait ( 1.5 );
+		sys.trigger ($t3_teleporterfx_loop);
+
+		//turn on floor and arm fx
+		sys.trigger ($teleport3_arm1_fx);
+		sys.trigger ($teleport3_arm2_fx);
+		sys.wait ( .5 );
+		//sys.trigger ($teleport3_warpfx);
+		//sys.trigger ($teleport3_floorfx);
+	}
+
+	void mister_move3()
+	{
+		//start decon1 computer voice
+		//$decon_trigger3.disable ();
+		//sys.trigger ($decon3_start_speaker);
+		//$decondoor5.lock (1);
+		//$decondoor6.lock (1);
+		sys.wait (1.6);
+
+		thread crossFadeEnt ($misterlight_white3, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decontop_fade3, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decon_toplight_red3, '0 0 0', '1 0 0', 1.0);
+
+		//thread crossFadeEnt ($decondoorframe5, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe5_light, '1 1 1', '1 0 0', 1.0);
+		//thread crossFadeEnt ($decondoorframe6, '1 1 1', '1 0 0', 1.0);
+		thread crossFadeEnt ($decondoorframe6_light, '1 1 1', '1 0 0', 1.0);
+
+		$mister5_anchor.time (1);
+		$mister5_anchor.accelTime (.5 );
+		$mister5_anchor.decelTime (.5);
+		sys.trigger ($decon3_cycle_speaker);
+		$mister5_anchor.moveTo ($mister5_spot1_broke);
+		$mister6_anchor.moveTo ($mister6_spot1_broke);
+		sys.waitFor ($mister6_anchor);
+		sys.trigger($mister5_emitter);
+		sys.trigger($mister6_emitter);
+		sys.wait (1.5);
+		sys.trigger ($decon3_malfunction_speaker);
+		sys.trigger($mister6_emitter);
+		sys.wait (1.85);
+		sys.trigger($mister6_emitter);
+		//sys.trigger ($decon3_backup_speaker);
+
+		$mister5_anchor.moveTo ($mister5_spot2);
+		$mister6_anchor.moveTo ($mister6_spot2);
+		sys.waitFor ($mister6_anchor);
+
+		$mister5_anchor.rotateOnce ('-60 0 0');
+		sys.waitFor( $mister5_anchor );
+		sys.trigger($mister6_emitter);
+		sys.trigger ($decon3_shutdown_speaker);
+		sys.wait (1.75);
+		//$mister6_anchor.rotateOnce ('60 0 0');
+		//sys.waitFor ($mister6_anchor);
+
+		$mister5_anchor.rotateOnce ('60 0 0');
+		sys.waitFor( $mister5_anchor );
+		//$mister6_anchor.rotateOnce ('-60 0 0');
+		//sys.waitFor ($mister6_anchor);
+
+		$mister5_anchor.moveTo ($mister5_spot1);
+		$mister6_anchor.moveTo ($mister6_spot1);
+		sys.waitFor ($mister6_anchor);
+		sys.trigger($mister6_emitter);
+
+		sys.wait (1.6);
+
+		thread crossFadeEnt ($misterlight_white3, '1 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decontop_fade3, '1 0 0', '1 1 1', 1.0);
+		thread crossFadeEnt ($decon_toplight_red3, '1 0 0', '0 0 0', 1.0);
+
+	}
+
+	void mister3()
+	{
+		//$decondoor5.close ();
+		//$decondoor6.close ();
+		//$decon_trigger3.disable ();
+		//$decondoorframe5.setShaderParm (7, 0);
+		//$decondoorframe6.setShaderParm (7, 0);
+		while( 1 ) {
+			float i;
+				i = thread mister_move3();
+				sys.waitForThread (i);
+
+			// complete decon computer voice
+			//sys.trigger ($decon3_complete_speaker);
+			sys.wait (.5);
+			//$decondoorframe5.setShaderParm (7, 1);
+			//$decondoor5.lock (0);
+			//$decondoorframe6.setShaderParm (7, 1);
+			//$decondoor6.lock (0);
+			sys.trigger($mister5_emitter);
+			sys.trigger($mister6_emitter);
+		}
+	}
+
+	void rotate_pad3_dest2() {
+		$teleport3_pad2_rotate.rotate ('0 -320 0');
+		thread crossFadeEnt ($teleport3_pad2_light1a, $teleport3_pad2_light1a.getColor(), '1 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light1b, $teleport3_pad2_light1b.getColor(), '1 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2a, $teleport3_pad2_light2a.getColor(), '1 0 0', 2.0);
+		thread crossFadeEnt ($teleport3_pad2_light2b, $teleport3_pad2_light2b.getColor(), '1 0 0', 2.0);
+	}
+
+	void setup_objects() {
+
+		// Setup Main Teleporter
+		$teleport3_controlpanelarms.time (1.0);
+		$teleport3_controlpanelarms.accelTime (.5 );
+		$teleport3_controlpanelarms.decelTime (.5 );
+		$teleport3_controlpanel.time (.75);
+		$teleport3_controlpanel.accelTime (.25 );
+		$teleport3_controlpanel.decelTime (.5 );
+		$teleport3_shoulder.time (0.1);
+		$teleport3_shoulder.accelTime (1.0 );
+		$teleport3_shoulder.decelTime (1.0 );
+		$teleport3_arm1.time (0.1);
+		$teleport3_arm1.accelTime (1.25 );
+		$teleport3_arm1.decelTime (.75 );
+		$teleport3_arm2.time (0.1);
+		$teleport3_arm2.accelTime (1.25 );
+		$teleport3_arm2.decelTime (.75 );
+		$teleport3_shoulder.rotateOnce ('0 0 -30');
+		$teleport3_arm1.rotateOnce ('0 -18 0');
+		$teleport3_arm2.rotateOnce ('0 18 0');
+		$mister5.bind ($mister5_anchor);
+		$mister6.bind ($mister6_anchor);
+		thread crossFadeEnt ($bj_doorframe2, '1 0 0', '.25 .25 .25', 1.0);
+	}
+
+	void light_ramp( float rgb_start, float rgb_end, float time_val )
+	{
+		float i, t, v;
+
+		t = time_val * GAME_FPS;
+		for ( i = 0; i < t; i++ ) {
+			v = rgb_start + ( rgb_end - rgb_start ) * ( i / t );
+			sys.setShaderParm( 0, v );
+			sys.setShaderParm( 1, v );
+			sys.setShaderParm( 2, v );
+			sys.waitFrame();
+		}
+		sys.setShaderParm( 0, rgb_end );
+		sys.setShaderParm( 1, rgb_end );
+		sys.setShaderParm( 2, rgb_end );
+	}
+
+	void power_flux()
+	{
+		float i;
+		float ran_loop, ran_new, ran_time;
+		float old;
+
+		old = .25;
+		ran_loop = (sys.random(10) + 3);
+
+		for (i=1; i<=ran_loop; i++){
+			ran_new = (sys.random(1.5) + .2);
+			ran_time = (sys.random(1) + .2);
+			light_ramp( old, ran_new, ran_time );
+
+			old = ran_new;
+		}
+		// how dark to go once cycle is complete
+		light_ramp( old, .35, .3 );
+	}
+
+	void shakestuff() {
+		sys.trigger($powerquake);
+		sys.trigger($bj_lala1);
+		sys.wait(.1);
+		sys.trigger($bj_lala2);
+		sys.wait(.1);
+		sys.trigger($bj_lala3);
+		sys.wait(.1);
+		sys.trigger($bj_lala4);
+	}
+
+	void low_power_loop()
+	{
+		//sys.print ("begin low_power_loop\n");
+		//sys.print ("power level =" + power + "\n");
+		float ran;
+		ran = sys.random (3);
+		sys.wait (ran);
+
+		while (power == 1){
+			// wait between power surges
+			ran = (sys.random(3) + 1);
+			//sys.print ("next power surge in " + ran + " seconds\n");
+			thread crossFadeEnt ($decondoorframe5, '1 1 1', '1 0 0', 1.0);
+			thread crossFadeEnt ($decondoorframe6, '1 1 1', '1 0 0', 1.0);
+			sys.wait( 1 );
+			$decondoorframe5.setShaderParm (7, 0);
+			$decondoor5.lock(1);
+			$decondoorframe6.setShaderParm (7, 0);
+			$decondoor6.lock(1);
+			sys.wait (ran);
+			// TESTING
+			thread shakestuff();
+			thread crossFadeEnt ($decondoorframe5, '1 0 0', '1 1 1', 1.0);
+			thread crossFadeEnt ($decondoorframe6, '1 0 0', '1 1 1', 1.0);
+			sys.wait( 1 );
+			$decondoorframe5.setShaderParm (7, 1);
+			$decondoor5.lock(0);
+			$decondoorframe6.setShaderParm (7, 1);
+			$decondoor6.lock(0);
+			power_flux();
+			}
+
+		//sys.print ("made it to the end of low power loop\n");
+		if (power==2){
+			float ii;
+			float rate;
+
+			rate = GAME_FRAMETIME * 0.25;
+			for( ii = rgb_modifier; ii <= 1; ii += rate ) {
+				sys.setShaderParm(0,(ii*.65));
+				sys.setShaderParm(1,(ii*.65));
+				sys.setShaderParm(2,(ii*.75));
+
+				sys.waitFrame();
+			}
+		}
+	}
+
+	void power_level_1()
+	{
+		// turn security lights off
+		// doorlights back to white if red
+		//thread seclights_off();
+		//thread doorlights_off();
+		sys.wait (1);
+
+		float i;
+		float rate;
+
+		if ( power >= 1 ){
+			rate = GAME_FRAMETIME * 0.25;
+			for( i = rgb_modifier; i >= .25; i -= rate ) {
+
+				sys.setShaderParm(0,i);
+				sys.setShaderParm(1,i);
+				sys.setShaderParm(2,i);
+
+				sys.waitFrame();
+			}
+		} else {
+			rate = GAME_FRAMETIME * 0.25;
+			for( i = rgb_modifier; i <= .25; i += rate ) {
+
+				sys.setShaderParm(0,i);
+				sys.setShaderParm(1,i);
+				sys.setShaderParm(2,i);
+
+				sys.waitFrame();
+			}
+		}
+
+		// set the rgb modifier tracking variable
+		rgb_modifier = .25;
+
+	//	sys.print ( "power 10%\n" );
+		power = 1;
+
+		low_power_loop();
+	}
+
+	void move_teleporter() {
+		while( 1 ) {
+			$teleport3_shoulder.rotateOnce ('0 0 -15');
+			$teleport3_arm1.rotateOnce ('0 -13 0');
+			sys.wait( 3 );
+			$teleport3_arm2.rotateOnce ('0 18 0');
+			sys.waitFor($teleport3_arm2);
+		}
+	}
+
+	void show_delta3_skels() {
+		float i;
+		entity d3_skel;
+		//sys.print( "Starting Delta3 Influence\n" );
+		sys.trigger( $delta3_influence );
+		sys.trigger( $delta3_influence_speaker1 );
+		$bj_del3_blood1.show();
+		$bj_del3_blood2.show();
+		$bj_del3_sl1.On();
+		$bj_del3_sl2.On();
+		$bj_del3_sl3.On();
+		//$bj_del3_emit1.show();
+		//$bj_del3_emit2.show();
+		//$bj_del3_emit2a.show();
+		//$bj_del3_emit2b.show();
+		//$bj_del3_emit2c.show();
+		//$bj_del3_emit3.show();
+		//$bj_del3_emit3a.show();
+		//$bj_del3_emit3b.show();
+		//$bj_del3_emit4.show();
+		//$bj_del3_emit4a.show();
+		sys.trigger( $bj_del3_sound1 );
+		sys.trigger( $bj_del3_sound2 );
+		sys.trigger( $bj_del3_sound3 );
+		sys.trigger( $bj_del3_sound4 );
+		for( i = 1; i <= 10; i++ ) {
+			d3_skel = sys.getEntity( "del3_skel" + i );
+			d3_skel.show();
+		}
+		sys.wait( 4 );
+		sys.trigger( $delta3_influence_speaker2 );
+		$bj_del3_blood1.hide();
+		$bj_del3_blood2.hide();
+		$bj_del3_sl1.Off();
+		$bj_del3_sl2.Off();
+		$bj_del3_sl3.Off();
+		//$bj_del3_emit1.hide();
+		//$bj_del3_emit2.hide();
+		//$bj_del3_emit2a.hide();
+		//$bj_del3_emit2b.hide();
+		//$bj_del3_emit2c.hide();
+		//$bj_del3_emit3.hide();
+		//$bj_del3_emit3a.hide();
+		//$bj_del3_emit3b.hide();
+		//$bj_del3_emit4.hide();
+		//$bj_del3_emit4a.hide();
+		for( i = 1; i <= 10; i++ ) {
+			d3_skel = sys.getEntity( "del3_skel" + i );
+			d3_skel.hide();
+		}
+	}
+
+	void show_admin_skels() {
+		float i;
+		entity admin_skel;
+		//sys.print( "Starting Admin Influence\n" );
+		sys.trigger( $admin_influence );
+		sys.trigger( $bj_ad_sound1 );
+		sys.trigger( $bj_ad_sound2 );
+		sys.trigger( $bj_ad_sound3 );
+		sys.trigger( $bj_ad_sound4 );
+		//$bj_ad_emit1.show();
+		//$bj_ad_emit1a.show();
+		//$bj_ad_emit1b.show();
+		//$bj_ad_emit1c.show();
+		//$bj_ad_emit1d.show();
+		//$bj_ad_emit1e.show();
+		//$bj_ad_emit1f.show();
+		//$bj_ad_emit1g.show();
+		//$bj_ad_emit1h.show();
+		//$bj_ad_emit2.show();
+		//$bj_ad_emit2a.show();
+		//$bj_ad_emit2b.show();
+		//$bj_ad_emit3.show();
+		//$bj_ad_emit3a.show();
+		//$bj_ad_emit3b.show();
+		//$bj_ad_emit3c.show();
+		//$bj_ad_emit4.show();
+		//$bj_ad_emit4a.show();
+		//$bj_ad_emit4b.show();
+		//$bj_ad_emit4c.show();
+		for( i = 1; i <= 6; i++ ) {
+			admin_skel = sys.getEntity( "ad_skel" + i );
+			admin_skel.show();
+		}
+		sys.wait( 4 );
+		//$bj_ad_emit1.hide();
+		//$bj_ad_emit1a.hide();
+		//$bj_ad_emit1b.hide();
+		//$bj_ad_emit1c.hide();
+		//$bj_ad_emit1d.hide();
+		//$bj_ad_emit1e.hide();
+		//$bj_ad_emit1f.hide();
+		//$bj_ad_emit1g.hide();
+		//$bj_ad_emit1h.hide();
+		//$bj_ad_emit2.hide();
+		//$bj_ad_emit2a.hide();
+		//$bj_ad_emit2b.hide();
+		//$bj_ad_emit3.hide();
+		//$bj_ad_emit3a.hide();
+		//$bj_ad_emit3b.hide();
+		//$bj_ad_emit3c.hide();
+		//$bj_ad_emit4.hide();
+		//$bj_ad_emit4a.hide();
+		//$bj_ad_emit4b.hide();
+		//$bj_ad_emit4c.hide();
+		for( i = 1; i <= 6; i++ ) {
+			admin_skel = sys.getEntity( "ad_skel" + i );
+			admin_skel.hide();
+		}
+	}
+
+	void show_d2b_skels() {
+		float i;
+		entity d2b_skel;
+		//sys.print( "Starting D2B Influence\n" );
+		sys.trigger( $delta2b_influence );
+		//$bj_d2b_emit1.show();
+		//$bj_d2b_emit1a.show();
+		//$bj_d2b_emit1b.show();
+		//$bj_d2b_emit1c.show();
+		//$bj_d2b_emit2.show();
+		//$bj_d2b_emit2a.show();
+		//$bj_d2b_emit2b.show();
+		//$bj_d2b_emit2c.show();
+		//$bj_d2b_emit2d.show();
+		//$bj_d2b_emit2e.show();
+		//$bj_d2b_emit3.show();
+		//$bj_d2b_emit3a.show();
+		//$bj_d2b_emit3b.show();
+		//$bj_d2b_emit3c.show();
+		//$bj_d2b_emit3d.show();
+		//$bj_d2b_emit4.show();
+		//$bj_d2b_emit4a.show();
+		//$bj_d2b_emit4b.show();
+		//$bj_d2b_emit4c.show();
+		//$bj_d2b_emit4d.show();
+		//$bj_d2b_emit5.show();
+		//$bj_d2b_emit5a.show();
+		//$bj_d2b_emit5b.show();
+		//$bj_d2b_emit5c.show();
+		//$bj_d2b_emit5d.show();
+		//$bj_d2b_emit5e.show();
+		//$bj_d2b_emit5f.show();
+		//$bj_d2b_emit5g.show();
+		//$bj_d2b_emit5h.show();
+		//$bj_d2b_emit6.show();
+		//$bj_d2b_emit6a.show();
+		//$bj_d2b_emit6b.show();
+		//$bj_d2b_emit6c.show();
+		//$bj_d2b_emit6d.show();
+		//$bj_d2b_emit6e.show();
+		//$bj_d2b_emit6f.show();
+		//$bj_d2b_emit6g.show();
+		//$bj_d2b_emit6h.show();
+		//$bj_d2b_emit7.show();
+		//$bj_d2b_emit7a.show();
+		//$bj_d2b_emit7b.show();
+		//$bj_d2b_emit7c.show();
+		//$bj_d2b_emit7d.show();
+		//$bj_d2b_emit7e.show();
+		//$bj_d2b_emit8.show();
+		sys.trigger( $bj_d2b_sound1 );
+		sys.trigger( $bj_d2b_sound2 );
+		sys.trigger( $bj_d2b_sound3 );
+		sys.trigger( $bj_d2b_sound4 );
+		sys.trigger( $bj_d2b_sound5 );
+		for( i = 1; i <= 12; i++ ) {
+			d2b_skel = sys.getEntity( "del2b_skel" + i );
+			d2b_skel.show();
+		}
+		sys.wait( 4 );
+		for( i = 1; i <= 12; i++ ) {
+			d2b_skel = sys.getEntity( "del2b_skel" + i );
+			d2b_skel.hide();
+		}
+		//$bj_d2b_emit1.hide();
+		//$bj_d2b_emit1a.hide();
+		//$bj_d2b_emit1b.hide();
+		//$bj_d2b_emit1c.hide();
+		//$bj_d2b_emit2.hide();
+		//$bj_d2b_emit2a.hide();
+		//$bj_d2b_emit2b.hide();
+		//$bj_d2b_emit2c.hide();
+		//$bj_d2b_emit2d.hide();
+		//$bj_d2b_emit2e.hide();
+		//$bj_d2b_emit3.hide();
+		//$bj_d2b_emit3a.hide();
+		//$bj_d2b_emit3b.hide();
+		//$bj_d2b_emit3c.hide();
+		//$bj_d2b_emit3d.hide();
+		//$bj_d2b_emit4.hide();
+		//$bj_d2b_emit4a.hide();
+		//$bj_d2b_emit4b.hide();
+		//$bj_d2b_emit4c.hide();
+		//$bj_d2b_emit4d.hide();
+		//$bj_d2b_emit5.hide();
+		//$bj_d2b_emit5a.hide();
+		//$bj_d2b_emit5b.hide();
+		//$bj_d2b_emit5c.hide();
+		//$bj_d2b_emit5d.hide();
+		//$bj_d2b_emit5e.hide();
+		//$bj_d2b_emit5f.hide();
+		//$bj_d2b_emit5g.hide();
+		//$bj_d2b_emit5h.hide();
+		//$bj_d2b_emit6.hide();
+		//$bj_d2b_emit6a.hide();
+		//$bj_d2b_emit6b.hide();
+		//$bj_d2b_emit6c.hide();
+		//$bj_d2b_emit6d.hide();
+		//$bj_d2b_emit6e.hide();
+		//$bj_d2b_emit6f.hide();
+		//$bj_d2b_emit6g.hide();
+		//$bj_d2b_emit6h.hide();
+		//$bj_d2b_emit7.hide();
+		//$bj_d2b_emit7a.hide();
+		//$bj_d2b_emit7b.hide();
+		//$bj_d2b_emit7c.hide();
+		//$bj_d2b_emit7d.hide();
+		//$bj_d2b_emit7e.hide();
+		//$bj_d2b_emit8.hide();
+	}
+
+	void show_d4_skels() {
+		//sys.print( "Starting D4 Influence\n" );
+		sys.trigger( $d4_influence );
+		$bj_d4_emit1.show();
+		$d4_white1.hide();
+		$d4_white2.hide();
+		sys.wait( 4 );
+		$bj_d4_emit1.hide();
+		$d4_white1.show();
+		$d4_white2.show();
+	}
+
+	void del3_influence() {
+		float r_time;
+		while( 1 ) {
+			r_time = (sys.random( 5 ) + 1);
+			show_delta3_skels();
+			//sys.print ("next Delta3 influence in " + r_time + " seconds\n");
+			sys.wait(r_time);
+		}
+	}
+
+	void ad_influence() {
+		float r_time;
+		while( 1 ) {
+			r_time = (sys.random( 4 ) + 2);
+			show_admin_skels();
+			//sys.print( "next Admin influence in " + r_time + " seconds\n" );
+			sys.wait(r_time);
+		}
+	}
+
+	void d2b_influence() {
+		float r_time;
+		while( 1 ) {
+			r_time = (sys.random( 5 ) + 1);
+			show_d2b_skels();
+			//sys.print( "next D2B influence in " + r_time + " seconds\n" );
+			sys.wait(r_time);
+		}
+	}
+
+	void d4_influence() {
+		float r_time;
+		while( 1 ) {
+			show_d4_skels();
+			r_time = (sys.random( 5 ) + 1);
+			//sys.print( "next D4 influence in " + r_time + " seconds\n" );
+			sys.wait(r_time);
+		}
+	}
+
+	void delta4_screwy() {
+		sys.killthread( "map_deltax::d2b_influence" );
+		sys.killthread( "map_deltax::show_d2b_skels" );
+		//sys.print( "Killing Delta2b Portion\n" );
+		$player1.enableWeapon();
+		//thread d4_influence();
+	}
+
+	void delta2b_screwy() {
+		sys.killthread( "map_deltax::ad_influence" );
+		sys.killthread( "map_deltax::show_admin_skels" );
+		//sys.print( "Killing Admin Portion\n" );
+		$player1.enableWeapon();
+		//thread d2b_influence();
+	}
+
+	void admin_screwy() {
+		sys.killthread( "map_deltax::del3_influence");
+		sys.killthread( "map_deltax::show_delta3_skels" );
+		//sys.print( "Killing Delta3 Portion\n" );
+		$player1.enableWeapon();
+		//thread ad_influence();
+	}
+
+	void delta3_screwy() {
+		$player1.enableWeapon();
+		//thread del3_influence();
+	}
+
+	void main() {
+		// BLAHBLAH EREBUS4
+		/* BLOCKED OUT FOR WORK */
+		sys.trigger($bj_railing1);
+		sys.trigger($bj_frac1);
+		sys.trigger($bj_ff1);
+		sys.trigger($bj_cindoor1);
+		$sky_mover.rotate( '15 15 15' );
+		setup_objects();
+		teleport3_klaxxon_on();
+		thread mister3();
+		rotate_pad3_dest2();
+		power_level_1();
+		//thread move_teleporter();
+
+	}
+}
+
+

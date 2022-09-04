@@ -1,0 +1,39 @@
+models/mapobjects/phobos1/reactor_arm
+{
+	{
+		name	"Stage 1"
+		map	models/mapobjects/phobos/alphaarm_d.tga
+		blend	diffusemap
+	}
+	bumpmap	addnormals(models/mapobjects/phobos/alphaarm_local.tga, heightmap(models/mapobjects/phobos/alphaarm_h.tga, 4 ) )
+	specularmap	models/mapobjects/phobos/alphaarm_s.tga
+	{
+		name	"Stage 4"
+		map	models/mapobjects/phobos/alphaarm_l.tga
+		blend	add
+	}
+}
+
+models/mapobjects/phobos1/reactor_center
+{
+	renderbump	-size 512 512 -aa 2 -colormap models/mapobjects/phobos/reactor_center_local.tga models/mapobjects/phobos/reactor_center_hi.lwo
+	diffusemap	models/mapobjects/phobos/reactor_center_d.tga
+	bumpmap	models/mapobjects/phobos/reactor_center_local.tga
+	specularmap	models/mapobjects/phobos/reactor_center_s.tga
+}
+
+models/mapobjects/phobos1/reactor_core1
+{
+	{
+		name	"Stage 1"
+		map	models/mapobjects/phobos/reactor_core_d.tga
+		blend	diffusemap
+	}
+	bumpmap	addnormals(models/mapobjects/phobos/reactor_core_local.tga, heightmap(models/mapobjects/phobos/reactor_core_h.tga, 2 ) )
+	specularmap	models/mapobjects/phobos/reactor_core_s.tga
+	{
+		name	"Stage 1"
+		map	models/mapobjects/phobos/reactor_core_l.tga
+		blend	add
+	}
+}

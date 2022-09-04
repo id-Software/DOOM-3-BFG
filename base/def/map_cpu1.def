@@ -1,0 +1,366 @@
+//CINEMATICS
+	
+export fred {
+	camera	maps/fred/cpu1/camphunt.mb -range 1 70 -dest models/md5/cinematics/cpu1/camphunt_cam_a
+	camera	maps/fred/cpu1/camphunt.mb -range 71 166 -dest models/md5/cinematics/cpu1/camphunt_cam_b
+	camera	maps/fred/cpu1/camphunt.mb -range 167 269 -dest models/md5/cinematics/cpu1/camphunt_cam_c
+	camera	maps/fred/cpu1/camphunt.mb -range 270 368 -dest models/md5/cinematics/cpu1/camphunt_cam_d
+
+
+	addoptions -prefix CAMPBELL_ -keep eyecontrol CASE_ATTACHER Lknee Rknee Body2 Body headcontrol neckcontrol loneckcontrol SPINNER Lhand1 Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent BFG Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -parent CASE_ATTACHER Rhand1
+	
+	addoptions -keepmesh marinebodymesh 
+	addoptions -keepmesh polySurface5
+
+	anim 	maps/fred/cpu1/camphunt.mb -range 1 1 -dest models/md5/chars/campbell/cpu/campbell_start
+	anim 	maps/fred/cpu1/camphunt.mb -range 167 269 -dest models/md5/chars/campbell/cpu/campbell_c
+	anim 	maps/fred/cpu1/camphunt.mb -range 270 368 -dest models/md5/chars/campbell/cpu/campbell_d
+
+	
+	anim	maps/fred/admin/swann_campbell_overhear.mb -range 737 1033 -dest models/md5/chars/campbell/admin/overhearcampbell3
+
+	anim	maps/eric/admin/typing.mb -range 1 60 -rotate 180 -dest models/md5/chars/campbell/admin/typingcampbell_loop
+	anim	maps/eric/admin/typing.mb -range 1 291 -rotate 180 -dest models/md5/chars/campbell/admin/typingcampbell
+
+	anim	models/characters/male_npc/cycles/idles/campbell_af_pose.mb -rotate 90 -dest models/md5/chars/campbell/af_pose
+
+	//anim	betrugercin1.mb -dest betrugercin1_campbell -range 1 1699 -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity
+	anim	betrugercin1.mb -dest betrugercin1_campbell_a -range 1 54 -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity
+	anim	betrugercin1.mb -dest betrugercin1_campbell_b -range 55 92 -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity
+	anim	betrugercin1.mb -dest betrugercin1_campbell_c -range 93 137 -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity
+	anim	betrugercin1.mb -dest betrugercin1_campbell_d -range 138 1709 -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity
+
+
+	anim 	hangar_characters.mb -range 360 678 -dest hangar_campbell_a -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity -prefix SUIT2_
+	anim 	hangar_characters.mb -range 679 766 -dest hangar_campbell_b -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity -prefix SUIT2_
+	anim 	hangar_characters.mb -range 767 863 -dest hangar_campbell_c -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity -prefix SUIT2_
+	anim 	hangar_characters.mb -range 864 937 -dest hangar_campbell_d -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity -prefix SUIT2_
+	anim 	hangar_characters.mb -range 938 980 -dest hangar_campbell_e -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity -prefix SUIT2_
+	anim 	hangar_characters.mb -range 981 1160 -dest hangar_campbell_f -sourcedir maps/fred/marscity/ -destdir models/md5/chars/campbell/marscity -prefix SUIT2_
+
+	// SUIT prefix
+
+	anim	maps/fred/enpro/escape_shot1.mb -rotate 180 -range 1 90 -dest models/md5/chars/campbell/enpro/campbell_escape1 -prefix SUIT_
+	anim	maps/fred/enpro/escape_shot2.mb -rotate 180 -range 91 236 -dest models/md5/chars/campbell/enpro/campbell_escape2 -prefix SUIT_
+
+	anim	models/characters/male_npc/cycles/idles/bfg_aiming.mb -rotate 90 -dest models/md5/chars/campbell/bfg_aim -prefix SUIT_
+	
+	anim 	maps/fred/cpu1/camphunt_eric_withmocap.mb -range 1 70 -dest models/md5/chars/campbell/cpu/campbell_mocap_a -prefix SUIT_
+	anim 	maps/fred/cpu1/camphunt_eric_withmocap.mb -range 71 166 -dest models/md5/chars/campbell/cpu/campbell_mocap_b -prefix SUIT_
+
+
+	anim	maps/fred/admin/sco_new_mocap.mb -range 432 736 -dest models/md5/chars/campbell/admin/overhearcampbell2 -prefix SUIT_
+
+
+	// SUIT2 prefix
+	anim	maps/fred/admin/campbell_overhear_1_n_2_n_3.mb -range 1 313 -dest models/md5/chars/campbell/admin/overhearcampbell1 -prefix SUIT2_
+	//anim	maps/fred/admin/campbell_overhear_4.mb -range 432 736 -dest models/md5/chars/campbell/admin/overhearcampbell2 -prefix SUIT2_
+
+	
+	// ZOMBIE prefix 
+	//anim	maps/fred/admin/campbell_overhear_1_n_2_n_3.mb -range 1 300 -dest models/md5/chars/campbell/admin/overhearcampbell1 -prefix ZOMBIE_
+	//anim	maps/fred/admin/campbell_overhear_4.mb -range 432 736 -dest models/md5/chars/campbell/admin/overhearcampbell2 -prefix ZOMBIE_
+
+
+
+
+	addoptions -align ALL
+
+	// CAMPBELL prefix 
+
+	mesh    maps/fred/cpu1/campmesh.mb -dest models/md5/chars/campbell/campbell -prefix CAMPBELL_
+	
+
+	// SUIT prefix 	
+
+	anim	models/characters/male_npc/cycles/idles/bfg_idle.mb -dest models/md5/chars/campbell/bfg_idle -prefix SUIT_
+	
+	anim	models/characters/male_npc/cycles/idles/bfg_idle_eric.mb -dest models/md5/chars/campbell/bfg_idle_eric -prefix SUIT_
+	anim	models/characters/male_npc/cycles/walks/bfg_walk.mb -rotate 90 -dest models/md5/chars/campbell/bfg_walk -prefix SUIT_
+	anim	models/characters/male_npc/cycles/runs/bfg_run.mb -rotate 90 -dest models/md5/chars/campbell/bfg_run -prefix SUIT_
+	
+	anim	models/characters/male_npc/cycles/idles/campbell_stand.mb -dest models/md5/chars/campbell/campbell_idle -prefix SUIT_
+	
+	anim	models/characters/male_npc/cycles/runs/bfg_runback_fire.mb -rotate 90 -dest models/md5/chars/campbell/bfg_runback_fire -prefix SUIT_
+	anim	models/characters/male_npc/cycles/runs/bfg_runback_fire2.mb -rotate -90 -dest models/md5/chars/campbell/bfg_runback_fire2 -prefix SUIT_	
+	anim	models/characters/male_npc/cycles/runs/bfg_runback_fire2.mb -range 33 33 -rotate -90 -dest models/md5/chars/campbell/bfg_runback_fire2_start -prefix SUIT_
+	anim	models/characters/male_npc/cycles/idles/bfg_fire.mb -dest models/md5/chars/campbell/bfg_fire -prefix SUIT_
+
+	anim	models/characters/male_npc/cycles/idles/turn_right.mb -dest models/md5/chars/campbell/campbellturn_right -prefix SUIT_
+	anim	models/characters/male_npc/cycles/idles/turn_left.mb -dest models/md5/chars/campbell/campbellturn_left -prefix SUIT_
+	anim	models/characters/male_npc/cycles/idles/turn_right_rotation90.mb -dest models/md5/chars/campbell/campbellturn_right_rotation90 -prefix SUIT_
+	anim	models/characters/male_npc/cycles/idles/turn_left_rotation90.mb -dest models/md5/chars/campbell/campbellturn_left_rotation90 -prefix SUIT_
+	anim	models/characters/male_npc/cycles/idles/turn_right_rotation180.mb -dest models/md5/chars/campbell/campbellturn_right_rotation180 -prefix SUIT_
+	anim	models/characters/male_npc/cycles/idles/turn_left_rotation180.mb -dest models/md5/chars/campbell/campbellturn_left_rotation180 -prefix SUIT_
+
+	// ZOMBIE prefix 
+
+	anim	models/characters/male_npc/cycles/walks/bfg_casewalk.mb -rotate 90 -dest models/md5/chars/campbell/bfg_casewalk -prefix ZOMBIE_
+
+	options -prefix CASE_ -keep ATTACHER -rename ATTACHER origin -clearorigin
+	mesh	models/characters/male_npc/makecasemesh.mb -dest models/md5/items/bfgcase/bfgcase
+	anim	models/characters/male_npc/makecasemesh.mb -dest models/md5/items/bfgcase/bfgcase
+}
+
+model env_bfgcase {
+	mesh					models/md5/items/bfgcase/bfgcase.md5mesh
+	anim case				models/md5/items/bfgcase/bfgcase.md5anim
+
+}
+
+entityDef env_bfgcase {
+	"inherit"						"cin_base"
+	"model"							"env_bfgcase"
+	"anim"							"case"
+	"joint"							"CASE_ATTACHER"
+	"origin"						"0 0 0"
+	"angles"						"0 0 0"
+}
+
+entityDef char_campbell_bfgcase {
+	"inherit"						"char_campbell_bfg"
+	"model"							"char_campbell_bfgcase"
+	"skin"							"skins/characters/npcs/marine_campbell.skin"
+	"eye_verticle_offset"			"10"
+	"eye_horizontal_offset"			"5"
+
+	"def_attach"					"env_bfgcase"
+	"cinematic"						"1"
+
+	"def_head"						"head_campbell"
+	"head_joint"					"Shoulders"
+}
+
+entityDef cpu1_camphunt_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim camphunt_a"					"models/md5/cinematics/cpu1/camphunt_cam_a.md5camera"
+	"anim camphunt_b"					"models/md5/cinematics/cpu1/camphunt_cam_b.md5camera"
+	"anim camphunt_c"					"models/md5/cinematics/cpu1/camphunt_cam_c.md5camera"
+	"anim camphunt_d"					"models/md5/cinematics/cpu1/camphunt_cam_d.md5camera"
+
+}
+
+model cpu1_camphunt_campbell {
+	mesh							models/md5/chars/campbell/campbell.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol)
+	
+	anim start						models/md5/chars/campbell/cpu/campbell_start.md5anim
+	anim camphunt_a					models/md5/chars/campbell/cpu/campbell_mocap_a.md5anim {
+		frame 1					 		event disableEyeFocus
+		frame 1							sound_global cpu_intro_music
+		frame 1							sound_body campbell_fs
+		frame 18						sound_body2 campbell_fs
+		frame 39						sound_body campbell_fs
+		frame 59						sound_body2 campbell_fs
+	}
+	
+	anim camphunt_b					models/md5/chars/campbell/cpu/campbell_mocap_b.md5anim {
+		frame 2							sound_body campbell_fs
+		frame 18						sound_body2 campbell_fs
+		frame 40						sound_body campbell_fs
+		frame 58						sound_body2 campbell_fs
+		frame 78						sound_body campbell_fs	
+	}
+
+	anim camphunt_c					models/md5/chars/campbell/cpu/campbell_c.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+
+	anim camphunt_d					models/md5/chars/campbell/cpu/campbell_d.md5anim {
+		frame 1					 		event disableEyeFocus
+		frame 26						sound_voice snd_camphunt
+	}
+
+}
+
+model cpu1_head_campbell {
+	mesh							models/md5/heads/campbell/campbell.md5mesh
+	skin							skins/characters/npcs/campbellbloody.skin
+	anim dead						models/md5/heads/campbell/cpu1/campbellend.md5anim
+	anim idle						models/md5/heads/campbell/cpu1/campbellend.md5anim
+	
+	anim camphunt_a					models/md5/heads/campbell/cpu1/campbellheadhunt_a.md5anim
+	anim camphunt_b					models/md5/heads/campbell/cpu1/campbellheadhunt_b.md5anim
+	anim camphunt_c					models/md5/heads/campbell/cpu1/campbellheadhunt_c.md5anim
+	anim camphunt_d					models/md5/heads/campbell/cpu1/campbellheadhunt_d.md5anim
+	
+	anim talk_secondary1			models/md5/heads/campbell/cpu1/campbelldeath.md5anim
+}
+
+entityDef cpu1_camphunt_campbell {
+	"inherit"						"character_default"
+	"model"							"cpu1_camphunt_campbell"
+	"anim"							"camphunt_a"
+	"sound_bone"					"Chest"
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"copy_joint neckcontrol"		"neckcontrol"
+	"copy_joint headcontrol"		"headcontrol"
+	"copy_joint_world eyecontrol"	"eyecontrol"
+
+	"ik_numLegs"					"0"
+	"ik_maxStepSpeed"				"2"
+	"ik_footSize"					"0"
+	"ik_footShift"					"2"
+	"ik_waistShift"					"4"
+	"ik_liftWaist"					"16"
+	"ik_waist"						"body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.1"
+
+	"head_look"						"0"
+
+	"def_head"						"cpu1_head_campbell"
+	"head_joint"					"Shoulders"
+	"ragdoll"						""
+	"snd_camphunt"					"cpu_campbell_hunt"
+	"cinematic"						"1"
+
+	"num_cinematics"				"4"
+	"anim1"							"camphunt_a"
+	"anim2"							"camphunt_b"
+	"anim3"							"camphunt_c"
+	"anim4"							"camphunt_d"
+
+}
+
+
+model cpu1_wounded_campbell {	
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	skin							skins\characters\npcs\bloody_marine.skin
+	anim idle						models/md5/chars/campbell/cpu/deathidle.md5anim
+	anim talk_secondary1			models/md5/chars/campbell/cpu/death.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 10						sound_voice snd_campdeath
+		frame 61		 				event enableEyeFocus
+		frame 71		 				event disableEyeFocus
+		frame 93		 				event enableEyeFocus
+		frame 197		 				event disableEyeFocus
+		frame 197						call headlook_off
+	}
+	anim dead						models/md5/chars/campbell/cpu/deathend.md5anim
+	anim af_pose         			models/md5/chars/af_pose.md5anim
+
+}
+
+entityDef cpu1_wounded_campbell {	
+	"inherit"						"npc_base"
+	"size"							""
+	"model"							"cpu1_wounded_campbell"
+	"scriptobject"					"ai_character_prone"
+	"anim"							"idle"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"cpu1_head_campbell"
+	"head_joint"					"Shoulders"
+	
+	"talk_mode"						"2"		// only play talk secondary
+	"die_after_speaking"			"1"
+	"animate_z"						"1"
+	"talk_no_turn"					"1"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.1"
+
+	"look_min"						"-54 -39 0"
+	"look_max"						"9 39 0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		"1.25 1.5 1"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"	
+
+	"snd_campdeath"					"cpu_campbell_death"
+	"snd_gibbed"					"sound_giblets"
+	"snd_bounce"					"ragdoll_impact"
+
+	"gib"							"1"
+
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+}
+
+model cpu1_monster_trite {
+	inherit 						monster_demon_trite
+
+	anim guitrite					models/md5/monsters/trite/guitrite.md5anim {
+		ai_no_turn
+		frame 1						disableWalkIK
+		frame 1						disableGravity
+		frame 16					sound_body snd_sight
+		frame 25					melee melee_tritebite1
+		frame 45					enableWalkIK
+		frame 45					enableGravity
+	}
+}
+
+entityDef cpu1_monster_trite {
+	"inherit"						"monster_demon_trite"
+	"model"							"cpu1_monster_trite"
+	"size"							"20 20 20"
+}

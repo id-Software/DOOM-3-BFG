@@ -1,0 +1,1196 @@
+namespace map_comm1 {
+	float msg_state;
+	entity pipe1, pipe2, pipe3, pipe4, pipe5, pipe6, pipe0;
+	vector pipe_origin;
+
+	void mover_startsound (entity ent) {
+		//ent.startSoundShader ("m1_start", SND_CHANNEL_VOICE);
+		//sys.wait (0.75);
+		ent.startSoundShader ("m1_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound (entity ent) {
+		ent.startSoundShader ("m1_stop", SND_CHANNEL_VOICE2);
+		ent.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_ITEM );
+	}
+
+	void mover_startsound2 (entity ent) {
+		//ent.startSoundShader ("m2_start", SND_CHANNEL_VOICE);
+		//sys.wait (0.75);
+		ent.startSoundShader ("m2_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound2 (entity ent) {
+		ent.startSoundShader ("m2_stop", SND_CHANNEL_VOICE2);
+		ent.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_ITEM );
+	}
+
+	void mover_startsound3 (entity ent) {
+		//ent.startSoundShader ("m3_start", SND_CHANNEL_VOICE);
+		//sys.wait (1);
+		ent.startSoundShader ("m3_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound3 (entity ent) {
+		ent.startSoundShader ("m3_stop", SND_CHANNEL_VOICE2);
+		ent.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_ITEM );
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup binds and times etc...
+	//
+	////////////////////////////////////////////////////
+	void setup_objects()
+	{
+		//power drill 1 and 2 binds and initial movements
+		$pwrdrill_1.bind ($pwrdrill_1_anchor);
+		$pwrdrill_2.bind ($pwrdrill_2_anchor);
+
+		$pwrdrill_1_anchor.rotateOnce ( '0 0 -45' );
+		$pwrdrill_2_anchor.rotateOnce ( '0 0 -45' );
+
+		sys.waitFor ($pwrdrill_1_anchor);
+
+		$pwrdrill_1.time (.20);
+		$pwrdrill_1.time (.50);
+
+		$pwrdrill_1.rotate ( '360 0 0' );
+		$pwrdrill_2.rotate ( '360 0 0' );
+
+		//oval binds and times/speeds
+		$oval_spid_1.bind ($oval_main);
+		$oval_spid_2.bind ($oval_main);
+
+		$oval_main.speed (300);
+
+		$oval_main.decelTime (.5);
+		$oval_main.accelTime (.25);
+
+		//snail 2 pole 1 binds and initial movements
+		$snl2_pl1_recep.bind ($snl2_pl1_anc);
+		$snl2_pl1.bind ($snl2_pl1_anc);
+		$snl2_pl1_spin_anc.bind ($snl2_pl1_anc);
+
+		$snl2_pl1_spin.bind ($snl2_pl1_spin_anc);	
+
+		$snl2_pl1_spin_arm1.bind ($snl2_pl1_spin);
+		$snl2_pl1_spin_arm2.bind ($snl2_pl1_spin);
+		$snl2_pl1_spin_arm3.bind ($snl2_pl1_spin);
+		$snl2_pl1_spin_arm4.bind ($snl2_pl1_spin);
+
+		$snl2_pl1_wire1.bind ($snl2_pl1_spin);
+		$snl2_pl1_wire2.bind ($snl2_pl1_spin);
+		$snl2_pl1_wire3.bind ($snl2_pl1_spin);
+		$snl2_pl1_wire4.bind ($snl2_pl1_spin);
+
+		$snl2_pl1_spin.time (1);
+
+		$snl2_pl1_spin_arm1.time (.6);
+		$snl2_pl1_spin_arm2.time (.6);
+		$snl2_pl1_spin_arm3.time (.6);
+		$snl2_pl1_spin_arm4.time (.6);
+
+		//initial position movements
+		$snl2_pl1_anc.rotateOnce ( '67.5 0 0');
+		sys.waitFor ($snl2_pl1_anc);
+
+		$snl2_pl1.move ( DOWN, 192 );
+
+		//snail 2 pole 2 binds and initial movements
+		$snl2_pl2_recep.bind ($snl2_pl2_anc);
+		$snl2_pl2.bind ($snl2_pl2_anc);
+		$snl2_pl2_spin_anc.bind ($snl2_pl2_anc);
+
+		$snl2_pl2_spin.bind ($snl2_pl2_spin_anc);	
+
+		$snl2_pl2_spin_arm1.bind ($snl2_pl2_spin);
+		$snl2_pl2_spin_arm2.bind ($snl2_pl2_spin);
+		$snl2_pl2_spin_arm3.bind ($snl2_pl2_spin);
+		$snl2_pl2_spin_arm4.bind ($snl2_pl2_spin);
+
+		$snl2_pl2_wire1.bind ($snl2_pl2_spin);
+		$snl2_pl2_wire2.bind ($snl2_pl2_spin);
+		$snl2_pl2_wire3.bind ($snl2_pl2_spin);
+		$snl2_pl2_wire4.bind ($snl2_pl2_spin);
+
+		$snl2_pl2_spin.time (1);
+
+		$snl2_pl2_spin_arm1.time (.6);
+		$snl2_pl2_spin_arm2.time (.6);
+		$snl2_pl2_spin_arm3.time (.6);
+		$snl2_pl2_spin_arm4.time (.6);
+
+		//initial position movements
+		$snl2_pl2_anc.rotateOnce ( '22.5 0 0');
+		sys.waitFor ($snl2_pl2_anc);
+
+		$snl2_pl2.move ( DOWN, 208 );
+
+		//snail 2 shell times and initial movements
+		$snl2_shell1.time (.25);
+		$snl2_shell2.time (.5);
+		$snl2_shell3.time (.75);
+
+		//misc pipe hall initial movements, rotations etc...
+		$holder_1.rotateOnce ( '-45 0 0' );
+		$holder_2.rotateOnce ( '-45 0 0' );
+		$holder_3.rotateOnce ( '-45 0 0' );
+		$holder_4.rotateOnce ( '-45 0 0' );
+		$holder_5.rotateOnce ( '-45 0 0' );
+		$holder_6.rotateOnce ( '-45 0 0' );
+
+		$mcarrier.rotateOnce ( '-45 0 0' );
+
+		$lcarrier.rotateOnce ( '-45 0 0' );
+		$lcarrier.speed (100);
+
+		//pipe hall pipe initial setups
+		pipe1 = sys.spawn( "func_mover" );
+		pipe1.setModel( "pipe1" );
+		pipe_origin = $pipe1pos_1.getOrigin();
+		pipe1.setOrigin (pipe_origin);
+		pipe1.setAngles ( '-45 0 0' );
+
+		pipe2 = sys.spawn( "func_mover" );
+		pipe2.setModel( "pipe2" );
+		pipe_origin = $pipe2pos_1.getOrigin();
+		pipe2.setOrigin (pipe_origin);
+		pipe2.setAngles ( '-45 0 0' );
+
+		pipe3 = sys.spawn( "func_mover" );
+		pipe3.setModel( "pipe3" );
+		pipe_origin = $pipe3pos_1.getOrigin();
+		pipe3.setOrigin (pipe_origin);
+		pipe3.setAngles ( '-45 0 0' );
+
+		pipe4 = sys.spawn( "func_mover" );
+		pipe4.setModel( "pipe4" );
+		pipe_origin = $pipe4pos_1.getOrigin();
+		pipe4.setOrigin (pipe_origin);
+		pipe4.setAngles ( '-45 0 0' );
+
+		pipe5 = sys.spawn( "func_mover" );
+		pipe5.setModel( "pipe5" );
+		pipe_origin = $pipe5pos_1.getOrigin();
+		pipe5.setOrigin (pipe_origin);
+		pipe5.setAngles ( '-45 0 0' );
+
+		pipe6 = sys.spawn( "func_mover" );
+		pipe6.setModel( "pipe6" );
+		pipe_origin = $pipe6pos_1.getOrigin();
+		pipe6.setOrigin (pipe_origin);
+		pipe6.setAngles ( '-45 0 0' );
+
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	oval movement 
+	//
+	////////////////////////////////////////////////////
+	void oval_movement ()
+	{
+	float pick, pick_old, oval_dist ;
+	$oval_main.setKey ("s_minDistance", "5");
+	$oval_main.setKey ("s_maxDistance", "30");
+	$oval_main.setKey ("s_unclamped", "1");
+	$oval_main.setKey ("s_volume", "5");
+	$oval_main.setKey ("snd_accel", "m5_start");
+	$oval_main.setKey ("snd_move", "m4_loop");
+	$oval_main.setKey ("snd_decel", "m4_stop");
+	
+	pick = 1;
+	pick_old = 1;
+
+		while (1)
+		{
+			while ( pick == pick_old )
+			{
+				pick = ( sys.random(4) + 1 );
+
+				if ( pick < 2 )
+				{
+					pick = 1;
+				}
+				else if ( pick < 3 )
+					{
+						pick = 2;
+					}
+					else if ( pick < 4 )
+						{
+							pick = 3;
+						}
+						else
+						{
+							pick = 4;
+						}
+			}
+
+		oval_dist = (( pick_old - pick ) * 192 );
+		$oval_main.move ( WEST, oval_dist );
+
+		sys.waitFor ($oval_main);
+		sys.wait (2);
+
+		pick_old = pick;
+		}
+
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("m1_loop");
+		sys.cacheSoundShader ("m1_stop");
+		sys.cacheSoundShader ("m2_loop");
+		sys.cacheSoundShader ("m2_stop");
+		sys.cacheSoundShader ("m3_loop");
+		sys.cacheSoundShader ("m3_stop");
+		sys.cacheSoundShader ("m5_start");
+		sys.cacheSoundShader ("m4_loop");
+		sys.cacheSoundShader ("m4_stop");
+		sys.cacheSoundShader ("rec1_pump_endclack_01");
+		
+		sys.cacheSoundShader ("c1_mcarrier");
+		sys.cacheSoundShader ("c1_pipeupaway");
+		sys.cacheSoundShader ("c1_pipedownbounce");
+		sys.cacheSoundShader ("c1_pipeloader");
+		sys.cacheSoundShader ("c1_pipeloader2");
+		sys.cacheSoundShader ("c1_pipeloader3");
+		sys.cacheSoundShader ("c1_mloop1");
+		
+		
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	move pipe up and away
+	//
+	////////////////////////////////////////////////////
+	void pipe_upaway (entity pipeupaway)
+	{
+		pipeupaway.bind ($mcarrier);
+		
+		$mcarrier.startSoundShader ("c1_mcarrier", SND_CHANNEL_VOICE );
+
+		$mcarrier.moveTo ($mcarrierpos_2);
+		sys.waitFor ($mcarrier);
+
+		pipeupaway.unbind ();
+
+		$mcarrier.moveTo ($mcarrierpos_1);
+		pipeupaway.time (2);
+		pipeupaway.startSoundShader ("c1_pipeupaway", SND_CHANNEL_VOICE2 );
+		pipeupaway.move ( UP , 128 );
+		sys.waitFor (pipeupaway);
+		pipeupaway.remove ();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	move pipe to middle 
+	//
+	////////////////////////////////////////////////////
+	void move_pipe (entity pipe, entity holder)
+	{
+		holder.speed (100);
+		
+		pipe.bind (holder);
+		holder.startSoundShader ("c1_pipeloader2", SND_CHANNEL_VOICE );
+		holder.move ( REL_BACK, 24 );
+		sys.waitFor (holder);
+
+		pipe.unbind ();
+		pipe.bind ($lcarrier);
+
+		holder.move ( REL_FORWARD, 24 );
+		holder.startSoundShader ("c1_pipeloader3", SND_CHANNEL_VOICE2 );
+		sys.waitFor (holder);
+
+		holder.bind ($holder_rotate);
+						
+		$holder_rotate.rotateOnce ( '15 0 0' );
+
+		$lcarrier.setKey ("snd_move", "c1_mloop1" );
+		$lcarrier.moveTo ($lcarrierpos_middle);
+		sys.waitFor ($lcarrier);
+
+		$lcarrier.startSoundShader ("c1_pipeloader", SND_CHANNEL_VOICE);
+		$lcarrier.move ( REL_FORWARD, 50 );
+		sys.waitFor ($lcarrier);
+		pipe.unbind ();
+		sys.wait (.5);
+
+		$lcarrier.startSoundShader ("c1_pipeloader2", SND_CHANNEL_VOICE);
+		$lcarrier.move ( REL_BACK, 50 );
+		sys.waitFor ($lcarrier);
+
+		// thread pipe move up and away
+		sys.killthread ( "map_comtower::pipe_upaway" );
+		thread pipe_upaway ( pipe );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	test stuff eventually will be pipe mover loop
+	//
+	////////////////////////////////////////////////////
+	void move_hallpipes()
+	{
+		float rand;
+
+		while (1)
+		{
+			sys.killthread ("map_comtower::move_pipe");
+			rand = sys.random (5);
+
+			if ( rand < 1 )
+				{
+					$lcarrier.moveTo ($lcarrierpos_1);
+					sys.waitFor ($lcarrier);
+					pipe0 = pipe1;
+					thread move_pipe (pipe0, $holder_1);
+
+					sys.wait (2);
+					//move new pipe in
+					pipe1 = sys.spawn( "func_mover" );
+					pipe1.setModel( "pipe1" );
+					pipe_origin = $pipe1pos_initial.getOrigin();
+					pipe1.setOrigin (pipe_origin);
+					pipe1.setAngles ( '-30 0 0' );
+
+					pipe1.moveTo ($pipe1pos_1);
+					sys.waitFor ( pipe1 );
+					sys.wait (.5);
+					$holder_1.bind (pipe1);
+					$holder_1.startSoundShader ("c1_pipedownbounce", SND_CHANNEL_VOICE2 );
+					
+
+					pipe1.time (.5);
+					pipe1.rotateOnce ( '-15 0 0' );
+					sys.waitFor ( pipe1 );
+
+					//bounce it
+					pipe1.time( .15 );
+					pipe1.accelTime( 0 );
+					pipe1.decelTime( .15 );
+					pipe1.rotateOnce( '1 0 0' );
+					sys.waitFor (pipe1);
+
+					pipe1.time( .15 );
+					pipe1.accelTime( .15 );
+					pipe1.decelTime( 0 );
+					pipe1.rotateOnce( '-1 0 0' );
+					sys.waitFor (pipe1);
+
+					$holder_1.unbind ();
+
+				}
+			else if ( rand < 2 )
+				{
+					$lcarrier.moveTo ($lcarrierpos_2);
+					sys.waitFor ($lcarrier);
+					pipe0 = pipe2;
+					thread move_pipe (pipe0, $holder_2);
+
+					sys.wait (2);
+					//move new pipe in
+					pipe2 = sys.spawn( "func_mover" );
+					pipe2.setModel( "pipe2" );
+					pipe_origin = $pipe2pos_initial.getOrigin();
+					pipe2.setOrigin (pipe_origin);
+					pipe2.setAngles ( '-30 0 0' );
+
+					pipe2.moveTo ($pipe2pos_1);
+					sys.waitFor ( pipe2 );
+					sys.wait (.5);
+					$holder_2.bind (pipe2);
+					$holder_2.startSoundShader ("c1_pipedownbounce", SND_CHANNEL_VOICE2 );
+
+					pipe2.time (.5);
+					pipe2.rotateOnce ( '-15 0 0' );
+					sys.waitFor ( pipe2 );
+
+					//bounce it
+					pipe2.time( .15 );
+					pipe2.accelTime( 0 );
+					pipe2.decelTime( .15 );
+					pipe2.rotateOnce( '1 0 0' );
+					sys.waitFor (pipe2);
+
+					pipe2.time( .15 );
+					pipe2.accelTime( .15 );
+					pipe2.decelTime( 0 );
+					pipe2.rotateOnce( '-1 0 0' );
+					sys.waitFor (pipe2);
+
+					$holder_2.unbind ();
+				}
+				else if ( rand < 3 )
+					{
+						$lcarrier.moveTo ($lcarrierpos_3);
+						sys.waitFor ($lcarrier);
+						pipe0 = pipe3;
+						thread move_pipe (pipe0, $holder_3);
+
+						sys.wait (2);
+						//move new pipe in
+						pipe3 = sys.spawn( "func_mover" );
+						pipe3.setModel( "pipe3" );
+						pipe_origin = $pipe3pos_initial.getOrigin();
+						pipe3.setOrigin (pipe_origin);
+						pipe3.setAngles ( '-30 0 0' );
+
+						pipe3.moveTo ($pipe3pos_1);
+						sys.waitFor ( pipe3 );
+						sys.wait (.5);
+						$holder_3.bind (pipe3);
+						$holder_3.startSoundShader ("c1_pipedownbounce", SND_CHANNEL_VOICE2 );
+
+						pipe3.time (.5);
+						pipe3.rotateOnce ( '-15 0 0' );
+						sys.waitFor ( pipe3 );
+
+						//bounce it
+						pipe3.time( .15 );
+						pipe3.accelTime( 0 );
+						pipe3.decelTime( .15 );
+						pipe3.rotateOnce( '1 0 0' );
+						sys.waitFor (pipe3);
+
+						pipe3.time( .15 );
+						pipe3.accelTime( .15 );
+						pipe3.decelTime( 0 );
+						pipe3.rotateOnce( '-1 0 0' );
+						sys.waitFor (pipe3);
+
+						$holder_3.unbind ();
+					}
+					else if ( rand < 4 )
+					{
+						$lcarrier.moveTo ($lcarrierpos_4);
+						sys.waitFor ($lcarrier);
+						pipe0 = pipe4;
+						thread move_pipe (pipe0, $holder_4);
+
+						sys.wait (2);
+						//move new pipe in
+						pipe4 = sys.spawn( "func_mover" );
+						pipe4.setModel( "pipe4" );
+						pipe_origin = $pipe4pos_initial.getOrigin();
+						pipe4.setOrigin (pipe_origin);
+						pipe4.setAngles ( '-30 0 0' );
+
+						pipe4.moveTo ($pipe4pos_1);
+						sys.waitFor ( pipe4 );
+						sys.wait (.5);
+						$holder_4.bind (pipe4);
+						$holder_4.startSoundShader ("c1_pipedownbounce", SND_CHANNEL_VOICE2 );
+
+						pipe4.time (.5);
+						pipe4.rotateOnce ( '-15 0 0' );
+						sys.waitFor ( pipe4 );
+
+						//bounce it
+						pipe4.time( .15 );
+						pipe4.accelTime( 0 );
+						pipe4.decelTime( .15 );
+						pipe4.rotateOnce( '1 0 0' );
+						sys.waitFor (pipe4);
+
+						pipe4.time( .15 );
+						pipe4.accelTime( .15 );
+						pipe4.decelTime( 0 );
+						pipe4.rotateOnce( '-1 0 0' );
+						sys.waitFor (pipe4);
+
+						$holder_4.unbind ();
+					}
+						else if ( rand < 5 )
+						{
+							$lcarrier.moveTo ($lcarrierpos_5);
+							sys.waitFor ($lcarrier);
+							pipe0 = pipe5;
+							thread move_pipe (pipe0, $holder_5);
+
+							sys.wait (2);
+							//move new pipe in
+							pipe5 = sys.spawn( "func_mover" );
+							pipe5.setModel( "pipe5" );
+							pipe_origin = $pipe5pos_initial.getOrigin();
+							pipe5.setOrigin (pipe_origin);
+							pipe5.setAngles ( '-30 0 0' );
+
+							pipe5.moveTo ($pipe5pos_1);
+							sys.waitFor ( pipe5 );
+							sys.wait (.5);
+							$holder_5.bind (pipe5);
+							$holder_5.startSoundShader ("c1_pipedownbounce", SND_CHANNEL_VOICE2 );
+
+							pipe5.time (.5);
+							pipe5.rotateOnce ( '-15 0 0' );
+							sys.waitFor ( pipe5 );
+
+							//bounce it
+							pipe5.time( .15 );
+							pipe5.accelTime( 0 );
+							pipe5.decelTime( .15 );
+							pipe5.rotateOnce( '1 0 0' );
+							sys.waitFor (pipe5);
+
+							pipe5.time( .15 );
+							pipe5.accelTime( .15 );
+							pipe5.decelTime( 0 );
+							pipe5.rotateOnce( '-1 0 0' );
+							sys.waitFor (pipe5);
+
+							$holder_5.unbind ();
+						}
+						else
+						{
+							$lcarrier.moveTo ($lcarrierpos_6);
+							sys.waitFor ($lcarrier);
+							pipe0 = pipe6;
+							thread move_pipe (pipe0, $holder_6);
+
+							sys.wait (2);
+							//move new pipe in
+							pipe6 = sys.spawn( "func_mover" );
+							pipe6.setModel( "pipe6" );
+							pipe_origin = $pipe6pos_initial.getOrigin();
+							pipe6.setOrigin (pipe_origin);
+							pipe6.setAngles ( '-30 0 0' );
+
+							pipe6.moveTo ($pipe6pos_1);
+							sys.waitFor ( pipe6 );
+							sys.wait (.5);
+							$holder_6.bind (pipe6);
+							$holder_6.startSoundShader ("c1_pipedownbounce", SND_CHANNEL_VOICE2 );
+
+							pipe6.time (.5);
+							pipe6.rotateOnce ( '-15 0 0' );
+							sys.waitFor ( pipe6 );
+
+							//bounce it
+							pipe6.time( .15 );
+							pipe6.accelTime( 0 );
+							pipe6.decelTime( .15 );
+							pipe6.rotateOnce( '1 0 0' );
+							sys.waitFor (pipe6);
+
+							pipe6.time( .15 );
+							pipe6.accelTime( .15 );
+							pipe6.decelTime( 0 );
+							pipe6.rotateOnce( '-1 0 0' );
+							sys.waitFor (pipe6);
+
+							$holder_6.unbind ();
+						}
+		}//END WHILE
+	}
+
+	
+	////////////////////////////////////////////////////
+	//
+	//	move snail 2 pole 1 things up
+	//
+	////////////////////////////////////////////////////
+	void move_snail2_connect1_up()
+	{
+		$snl2_pl1.time (.5);
+		$snl2_pl1.move ( UP, 192 );
+		//pole1 move sound .5sec
+		sys.trigger ($snail2_pole1_speaker);
+		sys.waitFor ($snl2_pl1);
+
+		$snl2_pl1_spin_anc.move ( UP, 144 );
+		$snl2_pl1_spin.rotateOnce ( '0 540 0' );
+
+		//pole1 guts moveup sound 1sec
+		sys.trigger ($snail2_pole1guts_up_speaker);
+
+		sys.wait (.5);
+		$snl2_pl1_spin_arm1.rotateOnce ( '0 0 -180' );
+		$snl2_pl1_spin_arm2.rotateOnce ( '0 0 -180' );
+		$snl2_pl1_spin_arm3.rotateOnce ( '0 0 -180' );
+		$snl2_pl1_spin_arm4.rotateOnce ( '0 0 -180' );
+
+		sys.waitFor ($snl2_pl1_spin_arm4);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	move snail 2 pole 1 things down
+	//
+	////////////////////////////////////////////////////
+	void move_snail2_connect1_down()
+	{
+		//pole1 guts movedown sound 1sec
+		sys.trigger ($snail2_pole1guts_down_speaker);
+
+		$snl2_pl1_spin_anc.move ( DOWN, 144 );
+		$snl2_pl1_spin.rotateOnce ( '0 -540 0' );
+
+		$snl2_pl1_spin_arm1.rotateOnce ( '0 0 180' );
+		$snl2_pl1_spin_arm2.rotateOnce ( '0 0 180' );
+		$snl2_pl1_spin_arm3.rotateOnce ( '0 0 180' );
+		$snl2_pl1_spin_arm4.rotateOnce ( '0 0 180' );
+
+		sys.waitFor ($snl2_pl1_spin_anc);
+
+		$snl2_pl1.time (.5);
+		$snl2_pl1.move ( DOWN, 192 );
+		//pole1 move sound .5sec
+		sys.trigger ($snail2_pole1_speaker);
+		sys.waitFor ($snl2_pl1);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	move snail 2 pole 2 things up
+	//
+	////////////////////////////////////////////////////
+	void move_snail2_connect2_up()
+	{
+		$snl2_pl2.time (.5);
+		$snl2_pl2.move ( UP, 208 );
+		//pole2 move sound .5sec
+		sys.trigger ($snail2_pole2_speaker);
+		sys.waitFor ($snl2_pl2);
+
+		$snl2_pl2_spin_anc.move ( UP, 160 );
+		$snl2_pl2_spin.rotateOnce ( '0 540 0' );
+
+		//pole2 guts moveup sound 1sec
+		sys.trigger ($snail2_pole2guts_up_speaker);
+
+		sys.wait (.5);
+		$snl2_pl2_spin_arm1.rotateOnce ( '0 0 -180' );
+		$snl2_pl2_spin_arm2.rotateOnce ( '0 0 -180' );
+		$snl2_pl2_spin_arm3.rotateOnce ( '0 0 -180' );
+		$snl2_pl2_spin_arm4.rotateOnce ( '0 0 -180' );
+
+		sys.waitFor ($snl2_pl2_spin_arm4);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	move snail 2 pole 2 things down
+	//
+	////////////////////////////////////////////////////
+	void move_snail2_connect2_down()
+	{
+		//pole2 guts movedown sound 1sec
+		sys.trigger ($snail2_pole2guts_down_speaker);
+
+		$snl2_pl2_spin_anc.move ( DOWN, 160 );
+		$snl2_pl2_spin.rotateOnce ( '0 -540 0' );
+
+		$snl2_pl2_spin_arm1.rotateOnce ( '0 0 180' );
+		$snl2_pl2_spin_arm2.rotateOnce ( '0 0 180' );
+		$snl2_pl2_spin_arm3.rotateOnce ( '0 0 180' );
+		$snl2_pl2_spin_arm4.rotateOnce ( '0 0 180' );
+
+		sys.waitFor ($snl2_pl2_spin_anc);
+
+		$snl2_pl2.time (.5);
+		$snl2_pl2.move ( DOWN, 208 );
+		//pole2 move sound .5sec
+		sys.trigger ($snail2_pole2_speaker);
+		sys.waitFor ($snl2_pl2);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	open shells for snail 2 
+	//
+	////////////////////////////////////////////////////
+	void open_snail2_shells()
+	{
+		$snl2_shell3.rotateOnce ( '0 0 -135' );
+
+		sys.wait (.125);
+		$snl2_shell2.rotateOnce ( '0 0 -90' );
+
+		sys.wait (.125);
+		$snl2_shell1.rotateOnce ( '0 0 -45' );
+		
+		sys.waitFor ($snl2_shell1);
+		sys.waitFor ($snl2_shell2);
+		sys.waitFor ($snl2_shell3);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	close shells for snail 2 
+	//
+	////////////////////////////////////////////////////
+	void close_snail2_shells()
+	{
+		$snl2_shell3.rotateOnce ( '0 0 135' );
+
+		sys.wait (.125);
+		$snl2_shell2.rotateOnce ( '0 0 90' );
+
+		sys.wait (.125);
+		$snl2_shell1.rotateOnce ( '0 0 45' );
+		
+		sys.waitFor ($snl2_shell1);
+		sys.waitFor ($snl2_shell2);
+		sys.waitFor ($snl2_shell3);
+	}
+
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Snail machine 2 LOOP
+	//
+	////////////////////////////////////////////////////
+	void go_snail2()
+	{
+		float thread3, thread4;
+
+		while (1)
+		{
+			thread3 = thread open_snail2_shells ();
+			//Shells opening sound 1sec
+			sys.trigger ($snail2_shells_open_speaker);
+			sys.waitForThread( thread3 );
+
+			thread3 = thread move_snail2_connect1_up ();
+			thread4 = thread move_snail2_connect2_up ();
+			sys.waitForThread( thread3 );
+			sys.waitForThread( thread4 );
+
+			sys.wait(1);
+			
+			thread3 = thread move_snail2_connect1_down ();
+			thread4 = thread move_snail2_connect2_down ();
+			sys.waitForThread( thread3 );
+			sys.waitForThread( thread4 );
+
+			thread3 = thread close_snail2_shells ();
+			//Shells closing sound 1sec
+			sys.trigger ($snail2_shells_close_speaker);
+			sys.waitForThread( thread3 );
+
+			sys.wait(1);
+		}
+	}
+	
+
+	////////////////////////////////////////////////////
+	//
+	//	send msg
+	//
+	////////////////////////////////////////////////////
+	void send_message ()
+	{
+		if (msg_state != 99)
+			{
+			sys.trigger ($obj2);
+			sys.wait (2);
+
+			sys.trigger ($obj3);
+			sys.wait (2);
+
+			sys.trigger ($obj4);
+		
+			}
+
+			else
+			{
+			sys.trigger ($obj5);
+			}
+
+		msg_state = 99;
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Fluctuate the lobby lights
+	//
+	////////////////////////////////////////////////////
+	void lobbylights_flux ()
+	{
+		
+	}
+
+
+	void airlock_door1_close() {
+		sys.trigger ($speaker_airlock_door1_close);
+		$airlock_door1_left.rotateOnce ( '0 -45 0' );
+		$airlock_door1_right.rotateOnce ( '0 45 0' );
+		sys.waitFor ($airlock_door1_left);
+
+		$airlock_door1_top_lock.move ( DOWN, 15 );
+		sys.trigger ($speaker_airlock_door1_bottom_lock);
+		$airlock_door1_bottom_lock.move ( UP, 15 );
+		sys.waitFor ($airlock_door1_bottom_lock);
+
+		sys.trigger ($speaker_airlock_door1_left_lock);
+		$airlock_door1_left_lock.move ( SOUTH, 16 );
+		sys.trigger ($speaker_airlock_door1_right_lock);
+		$airlock_door1_right_lock.move ( SOUTH, 16 );
+		sys.waitFor ($airlock_door1_right_lock);
+
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Open airlock door1
+	//
+	////////////////////////////////////////////////////
+	void airlock_door1_open()
+	{
+		//airlock door1 times
+		$airlock_door1_left.time (1.2);
+		$airlock_door1_right.time (1.2);
+		$airlock_door1_left.accelTime (.2);
+		$airlock_door1_left.decelTime (1);
+		$airlock_door1_right.accelTime (.2);
+		$airlock_door1_right.decelTime (1);
+
+		$airlock_door1_top_lock.time (.25);
+		$airlock_door1_bottom_lock.time (.25);
+		
+		$airlock_door1_left_lock.time (.75);
+		$airlock_door1_right_lock.time (.75);
+		$airlock_door1_left_lock.accelTime (.1);
+		$airlock_door1_left_lock.decelTime (.65);
+		$airlock_door1_right_lock.accelTime (.1);
+		$airlock_door1_right_lock.decelTime (.65);
+
+		//turn door1 and door2 light on 
+		//turn door2 light on
+		thread crossFadeEnt ($door2_light, '0.37 0.05 0.01', '.84 .84 .9', 1);
+			
+		sys.wait(1);
+
+		//move the 4 locks to unlock position
+		$airlock_door1_top_lock.move ( UP, 15 );
+		sys.trigger ($speaker_airlock_door1_bottom_lock);
+		$airlock_door1_bottom_lock.move ( DOWN, 15 );
+		sys.waitFor ($airlock_door1_bottom_lock);
+
+		sys.trigger ($speaker_airlock_door1_left_lock);
+		$airlock_door1_left_lock.move ( NORTH, -16 );
+		sys.trigger ($speaker_airlock_door1_right_lock);
+		$airlock_door1_right_lock.move ( NORTH, -16 );
+		sys.waitFor ($airlock_door1_right_lock);
+
+		//open doors
+		sys.trigger ($speaker_airlock_door1_open);
+		$airlock_door1_left.rotateOnce ( '0 45 0' );
+		$airlock_door1_right.rotateOnce ( '0 -45 0' );
+
+		//trigger the portal
+		//sys.trigger ($airlock_door1_portal);
+
+		sys.waitFor ($airlock_door1_right);
+		sys.waitFor ($airlock_door1_left);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	rb_tube loop
+	//
+	////////////////////////////////////////////////////
+	void rb_tube_loop()
+	{
+		while (1){
+			thread crossFadeEnt ($rb_tube_1_light, '.38 .86 .82', '.85 0 0', 2);
+			thread crossFadeEnt ($rb_tube_1, '.38 .86 .82', '.85 0 0', 2);
+			thread crossFadeEnt ($rb_tube_2_light, '.38 .86 .82', '.85 0 0', 2);
+			thread crossFadeEnt ($rb_tube_2, '.38 .86 .82', '.85 0 0', 2);
+
+			sys.wait (3);
+
+			thread crossFadeEnt ($rb_tube_1_light, '.85 0 0', '.38 .86 .82', 2);
+			thread crossFadeEnt ($rb_tube_1, '.85 0 0', '.38 .86 .82', 2);
+			thread crossFadeEnt ($rb_tube_2_light, '.85 0 0', '.38 .86 .82', 2);
+			thread crossFadeEnt ($rb_tube_2, '.85 0 0', '.38 .86 .82', 2);
+
+			sys.wait (3);
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	senpist loops
+	//
+	////////////////////////////////////////////////////
+	void senpist1_loop()
+	{
+		
+	
+		while (1){
+			$poopist1.time (1.5);
+			
+			thread mover_startsound3 ($poopist1);
+			
+			$poopist1.move (DOWN, 48);
+			sys.waitFor ($poopist1);
+			
+			mover_stopsound2 ($poopist1);
+
+			$poopist1.time (0.5);
+			
+			thread mover_startsound3 ($poopist1);
+			
+			$poopist1.move (UP, 48);
+			sys.waitFor ($poopist1);
+			
+			mover_stopsound3 ($poopist1);
+		}
+	}
+
+	void senpist2_loop()
+	{
+		while (1){
+			$peepist.time (1);
+			
+			thread mover_startsound ($peepist);
+			$peepist.move (DOWN, 48);
+			sys.waitFor ($peepist);
+			mover_stopsound ($peepist);
+			
+			$peepist.time (1.5);
+			
+			thread mover_startsound ($peepist);
+			$peepist.move (UP, 48);
+			sys.waitFor ($peepist);
+			mover_stopsound ($peepist);
+		}
+	}
+
+	void senpist3_loop()
+	{
+		
+	
+		while (1){
+			
+			$senpist3.time (1.5);	
+			thread mover_startsound ($senpist3);
+			
+			$senpist3.move (DOWN, 48);
+			sys.waitFor ($senpist3);
+			
+			mover_stopsound2 ($senpist3);
+
+			$senpist3.time (1);
+			
+			thread mover_startsound2 ($senpist3);
+			
+			$senpist3.move (UP, 48);
+			sys.waitFor ($senpist3);
+			
+			mover_stopsound ($senpist3);
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	floor2 break
+	//
+	////////////////////////////////////////////////////
+	void floor2_break()
+	{
+		$prebreak_main.hide();
+		$prebreak_light1.hide();
+
+		$postbreak_spark.show();
+		$postbreak_main.show();
+		$postbreak_light1.show();
+		$postbreak_clip.show();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Corpse Move - quick move of deadbody 
+	//
+	////////////////////////////////////////////////////
+	void corpse_move()
+	{
+		$corpse_mover.time (.5);
+		$corpse_mover.accelTime (.5);
+		$corpse_mover.decelTime (0);
+
+		$corpse_mover.move ( UP, 96 );
+		sys.waitFor ($corpse_mover);
+
+		$corpse.unbind();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Corpse Move - quick move of deadbody 
+	//
+	////////////////////////////////////////////////////
+	void corpse_move2()
+	{
+		$corpse_mover2.time (.8);
+		$corpse_mover2.accelTime (.8);
+		$corpse_mover2.decelTime (0);
+
+		$corpse_mover2.moveTo ( $corpse_mover2_movepoint );
+		sys.waitFor ($corpse_mover2);
+
+		$light_5352.fadeOutLight(1.2);
+
+		$corpse2.unbind();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	make sure the secret panel is open on way back through
+	//
+	////////////////////////////////////////////////////
+	void open_secretpanel()
+	{
+		$skyway_secret_panel.open();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	door bang
+	//
+	////////////////////////////////////////////////////
+	void door_bang ()
+	{
+		$helldoor1_mover.time (.2);
+		$helldoor2_mover.time (.2);
+
+		$helldoor1_mover.rotateOnce ( '0 2.5 0');
+		$helldoor2_mover.rotateOnce ( '0 -2 0');
+		sys.waitFor ($helldoor1_mover);
+
+		//trigger speaker
+		sys.trigger ($helldoor_speaker);
+		sys.trigger ($door_bang_influence);
+
+		$helldoor1_mover.rotateOnce ( '0 -2.5 0');
+		$helldoor2_mover.rotateOnce ( '0 2 0');
+		sys.waitFor ($helldoor1_mover);
+
+		//Again
+		sys.wait (.5);
+
+		$helldoor1_mover.rotateOnce ( '0 2.5 0');
+		$helldoor2_mover.rotateOnce ( '0 -2 0');
+		sys.waitFor ($helldoor1_mover);
+
+		//trigger speaker
+		sys.trigger ($helldoor_speaker);
+		sys.trigger ($door_bang_influence);
+
+		$helldoor1_mover.rotateOnce ( '0 -2.5 0');
+		$helldoor2_mover.rotateOnce ( '0 2 0');
+		sys.waitFor ($helldoor1_mover);
+
+		//And again
+		sys.wait (.2);
+
+		$helldoor1_mover.rotateOnce ( '0 2.5 0');
+		$helldoor2_mover.rotateOnce ( '0 -2 0');
+		sys.waitFor ($helldoor1_mover);
+
+		//trigger speaker
+		sys.trigger ( $helldoor_speaker );
+		sys.trigger ( $door_bang_influence );
+
+		$helldoor1_mover.rotateOnce ( '0 -2.5 0');
+		$helldoor2_mover.rotateOnce ( '0 2 0');
+		sys.waitFor ($helldoor1_mover);
+
+		//trigger zsec shield guy
+		sys.trigger ( $monster_zsec_shield_4 );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	machine fall over
+	//
+	////////////////////////////////////////////////////
+	void machine_fall ()
+	{
+		$machine_fall_mover.time (.8);
+		$machine_fall_mover.accelTime (.8);
+		$machine_fall_mover.decelTime (0);
+
+		//trigger sound for falling
+		sys.trigger ( $speaker_machine_fall_attention );
+		//machine falls
+		$machine_fall_mover.rotateOnce ( '-90 -15 0' );
+		sys.waitFor ( $machine_fall_mover );
+
+		//trigger sound
+		sys.trigger ( $speaker_machine_fall );
+
+		//trigger particles
+
+		//wait then trigger sound
+		sys.wait (.5);
+		sys.trigger ($speaker_machine_fall_creepy);
+		sys.trigger ($target_setinfluence_16);
+		sys.wait (.5);
+
+		//call corpse mover
+		map_comm1::corpse_move2();
+
+	}
+
+
+	void close_swanncampdoor ()
+	{
+		$func_door_1670.open ();
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main ()
+	{
+
+		thread cache_sounds();
+
+		thread rb_tube_loop();
+		setup_objects ();
+		thread oval_movement ();
+					
+		sys.wait (2);
+		thread move_hallpipes ();
+		thread go_snail2 ();
+		thread senpist1_loop ();
+		thread senpist2_loop ();
+		thread senpist3_loop ();
+	}
+}

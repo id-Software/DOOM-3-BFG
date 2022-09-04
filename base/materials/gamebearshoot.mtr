@@ -1,0 +1,229 @@
+
+game/bearshoot/helicopter
+{
+	{
+		map guis/assets/bearshoot/sarge_balloons.tga
+		blend blend
+
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/helicopter_broken
+{
+	{
+		map guis/assets/bearshoot/sarge_balloons_popped.tga
+		blend blend
+
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+guis/assets/bearshoot/clouds
+{
+	{
+		map guis/assets/bearshoot/clouds.tga
+		blend add
+
+		scroll time*-0.02, 0
+
+		maskDepth
+		colored
+		nopicmip		
+	}
+}
+
+game/bearshoot/wind
+{
+	{
+		map guis/assets/bearshoot/wind.tga
+		blend blend
+
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/goal
+{
+	{
+		map guis/assets/bearshoot/sarge_bear.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/goal_dead
+{
+	{
+		map guis/assets/bearshoot/sarge_bear_dead.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/bear
+{
+	{
+		map guis/assets/bearshoot/sarge_bullet.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/gun_blast
+{
+	{
+		map guis/assets/bearshoot/sarge_gunblast.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/turret_base
+{
+	{
+		map guis/assets/bearshoot/turret_basesarge.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/turret
+{
+	{
+		map guis/assets/bearshoot/turretsarge.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/sliderback_vert
+{
+	{
+		map guis/assets/bearshoot/sliderback_vert.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/sliderback_horiz
+{
+	{
+		map guis/assets/bearshoot/sliderback_horiz.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/sliderthumb_vert
+{
+	{
+		map guis/assets/bearshoot/sliderthumb_vert.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bearshoot/sliderthumb_horiz
+{
+	{
+		map guis/assets/bearshoot/sliderthumb_horiz.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+
+// Bust-Out of Hell
+
+game/bustout/paddle
+{
+	{
+		map guis/assets/bustout/paddle.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bustout/doublepaddle
+{
+	{
+		map guis/assets/bustout/double_paddle.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bustout/ball
+{
+	{
+		map guis/assets/bustout/ball.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bustout/brick
+{
+	{
+		map guis/assets/bustout/brick.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bustout/powerup_bigpaddle
+{
+	{
+		map guis/assets/bustout/doublepaddle_bonus.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}
+
+game/bustout/powerup_multiball
+{
+	{
+		map guis/assets/bustout/multiball_bonus.tga
+		blend blend
+		maskDepth
+		colored
+		nopicmip
+	}
+}

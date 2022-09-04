@@ -1,0 +1,946 @@
+namespace map_monorail
+{
+	#define TRAIN_SPEED 300
+	#define CAGE_SPEED 150
+	#define TRAIN_FINAL_SPEED 800
+	#define	TRAIN_ANCHOR	monorail_anchor
+	#define	TRAIN_BLINK		0.1
+	#define TRAIN_BLINK2	0.1
+
+	float	TURRETS_ACTIVE = 0;
+	float	TRAIN_MOVING = 0;
+	float	TRAIN_PHASE = 1;		//	1 = 1st stretch, 2 = 2nd stretch
+	float	LLIGHT_STATE = 1;		//	1 = ON, 2 = OFF
+	float	LIGHT_FADEIN_TIME = 8;
+	float	LIGHT_FADEOUT_TIME = 0.05;
+	float	GO_PATTERN_1 = TRUE;
+	float	GO_PATTERN_3 = TRUE;
+	float	gf_Site2_Warning = TRUE;
+	float warning_speaker = 1;
+
+	void loop_site2_warning()
+	{
+		while (gf_Site2_Warning)
+		{
+			sys.wait (60);
+			if (gf_Site2_Warning == FALSE)
+				return;
+			sys.trigger ($speaker_site2_warning);
+		}
+	}
+
+	void turret_active_speaker()
+	{
+		float	sound_length;
+
+		while (warning_speaker == 1)
+		{
+			sound_length = $speaker_165.startSoundShader ("monorail_computer_turrets_on", SND_CHANNEL_VOICE2 );
+			sys.wait (sound_length);
+			if ( warning_speaker == 0)
+				//thread turret_deactivate_speaker();
+				return;
+			sys.wait( 10 );
+		}
+	}
+
+	void turret_deactivate_speaker()
+	{
+		$speaker_165.stopSound ( SND_CHANNEL_VOICE2, false );
+		sys.wait (0.75);
+		$speaker_165.startSoundShader("monorail_computer_turrets_off", SND_CHANNEL_VOICE2);
+	}
+
+	void activate_turret()
+	{
+		if (TURRETS_ACTIVE == 1)
+			return;
+			
+		//sys.print (" !!!!!   ENTERING ACTIVATE_TURRETS()   !!!!!\n");
+		$tunnel_anchor_1.rotate ('0 360 0');
+		$light_tunnel_1.On();
+		$light_tunnel_1_spin.On();
+		sys.trigger ($monster_turret_1);
+		sys.trigger ($turret_speaker);		
+		TURRETS_ACTIVE = 1;
+	}
+
+	void deactivate_turret()
+	{
+		if ( TURRETS_ACTIVE == 1 )
+		{
+			//sys.print (" !!!!!   DEACTIVATING TURRETS   !!!!!\n");
+			GO_PATTERN_1 = FALSE;
+			GO_PATTERN_3 = FALSE;
+			$security_light.setColor (0.5,0.5,0.5);
+
+			$tunnel_anchor_1.rotate ('0 0 0');
+			$light_tunnel_1.Off();
+			$light_tunnel_1_spin.Off();
+			sys.trigger ($monster_turret_1);
+			sys.trigger ($turret_speaker);
+			sys.trigger ($target_entity_setcolor_1);
+			warning_speaker = 0;
+			thread turret_deactivate_speaker();
+			//will this remove the scanner beam???
+			$bs1_start.remove ();
+			$bs1_end.remove ();
+			$bs2_start.remove ();
+			$bs2_end.remove ();
+			
+		}
+	}
+	
+	void pattern1()
+	{
+		float	x, y, i, tmp;
+		entity	px, py;
+		entity	ox, oy;
+		vector	vec_ox, vec_oy;
+		
+		while (GO_PATTERN_1)
+		{
+			for (i=1; i<=16; i++)
+			{
+				tmp = ( i + 4 );
+				y=tmp;
+				if ( (i+4) > 16 ) 
+					y = (i+4) - 16;
+				
+				x=i;
+				//sys.print ("x=" + x + " :: y=" + y + "\n");
+				
+				ox = sys.getEntity ("fp" + i);
+				oy = sys.getEntity ("fp" + y);
+				
+				vec_ox = ox.getOrigin();
+				vec_oy = oy.getOrigin();
+				
+				sys.trigger ($bs1_start);		// Turn off
+				
+				$bs1_start.setOrigin (vec_ox);
+				$bs1_end.setOrigin (vec_oy);
+				
+				sys.trigger ($bs1_start);		// Turn on
+				sys.wait (TRAIN_BLINK);
+				sys.trigger ($bs1_start);		// Make sure we turn off the last beam
+			}
+		}	
+	}
+
+	void pattern3()
+	{
+		float	x, y, i, tmp;
+		entity	px, py;
+		entity	ox, oy;
+		vector	vec_ox, vec_oy;
+		
+		while (GO_PATTERN_3)
+		{
+			// -- Horizontal Movement	
+			ox = sys.getEntity ("fp1");
+			oy = sys.getEntity ("fp12");
+			
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+			
+			ox = sys.getEntity ("fp2");
+			oy = sys.getEntity ("fp11");
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+
+			ox = sys.getEntity ("fp3");
+			oy = sys.getEntity ("fp10");
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+			
+			ox = sys.getEntity ("fp4");
+			oy = sys.getEntity ("fp9"); 
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+			
+			// -- Vertical Movement			
+
+			ox = sys.getEntity ("fp16");
+			oy = sys.getEntity ("fp5");
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+			
+			ox = sys.getEntity ("fp15");
+			oy = sys.getEntity ("fp6");
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+
+			ox = sys.getEntity ("fp14");
+			oy = sys.getEntity ("fp7");
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+			
+			ox = sys.getEntity ("fp13");
+			oy = sys.getEntity ("fp8"); 
+
+			vec_ox = ox.getOrigin();
+			vec_oy = oy.getOrigin();
+			
+			sys.trigger ($bs2_start);	// Turn off
+			
+			$bs2_start.setOrigin (vec_ox);
+			$bs2_end.setOrigin (vec_oy);
+			
+			sys.trigger ($bs2_start);	// Turn On
+			
+			sys.wait (TRAIN_BLINK2);
+		}		
+		sys.trigger ($bs2_start);		// Turn the last one off
+	}
+
+	void train_proceed()
+	{
+		TRAIN_MOVING = 3;
+/*
+		$TRAIN_ANCHOR.speed (TRAIN_FINAL_SPEED);
+		$TRAIN_ANCHOR.accelTime (8);
+		$TRAIN_ANCHOR.decelTime (0);
+*/
+		$rd_1_1.close();
+		$rd_3_1.close();				
+
+		$TRAIN_ANCHOR.time (20);
+		$TRAIN_ANCHOR.accelTime( 10 );
+		$TRAIN_ANCHOR.decelTime( 0 );
+
+		//$player1.disableWeapon();
+		
+		$TRAIN_ANCHOR.startSpline( $spline2 );
+
+		sys.trigger ($movement_speaker);		// Turn movement speaker on
+		sys.trigger ($squeal_speaker);			
+		
+		sys.waitFor ($TRAIN_ANCHOR);
+
+		//$player1.enableWeapon();
+		
+		sys.trigger ($squeal_speaker);
+		sys.trigger ($movement_speaker);		// Turn movement speaker off
+		
+		TRAIN_MOVING = 4;
+	}
+
+	// FIXME: This does not work at all. Cannot hide the monorail rider...
+	void swap_trainzombie() 
+	{
+		$monorail_rider.hide();
+		$monorail_rider.remove();
+		sys.trigger ($monorail_zombie);
+	}
+
+	void bind_objects()
+	{
+
+	}
+
+	void init_world()
+	{
+		float	i;
+		float	j;
+		entity	ent;
+
+		float	ftemp;
+		// Disable all the airlock doors for the monorail tracks
+		for (i=1; i<=12; i++)
+		{
+			for (j=1; j<=3; j++)
+			{
+				ent = sys.getEntity ( "d" + i + "_" + j );
+				ent.disable();
+			}
+		}
+
+		$d11a_1.disable();
+		$d11a_2.disable();
+		$d11a_3.disable();
+
+		$d12a_1.disable();
+		$d12a_2.disable();
+		$d12a_3.disable();
+
+		$TRAIN_ANCHOR.speed (TRAIN_SPEED);
+		
+		//$rot1.time ( CalcTimeForRotationAroundEntity( 1576, 90, TRAIN_SPEED) );
+		//$rot2.time ( CalcTimeForRotationAroundEntity( 1576, 90, TRAIN_SPEED) );
+
+		$ld_1_1.disable();
+		$ld_1_2.disable();
+		$ld_2_1.disable();
+		$ld_2_2.disable();
+		$ld_3_1.disable();
+		$ld_3_2.disable();
+		$ld_4_1.disable();
+		$ld_4_2.disable();
+
+		$rd_1_1.disable();
+		$rd_1_2.disable();
+		$rd_2_1.disable();
+		$rd_2_2.disable();
+		$rd_3_1.disable();
+		$rd_3_2.disable();
+		$rd_4_1.disable();
+		$rd_4_2.disable();
+
+		$indoor_3.disable();		//Opened up by a script later on...
+		$indoor_4.disable();		//^---- Yeah, what he said...
+
+		$ld_1_1.open();
+		//$ld_3_1.open();		//As per discussion with Tim, lets leave the back doors locked.
+
+		//$light1_green.Off();
+		$boomlight.Off();
+		$boomlight2.Off();
+		$boomlight3.Off();
+		
+		$light_tunnel_1.Off();
+		$light_tunnel_1_spin.Off();
+		
+		//hide door clips at start of map
+		$doorclip_rightFront.hide();
+		$doorclip_leftFront.hide();
+		$doorclip_rightRear.hide();
+		$doorclip_leftRear.hide();
+	}
+
+	void fadein_lights()
+	{
+		entity	ent;
+		float	i;
+		
+		for (i=1; i<=10; i++)
+		{
+			ent=sys.getEntity ("llight_" + i);
+			ent.fadeInLight (LIGHT_FADEIN_TIME);
+			
+			ent=sys.getEntity ("rlight_" + i);
+			ent.fadeInLight (LIGHT_FADEIN_TIME);
+
+			ent=sys.getEntity ("alight_" + i);
+			ent.fadeInLight (LIGHT_FADEIN_TIME);
+		
+			ent=sys.getEntity ("tlight_" + i);
+			ent.fadeInLight (LIGHT_FADEIN_TIME);
+		}
+		
+		$last_extralight.fadeInLight (LIGHT_FADEIN_TIME);
+
+	}
+
+	void toggle_llights()
+	{
+		entity	ent;
+		float	i;
+		
+		for (i=1; i<=10; i++)
+		{
+			ent=sys.getEntity ("llight_" + i);
+			if (LLIGHT_STATE == 1)
+				ent.Off();
+			else
+				ent.On();
+			
+			ent=sys.getEntity ("rlight_" + i);
+			if (LLIGHT_STATE == 1 )
+				ent.Off();
+			else
+				ent.On();
+
+			ent=sys.getEntity ("alight_" + i);
+			if (LLIGHT_STATE == 1)
+				ent.Off();
+			else
+				ent.On();
+
+			ent=sys.getEntity ("tlight_" + i);
+			if (LLIGHT_STATE == 1)
+				ent.Off();
+			else
+				ent.On();
+		}
+		
+		if (LLIGHT_STATE == 1)
+		{
+			$TRAIN_ANCHOR_flare_0.hide();
+			$TRAIN_ANCHOR_flare_2.hide();
+			$TRAIN_ANCHOR_flare_3.hide();
+			$TRAIN_ANCHOR_flare_4.hide();
+		}
+		else
+		{
+			$TRAIN_ANCHOR_flare_0.show();
+			$TRAIN_ANCHOR_flare_2.show();
+			$TRAIN_ANCHOR_flare_3.show();
+			$TRAIN_ANCHOR_flare_4.show();
+		}
+
+		if ( LLIGHT_STATE == 1)
+		{
+			LLIGHT_STATE = 0;
+		}
+		else
+			LLIGHT_STATE = 1;
+	}
+
+	void thud_1() 
+	{
+		sys.trigger ($tspeaker);
+		//toggle_llights();
+		sys.fadeOut ('0 0 0', LIGHT_FADEOUT_TIME);
+		sys.wait (0.5);
+		sys.fadeIn ('0 0 0', LIGHT_FADEOUT_TIME);
+		//toggle_llights();
+	}
+
+	void thud_2()
+	{
+		sys.trigger ($tspeaker_1);
+		//toggle_llights();
+		sys.fadeOut ('0 0 0', LIGHT_FADEOUT_TIME);
+		sys.wait (0.5);
+		sys.fadeIn ('0 0 0', LIGHT_FADEOUT_TIME);
+		//toggle_llights();
+	}
+
+	//After the train crashes, we need to hide stuff and pop in alternate models
+	void hide_train() 
+	{
+		sys.trigger ($inside_ambience);	// Turn it off
+		sys.trigger ($xian_speaker_2);	// This one too...
+		
+		$movement_speaker.remove();
+		$squeal_speaker.remove();
+		
+		//sys.trigger ($movement_speaker); // Can't forget this one either...
+		
+		sys.trigger ($train_burning);	// Turn on flame sounds
+		sys.trigger ($train_burning2);	// Turn on flame sounds
+
+		$bm_monorail.remove();
+
+		$ld_1_1.hide();
+		$ld_1_2.hide();
+		$ld_2_1.hide();
+		$ld_2_2.hide();
+		$ld_3_1.hide();
+		$ld_3_2.hide();
+		$ld_4_1.hide();
+		$ld_4_2.hide();
+		
+		sys.wait (0.05);
+		
+		$rd_1_1.hide();
+		$rd_1_2.hide();
+		$rd_2_1.hide();
+		$rd_2_2.hide();
+		$rd_3_1.hide();
+		$rd_3_2.hide();
+		$rd_4_1.hide();
+		$rd_4_2.hide();
+		
+		sys.wait (0.05);
+		
+		$xtlight_1.remove();
+		sys.wait (0.05);
+		$xtlight_2.remove();
+		sys.wait (0.05);
+		$xtlight_3.remove();
+		sys.wait (0.05);
+		$xtlight_4.remove();
+		
+		sys.wait (0.05);
+		
+		$ilight_1.remove();
+		sys.wait (0.05);
+		$ilight_2.remove();
+		sys.wait (0.05);
+		$ilight_3.remove();
+		sys.wait (0.05);
+		$ilight_4.remove();
+
+		sys.wait (0.05);
+
+		$intlight_1.remove();
+		sys.wait (0.05);
+		$intlight_2.remove();
+		sys.wait (0.05);
+		$intlight_3.remove();
+
+		sys.wait (0.05);
+
+		$indoor_3.hide();
+		sys.wait (0.05);
+		$indoor_4.hide();
+		
+		$monobox_1.hide();
+		$monobox_2.hide();
+		$monobox_3.hide();
+		
+		$fire_particle_1.show();
+		$fire_particle_2.show();
+		$fire_particle_3.show();
+		$monorail_debris_1.show();
+		$monorail_debris_2.show();
+		sys.trigger ($fire1_paintrigger);
+	}
+
+	void thud_crash()
+	{
+		sys.trigger ($crash_speaker);
+		sys.fadeOut ('0 0 0', 0.05);
+		//toggle_llights();
+		//$last_extralight.Off();
+		//$last_extralight_1.Off();
+		sys.wait (2);
+		
+		//swap out broken airlock door and overhead light
+		$crashdoor_broken.show();
+		$crashdoor_left.hide();
+		$crashdoor_middle.hide();
+		$crashdoor_right.hide();
+		$crashsite_light_on.hide();
+		$crashsite_light_damaged.show();
+		
+		sys.trigger ($door_spark1);
+		sys.trigger ($door_spark2);
+		sys.trigger ($door_spark3);
+		sys.trigger ($door_spark4);
+		sys.trigger ($door_spark5);
+		
+		
+		$track.hide();
+		sys.wait (0.1);
+		$broke_1.show();
+		sys.wait (0.1);
+		//$broke_2.show();
+		//sys.wait (0.1);
+
+		sys.trigger ($crash_destination);		// Lets get the player out of the train.
+
+		hide_train();
+
+		$boomtrain.show();
+		$boomlight.On();
+		$boomlight2.On();
+		$boomlight3.On();
+		sys.wait(2);
+		//fadein_lights();
+		sys.fadeIn ('0 0 0', LIGHT_FADEIN_TIME);
+		sys.wait (9);
+		sys.trigger ($speaker_track_malfunction);
+	}
+
+
+	void open_d1()
+	{	$d1_1.open();	}
+
+	void close_d1()
+	{	$d1_1.close();	}
+
+	void open_d2()
+	{	$d2_1.open();	}
+
+	void close_d2()
+	{	$d2_1.close();	}
+
+	void open_d3()
+	{	$d3_1.open();	}
+
+	void close_d3()
+	{	$d3_1.close();	}
+
+	void open_d4()
+	{	$d4_1.open();	}
+
+	void close_d4()
+	{	$d4_1.close();	}
+
+	void open_d5()
+	{	$d5_1.open();	}
+
+	void close_d5()
+	{	$d5_1.close();	}
+
+	void open_d6()
+	{	$d6_1.open();	}
+
+	void close_d6()
+	{	$d6_1.close();	}
+
+	void open_d7()
+	{	$d7_1.open();	}
+
+	void close_d7()
+	{	$d7_1.close();	}
+
+	void open_d8()
+	{	$d8_1.open();	}
+
+	void close_d8()
+	{	$d8_1.close();	}
+
+	void open_d9()
+	{	$d9_1.open();	}
+
+	void close_d9()
+	{	$d9_1.close();	}
+
+	void open_d10()
+	{	$d10_1.open();	}
+
+	void close_d10()
+	{	$d10_1.close();	}
+
+	void open_d11()
+	{	$d11_1.open();	}
+
+	void close_d11()
+	{	$d11_1.close();	}
+
+	void open_d11a()
+	{	$d11a_1.open();	}
+
+	void close_d11a()
+	{	$d11a_1.close();	}
+
+	void open_d12()
+	{	$d12_1.open();	}
+
+	void close_d12()
+	{	$d12_1.close();	}
+
+	void open_d12a()
+	{	
+		$d12a_1.open();
+		sys.trigger ($speaker_brakesqueal);
+	}
+
+	void close_d12a() {	
+		$d12a_1.close();	}
+
+	void open_d105() {
+		$d105_1.open();
+	}
+
+	void close_d105() {
+		$d105_1.close();	
+	}
+
+	void open_d106() {
+		$d106_1.open();
+	}
+
+	void close_d106() {
+		$d106_1.close();	
+	}
+
+
+	void reset_door()
+	{
+		//$light1_green.setColor ();
+		//$light1_yellow.setColor ()
+		//$light1_red.setColor();
+
+		$light1_red.setColor (0.168627, 0.000000, 0.000000);
+		$light1_yellow.setColor (0.819608, 0.792157, 0.070588);
+		sys.wait (0.5);
+
+		$light1_yellow.setColor (0.160784, 0.152941, 0.011765);
+		$light1_green.setColor (0.105882, 0.898039, 0.184314);
+
+		sys.wait (0.5);
+
+		sys.trigger ($speaker_overide);
+
+		sys.trigger ($unlock_objective);
+		gf_Site2_Warning = FALSE;			// Stop playing the warning loop if they have 
+														// been in the area for longer than 60 seconds
+		sys.trigger ($monorail_gui);			// Trigger the gui to resume operation
+		TRAIN_MOVING = 2;
+		
+		$rd_1_1.open();
+		$rd_3_1.open();
+		
+		//turn on trigger for tram rider swap with gibs
+		sys.trigger ($trigger_once_28);
+	}
+
+	void move_train()
+	{
+		/*
+			State is 0 upon loading the level
+			State is 1 when it's travelling along the first stretch
+			State is 2 after the button is pressed to open the two blocked doors
+			State is 3 after the train resumes the last leg of it's trip
+		*/
+		
+		if (TRAIN_MOVING == 1) return;
+
+		if (TRAIN_MOVING == 2)
+		{
+			train_proceed();
+			return;
+		}
+		
+		$ld_1_1.close();
+		//$ld_3_1.close();//already closed
+		$rd_3_1.close();
+		//turn on door player clips
+		$doorclip_rightFront.show();
+		$doorclip_leftFront.show();
+		$doorclip_rightRear.show();
+		$doorclip_leftRear.show();
+		sys.waitFor ($ld_1_1);//changed from 3_1 to 1_1
+		
+		sys.wait (1);
+		
+		$TRAIN_ANCHOR.time (70);
+		
+		$TRAIN_ANCHOR.accelTime( 3 );
+		$TRAIN_ANCHOR.decelTime( 3 );
+		
+		//$player1.disableWeapon(); //changed to target_enableweapons in radiant
+		
+		$TRAIN_ANCHOR.startSpline ( $spline1 );
+		$TRAIN_ANCHOR.removeInitialSplineAngles();
+		TRAIN_MOVING = 1;
+		
+		//trigger sounds
+		sys.trigger ($movement_speaker);
+		sys.trigger ($squeal_speaker);
+		sys.waitFor ($TRAIN_ANCHOR);
+		//trigger sounds
+		sys.trigger ($steamchuff);
+		sys.trigger ($squeal_speaker);
+		sys.trigger ($movement_speaker);
+		
+		//hide door clips after train reaches site2 dock
+		$doorclip_rightFront.hide();
+		$doorclip_leftFront.hide();
+		$doorclip_rightRear.hide();
+		$doorclip_leftRear.hide();
+		
+		//$player1.enableWeapon(); //changed to target_enableweapons in radiant
+		$rd_1_1.open();
+		sys.wait (3);
+		sys.trigger ($item_objective_5);	// Trigger the objective after the train stops.
+	}
+
+	void close_tram_doors()
+	{
+		$rd_1_1.close();
+		$rd_3_1.close();
+	}
+	
+	//void open_tram_doors()
+	//{
+	//	$rd_1_1.open();
+	//	$rd_3_1.open();
+	//}
+
+	void squeal_monorail() 
+	{
+		sys.trigger ($squeal_stop_speaker);
+	}
+	void voc_1()
+	{
+		sys.trigger ($speaker_voc1);
+	}
+	void voc_2()
+	{
+		sys.trigger ($speaker_voc2);
+	}
+	void voc_3()
+	{
+		sys.trigger ($speaker_voc3);
+	}
+	void voc_4()
+	{
+		sys.trigger ($speaker_voc4);
+	}
+	void voc_5()
+	{
+		sys.trigger ($speaker_voc5);
+	}
+	void voc_6()
+	{
+		sys.trigger ($speaker_voc6);
+	}
+	void voc_7()
+	{
+		sys.trigger ($speaker_voc7);
+	}
+	void voc_8()
+	{
+		sys.trigger ($speaker_voc8);
+	}
+	void voc_evil()
+	{
+		sys.trigger ($speaker_chant);
+	}
+	// Simplified version of Matt's E3_2 Machine
+	void spawn_exit()
+	{
+		if ( TRAIN_MOVING == 2 ) 
+		{
+			sys.trigger ($monster_demon_trite_1);
+			sys.trigger ($monster_demon_trite_2);
+		}	
+	}
+
+	void matt_mover() 
+	{
+		$arm.time (1);
+		$top.time (0.75);
+		$bottom.time (0.5);
+		
+		while (1) 
+		{
+			// Should be centered here - Moving right next...
+			$arm.rotateOnce ('0 90 0');
+			$top.rotateOnce ('0 0 90');
+			sys.waitFor ($arm);
+
+			$rotator.rotateOnce ('0 360 0');
+			$bottom.move (UP, 24);
+			
+			sys.waitFor ($bottom);
+			
+			sys.wait (0.5);
+		
+			$rotator.rotateOnce ('0 -360 0');
+			$bottom.move (DOWN, 24);
+			sys.waitFor ($bottom);
+			
+			$arm.rotateOnce ('0 -90 0');
+			$top.rotateOnce ('0 0 -90');
+			sys.waitFor ($arm);
+
+			// Should be centered here ... about to move left.
+			
+			$arm.rotateOnce ('0 -90 0');
+			$top.rotateOnce ('0 0 -90');
+			sys.waitFor ($arm);
+
+			$rotator.rotateOnce ('0 360 0');
+			$bottom.move (UP, 24);
+			
+			sys.waitFor ($bottom);
+
+			sys.wait (0.5);
+
+			$rotator.rotateOnce ('0 -360 0');
+			$bottom.move (DOWN, 24);
+			sys.waitFor ($bottom);
+			
+			$arm.rotateOnce ('0 90 0');
+			$top.rotateOnce ('0 0 90');
+			sys.waitFor ($arm);
+		}
+	}
+
+	void cage_movement(entity ent) 
+	{
+		//$rot1.time ( CalcTimeForRotationAroundEntity( 1576, 90, TRAIN_SPEED) );
+		vector	vec;
+		entity  cagepath;
+		ent.time (CAGE_SPEED);
+	}
+
+	void activate_rider()
+	 {
+		sys.trigger ($monorail_rider_1);
+		sys.wait(.1);
+		$indoor_3.open();					// Open the door so we can see the monorail rider.
+		$indoor_4.open();		
+	}
+
+	void cache_sounds() {
+		$speaker_165.cacheSoundShader ("monorail_computer_turrets_on");
+		$speaker_165.cacheSoundShader ("monorail_computer_turrets_off");
+	}
+	
+	void main()
+	{
+		cache_sounds();
+		bind_objects();
+		init_world();
+		thread pattern1();
+		thread pattern3();
+		thread matt_mover();
+	}
+}

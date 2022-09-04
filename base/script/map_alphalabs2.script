@@ -1,0 +1,587 @@
+namespace map_alphalabs2 {
+	#define XMACH_BASE_SPEED	2
+	#define XMACH_JOINT_SPEED	2
+	//#define DEBUG				1
+	//#define VERBOSE				1
+	//#define ENABLE_BEAM			1
+
+	float	spawn_start_imp = 0;			// Is it ok to spawn in the first imp ?
+	float	surprise_pinky_spawn = 0; 	// Did we kill the imp, to spawn in the surprise pinky at the CP ?
+	float	surprise_pinky_dead = 0;  		// Did we kill the surprise pinky ? (Used to prevent retriggers)
+	float	xmach_current = 0;				// Current rotation angle it's at
+	float	xmach_value = 0;				// What is the current location of the machine ? (1-12)
+
+	void bathroom_init() 
+	{
+		$bathroom_swinglamp_anchor.sway( 2.5, 1, '0 0 15' );
+	}
+
+	void entrance_door() 
+	{
+		$start_light1.Off();
+		$start_light2.Off();
+		sys.trigger ($start_light3);
+		sys.trigger ($start_particle);
+		sys.wait (1);
+		$start_light2.On();
+	}
+
+	////////////////////////////////////////////////////
+	//	Setup binds and times and initial movements etc...
+	////////////////////////////////////////////////////
+	void setup_objects()
+	{
+		vector	beam_dst;
+	
+		$mazelight_red_1.fadeOutLight (0.1);
+		$mazelight_red_2.fadeOutLight (0.1);
+		$mazelight_red_3.fadeOutLight (0.1);
+
+		//$mfs_redlight1.fadeOutLight (0.1);
+		//$mfs_redlight2.fadeOutLight (0.1);
+		//$mfs_redlight3.fadeOutLight (0.1);
+
+
+		$claw_arm_lower.time (0.75);
+		$claw_arm_lower.accelTime (0.25);
+		$claw_arm_lower.decelTime (0.25);
+		$claw_arm_upper.time (0.75);
+		$claw_arm_upper.accelTime (0.25);
+		$claw_arm_upper.decelTime (0.25);
+		$claw_arm_wrist.time (0.75);
+		$claw_arm_wrist.accelTime (0.25);
+		$claw_arm_wrist.decelTime (0.25);
+		$claw_revolver.time (2);
+		$claw_tooth_1.time (0.5);
+		$claw_tooth_2.time (0.5);
+
+		$claw_arm_upper.rotateOnce ('-40 0 0');
+		$claw_arm_lower.rotateOnce ('50 0 0');
+		$claw_arm_wrist.rotateOnce ('180 0 0');
+
+		$ddoor_1_anchor.time (1);
+		$ddoor_2_anchor.time (1);
+		$ddoor_1_anchor.accelTime (0.25);
+		$ddoor_2_anchor.accelTime (0.25);
+		$ddoor_1_anchor.decelTime (0.25);
+		$ddoor_2_anchor.decelTime (0.25);
+
+		$lobby1left.disable();
+		$lobby1right.disable();
+		$mal_func_door_55.disable();
+		$mal_func_door_56.disable();
+
+		sys.wait( 1 );
+
+		thread entrance_door();
+		
+		//$br_secretdoor.speed (96);
+		$secret_door2.time (1.5);
+		$secret_ladder.time (3);
+		$secret_ladder.move (DOWN, 106);
+		$exit_ladder.move(DOWN, 126);
+
+		$elight.rotate ('0 -400 0');
+
+		$deadmarine_mover.speed (128);
+		$deadmarine_mover.moveTo ($deadmarine_path1);
+		
+		//break lights in machine room
+		sys.trigger($light_4678);
+		sys.trigger($light_4679);
+		sys.trigger($light_4683);
+		sys.trigger($light_4684);
+	}
+
+	void br_move_secret_door()
+	{
+		$br_secretdoor.time(.5);
+		$br_secretdoor.accelTime(.25);
+		$br_secretdoor.decelTime(.25);
+		$br_secretdoor.moveTo ($br_secretdoor_path1);
+		sys.waitFor ($br_secretdoor);
+		sys.wait (0.5);
+		$br_secretdoor.time(1.0);
+		$br_secretdoor.accelTime(.5);
+		$br_secretdoor.decelTime(.5);
+		$br_secretdoor.moveTo ($br_secretdoor_path2);
+		sys.waitFor ($br_secretdoor);
+	}
+
+	void emp_blast() 
+	{
+		float	i;
+		entity emplight, empspeaker;
+		
+		for (i=1; i<=10; i++) 
+		{
+			emplight = sys.getEntity ("emplight_" + i);
+			emplight.On();
+			empspeaker = sys.getEntity ("empspeaker_" + i);
+			sys.trigger (empspeaker);
+			sys.wait (0.1);
+			emplight.Off();
+		}
+	}
+
+	void open_secrethatch()
+	{
+		sys.trigger ($mfs_secretdoor_open);
+		$secret_door2.moveTo ($secret2_path1);
+		sys.waitFor ($secret_door2);
+		$secret_door2.moveTo ($secret2_path2);
+		sys.waitFor ($secret_door2);
+		$secret_ladder_door.open(); 
+		sys.waitFor ($secret_ladder_door);
+		sys.trigger ($mfs_speaker_secretladder);
+		$secret_ladder.move (UP, 106);
+	}
+
+	///////////////////////
+	// 	Mal's machine
+	///////////////////////
+	void spinner()
+	{
+		while (1)
+		{
+			$slidearm.bind ($slidearm_anchor);
+			$can1.bind ($slidearm);
+			$can2.bind ($maindrum);
+			$slidearm_anchor.time (2);
+			$slidearm.time (2);
+			$can1.time (1);
+			$can2.time (1);
+			$maindrum.time (1);
+			$plunger.time (1);
+			
+			//canister1 feed from main drum
+			sys.trigger ($mfs_roller_speaker_in);
+			$slidearm_anchor.moveTo ($slidearm_p2);
+			sys.wait (.1);
+			$slidearm.rotateOnce (' 0 0 -90 ');
+			sys.waitFor ($slidearm_anchor);
+			
+			//canister1 feed into machine
+			sys.wait (1.5);
+			$can1.unbind();
+			$can1.bind ($plunger);
+			sys.trigger ($mfs_plunger_in);
+			$plunger.move (FORWARD,96);
+			sys.waitFor ($plunger);			// was $can1
+			$can1.unbind();
+			sys.trigger ($mfs_can1_speaker);
+			$can1.moveTo ($can_target);
+			sys.waitFor ($can1);
+			
+			//canister1 teleport
+			$can1.time (.01);
+			$can1.moveTo ($canspawn);
+			sys.waitFor ($can1);
+			$can1.bind ($maindrum);
+			
+			//slidearm reset
+			sys.trigger ($mfs_roller_speaker_out);
+			$slidearm_anchor.moveTo ($slidearm_p1);
+			$slidearm.rotateOnce (' 0 0 90 ');
+			sys.trigger ($mfs_plunger_out);
+			$plunger.move (BACK,96);
+			sys.waitFor ($slidearm_anchor);
+			
+			//main drum rotation
+			sys.trigger ($mfs_drum_speaker);
+			$maindrum.rotateOnce (' 0 0 -90 ');
+			sys.waitFor ($maindrum);
+			$can2.unbind();
+			sys.wait (.1);
+			
+			//canister2 feed from main drum
+			$can2.bind ($slidearm);
+			sys.trigger ($mfs_roller_speaker_in);
+			sys.trigger ($mfs_can2_speaker);
+			$slidearm_anchor.moveTo ($slidearm_p2);
+			sys.wait (.1);
+			$slidearm.rotateOnce (' 0 0 -90 ');
+			sys.waitFor ($slidearm_anchor);
+			
+			//canister2 feed into machine
+			sys.wait (1.5);
+			$can2.unbind();
+			$can2.bind ($plunger);
+			//$can2.move (FORWARD,232);
+			sys.trigger ($mfs_plunger_in);
+			$plunger.move (FORWARD,96);
+			sys.waitFor ($plunger);
+			$can2.unbind();
+			sys.trigger ($mfs_can2_speaker);
+			$can2.moveTo ($can_target);
+			sys.waitFor ($can2);
+			
+			//canister2 teleport
+			$can2.time (.01);
+			$can2.moveTo ($canspawn);
+			sys.waitFor ($can2);
+			$can2.bind ($maindrum);
+			
+			//slidearm reset
+			sys.trigger ($mfs_roller_speaker_out);
+			$slidearm_anchor.moveTo ($slidearm_p1);
+			$slidearm.rotateOnce (' 0 0 90 ');
+			sys.trigger ($mfs_plunger_out);
+			$plunger.move (BACK,96);
+			sys.waitFor ($slidearm_anchor);
+			
+			//main drum rotation
+			sys.trigger ($mfs_drum_speaker);
+			$maindrum.rotateOnce (' 0 0 -90 ');
+			sys.waitFor ($maindrum);
+			$can1.unbind();
+			sys.wait (.1);
+		}
+	}
+
+	// The other half of the rotating tube-thingy machine...
+	void mach2()
+	{
+		entity	ent, ent2;
+		vector	bm_origin, bm_origin2;
+		bm_origin = $mach2_path1.getOrigin();
+		
+		while (1)
+		{
+			$mach2_tube.time (2);
+			$mach2_tube.setOrigin (bm_origin);
+			sys.trigger ($mfs_speaker_tube);
+			$mach2_tube.moveTo ($mach2_path2);
+			sys.waitFor ($mach2_tube);
+			sys.wait (1);
+			
+			$mach2_flap_left_anchor.time (1);
+			$mach2_flap_right_anchor.time (1);
+			
+			sys.trigger ($mfs_speaker_flap_close);
+			
+			$mach2_flap_left_anchor.rotateOnce ('0 0 -90');
+			$mach2_flap_right_anchor.rotateOnce ('0 0 90');
+			sys.waitFor ($mach2_flap_right_anchor);
+			sys.trigger ($mfs_speaker_decent);
+			
+			$mach2_tube.moveTo ($mach2_path3);
+			sys.waitFor ($mach2_tube);
+			sys.trigger ($mfs_speaker_flap_open);
+			
+			$mach2_flap_left_anchor.rotateOnce ('0 0 90');
+			$mach2_flap_right_anchor.rotateOnce ('0 0 -90');
+			sys.waitFor ($mach2_flap_right_anchor);
+			sys.wait (0.2);
+		}
+	}
+	
+	///////////////////////
+	// 	Jerry's machine
+	///////////////////////
+	void spawn_canister() 
+	{
+		vector startlocation;
+		startlocation = $canister1.getWorldOrigin();
+		
+		$spinner1.time (1.5);
+		$spinner1.accelTime (.75);
+		$spinner1.decelTime (.75);
+		$spinner2.time (1.5);
+		$spinner2.accelTime (.75);
+		$spinner2.decelTime (.75);
+		$pivot_point.time (1.75);
+		$pivot_point.accelTime (.75);
+		$pivot_point.decelTime (.75);
+		$body.time (1);
+		$body.accelTime (.75);
+		$body.decelTime (.25);
+		$middle_arm.time (1.5);
+		$middle_arm.accelTime (.75);
+		$middle_arm.decelTime (.75);
+		$clamp_arm.time (1.5);
+		$clamp_arm.accelTime (.75);
+		$clamp_arm.decelTime (.75);
+		$can_door1.time (1);
+		$can_door1.accelTime (.75);
+		$can_door1.decelTime (.25);
+		$can_door2.time (1);
+		$can_door2.accelTime (.75);
+		$can_door2.decelTime (.25);
+		
+		while (1) 
+		{
+			//NOTE - machine starts in lowered position
+			$canister1.bind ($clamp_arm);
+			//move arms up
+			$spinner1.rotateOnce ('0 720 0');
+			$spinner2.rotateOnce ('0 720 0');
+			$clamp_arm.move (UP, 40 );
+			$middle_arm.move (UP, 60);
+			$pivot_point.moveTo ($p2);
+			sys.waitFor ($pivot_point);
+			//close doors
+			$can_door1.rotateOnce ('0 0 90');
+			$can_door2.rotateOnce ('0 0 90');
+			//rotate machine
+			$body.rotateOnce (' 0 0 90 ');
+			sys.waitFor ($body);
+			//move arms in
+			$spinner1.rotateOnce ('0 -720 0');
+			$spinner2.rotateOnce ('0 -720 0');
+			$middle_arm.move (-90, 60);
+			$clamp_arm.move (-90, 40 );
+			sys.waitFor ($clamp_arm);
+			//release canister
+			$canister1.unbind();
+			//move arms out
+			$spinner1.rotateOnce ('0 720 0');
+			$spinner2.rotateOnce ('0 720 0');
+			$middle_arm.move (90, 60);
+			$clamp_arm.move (90, 40 );
+			sys.waitFor ($clamp_arm);
+			$body.rotateOnce (' 0 0 -90 ');
+			sys.waitFor ($body);
+			//move canister back to start position
+			$canister1.setWorldOrigin (startlocation);
+			//move arms down
+			$can_door1.rotateOnce ('0 0 -90');
+			$can_door2.rotateOnce ('0 0 -90');
+			$spinner1.rotateOnce ('0 -720 0');
+			$spinner2.rotateOnce ('0 -720 0');
+			$pivot_point.moveTo ($p1);
+			$middle_arm.move (DOWN, 60);
+			$clamp_arm.move (DOWN, 40 );
+			sys.waitFor ($clamp_arm);
+		}
+	}
+
+	void xmachroom() 
+	{
+		while (1) 
+		{
+			thread spawn_canister();
+			sys.wait (2);
+		}
+	}
+
+	void sci_kill_lights() 
+	{
+		$mazelight_1.Off();
+		$mazelight_2.Off();
+		sys.wait (.75);
+		//sys.trigger ($mazeimp_1);
+		//sys.trigger ($mazeimp_2);
+		//sys.trigger ($mazeimp_3);
+		sys.trigger ($open_impdoors);
+		sys.trigger ($imp_maze_wakeup);
+		
+		//simulate lantern flash
+		sys.wait ( .40 );
+		$lantern_flash.On();
+		sys.wait (.15);
+		$lantern_flash.Off();
+		
+		sys.trigger ($maze_bloodpool);
+		sys.trigger ($maze_bloodpool_1);
+		sys.trigger ($maze_bloodpool_2);
+		sys.trigger ($maze_bloodpool_3);
+		sys.trigger ($maze_bloodpool_4);
+		$mazelight_red_1.fadeInLight (4);
+		$mazelight_red_2.fadeInLight (4);
+		$mazelight_red_3.fadeInLight (4);
+		sys.wait (4);
+		$mazelight_1.fadeInLight (4);
+		$mazelight_2.fadeInLight (4);
+	}
+/*
+	void mfs_redlights()
+	{
+		$mfs_redlight1.fadeInLight (4);
+		$mfs_redlight2.fadeInLight (4);
+		$mfs_redlight3.fadeInLight (4);	
+	}
+*/
+	// First posessed guy...
+	void move_soldier() 
+	{
+		float	i;
+		entity	ent;
+		$wrist_mover.speed (128);
+		
+		sys.trigger ($start_fadeout_blue);
+		sys.trigger ($start_fadeout_white);
+		//sys.trigger ($start_fadeout_sky);
+		
+		for (i=1; i<=7; i++) 
+		{
+			ent = sys.getEntity ("soldier_path" + i);
+			$wrist_mover.moveTo (ent);
+			sys.waitFor ($wrist_mover);
+			if (i == 1) 
+			{
+				sys.trigger ($explodinglight_trigger_1);
+				sys.trigger ($explodinglight_trigger_1a);
+				sys.trigger ($explodinglight_trigger_1b);
+				sys.trigger ($explodinglight_trigger_1c);
+				//$body_spinner.rotate ('-10 20 -25');
+				sys.wait (1);
+				$wrist_mover.speed (200);
+			}
+			if (i == 2) 
+			{
+				sys.trigger ($explodinglight_trigger_2);
+				sys.trigger ($explodinglight_trigger_2a);
+				sys.trigger ($explodinglight_trigger_2b);
+				sys.trigger ($explodinglight_trigger_2c);
+			}
+			if (i == 3) 
+			{
+				sys.trigger ($explodinglight_trigger_3);
+				sys.trigger ($explodinglight_trigger_3a);
+				sys.trigger ($explodinglight_trigger_3b);
+				sys.trigger ($explodinglight_trigger_3c);
+				$tim_func_door_202.open();
+				$tim_func_door_203.open();
+			}
+			if ( i == 4) 
+			{
+				$tim_func_door_202.close();
+				$tim_func_door_203.close();
+				$tim_func_door_203.lock(1);
+				$tim_func_door_202.lock(1);
+				
+				//disable player forcefield
+				$trigger_once_56.disable();
+				
+				$env_ragdoll_marine1_1.unbind();
+				sys.trigger ($start_fadein_blue);
+				sys.trigger ($start_fadein_white);
+				//sys.trigger ($start_fadein_sky);
+				spawn_start_imp = 1;
+			}
+		}
+		$wrist_mover.remove();
+		$env_ragdoll_marine1_1.remove();
+	}
+
+	void spawn_imp_entrance() 
+	{
+		while (1) 
+		{
+			if (spawn_start_imp == 1) 
+			{
+				sys.trigger ($entrance_relay);
+				sys.trigger ($trigger_relay_45);
+				sys.trigger ($trigger_relay_47);
+				sys.trigger ($impstart_influence);
+				sys.wait (1);
+				sys.trigger ($start_imp_forcefield);
+				sys.trigger ($blowout_window);
+				sys.wait (1);
+				//sys.trigger ($surprise_imp_1);
+				return;
+			}
+			sys.wait (1);
+		}
+	}
+
+	// Called when the first imp dies
+	void unlock_start_door() 
+	{
+		$tim_func_door_202.lock(0);
+		$tim_func_door_203.lock(0);	
+	}
+	
+	// Guy getting pulled into the ceiling @ start of the map	
+	void gank_deadsoldier()
+	{
+		sys.trigger ($impscream);
+		sys.wait (1);
+		$deadmarine_mover.moveTo ($deadmarine_path2);
+		sys.trigger ($impscream_crunch_speaker);
+		sys.wait (1.5);
+		$deadmarine_mover.moveTo ($deadmarine_path3);
+		sys.wait (1.75);
+		$xenv_ragdoll_marine1_0.remove();
+		//sys.trigger ($imp_scream);
+		//sys.wait (1);
+		sys.trigger ($bodypart_1);
+		sys.wait (1);
+		sys.trigger ($bodypart_2);
+		sys.wait (1.25);
+		sys.trigger ($bodypart_3);
+		sys.wait (0.75);
+		sys.trigger ($bodypart_4);
+		sys.wait (1);
+		sys.trigger ($bodypart_5);
+		sys.wait (1.5);
+		sys.trigger ($bodypart_6);
+		sys.wait (5);
+		sys.trigger ($bodypart_7);
+	}
+
+	// Trap door in ceiling that a dead scientist drops out of
+	void open_cp_trapdoor() 
+	{
+		$trapdoor_1_anchor.time (0.5);
+		$trapdoor_1_anchor.rotateOnce ('0 0 45');
+	}
+	
+	void exit_ladder_move()
+	{
+		$exit_ladder.time(2);
+		$exit_ladder.accelTime(.5);
+		$exit_ladder.decelTime(1.5);
+		sys.trigger ($speaker_up_2seconds);
+		$exit_ladder.move(UP, 48);
+		sys.waitFor($exit_ladder);
+		sys.wait(4);
+		$exit_ladder.time(2);
+		$exit_ladder.accelTime(.5);
+		$exit_ladder.decelTime(1.5);
+		sys.trigger ($speaker_down_2seconds);
+		$exit_ladder.move(DOWN, 48);
+		sys.waitFor($exit_ladder);
+		sys.wait(5);
+		$exit_ladder.time(3);
+		$exit_ladder.accelTime(1);
+		$exit_ladder.decelTime(2);
+		sys.trigger ($speaker_up_3seconds);
+		$exit_ladder.move(UP, 64);
+		sys.waitFor($exit_ladder);
+		sys.wait(4);
+		$exit_ladder.time(2);
+		$exit_ladder.accelTime(.5);
+		$exit_ladder.decelTime(1.5);
+		sys.trigger ($speaker_down_2seconds);
+		$exit_ladder.move(DOWN, 64);
+		sys.waitFor($exit_ladder);
+		sys.wait(20);
+		$exit_ladder.time(4);
+		$exit_ladder.accelTime(1);
+		$exit_ladder.decelTime(3);
+		sys.trigger ($speaker_up_4seconds);
+		$exit_ladder.move(UP, 126);
+		sys.waitFor($exit_ladder);
+		$exit_ladder_clip.remove();
+		//trigger gui
+		sys.trigger( $func_static_5089);
+		$func_static_5089.setShaderParm (7, 1);
+		//turn on ladder lights
+		sys.trigger( $ladder_lights_relay);
+		
+	}
+
+	////////////////////////////////////////////////////
+	//	Main
+	////////////////////////////////////////////////////
+	void main() 
+	{
+		setup_objects();
+		thread bathroom_init();
+		thread spinner();
+		thread mach2();
+		thread spawn_canister();
+	}
+}

@@ -1,0 +1,153 @@
+
+entityDef aas_types {
+	"type1"						"aas48"
+	"type2"						"aas96"
+	"type3"						"aas_guardian"
+	"type4"						"aas_mancubus"
+	"type5"						"aas_sabaoth"	
+	"type6"						"aas_cyberdemon"
+}
+
+//
+// 48x48x82
+//
+entityDef aas48 {
+	"mins"						"-24 -24 0"
+	"maxs"						"24 24 82"
+	"usePatches"				"0"
+	"writeBrushMap"				"0"
+	"playerFlood"				"0"
+	"allowSwimReachabilities"	"0"
+	"allowFlyReachabilities"	"1"
+	"fileExtension"				"aas48"
+	"gravity"					"0 0 -1050"
+	"maxStepHeight"				"18"
+	"maxBarrierHeight"			"32"
+	"maxWaterJumpHeight"		"20"
+	"maxFallHeight"				"64"
+	"minFloorCos"				"0.6999999881"
+	"tt_barrierJump"			"100"
+	"tt_startCrouching"			"100"
+	"tt_waterJump"				"100"
+	"tt_startWalkOffLedge"		"100"
+}
+
+//
+// 96x96x96
+//
+entityDef aas96 {
+	"mins"						"-47 -47 0"
+	"maxs"						"47 47 96"
+	"usePatches"				"0"
+	"writeBrushMap"				"0"
+	"playerFlood"				"0"
+	"allowSwimReachabilities"	"0"
+	"allowFlyReachabilities"	"0"
+	"fileExtension"				"aas96"
+	"gravity"					"0 0 -1050"
+	"maxStepHeight"				"18"
+	"maxBarrierHeight"			"32"
+	"maxWaterJumpHeight"		"20"
+	"maxFallHeight"				"64"
+	"minFloorCos"				"0.6999999881"
+	"tt_barrierJump"			"100"
+	"tt_startCrouching"			"100"
+	"tt_waterJump"				"100"
+	"tt_startWalkOffLedge"		"100"
+}
+
+//
+// Mancubus 124x124x96
+//
+entityDef aas_mancubus {
+	"mins"						"-61 -61 0"
+	"maxs"						"61 61 96"
+	"usePatches"				"0"
+	"writeBrushMap"				"0"
+	"playerFlood"				"0"
+	"allowSwimReachabilities"	"0"
+	"allowFlyReachabilities"	"0"
+	"fileExtension"				"aas_mancubus"
+	"gravity"					"0 0 -1050"
+	"maxStepHeight"				"18"
+	"maxBarrierHeight"			"32"
+	"maxWaterJumpHeight"		"20"
+	"maxFallHeight"				"64"
+	"minFloorCos"				"0.6999999881"
+	"tt_barrierJump"			"100"
+	"tt_startCrouching"			"100"
+	"tt_waterJump"				"100"
+	"tt_startWalkOffLedge"		"100"
+}
+
+//
+// 200x200x200
+//
+entityDef aas_guardian {
+	"mins"						"-100 -100 0"
+	"maxs"						"100 100 200"
+	"usePatches"				"0"
+	"writeBrushMap"				"0"
+	"playerFlood"				"0"
+	"allowSwimReachabilities"	"0"
+	"allowFlyReachabilities"	"0"
+	"fileExtension"				"aas_guardian"
+	"gravity"					"0 0 -1050"
+	"maxStepHeight"				"18"
+	"maxBarrierHeight"			"32"
+	"maxWaterJumpHeight"		"20"
+	"maxFallHeight"				"128"
+	"minFloorCos"				"0.6999999881"
+	"tt_barrierJump"			"100"
+	"tt_startCrouching"			"100"
+	"tt_waterJump"				"100"
+	"tt_startWalkOffLedge"		"100"
+}
+
+//
+// 172x172x144
+//
+entityDef aas_sabaoth {
+	"mins"						"-86 -86 0"
+	"maxs"						"86 86 144"
+	"usePatches"				"0"
+	"writeBrushMap"				"0"
+	"playerFlood"				"0"
+	"allowSwimReachabilities"	"0"
+	"allowFlyReachabilities"	"0"
+	"fileExtension"				"aas_sabaoth"
+	"gravity"					"0 0 -1050"
+	"maxStepHeight"				"18"
+	"maxBarrierHeight"			"32"
+	"maxWaterJumpHeight"		"20"
+	"maxFallHeight"				"128"
+	"minFloorCos"				"0.6999999881"
+	"tt_barrierJump"			"100"
+	"tt_startCrouching"			"100"
+	"tt_waterJump"				"100"
+	"tt_startWalkOffLedge"		"100"
+}
+
+//
+// 180x180x300
+//
+entityDef aas_cyberdemon {
+	"mins"						"-50 -50 0"
+	"maxs"						"50 50 300"
+	"usePatches"				"0"
+	"writeBrushMap"				"0"
+	"playerFlood"				"0"
+	"allowSwimReachabilities"	"0"
+	"allowFlyReachabilities"	"0"
+	"fileExtension"				"aas_cyberdemon"
+	"gravity"					"0 0 -1050"
+	"maxStepHeight"				"18"
+	"maxBarrierHeight"			"32"
+	"maxWaterJumpHeight"		"20"
+	"maxFallHeight"				"128"
+	"minFloorCos"				"0.6999999881"
+	"tt_barrierJump"			"100"
+	"tt_startCrouching"			"100"
+	"tt_waterJump"				"100"
+	"tt_startWalkOffLedge"		"100"
+}

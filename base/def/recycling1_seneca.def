@@ -1,0 +1,38 @@
+export seneca {
+
+	options -prefix bridge_ -sourcedir models/mapobjects/recycle/skybridge/ -destdir models/md5/cinematics/recycling1/
+	mesh	skybridge.mb -range 55 55
+	anim	skybridge.mb -range 1 1 -dest start
+	anim	skybridge.mb
+}
+
+model recycling1_skybridge {
+	mesh							models/md5/cinematics/recycling1/skybridge.md5mesh
+	anim start						models/md5/cinematics/recycling1/start.md5anim
+	anim break						models/md5/cinematics/recycling1/skybridge.md5anim
+		{
+			frame 1						trigger	func_forcefield_4a
+			frame 2						trigger	func_fracture_4a
+			frame 3						trigger	func_forcefield_4b
+			frame 4						trigger	func_fracture_4b
+	              //frame 5						trigger	func_forcefield_4c
+			frame 6						trigger	func_fracture_4c
+		      //frame 7						trigger	func_forcefield_4d
+		      //frame 8						trigger	func_fracture_4d
+			frame 3						trigger fallingdust2
+			frame 4						trigger fallingdust1
+		      //frame 20					trigger bridgeclip
+			frame 30					trigger dust3
+		      //frame 35					trigger bridgeclip2
+			
+
+		}
+}
+
+entityDef recycling1_skybridge {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"recycling1_skybridge"
+}
+

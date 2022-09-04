@@ -1,0 +1,917 @@
+
+entityDef cin_base {
+	"inherit"				"func_animate"
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+	"cycle"					"1"
+	"wait"					"-1"
+}
+
+
+//E3 Teaser...
+
+export fred {
+
+	camera	models/monsters/hellknight/cycles/roar3.mb -dest models/md5/cinematics/e3teasercam
+
+	options -prefix HK_ -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+
+	mesh	models/monsters/hellknight/cycles/roar3.mb -dest models/md5/cinematics/e3teaserhk_mesh
+	anim	models/monsters/hellknight/cycles/roar3.mb -dest models/md5/cinematics/e3teaserhk
+
+	}
+
+entityDef cin_e3teaser_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim e3teasercam"				"models/md5/cinematics/e3teasercam.md5camera"
+}
+
+model cin_e3teaser_hk {
+	mesh							models/md5/cinematics/e3teaserhk_mesh.md5mesh
+	anim e3teaserhk					models/md5/cinematics/e3teaserhk.md5anim {
+		frame 1							call e3teaserhk_drool
+	}
+}
+
+entityDef cin_e3teaser_hk {
+	"inherit"						"cin_base"
+	"anim"							"e3teaserhk"
+	"model"							"cin_e3teaser_hk"
+}
+
+//Logo Camera...
+
+export fred {
+	camera	maps/fred/e3/logo/logo.mb -dest models/md5/cinematics/logo/logocam
+}
+
+entityDef cin_logo_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim logocam"					"models/md5/cinematics/logo/logocam.md5camera"
+}
+
+
+//Planet Mars Space Shot...
+
+export fred {
+
+	camera	maps/fred/mars/mars.mb -dest models/md5/cinematics/mars/marscam
+
+	options -prefix FLARE_
+	
+	mesh	maps/fred/mars/mars.mb -dest models/md5/cinematics/mars/flaremesh
+	anim	maps/fred/mars/mars.mb -dest models/md5/cinematics/mars/flaremove
+}
+
+entityDef cin_mars_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim marscam"					"models/md5/cinematics/mars/marscam.md5camera"
+}
+
+model cin_mars_flare {
+	mesh							models/md5/cinematics/mars/flaremesh.md5mesh
+	anim marsflare					models/md5/cinematics/mars/flaremove.md5anim {
+		frame 92						sound e3_voiceover_line1
+	}
+}
+
+entityDef cin_mars_flare {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idAnimated"
+	"model"							"cin_mars_flare"
+}
+
+//ROOM SHAKE...
+
+export fred {
+	camera	maps/fred/e3/shake/shake.mb -dest models/md5/cinematics/roomshake/cin_shakecam
+
+	options -prefix SHAKE_
+	
+	mesh	maps/fred/e3/shake/shake.mb -dest models/md5/cinematics/roomshake/cin_shake
+	anim	maps/fred/e3/shake/shake.mb -dest models/md5/cinematics/roomshake/cin_shake
+}
+
+entityDef cin_shake_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim shakecam"					"models/md5/cinematics/roomshake/cin_shakecam.md5camera"
+}
+
+model cin_shake {
+	mesh							models/md5/cinematics/roomshake/cin_shake.md5mesh
+	anim shake						models/md5/cinematics/roomshake/cin_shake.md5anim {
+		frame 9							trigger func_fx_1
+		frame 22						trigger shake_fire1
+
+		frame 32						trigger func_fx_2
+		frame 72						trigger func_fx_3
+		frame 99						trigger func_fx_4
+		frame 107						trigger shake_fire2
+
+		frame 116						trigger func_fx_5
+		frame 117						trigger break_shake
+		frame 146						trigger func_fx_6
+		frame 149						trigger shake_fire3
+	}
+}
+
+entityDef cin_shake {
+	"inherit"						"cin_base"
+	"anim"							"shake"
+	"model"							"cin_shake"
+}
+
+//teleport room
+
+export fred {
+	camera	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/telecam
+
+// ghost skull and ghost skull3 mesh
+	
+	options		-prefix SKULL1_
+	mesh	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skull3mesh
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skullone
+	options		-prefix SKULL2_
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skulltwo
+	options		-prefix SKULL3_
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skullthree
+	options		-prefix SKULL4_
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skullfour
+	options		-prefix SKULL5_
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skullfive
+	options		-prefix SKULL6_
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skullsix
+	options		-prefix SKULL7_
+	mesh	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skull7mesh
+	anim	maps/fred/e3/teleport/tele2.mb -dest models/md5/cinematics/teleporter/skullseven
+}
+
+entityDef cin_tele_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim e3telecam"				"models/md5/cinematics/teleporter/telecam.md5camera"
+
+/*	FIXME: Can't call frame commands on camera anims
+	"frame e3telecam:3"					"trigger teleporter_explosion"
+	"frame e3telecam:7"						"trigger tim_func_fx_1"
+	"frame e3telecam:19"					"trigger tim_func_fx_2"
+	
+	"frame e3telecam:15"					"call e3_teleporter_nobs"
+	"frame e3telecam:16"					"call e3_teleporter_none"	
+	"frame e3telecam:18"					"call e3_teleporter_nobs"
+	"frame e3telecam:21"					"call e3_teleporter_none"
+	"frame e3telecam:24"					"call e3_teleporter_nobs"
+	"frame e3telecam:28"					"call e3_teleporter_none"
+	"frame e3telecam:30"					"call e3_teleporter_nobs"
+	"frame e3telecam:33"					"call e3_teleporter_none"
+	"frame e3telecam:37"					"call e3_teleporter_nobs"
+
+	"frame e3telecam:43"					"call e3_teleporter_full"
+	"frame e3telecam:61"					"trigger ken_teleporter_fx"
+	"frame e3telecam:61.1"					"trigger ken_light_1"
+*/
+}
+
+model cin_tele_skull7 {
+	mesh						models/md5/cinematics/teleporter/skull7mesh.md5mesh
+	anim skull7tel				models/md5/cinematics/teleporter/skullseven.md5anim {
+		frame 7						trigger tim_func_fx_1
+		frame 19					trigger tim_func_fx_2
+	}
+}
+
+entityDef cin_tele_skull7 {
+	"inherit"					"cin_base"
+	"anim"						"skull7tel"
+	"model"						"cin_tele_skull7"
+}
+
+// possessions
+
+export fred {
+	
+
+	// security
+	
+	options	-prefix SECURITY1_  -keep face1stare face2stare TOO -parent Rpistol Rhand -parent face1neck Shldrs -parent face2neck Shldrs -parent helmetneck Shldrs -parent goggles face2head -parent face1stare face1head -parent face2stare face2head -parent TOOF face2head -parent TOOF2 face2jaw -range 1 295
+
+	anim	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/sec
+
+	// zombie security
+	
+	options		-prefix ZSEC_ -keep Barrel -parent Barrel Rpistol -parent Rpistol Rhand -parent Neck_Base Shldrs -parent camera Head
+	
+	mesh	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/zsecmesh
+	anim	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/zsec
+
+	// ghost skull
+	
+	options		-prefix SKULL_
+	mesh	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/skullmesh
+	anim	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/skull
+
+	// ghost skull2
+	
+	options 	-prefix SKULL2_
+	mesh	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/skull2mesh
+	anim	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/skull2
+
+	
+	// camera security
+	camera	maps/fred/e3/posession/pos2.mb -dest models/md5/cinematics/posession/secposcameras
+	
+
+	// imp
+
+	options -prefix IMP_ -keep camera -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent camera Head
+
+	anim	maps/fred/e3/posession/pos3.mb -dest models/md5/cinematics/posession/imppos
+
+	// camera imp
+	camera	maps/fred/e3/posession/pos3.mb -dest models/md5/cinematics/posession/cam2anim
+
+	// hellknight
+	options -prefix HK_ -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+	anim	maps/fred/e3/posession/pos5.mb -dest models/md5/cinematics/posession/hkanim
+
+	// camera hellknight
+	camera	maps/fred/e3/posession/pos5.mb -dest models/md5/cinematics/posession/cam5anim
+}
+
+model cin_posess_sec {
+	skin						skins/security/face2.skin
+	mesh						models/md5/cinematics/lobby/cinsecurity.md5mesh
+	anim secpos					models/md5/cinematics/posession/sec.md5anim {
+    	frame 1						skin skins/security/face2.skin
+		frame 80					sound player_sounds_footstep
+		frame 81					sound player_sounds_footstep
+		frame 145					skin skins/security/dface.skin
+		frame 145					call setShaderTime
+		frame 243					skin skins/security/face2blood.skin
+	}
+}
+
+entityDef cin_posess_sec {
+	"inherit"					"cin_base"
+	"anim"						"secpos"
+	"model"						"cin_posess_sec"
+}
+
+model cin_posess_zsec {
+	mesh							models/md5/cinematics/posession/zsecmesh.md5mesh
+	anim zsecpos					models/md5/cinematics/posession/zsec.md5anim {
+		frame 364						sound player_sounds_footstep
+		frame 405						sound player_sounds_footstep
+		frame 449						sound player_sounds_footstep
+	}
+}
+
+entityDef cin_posess_zsec {
+	"inherit"						"cin_base"
+	"anim"							"zsecpos"
+	"mesh"							"cin_posess_zsec"
+}
+
+entityDef cin_posess_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim poscam"					"models/md5/cinematics/posession/secposcameras.md5camera"
+}
+
+model cin_posess_skull {
+	mesh							models/md5/cinematics/posession/skullmesh.md5mesh
+	anim skullpos					models/md5/cinematics/posession/skull.md5anim {
+		frame 1							fx fx/skulltrail.fx
+	}
+}
+
+entityDef cin_posess_skull {
+	"inherit"					"cin_base"
+	"anim"						"skullpos"
+	"model"						"cin_posess_skull"
+}
+
+model cin_posess_skull2 {
+	mesh						models/md5/cinematics/posession/skull2mesh.md5mesh
+	anim skull2pos				models/md5/cinematics/posession/skull2.md5anim {
+		frame 1						fx fx/skulltrail.fx
+	}
+}
+
+entityDef cin_posess_skull2 {
+	"inherit"					"cin_base"
+	"anim"						"skull2pos"
+	"model"						"cin_posess_skull2"
+}
+
+model cin_posess_skull3 {
+	mesh							models/md5/cinematics/teleporter/skull3mesh.md5mesh
+
+	anim skullone					models/md5/cinematics/teleporter/skullone.md5anim {
+		frame 1							fx fx/skulltrail2.fx
+	}
+	anim skulltwo					models/md5/cinematics/teleporter/skulltwo.md5anim {
+		frame 1							fx fx/skulltrail2.fx
+	}
+	anim skullthree					models/md5/cinematics/teleporter/skullthree.md5anim {
+		frame 1							fx fx/skulltrail2.fx
+	}
+	anim skullfour					models/md5/cinematics/teleporter/skullfour.md5anim {
+		frame 1							fx fx/skulltrail2.fx
+	}
+	anim skullfive					models/md5/cinematics/teleporter/skullfive.md5anim {
+		frame 1							fx fx/skulltrail2.fx
+	}
+	anim skullsix					models/md5/cinematics/teleporter/skullsix.md5anim {
+		frame 1							fx fx/skulltrail2.fx
+	}
+}
+
+entityDef cin_posess_skull3 {
+	"inherit"						"cin_base"
+	"anim"							"skullone"
+	"model"							"cin_posess_skull3"
+}
+
+entityDef cin_posess2_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim pos2cam"					"models/md5/cinematics/posession/cam2anim.md5camera"
+}
+
+model cin_posess_imp {
+	mesh							models/md5/monsters/imp/imp.md5mesh
+	anim imppos						models/md5/cinematics/posession/imppos.md5anim
+}
+
+entityDef cin_posess_imp {
+	"inherit"						"cin_base"
+	"anim"							"imppos"
+	"model"							"cin_posess_imp"
+}
+
+entityDef cin_posess3_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim pos3cam"					"models/md5/cinematics/posession/cam3anim.md5camera"
+}
+
+
+model cin_posess_hk {
+	mesh							models/monsters/hellknight/cycles/idle1.md5mesh
+	anim poshk					models/md5/cinematics/posession/hkanim.md5anim
+}
+
+entityDef cin_posess_hk {
+	"inherit"						"cin_base"
+	"anim"							"poshk"	
+	"model"							"cin_posess_hk"
+}
+
+entityDef cin_posess5_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim pos5cam"					"models/md5/cinematics/posession/cam5anim.md5camera"
+}
+
+
+//HK WALK BY DOOR...
+
+export fred {
+
+	options -prefix HK_ -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+	
+	anim	models/monsters/hellknight/cycles/walkbydoor.mb -dest models/md5/cinematics/hkwalkbydoor
+}
+
+model cin_hk_walkbydoor {
+	mesh							models/monsters/hellknight/cycles/idle1.md5mesh	
+	anim walkbydoor					models/md5/cinematics/hkwalkbydoor.md5anim {
+		frame 2							sound monster_demon_hellknight_footstep
+		frame 21						sound monster_demon_hellknight_footstep
+		frame 35						sound monster_demon_hellknight_footstep
+		frame 57						sound monster_demon_hellknight_footstep
+		frame 77						sound monster_demon_hellknight_footstep
+		frame 117						sound monster_demon_hellknight_footstep
+		frame 142						sound monster_demon_hellknight_footstep
+		frame 161						sound monster_demon_hellknight_footstep
+		frame 180						sound monster_demon_hellknight_footstep
+		frame 200						sound monster_demon_hellknight_footstep
+		frame 220						sound monster_demon_hellknight_footstep
+		frame 244						sound monster_demon_hellknight_footstep
+		frame 267						sound monster_demon_hellknight_footstep
+		
+		frame 67						sound monster_demon_hellknight_chatter
+		frame 91						sound monster_demon_hellknight_chatter
+	}
+}
+
+entityDef cin_hk_walkbydoor {
+	"inherit"						"cin_base"
+	"anim"							"walkbydoor"
+	"sound_bone"					"hips"
+	"model"							"cin_hk_walkbydoor"
+}
+
+
+// Commandos
+
+export fred {
+	// camera
+	camera	maps/fred/e3/chain/chain.mb -dest models/md5/cinematics/commandos/cin_commandos_camanim
+
+	// player
+	
+	//options -prefix UACM_ -keep Gun1 -parent neckhelmet Shldrs -parent neckface Shldrs -parent Gun1 Lhand
+	
+	options -prefix UACM_ -keep Gun1 Barrel MGUN mgunflash locator1 -parent Barrel Lhand -parent locator1 headhelmet -parent neckface Shldrs -parent joint1 mgunflash -parent joint2 mgunflash -parent joint3 mgunflash -parent joint4 mgunflash -parent neckhelmet Shldrs -parent MBod MGUN -parent MExt MGUN -parent MTrig MGUN -parent joint1a Barrel -parent joint2a Barrel -parent joint3a Barrel -parent joint4a Barrel -parent Trig Gun1 -parent Ext Gun1 -parent Bar Gun1 -parent Bod Gun1 -parent Cli Gun1 -parent Gun1 Lhand
+
+	mesh	maps/fred/e3/chain/chain.mb -dest models/md5/cinematics/commandos/cin_uac
+	anim	maps/fred/e3/chain/chain.mb -dest models/md5/cinematics/commandos/cin_commandos_uac
+
+	// zombie commando tentacle
+	
+	options	-prefix ZCT_ -parent Tentacle Rhand
+	anim	maps/fred/e3/chain/chain.mb -dest models/md5/cinematics/commandos/cin_commandos_tent -range 1 231
+
+	// zombie commando chaingun
+	
+	options	-prefix ZCC_ -keep barrel eject target -parent barrel barrelbone -parent eject chaingunbone -parent chaingunbone Lhand
+	
+	mesh	maps/fred/e3/chain/chain.mb -dest models/md5/cinematics/commandos/cin_commandos_chain
+	anim	maps/fred/e3/chain/chain.mb -dest models/md5/cinematics/commandos/cin_commandos_chain
+}
+
+entityDef cin_chain_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim cameras"					"models/md5/cinematics/commandos/cin_commandos_camanim.md5camera"
+}
+
+model cin_chain_uacm {
+	skin							skins/player/machinegun.skin
+	mesh							models/md5/cinematics/commandos/cin_uac.md5mesh
+	anim caught						models/md5/cinematics/commandos/cin_commandos_uac.md5anim {
+		frame 6							sound player_sounds_footstep
+		frame 19						sound player_sounds_footstep
+		frame 32						sound player_sounds_footstep
+		frame 46						sound player_sounds_footstep
+		frame 60						sound player_sounds_footstep
+		frame 72						sound player_sounds_footstep
+		frame 89						sound player_sounds_footstep
+		frame 101						sound player_sounds_footstep
+		frame 306						sound player_sounds_footstep
+		frame 317						sound player_sounds_footstep
+		frame 331						sound player_sounds_footstep
+		frame 345						sound player_sounds_footstep
+		frame 358						sound player_sounds_footstep
+		frame 373						sound player_sounds_footstep
+		frame 418						sound player_sounds_footstep
+		frame 427						sound player_sounds_footstep
+		frame 438						sound player_sounds_footstep
+
+		frame 443						trigger chain_fx_1
+		frame 443						trigger csteam_1
+		frame 447						trigger chain_fx_2
+		frame 447						trigger csteam_2
+		frame 449						trigger chain_fx_3
+		frame 449						trigger csteam_3
+
+		frame 462						sound e32_commando_bodyroll
+
+		frame 470						sound player_sounds_footstep
+		frame 473						sound player_sounds_footstep
+		frame 490						sound player_sounds_footstep
+		frame 501						sound player_sounds_footstep
+		frame 512						sound player_sounds_footstep
+	}
+}
+
+entityDef cin_chain_uacm {
+	"inherit"						"cin_base"
+	"anim"							"caught"
+	"sound_bone"					"Hips"
+	"model"							"cin_chain_uacm"
+}
+
+model cin_chain_zct {
+	mesh							models/monsters/zombie/zct/cycles/ZC_tent_R.md5mesh
+	anim ambush						models/md5/cinematics/commandos/cin_commandos_tent.md5anim {
+		frame 126						sound monster_zombie_commando_tentacle_out
+		frame 155						sound monster_zombie_commando_tentacle_in
+		frame 160						sound monster_zombie_commando_smellfear
+	}
+}
+
+entityDef cin_chain_zct {
+	"inherit"						"cin_base"
+	"sound_bone"					"Head"
+	"anim"							"ambush"
+	"model"							"cin_chain_zct"
+}
+
+model cin_chain_zcc {
+	skin							skins/zcc/muzzle_flash.skin
+
+	mesh							models/md5/cinematics/commandos/cin_commandos_chain.md5mesh
+	anim ambush						models/md5/cinematics/commandos/cin_commandos_chain.md5anim {
+		frame 280						sound snd_footstep
+		frame 281						sound snd_chains	
+
+		frame 289						sound snd_footstep
+		frame 290						sound snd_chains
+
+		frame 298						sound snd_footstep
+		frame 299						sound snd_chains
+
+		frame 307						sound snd_footstep
+		frame 308						sound snd_chains
+
+		frame 317						sound snd_footstep	
+		frame 318						sound snd_chains
+
+		frame 328						sound snd_footstep
+		frame 329						sound snd_chains	
+
+		frame 338						sound snd_footstep
+		frame 339						sound snd_chains
+
+		frame 348						sound snd_footstep
+		frame 349						sound snd_chains
+
+		frame 357						sound snd_footstep
+		frame 358						sound snd_chains
+
+		frame 368						sound snd_footstep
+		frame 369						sound snd_chains
+
+		frame 375						sound snd_footstep
+
+		frame 380						sound snd_bleed
+		frame 381						sound snd_chains
+
+		frame 384						sound snd_footstep
+		frame 385						sound snd_chains
+		frame 386						sound snd_footstep
+
+		frame 388						sound snd_chains
+
+		frame 390						sound snd_windup
+		frame 400						call zcc_cine_fire
+		frame 401						fx fx/chaingunfire.fx
+		frame 406						sound snd_chains
+		frame 460						sound snd_winddown
+	}
+}
+
+entityDef cin_chain_zcc {
+	"inherit"						"cin_base"
+	"anim"							"ambush"
+	
+	"model"							"cin_chain_zcc"
+
+	"sound_bone"					"Hips"
+
+	"snd_bleed"						"monster_zombie_commando_bleed"
+	"snd_fire"						"monster_zombie_commando_fire"
+	"snd_winddown"					"monster_zombie_commando_winddown"
+	"snd_windup"					"monster_zombie_commando_windup"
+	"snd_footstep"					"monster_zombie_commando_footstep"
+	"snd_chains"					"monster_zombie_commando_cgun_chains"
+}
+
+// Elevator
+
+export fred {
+	// camera
+	camera	maps/fred/e3/elevator/elevator.mb -dest models/md5/cinematics/elevator/cin_elevator_cam
+
+	// player
+	
+	//options -prefix PLAYER_ -keep elevator door -parent ALL elevator -parent Neck Shldrs -parent neckface Shldrs
+	//options -prefix PLAYER_ -parent Neck Shldrs -parent neckface Shldrs
+	
+	
+	options -prefix PLAYER_ -keep camera1 Gun1 MGUN -parent Neck Shldrs -parent MBod MGUN -parent MExt MGUN -parent MTrig MGUN -parent Trig Gun1 -parent Ext Gun1 -parent Bar Gun1 -parent Bod Gun1 -parent Cli Gun1 -parent Gun1 Lhand -parent camera1 Head -parent stump Shldrs
+
+	mesh	maps/fred/e3/elevator/elevator.mb -dest models/md5/cinematics/elevator/cin_elevator_uac
+	anim	maps/fred/e3/elevator/elevator.mb -dest models/md5/cinematics/elevator/cin_elevator_uac
+
+	//elevator
+
+	options -prefix ELEV_
+	
+	mesh	maps/fred/e3/elevator/elevator.mb -dest models/md5/cinematics/elevator/cin_elevator_elev
+	anim	maps/fred/e3/elevator/elevator.mb -dest models/md5/cinematics/elevator/cin_elevator_elev
+
+}
+
+entityDef cin_elevator_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim elevatorcam"				"models/md5/cinematics/elevator/cin_elevator_cam.md5camera"
+}
+
+model cin_elevator_player {
+	skin							skins/player/nowep.skin
+						
+	mesh							models/md5/cinematics/elevator/cin_elevator_uac.md5mesh
+	anim elevator					models/md5/cinematics/elevator/cin_elevator_uac.md5anim {
+		frame 1							sound snd_elevator_start
+		frame 12						sound snd_oneman_voice
+		frame 152						sound snd_elevator_thud
+		frame 153						sound snd_player_elevator
+		frame 165						sound snd_elevator_door_open
+
+		//frame 192						sound snd_elevator_door_thud
+		frame 196						sound snd_footstep
+		frame 209						sound snd_footstep
+		frame 225						sound snd_footstep
+		frame 432						sound snd_helmet
+	}
+}
+
+entityDef cin_elevator_player {
+	"inherit"						"cin_base"
+	"anim"							"elevator"
+						
+	"model"							"cin_elevator_player"
+
+	"snd_player_elevator"			"e31_elevator_player"
+	"snd_oneman_voice"				"e31_elevator_oneman_voiceover"	
+	"snd_elevator_thud"				"e31_elevator_thud"
+	"snd_elevator_door_open"		"e31_elevator_door"
+	//"snd_elevator_door_thud"		"nosound"
+	"snd_footstep"					"player_elevator_sounds_footstep"
+	"snd_elevator_start"			"e31_elevator_ride"
+	"snd_helmet"					"e31_elevator_helmet"
+}
+
+model cin_elevator_elev {
+	mesh							models/md5/cinematics/elevator/cin_elevator_elev.md5mesh
+	anim elev						models/md5/cinematics/elevator/cin_elevator_elev.md5anim
+}
+
+entityDef cin_elevator_elev {
+	"inherit"						"cin_base"
+	"anim"							"elev"				
+	"model"							"cin_elevator_elev"
+}
+
+//Dragged Zombie
+
+export fred {
+	options		-prefix ZOMBIE1_
+	addoptions	-parent loneck shoulders	
+	addoptions	-parent Jaw head
+	addoptions	-parent waist Hips
+	addoptions	-parent Luparm Lshldr
+	addoptions	-parent Lloarm Luparm
+	addoptions	-parent Ruparm Rshldr
+	addoptions	-parent Rloarm Ruparm
+	addoptions	-keep loneck head R_cheek L_cheek Up_lip Lbrow1 Lbrow2 Rbrow1 Rbrow2 llolid luplid rlolid
+	addoptions	-keep ruplid waist chest shoulders Rshldr Lshldr L_shirt R_shirt Back_shirt Luparm loarm_reg
+	addoptions	loarm_stump lrip2 lrip3 lrip1 lrip4 Lloarm Lhand Lcarp Lindex1 Lindex2 Lthumb0
+	addoptions	Lthumb1 Lthumb2 Lthumb3 Lfings1 Lfings2 Lfings3 Lcarp1 Lindex1a Lindex2a Lcarp2
+	addoptions	Lindex1b Lindex2c Ruparm rloarm_reg rloarm_stump rrip1 rrip2 rrip3 rrip4 Rloarm
+	addoptions	Rhand Rcarp Rindex1 Rindex2 Rthumb0 Rthumb1 Rthumb2 Rthumb3 Rfings1 Rfings2 Rfings3
+	addoptions	Rcarp1 Rindex1a Rindex2a Rcarp2 Rindex1b Rindex2b Hips Lupleg Lloleg Lankle_r Lball_r
+	addoptions	Ltoe_r Rupleg Rloleg Rankle_r Rball_r Rtoe_r Jaw Lo_lip
+
+	addoptions -nomesh
+
+	anim		models/monsters/zombie/zombie01/cycles/dragaway.ma -range 1 2 -dest models/md5/monsters/zombies/zmaint/zombdragidle
+	anim		models/monsters/zombie/zombie01/cycles/dragaway.ma -range 2 90 -dest models/md5/monsters/zombies/zmaint/zombdraganim
+}
+
+model cin_zombie_drag {
+	mesh							models/monsters/zombie/zombie01/cycles/ref_fullskin.md5mesh
+
+	anim zombidle					models/md5/monsters/zombies/zmaint/zombdragidle.md5anim
+	anim zombdrag					models/md5/monsters/zombies/zmaint/zombdraganim.md5anim
+}
+
+entityDef cin_zombie_drag {
+	"inherit"						"cin_base"
+	"anim"							"zombidle"
+	"model"							"cin_zombie_drag"
+}
+
+/***********************************************************************
+
+fatdrag
+
+***********************************************************************/
+
+export fred {
+	options		-prefix FATTY_
+	anim		maps/fred/bathroom/fatdrag.mb -range 1 2 -dest maps/fred/bathroom/fatdragidle
+	anim		maps/fred/bathroom/fatdrag.mb -range 1 133 -dest maps/fred/bathroom/fatdraganim
+
+	options		-prefix PINKY_
+	mesh		maps/fred/bathroom/fatdrag.mb -dest maps/fred/bathroom/pinkdragmesh
+	anim		maps/fred/bathroom/fatdrag.mb -range 1 133 -dest maps/fred/bathroom/pinkdraganim
+	anim		maps/fred/bathroom/fatdrag.mb -range 1 1 -dest maps/fred/bathroom/pinkdragidle
+}
+
+model cin_fat_drag {
+	mesh							models/monsters/zombie/fatty/Animation/cycles/facepain.md5mesh
+	anim fatdragidle				maps/fred/bathroom/fatdragidle.md5anim
+	anim fatdraganim				maps/fred/bathroom/fatdraganim.md5anim {
+		frame 1							sound e3_bathroom_fatdrag
+		frame 28						sound monster_demon_pinky_chatter_combat2
+		frame 36						sound e3_bathroom_fatdrag_02
+	}
+}
+
+entityDef cin_fat_drag {
+	"inherit"						"cin_base"
+	"anim"							"fatdragidle"
+	"model"							"cin_fat_drag"
+}
+
+model cin_pink_drag {
+	mesh							maps/fred/bathroom/pinkdragmesh.md5mesh
+	anim pinkdragidle				maps/fred/bathroom/pinkdragidle.md5anim
+	anim pinkdraganim				maps/fred/bathroom/pinkdraganim.md5anim
+}
+
+entityDef cin_pink_drag {
+	"inherit"						"cin_base"
+	"anim"							"pinkdragidle"
+	"model"							"cin_pink_drag"
+}
+
+//HellKnight Feast...
+
+export fred {
+	camera	maps/fred/e3/hellknight/hkfeast_playerdeath.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_deathcam
+	camera	maps/fred/e3/hellknight/hkfeast_headrip.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_ripcam
+	camera	maps/fred/e3/hellknight/hkfeast_endroar.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_endroarcam
+
+	
+	//options -prefix UAC_HELM_ -keep camera1 -parent camera1 Head
+	
+	options -prefix UAC_HELM_ -keep camera1 Gun1 MGUN -parent Neck Shldrs -parent MBod MGUN -parent MExt MGUN -parent MTrig MGUN -parent Trig Gun1 -parent Ext Gun1 -parent Bar Gun1 -parent Bod Gun1 -parent Cli Gun1 -parent Gun1 Lhand -parent camera1 Head -parent stump Shldrs
+
+	mesh	maps/fred/e3/hellknight/hkfeast_playerdeath.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_uacdeath
+	anim	maps/fred/e3/hellknight/hkfeast_playerdeath.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_uacdeath
+
+	//options -prefix UAC_HELM_ -keep camera1 -parent stump Shldrs -parent camera1 Head
+	
+	options -prefix UAC_HELM_ -keep camera Gun1 MGUN -parent Neck Shldrs -parent MBod MGUN -parent MExt MGUN -parent MTrig MGUN -parent Trig Gun1 -parent Ext Gun1 -parent Bar Gun1 -parent Bod Gun1 -parent Cli Gun1 -parent Gun1 Lhand -parent camera1 Head -parent stump Shldrs
+
+	mesh	maps/fred/e3/hellknight/hkfeast_headrip.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_uacrip
+	anim	maps/fred/e3/hellknight/hkfeast_headrip.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_uacrip
+
+	options -prefix HK_ -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+
+	mesh	maps/fred/e3/hellknight/hkfeast_headrip.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_hk
+	anim	maps/fred/e3/hellknight/hkfeast_headrip.mb -dest models/md5/cinematics/hellknightfeast/cin_hk_hk
+	anim	maps/fred/e3/hellknight/hkfeast_endroar.mb -dest models/md5/cinematics/hellknightfeast/cin_hkend_hk
+
+}
+
+entityDef cin_hkdeath_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim deathcam"					"models/md5/cinematics/hellknightfeast/cin_hk_deathcam.md5camera"
+}
+
+entityDef cin_hkrip_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim ripcam"					"models/md5/cinematics/hellknightfeast/cin_hk_ripcam.md5camera"
+}
+
+entityDef cin_hkendroar_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim endroarcam"				"models/md5/cinematics/hellknightfeast/cin_hk_endroarcam.md5camera"
+}
+
+model cin_hkdeath_uac {
+	mesh							models/md5/cinematics/hellknightfeast/cin_hk_uacdeath.md5mesh
+	anim uacdeath					models/md5/cinematics/hellknightfeast/cin_hk_uacdeath.md5anim {
+		frame 1							trigger bloodonfloor
+	}
+}
+
+entityDef cin_hkdeath_uac {
+	"inherit"						"cin_base"
+	"anim"							"uacdeath"
+	"model"							"cin_hkdeath_uac"
+}
+
+model cin_hkrip_uac {
+	mesh							models/md5/cinematics/hellknightfeast/cin_hk_uacrip.md5mesh
+	anim uacrip						models/md5/cinematics/hellknightfeast/cin_hk_uacrip.md5anim {
+		frame 1							trigger ken_hk
+		frame 353						fx fx/headsplat.fx
+		frame 371						fx fx/headspurt.fx
+		frame 384						trigger bloodonwall
+		frame 388						fx fx/headsplat.fx
+		frame 410						fx fx/headsplat.fx
+	}
+}
+
+entityDef cin_hkrip_uac {
+	"inherit"						"cin_base"
+	"anim"							"uacrip"
+	"model"							"cin_hkrip_uac"
+}
+
+model cin_hk_hk {
+	mesh							models/md5/cinematics/hellknightfeast/cin_hk_hk.md5mesh
+	anim hkanim						models/md5/cinematics/hellknightfeast/cin_hk_hk.md5anim {
+		frame 15						sound monster_demon_cin_hellknight_footstep2
+		frame 60						sound monster_demon_cin_hellknight_footstep2
+		frame 120						sound monster_demon_cin_hellknight_footstep2
+		frame 130						sound monster_demon_cin_hellknight_footstep2
+	}
+}
+
+entityDef cin_hk_hk {
+	"inherit"						"cin_base"
+	"anim"							"hkanim"
+	"model"						"cin_hk_hk"
+}
+
+model cin_hkendroar_hk {
+	mesh							models/md5/cinematics/hellknightfeast/cin_hk_hk.md5mesh
+	anim hkendanim					models/md5/cinematics/hellknightfeast/cin_hkend_hk.md5anim
+}
+
+entityDef cin_hkendroar_hk {
+	"inherit"						"cin_base"
+	"anim"							"hkendanim"
+	"model"							"cin_hkendroar_hk"
+}
+

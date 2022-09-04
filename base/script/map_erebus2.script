@@ -1,0 +1,1208 @@
+namespace map_erebus2
+{
+	// MAP VARIABLES
+	float g_bLadderLowered = false;
+	float g_bExitLiftCalled = false;
+
+	void glassguy_start() {
+		sys.wait(1.5);
+		sys.trigger( $imp_start );
+		sys.wait(1.5);
+		sys.trigger( $glassguy_dialog );
+		sys.wait(3.5);
+		sys.trigger( $break_start );
+		sys.wait(10);
+		//sys.trigger( $imp_remove );
+	}
+
+	void e2_bumplight() {
+		//sys.print( "Swinglight!" );
+		sys.trigger( $vulg_bumplight );
+		sys.trigger( $vulg_bumpspeaker );
+	}
+
+	// Spooked NPC VO
+
+	void outro_heartlight() {
+		//$outro_lightup.On();
+		//$outro_lightup.fadeInLight( 2 );
+		//sys.trigger( $outro_fadelight );
+	}
+
+	void spooked_npc() {
+		/*
+		sys.trigger( $npc_spooked1 );
+		sys.wait( 2 );
+		sys.trigger( $npc_spooked2 );
+		sys.wait( 15 );
+		sys.trigger( $npc_spooked3 );
+		sys.wait( 1.5 );
+		sys.trigger( $npc_spooked4 );
+		*/
+	}
+
+	// McNeil VO after HT fight
+
+	void mcneil_radio_static() {
+		sys.trigger( $mcneil_radio_static );
+	}
+
+	void mcneil_radio_htdeath() {
+		sys.trigger( $mcneil_helltimefull1 );
+		sys.wait( 8 );
+		sys.trigger( $mcneil_helltimefull2 );
+	}
+
+
+	void SetupHelltimeBossFight()
+	{
+		// change grrabber distance
+		entity weapon;
+		sys.trigger( $ht_music1 );
+		weapon = $player1.getWeaponEntity();
+		weapon.grabberGrabDistance( 512 );
+
+		// give the player unlimited stamina
+		sys.setcvar( "pm_stamina", "0" );
+	}
+
+
+	void HelltimeHunterDamaged()
+	{
+		vector ecolor;
+
+		// Hide the energy coming out the portal for 2.5 seconds
+		sys.trigger( $ht_quake1 );
+
+		sys.trigger( $portal_spooge2 );
+		sys.trigger( $ht_light_portal2 );
+
+		sys.trigger( $ht_fadeout1 );
+		sys.trigger( $ht_damage_sound1 );
+
+		$portal_hellfire.hide();
+		$portal_spooge.hide();
+		sys.wait( 2.5 );
+
+		sys.trigger( $ht_light_portal2 );
+
+		sys.wait( 1 );
+
+		$portal_hellfire.show();
+		$portal_spooge.show();
+
+		sys.trigger( $ht_fadein1 );
+		sys.wait( 2.5 );
+	}
+
+
+	void get_bs1()
+	{
+		// EMPTY
+	}
+
+
+	void FinishHelltimeBossFight()
+	{
+		entity weapon;
+
+		// reset Grabber Distance
+		weapon = $player1.getWeaponEntity();
+		weapon.grabberGrabDistance( 384 );
+
+		// reset Stamina
+		sys.setcvar( "pm_stamina", "24" );
+
+		sys.trigger( $portal_spooge2 );
+		sys.trigger( $ht_light_portal2 );
+		sys.wait( 2.0 );
+
+		sys.trigger( $ht_light_portal2 );
+		sys.trigger( $ht_quake1 );
+		$portal_spooge.hide();
+		$portal_hellfire.hide();
+		sys.trigger( $ht_fadeout1 );
+		sys.trigger( $ht_damage_sound1 );
+	}
+
+
+	void FinishHelltimeBossFightDelayed()
+	{
+		$player1.selectWeapon( "weapon_bloodstone_passive" );
+		$player1.giveInventoryItem( "ammo_bloodstone_normal" );
+		//sys.wait( 1 );
+		$player1.giveInventoryItem( "weapon_bloodstone_active1" );
+		//$player1.selectWeapon( "weapon_bloodstone_active1" );
+		sys.wait( 1.0 );
+		thread mcneil_radio_htdeath();
+		// unlock the progression
+		sys.wait( 17.0 );
+		sys.trigger( $ht_enddoor_fadein );
+		sys.trigger( $ht_enddoor_light_fadein );
+		sys.wait( 2.0 );
+		$ht_enddoor1a.lock( 0 );
+	}
+
+	void CloseHallwayDoor()
+	{
+		$bdoor1.time( 8.0 );
+		$bdoor1.moveTo( $bdoor1_close1 );
+		sys.wait( 3.65 );
+		sys.trigger( $sp_bdoor1 );
+	}
+
+
+	void OpeningVulgarSequence()
+	{
+		sys.wait( 1.0 );
+
+		// elevator moving up and stopping prematurely
+		$start_elev.accelTime( 1.0 );
+		$start_elev.decelTime( 0.01 );
+		$start_elev.time( 8.0 );
+		$start_elev.moveTo( $el_pos1 );
+		sys.waitFor( $start_elev );
+
+		sys.trigger( $start_elev_loop );
+		sys.trigger( $start_crash2 );
+		sys.wait( 0.3 );
+		sys.trigger( $start_crash1 );
+		sys.wait( 0.25 );
+		sys.trigger( $start_emit1 );
+		sys.wait( 0.75 );
+		$start_elev.accelTime( 0.01 );
+		$start_elev.time( 0.2 );
+		$start_elev.moveTo( $el_down_pos1 );
+		sys.waitFor( $start_elev );
+
+		sys.trigger( $start_crash3 );
+		sys.wait( 0.5 );
+
+		// start the scary scary monsters and lights
+		sys.trigger( $start_influence );
+		sys.trigger( $fake_vulgar1 );
+		sys.wait( 1.5 );
+
+		sys.trigger( $fake_vulgar2 );
+		sys.wait( 0.5 );
+
+		sys.trigger( $fake_vulgar3 );
+		sys.wait( 1.5 );
+
+		sys.trigger( $start_sw1 );
+		sys.wait( 3.5 );
+
+		sys.trigger( $sp_fakerun1 );
+		sys.wait( 5.0 );
+
+		sys.trigger( $start_sw2 );
+
+		// half close the big door
+		thread CloseHallwayDoor();
+		$intro_clip.remove();
+
+		sys.trigger( $start_elev_begin );
+		sys.wait( 0.5 );
+
+//		sys.trigger( $sp_fakerun2 );
+		sys.trigger( $start_elev_loop );
+
+		// let the player start the map
+		$start_elev.accelTime( 1.0 );
+		$start_elev.decelTime( 1.0 );
+		$start_elev.time( 3.5 );
+		$start_elev.moveTo( $el_pos2 );
+		sys.waitFor( $start_elev );
+
+		sys.trigger( $start_elev_end );
+		sys.trigger( $start_elev_loop );
+		sys.trigger( $start_door );
+		sys.trigger( $end_innerdoor1 );
+	}
+
+
+	void HallwayDoorDrop()
+	{
+		sys.trigger( $bdoor1_sound );
+		$bdoor1.time( 0.1 );
+		$bdoor1.accelTime( 0.1 );
+		$bdoor1.moveTo( $bdoor1_close2 );
+		sys.waitFor( $bdoor1 );
+	}
+
+	void HallwayDoorBlock()
+	{
+		sys.trigger( $bdoor1_clip );
+		$bdoor1.time( 0.5 );
+		$bdoor1.moveTo( $bdoor1_close3 );
+		sys.waitFor( $bdoor1 );
+	}
+
+
+	void HallwaySwingingLights()
+	{
+		sys.trigger( $bj_ff1 );
+		sys.wait( 1.0 );
+
+		sys.trigger( $bj_ff2 );
+		sys.wait( 1.0 );
+
+		sys.trigger( $bj_ff3 );
+		sys.wait( 1.0 );
+
+		sys.trigger( $bj_ff4 );
+		sys.wait( 3.0 );
+	}
+
+
+	void HTPuzzleNorth1Loop()
+	{
+		sys.wait( 0.5 );
+
+		while( true )
+		{
+			$crusher_n1_a.time( 0.25 );
+			$crusher_n1_a.accelTime( 0.0 );
+			$crusher_n1_a.decelTime( 0.0 );
+			$crusher_n1_b.time( 0.25 );
+			$crusher_n1_b.accelTime( 0.0 );
+			$crusher_n1_b.decelTime( 0.0 );
+
+			$crusher_n1_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );	// -Xian
+
+			$crusher_n1_a.moveTo( $crusher_n1_center );
+			$crusher_n1_b.moveTo( $crusher_n1_center );
+			sys.wait( 0.5 );
+
+			$crusher_n1_a.time( 0.75 );
+			$crusher_n1_a.accelTime( 0.25 );
+			$crusher_n1_a.decelTime( 0.25 );
+			$crusher_n1_b.time( 0.75 );
+			$crusher_n1_b.accelTime( 0.25 );
+			$crusher_n1_b.decelTime( 0.25 );
+
+			$crusher_n1_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );		// -Xian
+
+			$crusher_n1_a.moveTo( $crusher_n1_a_start );
+			$crusher_n1_b.moveTo( $crusher_n1_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleNorth2Loop()
+	{
+		sys.wait( 0.5 );
+		thread HTPuzzleNorth1Loop();
+
+		while( true )
+		{
+			$crusher_n2_a.time( 0.25 );
+			$crusher_n2_a.accelTime( 0.0 );
+			$crusher_n2_a.decelTime( 0.0 );
+			$crusher_n2_b.time( 0.25 );
+			$crusher_n2_b.accelTime( 0.0 );
+			$crusher_n2_b.decelTime( 0.0 );
+
+			$crusher_n2_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_n2_a.moveTo( $crusher_n2_center );
+			$crusher_n2_b.moveTo( $crusher_n2_center );
+			sys.wait( 0.5 );
+
+			$crusher_n2_a.time( 0.75 );
+			$crusher_n2_a.accelTime( 0.25 );
+			$crusher_n2_a.decelTime( 0.25 );
+			$crusher_n2_b.time( 0.75 );
+			$crusher_n2_b.accelTime( 0.25 );
+			$crusher_n2_b.decelTime( 0.25 );
+
+			$crusher_n2_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_n2_a.moveTo( $crusher_n2_a_start );
+			$crusher_n2_b.moveTo( $crusher_n2_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleNorth3Loop()
+	{
+		thread HTPuzzleNorth2Loop();
+
+		while( true )
+		{
+			$crusher_n3_a.time( 0.25 );
+			$crusher_n3_a.accelTime( 0.0 );
+			$crusher_n3_a.decelTime( 0.0 );
+			$crusher_n3_b.time( 0.25 );
+			$crusher_n3_b.accelTime( 0.0 );
+			$crusher_n3_b.decelTime( 0.0 );
+
+			$crusher_n3_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_n3_a.moveTo( $crusher_n3_center );
+			$crusher_n3_b.moveTo( $crusher_n3_center );
+			sys.wait( 0.5 );
+
+			$crusher_n3_a.time( 0.75 );
+			$crusher_n3_a.accelTime( 0.25 );
+			$crusher_n3_a.decelTime( 0.25 );
+			$crusher_n3_b.time( 0.75 );
+			$crusher_n3_b.accelTime( 0.25 );
+			$crusher_n3_b.decelTime( 0.25 );
+
+			$crusher_n3_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_n3_a.moveTo( $crusher_n3_a_start );
+			$crusher_n3_b.moveTo( $crusher_n3_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleWest1Loop()
+	{
+		sys.wait( 0.5 );
+
+		while( true )
+		{
+			$crusher_w1_a.time( 0.25 );
+			$crusher_w1_a.accelTime( 0.0 );
+			$crusher_w1_a.decelTime( 0.0 );
+			$crusher_w1_b.time( 0.25 );
+			$crusher_w1_b.accelTime( 0.0 );
+			$crusher_w1_b.decelTime( 0.0 );
+
+			$crusher_w1_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_w1_a.moveTo( $crusher_w1_center );
+			$crusher_w1_b.moveTo( $crusher_w1_center );
+			sys.wait( 0.5 );
+
+			$crusher_w1_a.time( 0.75 );
+			$crusher_w1_a.accelTime( 0.25 );
+			$crusher_w1_a.decelTime( 0.25 );
+			$crusher_w1_b.time( 0.75 );
+			$crusher_w1_b.accelTime( 0.25 );
+			$crusher_w1_b.decelTime( 0.25 );
+
+			$crusher_w1_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_w1_a.moveTo( $crusher_w1_a_start );
+			$crusher_w1_b.moveTo( $crusher_w1_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleWest2Loop()
+	{
+		sys.wait( 0.5 );
+		thread HTPuzzleWest1Loop();
+
+		while( true )
+		{
+			$crusher_w2_a.time( 0.25 );
+			$crusher_w2_a.accelTime( 0.0 );
+			$crusher_w2_a.decelTime( 0.0 );
+			$crusher_w2_b.time( 0.25 );
+			$crusher_w2_b.accelTime( 0.0 );
+			$crusher_w2_b.decelTime( 0.0 );
+
+			$crusher_w2_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_w2_a.moveTo( $crusher_w2_center );
+			$crusher_w2_b.moveTo( $crusher_w2_center );
+			sys.wait( 0.5 );
+
+			$crusher_w2_a.time( 0.75 );
+			$crusher_w2_a.accelTime( 0.25 );
+			$crusher_w2_a.decelTime( 0.25 );
+			$crusher_w2_b.time( 0.75 );
+			$crusher_w2_b.accelTime( 0.25 );
+			$crusher_w2_b.decelTime( 0.25 );
+
+			$crusher_w2_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_w2_a.moveTo( $crusher_w2_a_start );
+			$crusher_w2_b.moveTo( $crusher_w2_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleWest3Loop()
+	{
+		thread HTPuzzleWest2Loop();
+
+		while( true )
+		{
+			$crusher_w3_a.time( 0.25 );
+			$crusher_w3_a.accelTime( 0.0 );
+			$crusher_w3_a.decelTime( 0.0 );
+			$crusher_w3_b.time( 0.25 );
+			$crusher_w3_b.accelTime( 0.0 );
+			$crusher_w3_b.decelTime( 0.0 );
+
+			$crusher_w3_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_w3_a.moveTo( $crusher_w3_center );
+			$crusher_w3_b.moveTo( $crusher_w3_center );
+			sys.wait( 0.5 );
+
+			$crusher_w3_a.time( 0.75 );
+			$crusher_w3_a.accelTime( 0.25 );
+			$crusher_w3_a.decelTime( 0.25 );
+			$crusher_w3_b.time( 0.75 );
+			$crusher_w3_b.accelTime( 0.25 );
+			$crusher_w3_b.decelTime( 0.25 );
+
+			$crusher_n3_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_w3_a.moveTo( $crusher_w3_a_start );
+			$crusher_w3_b.moveTo( $crusher_w3_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleSouth1Loop()
+	{
+		sys.wait( 0.5 );
+
+		while( true )
+		{
+			$crusher_s1_a.time( 0.25 );
+			$crusher_s1_a.accelTime( 0.0 );
+			$crusher_s1_a.decelTime( 0.0 );
+			$crusher_s1_b.time( 0.25 );
+			$crusher_s1_b.accelTime( 0.0 );
+			$crusher_s1_b.decelTime( 0.0 );
+
+			$crusher_s1_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_s1_a.move( NORTH, 80 );
+			$crusher_s1_b.move( SOUTH, 80 );
+			sys.wait( 0.5 );
+
+			$crusher_s1_a.time( 0.75 );
+			$crusher_s1_a.accelTime( 0.25 );
+			$crusher_s1_a.decelTime( 0.25 );
+			$crusher_s1_b.time( 0.75 );
+			$crusher_s1_b.accelTime( 0.25 );
+			$crusher_s1_b.decelTime( 0.25 );
+
+			$crusher_s1_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_s1_a.moveTo( $crusher_s1_a_start );
+			$crusher_s1_b.moveTo( $crusher_s1_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleSouth2Loop()
+	{
+		sys.wait( 0.5 );
+		thread HTPuzzleSouth1Loop();
+
+		while( true )
+		{
+			$crusher_s2_a.time( 0.25 );
+			$crusher_s2_a.accelTime( 0.0 );
+			$crusher_s2_a.decelTime( 0.0 );
+			$crusher_s2_b.time( 0.25 );
+			$crusher_s2_b.accelTime( 0.0 );
+			$crusher_s2_b.decelTime( 0.0 );
+
+			$crusher_s2_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_s2_a.move( NORTH, 80 );
+			$crusher_s2_b.move( SOUTH, 80 );
+			sys.wait( 0.5 );
+
+			$crusher_s2_a.time( 0.75 );
+			$crusher_s2_a.accelTime( 0.25 );
+			$crusher_s2_a.decelTime( 0.25 );
+			$crusher_s2_b.time( 0.75 );
+			$crusher_s2_b.accelTime( 0.25 );
+			$crusher_s2_b.decelTime( 0.25 );
+
+			$crusher_s2_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_s2_a.moveTo( $crusher_s2_a_start );
+			$crusher_s2_b.moveTo( $crusher_s2_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleSouth3Loop()
+	{
+		sys.wait( 0.5 );
+		thread HTPuzzleSouth2Loop();
+
+		while( true )
+		{
+			$crusher_s3_a.time( 0.25 );
+			$crusher_s3_a.accelTime( 0.0 );
+			$crusher_s3_a.decelTime( 0.0 );
+			$crusher_s3_b.time( 0.25 );
+			$crusher_s3_b.accelTime( 0.0 );
+			$crusher_s3_b.decelTime( 0.0 );
+
+			$crusher_s3_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_s3_a.move( NORTH, 80 );
+			$crusher_s3_b.move( SOUTH, 80 );
+			sys.wait( 0.5 );
+
+			$crusher_s3_a.time( 0.75 );
+			$crusher_s3_a.accelTime( 0.25 );
+			$crusher_s3_a.decelTime( 0.25 );
+			$crusher_s3_b.time( 0.75 );
+			$crusher_s3_b.accelTime( 0.25 );
+			$crusher_s3_b.decelTime( 0.25 );
+
+			$crusher_s3_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_s3_a.moveTo( $crusher_s3_a_start );
+			$crusher_s3_b.moveTo( $crusher_s3_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleEast1Loop()
+	{
+		sys.wait( 0.5 );
+
+		while( true )
+		{
+			$crusher_e1_a.time( 0.25 );
+			$crusher_e1_a.accelTime( 0.0 );
+			$crusher_e1_a.decelTime( 0.0 );
+			$crusher_e1_b.time( 0.25 );
+			$crusher_e1_b.accelTime( 0.0 );
+			$crusher_e1_b.decelTime( 0.0 );
+
+			$crusher_e1_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_e1_a.move( WEST, 80 );
+			$crusher_e1_b.move( EAST, 80 );
+			sys.wait( 0.5 );
+
+			$crusher_e1_a.time( 0.75 );
+			$crusher_e1_a.accelTime( 0.25 );
+			$crusher_e1_a.decelTime( 0.25 );
+			$crusher_e1_b.time( 0.75 );
+			$crusher_e1_b.accelTime( 0.25 );
+			$crusher_e1_b.decelTime( 0.25 );
+
+			$crusher_e1_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_e1_a.moveTo( $crusher_e1_a_start );
+			$crusher_e1_b.moveTo( $crusher_e1_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleEast2Loop()
+	{
+		sys.wait( 0.5 );
+		thread HTPuzzleEast1Loop();
+
+		while( true )
+		{
+			$crusher_e2_a.time( 0.25 );
+			$crusher_e2_a.accelTime( 0.0 );
+			$crusher_e2_a.decelTime( 0.0 );
+			$crusher_e2_b.time( 0.25 );
+			$crusher_e2_b.accelTime( 0.0 );
+			$crusher_e2_b.decelTime( 0.0 );
+
+			$crusher_e2_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_e2_a.move( WEST, 80 );
+			$crusher_e2_b.move( EAST, 80 );
+			sys.wait( 0.5 );
+
+			$crusher_e2_a.time( 0.75 );
+			$crusher_e2_a.accelTime( 0.25 );
+			$crusher_e2_a.decelTime( 0.25 );
+			$crusher_e2_b.time( 0.75 );
+			$crusher_e2_b.accelTime( 0.25 );
+			$crusher_e2_b.decelTime( 0.25 );
+
+			$crusher_e2_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_e2_a.moveTo( $crusher_e2_a_start );
+			$crusher_e2_b.moveTo( $crusher_e2_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleEast3Loop()
+	{
+		thread HTPuzzleEast2Loop();
+
+		while( true )
+		{
+			$crusher_e3_a.time( 0.25 );
+			$crusher_e3_a.accelTime( 0.0 );
+			$crusher_e3_a.decelTime( 0.0 );
+			$crusher_e3_b.time( 0.25 );
+			$crusher_e3_b.accelTime( 0.0 );
+			$crusher_e3_b.decelTime( 0.0 );
+
+			$crusher_e3_a.startSoundShader ("e2_stone_out", SND_CHANNEL_VOICE );			// -Xian
+
+			$crusher_e3_a.move( WEST, 80 );
+			$crusher_e3_b.move( EAST, 80 );
+			sys.wait( 0.5 );
+
+			$crusher_e3_a.time( 0.75 );
+			$crusher_e3_a.accelTime( 0.25 );
+			$crusher_e3_a.decelTime( 0.25 );
+			$crusher_e3_b.time( 0.75 );
+			$crusher_e3_b.accelTime( 0.25 );
+			$crusher_e3_b.decelTime( 0.25 );
+
+			$crusher_e3_a.startSoundShader ("e2_stone_in", SND_CHANNEL_VOICE2 );			// -Xian
+
+			$crusher_e3_a.moveTo( $crusher_e3_a_start );
+			$crusher_e3_b.moveTo( $crusher_e3_b_start );
+			sys.wait( 1.5 );
+		}
+	}
+
+
+	void HTPuzzleSequence()
+	{
+		sys.wait( 1.5 );
+
+		thread HTPuzzleNorth3Loop();
+		sys.wait( sys.random( 0.25 ) );
+
+		thread HTPuzzleWest3Loop();
+		sys.wait( sys.random( 0.25 ) );
+
+		thread HTPuzzleSouth3Loop();
+		sys.wait( sys.random( 0.25 ) );
+
+		thread HTPuzzleEast3Loop();
+	}
+
+
+	void BigDoorDelSounds()
+	{
+		sys.trigger( $bd_pcell_loop );
+		sys.trigger( $bd_pcell_stop );
+	}
+
+
+	void powercellDelBigDoor()
+	{
+		sys.trigger( $bigdoor_powercell_removed_early );
+
+		$htpuzzle_door.lock( 2 );
+		$htpuzzle_door_frame.setShaderParm( 7, 0 );
+		$bigdoor1_locked.show();
+		$bigdoor1_unlocked.hide();
+		$bigdoor1.close();
+		sys.trigger( $bigdoor2_playerclip );
+		$bigdoor2.open();
+
+		// Power shutdown sound
+		thread BigDoorDelSounds();
+		sys.wait( 1.5 );
+
+		//  Door opening sound/anims
+		sys.trigger( $bd_pcell_openclose1 );
+		sys.trigger( $bd_pcell_idle1 );
+		$bigdoor_generator.setAnimation( "opening" );
+		sys.trigger( $bigdoor_generator );
+		sys.wait( 0.5 );
+
+		$bigdoor_powercell.hide();
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+
+		sys.trigger( $bigdoor_powercell_removed );
+
+		// Game scripting...
+	}
+
+
+	void BigDoorInsSounds()
+	{
+		sys.trigger( $bd_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $bd_pcell_loop );
+	}
+
+
+	void powercellInsBigDoor()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$bigdoor_powercell.show();
+		sys.wait( 0.5 );
+
+		$bigdoor_generator.setAnimation( "closing" );
+		sys.trigger( $bigdoor_generator );
+		sys.trigger( $bd_pcell_openclose1 );
+		sys.trigger( $bd_pcell_idle1 );
+		sys.wait( 1.0 );
+
+		// Power starting sound
+		thread BigDoorInsSounds();
+
+		sys.trigger( $bigdoor_powercell_restored );
+
+		// Game scripting...
+		$htpuzzle_door.lock( 0 );
+		$htpuzzle_door_frame.setShaderParm( 7, 1 );
+		$bigdoor1_locked.hide();
+		$bigdoor1_unlocked.show();
+		sys.trigger( $bigdoor2_playerclip );
+		$bigdoor2.close();
+		sys.wait( 1.0 );
+		$bigdoor1.open();
+	}
+
+
+	void HallSteam1Loop()
+	{
+		while( true )
+		{
+			sys.trigger( $hs1_effect );
+			sys.trigger( $hs1_sound );
+			sys.trigger( $hs1_hurt );
+			sys.wait( 3.0 );
+
+			sys.trigger( $hs1_effect );
+			sys.trigger( $hs1_sound );
+			sys.trigger( $hs1_hurt );
+			sys.wait( 3.0 );
+		}
+	}
+
+
+	void HallSteam2Loop()
+	{
+		while( true )
+		{
+			sys.trigger( $hs2_effect );
+			sys.trigger( $hs2_sound );
+			sys.trigger( $hs2_hurt );
+			sys.wait( 3.0 );
+
+			sys.trigger( $hs2_effect );
+			sys.trigger( $hs2_sound );
+			sys.trigger( $hs2_hurt );
+			sys.wait( 3.0 );
+		}
+	}
+
+
+	void HallSteamSequence()
+	{
+		thread HallSteam2Loop();
+		sys.wait( 0.5 );
+
+		sys.trigger( $hs2_glass );
+		sys.trigger( $hs2_glass_breaker );
+		sys.wait( 2.5 );
+
+		thread HallSteam1Loop();
+		sys.wait( 0.5 );
+
+		sys.trigger( $hs1_glass );
+		sys.trigger( $hs1_glass_breaker );
+	}
+
+
+	void BigScreenSequence()
+	{
+		sys.wait( 2.0 );
+		$bj_bs_light.Off();
+		$bj_bs_lightoff.On();
+		sys.trigger( $bj_bs_sound );
+		sys.trigger( $bj_bs_static );
+
+		$bj_bigscreen_gui.setGui( 1, "guis/erebus2/bs_malfunction.gui" );
+		$bj_bigscreen_gui.setGuiParm( "noninteractive", "1" );
+	}
+
+
+	void BrokenElevatorSequence()
+	{
+		sys.trigger( $de_sound1 );
+		sys.wait( 1.0 );
+
+		$fake_elev.time( 2.0 );
+		$fake_elev.accelTime( 1.5 );
+		$fake_elev.move( DOWN, 1024 );
+		sys.waitFor( $fake_elev );
+		sys.wait( 1.0 );
+
+		sys.trigger( $elev_quake );
+		sys.trigger( $elev_crash );
+
+		$fake_elev_door.time( 1.0 );
+		$fake_elev_door.accelTime( 0.5 );
+		$fake_elev_door.decelTime( 0.5 );
+		$fake_elev_door.move( UP, 80 );
+		sys.waitFor( $fake_elev_door );
+
+		$fake_elev_door.time( 1.5 );
+		$fake_elev_door.accelTime( 0.5 );
+		$fake_elev_door.decelTime( 0.5 );
+		$fake_elev_door.move( DOWN, 64 );
+		sys.waitFor( $fake_elev_door );
+
+		$fake_elev_door.time( 1.5 );
+		$fake_elev_door.accelTime( 0.5 );
+		$fake_elev_door.decelTime( 0.5 );
+		$fake_elev_door.move( UP, 32 );
+		sys.waitFor( $fake_elev_door );
+	}
+
+
+	void OpenElevSecretDoor()
+	{
+		sys.wait( 0.1 );
+		$func_door_1768.open();
+	}
+
+
+	void PistonStartSound( entity ePiston )
+	{
+		ePiston.startSoundShader( "m1_start", SND_CHANNEL_VOICE );
+		sys.wait( 0.75 );
+
+		ePiston.startSoundShader( "m1_loop", SND_CHANNEL_VOICE2 );
+	}
+
+
+	void PistonStopSound( entity ePiston )
+	{
+		ePiston.startSoundShader( "m1_stop", SND_CHANNEL_VOICE2 );
+		ePiston.startSoundShader( "rec1_pump_endclack_01", SND_CHANNEL_ITEM );
+	}
+
+
+	void PistonSequence( string strPiston )
+	{
+		entity ePiston;
+		entity eSpeaker;
+
+		float fDownTime;
+		float fDownWait;
+		float fUpTime;
+		float fUpWait;
+
+		ePiston = sys.getEntity( strPiston );
+		eSpeaker = sys.getEntity( strPiston + "_speaker" );
+		sys.wait( 1.0 + sys.random( 4.0 ) );
+
+		fDownTime = 0.5 + sys.random( 1.5 );
+		fDownWait = 1.0 + sys.random( 1.0 );
+		fUpTime = 3.0 + sys.random( 3.0 );
+		fUpWait = 1.0 + sys.random( 2.0 );
+
+		while( true )
+		{
+			thread PistonStartSound( ePiston );
+			ePiston.time( fDownTime );
+			ePiston.accelTime( 0.25 );
+			ePiston.decelTime( 0.25 );
+			ePiston.move( DOWN, 192 );
+			sys.waitFor( ePiston );
+
+			thread PistonStopSound( ePiston );
+			sys.wait( fDownWait );
+
+			thread PistonStartSound( ePiston );
+			ePiston.time( fUpTime );
+			ePiston.accelTime( 0.5 );
+			ePiston.decelTime( 0.5 );
+			ePiston.move( UP, 192 );
+			sys.waitFor( ePiston );
+
+			thread PistonStopSound( ePiston );
+			sys.wait( fUpWait );
+		}
+	}
+
+
+	void PistonLoop()
+	{
+		float ii;
+
+		for( ii = 1; ii <= 3; ii++ )
+		{
+			thread PistonSequence( "piston" + ii );
+		}
+	}
+
+
+	void LightSpinner1Loop()
+	{
+		while( true )
+		{
+			sys.trigger( $light_spinner1_lightsoff );
+
+			// steam off
+			sys.trigger( $light_spinner1_smoke );
+			$light_spinner1_smoke.startSoundShader( "rec1_steamchuff", SND_CHANNEL_VOICE );
+
+			$light_spinner1_base.startSoundShader( "rec1_3s_piston", SND_CHANNEL_VOICE2 );
+			$light_spinner1_base.time( 3.0 );
+			$light_spinner1_base.move( SOUTH, 96 );
+			$light_spinner1_base.rotateOnce( '360 0 0' );
+			sys.waitFor( $light_spinner1_base );
+			sys.wait( 2.0 );
+
+			// steam on
+			sys.trigger( $light_spinner1_smoke );
+			$light_spinner1_smoke.startSoundShader( "rec1_steamchuff", SND_CHANNEL_VOICE );
+
+			$light_spinner1_base.startSoundShader( "rec1_3s_piston", SND_CHANNEL_VOICE2 );
+			$light_spinner1_base.time( 3.0 );
+			$light_spinner1_base.move( NORTH, 96 );
+			$light_spinner1_base.rotateOnce( '-360 0 0' );
+			sys.waitFor( $light_spinner1_base );
+
+			sys.trigger( $light_spinner1_lightson );
+
+			$light_spinner1_base.startSoundShader( "rec1_2s_rotation", SND_CHANNEL_VOICE2 );
+			$light_spinner1_base.time( 2.0 );
+			$light_spinner1_base.rotateOnce( '360 0 0' );
+			sys.waitFor( $light_spinner1_base );
+		}
+	}
+
+
+	void LowerLadder()
+	{
+		if( !g_bLadderLowered )
+		{
+			sys.wait( 1.0 );
+
+			sys.trigger( $erebus2_ladder_sound );
+
+			$erebus2_ladder.time( 2.0 );
+			$erebus2_ladder.accelTime( 0.25 );
+			$erebus2_ladder.decelTime( 0.25 );
+			$erebus2_ladder.move( DOWN, 112 );
+			sys.wait( 0.5 );
+
+			$erebus2_ladder_light1.On();
+			sys.wait( 0.5 );
+
+			$erebus2_ladder_light2.On();
+
+			$ladder_gui_locked.remove();
+			sys.trigger( $ladder_gui_unlocked );
+
+			g_bLadderLowered = true;
+		}
+	}
+
+
+	void elev_pcellsounds() {
+		sys.trigger( $elev_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $elev_pcell_loop );
+	}
+
+	void powercellInsExitLift()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$exitlift_powercell.show();
+		sys.wait( 0.5 );
+
+		$exitlift_staticgui.guiNamedEvent( 1, "powercellDeviceStarted" );
+		$exitlift_generator.setAnimation( "closing" );
+		sys.trigger( $exitlift_generator );
+		sys.trigger( $elev_pcell_openclose1 );
+		sys.trigger( $elev_pcell_idle1 );
+		sys.wait( 1.0 );
+
+		// Power starting sound
+		thread elev_pcellsounds();
+
+		// Game scripting...
+		sys.trigger( $elev_pcell_lightson );
+		$elev_toplight1.On();
+		$elev_toplight2.On();
+		sys.wait( 0.5 );
+
+		$top_hslight1.On();
+		$top_healthstation.setGui( 1, "guis/erebus2/e2_healthstation.gui" );
+		$top_healthstation.setGuiParm( "noninteractive", "0" );
+		sys.wait( 0.5 );
+
+		$exitlift_gui.guiNamedEvent( 1, "InsertPowerCell" );
+		$elev_toplight3.On();
+		$top_compscreen.setGui( 1, "guis/screens/cpu_one.gui" );
+		$top_compscreen.setGui( 2, "guis/screens/cpu_six.gui" );
+		$top_compscreen.setGui( 3, "guis/screens/cpu_six.gui" );
+		sys.trigger( $exit_elev_sound1 );
+		sys.trigger( $exit_elev_sound2 );
+	}
+
+
+	void powercellDelExitLift()
+	{
+		// EMPTY
+	}
+
+
+	void ExitLiftSequence()
+	{
+		if( g_bExitLiftCalled )
+		{
+			return;
+		}
+
+		g_bExitLiftCalled = true;
+
+		// if the player reached the upper level cheating with movables
+		// manually lower the ladder so the zsec guys could logically get up
+		thread LowerLadder();
+
+		// fix the exit elevator call button
+		$exit_elev_gui.setShaderParm( 7, 1 );
+		$exit_elev_gui.setGuiParm( "noninteractive", "0" );
+		$exit_elev_gui.setGuiParm( "gui_parm5", "0" );
+
+		// close the door to this room, this is just a bonus thing so if something
+		// is blocking it, that isn't a showstopper condition
+		$exitlift_door.close();
+
+		// turn on the new monsters
+		sys.trigger( $exitlift_powercell_monsters );
+		//sys.trigger( $exitlift_vulgar ); BJ For Easy
+		sys.trigger( $relay_exitlift_vulgar ); // BJ For Easy
+		sys.wait( 1.0 );
+
+		// objective complete message
+		sys.trigger( $end_obj_comp );
+
+		// turn on the lights by the elevator
+		sys.trigger( $elevator_lights );
+
+		// turn on the emergency red light
+		sys.trigger( $klaxon1_bulb );
+		$klaxon1_spot.On();
+		$klaxon1_ambient.On();
+
+		// show the fake guys
+		sys.trigger( $end_zsec1 );
+		sys.trigger( $end_zsec2 );
+		sys.trigger( $end_zsec3 );
+
+		// move the elevator into place
+		sys.trigger( $transfer_alarm );
+		$transfer_elevator.moveTo( $transfer_elevator_01 );
+		sys.waitFor( $transfer_elevator );
+
+		sys.trigger( $transfer_elevator_doors );
+		sys.wait( 1.5 );
+
+		// have the zsec's (fakes) that came up run out
+		sys.trigger( $end_zsec1_relay );
+		sys.wait( 0.5 );
+
+		sys.trigger( $end_zsec2_relay );
+		sys.wait( 0.5 );
+
+		sys.trigger( $transfer_alarm );
+
+		sys.trigger( $end_zsec3_relay );
+		sys.wait( 2.0 );
+
+		sys.trigger( $transfer_elevator_doors );
+	}
+
+
+	void SetupLevel()
+	{
+		$doublebarrel_dummy.remove();
+
+		$bigdoor1.open();
+
+		$bdoor1.time( 0.1 );
+		$bdoor1.moveTo( $bdoor1_start );
+		sys.waitFor( $bdoor1 );
+
+		$bj_bigscreen_gui.setGuiParm( "noninteractive", "1" );
+		$exit_elev_gui.setGuiParm( "noninteractive", "1" );
+	}
+
+
+	void Precache()
+	{
+		// GUIS
+		$top_compscreen.precacheGui( "guis/screens/cpu_one.gui" );
+		$top_compscreen.precacheGui( "guis/screens/cpu_six.gui" );
+
+		$bj_bigscreen_gui.precacheGui( "guis/erebus2/bs_malfunction.gui" );
+		$top_healthstation.precacheGui( "guis/erebus2/e2_healthstation.gui" );
+		$top_healthstation.setGuiParm( "noninteractive", "1" );
+
+		// SOUNDS
+		sys.cacheSoundShader( "m1_start" );
+		sys.cacheSoundShader( "m1_loop" );
+		sys.cacheSoundShader( "m1_stop" );
+		sys.cacheSoundShader( "rec1_pump_endclack_01" );
+		sys.cacheSoundShader( "rec1_2s_rotation" );
+		sys.cacheSoundShader( "rec1_steamchuff" );
+		sys.cacheSoundShader( "rec1_3s_piston" );
+		sys.cacheSoundShader( "e2_stone_out" );
+		sys.cacheSoundShader( "e2_stone_in" );
+		sys.cacheSoundShader( "guisounds_item" );
+	}
+
+
+	void main()
+	{
+		// FIXME: remove these lines when the rocks become breakable
+		$moveable_caverock2_5.remove();
+		$func_static_54650.remove();
+		$func_static_54649.remove();
+		$moveable_caverock2_2.remove();
+		$moveable_caverock2_6.remove();
+		$moveable_caverock1_2.remove();
+
+		$moveable_barrel3_7.remove();
+		$moveable_barrel3_8.remove();
+		$moveable_barrel3_9.remove();
+
+		$moveable_jackhammer_5.remove();
+		$moveable_shovel_5.remove();
+		$moveable_rubble_03_48.remove();
+		$moveable_rubble_03_49.remove();
+		$moveable_rubble_01_29.remove();
+		$moveable_rubble_02_30.remove();
+
+		// LEVEL PRECACHE
+		thread Precache();
+
+		// HELLTIME BATTLE SETUP
+		thread map_erebus2_helltime::SetupHelltimeBattle();
+
+		// LEVEL SETUP
+		thread SetupLevel();
+
+		thread PistonLoop();
+		thread LightSpinner1Loop();
+	}
+}

@@ -1,0 +1,995 @@
+/***********************************************************************
+
+ player
+
+***********************************************************************/
+
+export fred {
+	options -prefix PLAYER_ -keep SPINNER camWaist camHead modelviewconnector camera PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER Lfteye_Focus Rteye_Focus Neck -parent Waist SPINNER -parent SPINNER Waist2 -parent Neck Shldrs -parent camera camHead -parent Lfteye_Focus Head -parent Rteye_Focus Head -parent Waist2 Hips -parent PISTOL_ATTACHER Rhand -parent SHOTGUN_ATTACHER Rhand -parent MGATTACHER Rhand -parent pgATTACHER Rhand -parent NADE_ATTACHER Rhand -parent CHAINSAW_ATTACHER Rhand -parent RL_ATTACHER Lhand -parent FL_ATTACHER Rhand -parent BFG_ATTACHER Lhand -parent camWaist modelviewconnector -parent CHAINGUN_ATTACHER Rhand
+
+	addoptions -skipmesh pistolBarrel 
+	addoptions -skipmesh pistolExtender 
+	addoptions -skipmesh pistolTrigger 
+	addoptions -skipmesh pistolBody
+	addoptions -skipmesh pistolClip1
+	addoptions -skipmesh plasma_innerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_innerscopetop_mesh1
+	addoptions -skipmesh plasma_outerscopebot_mesh1
+	addoptions -skipmesh plasma_outerscopetop_mesh1
+	addoptions -skipmesh plasma_innerflap1_mesh1
+	addoptions -skipmesh plasma_outerflap1_mesh1
+ 	addoptions -skipmesh plasma_bolt_mesh1
+ 	addoptions -skipmesh plasma_screen_mesh1
+	addoptions -skipmesh plasma_body_mesh1
+	addoptions -skipmesh plasma_handle_mesh1
+	addoptions -skipmesh plasma_outerflap2_mesh4
+	addoptions -skipmesh plasma_innerflap2_mesh4
+	addoptions -skipmesh plasma_uppermon_mesh4
+	addoptions -skipmesh shotgun_body_mesh
+	addoptions -skipmesh shotgun_handle_mesh
+	addoptions -skipmesh shotgun_trigger_mesh
+	addoptions -skipmesh shotgun_loflap_mesh
+	addoptions -skipmesh shotgun_extender_mesh
+	addoptions -skipmesh shotgun_upflap1_mesh
+	addoptions -skipmesh shotgun_upflap2_mesh
+	addoptions -skipmesh mgdisplaymesh
+	addoptions -skipmesh mgextendermesh 
+	addoptions -skipmesh mgbodymesh
+	addoptions -skipmesh mgclipmesh 
+	addoptions -skipmesh mgtriggermesh 
+	addoptions -skipmesh nade_cap_mesh
+	addoptions -skipmesh nade_body_mesh
+	addoptions -skipmesh chainsawcordmesh
+	addoptions -skipmesh chainsawstartermesh
+	addoptions -skipmesh chainsawblademesh
+	addoptions -skipmesh chainsawhandlemesh
+	addoptions -skipmesh chainsawbodymesh
+	
+	addoptions -skipmesh rshell1
+	addoptions -skipmesh rshell2
+	addoptions -skipmesh rshell3
+	addoptions -skipmesh rshell4
+	addoptions -skipmesh reloader1
+	addoptions -skipmesh handle
+	addoptions -skipmesh aimer
+	addoptions -skipmesh body
+
+	addoptions -skipmesh flashlightmesh1
+	addoptions -skipmesh flashlightflaremesh
+	addoptions -skipmesh flashlightbeammesh
+	addoptions -skipmesh flashlightflare2mesh
+	
+	addoptions -skipmesh bfgmesh
+
+	addoptions -skipmesh w_pistolfire
+	addoptions -skipmesh w_pistolflash
+	addoptions -skipmesh w_pistolmesh
+	addoptions -skipmesh w_shotgun2barrelmesh
+	addoptions -skipmesh w_shotgun2mesh
+	addoptions -skipmesh w_machinegun_mesh
+	addoptions -skipmesh w_mgfx1
+	addoptions -skipmesh w_mgfx2
+	addoptions -skipmesh w_mgfx3
+	addoptions -skipmesh w_mgfx4
+	addoptions -skipmesh w_plasmagun_mesh
+	addoptions -skipmesh w_plasmagunfx1
+	addoptions -skipmesh w_plasmagunfx2
+	addoptions -skipmesh w_chainsaw_mesh
+	addoptions -skipmesh w_chainsaw_chain_mesh
+	addoptions -skipmesh w_rocketlauncher_mesh
+
+	addoptions -skipmesh chaingunfx1_model
+	addoptions -skipmesh chaingunfx2_model
+	addoptions -skipmesh chaingunnubmodel
+	addoptions -skipmesh chaingunbodymodel
+	addoptions -skipmesh chaingunbarrelmodel
+
+
+	//non-aligned MOVES
+
+	anim	maps/fred/underground/crazy_sci_player_shot1.mb  -xyzprecision .01 -quatprecision 0.00006 -range 1 114 -dest models/md5/cinematics/underground/crazy_player1
+	anim	maps/fred/underground/crazy_sci_player_shot2.mb  -xyzprecision .01 -quatprecision 0.00006 -range 115 224 -dest models/md5/cinematics/underground/crazy_player2
+	anim	maps/fred/underground/crazysci2.mb -range 200 648 -dest models/md5/cinematics/underground/crazy_player3
+	anim	maps/fred/underground/crazysciend.mb -dest models/md5/cinematics/underground/crazy_player_end
+
+	//non-aligned CINEMATICS
+
+	anim	maps/fred/cyberdemon/rescue1.mb -dest models/md5/cinematics/hellhole/rescue_player
+	anim	models/monsters/sabaoth/cycles/death.mb -dest models/md5/cinematics/cpu_boss/sabaoth_death_player
+
+	anim    maps/james/recycling2.mb -dest models/md5/cinematics/recycling2/mancintro_player
+
+	anim	maps/fred/underground/impintro.mb -dest models/md5/cinematics/underground/impintro_player
+
+	anim	maps/fred/underground/headache.mb -dest models/md5/cinematics/underground/headache_player
+
+
+	anim	maps/fred/admin/railing.mb -dest models/md5/cinematics/admin/railingplayer
+	anim	maps/fred/admin/campbell_overhear_1_n_2_n_3.mb -range 1 313 -dest models/md5/cinematics/admin/overhearplayer1
+	
+	anim	maps/eric/enpro/wounded_marine.mb -range 1 92 -dest models/md5/cinematics/enpro/marine_player1
+	anim	maps/eric/enpro/wounded_marine.mb -range 93 194 -dest models/md5/cinematics/enpro/marine_player2 -prefix PLAYER2_	
+	anim	maps/eric/enpro/wounded_marine.mb -range 195 340 -dest models/md5/cinematics/enpro/marine_player3 -prefix PLAYER2_	
+	anim	maps/eric/enpro/wounded_marine.mb -range 341 476 -dest models/md5/cinematics/enpro/marine_player4 -prefix PLAYER2_	
+	anim	maps/eric/enpro/wounded_marine.mb -range 477 571 -dest models/md5/cinematics/enpro/marine_player5 -prefix PLAYER2_	
+	anim	maps/eric/enpro/wounded_marine.mb -range 572 598 -dest models/md5/cinematics/enpro/marine_player6 -prefix PLAYER2_	
+	
+	
+
+	
+	
+	//mesh
+
+	mesh	models/characters/player/mocap/idle_stand.mb -dest models/md5/characters/player/mocap/player
+
+	anim	maps/fred/admin/swann_campbell_overhear.mb -range 432 1033 -dest models/md5/cinematics/admin/overhearplayer2 -prefix PLAYER1_
+
+	
+	addoptions -align ALL
+
+//CINEMATICS
+	
+	anim	models/characters/player/mocap/react1.mb -dest models/md5/characters/player/mocap/cinematics/react1
+	anim	models/characters/player/mocap/spinaround1.mb -dest models/md5/characters/player/mocap/cinematics/spinaround1
+	anim	models/characters/player/mocap/walk2stop.mb -range 17 50 -dest models/md5/characters/player/mocap/cinematics/stop2walk
+	anim	models/characters/player/mocap/walk2stop.mb -range 55 120 -dest models/md5/characters/player/mocap/cinematics/walk2stop
+	anim	models/characters/player/mocap/walk2stop.mb -range 55 93 -dest models/md5/characters/player/mocap/cinematics/walk2stop2
+	anim	models/characters/player/mocap/walk2stop.mb -range 10 120 -dest models/md5/characters/player/mocap/cinematics/walk2stopfull
+
+	anim	models/characters/player/mocap/nadedrope3ending.mb -range 1 370 -dest models/md5/characters/player/mocap/cinematics/nadedrope3ending
+	anim	models/characters/player/mocap/outofammo.mb -dest models/md5/characters/player/mocap/cinematics/outofammo
+}
+
+//NPC PLAYER ANIMS
+
+export fred {
+
+	options -prefix SUIT_ -keep Lknee Rknee Lhand Lhand1 Rhand Rhand1 Body2 Body SPINNER PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER PDA_ATTACHER SOUL_ATTACHER loneckadjust headcontrol neckcontrol loneckcontrol eyecontrol jawcontrol jawadjust Jaw -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -parent PISTOL_ATTACHER Rhand1 -parent SHOTGUN_ATTACHER Rhand1 -parent MGATTACHER Rhand1 -parent pgATTACHER Rhand1 -parent NADE_ATTACHER Rhand1 -parent CHAINSAW_ATTACHER Rhand1 -parent RL_ATTACHER Lhand1 -parent FL_ATTACHER Rhand1 -parent BFG_ATTACHER Rhand1 -parent CHAINGUN_ATTACHER Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent Rhand1 Rhand -parent Rfings1 Rhand1 -parent Rindex1 Rhand1 -parent Rthumb1 Rhand1 -parent PDA_ATTACHER Rhand -parent SOUL_ATTACHER Rhand
+
+	addoptions -keepmesh soldiermesh
+	addoptions -keepmesh marinehelmetmesh
+	addoptions -keepmesh marinebodymesh
+	addoptions -keepmesh skeletonmesh
+	
+
+	//anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_fast.mb -dest models/md5/characters/npcs/playermoves/walk_forward
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run2stop.mb -dest models/md5/characters/npcs/playermoves/exit_teleporter
+}
+
+
+export fred {
+
+	options -prefix MP_ -keep Loneck Head Lknee Rknee Lhand Lhand1 Rhand Body2 Body SPINNER PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER PDA_ATTACHER SOUL_ATTACHER loneckadjust headcontrol neckcontrol loneckcontrol eyecontrol jawcontrol jawadjust Jaw -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -parent PISTOL_ATTACHER Rhand1 -parent SHOTGUN_ATTACHER Rhand1 -parent MGATTACHER Rhand1 -parent pgATTACHER Rhand1 -parent NADE_ATTACHER Rhand1 -parent CHAINSAW_ATTACHER Rhand1 -parent RL_ATTACHER Lhand1 -parent FL_ATTACHER Rhand1 -parent BFG_ATTACHER Rhand1 -parent CHAINGUN_ATTACHER Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent PDA_ATTACHER Rhand -parent SOUL_ATTACHER Rhand
+
+
+	addoptions -keepmesh npcplayerarmmesh 
+	addoptions -keepmesh npcplayermesh
+	addoptions -keepmesh soldiermesh
+
+	
+	mesh	models/characters/male_npc/cycles/tweakedplayermoves/makemesh.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/spplayer
+
+	options -prefix MP_ -keep Lknee Rknee Lhand Lhand1 Rhand Body2 Body SPINNER PISTOL_ATTACHER SHOTGUN_ATTACHER MGATTACHER pgATTACHER NADE_ATTACHER CHAINSAW_ATTACHER RL_ATTACHER FL_ATTACHER BFG_ATTACHER CHAINGUN_ATTACHER PDA_ATTACHER SOUL_ATTACHER loneckadjust headcontrol neckcontrol loneckcontrol eyecontrol jawcontrol jawadjust Jaw -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER -parent PISTOL_ATTACHER Rhand1 -parent SHOTGUN_ATTACHER Rhand1 -parent MGATTACHER Rhand1 -parent pgATTACHER Rhand1 -parent NADE_ATTACHER Rhand1 -parent CHAINSAW_ATTACHER Rhand1 -parent RL_ATTACHER Lhand1 -parent FL_ATTACHER Rhand1 -parent BFG_ATTACHER Rhand1 -parent CHAINGUN_ATTACHER Rhand -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent PDA_ATTACHER Rhand -parent SOUL_ATTACHER Rhand
+ 
+	addoptions -keepmesh head_skullmesh
+	addoptions -keepmesh skeletonmesh
+	addoptions -keepmesh marinehelmetmesh
+	addoptions -keepmesh head_uachelmetmesh
+	addoptions -keepmesh marinebodymesh
+	addoptions -keepmesh head_bfx1mesh
+	addoptions -keepmesh head_bfx2mesh
+	addoptions -keepmesh head_bfx3mesh
+	addoptions -keepmesh head_bfx4mesh
+	addoptions -keepmesh head_bfxflamemesh
+	addoptions -keepmesh head_bfxmodelmesh
+	addoptions -keepmesh head_stumpmesh
+	addoptions -keepmesh berserkbodyfxmesh
+
+	mesh	models/characters/male_npc/cycles/tweakedplayermoves/makemesh.mb -dest models/md5/characters/npcs/playermoves/mpplayer
+
+//	anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_strafe_left_new.mb -rotate 180 -dest models/md5/characters/npcs/playermoves/walk_strafe_left_new
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/jog.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/jog
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/jog_back.mb -rotate 90 -dest models/md5/characters/npcs/playermoves/jog_back
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/crouch_walk.mb -rotate -90 -dest models/md5/characters/npcs/playermoves/crouch_walk
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/crouch_walk_back.mb -cyclestart 23 -rotate -90 -dest models/md5/characters/npcs/playermoves/crouch_walk_back
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/newrun.mb -rotate -90 -dest models/md5/characters/npcs/playermoves/newrun
+
+
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_strafe_left4.mb -cycleStart 56 -dest models/md5/characters/npcs/playermoves/walk_strafe_left
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_strafe_right4.mb -cycleStart 56 -dest models/md5/characters/npcs/playermoves/walk_strafe_right
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run_strafe_left2.mb -cycleStart 47 -dest models/md5/characters/npcs/playermoves/run_strafe_left
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run_strafe_right2.mb -cycleStart 47 -dest models/md5/characters/npcs/playermoves/run_strafe_right
+	
+	
+	addoptions -align ALL
+
+	mesh	models/characters/male_npc/cycles/tweakedplayermoves/makemesh.mb -dest models/md5/characters/npcs/playermoves/npcplayer 
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/initial.mb -dest models/md5/characters/npcs/playermoves/initial
+	anim	models/characters/player/mocap/idle_stand.mb -dest models/md5/characters/npcs/playermoves/idle_stand
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_100.mb -dest models/md5/characters/npcs/playermoves/walk_forward
+
+	anim	models/characters/player/mocap/walk_backwards_100.mb -dest models/md5/characters/npcs/playermoves/walk_backwards_100
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_jump.mb -range 46 76 -dest models/md5/characters/npcs/playermoves/walkjump1
+	//anim	models/characters/male_npc/cycles/tweakedplayermoves/walk_jump.mb -range 77 107 -dest models/md5/characters/npcs/playermoves/walkjump2
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/soft_land.mb -range 109 116 -dest models/md5/characters/npcs/playermoves/soft_land
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/hard_land.mb -range 93 119 -dest models/md5/characters/npcs/playermoves/hard_land
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fall.mb -dest models/md5/characters/npcs/playermoves/fall
+
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pda_idle.mb -dest models/md5/characters/npcs/playermoves/pda_idle
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/upladder.mb -dest models/md5/characters/npcs/playermoves/upladder
+
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run270.mb -dest models/md5/characters/npcs/playermoves/run_270
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run.mb -cycleStart 72 -dest models/md5/characters/npcs/playermoves/run
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run320.mb -rotate -90 -dest models/md5/characters/npcs/playermoves/run_320
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run192.mb -rotate 180 -dest models/md5/characters/npcs/playermoves/run_192
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/run_backwards.mb -dest models/md5/characters/npcs/playermoves/run_backwards
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/runbackwards_270.mb -dest models/md5/characters/npcs/playermoves/run_backwards_270
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/turn_left.mb -dest models/md5/characters/npcs/playermoves/turn_left
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/turn_right.mb -dest models/md5/characters/npcs/playermoves/turn_right
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/teleportin.mb -range 80 110 -dest models/md5/characters/npcs/playermoves/teleportin
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fredpains.mb -range 1 20 -dest models/md5/characters/npcs/playermoves/painhead
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fredpains.mb -range 21 40 -dest models/md5/characters/npcs/playermoves/painleftarm
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fredpains.mb -range 41 60 -dest models/md5/characters/npcs/playermoves/painrightarm
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fredpains.mb -range 61 80 -dest models/md5/characters/npcs/playermoves/painchest
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/crouch_down.mb -dest models/md5/characters/npcs/playermoves/crouch_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/crouch.mb -dest models/md5/characters/npcs/playermoves/crouch
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/crouch_up.mb -dest models/md5/characters/npcs/playermoves/crouch_up
+
+	anim	models/characters/player/mocap/crouch_walk_forward.mb -dest models/md5/characters/npcs/playermoves/crouch_walk_forward
+	anim	models/characters/player/mocap/crouch_walk_backward.mb -dest models/md5/characters/npcs/playermoves/crouch_walk_backward
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/lower_raise.mb -range 1 6 -dest models/md5/characters/npcs/playermoves/lowerwep
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/lower_raise.mb -range 6 20 -dest models/md5/characters/npcs/playermoves/raisewep
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/lower_raise_left.mb -range 1 6 -dest models/md5/characters/npcs/playermoves/lowerwep_left
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/lower_raise_left.mb -range 6 20 -dest models/md5/characters/npcs/playermoves/raisewep_left
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pda_lower.mb -range 1 10 -dest models/md5/characters/npcs/playermoves/lowerpda
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pda_raise.mb -range 1 20 -dest models/md5/characters/npcs/playermoves/raisepda
+
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_idle_down.mb -dest models/md5/characters/npcs/playermoves/fists_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_idle.mb -dest models/md5/characters/npcs/playermoves/fists_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_idle_up.mb -dest models/md5/characters/npcs/playermoves/fists_idle_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_aim_down.mb -dest models/md5/characters/npcs/playermoves/fists_aim_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_aim.mb -dest models/md5/characters/npcs/playermoves/fists_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_aim_up.mb -dest models/md5/characters/npcs/playermoves/fists_aim_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_punch_up.mb -range 37 53 -dest models/md5/characters/npcs/playermoves/fists_punch_up1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_punch.mb -range 37 53 -dest models/md5/characters/npcs/playermoves/fists_punch1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_punch_down.mb -range 37 53 -dest models/md5/characters/npcs/playermoves/fists_punch_down1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_punch_up2.mb -range 138 153 -dest models/md5/characters/npcs/playermoves/fists_punch_up2
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_punch.mb -range 138 153 -dest models/md5/characters/npcs/playermoves/fists_punch2
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/fists_punch_down.mb -range 138 153 -dest models/md5/characters/npcs/playermoves/fists_punch_down2
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_idle3_down.mb -dest models/md5/characters/npcs/playermoves/pistol_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_idle3.mb -dest models/md5/characters/npcs/playermoves/pistol_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_idle3_up.mb -dest models/md5/characters/npcs/playermoves/pistol_idle_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_aim_up.mb -dest models/md5/characters/npcs/playermoves/pistol_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_aim.mb -dest models/md5/characters/npcs/playermoves/pistol_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_aim_down.mb -dest models/md5/characters/npcs/playermoves/pistol_aim_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_fire.mb -range 35 58 -dest models/md5/characters/npcs/playermoves/pistol_fire1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_fire_up.mb -range 35 58 -dest models/md5/characters/npcs/playermoves/pistol_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_fire_down.mb -range 35 58 -dest models/md5/characters/npcs/playermoves/pistol_fire_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/pistol_reload.mb -dest models/md5/characters/npcs/playermoves/pistol_reload
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_idle_down.mb -dest models/md5/characters/npcs/playermoves/shotgun_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_idle.mb -dest models/md5/characters/npcs/playermoves/shotgun_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_idle_up.mb -dest models/md5/characters/npcs/playermoves/shotgun_idle_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_aim_up.mb -dest models/md5/characters/npcs/playermoves/shotgun_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_aim.mb -dest models/md5/characters/npcs/playermoves/shotgun_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_aim_down.mb -dest models/md5/characters/npcs/playermoves/shotgun_aim_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_fire.mb -range 49 75 -dest models/md5/characters/npcs/playermoves/shotgun_fire1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_fire_up.mb -range 49 75 -dest models/md5/characters/npcs/playermoves/shotgun_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_fire_down.mb -range 49 75 -dest models/md5/characters/npcs/playermoves/shotgun_fire_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_reload2.mb -range 36 46 -dest models/md5/characters/npcs/playermoves/shotgun_reload_start
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_reload2_loopfast.mb -range 56 67 -dest models/md5/characters/npcs/playermoves/shotgun_reload_loop1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/shotgun_reload2.mb -range 124 148 -dest models/md5/characters/npcs/playermoves/shotgun_reload_end
+	
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_idle_down.mb -dest models/md5/characters/npcs/playermoves/machinegun_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_idle.mb -dest models/md5/characters/npcs/playermoves/machinegun_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_idle_up.mb -dest models/md5/characters/npcs/playermoves/machinegun_idle_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_aim_up.mb -dest models/md5/characters/npcs/playermoves/machinegun_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_aim.mb -dest models/md5/characters/npcs/playermoves/machinegun_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_aim_down.mb -dest models/md5/characters/npcs/playermoves/machinegun_aim_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_fire_up.mb -range 53 62 -dest models/md5/characters/npcs/playermoves/machinegun_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_fire.mb -range 53 62 -dest models/md5/characters/npcs/playermoves/machinegun_fire1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_fire_down.mb -range 53 62 -dest models/md5/characters/npcs/playermoves/machinegun_fire_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/machinegun_reload.mb -dest models/md5/characters/npcs/playermoves/machinegun_reload
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_idle_up.mb -dest models/md5/characters/npcs/playermoves/nade_idle_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_idle.mb -dest models/md5/characters/npcs/playermoves/nade_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_idle_down.mb -dest models/md5/characters/npcs/playermoves/nade_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_quickthrow_up.mb -dest models/md5/characters/npcs/playermoves/nade_quickthrow_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_quickthrow.mb -dest models/md5/characters/npcs/playermoves/nade_quickthrow
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_quickthrow_down.mb -dest models/md5/characters/npcs/playermoves/nade_quickthrow_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_start_up.mb -dest models/md5/characters/npcs/playermoves/nade_throwstart_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_start.mb -dest models/md5/characters/npcs/playermoves/nade_throwstart
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_start_down.mb -dest models/md5/characters/npcs/playermoves/nade_throwstart_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_throw_up.mb -dest models/md5/characters/npcs/playermoves/nade_throw_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_throw.mb -dest models/md5/characters/npcs/playermoves/nade_throw
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/grenade_throw_down.mb -dest models/md5/characters/npcs/playermoves/nade_throw_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_aim_down.mb -dest models/md5/characters/npcs/playermoves/flashlight_aim_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_aim_up.mb -dest models/md5/characters/npcs/playermoves/flashlight_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_idle.mb -dest models/md5/characters/npcs/playermoves/flashlight_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_swing1_down.mb -dest models/md5/characters/npcs/playermoves/flashlight_swing1_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_swing1.mb -dest models/md5/characters/npcs/playermoves/flashlight_swing1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_swing1_up.mb -dest models/md5/characters/npcs/playermoves/flashlight_swing1_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_swing2_down.mb -dest models/md5/characters/npcs/playermoves/flashlight_swing2_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_swing2.mb -dest models/md5/characters/npcs/playermoves/flashlight_swing2
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/flashlight_swing2_up.mb -dest models/md5/characters/npcs/playermoves/flashlight_swing2_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_raise.mb -dest models/md5/characters/npcs/playermoves/chainsaw_raise
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_idle2_up.mb -dest models/md5/characters/npcs/playermoves/chainsaw_idle_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_idle2.mb -dest models/md5/characters/npcs/playermoves/chainsaw_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_idle2_down.mb -dest models/md5/characters/npcs/playermoves/chainsaw_idle_down
+	anim	models/characters/player/mocap/chainsaw_aim.mb -dest models/md5/characters/npcs/playermoves/chainsaw_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_fire1_up.mb -dest models/md5/characters/npcs/playermoves/chainsaw_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_fire1.mb -dest models/md5/characters/npcs/playermoves/chainsaw_fire
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chainsaw_fire1_down.mb -dest models/md5/characters/npcs/playermoves/chainsaw_fire_down
+
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_idle_down.mb -dest models/md5/characters/npcs/playermoves/plasmagun_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_idle.mb -dest models/md5/characters/npcs/playermoves/plasmagun_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_idle_up.mb -dest models/md5/characters/npcs/playermoves/plasmagun_idle_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_aim_up.mb -dest models/md5/characters/npcs/playermoves/plasmagun_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_aim.mb -dest models/md5/characters/npcs/playermoves/plasmagun_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_aim_down.mb -dest models/md5/characters/npcs/playermoves/plasmagun_aim_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_fire_up.mb -range 53 62 -dest models/md5/characters/npcs/playermoves/plasmagun_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_fire.mb -range 53 62 -dest models/md5/characters/npcs/playermoves/plasmagun_fire1
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_fire_down.mb -range 53 62 -dest models/md5/characters/npcs/playermoves/plasmagun_fire_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_fire.mb -range 67 79 -dest models/md5/characters/npcs/playermoves/plasmagun_fire2
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/plasmagun_fire.mb -range 80 92 -dest models/md5/characters/npcs/playermoves/plasmagun_fire3
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_idle_down.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_idle.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_idle_up.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_idle_up
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_aim_up.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_aim.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_aim_down.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_aim_down
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_fire_up.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_fire.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_fire
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_fire_down.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_fire_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/rocketlauncher_reload.mb -dest models/md5/characters/npcs/playermoves/rocketlauncher_reload
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_idle_up.mb -dest models/md5/characters/npcs/playermoves/bfg_idle_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_idle.mb -dest models/md5/characters/npcs/playermoves/bfg_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_idle_down.mb -dest models/md5/characters/npcs/playermoves/bfg_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_aim_up.mb -dest models/md5/characters/npcs/playermoves/bfg_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_aim.mb -dest models/md5/characters/npcs/playermoves/bfg_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_aim_down.mb -dest models/md5/characters/npcs/playermoves/bfg_aim_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_fire_up.mb -range 1 140 -dest models/md5/characters/npcs/playermoves/bfg_startfire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_fire_up.mb -range 141 167 -dest models/md5/characters/npcs/playermoves/bfg_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_fire.mb -range 1 140 -dest models/md5/characters/npcs/playermoves/bfg_startfire
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_fire.mb -range 141 167 -dest models/md5/characters/npcs/playermoves/bfg_fire
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_fire_down.mb -range 1 140 -dest models/md5/characters/npcs/playermoves/bfg_startfire_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_fire_down.mb -range 141 167 -dest models/md5/characters/npcs/playermoves/bfg_fire_down
+	
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_reload.mb -dest models/md5/characters/npcs/playermoves/bfg_reload
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_idle_up.mb -dest models/md5/characters/npcs/playermoves/chaingun_idle_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_idle.mb -dest models/md5/characters/npcs/playermoves/chaingun_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_idle_down.mb -dest models/md5/characters/npcs/playermoves/chaingun_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_aim_up.mb -dest models/md5/characters/npcs/playermoves/chaingun_aim_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_aim.mb -dest models/md5/characters/npcs/playermoves/chaingun_aim
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_aim_down.mb -dest models/md5/characters/npcs/playermoves/chaingun_aim_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_fire_up.mb -dest models/md5/characters/npcs/playermoves/chaingun_fire_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_fire.mb -dest models/md5/characters/npcs/playermoves/chaingun_fire
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_fire_down.mb-dest models/md5/characters/npcs/playermoves/chaingun_fire_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/chaingun_reload.mb -dest models/md5/characters/npcs/playermoves/chaingun_reload
+
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/soulcube_idle_up.mb -dest models/md5/characters/npcs/playermoves/soulcube_idle_up
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/soulcube_idle.mb -dest models/md5/characters/npcs/playermoves/soulcube_idle
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/soulcube_idle_down.mb -dest models/md5/characters/npcs/playermoves/soulcube_idle_down
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/soulcube_fire.mb -dest models/md5/characters/npcs/playermoves/soulcube_fire
+
+
+}
+
+/***********************************************************************
+
+ single player model
+
+***********************************************************************/
+
+model model_sp_marine {
+	skin								skins/characters/player/greenmarine.skin
+	
+	offset								( 0 0 1 )
+
+	mesh								models/md5/characters/npcs/playermoves/spplayer.md5mesh
+
+	channel torso						( *Waist )
+	channel legs						( *origin -*Waist SPINNER eyecontrol)
+
+	anim af_pose						models/md5/characters/npcs/playermoves/initial.md5anim
+	anim ik_pose						models/md5/characters/npcs/playermoves/initial.md5anim
+	anim initial						models/md5/characters/npcs/playermoves/initial.md5anim
+
+	anim teleport						models/md5/characters/npcs/playermoves/teleportin.md5anim
+	anim exit							models/md5/characters/npcs/playermoves/exit_teleporter.md5anim
+
+	anim idle							models/md5/characters/npcs/playermoves/fists_idle.md5anim
+	anim crouch_down					models/md5/characters/npcs/playermoves/crouch_down.md5anim 
+	anim crouch							models/md5/characters/npcs/playermoves/crouch.md5anim 
+	anim crouch_up						models/md5/characters/npcs/playermoves/crouch_up.md5anim
+	anim crouch_walk					models/md5/characters/npcs/playermoves/crouch_walk.md5anim
+	anim crouch_walk_backwards			models/md5/characters/npcs/playermoves/crouch_walk_back.md5anim
+
+	anim walk							models/md5/characters/npcs/playermoves/jog.md5anim {
+		frame 2							leftfoot
+		frame 11						rightfoot
+	}
+	anim walk_backwards					models/md5/characters/npcs/playermoves/jog_back.md5anim {
+		frame 6							rightfoot
+		frame 15						leftfoot
+	}
+
+	anim walk_strafe_left				models/md5/characters/npcs/playermoves/walk_strafe_left.md5anim {
+		frame 4							rightfoot
+		frame 11						leftfoot
+		frame 17						rightfoot
+		frame 25						leftfoot
+	}
+
+	anim walk_strafe_right				models/md5/characters/npcs/playermoves/walk_strafe_right.md5anim {
+		frame 3							rightfoot
+		frame 10						leftfoot
+		frame 17						rightfoot
+		frame 25						leftfoot
+	}
+
+
+	//anim run_forward					models/md5/characters/npcs/playermoves/newrun.md5anim
+	//{
+	//	frame 10						rightfoot
+	//	frame 19						leftfoot
+	//}
+
+	anim run_forward					models/md5/characters/npcs/playermoves/run.md5anim {
+		frame 8							leftfoot
+		frame 17						rightfoot
+	}
+
+	anim run_backwards					models/md5/characters/npcs/playermoves/run_backwards_270.md5anim {
+		prevent_idle_override
+		frame 7							rightfoot
+		frame 14						leftfoot
+		frame 21						rightfoot
+		frame 27						leftfoot
+	}
+	anim run_strafe_left				models/md5/characters/npcs/playermoves/run_strafe_left.md5anim {
+		prevent_idle_override
+		frame 4							rightfoot
+		frame 7							leftfoot
+		frame 18						rightfoot
+		frame 21						leftfoot
+	}
+	anim run_strafe_right				models/md5/characters/npcs/playermoves/run_strafe_right.md5anim {
+		prevent_idle_override
+		frame 5							leftfoot
+		frame 8							rightfoot
+		frame 18						leftfoot
+		frame 20						rightfoot
+	}
+	anim jump							models/md5/characters/npcs/playermoves/walkjump1.md5anim {
+		prevent_idle_override
+		frame 1							sound_body player_sounds_jump_small
+	}
+	anim run_jump						models/md5/characters/npcs/playermoves/walkjump1.md5anim {
+		prevent_idle_override
+		frame 1							sound_body player_sounds_jump
+	}
+	anim soft_land						models/md5/characters/npcs/playermoves/soft_land.md5anim {
+		prevent_idle_override
+		frame 1							sound_voice2 snd_land_soft
+		frame 1							leftfoot
+		frame 3							rightfoot
+	}
+	anim hard_land						models/md5/characters/npcs/playermoves/hard_land.md5anim {
+		prevent_idle_override
+		frame 1							sound_voice2 snd_land_hard
+		frame 1							leftfoot
+		frame 3							rightfoot
+	}
+	anim fall							models/md5/characters/npcs/playermoves/fall.md5anim {
+		prevent_idle_override
+	}
+	anim turn_left						models/md5/characters/npcs/playermoves/turn_left.md5anim {
+		prevent_idle_override
+	}
+	anim turn_right						models/md5/characters/npcs/playermoves/turn_right.md5anim  {
+		prevent_idle_override
+	}
+	anim pain							models/md5/characters/npcs/playermoves/painchest.md5anim {
+		prevent_idle_override
+	}
+	anim pain_head						models/md5/characters/npcs/playermoves/painhead.md5anim {
+		prevent_idle_override
+	}
+
+	anim pain_right_arm					models/md5/characters/npcs/playermoves/painrightarm.md5anim {
+		prevent_idle_override
+	}
+
+	anim pain_left_arm					models/md5/characters/npcs/playermoves/painleftarm.md5anim {
+		prevent_idle_override
+	}
+
+	anim pain_chest						models/md5/characters/npcs/playermoves/painchest.md5anim {
+		prevent_idle_override
+	}
+
+	anim pda_raise					models/md5/characters/npcs/playermoves/raisepda.md5anim
+	anim pda_idle					models/md5/characters/npcs/playermoves/pda_idle.md5anim
+	anim pda_lower					models/md5/characters/npcs/playermoves/lowerpda.md5anim
+	
+	anim fists_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim fists_idle						models/md5/characters/npcs/playermoves/fists_idle_down.md5anim, models/md5/characters/npcs/playermoves/fists_idle.md5anim, models/md5/characters/npcs/playermoves/fists_idle_up.md5anim
+	anim fists_aim						models/md5/characters/npcs/playermoves/fists_aim_down.md5anim, models/md5/characters/npcs/playermoves/fists_aim.md5anim, models/md5/characters/npcs/playermoves/fists_aim_up.md5anim
+	anim fists_punch_right				models/md5/characters/npcs/playermoves/fists_punch_down1.md5anim, models/md5/characters/npcs/playermoves/fists_punch1.md5anim, models/md5/characters/npcs/playermoves/fists_punch_up1.md5anim
+	anim fists_punch_left				models/md5/characters/npcs/playermoves/fists_punch_down2.md5anim, models/md5/characters/npcs/playermoves/fists_punch2.md5anim, models/md5/characters/npcs/playermoves/fists_punch_up2.md5anim
+	anim fists_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim pistol_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim	
+	anim pistol_idle					models/md5/characters/npcs/playermoves/pistol_idle_down.md5anim, models/md5/characters/npcs/playermoves/pistol_idle.md5anim, models/md5/characters/npcs/playermoves/pistol_idle_up.md5anim
+	anim pistol_aim						models/md5/characters/npcs/playermoves/pistol_aim_down.md5anim, models/md5/characters/npcs/playermoves/pistol_aim.md5anim, models/md5/characters/npcs/playermoves/pistol_aim_up.md5anim
+	anim pistol_fire1					models/md5/characters/npcs/playermoves/pistol_fire_down.md5anim, models/md5/characters/npcs/playermoves/pistol_fire1.md5anim, models/md5/characters/npcs/playermoves/pistol_fire_up.md5anim
+	anim pistol_reload					models/md5/characters/npcs/playermoves/pistol_reload.md5anim
+	anim pistol_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim shotgun_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim	
+
+	anim shotgun_idle					models/md5/characters/npcs/playermoves/shotgun_idle_down.md5anim, models/md5/characters/npcs/playermoves/shotgun_idle.md5anim, models/md5/characters/npcs/playermoves/shotgun_idle_up.md5anim
+	anim shotgun_aim					models/md5/characters/npcs/playermoves/shotgun_aim_down.md5anim, models/md5/characters/npcs/playermoves/shotgun_aim.md5anim, models/md5/characters/npcs/playermoves/shotgun_aim_up.md5anim
+	anim shotgun_fire1					models/md5/characters/npcs/playermoves/shotgun_fire_down.md5anim, models/md5/characters/npcs/playermoves/shotgun_fire1.md5anim, models/md5/characters/npcs/playermoves/shotgun_fire_up.md5anim	
+	anim shotgun_reload_start			models/md5/characters/npcs/playermoves/shotgun_reload_start.md5anim
+	anim shotgun_reload_loop			models/md5/characters/npcs/playermoves/shotgun_reload_loop1.md5anim
+	anim shotgun_reload_end				models/md5/characters/npcs/playermoves/shotgun_reload_end.md5anim
+	anim shotgun_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim machinegun_raise				models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim machinegun_idle				models/md5/characters/npcs/playermoves/machinegun_idle_down.md5anim, models/md5/characters/npcs/playermoves/machinegun_idle.md5anim, models/md5/characters/npcs/playermoves/machinegun_idle_up.md5anim
+	anim machinegun_aim					models/md5/characters/npcs/playermoves/machinegun_aim_down.md5anim, models/md5/characters/npcs/playermoves/machinegun_aim.md5anim, models/md5/characters/npcs/playermoves/machinegun_aim_up.md5anim
+	anim machinegun_fire1				models/md5/characters/npcs/playermoves/machinegun_fire_down.md5anim, models/md5/characters/npcs/playermoves/machinegun_fire1.md5anim, models/md5/characters/npcs/playermoves/machinegun_fire_up.md5anim
+	anim machinegun_reload				models/md5/characters/npcs/playermoves/machinegun_reload.md5anim
+	anim machinegun_lower				models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim chaingun_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim chaingun_idle					models/md5/characters/npcs/playermoves/chaingun_idle_down.md5anim, models/md5/characters/npcs/playermoves/chaingun_idle.md5anim, models/md5/characters/npcs/playermoves/chaingun_idle_up.md5anim
+	anim chaingun_aim					models/md5/characters/npcs/playermoves/chaingun_idle_down.md5anim, models/md5/characters/npcs/playermoves/chaingun_idle.md5anim, models/md5/characters/npcs/playermoves/chaingun_idle_up.md5anim
+	anim chaingun_fire					models/md5/characters/npcs/playermoves/chaingun_fire_down.md5anim, models/md5/characters/npcs/playermoves/chaingun_fire.md5anim, models/md5/characters/npcs/playermoves/chaingun_fire_up.md5anim
+	anim chaingun_reload				models/md5/characters/npcs/playermoves/chaingun_reload.md5anim
+	anim chaingun_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+
+	anim plasmagun_raise				models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim plasmagun_idle					models/md5/characters/npcs/playermoves/plasmagun_idle_down.md5anim, models/md5/characters/npcs/playermoves/plasmagun_idle.md5anim, models/md5/characters/npcs/playermoves/plasmagun_idle_up.md5anim
+	anim plasmagun_aim					models/md5/characters/npcs/playermoves/plasmagun_aim_down.md5anim, models/md5/characters/npcs/playermoves/plasmagun_aim.md5anim, models/md5/characters/npcs/playermoves/plasmagun_aim_up.md5anim
+	anim plasmagun_fire1				models/md5/characters/npcs/playermoves/plasmagun_fire_down.md5anim, models/md5/characters/npcs/playermoves/plasmagun_fire1.md5anim, models/md5/characters/npcs/playermoves/plasmagun_fire_up.md5anim
+
+	anim plasmagun_reload				models/md5/characters/npcs/playermoves/machinegun_reload.md5anim
+	anim plasmagun_lower				models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim handgrenade_raise				models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim handgrenade_idle				models/md5/characters/npcs/playermoves/nade_idle_down.md5anim, models/md5/characters/npcs/playermoves/nade_idle.md5anim, models/md5/characters/npcs/playermoves/nade_idle_up.md5anim
+	anim handgrenade_aim				models/md5/characters/npcs/playermoves/nade_idle_down.md5anim, models/md5/characters/npcs/playermoves/nade_idle.md5anim, models/md5/characters/npcs/playermoves/nade_idle_up.md5anim
+	anim handgrenade_throw_quick		models/md5/characters/npcs/playermoves/nade_quickthrow_down.md5anim, models/md5/characters/npcs/playermoves/nade_quickthrow.md5anim, models/md5/characters/npcs/playermoves/nade_quickthrow_up.md5anim
+	anim handgrenade_throw_start		models/md5/characters/npcs/playermoves/nade_throwstart_down.md5anim, models/md5/characters/npcs/playermoves/nade_throwstart.md5anim, models/md5/characters/npcs/playermoves/nade_throwstart_up.md5anim
+	anim handgrenade_throw		models/md5/characters/npcs/playermoves/nade_throw_down.md5anim, models/md5/characters/npcs/playermoves/nade_throw.md5anim, models/md5/characters/npcs/playermoves/nade_throw_up.md5anim
+
+	anim handgrenade_startfire			models/md5/characters/npcs/playermoves/nade_throwstart_down.md5anim, models/md5/characters/npcs/playermoves/nade_throwstart.md5anim, models/md5/characters/npcs/playermoves/nade_throwstart_up.md5anim
+	anim handgrenade_fire				models/md5/characters/npcs/playermoves/nade_throw_down.md5anim, models/md5/characters/npcs/playermoves/nade_throw.md5anim, models/md5/characters/npcs/playermoves/nade_throw_up.md5anim
+	anim handgrenade_lower				models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim chainsaw_raise					models/md5/characters/npcs/playermoves/chainsaw_raise.md5anim
+	anim chainsaw_idle					models/md5/characters/npcs/playermoves/chainsaw_idle_down.md5anim, models/md5/characters/npcs/playermoves/chainsaw_idle.md5anim, models/md5/characters/npcs/playermoves/chainsaw_idle_up.md5anim
+	anim chainsaw_aim					models/md5/characters/npcs/playermoves/chainsaw_idle_down.md5anim, models/md5/characters/npcs/playermoves/chainsaw_idle.md5anim, models/md5/characters/npcs/playermoves/chainsaw_idle_up.md5anim
+	anim chainsaw_fire					models/md5/characters/npcs/playermoves/chainsaw_fire_down.md5anim, models/md5/characters/npcs/playermoves/chainsaw_fire.md5anim, models/md5/characters/npcs/playermoves/chainsaw_fire_up.md5anim
+	anim chainsaw_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim rocketlauncher_raise			models/md5/characters/npcs/playermoves/raisewep_left.md5anim
+	anim rocketlauncher_idle			models/md5/characters/npcs/playermoves/rocketlauncher_idle_down.md5anim, models/md5/characters/npcs/playermoves/rocketlauncher_idle.md5anim, models/md5/characters/npcs/playermoves/rocketlauncher_idle_up.md5anim
+	anim rocketlauncher_aim				models/md5/characters/npcs/playermoves/rocketlauncher_aim_down.md5anim, models/md5/characters/npcs/playermoves/rocketlauncher_aim.md5anim, models/md5/characters/npcs/playermoves/rocketlauncher_aim_up.md5anim
+	anim rocketlauncher_fire			models/md5/characters/npcs/playermoves/rocketlauncher_fire_down.md5anim, models/md5/characters/npcs/playermoves/rocketlauncher_fire.md5anim, models/md5/characters/npcs/playermoves/rocketlauncher_fire_up.md5anim
+	anim rocketlauncher_reload			models/md5/characters/npcs/playermoves/rocketlauncher_reload.md5anim
+	anim rocketlauncher_lower			models/md5/characters/npcs/playermoves/lowerwep_left.md5anim
+
+	anim flashlight_raise				models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim flashlight_idle				models/md5/characters/npcs/playermoves/flashlight_aim_down.md5anim, models/md5/characters/npcs/playermoves/flashlight_idle.md5anim, models/md5/characters/npcs/playermoves/flashlight_aim_up.md5anim
+	anim flashlight_lower				models/md5/characters/npcs/playermoves/lowerwep.md5anim
+	anim flashlight_aim					models/md5/characters/npcs/playermoves/flashlight_aim_down.md5anim, models/md5/characters/npcs/playermoves/flashlight_idle.md5anim, models/md5/characters/npcs/playermoves/flashlight_aim_up.md5anim
+	anim flashlight_fire1				models/md5/characters/npcs/playermoves/flashlight_swing1_down.md5anim, models/md5/characters/npcs/playermoves/flashlight_swing1.md5anim, models/md5/characters/npcs/playermoves/flashlight_swing1_up.md5anim
+	anim flashlight_fire2				models/md5/characters/npcs/playermoves/flashlight_swing2_down.md5anim, models/md5/characters/npcs/playermoves/flashlight_swing2.md5anim, models/md5/characters/npcs/playermoves/flashlight_swing2_up.md5anim
+
+
+	anim bfg_raise						models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim bfg_idle						models/md5/characters/npcs/playermoves/bfg_idle_down.md5anim, models/md5/characters/npcs/playermoves/bfg_idle.md5anim, models/md5/characters/npcs/playermoves/bfg_idle_up.md5anim
+	anim bfg_aim						models/md5/characters/npcs/playermoves/bfg_aim_down.md5anim, models/md5/characters/npcs/playermoves/bfg_aim.md5anim, models/md5/characters/npcs/playermoves/bfg_aim_up.md5anim	
+	anim bfg_startfire					models/md5/characters/npcs/playermoves/bfg_startfire_down.md5anim, models/md5/characters/npcs/playermoves/bfg_startfire.md5anim, models/md5/characters/npcs/playermoves/bfg_startfire_up.md5anim
+	anim bfg_fire						models/md5/characters/npcs/playermoves/bfg_fire_down.md5anim, models/md5/characters/npcs/playermoves/bfg_fire.md5anim, models/md5/characters/npcs/playermoves/bfg_fire_up.md5anim
+	anim bfg_reload						models/md5/characters/npcs/playermoves/bfg_reload.md5anim
+	anim bfg_lower						models/md5/characters/npcs/playermoves/lowerwep.md5anim
+
+	anim soulcube_raise					models/md5/characters/npcs/playermoves/raisewep.md5anim
+	anim soulcube_idle					models/md5/characters/npcs/playermoves/soulcube_idle_down.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle_up.md5anim
+	anim soulcube_aim					models/md5/characters/npcs/playermoves/soulcube_idle_down.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle.md5anim, models/md5/characters/npcs/playermoves/soulcube_idle_up.md5anim
+	anim soulcube_fire					models/md5/characters/npcs/playermoves/soulcube_fire.md5anim, models/md5/characters/npcs/playermoves/soulcube_fire.md5anim, models/md5/characters/npcs/playermoves/soulcube_fire.md5anim
+	anim soulcube_lower					models/md5/characters/npcs/playermoves/lowerwep.md5anim
+}
+
+/***********************************************************************
+
+ player_base
+ 
+ shared by player_doommarine and player_doommarine_mp
+ 
+***********************************************************************/
+
+entityDef player_base {
+	"spawnclass"						"idPlayer"
+	"scriptobject"						"player"
+						
+	"pda_name"							"personal"
+	"player_expansion"					"d3"			
+	
+	"hud"								"guis/hud.gui"
+	"mphud"								"guis/mphud.gui"
+	"cursor"							"guis/cursor.gui"
+
+	"blink_min"							"2.5"
+	"blink_max"							"8.0"
+	
+	// weapon slots
+	"def_weapon0"						"weapon_fists"
+	"weapon0_best"						"0"					// whether weapon should be chosen when out of ammo
+	"weapon0_cycle"						"0"					// whether weapon should be selected when using next/prev weapon
+	"weapon0_toggle"					"0"					// whether selecting weapon twice switches between current and previous weapons
+	"weapon0_allowempty"				"1"
+	"weapon0_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon1"						"weapon_chainsaw"
+	"weapon1_best"						"0"
+	"weapon1_cycle"						"1"
+	"weapon1_toggle"					"0"
+	"weapon1_allowempty"				"1"
+	"weapon1_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon2"						"weapon_pistol"
+	"weapon2_best"						"1"
+	"weapon2_cycle"						"1"
+	"weapon2_toggle"					"0"
+	"weapon2_allowempty"				"1"
+	"weapon2_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon3"						"weapon_shotgun"
+	"weapon3_best"						"1"
+	"weapon3_cycle"						"1"
+	"weapon3_toggle"					"0"
+	"weapon3_allowempty"				"1"
+	"weapon3_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon4"						""
+	"weapon4_best"						"0"
+	"weapon4_cycle"						"0"
+	"weapon4_toggle"					"0"
+	"weapon4_allowempty"				"0"
+	"weapon4_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon5"						"weapon_machinegun"
+	"weapon5_best"						"1"
+	"weapon5_cycle"						"1"
+	"weapon5_toggle"					"0"
+	"weapon5_allowempty"				"1"
+	"weapon5_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon6"						"weapon_chaingun"
+	"weapon6_best"						"1"
+	"weapon6_cycle"						"1"
+	"weapon6_toggle"					"0"
+	"weapon6_allowempty"				"1"
+	"weapon6_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon7"						"weapon_handgrenade"
+	"weapon7_best"						"0"
+	"weapon7_cycle"						"1"
+	"weapon7_toggle"					"0"
+	"weapon7_allowempty"				"0"
+	"weapon7_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon8"						"weapon_plasmagun"
+	"weapon8_best"						"1"
+	"weapon8_cycle"						"1"
+	"weapon8_toggle"					"0"
+	"weapon8_allowempty"				"1"
+	"weapon8_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon9"						"weapon_rocketlauncher"
+	"weapon9_best"						"0"
+	"weapon9_cycle"						"1"
+	"weapon9_toggle"					"0"
+	"weapon9_allowempty"				"1"
+	"weapon9_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon10"						"weapon_bfg"
+	"weapon10_best"						"0"
+	"weapon10_cycle"					"1"
+	"weapon10_toggle"					"0"
+	"weapon10_allowempty"				"1"
+	"weapon10_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon11"						""
+	"weapon11_best"						"0"
+	"weapon11_cycle"					"0"
+	"weapon11_toggle"					"0"
+	"weapon11_allowempty"				"0"
+	"weapon11_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon12"						"weapon_soulcube"
+	"weapon12_best"						"0"
+	"weapon12_cycle"					"1"
+	"weapon12_toggle"					"0"
+	"weapon12_allowempty"				"1"
+	"weapon12_visible"					"1"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon13"						"0"
+	"weapon13_best"						"0"
+	"weapon13_cycle"					"0"
+	"weapon13_toggle"					"0"
+	"weapon13_allowempty"				"1"
+	"weapon13_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon14"						""
+	"weapon14_best"						"0"
+	"weapon14_cycle"					"0"
+	"weapon14_toggle"					"0"
+	"weapon14_allowempty"				"1"
+	"weapon14_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon15"						""
+	"weapon15_best"						"0"
+	"weapon15_cycle"					"0"
+	"weapon15_toggle"					"0"
+	"weapon15_allowempty"				"1"
+	"weapon15_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon16"						"weapon_flashlight"
+	"weapon16_best"						"0"
+	"weapon16_cycle"					"0"
+	"weapon16_toggle"					"1"
+	"weapon16_allowempty"				"1"
+	"weapon16_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon17"						"weapon_flashlight_new"
+	"weapon17_best"						"0"
+	"weapon17_cycle"					"0"
+	"weapon17_toggle"					"0"
+	"weapon17_allowempty"				"0"
+	"weapon17_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"def_weapon18"						"weapon_pda"
+	"weapon18_best"						"0"
+	"weapon18_cycle"					"0"
+	"weapon18_toggle"					"0"
+	"weapon18_allowempty"				"1"
+	"weapon18_visible"					"0"					// whether you can see this weapon in the inventory or not
+
+	"weapontoggle0"						"0,1"
+
+	"max_ammo_shells"					"320"
+	"max_ammo_bullets"					"360"
+	"max_ammo_rockets"					"96"
+	"max_ammo_cells"					"500"
+	"max_ammo_grenades"					"50"
+	"max_ammo_souls"					"5"							// number of kills required to charge the soul cube
+	"max_ammo_bfg"						"32"
+	"max_ammo_clip"						"600"
+	"max_ammo_belt"						"600"
+	
+	// default weapons
+	// seperate multiple weapons with commas (no spaces).
+	// NOTE: default ammo must be specified explicitly.
+	"weapon"							"weapon_fists,weapon_pistol,weapon_pda"
+	"weapon_nightmare"					"weapon_fists,weapon_pistol,weapon_pda,weapon_soulcube"
+	"current_weapon"					"0"
+	
+	"pm_jumpheight"						"48"
+	"pm_stepsize"						"16"
+	"pm_crouchspeed"					"100"
+	"pm_walkspeed"						"175"
+	"pm_runspeed"						"275"
+	"pm_noclipspeed"					"300"
+	"pm_minviewpitch"					"-89"	// looking up
+	"pm_maxviewpitch"					"89"	// looking down
+	"pm_stamina"						"24"
+	"pm_staminathreshold"				"4"
+	"pm_staminarate"					"0.75"
+	"pm_crouchheight"					"38"
+	"pm_crouchviewheight"				"32"
+
+	"pm_normalheight"					"74"
+	"pm_normalviewheight"				"68"
+	"pm_deadheight"						"20"
+	"pm_deadviewheight"					"10"
+	"pm_crouchrate"						"0.87"
+	"pm_bboxwidth"						"32"
+	"pm_crouchbob"						"0.5"		// ducked characters bob much faster
+	"pm_walkbob"						"0.3"		// walking bobs slow
+	"pm_runbob"							"0.4"		// faster speeds bob faster
+	"pm_modelview"						"0"			// 0 == normal, 1 == view inside model, 2 == view inside model when dead
+	"pain_delay"						"0.5"		// how long to wait before playing pain sound
+	"respawn_delay"						"1.7"		// minimum delay for respawning after death
+
+	// stats
+	"health"							"100"
+	"maxhealth"							"100"
+	"stamina"							"120"
+	"armor"								"0"
+	"maxarmor"							"125"
+
+	// ammo
+	"ammo_shells"						"0"
+	"ammo_bullets"						"48"
+	"ammo_rockets"						"0"
+	"ammo_cells"						"0"
+	"ammo_grenades"						"0"
+	"ammo_bfg"							"0"
+	"ammo_clip"							"0"
+	"ammo_belt"							"0"
+
+	// inventory items
+	"key_blue"							"0"
+	"key_red"							"0"
+	"data_linker"						"0"
+	"pda"								"0"
+	"video"								""
+	
+	"bleed"								"0"
+
+	"bone_focus"						"headcontrol"
+	"bone_leftEye"						"Leyeaim"
+	"bone_rightEye"						"Reyeaim"
+	"bone_hips"							"Hips"
+	"bone_chest"						"Shoulders"		// AI aim location
+	"bone_head"							"headcontrol"	// AI aim location
+
+	"damage_zone head"					"*loneckcontrol"
+	"damage_zone chest"					"*Waist -*loneckcontrol"
+	"damage_zone left_arm"				"*Luparm"
+	"damage_zone right_arm"				"*Ruparm"
+	"damage_zone legs"					"origin Body2"
+	"damage_scale head"					"1"
+
+	"ragdoll"							"player_npcs"
+
+	"gib"								"1"
+	"def_dropGibItem"					"moveable_item_head_pork"
+	"dropGibItemJoint"					"Head"
+	"skin_dropGib"						"skins/characters/player/marine_mp_death.skin"
+
+	"def_dropGibItem2"					"moveable_item_torso_pork"
+	"dropGibItem2Joint"					"Chest"
+
+	"def_dropGibItem3"					"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"					"Ruparm"
+
+	"def_dropGibItem4"					"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"					"Waist"
+
+	"def_dropGibItem5"					"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"					"Lupleg"
+
+	"def_dropItem6"						"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"					"Rupleg"
+
+	"def_dropGibItem7"					"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"					"Rloleg"
+
+	"def_dropGibItem8"					"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"					"Hips"
+
+	"ik_numLegs"						"2"
+	"ik_footSize"						"4"
+	"ik_minWaistAnkleDist"				"16"
+	"ik_waist"							"Body2"
+	"ik_hip1"							"Lupleg"
+	"ik_hip2"							"Rupleg"
+	"ik_knee1"							"Lloleg"
+	"ik_knee2"							"Rloleg"
+	"ik_ankle1"							"Lankle_r"
+	"ik_ankle2"							"Rankle_r"
+	"ik_dir1"							"Lknee"
+	"ik_dir2"							"Rknee"
+	"ik_foot1"							"Lball_r"
+	"ik_foot2"							"Rball_r"
+
+	"ik_numArms"						"0"
+	"ik_shoulder1"						"Ruparm"
+	"ik_shoulder2"						"Luparm"
+	"ik_elbow1"							"Rloarm"
+	"ik_elbow2"							"Lloarm"
+	"ik_hand1"							"Rfings2"
+	"ik_hand2"							"Lfings2"
+	
+	"snd_stepladder"					"player_climb_ladder"
+	"snd_weapon_switch"					"player_sounds_weapon_switch"
+	"snd_footstep"						"player_sounds_footstep"
+	"snd_death"							"player_sounds_death"
+	"snd_fall"							"player_sounds_fall"
+	"snd_pain_small"					"player_sounds_pain_small"
+	"snd_pain_medium"					"player_sounds_pain_medium"
+	"snd_pain_large"					"player_sounds_pain_big"
+	"snd_pain_huge"						"player_sounds_pain_huge"
+	"snd_land_soft"						"player_sounds_fastlanding"
+	"snd_land_hard"						"player_sounds_thud"
+	"snd_objectiveup"					"player_sounds_objectiveup"
+	"snd_objectivedown"					"player_sounds_objectivedown"
+	"snd_doublevision"					"player_sounds_doublevision"
+	"snd_thud"							"player_sounds_thud"
+	"snd_heartbeat"						"player_sounds_heartbeat"
+	"snd_heartbeat_dying"				"player_sounds_heartbeat_dying"
+	"snd_skipcinematic"					"player_sounds_skipcinematic"
+	"snd_guienter"						"player_sounds_guienter"
+	"snd_guiexit"						"player_sounds_guiexit"
+	"snd_soulcube_ready"				"soulcube_energize"
+	"snd_healthpulse"					"soulcube_givehealth"
+	"snd_hitArmor"						"player_sounds_hitArmor"
+	"snd_hitFlesh"						"player_sounds_hitFlesh"
+	"snd_airGasp"						"player_sounds_airGasp"
+	"snd_noAir"							"player_sounds_noAir"
+	"snd_berserk_third"					"player_sounds_berserk"
+	"snd_teleport_exit"					"player_sounds_teleportExit"
+	"snd_teleport_start"				"player_sounds_teleportStart"
+	"snd_burn"							"sizzle"
+	"snd_invisibility"					"invisibility_pickup"
+	"snd_megahealth"					"megasphere_pickup"
+	"snd_healthtake"					"player_takehealth"
+}
+
+/***********************************************************************
+
+ player_doommarine
+ 
+ single player model
+ 
+***********************************************************************/
+
+entityDef player_doommarine {
+	"inherit"							"player_base"
+	"model"								"model_sp_marine"
+	"snd_decompress"					"sound/air_and_vents/decompress.wav"
+	"snd_recompress"					"sound/air_and_vents/recompress.wav"
+	"snd_airless"						"player_sounds_noAir"
+	"def_head"							"head_player"
+	"head_joint"						"Shoulders"
+	"copy_joint neckcontrol"			"neckcontrol"
+	"copy_joint headcontrol"			"headcontrol"
+	"copy_joint_world eyecontrol"		"eyecontrol"
+	"text_infoTitle"					"#str_02908"
+	"text_noPDA"						"#str_02034"
+	"text_PDANeeded"					"#str_02909"
+	"text_firstPDA"						"#str_02035"
+}

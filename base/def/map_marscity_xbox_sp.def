@@ -1,0 +1,321 @@
+entityDef marscity_xbox_sp_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+
+//original
+
+
+	"anim hangar_a"					"models/md5/cinematics/marscity/hangar_cam_a.camera"
+	"anim hangar_b"					"models/md5/cinematics/marscity/hangar_cam_b.camera"
+	"anim hangar_c"					"models/md5/cinematics/marscity/hangar_cam_c.camera"
+	"anim hangar_d"					"models/md5/cinematics/marscity/hangar_cam_d.camera"
+
+	"anim hangar_e"					"models/md5/cinematics/marscity/hangar_cam_e.camera"
+	"anim hangar_f"					"models/md5/cinematics/marscity/hangar_cam_f.camera"
+	"anim hangar_g"					"models/md5/cinematics/marscity/hangar_cam_g.camera"
+	"anim hangar_h"					"models/md5/cinematics/marscity/hangar_cam_h.camera"
+	"anim hangar_i"					"models/md5/cinematics/marscity/hangar_cam_i.camera"
+	"anim hangar_j"					"models/md5/cinematics/marscity/hangar_cam_j.camera"
+	"anim hangar_k"					"models/md5/cinematics/marscity/hangar_cam_k.camera"
+	"anim hangar_l"					"models/md5/coop/cinematics/marscity/hangar_cam_h.camera"
+	"anim hangar_m"					"models/md5/coop/cinematics/marscity/hangar_cam_i.camera"
+
+
+}
+
+
+
+
+model marscity_head_xboxsp_player1 {
+	inherit							head_player
+	//anim hangar_a					models/md5/heads/swann/marscity/mc_hangar_a.md5anim
+	//anim hangar_b					models/md5/heads/swann/marscity/mc_hangar_b.md5anim
+	//anim hangar_c					models/md5/heads/swann/marscity/mc_hangar_c.md5anim
+	//anim hangar_d					models/md5/heads/swann/marscity/mc_hangar_d.md5anim
+	//anim hangar_e					models/md5/heads/swann/marscity/mc_hangar_e.md5anim
+}
+
+model marscity_xboxsp_player1 {	
+	inherit							npc_tshirt
+
+	anim hangar_a					models/md5/coop/marscity/hangar_coop1_a.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_b					models/md5/coop/marscity/hangar_coop1_b.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_c					models/md5/coop/marscity/hangar_coop1_c.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_d					models/md5/coop/marscity/hangar_coop1_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_e					models/md5/coop/marscity/hangar_coop1_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+}
+
+entityDef marscity_xboxsp_player1 {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_xboxsp_player1"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_xboxsp_player1"
+	"head_joint"					"Shoulders"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"3"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"cinematic"						"1"
+}
+
+entityDef marscity_xboxsp_player1b {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_xboxsp_player1"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_xboxsp_player1"
+	"head_joint"					"Shoulders"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"2"
+	"anim1"							"hangar_d"
+	"anim2"							"hangar_e"
+	"cinematic"						"1"
+}
+
+
+
+model marscity_xboxsp_player1c {	
+	inherit							npc_tshirt
+}
+
+entityDef marscity_xboxsp_player1c {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_xboxsp_player1c"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_xboxsp_player1"
+	"head_joint"					"Shoulders"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+}
+
+model xsp_marscity_ship {
+	mesh							models/md5/cinematics/marscity/spaceship.md5mesh
+	skin							skins/dropship.skin 
+	anim window						models/md5/cinematics/marscity/windowship.md5anim {
+	frame 1							sound_global xbox_sp_intro_music
+	frame 6							sound_global marscity_gui_intro_cutscene
+	frame 671						sound_global marscity_rocketintro_cutscene2
+	frame 675						sound_global marscity_rocketintro_vo	
+	frame 675						sound_global marscity_rocketintro_cutscene
+	frame 900						trigger tim_func_static_2337
+	}
+	 
+	anim bind						models/md5/cinematics/marscity/spaceship_bindme.md5anim
+}
+
+entityDef xsp_marscity_ship {
+	"inherit"						"cin_base"
+	"model"							"xsp_marscity_ship"
+	"anim"							"window"
+	"cinematic"						"1"
+}
+
+
+
+model marscity_head_xboxsp_player2 {
+	inherit							head_player
+	
+	//anim hangar_a					models/md5/heads/campbell/marscity/mc_hangar_a.md5anim
+	//anim hangar_b					models/md5/heads/campbell/marscity/mc_hangar_b.md5anim
+	//anim hangar_c					models/md5/heads/campbell/marscity/mc_hangar_c.md5anim
+	//anim hangar_d					models/md5/heads/campbell/marscity/mc_hangar_d.md5anim
+	//anim hangar_e					models/md5/heads/campbell/marscity/mc_hangar_e.md5anim
+}
+
+model marscity_xboxsp_player2 {	
+	inherit							npc_tshirt
+
+	anim hangar_a					models/md5/coop/marscity/hangar_coop2_a.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_b					models/md5/coop/marscity/hangar_coop2_b.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_c					models/md5/coop/marscity/hangar_coop2_c.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_d					models/md5/coop/marscity/hangar_coop2_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_e					models/md5/coop/marscity/hangar_coop2_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+}
+
+entityDef marscity_xboxsp_player2 {	
+	"inherit"						"npc_base"
+	"model"							"marscity_xboxsp_player2"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_xboxsp_player2"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+
+	"num_cinematics"				"3"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"cinematic"						"1"
+}
+
+entityDef marscity_xboxsp_player2b {	
+	"inherit"						"marscity_coop_player2b"
+	"def_attach"					"prop_dufflebag"
+}
+
+model marscity_xboxsp_player2c {	
+	inherit							npc_tshirt
+	anim idle							models/md5/chars/stand_lookaround.md5anim {
+	random_cycle_start
+	}
+	anim stand							models/md5/chars/stand_lookaround.md5anim {
+	random_cycle_start
+	}
+
+
+}
+
+entityDef marscity_xboxsp_player2c {	
+	"inherit"						"npc_base"
+	"model"							"marscity_xboxsp_player2c"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_xboxsp_player2"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+	"def_attach"					"prop_dufflebag"
+
+	"cinematic"						"1"
+}
+
+
+
+model xmarscity_hangar_campbell {	
+	inherit							char_campbell_bfgcase
+
+	anim hangar_a					models/md5/chars/campbell/marscity/hangar_campbell_a.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_b					models/md5/chars/campbell/marscity/hangar_campbell_b.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 4							sound_voice marscity_cin_campbell1_1
+	}
+	anim hangar_c					models/md5/chars/campbell/marscity/hangar_campbell_c.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 93						sound_voice marscity_cin_campbell1_2
+	}
+	anim hangar_d					models/md5/chars/campbell/marscity/hangar_campbell_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_e					models/md5/chars/campbell/marscity/hangar_campbell_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_f					models/md5/chars/campbell/marscity/hangar_campbell_f.md5anim {
+		frame 1		 					event disableEyeFocus
+		//frame 114						sound_voice marscity_cin_campbell1_3
+	}
+}
+
+entityDef xmarscity_hangar_campbell {	
+	"inherit"						"char_campbell_bfgcase"
+	"model"							"xmarscity_hangar_campbell"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_campbell"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+
+	"num_cinematics"				"6"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"anim4"							"hangar_d"
+	"anim5"							"hangar_e"
+	"anim6"							"hangar_f"
+	"cinematic"						"1"
+}
+
+
+model xmarscity_hangar_swann {	
+	inherit							npc_suit
+
+	anim hangar_a					models/md5/chars/swann/marscity/hangar_a.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 250						sound_voice marscity_cin_swann1_1
+	}
+	anim hangar_b					models/md5/chars/swann/marscity/hangar_b.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 41						sound_voice marscity_cin_swann1_2
+	}
+
+	anim hangar_c					models/md5/chars/swann/marscity/hangar_c.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_d					models/md5/chars/swann/marscity/hangar_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_e					models/md5/chars/swann/marscity/hangar_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_f					models/md5/chars/swann/marscity/hangar_f.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 1							sound_voice marscity_cin_swann1_3
+	}
+}
+
+entityDef xmarscity_hangar_swann {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"xmarscity_hangar_swann"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_swann"
+	"head_joint"					"Shoulders"
+
+	"num_cinematics"				"6"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"anim4"							"hangar_d"
+	"anim5"							"hangar_e"
+	"anim6"							"hangar_f"
+	"cinematic"						"1"
+}

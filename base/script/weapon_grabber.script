@@ -1,0 +1,334 @@
+/***********************************************************************
+
+weapon_grabber.script
+
+***********************************************************************/
+
+// blend times
+#define GRABBER_IDLE_TO_LOWER		4
+#define GRABBER_IDLE_TO_OPEN		4
+#define GRABBER_IDLE_TO_OPENFIRE	4
+#define GRABBER_OPEN_TO_CLOSE		4
+#define GRABBER_OPEN_TO_FIRE		4
+#define GRABBER_CLOSE_TO_OPEN		4
+#define GRABBER_CLOSE_TO_IDLE		4
+#define GRABBER_OPENFIRE_TO_FIRE	2
+#define GRABBER_FIRE_TO_CLOSE		4
+#define GRABBER_RAISE_TO_IDLE		4
+
+#define WARNING_BEEP_1				1.5
+#define WARNING_BEEP_2				2.25
+#define WARNING_BEEP_3				2.50
+#define WARNING_BEEP_4				2.75
+
+
+scriptEvent	void grabber( float on );
+scriptEvent float grabberHasTarget();
+
+object weapon_grabber : weapon_base {
+
+	float		fireStartTime;
+	boolean		warningBeep1;
+	boolean		warningBeep2;
+	boolean		warningBeep3;
+	boolean		warningBeep4;
+
+	float		grabberState;
+
+	void		init();
+
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+
+	void		GrabberOpenFire();
+
+	void		StartActive();
+	void		StopActive();
+
+	void		StartWarningSound();
+	void		UpdateWarningSound();
+
+	void		UpdateGuiLight();
+
+	void		OwnerDied();
+	void		EnterCinematic();
+	void		ExitCinematic();
+};
+
+/*
+=====================
+weapon_grabber::init
+=====================
+*/
+void weapon_grabber::init() {
+	grabberState = -1;
+
+	grabber( true );
+	weaponState( "Raise", 0 );
+}
+
+/*
+=====================
+weapon_grabber::Raise
+=====================
+*/
+void weapon_grabber::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, GRABBER_RAISE_TO_IDLE ) );
+	weaponState( "Idle", GRABBER_RAISE_TO_IDLE );
+}
+
+/*
+=====================
+weapon_grabber::Lower
+=====================
+*/
+void weapon_grabber::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+/*
+=====================
+weapon_grabber::Idle
+=====================
+*/
+void weapon_grabber::Idle() {
+	float grabState;
+
+	weaponReady();
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+
+	while( 1 ) {
+		UpdateGuiLight();
+
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", GRABBER_IDLE_TO_LOWER );
+		}
+
+		grabState = grabberHasTarget();
+		if ( grabState == 1 || grabState == 2 ) {
+			if(WEAPON_ATTACK) {
+				weaponState( "GrabberOpenFire", GRABBER_IDLE_TO_OPENFIRE );
+			}
+		}
+
+		waitFrame();
+	}
+}
+
+/*
+=====================
+weapon_grabber::GrabberClose
+=====================
+*/
+void weapon_grabber::GrabberClose() {
+
+	weaponState( "Idle", GRABBER_CLOSE_TO_IDLE );
+}
+
+/*
+=====================
+weapon_grabber::GrabberOpenFire
+=====================
+*/
+void weapon_grabber::GrabberOpenFire() {
+	float grabState;
+
+	// Start fire loop sound
+	startSound( "snd_fireloop", SND_CHANNEL_BODY3, false );
+	startSound( "snd_electroloop", SND_CHANNEL_BODY2, false );
+	startSound( "snd_mainfire", SND_CHANNEL_BODY, false );
+
+	StartWarningSound();
+	StartActive();
+
+	playAnim( ANIMCHANNEL_ALL, "open" );
+	while( !animDone( ANIMCHANNEL_ALL, 0 ) ) {
+
+		grabState = grabberHasTarget();
+		if( grabState == 3 ) {
+			weaponState( "Fire", GRABBER_OPEN_TO_CLOSE );
+		}
+
+		UpdateGuiLight();
+		UpdateWarningSound();
+		waitFrame();
+	}
+
+	weaponState( "Fire", GRABBER_OPENFIRE_TO_FIRE );
+}
+
+/*
+=====================
+weapon_grabber::Fire
+=====================
+*/
+void weapon_grabber::Fire() {
+	float grabState;
+
+	playCycle( ANIMCHANNEL_ALL, "idleopen" );
+	while(1) {
+
+		grabState = grabberHasTarget();
+		if( grabState == 3 || grabState == 0 ) {
+			break;
+		}
+
+		UpdateGuiLight();
+		UpdateWarningSound();
+		waitFrame();
+	}
+
+	StopActive();
+
+	// Stops fire loop sound
+	startSound( "snd_stopfire", SND_CHANNEL_BODY3, false );
+	stopSound( SND_CHANNEL_BODY2, false );
+
+	startWeaponSmoke();
+	playAnim( ANIMCHANNEL_ALL, "fire" );
+	while(!animDone( ANIMCHANNEL_ALL, 0 )) {
+		UpdateGuiLight();
+		waitFrame();
+	}
+
+	weaponState( "GrabberClose", GRABBER_FIRE_TO_CLOSE );
+}
+
+/*
+=====================
+weapon_grabber::StartActive
+=====================
+*/
+void weapon_grabber::StartActive() {
+	startWeaponParticle("barrel_upper");
+
+	startWeaponLight("light_barrel_upper");
+	startWeaponLight("light_barrel_lower");
+	startWeaponLight("light_side");
+}
+
+/*
+=====================
+weapon_grabber::StopActive
+=====================
+*/
+void weapon_grabber::StopActive() {
+	stopWeaponParticle("barrel_upper");
+
+	stopWeaponLight("light_barrel_upper");
+	stopWeaponLight("light_barrel_lower");
+	stopWeaponLight("light_side");
+}
+
+/*
+=====================
+weapon_grabber::StartWarningSound
+=====================
+*/
+void weapon_grabber::StartWarningSound() {
+
+	fireStartTime = sys.getTime();
+	warningBeep1 = false;
+	warningBeep2 = false;
+	warningBeep3 = false;
+	warningBeep4 = false;
+}
+
+/*
+=====================
+weapon_grabber::UpdateWarningSound
+=====================
+*/
+void weapon_grabber::UpdateWarningSound() {
+
+	float currentTime;
+	float elapsed;
+
+	currentTime = sys.getTime();
+	elapsed = currentTime - fireStartTime;
+
+	if(elapsed > WARNING_BEEP_1 && !warningBeep1) {
+		startSound( "snd_warning", SND_CHANNEL_ITEM, false );
+		warningBeep1 = true;
+	}
+	if(elapsed > WARNING_BEEP_2 && !warningBeep2) {
+		startSound( "snd_warning", SND_CHANNEL_ITEM, false );
+		warningBeep2 = true;
+	}
+	if(elapsed > WARNING_BEEP_3 && !warningBeep3) {
+		startSound( "snd_warning", SND_CHANNEL_ITEM, false );
+		warningBeep3 = true;
+	}
+	if(elapsed > WARNING_BEEP_4 && !warningBeep4) {
+		startSound( "snd_warning", SND_CHANNEL_ITEM, false );
+		warningBeep4 = true;
+	}
+}
+
+/*
+=====================
+weapon_grabber::UpdateGuiLight
+=====================
+*/
+void weapon_grabber::UpdateGuiLight() {
+
+	float newState = grabberHasTarget();
+	if(newState != grabberState) {
+		grabberState = newState;
+		if(grabberState == 0) {
+			startWeaponLight("gLightBlue");
+			stopWeaponLight("gLightYellow");
+			stopWeaponLight("gLightRed");
+		} else if (grabberState == 1) {
+			startSound( "snd_cangrab", SND_CHANNEL_ITEM, false );
+			startWeaponLight("gLightYellow");
+			stopWeaponLight("gLightBlue");
+			stopWeaponLight("gLightRed");
+		} else if (grabberState == 2) {
+			startWeaponLight("gLightRed");
+			stopWeaponLight("gLightBlue");
+			stopWeaponLight("gLightYellow");
+		}
+	}
+}
+
+/*
+=====================
+weapon_grabber::OwnerDied
+=====================
+*/
+void weapon_grabber::OwnerDied() {
+	StopActive();
+	stopSound( SND_CHANNEL_BODY2, false );
+	stopSound( SND_CHANNEL_BODY3, false );
+}
+
+/*
+=====================
+weapon_grabber::EnterCinematic
+=====================
+*/
+void weapon_grabber::EnterCinematic() {
+	StopActive();
+}
+
+/*
+=====================
+weapon_grabber::ExitCinematic
+=====================
+*/
+void weapon_grabber::ExitCinematic() {
+	grabberState = -1;
+	grabber( true );
+	StopActive();
+	weaponState( "Idle", 0 );
+}

@@ -1,0 +1,278 @@
+/***********************************************************************
+
+	weapon_bfg.def
+
+***********************************************************************/
+
+export fred {
+	// View Model BFG
+	options -prefix BFG_ -keep barrel LBarrel RBarrel guilight flash eject -parent guilight Body -parent flash Body -parent guilight Body -parent barrel Body -parent RBarrel Body -parent LBarrel Body -sourcedir models/weapons/bfg/cycles -destdir models/md5/weapons/bfg_view
+	mesh	viewbfg.mb
+	anim	raise.mb
+	anim	idle.mb
+	anim	fire.mb
+	anim	fire.mb -range 1 140 -dest startfire
+	anim	fire.mb -range 141 167 -dest bfgfire
+	anim	empty_idle.mb
+	anim	reload1.mb -dest reload
+	anim	noammo.mb
+	anim	lower.mb
+
+	// World Model BFG
+	options -prefix PLAYER_BFG_ -keep ATTACHER bfgbarrel -rename ATTACHER origin -parent bfgbarrel bfgbody -clearorigin
+	mesh	models/characters/male_npc/cycles/tweakedplayermoves/bfg_idle.mb -dest models/md5/weapons/bfg_world/worldbfg
+	anim	models/characters/male_npc/cycles/tweakedplayermoves/bfg_idle.mb -dest models/md5/weapons/bfg_world/bfg_idle
+}
+
+entityDef weapon_bfg {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"BFG"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model" 					"models/weapons/bfg/bfg_world.lwo"
+	"model_view"				"viewmodel_bfg"
+	"model_world" 				"worldmodel_bfg"
+	"joint_attach"				"BFG_ATTACHER"
+	"def_dropItem"				"moveable_item_bfg"
+
+	"inv_name"					"#str_00100197"
+	"inv_weapon"				"weapon_bfg"
+	"inv_ammo_bfg"				"4"
+	"inv_item"					"5"
+
+	"inv_desc"					"#str_02540"
+	"display_name"				"#str_02022"
+	"icon"						"guis/assets/hud/wpn_8"
+	"pdaIcon"					"guis/assets/hud/icons/bfg_new.tga"
+	"hudIcon"					"guis/assets/hud/icons/bfgw.tga"	
+
+	"weaponAngleOffsetAverages" "15"
+	"weaponAngleOffsetScale" 	".5"
+	"weaponAngleOffsetMax"		"50"
+	"weaponOffsetTime"			"500"
+	"weaponOffsetScale"			"0.005"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"gui"						"guis/weapons/bfg.gui"
+	"mtr_guiLightShader"		"lights/viewWeaponGuiLight"
+
+	"def_overcharge_damage"		"damage_bfg_overcharge"
+	"def_overcharge"			"env_bfg_overcharge"
+	"snd_explode"				"rocket_impact"
+	
+	"smoke_muzzle"				"BFG_barrel.ptr"
+	
+	"weapon_scriptobject"		"weapon_bfg"
+	"def_projectile"			"projectile_bfg"
+	"ammoType"					"ammo_bfg"
+	"ammoRequired"				"1"
+	"clipSize"					"4"
+	"powerAmmo"					"1"
+	"mtr_flashShader"			"lights/bfg_flare"
+	"flashColor"				"0.8 1 0.7"
+	"flashRadius"				"32"
+	"silent_fire"				"0"
+
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+	"skin_invisible"			"skins/bfg_invis"
+	//"snd_hum"					"player_bfg_idle"
+	"spread"					"0"
+
+	"controllerShakeHighMag"	"1.0"
+	"controllerShakeHighTime"	"750"
+	"controllerShakeLowMag"		"1.0"
+	"controllerShakeLowTime"	"750"
+}
+
+entityDef env_bfg_overcharge {
+	"spawnclass"				"idAnimatedEntity"
+	"model"						"bigexplosion.prt"
+}
+
+entityDef moveable_item_bfg {
+	"inherit"					"weapon_bfg"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/weapons/bfg/bfg_world_rotated.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+}
+
+model worldmodel_bfg {
+	mesh						models/md5/weapons/bfg_world/worldbfg.md5mesh
+	
+	anim raise 					models/md5/weapons/bfg_world/bfg_idle.md5anim
+	anim idle 					models/md5/weapons/bfg_world/bfg_idle.md5anim
+	anim aim					models/md5/weapons/bfg_world/bfg_idle.md5anim
+	anim fire					models/md5/weapons/bfg_world/bfg_idle.md5anim
+	anim reload					models/md5/weapons/bfg_world/bfg_idle.md5anim
+	anim noammo					models/md5/weapons/bfg_world/bfg_idle.md5anim
+	anim putaway				models/md5/weapons/bfg_world/bfg_idle.md5anim
+}
+
+model viewmodel_bfg {
+	mesh						models/md5/weapons/bfg_view/viewbfg.md5mesh
+	offset						( -1 0 17 )
+
+	anim raise					models/md5/weapons/bfg_view/raise.md5anim {
+		frame 1						sound_weapon player_bfg_raise
+
+	}
+	anim idle 					models/md5/weapons/bfg_view/idle.md5anim 
+	anim fire_begin 			models/md5/weapons/bfg_view/startfire.md5anim {
+		frame 1 				sound_weapon player_bfg_firebegin
+	}
+	anim fire 					models/md5/weapons/bfg_view/bfgfire.md5anim {
+		frame 1 				sound_weapon player_bfg_fire
+	}
+	anim idle_empty 			models/md5/weapons/bfg_view/empty_idle.md5anim
+	anim putaway				models/md5/weapons/bfg_view/lower.md5anim
+	anim reload					models/md5/weapons/bfg_view/reload.md5anim {
+		frame 1						sound_weapon player_bfg_reload
+	}
+	anim noammo					models/md5/weapons/bfg_view/noammo.md5anim {
+		frame 1						sound_weapon player_bfg_dryfire
+	}
+}
+
+entityDef damage_bfg {
+	"damage"					"200"
+	"push"						"1000"
+	"gib"						"1"
+	"smoke_wound_flesh"			"bloodwound.prt"
+}
+
+entityDef damage_bfgFreq {
+	"damage"					"5"
+	"push"						"0"
+	"gib"						"1"
+	"snd_flesh"					"bullet_impact_flesh"
+}
+
+entityDef damage_bfgSplash {
+	"damage"					"100"
+	"radius"					"150"
+	"knockback"					"80"
+	"push"						"7000"
+	"attackerDamageScale"		"0.2"
+	"attackerPushScale"			"0.2"
+	"gib"						"1"
+}
+
+entityDef projectile_bfg {
+	"spawnclass"				"idBFGProjectile"
+	"mins"						"-10 -10 -10"
+	"maxs"						"10 10 10"
+	"cone"						"3"
+	"model" 					"models/particles/bfg_bolt/bfg_bolt.lwo"
+	"model_two"					"models/particles/bfg_bolt/bfg_bolt2.lwo"
+
+	"no_contents"				"1"
+							
+	"def_damage"				"damage_bfg"
+	"def_damageFreq"			"damage_bfgFreq"
+	"def_splash_damage"			"damage_bfgSplash"
+	
+	"beam_WidthFly"				"24"
+	"beam_WidthExplode"			"128"
+	"skin_beam"					"skins/duffybolt"
+	
+	"snd_fly"					"player_bfg_fly"
+	"snd_beam"					"player_bfg_arc"
+	"remove_time"				"7000"
+	
+	"damageRadius"				"2048"
+								
+	"launchFromBarrel"			"1"
+	"health"					"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"350 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"50"
+	"gravity"					"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"4.5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+								
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+								
+	"impact_damage_effect"		"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+								
+	"mtr_detonate"				"textures/decals/bfg_wallmark"
+	"decal_size"				"72" 
+
+	"smoke_fly"					""					// particle effect while in the air
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_residue"				""					// particle effect while in the air
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+
+	"model_detonate"			"bfgExplosion.prt"
+	"debris_count"				"6"
+	"def_debris"				"debris_largeshrapnel"
+	"def_shrapnel"				"debris_shrapnel"
+
+	"mtr_light_shader"			"lights/baronflash"
+	"light_color"				"1 1 1"
+	"light_radius"				"160"
+	"light_offset"				"0 0 -16"
+
+	"mtr_explode_light_shader"	"muzzleflash"
+	"explode_light_color"		"0 1 0"
+	"explode_light_radius"		"300"
+	"explode_light_fadetime"	"0.25"
+
+								// sound effect while in the air
+	"snd_explode"				"player_bfg_explode"
+	"snd_explode2"				"player_bfg_2explode"
+	"snd_explode3"				"player_bfg_3explode"
+	"snd_explode4"				"player_bfg_4explode"
+}
+
+// used by Campbell in cinematics
+entityDef projectile_bfg_cinematic {
+	"inherit"					"projectile_bfg"
+	"no_contents"				"1"
+	"velocity"					"250 0 0"
+	"def_damage"				"damage_bfg_cinematic"
+	"def_damageFreq"			"damage_bfgFreq_cinematic"
+	"def_splash_damage"			"damage_bfgSplash_cinematic"
+}
+
+entityDef damage_bfg_cinematic {
+	"inherit"					"damage_bfg"
+	"ignore_player"				"1"
+}
+
+entityDef damage_bfgFreq_cinematic {
+	"inherit"					"damage_bfgFreq"
+	"ignore_player"				"1"
+}
+
+entityDef damage_bfgSplash_cinematic {
+	"inherit"					"damage_bfgSplash"
+	"ignore_player"				"1"
+}
+
+entityDef damage_bfg_overcharge {
+	"damage"					"500"
+	"radius"					"256"
+	"push"						"10000"
+	"knockback"					"200"
+}

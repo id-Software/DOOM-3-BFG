@@ -1,0 +1,42 @@
+
+/***********************************************************************
+
+Simple Vehicle
+
+***********************************************************************/
+
+export fred {
+	options -prefix LOCUST_ -align ALL -keep Eyes -parent Eyes Body -keep SteeringWheel -parent SteeringWheel Body
+	mesh	models/vehicles/buggy/buggy.mb 
+	anim	models/vehicles/buggy/buggy.mb
+}
+
+model env_simplebuggy {
+	mesh							models/md5/vehicles/buggy/buggy.md5mesh
+	anim af_pose					models/md5/vehicles/buggy/buggy.md5anim
+}
+
+entityDef env_simplebuggy {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"	
+
+	"editor_usage"					"Vehicle."
+
+	"spawnclass"					"idAFEntity_VehicleSimple"
+	"sleep"							"1"
+
+	"model"							"env_simplebuggy"
+	"articulatedFigure"				"env_vehicle_simplebuggy.af"
+
+	"wheelJointFrontLeft"			"buggy_front_left_wheel"
+	"wheelJointFrontRight"			"buggy_front_right_wheel"
+	"wheelJointRearLeft"			"buggy_rear_left_wheel"
+	"wheelJointRearRight"			"buggy_rear_right_wheel"
+
+	"eyesJoint"						"buggy_eye"
+	"steeringWheelJoint"			"SteeringWheel"
+
+	"wheelRadius"					"18"
+}

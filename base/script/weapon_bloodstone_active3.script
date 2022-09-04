@@ -1,0 +1,93 @@
+/***********************************************************************
+
+weapon_bloodstone_active3.script
+
+***********************************************************************/
+
+
+// blend times
+#define BLOODSTONE_ACTIVE3_IDLE_TO_LOWER		4
+#define BLOODSTONE_ACTIVE3_IDLE_TO_FIRE		4
+#define BLOODSTONE_ACTIVE3_RAISE_TO_IDLE		4
+#define BLOODSTONE_ACTIVE3_FIRE_TO_IDLE		4
+
+object weapon_bloodstone_active3 : weapon_base {
+	
+	void		init();
+
+	void		ToPassive();
+
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+};
+
+void weapon_bloodstone_active3::init() {
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bloodstone_active3::Raise() {
+	string prevWeaponName;
+
+	weaponRising();
+	prevWeaponName = $player1.getPreviousWeapon();
+	
+	if(prevWeaponName == "weapon_bloodstone_active2") {
+		playAnim( ANIMCHANNEL_ALL, "twotothree" );
+	} else {
+		playAnim( ANIMCHANNEL_ALL, "raise" );
+	}
+	waitUntil( animDone( ANIMCHANNEL_ALL, BLOODSTONE_ACTIVE3_RAISE_TO_IDLE ) );
+	weaponState( "Idle", BLOODSTONE_ACTIVE3_RAISE_TO_IDLE );
+}
+
+void weapon_bloodstone_active3::ToPassive() {
+	weaponLowering();
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bloodstone_active3::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bloodstone_active3::Idle() {
+	
+	string nextWeaponName;
+	
+	weaponReady();
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			nextWeaponName = $player1.getIdealWeapon();
+			if(nextWeaponName == "weapon_bloodstone_passive") {
+				weaponState( "ToPassive", 0 );
+			} else {
+				weaponState( "Lower", BLOODSTONE_ACTIVE3_IDLE_TO_LOWER );
+			}
+		}
+		if ( WEAPON_ATTACK ) {
+			weaponState( "Fire", BLOODSTONE_ACTIVE3_IDLE_TO_FIRE );
+		}
+		waitFrame();
+	}
+}
+
+void weapon_bloodstone_active3::Fire() {
+	
+	launchPowerup("invulnerability", 15, 1);
+	sys.wait(1);
+	
+	//playAnim( ANIMCHANNEL_ALL, "fire" );
+	//while( !animDone( ANIMCHANNEL_ALL, BLOODSTONE_ACTIVE3_FIRE_TO_IDLE ) ) {
+	//	waitFrame();
+	//}
+	weaponState( "Idle", BLOODSTONE_ACTIVE3_FIRE_TO_IDLE );
+}

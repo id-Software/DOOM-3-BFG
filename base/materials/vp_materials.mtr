@@ -1,0 +1,355 @@
+textures/sfx/vpstatic
+{
+		nonsolid
+		translucent
+
+
+        {
+                vertexProgram           heatHaze.vfp
+                vertexParm              0       time * 0.1 , time * 0.5 // texture scrolling
+                vertexParm              1       .2          // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vpstatic.tga   // the normal map for distortion
+        }
+			{
+
+	    blend		add
+		scale .01, 1
+		translate time * 40, time * 0.5
+
+		map    textures/sfx/vpstatic_add.tga
+
+	}
+
+
+}
+
+
+textures/sfx/vpring1
+{
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               2                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/particles/vpring1  // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vpring2
+{
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               6                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/particles/vpring2  // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vpring3
+{
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               10                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/particles/vpring2  // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vpsphere
+{
+		translucent
+        {
+                Program           heatHazeWithMaskAndVertex.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       2            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/particles/vpsphere   // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vpsphereb
+{
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               2                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/particles/vpshpere // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+
+textures/sfx/vptelesphere
+{
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               5                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/particles/vpring1  // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vpfan
+{
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0               0                               // texture scrolling
+                vertexParm              1               2                             // magnitude of the distortion
+                fragmentMap             0               _currentRender
+                fragmentMap     		1       textures/particles/vpring1  // the normal map for distortion
+                fragmentMap             2       textures/particles/vpfan_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+
+
+
+textures/sfx/vppinch_bfgbolt
+{
+		deform sprite
+		translucent
+        {
+                program         heatHazeWithMaskAndVertex.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       3            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/particles/vppinch.tga   // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring2_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vppinch
+{
+		//deform sprite
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       1            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/particles/vppinch.tga   // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vp1ghost
+{
+		deform sprite
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.1 , time * 0.5 // texture scrolling
+                vertexParm              1       1            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1.tga   // the normal map for distortion
+                fragmentMap             2       textures/particles/vpring2_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vp1
+{
+		deform sprite
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.1 , time * 0.5 // texture scrolling
+                vertexParm              1       0.9            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1.tga   // the normal map for distortion
+                fragmentMap             2       textures/sfx/vp1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vp3
+{
+		deform sprite
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.1 , time * 0.5 // texture scrolling
+                vertexParm              1       0.4            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1.tga   // the normal map for distortion
+                fragmentMap             2       textures/sfx/vp1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+
+textures/sfx/vp1particle
+{
+	
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.8 , time * 0.5 // texture scrolling
+                vertexParm              1       4            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1.tga   // the normal map for distortion
+                fragmentMap             2       textures/sfx/vp1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vp1particle2
+{
+	
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.8 , time * 0.5 // texture scrolling
+                vertexParm              1       1            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1.tga   // the normal map for distortion
+                fragmentMap             2       textures/sfx/vp1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+
+textures/sfx/vpfridge1glass
+{
+	
+		nonsolid
+		translucent
+        {
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .9          // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1    //vpcurve_y   // the normal map for distortion
+             
+        }
+
+
+}
+
+textures/sfx/vppuzzglass
+{
+	
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       1.2           // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/particles/vpsphere   // the normal map for distortion
+             
+        }
+
+
+}
+
+textures/sfx/vpalphaglass
+{
+	
+		
+		twosided
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .4         // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1   // the normal map for distortion
+             
+        }
+
+
+}
+
+
+textures/sfx/vp1band
+{
+
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.0 , time * 0.1 // texture scrolling
+                vertexParm              1       1.2            // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/hell/lava1.tga   // the normal map for distortion
+                fragmentMap             2       textures/sfx/vp1tilehoriz_alpha.tga   // the distortion blend map
+        }
+
+
+}
+
+textures/sfx/vp2
+{
+		deform sprite
+		nonsolid
+		translucent
+        {
+                vertexProgram           heatHazeWithMask.vfp
+                vertexParm              0       time * 0.1 , time * 0.5*Parm3 // texture scrolling
+                vertexParm              1       5           // magnitude of the distortion
+                fragmentProgram			heatHazeWithMask.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1.tga   // the normal map for distortion
+                fragmentMap             2       textures/sfx/vp1_alpha.tga   // the distortion blend map
+        }
+
+
+}
+

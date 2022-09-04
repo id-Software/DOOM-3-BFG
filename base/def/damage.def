@@ -1,0 +1,334 @@
+/***********************************************************************
+
+	damage.def
+	
+	Generic and global damage defs.  Should not contain any monster specific defs.
+
+***********************************************************************/
+
+entityDef damage_triggerhurt_toxin {
+	"damage"						"5"
+	"noArmor"						"1"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"toxinDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+entityDef damage_triggerhurt_toxin_1 {
+	"damage"						"1"
+	"noArmor"						"1"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"toxinDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+
+entityDef damage_triggerhurt_5 {
+	"damage"						"5"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+entityDef damage_triggerhurt_10 {
+	"damage"						"10"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+entityDef damage_triggerhurt_15 {
+	"damage"						"15"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+entityDef damage_triggerhurt_25 {
+	"damage"						"25"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+entityDef damage_triggerhurt_50 {
+	"damage"						"50"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+}
+
+entityDef damage_triggerhurt_75 {
+	"damage"						"75"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"noGod"							"1"
+}
+
+entityDef damage_triggerhurt_100 {
+	"damage"						"100"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"noGod"							"1"
+}
+
+entityDef damage_triggerhurt_1000 {
+	"damage"						"1000"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"noGod"							"1"
+}
+
+entityDef damage_triggerhurt_1000_chamber {
+	"damage"						"1000"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"noGod"							"1"
+}
+
+entityDef damage_co_electric_trac {
+	"damage"						"50"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"noGod"							"1"
+}
+
+entityDef damage_generic {
+	"damage"						"20"
+	"kickDir"						"1 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+	"knockback"						"10"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef damage_telefrag {
+	"damage"						"9999"
+	"noArmor"						"1"
+	"noGod"							"1"
+	"noTeam"						"1"		// no subject to team damage rules
+	"telefrag"						"1"		// use telefrag messages in MP
+}
+
+entityDef damage_suicide {
+	"damage"						"9999"
+	"noArmor"						"1"
+	"noGod"							"1"
+}
+
+entityDef damage_crush {			
+	"damage"						"9999"
+	"gib"							"1"
+	"gibNonSolid"					"1"
+	"noArmor"						"1"
+	"noGod"							"1"
+}
+
+entityDef damage_gib {			
+	"damage"						"9999"
+	"gib"							"1"
+	"noArmor"						"1"
+	"noGod"							"1"
+}
+
+entityDef damage_explosion {
+	"damage"						"70"
+	"radius"						"200"
+	"push"							"10000"
+}
+
+entityDef damage_explodingbarrel {
+	"damage"						"300"
+	"radius"						"140"
+	"push"							"2000"
+	"knockback"						"100"
+	"gib"							"1"
+}
+
+entityDef damage_Smallexplosion {
+	"damage"						"50"
+	"radius"						"50"
+	"push"							"5000"
+	"knockback"						"50"
+}
+
+entityDef damage_HugeExplosion {
+	"damage"						"500"
+	"radius"						"256"
+	"push"							"10000"
+	"knockback"						"200"
+}
+
+entityDef damage_moverCrush {
+	"damage"						"1"
+	"gib"							"1"
+	"gibNonSolid"					"1"
+}
+
+entityDef damage_painTrigger {
+	"damage"						"10"
+}
+
+entityDef damage_noair {
+	"damage"						"10"
+	"delay"							"3.0"
+	"kickDir"						"0 0 0"
+	"noArmor"						"1"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"no_air"						"1"
+}
+
+entityDef damage_softfall {
+	"damage"						"10"
+	"kickDir"						"0 0 -1"
+	"noArmor"						"1"
+	"knockback"						"0"
+	"kick_time"						"100"
+	"kick_amplitude"				"1"
+	"no_sound"						"1"			// don't play default damage sound
+}
+
+entityDef damage_hardfall {
+	"damage"						"30"
+	"kickDir"						"0 0 -1"
+	"noArmor"						"1"
+	"knockback"						"0"
+	"kick_time"						"300"
+	"kick_amplitude"				"1"
+	"no_sound"						"1"			// don't play default damage sound
+}
+
+entityDef damage_fatalfall {
+	"damage"						"300"
+	"kickDir"						"0 0 -1"
+	"noArmor"						"1"
+	"knockback"						"0"
+	"kick_time"						"300"
+	"kick_amplitude"				"1"
+	"no_sound"						"1"			// don't play default damage sound
+}
+
+entityDef damage_lightBreak {
+	"damage"						"1"
+	"radius"						"5"
+	"push"							"20000"
+	"knockback"						"20"
+}
+
+entityDef damage_VagaryObject {
+	"damage"						"10"
+	"radius"						"5"
+	"push"							"20000"
+	"knockback"						"20"
+}
+
+entityDef damage_lava {
+	"damage"						"15"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"burn"							"1"		// play sizzle sound on player
+}
+
+entityDef damage_lava50 {
+	"damage"						"50"
+	"kickDir"						"0 0 0"
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"0"
+	"blob_size"						"0"
+	"blob_offset_x"					"0"
+	"knockback"						"0"
+	"kick_time"						"0"
+	"kick_amplitude"				"0"
+	"dv_time"						"100"
+	"burn"							"1"		// play sizzle sound on player
+}

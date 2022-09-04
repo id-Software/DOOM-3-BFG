@@ -1,0 +1,1118 @@
+namespace map_erebus4
+{
+	string g_strSkill;
+
+	float g_bCrusherActive = true;
+	float g_bExtendBridge = false;
+	float g_bEnvPowercellActive = true;
+
+	float g_bPlayerNearLadder = false;
+	float g_bLadderLowered = false;
+
+	// Trapped NPC Dialog
+
+	void trapped_npc_die() {
+		sys.wait( 3.5 );
+		$func_door_48.open();
+		sys.wait( 7.0 );
+		$e4_trapped_npc.kill();
+	}
+
+	void trapped_look_at_player() {
+		$e4_trapped_npc.lookAt( $player1, 20 );
+	}
+
+	void trapped_stop_looking() {
+		$e4_trapped_npc.lookAt( $e4_trapped_npc, 0 );
+	}
+
+	void trapped_dialog() {
+		sys.trigger( $npc_trapped1 );
+		sys.wait( 2.5 );
+		sys.trigger( $npc_trapped2 );
+	}
+
+	// NPC Survivor Dialog
+
+	void survivor_dialog() {
+		//sys.print( "Testing!\n" );
+		sys.trigger( $e4_fan_npc );
+		//sys.wait( 19 );
+		//$e4_fan_npc.remove();
+	}
+
+	/*
+	void survivor_dialog()
+	{
+		sys.print( "NPC Survivor Dialog Start!\n" );
+		sys.trigger( $survivor1 );
+		sys.wait( 1.5 );
+		sys.print( "NPC Survivor Dialog 2\n" );
+		sys.trigger( $survivor2 );
+		sys.wait( 1.5 );
+		sys.print( "NPC Survivor Dialog 3\n" );
+		sys.trigger( $survivor3 );
+		sys.wait( 2 );
+		sys.print( "NPC Survivor Dialog 4\n" );
+		sys.trigger( $survivor4 );
+		sys.wait( 2.5 );
+		sys.print( "NPC Survivor Dialog 5\n" );
+		sys.trigger( $survivor5 );
+		sys.wait( 2.5 );
+		sys.print( "NPC Survivor Dialog 6\n" );
+		sys.trigger( $survivor6 );
+		sys.wait( 3.7 );
+		sys.print( "NPC Survivor Dialog 7\n" );
+		sys.trigger( $survivor7 );
+		sys.wait( 3 );
+		sys.print( "NPC Survivor Dialog 8\n" );
+		sys.trigger( $survivor8 );
+		sys.wait( 5 );
+		sys.print( "NPC Survivor Dialog 9\n" );
+		sys.trigger( $survivor9 );
+	}
+	*/
+
+
+	void SetupKlaxonLights()
+	{
+		sys.trigger( $klaxon1_bulb );
+
+		$klaxon1_origin.time( 0.1 );
+		$klaxon1_origin.rotateOnce( '0 0 -45' );
+		sys.waitFor( $klaxon1_origin );
+	}
+
+
+	void MovingLight1Loop()
+	{
+		while( true )
+		{
+			$moving_light1.speed( 128 );
+
+			$moving_light1.move( WEST, 336 );
+			sys.waitFor( $moving_light1 );
+
+			$moving_light1.rotateOnce( '0 -90 0' );
+			sys.waitFor( $moving_light1 );
+
+			$moving_light1.move( NORTH, 112 );
+			sys.waitFor( $moving_light1 );
+
+			sys.wait( sys.random( 1.0 ) + 1.0 );
+
+			$moving_light1.speed( 64 );
+
+			$moving_light1.move( SOUTH, 112 );
+			sys.waitFor( $moving_light1 );
+
+			$moving_light1.rotateOnce( '0 90 0' );
+			sys.waitFor( $moving_light1 );
+
+			$moving_light1.move( EAST, 336 );
+			sys.waitFor( $moving_light1 );
+
+			sys.wait( sys.random( 2.0 ) + 2.0 );
+		}
+	}
+
+
+	void MovingLight2Loop()
+	{
+		while( true )
+		{
+			$moving_light2.speed( 128 );
+
+			$moving_light2.speed( 128 );
+			$moving_light2.move( UP, 320 );
+			sys.waitFor( $moving_light2 );
+
+			sys.wait( sys.random( 1.0 ) + 1.0 );
+
+			$moving_light2.speed( 64 );
+
+			$moving_light2.move( DOWN, 320 );
+			sys.waitFor( $moving_light2 );
+
+			sys.wait( sys.random( 2.0 ) + 2.0 );
+		}
+	}
+
+
+	void TumblerSequence()
+	{
+		$tumbler_arm_joint.rotateOnce( '90 0 0' );
+		sys.waitFor( $tumbler_arm_joint );
+
+		while( true )
+		{
+			// get new box
+			$tumbler_box.time( 3.0 );
+			$tumbler_box.move( EAST, 192 );
+			sys.waitFor( $tumbler_box );
+
+			$tumbler_door_in.open();
+
+			$tumbler_box.time( 1.5 );
+			$tumbler_box.move( EAST, 96 );
+			sys.waitFor( $tumbler_box );
+
+			$tumbler_box.bind( $tumbler_arm_lower );
+			$tumbler_door_in.close();
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+
+			$tumbler_arm_lower.move( REL_UP, 16 );
+			sys.waitFor( $tumbler_arm_lower );
+
+			$tumbler_arm_joint.startSoundShader ( "e4_rotator_1s", SND_CHANNEL_VOICE );			// -Xian
+			$tumbler_arm_joint.rotateOnce( '-90 0 0' );
+			sys.waitFor( $tumbler_arm_joint );
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+
+			$tumbler_arm_lower.move( REL_UP, 32 );
+			$tumbler_arm_joint.startSoundShader ( "e4_rotator_1s", SND_CHANNEL_VOICE );			// -Xian
+			$tumbler_arm_joint.rotateOnce( '-60 0 0' );
+			sys.waitFor( $tumbler_arm_lower );
+
+			$tumbler_arm_upper.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+			$tumbler_arm_upper.move( UP, 48 );
+			sys.waitFor( $tumbler_arm_upper );
+			sys.wait( 0.5 );
+
+			// move on track towards tumbler
+			$tumbler_arm_carrier.time( 0.75 );
+			$tumbler_arm_carrier.accelTime( 0.25 );
+			$tumbler_arm_carrier.decelTime( 0.0 );
+
+			$tumbler_arm_carrier.startSoundShader ( "e4_arm_4_5s_movement", SND_CHANNEL_VOICE );	// -Xian
+
+			$tumbler_arm_carrier.move( SOUTH, 96 );
+			sys.waitFor( $tumbler_arm_carrier );
+
+			$tumbler_arm_carrier.bind( $tumbler_carrier_origin );
+
+			$tumbler_carrier_origin.time( 1.5 );
+			$tumbler_carrier_origin.accelTime( 0.0 );
+			$tumbler_carrier_origin.decelTime( 0.0 );
+			$tumbler_carrier_origin.rotateOnce( '0 90 0' );
+			sys.waitFor( $tumbler_carrier_origin );
+
+			$tumbler_arm_carrier.unbind();
+
+			$tumbler_arm_carrier.time( 2.25 );
+			$tumbler_arm_carrier.accelTime( 0.0 );
+			$tumbler_arm_carrier.decelTime( 0.25 );
+			$tumbler_arm_carrier.move( EAST, 288 );
+			sys.waitFor( $tumbler_arm_carrier );
+			sys.wait( 0.5 );
+
+			// put box in
+			$tumbler_arm_upper.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+			$tumbler_arm_upper.move( DOWN, 32 );
+			sys.waitFor( $tumbler_arm_upper );
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+			$tumbler_arm_lower.move( REL_DOWN, 48 );
+			sys.waitFor( $tumbler_arm_lower );
+
+			$tumbler_box.unbind();
+			$tumbler_clamp_top.move( REL_RIGHT, 4 );
+			$tumbler_clamp_btm.move( REL_LEFT, 4 );
+			sys.waitFor( $tumbler_clamp_btm );
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+			$tumbler_arm_lower.move( REL_UP, 48 );
+			sys.waitFor( $tumbler_arm_lower );
+
+			// tumble
+			$tumbler_box.bind( $tumbler );
+			$tumbler.startSoundShader ( "e4_tumbler_5s", SND_CHANNEL_VOICE );					// -Xian
+			$tumbler.rotateOnce( '0 3600 0' );
+			sys.waitFor( $tumbler );
+
+			$tumbler_box.unbind();
+
+			// pull box out
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+			$tumbler_arm_lower.move( REL_DOWN, 48 );
+			sys.waitFor( $tumbler_arm_lower );
+
+			$tumbler_box.bind( $tumbler_arm_lower );
+			$tumbler_clamp_top.move( REL_LEFT, 4 );
+			$tumbler_clamp_btm.move( REL_RIGHT, 4 );
+			sys.waitFor( $tumbler_clamp_btm );
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+			$tumbler_arm_lower.move( REL_UP, 48 );
+			sys.waitFor( $tumbler_arm_lower );
+
+			$tumbler_arm_upper.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+			$tumbler_arm_upper.move( UP, 32 );
+			sys.waitFor( $tumbler_arm_upper );
+			sys.wait( 0.5 );
+
+			// move on track towards dropoff
+			$tumbler_arm_carrier.time( 2.25 );
+			$tumbler_arm_carrier.accelTime( 0.25 );
+			$tumbler_arm_carrier.decelTime( 0.0 );
+
+			$tumbler_arm_carrier.startSoundShader ( "e4_arm_4_5s_movement", SND_CHANNEL_VOICE );		// -Xian
+
+			$tumbler_arm_carrier.move( WEST, 288);
+			sys.waitFor( $tumbler_arm_carrier );
+
+			$tumbler_arm_carrier.bind( $tumbler_carrier_origin );
+
+			$tumbler_carrier_origin.time( 1.5 );
+			$tumbler_carrier_origin.rotateOnce( '0 -90 0' );
+			sys.waitFor( $tumbler_carrier_origin );
+
+			$tumbler_arm_carrier.unbind();
+
+			$tumbler_arm_carrier.time( 0.75 );
+			$tumbler_arm_carrier.accelTime( 0.0 );
+			$tumbler_arm_carrier.decelTime( 0.25 );
+			$tumbler_arm_carrier.move( NORTH, 96 );
+			sys.waitFor( $tumbler_arm_carrier );
+			sys.wait( 0.5 );
+
+			// drop off box
+			$tumbler_arm_upper.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+			$tumbler_arm_upper.move( DOWN, 32 );
+			sys.waitFor( $tumbler_arm_upper );
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+			$tumbler_arm_lower.move( REL_DOWN, 32 );
+			$tumbler_arm_joint.startSoundShader ( "e4_rotator_1s", SND_CHANNEL_VOICE );			// -Xian
+			$tumbler_arm_joint.rotateOnce( '60 0 0' );
+			sys.waitFor( $tumbler_arm_joint );
+
+			$tumbler_arm_joint.startSoundShader ( "e4_rotator_1s", SND_CHANNEL_VOICE2 );			// -Xian
+			$tumbler_arm_joint.rotateOnce( '90 0 0' );
+			sys.waitFor( $tumbler_arm_joint );
+
+			$tumbler_arm_upper.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+			$tumbler_arm_upper.move( UP, 48 );
+			sys.waitFor( $tumbler_arm_upper );
+
+			$tumbler_door_out.open();
+
+			$tumbler_arm_lower.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );	// -Xian
+			$tumbler_arm_lower.move( REL_DOWN, 16 );
+			sys.waitFor( $tumbler_arm_lower );
+
+			$tumbler_box.unbind();
+
+			$tumbler_box.time( 1.5 );
+			$tumbler_box.move( WEST, 96 );
+			sys.waitFor( $tumbler_box );
+
+			$tumbler_door_out.close();
+
+			$tumbler_box.time( 3.0 );
+			$tumbler_box.move( WEST, 192 );
+			$tumbler_arm_upper.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+			$tumbler_arm_upper.move( DOWN, 64 );
+			sys.waitFor( $tumbler_box );
+
+			$tumbler_box.restorePosition();
+			$sys.wait( 1.0 );
+		}
+	}
+
+
+	void SetupTumbler()
+	{
+		$tumbler_setup_origin.time( 0.1 );
+		$tumbler_setup_origin.move( SOUTH, 64 );
+		$tumbler_setup_origin.rotateOnce( '0 0 60' );
+		sys.waitFor( $tumbler_setup_origin );
+
+		$tumbler_arm_upper.bind( $tumbler_arm_carrier );
+		$tumbler_arm_joint.bind( $tumbler_arm_upper );
+		$tumbler_arm_joint_model.bind( $tumbler_arm_joint );
+		$tumbler_arm_lower.bind( $tumbler_arm_joint );
+
+		$tumbler_arm_upper.time( 1.0 );
+		$tumbler_arm_upper.accelTime( 0.25 );
+		$tumbler_arm_upper.decelTime( 0.25 );
+
+		$tumbler_arm_joint.time( 1.0 );
+		$tumbler_arm_joint.accelTime( 0.2 );
+		$tumbler_arm_joint.decelTime( 0.2 );
+
+		$tumbler_arm_lower.time( 1.0 );
+		$tumbler_arm_lower.accelTime( 0.25 );
+		$tumbler_arm_lower.decelTime( 0.25 );
+
+		$tumbler.time( 5.0 );
+		$tumbler.accelTime( 0.5 );
+		$tumbler.decelTime( 1.5 );
+
+		$tumbler_clamp_top.time( 0.25 );
+		$tumbler_clamp_btm.time( 0.25 );
+		$tumbler_clamp_top.move( REL_LEFT, 3 );
+		$tumbler_clamp_btm.move( REL_RIGHT, 3 );
+		sys.waitFor( $tumbler_clamp_btm );
+
+		thread TumblerSequence();
+	}
+
+
+	void CenterHallSequence()
+	{
+		$center_door_back.close();
+		$center_door_back.lock( 1 );
+		sys.trigger( $center_door_back_clip );
+		sys.wait( 1.0 );
+
+		sys.trigger( $center_hall_influence );
+		sys.wait( 2.0 );
+
+		$center_door_front.lock( 0 );
+		$center_door_front.open();
+		sys.wait( 2.0 );
+	}
+
+
+	void HallSteam1Loop()
+	{
+		while( true )
+		{
+			sys.trigger( $hs1_effect );
+			sys.trigger( $hs1_sound );
+			sys.wait( 2.0 );
+
+			sys.trigger( $hs1_effect );
+			sys.trigger( $hs1_sound );
+			sys.wait( 5.0 );
+		}
+	}
+
+
+	void ExcavationElevBreak()
+	{
+		sys.wait( 0.1 );
+		$excavation_elev_gui.bind( $excavation_elev );
+
+		$excavation_elev.time( 1.0 );
+		$excavation_elev.accelTime( 0.5 );
+		$excavation_elev.move( UP, 64 );
+		$excavation_elev.startSoundShader( "broken_plat_2_5s", SND_CHANNEL_VOICE2 );
+		sys.waitFor( $excavation_elev );
+
+		$excavation_elev.stopSound( SND_CHANNEL_VOICE2, 0 );
+		sys.trigger( $excavation_elev_spark );
+		$excavation_elev_call2_relay.remove();
+		$excavation_elev_gui.setGui( 1, "guis/screens/malfunction.gui" );
+		$excavation_elev_gui.setGuiParm( "noninteractive", "1" );
+		$excavation_elev_call1.setGuiParm( "gui_parm5", "2" );
+		$excavation_elev_call2.setGuiParm( "gui_parm5", "2" );
+		$excavation_elev_call1.setShaderParm(7 , 0);
+		$excavation_elev_call2.setShaderParm(7 , 0);
+
+		$excavation_elev.time( 0.2 );
+		$excavation_elev.accelTime( 0.2 );
+		$excavation_elev.decelTime( 0.0 );
+		$excavation_elev.move( UP, 6 );
+		sys.waitFor( $excavation_elev );
+
+		$excavation_elev.time( 0.2 );
+		$excavation_elev.accelTime( 0.0 );
+		$excavation_elev.decelTime( 0.0 );
+		$excavation_elev.move( DOWN, 8 );
+
+		$excavation_elev.time( 0.6 );
+		$excavation_elev.accelTime( 0.6 );
+		$excavation_elev.decelTime( 0.0 );
+		$excavation_elev.startSoundShader( "platbreak_01", SND_CHANNEL_VOICE );
+		$excavation_elev.rotateOnce( '15 -3 0' );
+		sys.waitFor( $excavation_elev );
+
+		$excavation_elev.time( 0.1 );
+		$excavation_elev.accelTime( 0.1 );
+		$excavation_elev.decelTime( 0.0 );
+		$excavation_elev.startSoundShader( "platbreak_02", SND_CHANNEL_BODY );
+		$excavation_elev.rotateOnce( '1 0 0' );
+		sys.waitFor( $excavation_elev );
+
+		$excavation_elev.rotateOnce( '-1 0 0' );
+		sys.waitFor( $excavation_elev );
+
+		$excavation_elev_gui.unbind();
+		sys.wait( 0.1 );
+		$excavation_elev_gui.remove();
+		sys.trigger( $excavation_elev_gui_broke );
+	}
+
+
+	void ExcavationTrackSequence()
+	{
+		$excavation_track_door.startSoundShader ( "e4_door_2s", SND_CHANNEL_VOICE );	// -Xian
+		$excavation_track_door.rotateOnce( '0 0 -80' );
+		sys.wait( 1.5 );
+
+		$excavation_track.startSoundShader ( "e4_flap_1s", SND_CHANNEL_VOICE );			// -Xian
+		$excavation_track.rotateOnce( '0 0 85' );
+		sys.waitFor( $excavation_track );
+
+		sys.wait( 4.0 );
+
+		$excavation_track.startSoundShader ( "e4_flap_1s", SND_CHANNEL_VOICE );			// -Xian
+		$excavation_track.rotateOnce( '0 0 -85' );
+		sys.wait( 0.5 );
+
+		$excavation_track_door.startSoundShader ( "e4_door_2s", SND_CHANNEL_VOICE );	// -Xian
+		$excavation_track_door.rotateOnce( '0 0 80' );
+		sys.waitFor( $excavation_track_door );
+	}
+
+	void excavator_start ( entity ent ) {
+		ent.startSoundShader ( "e4_excavator_startsequence", SND_CHANNEL_VOICE );
+		sys.wait ( 11.5 );
+		ent.startSoundShader ( "e4_excavator_stop", SND_CHANNEL_VOICE );
+	}
+
+
+	void ExcavationLiftLoop( float nLift )
+	{
+		entity eLift = sys.getEntity( "excavation_lift" + nLift );
+		entity eLight = sys.getEntity( "excavation_lift" + nLift + "_light" );
+
+		eLight.On();
+
+		eLift.startSoundShader ( "e4_excavator_15s", SND_CHANNEL_VOICE );
+
+		eLift.time( 7.0 );
+		eLift.accelTime( 0.0 );
+		eLift.decelTime( 0.0 );
+		eLift.move( UP, 896 );
+		sys.waitFor( eLift );
+
+		eLift.time( 8.0 );
+		eLift.accelTime( 0.0 );
+		eLift.decelTime( 3.0 );
+		eLift.move( UP, 512 );
+		sys.waitFor( eLift );
+
+		thread ExcavationTrackSequence();
+		sys.wait( 2.9 );
+
+		eLift.time( 10.0 );
+		eLift.accelTime( 0.75 );
+		eLift.decelTime( 0.25 );
+
+		eLift.startSoundShader ( "e4_excavator_startsequence", SND_CHANNEL_VOICE );	// -Xian
+
+		eLift.move( NORTH, 640 );
+		sys.waitFor( eLift );
+
+		eLift.stopSound ( SND_CHANNEL_VOICE, false );							// -Xian
+
+		eLight.Off();
+		eLift.restorePosition();
+		sys.wait( 0.1 );
+	}
+	// 26 s
+
+
+	void ExcavationLiftSequence()
+	{
+		float ii;
+
+		while( true )
+		{
+			for( ii = 1; ii < 5; ii++ )
+			{
+				thread ExcavationLiftLoop( ii );
+				sys.wait( 13.0 );
+			}
+		}
+	}
+
+
+	void SetupExcavationLift()
+	{
+		$excavation_track.time( 1.0 );
+		$excavation_track.accelTime( 0.25 );
+		$excavation_track.decelTime( 0.25 );
+
+		$excavation_track_door.time( 2.0 );
+		$excavation_track_door.accelTime( 0.25 );
+		$excavation_track_door.decelTime( 0.25 );
+
+		sys.trigger( $excavation_alarm );
+
+		thread ExcavationLiftSequence();
+	}
+
+
+	void ExtendBridge()
+	{
+		$crusher_bridge_gui.setGuiParm( "noninteractive", "1" );
+		g_bCrusherActive = false;
+		g_bExtendBridge = true;
+	}
+
+
+	void ExtendBridgeSequence()
+	{
+		$bridge_floor.time( 2.0 );
+		$bridge_floor.accelTime( 0.5 );
+		$bridge_floor.decelTime( 0.5 );
+		$bridge_floor.startSoundShader( "enpro_bridge_2s", SND_CHANNEL_VOICE );
+		$bridge_floor.moveTo( $bridge_spot2 );
+		sys.waitFor( $bridge_floor );
+
+		$bridge_toprailing_left_anchor.rotateOnce( '0 0 88' );
+		$bridge_toprailing_right_anchor.rotateOnce( '0 0 -88' );
+		$bridge_toprailing_right_anchor.startSoundShader( "enpro_bridge_rails_1s", SND_CHANNEL_VOICE) ;
+		sys.waitFor( $bridge_toprailing_right_anchor );
+
+		$bridge_btmrailing_left_anchor.rotateOnce( '0 0 45' );
+		$bridge_btmrailing_right_anchor.rotateOnce( '0 0 -45' );
+		$bridge_btmrailing_left_anchor.startSoundShader( "enpro_bridge_rails_2_1s", SND_CHANNEL_VOICE );
+		sys.waitFor( $bridge_btmrailing_right_anchor );
+
+		sys.trigger( $bridge_aas );
+
+		g_bCrusherActive = true;
+	}
+
+
+	void SetupBridge()
+	{
+		$bridge_toprailing_left_anchor.accelTime( 0.4 );
+		$bridge_toprailing_left_anchor.decelTime( 0.4 );
+		$bridge_toprailing_left_anchor.time( 1.0 );
+
+		$bridge_toprailing_right_anchor.accelTime( 0.4 );
+		$bridge_toprailing_right_anchor.decelTime( 0.4 );
+		$bridge_toprailing_right_anchor.time( 1.0 );
+
+		$bridge_btmrailing_left_anchor.accelTime( 0.4 );
+		$bridge_btmrailing_left_anchor.decelTime( 0.4 );
+		$bridge_btmrailing_left_anchor.time( 1.0 );
+
+		$bridge_btmrailing_right_anchor.accelTime( 0.4 );
+		$bridge_btmrailing_right_anchor.decelTime( 0.4 );
+		$bridge_btmrailing_right_anchor.time( 1.0 );
+
+		$bridge_toprailing_left_anchor.rotateOnce( '0 0 -88' );
+		$bridge_btmrailing_left_anchor.rotateOnce( '0 0 -45' );
+		$bridge_toprailing_right_anchor.rotateOnce( '0 0 88' );
+		$bridge_btmrailing_right_anchor.rotateOnce( '0 0 45' );
+
+		$bridge_floor.moveTo( $bridge_spot1 );
+	}
+
+
+	void StartCrusher()
+	{
+		$feeder1.time( 3.0 );
+		$feeder1.accelTime( 0.25 );
+		$feeder1.decelTime( 1.0 );
+		$feeder2.time( 3.0 );
+		$feeder2.accelTime( 0.25 );
+		$feeder2.decelTime( 1.0 );
+		$feeder1.startSoundShader ("e4_feeder_down", SND_CHANNEL_VOICE );			// -Xian :: 1.24.05
+		$feeder1.moveTo( $feeder1_origin1 );
+		$feeder2.startSoundShader ("e4_feeder_down", SND_CHANNEL_VOICE );			// -Xian :: 1.24.05
+		$feeder2.moveTo( $feeder2_origin1 );
+		$feeder1.rotateOnce( '0 0 -35' );
+		$feeder2.rotateOnce( '0 0 -35' );
+		sys.waitFor( $feeder2 );
+
+		$feeder1_slat1.time( 0.5 );
+		$feeder1_slat2.time( 0.5 );
+		$feeder1_slat3.time( 0.5 );
+		$feeder2_slat1.time( 0.5 );
+		$feeder2_slat2.time( 0.5 );
+		$feeder2_slat3.time( 0.5 );
+		$feeder1_slat1.rotateOnce( '0 0 -90' );
+		$feeder1_slat2.rotateOnce( '0 0 -90' );
+		$feeder1_slat3.rotateOnce( '0 0 -90' );
+		$feeder2_slat1.rotateOnce( '0 0 -90' );
+		$feeder2_slat2.rotateOnce( '0 0 -90' );
+		$feeder2_slat3.rotateOnce( '0 0 -90' );
+		sys.waitFor( $feeder2_slat3 );
+
+		$feeder1.bind( $feeder1_shaker );
+		$feeder2.bind( $feeder2_shaker );
+		sys.wait( 0.5 );
+	}
+
+
+	void StopCrusher()
+	{
+		$feeder1.unbind();
+		$feeder2.unbind();
+
+		$feeder1_slat1.time( 0.5 );
+		$feeder1_slat2.time( 0.5 );
+		$feeder1_slat3.time( 0.5 );
+		$feeder2_slat1.time( 0.5 );
+		$feeder2_slat2.time( 0.5 );
+		$feeder2_slat3.time( 0.5 );
+		$feeder1_slat1.rotateOnce( '0 0 90' );
+		$feeder1_slat2.rotateOnce( '0 0 90' );
+		$feeder1_slat3.rotateOnce( '0 0 90' );
+		$feeder2_slat1.rotateOnce( '0 0 90' );
+		$feeder2_slat2.rotateOnce( '0 0 90' );
+		$feeder2_slat3.rotateOnce( '0 0 90' );
+		sys.waitFor( $feeder2_slat3 );
+
+		$feeder1.time( 3.0 );
+		$feeder1.accelTime( 0.25 );
+		$feeder1.decelTime( 1.0 );
+		$feeder2.time( 3.0 );
+		$feeder2.accelTime( 0.25 );
+		$feeder2.decelTime( 1.0 );
+		$feeder1.startSoundShader ("e4_feeder_up", SND_CHANNEL_VOICE );		// -Xian :: 1.24.05
+		$feeder1.moveTo( $feeder1_origin2 );
+		$feeder2.startSoundShader ("e4_feeder_up", SND_CHANNEL_VOICE );		// -Xian :: 1.24.05
+		$feeder2.moveTo( $feeder2_origin2 );
+		$feeder1.rotateOnce( '0 0 35' );
+		$feeder2.rotateOnce( '0 0 35' );
+		sys.waitFor( $feeder2 );
+	}
+
+
+		// FIXME: add particle triggers
+	void CrusherSequence()
+	{
+		float nCrusherWaitCount;
+
+		while( true )
+		{
+			// turn on shaking
+			sys.trigger( $feeder1_shaker );
+			sys.trigger( $feeder2_shaker );
+
+			// speed up rollers
+			$crusher_roller2l.startSoundShader ( "e4_grinder_fast", SND_CHANNEL_VOICE );			// -Xian
+			$crusher_roller1l.rotate( '360 0 0' );
+			$crusher_roller1r.rotate( '-360 0 0' );
+			$crusher_roller2l.rotate( '360 0 0' );
+			$crusher_roller2r.rotate( '-360 0 0' );
+			sys.wait( 5.0 );
+
+			// turn off shaking
+			sys.trigger( $feeder1_shaker );
+			sys.trigger( $feeder2_shaker );
+
+			// slow down rollers
+			$crusher_roller2l.startSoundShader ( "e4_grinder_slow", SND_CHANNEL_VOICE );			// -Xian
+			$crusher_roller1l.rotate( '90 0 0' );
+			$crusher_roller1r.rotate( '-90 0 0' );
+			$crusher_roller2l.rotate( '90 0 0' );
+			$crusher_roller2r.rotate( '-90 0 0' );
+
+			nCrusherWaitCount = 8;
+			while( nCrusherWaitCount > 0 )
+			{
+				sys.wait( 0.5 );
+
+				if( !g_bCrusherActive )
+				{
+					StopCrusher();
+
+					// stop rollers
+					$crusher_roller2l.stopSound ( SND_CHANNEL_VOICE, false );					// -Xian
+					$crusher_roller1l.rotate( '0 0 0' );
+					$crusher_roller1r.rotate( '0 0 0' );
+					$crusher_roller2l.rotate( '0 0 0' );
+					$crusher_roller2r.rotate( '0 0 0' );
+
+					if( g_bExtendBridge )
+					{
+						ExtendBridgeSequence();
+					}
+
+					while( !g_bCrusherActive )
+					{
+						sys.wait( 0.5 );
+					}
+
+					StartCrusher();
+					break;
+				}
+
+				nCrusherWaitCount--;
+			}
+		}
+	}
+
+
+	void SetupCrusher()
+	{
+		thread CrusherSequence();
+	}
+
+
+	void env_delpcellsounds() {
+		sys.trigger( $env_pcell_stop );
+		sys.trigger( $env_pcell_loop );
+	}
+
+
+	void powercellDelEnv()
+	{
+		sys.trigger( $env_powercell_removed_early );
+
+		// Power shutdown sound
+		thread env_delpcellsounds();
+		sys.wait( 1.5 );
+
+		//  Door opening sound/anims
+		sys.trigger( $env_pcell_openclose1 );
+		sys.trigger( $env_pcell_idle1 );
+		$env_generator.setAnimation( "opening" );
+		sys.trigger( $env_generator );
+		sys.wait( 0.5 );
+
+		$env_powercell.hide();
+		sys.trigger( $remove_aritfact );
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+		sys.trigger( $env_powercell_removed );
+
+		// Game scripting...
+		g_bEnvPowercellActive = false;
+		sys.wait( 1.0 );
+
+		sys.trigger( $env_objective_sound );
+
+		sys.trigger( $klaxon2_bulb );
+		$klaxon2_spot.On();
+		$klaxon2_ambient.On();
+
+		//$vent_fan1.stopRotating();
+		$vent_fan2.stopRotating();
+		$vent_fan3.stopRotating();
+		//$vent_fan4.stopRotating(); //removed from map
+		sys.wait( 0.1 );
+
+		//$vent_fan1.restorePosition();
+		$vent_fan2.restorePosition();
+		$vent_fan3.restorePosition();
+		//$vent_fan4.restorePosition(); //removed from map
+	}
+
+
+	void env_inspcellsounds() {
+		sys.trigger( $env_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $env_pcell_loop );
+	}
+
+
+	void powercellInsEnv()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$env_powercell.show();
+		sys.wait( 0.5 );
+
+		$env_generator.setAnimation( "closing" );
+		sys.trigger( $env_generator );
+		sys.trigger( $env_generator_openclose );
+		sys.trigger( $env_generator_idle );
+
+		// Power starting sound
+		thread env_inspcellsounds();
+
+		sys.trigger( $env_powercell_restored );
+
+		// Game scripting...
+		g_bEnvPowercellActive = false;
+
+		sys.trigger( $klaxon2_bulb );
+		$klaxon2_spot.Off();
+		$klaxon2_ambient.Off();
+	}
+
+
+	void EnvLightsShot()
+	{
+		if(	g_bEnvPowercellActive )
+		{
+			sys.trigger( $trigger_relay_375 );
+			sys.trigger( $trigger_relay_17 );
+			sys.trigger( $env_emergency_light_relays_remove );
+		}
+		else
+		{
+			sys.trigger( $env_emergency_light_relays_remove );
+		}
+	}
+
+
+	void rocklift_delpcellsounds() {
+		// EMPTY
+	}
+
+
+	void powercellDelRockLift()
+	{
+		// EMPTY
+	}
+
+
+	void rocklift_inspcellsounds() {
+		sys.trigger( $rocklift_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $rocklift_pcell_loop );
+	}
+
+
+	void powercellInsRockLift()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$rocklift_powercell.show();
+		sys.wait( 0.5 );
+
+		$rocklift_generator.setAnimation( "closing" );
+		sys.trigger( $rocklift_generator );
+		sys.trigger( $rocklift_pcell_openclose1 );
+		sys.trigger( $rocklift_pcell_idle1 );
+		$rocklift_gui.guiNamedEvent( 1, "powercellDeviceStarted" );
+		sys.wait( 1.0 );
+
+		// Power starting sound
+		thread rocklift_inspcellsounds();
+
+		// Game scripting...
+		sys.trigger( $start_excavation_complete );
+		thread SetupExcavationLift();
+	}
+
+
+	void crusher_delpcellsounds() {
+		sys.trigger( $crusher_pcell_stop );
+		sys.trigger( $crusher_pcell_loop );
+	}
+
+
+	void powercellDelCrusher()
+	{
+//		sys.trigger( $crusher_powercell_removed_early );
+
+		// Power shutdown sound
+		thread crusher_delpcellsounds();
+		sys.wait( 1.5 );
+
+		//  Door opening sound/anims
+		sys.trigger( $crusher_pcell_openclose1 );
+		sys.trigger( $crusher_pcell_idle1 );
+		$crusher_generator.setAnimation( "opening" );
+		sys.trigger( $crusher_generator );
+		sys.wait( 0.5 );
+
+		$crusher_powercell1.hide();
+		$crusher_powercell2.hide();
+		$player1.giveInventoryItem("item_powercell");
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+		sys.trigger( $crusher_powercell_removed );
+
+		// Game scripting...
+		g_bCrusherActive = false;
+		g_bExtendBridge = false;
+
+		$crusher_exit.lock( 0 );
+	}
+
+
+	void crusher_inspcellsounds() {
+		sys.trigger( $crusher_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $crusher_pcell_loop );
+	}
+
+
+	void powercellInsCrusher()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$crusher_powercell1.show();
+		$crusher_powercell2.show();
+		sys.wait( 0.5 );
+
+		$crusher_generator.setAnimation( "closing" );
+		sys.trigger( $crusher_generator );
+		sys.trigger( $crusher_pcell_openclose1 );
+		sys.trigger( $crusher_pcell_idle1 );
+
+		// Power starting sound
+		thread crusher_inspcellsounds();
+
+		// Game scripting...
+		g_bCrusherActive = true;
+		sys.trigger( $crusher_powercell_restored );
+	}
+
+
+	void ExitLiftCheckPlayerPosition()
+	{
+		while( true )
+		{
+			if( g_bPlayerNearLadder )
+			{
+				if( !g_bLadderLowered )
+				{
+					sys.trigger( $vent_ladder1_sound );
+					$vent_ladder1.time( 2.0 );
+					$vent_ladder1.moveTo( $vent_ladder_btm );
+					sys.waitFor( $vent_ladder1 );
+
+					g_bLadderLowered = true;
+				}
+			}
+			else
+			{
+				if( g_bLadderLowered )
+				{
+					sys.trigger( $vent_ladder1_sound );
+					$vent_ladder1.time( 2.0 );
+					$vent_ladder1.moveTo( $vent_ladder_top );
+					sys.waitFor( $vent_ladder1 );
+
+					g_bLadderLowered = false;
+				}
+			}
+
+			g_bPlayerNearLadder = false;
+			sys.wait( 0.5 );
+		}
+	}
+
+
+	void PlayerNearExitLiftLadder()
+	{
+		g_bPlayerNearLadder = true;
+	}
+
+
+	void exitlift_delpcellsounds() {
+		// EMPTY
+	}
+
+
+	void powercellDelExitLift()
+	{
+		// EMPTY
+	}
+
+
+	void exitlift_inspcellsounds() {
+		sys.trigger( $exitlift_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $exitlift_pcell_loop );
+	}
+
+	void powercellInsExitLift()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$exitlift_powercell1.show();
+		$exitlift_powercell2.show();
+		sys.wait( 0.5 );
+
+		$exitlift_generator.setAnimation( "closing" );
+		sys.trigger( $exitlift_generator );
+		sys.trigger( $exitlift_pcell_openclose1 );
+		sys.trigger( $exitlift_pcell_idle1 );
+		$exitlift_gui.guiNamedEvent( 1, "powercellDeviceStarted" );
+		sys.wait( 1.0 );
+
+		// Power starting sound
+		thread exitlift_inspcellsounds();
+
+		// Game scripting...
+		sys.trigger( $exitlift_pcell_lightson );
+		//sys.trigger( $exit_platform_light_small );
+		//sys.trigger( $exit_platform_light_small2 );
+		//sys.trigger( $exit_platform_light_large );
+		sys.trigger( $start_lift_complete );
+		$exit_lift_base.setGuiParm( "gui_parm5", "0" );
+		$lift.setGui(1, "guis/doors/liftmove.gui" );
+		$lift.setGuiParm( "noninteractive", "0" );
+		$lift.setGuiStates();
+
+		$e4_fan_npc.remove();
+		$e4_fan_npc_light.remove();
+
+		thread ExitLiftCheckPlayerPosition();
+	}
+
+
+	void Precache()
+	{
+		// GUIS
+		$lift.precacheGui( "guis/doors/liftmove.gui" );
+		$lift.setGuiParm( "noninteractive", "1" );
+		$excavation_elev_gui.precacheGui( "guis/screens/malfunction.gui" );
+
+		// SOUNDS
+		sys.cacheSoundShader( "e4_fingers_1s_inout");
+		sys.cacheSoundShader( "e4_rotator_1s");
+		sys.cacheSoundShader( "e4_shoulder_1s_updown");
+		sys.cacheSoundShader( "e4_arm_4_5s_movement");
+		sys.cacheSoundShader( "e4_tumbler_5s");
+		sys.cacheSoundShader( "e4_grinder_fast");
+		sys.cacheSoundShader( "e4_grinder_slow");
+		sys.cacheSoundShader( "broken_plat_2_5s");
+		sys.cacheSoundShader( "platbreak_01");
+		sys.cacheSoundShader( "platbreak_02");
+		sys.cacheSoundShader( "enpro_bridge_2s");
+		sys.cacheSoundShader( "enpro_bridge_rails_1s");
+		sys.cacheSoundShader( "enpro_bridge_rails_2_1s");
+		sys.cacheSoundShader( "e4_excavator_15s" );
+		sys.cacheSoundShader( "e4_excavator_startsequence" );
+		sys.cacheSoundShader( "e4_excavator_stop" );
+		sys.cacheSoundShader( "guisounds_item" );
+		sys.cacheSoundShader( "e4_feeder_up" );								// -Xian :: 1.24.05
+		sys.cacheSoundShader( "e4_feeder_down" );							// -Xian :: 1.24.05
+		sys.cacheSoundShader( "e4_door_2s" );
+		sys.cacheSoundShader( "e4_flap_1s" );
+	}
+
+
+	void main()
+	{
+		// LEVEL PRECACHE
+		thread Precache();
+
+		// LEVEL SETUP
+		g_strSkill = sys.getcvar( "g_skill" );
+
+		$vent_temp_ladder.hide();
+
+		//$vent_fan1.rotate( '0 180 0' );
+		$vent_fan2.rotate( '0 180 0' );
+		$vent_fan3.rotate( '0 180 0' );
+		//$vent_fan4.rotate( '0 180 0' ); removed from map
+
+		//$swinglight1_mover.sway( 20, 0, '0 15 0' );
+		//$swinglight2_mover.sway( 20, 0, '50 0 20' );
+		//$swinglight3_mover.sway( 20, 0, '0 15 0' );
+
+		// lets have this lift START broken
+		sys.trigger( $excavation_elev_call2_relay );
+
+		thread SetupKlaxonLights();
+
+		thread MovingLight1Loop();
+		thread MovingLight2Loop();
+
+		thread SetupTumbler();
+		thread SetupBridge();
+		thread SetupCrusher();
+	}
+}

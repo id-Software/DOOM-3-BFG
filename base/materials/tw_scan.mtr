@@ -1,0 +1,161 @@
+// d3w1 shaders
+
+lights/tw_scan_1
+{
+	{if ( parm7 == 0 )
+		forceHighQuality
+		map	lights/grate5.tga
+		red	xianjittertable_low[ (time + parm4) * Parm3 ] * Parm0
+		green	xianjittertable_low[ (time + parm4) * Parm3 ] * Parm1
+		blue	xianjittertable_low[ (time + parm4) * Parm3 ] * Parm2
+		zeroClamp
+	}
+
+	{if ( parm7 == 1)
+		forceHighQuality
+		map	lights/grate5.tga
+		red	blinktable[ (time + parm4) * Parm3 ] * Parm0
+		green	blinktable[ (time + parm4) * Parm3 ] * Parm1
+		blue	blinktable[ (time + parm4) * Parm3 ] * Parm2
+		zeroClamp
+	}
+	{if  ( (time + parm4) * Parm3 >= 1.0 )
+		forceHighQuality
+		map	lights/grate5.tga
+		red		xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm0
+		green	xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm1
+		blue	xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm2
+		zeroClamp
+	}
+}
+
+lights/tw_scan_2
+{	
+	{
+		forceHighQuality
+		map		lights/newalphagrate3b
+		red 		( neontable1 [Parm4 + (time * (.2 * Parm3)) ]) * Parm0
+		green 		( neontable1 [Parm4 + (time * (.2 * Parm3)) ]) * Parm1
+		blue 		( neontable1 [Parm4 + (time * (.2 * Parm3)) ]) * Parm2
+		zeroclamp
+	}
+}
+
+lights/tw_scan_rotate_red
+{
+	{
+		forceHighQuality
+		map	lights/rotate3.tga
+		colored
+		rotate	time * 1.5
+		zeroClamp
+	}
+}
+
+lights/tw_scan_rotate_blue
+{
+	{
+		forceHighQuality
+		map	lights/rotate3_blue.tga
+		colored
+		rotate	time * 1.5
+		zeroClamp
+	}
+}
+
+lights/tw_scan_rotate_red_full
+{
+	{
+		forceHighQuality
+		map	lights/rotate3_red_full.tga
+		colored
+		rotate	time * 1.5
+		zeroClamp
+	}
+}
+
+lights/tw_scan_rotate_blue_full
+{
+	{
+		forceHighQuality
+		map	lights/rotate3_blue_full.tga
+		colored
+		rotate	time * 1.5
+		zeroClamp
+	}
+}
+
+
+textures/ctf/tw_arrow_red
+{
+	qer_editorimage textures/ctf/tw_arrow_red.tga
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		// colored
+      		blend	diffuseMap  
+		map textures/ctf/tw_arrow_red.tga
+	}
+}
+
+textures/ctf/tw_arrow_blue
+{
+	qer_editorimage textures/ctf/tw_arrow_blue.tga
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		// colored
+      		blend	diffuseMap  
+		map textures/ctf/tw_arrow_blue.tga
+	}
+}
+
+textures/ctf/tw_health
+{
+	qer_editorimage textures/ctf/tw_health.tga
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	{
+		// colored
+      		blend	diffuseMap 
+		map textures/ctf/tw_health.tga
+	}
+}
+
+textures/ctf/tw_ammo
+{
+	qer_editorimage textures/ctf/tw_ammo.tga
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	{
+		// colored
+      		blend	diffuseMap
+		map textures/ctf/tw_ammo.tga
+	}
+}
+ 
+
+textures/ctf/tw_weapon
+{
+	qer_editorimage textures/ctf/tw_weapon.tga
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	{
+		// colored
+      		blend	diffuseMap  
+		map textures/ctf/tw_weapon.tga
+	}
+}
+

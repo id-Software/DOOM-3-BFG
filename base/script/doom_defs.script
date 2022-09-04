@@ -1,0 +1,176 @@
+/***********************************************************************
+
+doom_defs.script
+
+This defines some variables needed by the game script.
+
+***********************************************************************/
+
+#ifndef __DOOM_DEFS__
+#define __DOOM_DEFS__
+
+
+
+#define GAME_FRAMETIME	( 1.0f / GAME_FPS )
+
+#define NULL			0
+
+#define TRUE			1
+#define FALSE			0
+#define true			1
+#define false			0
+
+#define UP				-1
+#define DOWN			-2
+#define LEFT			-3
+#define RIGHT			-4
+#define FORWARD			-5
+#define BACK			-6
+#define REL_UP			-7
+#define REL_DOWN		-8
+#define REL_LEFT		-9
+#define REL_RIGHT		-10
+#define REL_FORWARD		-11
+#define REL_BACK		-12
+#define EAST			0
+#define NORTH			90
+#define WEST			180
+#define SOUTH			270
+
+#define X_AXIS			0
+#define Y_AXIS			1
+#define Z_AXIS			2
+						
+#define YAW				0
+#define PITCH			1
+#define ROLL			2
+
+#define M_PI			3.14159265358979323846
+#define DEG2RAD( a )	( (a) * (M_PI / 180.0f ) )
+#define RAD2DEG( a )	( (a) * (180.0f / M_PI ) )
+
+#define ALL_PARTICLES	-1		// used with setSmokeVisibility
+
+
+//
+// signals
+//
+#define SIG_TOUCH			0	// object was touched
+#define SIG_USE				1	// object was used
+#define SIG_TRIGGER			2	// object was activated (generally by a trigger)
+#define SIG_REMOVED			3	// object was removed from the game
+#define SIG_DAMAGE			4	// object was damaged
+#define SIG_BLOCKED			5	// object was blocked
+#define SIG_MOVER_POS1		6	// mover at position 1 (door closed)
+#define SIG_MOVER_POS2		7	// mover at position 2 (door open)
+#define SIG_MOVER_1TO2		8	// mover changing from position 1 to 2 (door opening)
+#define SIG_MOVER_2TO1		9	// mover changing from position 2 to 1 (door closing)
+
+// convenience signals for doors
+#define SIG_DOOR_CLOSED		SIG_MOVER_POS1
+#define SIG_DOOR_OPEN		SIG_MOVER_POS2
+#define SIG_DOOR_OPENING	SIG_MOVER_1TO2
+#define SIG_DOOR_CLOSING	SIG_MOVER_2TO1
+
+//
+// buttons
+//
+#define BUTTON_ATTACK		1			// attack button pressed
+#define BUTTON_TALK			2			// when the player is talking or in the menus
+#define BUTTON_WALKING		16			// player is walking
+#define BUTTON_ANY			128			// any key whatsoever
+
+//
+// Joint modifiers
+//
+#define JOINTMOD_NONE			0	// no modification
+#define JOINTMOD_LOCAL			1	// modifies the joint's position or orientation in joint local space
+#define JOINTMOD_LOCAL_OVERRIDE	2	// sets the joint's position or orientation in joint local space
+#define JOINTMOD_WORLD			3	// modifies joint's position or orientation in model space
+#define JOINTMOD_WORLD_OVERRIDE	4	// sets the joint's position or orientation in model space
+
+#define BIT( num )					( 1 << ( num ) )
+
+//
+// shader parms
+//
+#define SHADERPARM_RED				0
+#define SHADERPARM_GREEN			1
+#define SHADERPARM_BLUE				2
+#define SHADERPARM_ALPHA			3
+#define SHADERPARM_TIMESCALE		3
+#define SHADERPARM_TIMEOFFSET		4
+#define SHADERPARM_DIVERSITY		5	// random between 0.0 and 1.0 for some effects (muzzle flashes, etc)
+#define SHADERPARM_MODE				7	// for selecting which shader passes to enable
+#define SHADERPARM_TIME_OF_DEATH	7	// for the monster skin-burn-away effect enable and time offset
+
+//
+// Contents flags	NOTE: make sure these are up to date with renderer/Material.h
+//
+#define CONTENTS_SOLID					1		// an eye is never valid in a solid
+#define CONTENTS_OPAQUE					2		// blocks visibility (for ai)
+#define CONTENTS_WATER					4		// used for water
+#define CONTENTS_PLAYERCLIP				8		// solid to players
+#define CONTENTS_MONSTERCLIP			16		// solid to monsters
+#define CONTENTS_MOVEABLECLIP			32		// solid to moveable entities
+#define CONTENTS_IKCLIP					64		// solid to IK
+#define CONTENTS_BLOOD					128		// used to detect blood decals
+#define CONTENTS_BODY					256		// used for actors
+#define CONTENTS_PROJECTILE				512		// used for projectiles
+#define CONTENTS_CORPSE					1024	// used for dead bodies
+#define CONTENTS_RENDERMODEL			2048	// used for render models for collision detection
+#define CONTENTS_TRIGGER				4096	// used for triggers
+#define CONTENTS_AAS_SOLID				8192	// solid for AAS
+#define CONTENTS_AAS_OBSTACLE			16384	// used to compile an obstacle into AAS that can be enabled/disabled
+#define CONTENTS_FLASHLIGHT_TRIGGER		32768	// used for triggers that are activated by the flashlight
+
+//
+// content masks
+//
+#define	MASK_ALL					(-1)
+#define	MASK_SOLID					(CONTENTS_SOLID)
+#define	MASK_MONSTERSOLID			(CONTENTS_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BODY)
+#define	MASK_PLAYERSOLID			(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY)
+#define	MASK_DEADSOLID				(CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
+#define	MASK_WATER					(CONTENTS_WATER)
+#define	MASK_OPAQUE					(CONTENTS_OPAQUE)
+#define	MASK_SHOT_RENDERMODEL		(CONTENTS_SOLID|CONTENTS_RENDERMODEL)
+#define	MASK_SHOT_BOUNDINGBOX		(CONTENTS_SOLID|CONTENTS_BODY)
+
+//
+// sound channels
+//
+#define SND_CHANNEL_ANY			0
+#define SND_CHANNEL_VOICE		1
+#define SND_CHANNEL_VOICE2		2
+#define SND_CHANNEL_BODY		3
+#define SND_CHANNEL_BODY2		4
+#define SND_CHANNEL_BODY3		5
+#define SND_CHANNEL_WEAPON		6
+#define SND_CHANNEL_ITEM		7
+#define SND_CHANNEL_HEART		8
+#define SND_CHANNEL_PDA			9
+#define SND_CHANNEL_DEMONIC		10
+
+//
+// animation channels
+//
+#define ANIMCHANNEL_ALL			0
+#define ANIMCHANNEL_TORSO		1
+#define	ANIMCHANNEL_LEGS		2
+#define	ANIMCHANNEL_HEAD		3
+#define	ANIMCHANNEL_EYELIDS		4
+
+//
+// projectile states
+//
+#define PROJECTILE_SPAWNED		0
+#define PROJECTILE_CREATED		1
+#define PROJECTILE_LAUNCHED		2
+#define PROJECTILE_FIZZLED		3
+#define PROJECTILE_EXPLODED		4
+
+#define eachFrame		for( 0; 1; waitFrame() )
+#define waitUntil( x )	while( !( x ) ) { waitFrame(); }
+
+#endif

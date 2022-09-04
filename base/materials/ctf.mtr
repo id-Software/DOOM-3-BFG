@@ -1,0 +1,803 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Threewave CTF material / shaders file
+// ctf.mtr
+//
+// Last changed by: Renalicious
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Effect tables
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+table shimmer        	{ { 0.2, 0.3, 0.1, 0.3, 0.2, 0.4, 0.1, 0.2, 0.4, 0.1, 0.3, 1.0, 0.2, 0.1, 0.3, 0.4, 0.1, 0.2, 0.4  } }
+table shimmerminimal 	{ { 0.9, 1.0, 0.8, 1.0, 0.9, 1.0, 0.8, 0.9, 1.0, 0.7, 0.3, 1.0, 0.9, 0.9, 1.0, 0.9, 0.8, 0.9, 1.0  } }
+table emberfade		{ { 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0 } }
+table grenadefade   { { 1.0, 0.9, 0.8, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8, 0.7, 0.8, 0.9  } }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Textures
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+textures/ctf/red_emblem
+{
+	qer_editorimage textures/ctf/red_emblem_base.tga
+
+	bumpmap		addnormals (textures/ctf/red_emblem_normal.tga, heightmap (textures/ctf/red_emblem_bump.tga, 2) )
+	specularmap	textures/ctf/red_emblem_spec.tga
+
+	{
+			blend diffusemap	
+			map textures/ctf/red_emblem_base.tga
+			alphaTest 0.5		
+	}
+}
+
+textures/ctf/blue_emblem
+{
+	qer_editorimage textures/ctf/blue_emblem_base.tga
+
+	bumpmap		addnormals (textures/ctf/blue_emblem_normal.tga, heightmap (textures/ctf/blue_emblem_bump.tga, 2) )
+	specularmap	textures/ctf/blue_emblem_spec.tga
+
+	{
+			blend diffusemap	
+			map textures/ctf/blue_emblem_base.tga
+			alphaTest 0.5		
+	}
+}
+
+textures/ctf/arrow
+{
+	noShadows
+	clamp
+
+	qer_editorimage textures/ctf/arrow.tga
+
+	{
+		blend diffusemap
+		map textures/ctf/arrow_diff.tga
+		alphatest 0.5
+	}
+	bumpmap		heightmap (textures/ctf/arrow.tga, 1)
+}
+//-----------
+// Decals
+//-----------
+
+//-----------
+// Altered textures for ctf (usually a red or blue variant)
+//-----------
+textures/base_wall/gotbflat1_red
+{
+	qer_editorimage	textures/base_wall/gotbflat1_red.tga
+	bumpmap		textures/base_wall/gotbflat1_local.tga
+	diffusemap		textures/base_wall/gotbflat1_red_d.tga
+	specularmap		textures/base_wall/gotbflat1_s.tga
+}
+
+textures/base_wall/gotbflat1a_red
+{
+	qer_editorimage	textures/base_wall/gotbflat1a_red.tga
+	bumpmap		textures/base_wall/gotbflat1a_local.tga
+	diffusemap		textures/base_wall/gotbflat1a_red_d.tga
+	specularmap		textures/base_wall/gotbflat1a_red_s.tga
+}
+
+textures/base_wall/gotbflat3_red
+{
+	qer_editorimage	textures/base_wall/gotbflat3_red.tga
+	bumpmap		textures/base_wall/gotbflat3_local.tga
+	diffusemap		textures/base_wall/gotbflat3_red_d.tga
+	specularmap		textures/base_wall/gotbflat3_s.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_wall/gotbflat3_add.tga
+		rgb 	(.3 * sintable [.2 + time ]) +.2
+	}
+}
+
+textures/base_wall/gotbwall2_red
+{
+	qer_editorimage		textures/base_wall/gotbwall2_red.tga
+	bumpmap			addnormals (textures/base_wall/gotbwall2_local.tga,heightmap (textures/base_wall/gotbwall2_bmp.tga, 3 ))	
+        diffusemap		textures/base_wall/gotbwall2_red_d.tga
+	specularmap		textures/base_wall/gotbwall2_s.tga
+}
+
+textures/base_wall/gotbwall5_red
+{
+	qer_editorimage		textures/base_wall/gotbwall5_red.tga
+	bumpmap			addnormals (textures/base_wall/gotbwall5_local.tga,heightmap (textures/base_wall/gotbwall5_bmp.tga, 3 ))	
+        diffusemap		textures/base_wall/gotbwall5_red_d.tga
+	specularmap		textures/base_wall/gotbwall5_s.tga
+}
+
+textures/base_wall/gotcbar1_red
+{
+	qer_editorimage		textures/base_wall/gotcbar1_red.tga
+	bumpmap			textures/base_wall/gotcbar1_local.tga
+	diffusemap		textures/base_wall/gotcbar1_red_d.tga
+	specularmap		textures/base_wall/gotcbar1_s.tga
+}
+
+textures/base_wall/stepanel5ared
+{
+	qer_editorimage		textures/base_wall/stepanel5ared.tga
+	bumpmap			textures/base_wall/stepanel5a_local.tga
+	diffusemap		textures/base_wall/stepanel5ared_d.tga
+	specularmap		textures/base_wall/stepanel5a_s.tga
+}
+
+textures/base_wall/steribwall1redlight2
+{
+	qer_editorimage		textures/base_wall/steribwall1redlight2_d.tga
+	bumpmap			textures/base_wall/steribwall1grnlight2_local.tga
+	diffusemap		textures/base_wall/steribwall1redlight2_d.tga
+	specularmap		textures/base_wall/steribwall1grnlight2_s.tga
+	{
+		blend 	add
+		map		textures/base_wall/steribwall1redlight2_add.tga
+		colored
+	}
+}
+textures/base_wall/steribwall1blulight2_blue
+{
+	qer_editorimage		textures/base_wall/steribwall1blulight2_d.tga
+	bumpmap			textures/base_wall/steribwall1grnlight2_local.tga
+	diffusemap		textures/base_wall/steribwall1blulight2_d.tga
+	specularmap		textures/base_wall/steribwall1grnlight2_s.tga
+	{
+		blend 	add
+		map		textures/base_wall/steribwall1blulight2_add.tga
+		colored
+	}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Models
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Flag embers
+textures/ctf/flagfx/red
+{
+	noSelfShadow
+
+	{
+	blend gl_one,gl_one
+	map 	textures/ctf/flagfx/red.tga
+	rgb	emberfade[ time * 0.5 ]
+	clamp
+	}
+}
+textures/ctf/flagfx/blue
+{
+	noSelfShadow
+
+	{
+	blend gl_one,gl_one
+	map 	textures/ctf/flagfx/blue.tga
+	rgb	emberfade[ time * 0.5 ]
+	clamp
+	}
+}
+
+// Flag stands
+models/ctf/flagstand_blue_diff
+{
+
+	noSelfShadow
+
+	bumpmap		addnormals (models/ctf/flagstand_normal.tga, heightmap (models/ctf/flagstand_bump.tga, 2) )
+	diffusemap	models/ctf/flagstand_blue_diff.tga
+	specularmap	models/ctf/flagstand_blue_spec.tga
+
+	{
+		if (parm7 == 0)
+		blend add
+		map models/ctf/flagstand_blue_ilum.tga
+		colored
+	}
+
+	{
+		if (parm7 == 1)
+		blend add
+		map models/ctf/flagstand_black_ilum.tga
+		colored
+	}
+}
+
+models/ctf/flagstand_red_diff
+{
+
+	noSelfShadow
+
+	bumpmap		addnormals (models/ctf/flagstand_normal.tga, heightmap (models/ctf/flagstand_bump.tga, 2) )
+	diffusemap	models/ctf/flagstand_red_diff.tga
+	specularmap	models/ctf/flagstand_red_spec.tga
+
+	{
+		if (parm7 == 0)
+		blend add
+		map models/ctf/flagstand_red_ilum.tga
+		colored
+	}
+
+	{
+		if (parm7 == 1)
+		blend add
+		map models/ctf/flagstand_black_ilum.tga
+		colored
+	}
+}
+// White flag
+models/ctf/flag_diff
+{
+	noSelfShadow
+
+	bumpmap		addnormals (models/ctf/flag_normal.tga, heightmap (models/ctf/flag_bump.tga, 2) )
+	diffusemap	models/ctf/flag_diff.tga
+	specularmap	models/ctf/flag_spec.tga
+
+	{
+		blend add
+		map models/ctf/flag_ilum.tga
+		colored
+	}
+}
+
+models/ctf/flag_beam
+{
+	noselfShadow
+        noshadows
+	twosided	
+	{
+		if (parm7 == 0)
+		blend gl_one,gl_one
+		map 	models/ctf/flag_beam.tga
+		//rgb	shimmer[ time * 2 ]
+		//clamp
+	}
+	{
+		if (parm7 == 0)
+		blend gl_one,gl_one
+		map models/ctf/static.tga
+		rgb	shimmer[ time * 0.5 ]
+		//translate	time * 1 , time * 5
+	}
+
+	//When flag is picked up
+	{
+		if (parm7 == 1)
+		blend gl_one,gl_one
+		map models/ctf/flagstand_black_ilum.tga
+		rgb 0
+	}
+}
+
+models/ctf/flag_holo
+{
+	noselfShadow
+        noshadows
+
+	//When flag is idle on flagstand	
+	{
+		if (parm7 == 0)
+		blend 	gl_one,gl_one
+		map 	models/ctf/flag_holo.tga
+		rgb 1
+		clamp
+	}
+
+	//When flag is picked up
+	{
+		if (parm7 == 1)
+		blend gl_one,gl_one
+		map models/ctf/flagstand_black_ilum.tga
+		rgb 0
+	}
+}
+
+models/ctf/flag_glass
+{
+	noSelfShadow
+	noshadows
+	//twosided
+	translucent
+	glass
+	forceoverlays
+	{
+		blend 	gl_one, gl_one
+		map	models/ctf/flag_glass.tga
+		rgb	1
+		clamp
+	}
+
+	{	
+		maskcolor				
+	    map	makealpha(models/ctf/flag_glass.tga)
+	}
+
+	{
+	    	blend gl_dst_alpha, gl_one /*gl_dst_alpha*/
+	    	maskalpha
+		cubeMap		env/gen2
+		red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        	texgen		reflect
+	}
+
+}
+
+// Blue flag
+models/ctf/flag_blue_beam
+{
+	noselfShadow
+        noshadows
+	twosided	
+	{
+		if (parm7 == 0)
+		blend gl_one,gl_one
+		map 	models/ctf/flag_blue_beam.tga
+		//rgb	shimmer[ time * 2 ]
+		//clamp
+	}
+	{
+		if (parm7 == 0)
+		blend gl_one,gl_one
+		map models/ctf/static.tga
+		rgb	shimmer[ time * 0.5 ]
+		//translate	time * 1 , time * 5
+	}
+
+	//When flag is picked up
+	{
+		if (parm7 == 1)
+		blend gl_one,gl_one
+		map models/ctf/flagstand_black_ilum.tga
+		rgb 0
+	}
+}
+
+models/ctf/flag_blue_holo
+{
+	noselfShadow
+        noshadows
+
+	//When flag is idle on flagstand	
+	{
+		if (parm7 == 0)
+		blend 	gl_one,gl_one
+		map 	models/ctf/flag_blue_holo.tga
+		rgb 1
+		clamp
+	}
+
+	//When flag is picked up
+	{
+		if (parm7 == 1)
+		blend gl_one,gl_one
+		map models/ctf/flagstand_black_ilum.tga
+		rgb 0
+	}
+}
+
+models/ctf/flag_blue_glass
+{
+	noSelfShadow
+	noshadows
+	//twosided
+	translucent
+	glass
+	forceoverlays
+	{
+		blend 	gl_one, gl_one
+		map	models/ctf/flag_blue_glass.tga
+		rgb	1
+		clamp
+	}
+
+	{	
+		maskcolor				
+	    map	makealpha(models/ctf/flag_blue_glass.tga)
+	}
+
+	{
+	    	blend gl_dst_alpha, gl_one /*gl_dst_alpha*/
+	    	maskalpha
+		cubeMap		env/gen2
+		red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        	texgen		reflect
+	}
+
+}
+
+// Red Flag
+models/ctf/flag_red_beam
+{
+	noselfShadow
+        noshadows	
+	twosided
+
+	//When flag is idle on flagstand
+	{
+		if (parm7 == 0)
+		blend gl_one,gl_one
+		map 	models/ctf/flag_red_beam.tga
+		//rgb	shimmer[ time * 1.75 ]
+		//clamp
+	}
+	{
+		if (parm7 == 0)
+		blend gl_one,gl_one
+		map models/ctf/static.tga
+		rgb	shimmer[ time * 0.5 ]
+		//translate	time * 1 , time * 5
+	}
+	
+	//When flag is picked up
+	{
+		if (parm7 == 1)
+		blend gl_one,gl_one
+		map models/ctf/flagstand_black_ilum.tga
+		rgb 0
+	}
+}
+
+models/ctf/flag_red_holo
+{
+	noselfShadow
+        noshadows	
+	
+	//When flag is idle on flagstand
+	{
+		if (parm7 == 0)
+		blend 	gl_one,gl_one
+		map 	models/ctf/flag_red_holo.tga
+		rgb 1
+		clamp
+	}
+
+	//When flag is picked up
+	{
+		if (parm7 == 1)
+		blend gl_one,gl_one
+		map models/ctf/flagstand_black_ilum.tga
+		rgb 0
+	}
+}
+
+models/ctf/flag_red_glass
+{
+	noSelfShadow
+	noshadows
+	//twosided
+	//translucent
+	glass
+	forceoverlays
+	{
+		blend 	gl_one, gl_one
+		map	models/ctf/flag_red_glass.tga
+		rgb	1
+		clamp
+	}
+
+	{	
+		maskcolor				
+	   	//map	makealpha(textures/glass/glass1)
+		map	makealpha(models/ctf/flag_red_glass.tga)
+		
+	}
+
+	{
+	    	blend gl_dst_alpha, gl_one
+	    	maskalpha
+		cubeMap		env/gen2
+		red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        	texgen		reflect
+	}
+
+}
+
+// d3ctf3's powerup machine
+models/ctf/d3ctf3/hpm_turbine_base
+{
+	noSelfShadow
+	clamp
+
+	bumpmap		models/ctf/d3ctf3/hpm_turbine_normal.tga
+	diffusemap	models/ctf/d3ctf3/hpm_turbine_base.tga
+	specularmap	models/ctf/d3ctf3/hpm_turbine_spec.tga
+}
+models/ctf/d3ctf3/hpm_base
+{
+	noSelfShadow
+	clamp
+
+	//bumpmap		addnormals (models/ctf/d3ctf3/hpm_normal.tga, heightmap (models/ctf/d3ctf3/hpm_bump.tga, 2) )
+	bumpmap		models/ctf/d3ctf3/hpm_normal.tga
+	diffusemap	models/ctf/d3ctf3/hpm_base.tga
+	specularmap	models/ctf/d3ctf3/hpm_spec.tga
+
+	{
+		blend add
+		map models/ctf/d3ctf3/hpm_ilum.tga
+		colored
+	}
+}
+models/ctf/d3ctf3/hpm_arm1_base
+{
+	noSelfShadow
+	clamp
+
+	//bumpmap		addnormals (models/ctf/d3ctf3/hpm_arm1_normal.tga, heightmap (models/ctf/d3ctf3/hpm_arm1_bump, 2) )
+	bumpmap		models/ctf/d3ctf3/hpm_arm1_normal.tga
+	diffusemap	models/ctf/d3ctf3/hpm_arm1_base.tga
+	specularmap	models/ctf/d3ctf3/hpm_arm1_spec.tga
+
+}
+models/ctf/d3ctf3/hpm_arm2_base
+{
+	noSelfShadow
+	clamp
+
+	//bumpmap		addnormals (models/ctf/d3ctf3/hpm_arm2_normal.tga, heightmap (models/ctf/d3ctf3/hpm_arm2_bump, 2) )
+	bumpmap		models/ctf/d3ctf3/hpm_arm2_normal.tga
+	diffusemap	models/ctf/d3ctf3/hpm_arm2_base.tga
+	specularmap	models/ctf/d3ctf3/hpm_arm2_spec.tga
+}
+models/ctf/d3ctf3/hpm_connectorhead_base
+{
+	noSelfShadow
+	clamp
+
+	//bumpmap		addnormals (models/ctf/d3ctf3/hpm_connectorhead_normal.tga, heightmap (models/ctf/d3ctf3/hpm_connectorhead_bump.tga, 2) )
+	bumpmap		models/ctf/d3ctf3/hpm_connectorhead_normal.tga
+	diffusemap	models/ctf/d3ctf3/hpm_connectorhead_base.tga
+	specularmap	models/ctf/d3ctf3/hpm_connectorhead_spec.tga
+}
+
+// Geoff's Machines
+models/ctf/d3ctf4/k_machine_diff
+{
+	noSelfShadow
+	clamp
+
+	bumpmap		addnormals (models/ctf/d3ctf4/k_machine_normal.tga, heightmap (models/ctf/d3ctf4/k_machine_bump.tga, 1) )
+	diffusemap	models/ctf/d3ctf4/k_machine_diff.tga
+	specularmap	models/ctf/d3ctf4/k_machine_spec.tga
+}
+
+models/ctf/d3ctf4/k_machineturbine_diff
+{
+	noSelfShadow
+	clamp
+
+	bumpmap		models/ctf/d3ctf4/k_machineturbine_normal.tga
+	diffusemap	models/ctf/d3ctf4/k_machineturbine_diff.tga
+}
+
+// Other models
+models\ctf\misc\filter_cube_blue
+{
+	noSelfShadow
+	clamp
+
+	bumpmap		models/ctf/misc/filter_cube_normal.tga
+	diffusemap	models/ctf/misc/filter_cube_blue_diff.tga
+	specularmap	models/ctf/misc/filter_cube_blue_spec.tga
+}
+
+models\ctf\misc\filter_cube_red
+{
+	noSelfShadow
+	clamp
+
+	bumpmap		models/ctf/misc/filter_cube_normal.tga
+	diffusemap	models/ctf/misc/filter_cube_red_diff.tga
+	specularmap	models/ctf/misc/filter_cube_red_spec.tga
+}
+
+models/ctf/misc/filter_cube2_blue
+{
+	clamp
+
+	bumpmap		models/ctf/misc/filter_cube2_normal.tga
+	diffusemap	models/ctf/misc/filter_cube2_blue_diff.tga
+	specularmap	models/ctf/misc/filter_cube2_blue_spec.tga
+}
+
+models/ctf/misc/filter_cube2_red
+{
+	clamp
+
+	bumpmap		models/ctf/misc/filter_cube2_normal.tga
+	diffusemap	models/ctf/misc/filter_cube2_red_diff.tga
+	specularmap	models/ctf/misc/filter_cube2_red_spec.tga
+}
+
+// Blue door textures for d3ctf2
+models/mapobjects/doors/hazdoor1/hazdoor1lf_blue
+{
+         noselfshadow
+
+                diffusemap	models/mapobjects/doors/hazdoor1/hazdoor1lf_blue_d.tga
+		bumpmap		models/mapobjects/doors/hazdoor1/hazdoor1lf_local.tga
+                specularmap	models/mapobjects/doors/hazdoor1/hazdoor1lf_s.tga
+}
+
+models/mapobjects/doors/hazdoor1/hazdoor1rt_blue
+{
+         noselfshadow
+
+                diffusemap	models/mapobjects/doors/hazdoor1/hazdoor1rt_blue_d.tga
+		bumpmap		addnormals (models/mapobjects/doors/hazdoor1/hazdoor1rt_local.tga, heightmap (models/mapobjects/doors/hazdoor1/hazdoor1rt_bmp.tga, 3) )
+                specularmap	models/mapobjects/doors/hazdoor1/hazdoor1rt_s.tga
+}
+
+// Red door textures for d3ctf2
+models/mapobjects/doors/hazdoor1/hazdoor1lf_red
+{
+         noselfshadow
+
+                diffusemap	models/mapobjects/doors/hazdoor1/hazdoor1lf_red_d.tga
+		bumpmap		models/mapobjects/doors/hazdoor1/hazdoor1lf_local.tga
+                specularmap	models/mapobjects/doors/hazdoor1/hazdoor1lf_s.tga
+}
+
+models/mapobjects/doors/hazdoor1/hazdoor1rt_red
+{
+         noselfshadow
+
+                diffusemap	models/mapobjects/doors/hazdoor1/hazdoor1rt_red_d.tga
+		bumpmap		addnormals (models/mapobjects/doors/hazdoor1/hazdoor1rt_local.tga, heightmap (models/mapobjects/doors/hazdoor1/hazdoor1rt_bmp.tga, 3) )
+                specularmap	models/mapobjects/doors/hazdoor1/hazdoor1rt_s.tga
+}
+
+// door frame for d3ctf3
+textures/base_door/doorlight_blue
+{
+	//noShadows
+	qer_editorimage	textures/base_door/doorlight_blue.tga
+	bumpmap		textures/base_door/doorlight_local.tga
+       	diffusemap	textures/base_door/doorlight_blue.tga
+	{
+		blend 	add
+		map		textures/base_door/doorlight_blue.tga
+		colored
+	}
+}
+
+// Blue hazard light
+models/mapobjects/lights/klaxon/klaxon_blue
+{
+	translucent
+	bumpmap		heightmap (models/mapobjects/lights/klaxon/klaxon_blue_bmp, 1) 
+	{
+		blend		diffusemap
+		map			models/mapobjects/lights/klaxon/klaxon_blue
+	}
+	{
+		blend		specularmap	
+		map			_white
+		red			.4
+		green		.4
+		blue		.4
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Level load splash screens
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+gui/loading/d3ctf1
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3ctf1.tga
+		colored
+		
+		
+	}
+}
+gui/loading/d3ctf2
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3ctf2.tga
+		colored
+		
+		
+	}
+}
+gui/loading/d3ctf3
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3ctf3.tga
+		colored
+		
+		
+	}
+}
+gui/loading/d3ctf4
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3ctf4.tga
+		colored
+		
+		
+	}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Lights
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+lights/hangar_rotate_red
+{
+	{
+		forceHighQuality
+		map	lights/rotate3_red.tga
+		colored
+		rotate	time * 1
+		zeroClamp
+	}
+}
+lights/hangar_rotate_blue
+{
+	{
+		forceHighQuality
+		map	lights/rotate3_blue.tga
+		colored
+		rotate	time * 1
+		zeroClamp
+	}
+}
+
+///////// !!!
+// The dynamic lights attached to the flag
+// Hardcoded names in the ctf.dll
+///////// !!!
+lights/redflag
+{
+        {
+                forceHighQuality
+                zeroClamp
+                colored
+                map lights/redflag.tga
+                rgb shimmerminimal[ time * 0.5 ]
+        }
+}
+
+
+lights/blueflag
+{
+        {
+                forceHighQuality
+                zeroClamp
+                colored
+                map lights/blueflag.tga
+                rgb shimmerminimal[ time * 0.5 ]
+        }
+}
+///////// 
+// Midnight ctf grenade
+///////// 
+lights/midnight_grenade
+{
+        {
+                forceHighQuality
+                map lights/lanternglow.tga
+                zeroClamp
+                colored
+
+                red  grenadefade[ time * 0.3 ]
+                green grenadefade[ time * 0.3 ]  
+                blue grenadefade[ time * 0.3  ]
+        }
+}

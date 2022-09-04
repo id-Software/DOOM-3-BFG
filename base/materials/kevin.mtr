@@ -1,0 +1,959 @@
+
+//////////////////////////////////////////
+//					//
+// Red and Gray big hangar Doors	//
+//					//
+//////////////////////////////////////////
+
+
+
+
+
+
+textures/base_door/bighangardoors_red
+{
+	qer_editorimage			textures/base_door/bighangardoors_red
+	bumpmap				textures/base_door/bighangardoors_local
+	diffusemap			textures/base_door/bighangardoors_red
+	specularmap			textures/base_door/bighangardoors_red_s
+}
+
+
+textures/base_door/bighangardoors_gray
+{
+	qer_editorimage			textures/base_door/bighangardoors_gray
+	bumpmap				textures/base_door/bighangardoors_local
+	diffusemap			textures/base_door/bighangardoors_gray
+	specularmap			textures/base_door/bighangardoors_gray_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray jumbofrm hangar		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/base_door/jumbofrm_hangar_gray
+{
+	qer_editorimage		textures/base_door/jumbofrm_hangar_gray
+	bumpmap				textures/base_door/jumbofrm_local
+	diffusemap			textures/base_door/jumbofrm_hangar_gray
+	specularmap			textures/base_door/jumbofrm_hangar_gray_s
+}
+
+
+
+textures/base_door/jumbofrm_hangar_red
+{
+	qer_editorimage		textures/base_door/jumbofrm_hangar_red
+	bumpmap				textures/base_door/jumbofrm_local
+	diffusemap			textures/base_door/jumbofrm_hangar_red
+	specularmap			textures/base_door/jumbofrm_hangar_red_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray a_mcityB3_03		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/base_wall/a_mcityb3_03_gray
+{
+		qer_editorimage	        textures/base_wall/a_mcityb3_03_gray.tga
+		bumpmap			textures/base_wall/a_mcityb3_local03.tga
+		diffusemap		textures/base_wall/a_mcityb3_d03_gray.tga
+                specularmap	        textures/base_wall/a_mcityb3_s03_gray.tga
+}
+
+
+textures/base_wall/a_mcityb3_03_red
+{
+		qer_editorimage	        textures/base_wall/a_mcityb3_03_red.tga
+		bumpmap			textures/base_wall/a_mcityb3_local03.tga
+		diffusemap		textures/base_wall/a_mcityb3_d03_red.tga
+                specularmap	        textures/base_wall/a_mcityb3_s03_red.tga
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray smpanel			//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/base_wall/smpanel1_gray
+{
+	qer_editorimage		textures/base_wall/smpanel1_gray.tga
+	bumpmap			addnormals (textures/base_wall/smpanel1_local.tga, heightmap (textures/base_wall/smpanel8_bmp.tga, 2) )
+	diffusemap		textures/base_wall/smpanel1_d_gray.tga
+
+}
+
+
+textures/base_wall/smpanel1_red
+{
+	qer_editorimage		textures/base_wall/smpanel1_red.tga
+	bumpmap			addnormals (textures/base_wall/smpanel1_local.tga, heightmap (textures/base_wall/smpanel8_bmp.tga, 2) )
+	diffusemap		textures/base_wall/smpanel1_d_red.tga
+
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray snpanel2e		//
+//					//
+//////////////////////////////////////////
+
+
+textures/base_wall/snpanel2e_gray
+{
+	qer_editorimage	textures/base_wall/snpanel2e_gray.tga
+	bumpmap			textures/base_wall/snpanel2_local.tga
+	diffusemap		textures/base_wall/snpanel2e_gray.tga
+	specularmap		textures/base_wall/snpanel2a_s.tga
+}
+
+
+textures/base_wall/snpanel2e_red
+{
+	qer_editorimage	textures/base_wall/snpanel2e_red.tga
+	bumpmap			textures/base_wall/snpanel2_local.tga
+	diffusemap		textures/base_wall/snpanel2e_red.tga
+	specularmap		textures/base_wall/snpanel2a_s.tga
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcitya10		//
+//					//
+//////////////////////////////////////////
+
+
+
+
+
+textures/mcity/mcitya10_red
+{
+		qer_editorimage	textures/mcity/mcitya10_red
+		bumpmap			textures/mcity/mcitya10_local
+		diffusemap		textures/mcity/mcitya10_red
+		specularmap		textures/mcity/mcitya10_s
+}
+
+
+textures/mcity/mcitya10_gray
+{
+		qer_editorimage	textures/mcity/mcitya10_gray
+		bumpmap			textures/mcity/mcitya10_local
+		diffusemap		textures/mcity/mcitya10_gray
+		specularmap		textures/mcity/mcitya10_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcitya10		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mcitya11_2_gray
+{
+		qer_editorimage	textures/mcity/mcitya11_2_gray
+		bumpmap			textures/mcity/mcitya11_local
+		diffusemap		textures/mcity/mcitya11_2_gray
+		specularmap		textures/mcity/mcitya11_s
+}
+
+
+textures/mcity/mcitya11_2_red
+{
+		qer_editorimage	textures/mcity/mcitya11_2_red
+		bumpmap			textures/mcity/mcitya11_local
+		diffusemap		textures/mcity/mcitya11_2_red
+		specularmap		textures/mcity/mcitya11_s
+}
+
+
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb5b		//
+//					//
+//////////////////////////////////////////
+
+
+
+
+textures/mcity/mcityb5b_red
+{
+		qer_editorimage	textures/mcity/mcityb5b_red
+		bumpmap			textures/mcity/mcityb5_local
+		diffusemap		textures/mcity/mcityb5b_red
+		specularmap		textures/mcity/mcityb5_s
+}
+
+
+textures/mcity/mcityb5b_gray
+{
+		qer_editorimage	textures/mcity/mcityb5b_gray
+		bumpmap			textures/mcity/mcityb5_local
+		diffusemap		textures/mcity/mcityb5b_gray
+		specularmap		textures/mcity/mcityb5_s
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb7a		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mcityb7a_red
+{
+		qer_editorimage	textures/mcity/mcityb7a_red
+		bumpmap			textures/mcity/mcityb7_local
+		diffusemap		textures/mcity/mcityb7a_red
+		specularmap		textures/mcity/mcityb7_s
+}
+
+textures/mcity/mcityb7a_gray
+{
+		qer_editorimage	textures/mcity/mcityb7a_gray
+		bumpmap			textures/mcity/mcityb7_local
+		diffusemap		textures/mcity/mcityb7a_gray
+		specularmap		textures/mcity/mcityb7_s
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb11b		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mcityb11b_red
+{
+		qer_editorimage	textures/mcity/mcityb11b_red
+		bumpmap			textures/mcity/mcityb11_local
+		diffusemap		textures/mcity/mcityb11b_red
+		specularmap		textures/mcity/mcityb11a_s
+}
+
+textures/mcity/mcityb11b_gray
+{
+		qer_editorimage	textures/mcity/mcityb11b_gray
+		bumpmap			textures/mcity/mcityb11_local
+		diffusemap		textures/mcity/mcityb11b_gray
+		specularmap		textures/mcity/mcityb11a_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb17b		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mcityb17b_red
+{
+		qer_editorimage	textures/mcity/mcityb17b_red
+		bumpmap			textures/mcity/mcityb17_local
+		diffusemap		textures/mcity/mcityb17b_red
+}
+
+textures/mcity/mcityb17b_gray
+{
+		qer_editorimage	textures/mcity/mcityb17b_gray
+		bumpmap			textures/mcity/mcityb17_local
+		diffusemap		textures/mcity/mcityb17b_gray
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb18a		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mcityb18a_red
+{
+		qer_editorimage	textures/mcity/mcityb18a_red
+		bumpmap			textures/mcity/mcityb18_local
+		diffusemap		textures/mcity/mcityb18a_red
+		specularmap		textures/mcity/mcityb18a_s
+}
+
+textures/mcity/mcityb18a_gray
+{
+		qer_editorimage	textures/mcity/mcityb18a_gray
+		bumpmap			textures/mcity/mcityb18_local
+		diffusemap		textures/mcity/mcityb18a_gray
+		specularmap		textures/mcity/mcityb18a_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb20		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mcityb20_red
+{
+		qer_editorimage	textures/mcity/mcityb20_red
+		bumpmap			textures/mcity/mcityb20_local
+		diffusemap		textures/mcity/mcityb20_red
+		specularmap		textures/mcity/mcityb20_s
+}
+
+textures/mcity/mcityb20_gray
+{
+		qer_editorimage	textures/mcity/mcityb20_gray
+		bumpmap			textures/mcity/mcityb20_local
+		diffusemap		textures/mcity/mcityb20_gray
+		specularmap		textures/mcity/mcityb20_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityb20c		//
+//					//
+//////////////////////////////////////////
+
+textures/mcity/mcityb20c_red
+{
+		qer_editorimage	textures/mcity/mcityb20c_red
+		bumpmap			textures/mcity/mcityb20_local
+		diffusemap		textures/mcity/mcityb20c_red
+		specularmap		textures/mcity/mcityb20_s
+}
+
+textures/mcity/mcityb20c_gray
+{
+		qer_editorimage	textures/mcity/mcityb20c_gray
+		bumpmap			textures/mcity/mcityb20_local
+		diffusemap		textures/mcity/mcityb20c_gray
+		specularmap		textures/mcity/mcityb20_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar1		//
+//					//
+//////////////////////////////////////////
+
+
+
+
+textures/mcity/mchangar1_red
+{
+	qer_editorimage		textures/mcity/mchangar1_red
+	bumpmap				textures/mcity/mcityb11_local
+	diffusemap			textures/mcity/mchangar1_red
+	specularmap			textures/mcity/mchangar1_s
+}
+
+
+
+textures/mcity/mchangar1_gray
+{
+	qer_editorimage		textures/mcity/mchangar1_gray
+	bumpmap				textures/mcity/mcityb11_local
+	diffusemap			textures/mcity/mchangar1_gray
+	specularmap			textures/mcity/mchangar1_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar2		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mchangar2_red
+{
+	qer_editorimage		textures/mcity/mchangar2_red
+	diffusemap			textures/mcity/mchangar2_red
+	specularmap			textures/mcity/mchangar2_s
+}
+
+textures/mcity/mchangar2_gray
+{
+	qer_editorimage		textures/mcity/mchangar2_gray
+	diffusemap			textures/mcity/mchangar2_gray
+	specularmap			textures/mcity/mchangar2_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar2ns		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mchangar2ns_red
+
+{
+	qer_editorimage		textures/mcity/mchangar2_red
+	noselfshadow
+	diffusemap			textures/mcity/mchangar2_red
+	specularmap			textures/mcity/mchangar2_s
+}
+
+
+textures/mcity/mchangar2ns_gray
+
+{
+	qer_editorimage		textures/mcity/mchangar2_gray
+	noselfshadow
+	diffusemap			textures/mcity/mchangar2_gray
+	specularmap			textures/mcity/mchangar2_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar3		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mchangar3_red
+{
+	qer_editorimage		textures/mcity/mchangar3_red
+	bumpmap				textures/mcity/mchangar3_local
+	diffusemap			textures/mcity/mchangar3_d_red
+	specularmap			textures/mcity/mchangar3_s
+}
+
+
+textures/mcity/mchangar3_gray
+{
+	qer_editorimage		textures/mcity/mchangar3_gray
+	bumpmap				textures/mcity/mchangar3_local
+	diffusemap			textures/mcity/mchangar3_d_gray
+	specularmap			textures/mcity/mchangar3_s
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar6		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mchangar6_red
+{
+	qer_editorimage		textures/mcity/mchangar6_red
+	bumpmap				textures/mcity/mcityb18_local
+	diffusemap			textures/mcity/mchangar6_red
+	specularmap			textures/mcity/mchangar6_s
+}
+
+textures/mcity/mchangar6_gray
+{
+	qer_editorimage		textures/mcity/mchangar6_gray
+	bumpmap				textures/mcity/mcityb18_local
+	diffusemap			textures/mcity/mchangar6_gray
+	specularmap			textures/mcity/mchangar6_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar7		//
+//					//
+//////////////////////////////////////////
+
+textures/mcity/mchangar7_red
+{
+	qer_editorimage		textures/mcity/mchangar7_red
+	bumpmap				textures/mcity/mchangar7_local
+	diffusemap			textures/mcity/mchangar7_red
+	specularmap			textures/mcity/mchangar7_s
+}
+
+textures/mcity/mchangar7_gray
+{
+	qer_editorimage		textures/mcity/mchangar7_gray
+	bumpmap				textures/mcity/mchangar7_local
+	diffusemap			textures/mcity/mchangar7_gray
+	specularmap			textures/mcity/mchangar7_s
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar9		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mchangar9_red
+{
+	qer_editorimage		textures/mcity/mchangar9_red
+	bumpmap				textures/mcity/mchangar9_local
+	diffusemap			textures/mcity/mchangar9_red
+	specularmap			textures/mcity/mchangar9_s
+}
+
+
+textures/mcity/mchangar9_gray
+{
+	qer_editorimage		textures/mcity/mchangar9_gray
+	bumpmap				textures/mcity/mchangar9_local
+	diffusemap			textures/mcity/mchangar9_gray
+	specularmap			textures/mcity/mchangar9_s
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar10		//
+//					//
+//////////////////////////////////////////
+
+
+textures/mcity/mchangar10_red
+{
+	qer_editorimage		textures/mcity/mchangar10_red
+	bumpmap				textures/mcity/mchangar10_local
+	diffusemap			textures/mcity/mchangar10_red
+	specularmap			textures/mcity/mchangar10_s
+}
+
+
+textures/mcity/mchangar10_gray
+{
+	qer_editorimage		textures/mcity/mchangar10_gray
+	bumpmap				textures/mcity/mchangar10_local
+	diffusemap			textures/mcity/mchangar10_gray
+	specularmap			textures/mcity/mchangar10_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar13		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mchangar13_red
+{
+	qer_editorimage		textures/mcity/mchangar13_red
+	bumpmap				textures/mcity/mchangar13_local
+	diffusemap			textures/mcity/mchangar13_red
+	specularmap			textures/mcity/mchangar13_s
+	{
+		blend			add
+		map				textures/mcity/mchangar13_add
+	}
+}
+
+
+
+textures/mcity/mchangar13_gray
+{
+	qer_editorimage		textures/mcity/mchangar13
+	bumpmap				textures/mcity/mchangar13_local
+	diffusemap			textures/mcity/mchangar13_gray
+	specularmap			textures/mcity/mchangar13_s
+	{
+		blend			add
+		map				textures/mcity/mchangar13_add
+	}
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar14		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mchangar14_red
+{
+	qer_editorimage		textures/mcity/mchangar14_red
+	bumpmap				textures/mcity/mcityb10_local
+	diffusemap			textures/mcity/mchangar14_red
+	specularmap			textures/mcity/mchangar14_s
+}
+
+
+
+textures/mcity/mchangar14_gray
+{
+	qer_editorimage		textures/mcity/mchangar14_gray
+	bumpmap				textures/mcity/mcityb10_local
+	diffusemap			textures/mcity/mchangar14_gray
+	specularmap			textures/mcity/mchangar14_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mchangar15		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mchangar15_red
+{
+	qer_editorimage		textures/mcity/mchangar15_red
+	bumpmap				textures/mcity/mcityb22_local
+	diffusemap			textures/mcity/mchangar15_red
+	specularmap			textures/mcity/mchangar15_s
+}
+
+
+
+textures/mcity/mchangar15_gray
+{
+	qer_editorimage		textures/mcity/mchangar15_gray
+	bumpmap				textures/mcity/mcityb22_local
+	diffusemap			textures/mcity/mchangar15_gray
+	specularmap			textures/mcity/mchangar15_s
+}
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray mcityc23d		//
+//					//
+//////////////////////////////////////////
+
+
+
+textures/mcity/mcityc23d_red
+{
+		qer_editorimage	textures/mcity/mcityc23d_red
+		bumpmap			textures/mcity/mcityc23_local
+		diffusemap		textures/mcity/mcityc23d_red
+		specularmap		textures/mcity/mcityc23_s
+}
+
+textures/mcity/mcityc23d_gray
+
+{		qer_editorimage	textures/mcity/mcityc23d_gray
+		bumpmap			textures/mcity/mcityc23_local
+		diffusemap		textures/mcity/mcityc23d_gray
+		specularmap		textures/mcity/mcityc23_s
+}
+
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray enwall13b		//
+//					//
+//////////////////////////////////////////
+
+
+textures/enpro/enwall13b_gray
+{
+	qer_editorimage		textures/enpro/enwall13b_gray
+	bumpmap				textures/enpro/enwall13_local
+	diffusemap			textures/enpro/enwall13b_gray
+	specularmap			textures/enpro/enwall13a_s
+}
+
+textures/enpro/enwall13b_red
+{
+	qer_editorimage		textures/enpro/enwall13b_red
+	bumpmap				textures/enpro/enwall13_local
+	diffusemap			textures/enpro/enwall13b_red
+	specularmap			textures/enpro/enwall13a_s
+}
+
+
+//////////////////////////////////////////
+//					//
+// Red and Gray enwall20a		//
+//					//
+//////////////////////////////////////////
+
+textures/enpro/enwall20a_gray
+{
+	qer_editorimage		textures/enpro/enwall20a_gray
+	bumpmap				textures/enpro/enwall20_local
+	diffusemap			textures/enpro/enwall20a_gray
+	specularmap			textures/enpro/enwall20a_s
+}
+
+textures/enpro/enwall20a_red
+{
+	qer_editorimage		textures/enpro/enwall20a_red
+	bumpmap				textures/enpro/enwall20_local
+	diffusemap			textures/enpro/enwall20a_red
+	specularmap			textures/enpro/enwall20a_s
+}
+
+
+
+
+
+
+//////////////////////////////////////////
+//					//
+// Rusty Version of sflgrate5		//
+//					//
+//////////////////////////////////////////
+
+
+
+
+
+
+textures/base_floor/sflgrate5_rusty
+{
+	qer_editorimage		textures/base_floor/sflgrate5_rusty_d
+	bumpmap				addnormals (textures/base_floor/sflgrate5_rusty_local.tga, heightmap (textures/base_floor/sflgrate5_rusty_bmp.tga, 2) )
+	diffusemap			textures/base_floor/sflgrate5_rusty_d
+	{
+		blend	specularmap
+		map	textures/base_floor/sflgrate5_rusty_s
+		red	.2
+		green	.2	
+		blue	.2
+	}
+}
+
+
+
+
+
+
+//////////////////////////////////////////
+//					//
+//	Clean Green Cave Wall Panels	//
+//					//
+//////////////////////////////////////////
+
+
+
+
+
+textures/caves/cavwall1_clean
+{
+	qer_editorimage		textures/caves/cavwall1_clean.tga
+	bumpmap			textures/caves/cavwall1_local.tga
+	diffusemap		textures/caves/cavwall1_clean_d.tga
+	specularmap		textures/caves/cavwall1_clean_s.tga
+}
+
+
+textures/caves/cavwall2_clean
+{
+	qer_editorimage		textures/caves/cavwall2_clean_d.tga
+	bumpmap			addnormals (textures/caves/cavwall2_local.tga, heightmap (textures/caves/cavwall2_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavwall2_clean_d.tga
+	specularmap		textures/caves/cavwall2_clean_s.tga
+}
+
+
+textures/caves/cavwall4_clean
+{
+	qer_editorimage		textures/caves/cavwall4_clean_d.tga
+	bumpmap			addnormals (textures/caves/cavwall4_local.tga, heightmap (textures/caves/cavwall4_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavwall4_clean_d.tga
+	specularmap		textures/caves/cavwall4_clean_s.tga
+}
+
+
+
+textures/caves/cavvac1_clean
+{
+	qer_editorimage		textures/caves/cavvac1_clean.tga
+	bumpmap 		addnormals (textures/caves/cavvac1_local.tga, heightmap (textures/caves/cavvac1_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavvac1_clean_d.tga
+	specularmap		textures/caves/cavvac1_clean_s.tga
+}
+
+textures/caves/cavvac1a_clean
+{
+	qer_editorimage		textures/caves/cavvac1_local.tga
+	bumpmap 		addnormals (textures/caves/cavvac1_local.tga, heightmap (textures/caves/cavvac1a_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavvac1a_clean_d.tga
+	specularmap		textures/caves/cavvac1_clean_s.tga
+}
+
+
+textures/caves/cavvac2_clean
+{
+	qer_editorimage		textures/caves/cavvac2_clean.tga
+	bumpmap 		addnormals (textures/caves/cavvac2_local.tga, heightmap (textures/caves/cavvac2_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavvac2_clean_d.tga
+	specularmap		textures/caves/cavvac2_clean_s.tga
+}
+
+
+textures/caves/cavvac3_clean
+{
+	qer_editorimage		textures/caves/cavvac3_clean.tga
+	bumpmap 		addnormals (textures/caves/cavvac3_local.tga, heightmap (textures/caves/cavvac3_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavvac3_clean_d.tga
+	specularmap		textures/caves/cavvac3_clean_s.tga
+}
+
+
+textures/caves/cavvac4_clean
+{
+	qer_editorimage		textures/caves/cavvac4_clean_d.tga
+	bumpmap 		addnormals (textures/caves/cavvac4_local.tga, heightmap (textures/caves/cavvac4_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavvac4_clean_d.tga
+	specularmap		textures/caves/cavvac4_clean_s.tga
+}
+
+
+
+textures/caves/cavpanel1_clean
+{
+	qer_editorimage		textures/caves/cavpanel1_clean.tga
+	bumpmap			addnormals (textures/caves/cavpanel1_local.tga, heightmap (textures/caves/cavpanel1_clean_bmp.tga, 1 ))
+	diffusemap		textures/caves/cavpanel1_clean_d.tga
+	specularmap		textures/caves/cavpanel1_clean_s.tga
+}
+
+
+
+//////////////////////////////////////////
+//					//
+//	Silver versions of Steribanel	//
+//					//
+//////////////////////////////////////////
+
+textures/base_wall/steribpanel4_silver
+{
+	qer_editorimage		textures/base_wall/steribpanel4_silver.tga
+	bumpmap			textures/base_wall/steribpanel4_clean_local.tga
+	diffusemap		textures/base_wall/steribpanel4_silver_d.tga
+	specularmap		textures/base_wall/steribpanel4_silver_s.tga
+}
+
+textures/base_wall/steribpanel6_silver
+{
+	qer_editorimage		textures/base_wall/steribpanel6_silver.tga
+	bumpmap			textures/base_wall/steribpanel6_clean_local.tga
+	diffusemap		textures/base_wall/steribpanel6_silver_d.tga
+	specularmap		textures/base_wall/steribpanel6_silver_s.tga
+}
+
+
+
+
+
+//////////////////////////////////////////////////
+//						//
+//	Rusted versions of stesilvertrim	//
+//						//
+//////////////////////////////////////////////////
+
+
+textures/base_trim/stesilvertrim_rust
+{
+	qer_editorimage	textures/base_trim/stesilvertrim_rust.tga
+	bumpmap		textures/base_trim/stesilvertrim_rust_local.tga
+	diffusemap		textures/base_trim/stesilvertrim_rust_d.tga
+	specularmap		textures/base_trim/stesilvertrim_rust_s.tga
+}
+
+
+textures/base_trim/stesilvertrim2_rust
+{
+	qer_editorimage		textures/base_trim/stesilvertrim2_rust.tga
+	bumpmap			textures/base_trim/stesilvertrim2_rust_local.tga
+	diffusemap		textures/base_trim/stesilvertrim2_rust_d.tga
+	specularmap		textures/base_trim/stesilvertrim2_rust_s.tga
+}
+
+textures/base_trim/stesilvertrim3_rust
+{
+	qer_editorimage		textures/base_trim/stesilvertrim3_rust.tga
+	bumpmap			textures/base_trim/stesilvertrim3_rust_local.tga
+	diffusemap		textures/base_trim/stesilvertrim3_rust_d.tga
+	specularmap		textures/base_trim/stesilvertrim3_rust_s.tga
+}
+
+textures/base_trim/stemettrim_rust
+{
+	qer_editorimage	textures/base_trim/stemettrim_rust.tga
+	bumpmap		textures/base_trim/stemettrim_rust_local.tga
+	diffusemap		textures/base_trim/stemettrim_rust_d.tga
+	specularmap		textures/base_trim/stemettrim_rust_s.tga
+}
+
+
+//////////////////////////////////////////////////
+//						//
+//	Rusted versions of wardoortrim		//
+//						//
+//////////////////////////////////////////////////
+
+
+textures/caves/wardoortrim3
+{
+	qer_editorimage		textures/caves/wardoortrim3.tga
+	bumpmap 		addnormals (textures/caves/wardoortrim2_local.tga, heightmap (textures/caves/warshutter1_bmp.tga, 3 ))
+	diffusemap		textures/caves/wardoortrim3_d.tga
+	specularmap		textures/caves/wardoortrim3_s.tga
+}
+

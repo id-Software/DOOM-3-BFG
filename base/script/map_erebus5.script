@@ -1,0 +1,457 @@
+namespace map_erebus5
+{
+	string g_strSkill;
+
+	void safety_hack() {
+		$e5_finalcliphack1.show();
+		$cloud_start_door.lock( 2 );
+		$cloud_start_frame.setShaderParm( 7, 0 );
+	}
+
+	// CLOUD CINEMATIC STUFF
+	void cloud_start_opendoor() {
+		$cloud_start_door2.open();
+	}
+	void cloud_start_lockdoor() {
+		$cloud_start_door.lock( 2 );
+		$cloud_start_frame.setShaderParm( 7, 0 );
+		$cloud_start_door2.lock( 2 );
+		$cloud_start_frame2.setShaderParm( 7, 0 );
+	}
+
+	void cloud_end_opendoor() {
+		$cloud_door_exit.lock( 0 );
+		$cloud_door_exit.open();
+	}
+
+	void cloud_hide_primitive() {
+		//sys.trigger( $func_static_mcneil );
+		$primitive.hide();
+	}
+
+	void cloud_start_mcneil() {
+		sys.trigger( $func_static_mcneil );
+	}
+
+	void cloud_show_primitive() {
+		$primitive.show();
+	}
+
+	void cloud_end_closedoor() {
+		sys.print( "CLOSE!" );
+		$e5_finalcliphack1.show();
+		$cloud_door_exit.close();
+		$cloud_door_exit.lock( 2 );
+		$cloud_door_frame.setShaderParm( 7, 0 );
+	}
+
+	void cloud_viewer_start() {
+		$cloud_viewer.setGui( 1, "guis/erebus5/viewer_scanning.gui" );
+	}
+
+	void cloud_viewer_done() {
+		$cloud_viewer.setGui( 1, "guis/erebus5/viewer.gui" );
+		$cloud_viewer.guiNamedEvent( 1, "startanims" );
+	}
+
+
+	void CloudInfluence()
+	{
+	//	sys.print("HEY SUCKAS!");
+		sys.trigger( $cloud_influence );
+		sys.trigger( $cloud_sparks_light2 );
+		$cloud_sparks_light2.On();
+		sys.trigger( $cloud_sparks_emitter_4 );
+		sys.wait( .3 );
+		sys.trigger( $cloud_influence_4 );
+		sys.wait( .1 );
+		sys.trigger( $cloud_influence_3 );
+		sys.trigger( $cloud_light_flicker );
+		$cloud_light_flicker.On();
+		sys.wait( .25 );
+		sys.trigger( $cloud_influence_4 );
+		sys.trigger( $cloud_sparks_1 );
+		$cloud_sparks_light2.Off();
+		sys.wait( .2 );
+		sys.trigger( $cloud_influence_4 );
+		sys.trigger( $cloud_sparks_2 );
+		sys.wait( .1 );
+		sys.trigger( $cloud_influence_4 );
+		sys.trigger( $cloud_sparks_3 );
+		$cloud_light_flicker.Off();
+		sys.wait( .2 );
+		sys.trigger( $cloud_influence_3 );
+		sys.wait( 3 );
+	}
+
+	void EmittersOff()
+	{
+		sys.trigger( $cloud_sparks_2 );
+		sys.trigger( $cloud_sparks_3 );
+		sys.trigger( $cloud_sparks_emitter_4 );
+
+		$cloud_sparks_2.hide ();
+		$cloud_sparks_3.hide ();
+		$cloud_sparks_emitter_4.hide ();
+	}
+
+/////////////////////////////////////////////
+
+	float PUMPS_RUNNING = 1;
+
+	// McNeil Radio Start
+
+	void mcneil_radio_start() {
+		/*
+		sys.wait( 2 );
+		sys.trigger( $mcneil_start1 );
+		sys.wait( 4 );
+		sys.trigger( $mcneil_start2 );
+		*/
+	}
+
+	/*
+
+	void TrapPlayerToplevel()
+	{
+		$toplevel_door1.close();
+		$toplevel_door2.close();
+		sys.trigger( $toplevel_lock_doors );
+		sys.trigger( $toplevel_lock_frames );
+	}
+
+
+	void RestoreTopLevel()
+	{
+		sys.trigger( $toplevel_unlock_doors );
+		sys.trigger( $toplevel_unlock_frames );
+	}
+
+
+	*/
+
+	void airlock2_door1_open ()
+	{
+		airlock_door_activate(2 , 1 , 1 , 1);
+	}
+
+	void cycle_pump1() {
+		$elev_pump1.time( 3 );
+		while( PUMPS_RUNNING ) {
+			$elev_pump1.move( UP, 96 );
+			sys.waitFor( $elev_pump1 );
+			sys.trigger($speaker_pump1);
+			$elev_pump1.time( 1 );
+			$elev_pump1.move( DOWN, 96 );
+			sys.waitFor( $elev_pump1 );
+			$elev_pump1.time( 3 );
+		}
+
+	}
+
+	void cycle_pump2() {
+		$elev_pump2.time( 3 );
+		sys.wait( 1 );
+		while( PUMPS_RUNNING ) {
+			$elev_pump2.move( UP, 96 );
+			sys.waitFor( $elev_pump2 );
+			sys.trigger($speaker_pump2);
+			$elev_pump2.time( 1 );
+			$elev_pump2.move( DOWN, 96 );
+			sys.waitFor( $elev_pump2 );
+			$elev_pump2.time( 3 );
+		}
+	}
+
+	void cycle_pump3() {
+		sys.wait(1);
+		while( PUMPS_RUNNING ) {
+			$slime_pump_01.time(3);
+			$slime_pump_01.move( UP, 96 );
+			sys.waitFor( $slime_pump_01 );
+			sys.trigger($speaker_pump3);
+			$slime_pump_01.time(1);
+			$slime_pump_01.move( DOWN, 96 );
+			sys.waitFor( $slime_pump_01 );
+		}
+	}
+
+	void cycle_pump4() {
+		sys.wait(1);
+		while( PUMPS_RUNNING ) {
+			$slime_pump_02.time(3);
+			$slime_pump_02.move( UP, 96 );
+			sys.waitFor( $slime_pump_02 );
+			sys.trigger($speaker_pump4);
+			$slime_pump_02.time(1);
+			$slime_pump_02.move( DOWN, 96 );
+			sys.waitFor( $slime_pump_02 );
+		}
+	}
+
+
+	void recycling_pump() {
+
+		$bpipes.bind ($bpipes_anchor);
+		$arm_pivot.bind ($arm_pivot_anchor);
+		$arm_top.bind ($arm_top_anchor);
+		$arm_bottom.bind ($arm_bottom_anchor);
+		$arm_bottom_anchor.bind ($arm_top_anchor);
+		$arm_top_anchor.bind ($arm_pivot_anchor);
+
+		while ( PUMPS_RUNNING ) {
+			$bpipes_anchor.time (.5);
+			$bpipes_anchor.startSoundShader ("rec1_1_rotation", SND_CHANNEL_VOICE );
+			$bpipes_anchor.rotateOnce ('0 0 -120');
+
+			sys.waitFor ($bpipes_anchor);
+
+			$arm_pivot_anchor.time (1.2);
+			$arm_pivot_anchor.startSoundShader ("rec1_1_2s_movement", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.moveTo ($arm_spot2);
+
+			$arm_top_anchor.time (.3);
+			$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+			$arm_top_anchor.rotateOnce ('-30 0 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_pivot_anchor.time (.7);
+			$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.rotateOnce ('0 -180 0');
+			$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+			$arm_top_anchor.time (.3);
+			$arm_top_anchor.rotateOnce ('30 0 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_bottom_anchor.time (.8);
+			$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_8s", SND_CHANNEL_VOICE );
+			$arm_bottom_anchor.rotateOnce ('90 0 0');
+			sys.waitFor ($arm_bottom_anchor);
+
+			sys.trigger ($pipefill);
+			sys.trigger ($speaker_pipefill);
+			sys.wait (3.5);
+
+			sys.trigger ($pipefill);
+
+			$arm_bottom_anchor.time (.4);
+			$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_4s", SND_CHANNEL_VOICE );
+			$arm_bottom_anchor.rotateOnce ('-90 0 0');
+			sys.waitFor ($arm_bottom_anchor);
+
+			$arm_pivot_anchor.time (.7);
+			$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.rotateOnce ('0 180 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_pivot_anchor.time (1.5);
+			$arm_pivot_anchor.startSoundShader ("rec1_1_5s_movement", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.moveTo ($arm_spot1);
+			sys.waitFor ($arm_pivot_anchor);
+
+			sys.wait (.5);
+
+			$bpipes_anchor.time (1);
+			$bpipes_anchor.startSoundShader ("rec1_2_rotation", SND_CHANNEL_VOICE );
+			$bpipes_anchor.rotateOnce ('0 0 240');
+
+			sys.waitFor ($bpipes_anchor);
+
+			$arm_pivot_anchor.time (1.2);
+			$arm_pivot_anchor.startSoundShader ("rec1_1_2s_movement", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.moveTo ($arm_spot2);
+			$arm_top_anchor.time (.3);
+			$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+			$arm_top_anchor.rotateOnce ('-30 0 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_pivot_anchor.time (.7);
+			$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.rotateOnce ('0 -180 0');
+			$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+			$arm_top_anchor.time (.3);
+			$arm_top_anchor.rotateOnce ('30 0 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_bottom_anchor.time (.8);
+			$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_8s", SND_CHANNEL_VOICE );
+			$arm_bottom_anchor.rotateOnce ('90 0 0');
+			sys.waitFor ($arm_bottom_anchor);
+
+			sys.trigger ($speaker_pipefill);
+			sys.trigger ($pipefill);
+
+			sys.wait (3.5);
+
+			sys.trigger ($pipefill);
+
+			$arm_bottom_anchor.time (.4);
+			$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_4s", SND_CHANNEL_VOICE );
+			$arm_bottom_anchor.rotateOnce ('-90 0 0');
+			sys.waitFor ($arm_bottom_anchor);
+
+			$arm_pivot_anchor.time (.7);
+			$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.rotateOnce ('0 180 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_pivot_anchor.time (1.5);
+			$arm_pivot_anchor.startSoundShader ("rec1_1_5s_movement", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.moveTo ($arm_spot1);
+			sys.waitFor ($arm_pivot_anchor);
+
+			sys.wait (.5);
+
+			$bpipes_anchor.time (2);
+			$bpipes_anchor.startSoundShader ("rec1_3_rotation", SND_CHANNEL_VOICE );
+			$bpipes_anchor.rotateOnce ('0 0 -480');
+
+			sys.waitFor ($bpipes_anchor);
+
+			$arm_pivot_anchor.time (1.2);
+			$arm_pivot_anchor.startSoundShader ("rec1_1_2s_movement", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.moveTo ($arm_spot2);
+			$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+			$arm_top_anchor.time (.3);
+			$arm_top_anchor.rotateOnce ('-30 0 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_pivot_anchor.time (.7);
+			$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.rotateOnce ('0 -180 0');
+			$arm_top_anchor.startSoundShader ("rec1_pivot_0_3s", SND_CHANNEL_VOICE );
+			$arm_top_anchor.time (.3);
+			$arm_top_anchor.rotateOnce ('30 0 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_bottom_anchor.time (.8);
+			$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_8s", SND_CHANNEL_VOICE );
+			$arm_bottom_anchor.rotateOnce ('90 0 0');
+			sys.waitFor ($arm_bottom_anchor);
+
+			sys.trigger ($speaker_pipefill);
+			sys.trigger ($pipefill);
+
+			sys.wait (3.5);
+
+			sys.trigger ($pipefill);
+
+			$arm_bottom_anchor.time (.4);
+			$arm_bottom_anchor.startSoundShader ("rec1_pivot_0_4s", SND_CHANNEL_VOICE );
+			$arm_bottom_anchor.rotateOnce ('-90 0 0');
+			sys.waitFor ($arm_bottom_anchor);
+
+			$arm_pivot_anchor.time (.7);
+			$arm_pivot_anchor.startSoundShader ("rec1_pivot_0_7s", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.rotateOnce ('0 180 0');
+			sys.waitFor ($arm_pivot_anchor);
+
+			$arm_pivot_anchor.time (1.5);
+			$arm_pivot_anchor.startSoundShader ("rec1_1_5s_movement", SND_CHANNEL_VOICE );
+			$arm_pivot_anchor.moveTo ($arm_spot1);
+			sys.waitFor ($arm_pivot_anchor);
+
+			sys.wait (.5);
+		}
+	}
+
+	void slime_hurt_trigger() {
+		while ( 1 ) {
+			if ( $player1.isPowerupActive( ENVIROTIME ) ) {
+				$slime_hurt_al2.disable();
+				$slime_hurt_al1.disable();
+				$slime_hurt.disable();
+			} else {
+				$slime_hurt_al2.enable();
+				$slime_hurt_al1.enable();
+				$slime_hurt.enable();
+			}
+
+			sys.wait( 0.25 );
+		}
+	}
+
+	void envirosuit_on() {
+		// Start with the triggers off
+		$slime_hurt_al2.disable();
+		$slime_hurt_al1.disable();
+		$slime_hurt.disable();
+
+		// Turn on the envirosuit
+		$env_door1_buddy.setShaderParm (7, 0);
+		$env_door1.close();
+		$env_door2.close();
+		$env_door1.lock( 2 );
+		$env_door2.lock( 2 );
+		$player1.setPowerupTime( ENVIROSUIT, 100000000 );
+		$player1.setPowerupTime( ENVIROTIME, 60000 );
+
+		sys.wait( 0.1 );
+
+		thread slime_hurt_trigger();
+	}
+
+	void envirosuit_off() {
+		// Stop all the trigger hurts
+		$slime_hurt_al2.disable();
+		$slime_hurt_al1.disable();
+		$slime_hurt.disable();
+
+		$env_enddoor_buddy.setShaderParm (7, 0);
+		//Turn off the envirosuit
+		$player1.setPowerupTime( ENVIROSUIT, 0 );
+		$player1.setPowerupTime( ENVIROTIME, 0 );
+		$env_enddoor1.close();
+		$env_enddoor2.close();
+		$env_enddoor1.lock( 2 );
+		$env_enddoor2.lock( 2 );
+
+		sys.killthread( "map_erebus5::slime_hurt_trigger" );
+	}
+
+	void setup_objects() {
+
+		g_strSkill = sys.getcvar( "g_skill" );
+
+		$swinglight1_mover.sway( 20, 0, '0 0 30' );
+
+		//start the pumps
+		thread cycle_pump1();
+		thread cycle_pump2();
+		thread cycle_pump3();
+		thread cycle_pump4();
+		thread recycling_pump();
+
+		// Initial Whap of Slime
+		$slime_hurt_al2.disable();
+		$slime_hurt_al1.disable();
+		$slime_hurt.disable();
+
+		//setup airlock lights
+		$airlock2_door1_light.setColor (0.84 , 0.84 , 0.90);
+		$airlock2_door2_light.setColor (0.37 , 0.05 , 0.01);
+	}
+
+	void cache_sounds_and_guis() {
+		sys.cacheSoundShader( "rec1_1_rotation" );
+		sys.cacheSoundShader( "rec1_2_rotation" );
+		sys.cacheSoundShader( "rec1_3_rotation" );
+		sys.cacheSoundShader( "rec1_1_2s_movement" );
+		sys.cacheSoundShader( "rec1_1_5s_movement" );
+		sys.cacheSoundShader( "rec1_pivot_0_3s" );
+		sys.cacheSoundShader( "rec1_pivot_0_4s" );
+		sys.cacheSoundShader( "rec1_pivot_0_7s" );
+		sys.cacheSoundShader( "rec1_pivot_0_8s" );
+		sys.cacheSoundShader( "power_surge" );
+		sys.cacheSoundShader( "e5_bluescanner" );
+		$cloud_viewer.precacheGui( "guis/erebus5/viewer_scanning.gui" );
+		$cloud_viewer.precacheGui( "guis/erebus5/viewer.gui" );
+	}
+
+	void main() {
+		setup_objects();
+		cache_sounds_and_guis();
+		thread mcneil_radio_start();
+	}
+
+}

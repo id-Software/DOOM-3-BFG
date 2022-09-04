@@ -1,0 +1,142 @@
+export fred {
+
+	camera	maps/fred/marscity/ship_in_space.mb -range 1 197 -dest models/md5/cinematics/marscity/spacecam1
+	camera	maps/fred/marscity/ship_in_space.mb -range 198 326 -dest models/md5/cinematics/marscity/spacecam2
+	camera	maps/fred/marscity/ship_in_space.mb -range 327 435 -dest models/md5/cinematics/marscity/spacecam3
+	camera	maps/fred/marscity/monoflyby.mb -dest models/md5/cinematics/marscity/spacemonocam
+		
+	mesh	maps/fred/marscity/ship_in_space.mb -dest models/md5/cinematics/marscity/spaceplanet -prefix FLARE_
+	anim	maps/fred/marscity/ship_in_space.mb -range 1 197 -dest models/md5/cinematics/marscity/spaceplanet_a -prefix FLARE_
+	anim	maps/fred/marscity/ship_in_space.mb -range 198 326 -dest models/md5/cinematics/marscity/spaceplanet_b -prefix FLARE_
+	anim	maps/fred/marscity/ship_in_space.mb -range 327 435 -dest models/md5/cinematics/marscity/spaceplanet_c -prefix FLARE_
+
+	mesh	maps/fred/marscity/ship_in_space.mb -dest models/md5/cinematics/marscity/spacestars -prefix STARS_
+	anim	maps/fred/marscity/ship_in_space.mb -range 1 197 -dest models/md5/cinematics/marscity/spacestars_a -prefix STARS_
+	anim	maps/fred/marscity/ship_in_space.mb -range 198 326 -dest models/md5/cinematics/marscity/spacestars_b -prefix STARS_
+	anim	maps/fred/marscity/ship_in_space.mb -range 327 435 -dest models/md5/cinematics/marscity/spacestars_c -prefix STARS_
+
+	options -prefix SHIP_ -keep neworigin ship dropship_LightL dropship3L dropship2L dropship1L dropship_backL dropship_top2L dropship_top1L dropship_LightR dropship3R dropship2R dropship1R dropship_backR dropship_top2R dropship_top1R -rename origin oldorigin -rename neworigin origin
+	mesh	maps/fred/marscity/ship_in_space.mb -dest models/md5/cinematics/marscity/spaceship	
+	anim	maps/fred/marscity/spacebind.mb -dest models/md5/cinematics/marscity/spaceship_bindme	
+	anim	maps/fred/marscity/ship_in_space.mb -range 1 197 -dest models/md5/cinematics/marscity/spaceship_shot1
+	anim	maps/fred/marscity/ship_in_space.mb -range 198 326 -dest models/md5/cinematics/marscity/spaceship_shot2
+	anim	maps/fred/marscity/ship_in_space.mb -range 327 435 -dest models/md5/cinematics/marscity/spaceship_shot3
+	anim	maps/fred/marscity/monoflyby.mb -dest models/md5/cinematics/marscity/spacemonoship
+	anim	maps/fred/marscity/window.mb -dest models/md5/cinematics/marscity/windowship
+	anim	maps/fred/marscity/hangarshipendingloop.mb -range 360 1420 -dest models/md5/cinematics/marscity/hangarshipbigend
+	anim	maps/fred/marscity/hangarshipendingloop_coop.mb -range 360 1420 -dest models/md5/cinematics/marscity/hangarshipbigend_coop
+	anim	maps/fred/marscity/hangarshipendingloop.mb -range 1420 1650 -dest models/md5/cinematics/marscity/hangarshipbigendloop
+
+
+	options -prefix SHIP_ -keep neworigin ship dropship_LightL dropship3L dropship2L dropship1L dropship_backL dropship_top2L dropship_top1L dropship_LightR dropship3R dropship2R dropship1R dropship_backR dropship_top2R dropship_top1R -rename origin oldorigin -rename neworigin origin
+	mesh	maps/fred/marscity/hangar.mb -dest models/md5/cinematics/marscity/hangarship
+	anim	maps/fred/marscity/hangar.mb -range 30 100 -dest models/md5/cinematics/marscity/hangarship_a
+	anim	maps/fred/marscity/hangar.mb -range 101 200 -dest models/md5/cinematics/marscity/hangarship_b
+	anim	maps/fred/marscity/hangar.mb -range 201 267 -dest models/md5/cinematics/marscity/hangarship_c
+	anim	maps/fred/marscity/hangar.mb -range 268 389 -dest models/md5/cinematics/marscity/hangarship_d
+	anim	maps/fred/marscity/smallshipbind.mb -dest models/md5/cinematics/marscity/smallbind
+
+
+
+}
+
+entityDef space_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+//	"anim space"					"models/md5/cinematics/marscity/spacecam.camera"
+	"anim space1"					"models/md5/cinematics/marscity/spacecam1.camera"
+	"anim space2"					"models/md5/cinematics/marscity/spacecam2.camera"
+	"anim space3"					"models/md5/cinematics/marscity/spacecam3.camera"
+
+	"anim mono"						"models/md5/cinematics/marscity/spacemonocam.camera"
+}
+
+model space_planet {
+	mesh							models/md5/cinematics/marscity/spaceplanet.md5mesh
+	anim space						models/md5/cinematics/marscity/spaceplanet.md5anim
+	anim space_a					models/md5/cinematics/marscity/spaceplanet_a.md5anim
+	anim space_b					models/md5/cinematics/marscity/spaceplanet_b.md5anim
+	anim space_c					models/md5/cinematics/marscity/spaceplanet_c.md5anim
+
+}
+
+entityDef space_planet {
+	"inherit"					"cin_base"
+	"model"						"space_planet"
+	"anim"						"space"
+	"num_anims"					"3"
+	"anim1"						"space_a"
+	"anim2"						"space_b"
+	"anim3"						"space_c"
+}
+
+model space_stars {
+	mesh							models/md5/cinematics/marscity/spacestars.md5mesh
+	anim space						models/md5/cinematics/marscity/spacestars.md5anim
+	anim space_a					models/md5/cinematics/marscity/spacestars_a.md5anim
+	anim space_b					models/md5/cinematics/marscity/spacestars_b.md5anim
+	anim space_c					models/md5/cinematics/marscity/spacestars_c.md5anim
+}
+
+entityDef space_stars {
+	"inherit"					"cin_base"
+	"model"						"space_stars"
+	"anim"						"space"
+	"num_anims"					"3"
+	"anim1"						"space_a"
+	"anim2"						"space_b"
+	"anim3"						"space_c"
+
+}
+
+model space_ship {
+	mesh							models/md5/cinematics/marscity/spaceship.md5mesh
+	skin							skins/dropshipnoflare.skin
+	anim bind						models/md5/cinematics/marscity/spaceship_bindme.md5anim
+	anim space_a					models/md5/cinematics/marscity/spaceship_shot1.md5anim {
+		frame 45					sound_global snd_flyby
+	}
+	anim space_b					models/md5/cinematics/marscity/spaceship_shot2.md5anim {
+		frame 1						trigger light_11
+		frame 1						sound_global snd_flyby2
+		frame 80					trigger func_emitter_48
+	}
+	anim space_c					models/md5/cinematics/marscity/spaceship_shot3.md5anim {
+		frame 1						sound_global snd_entry
+	}
+	anim mono						models/md5/cinematics/marscity/spacemonoship.md5anim {
+	//	frame 1					 	recordDemo monoflyby
+	//	frame 70					recordDemo
+	}
+	anim window						models/md5/cinematics/marscity/windowship.md5anim
+}
+
+entityDef space_ship {
+	"inherit"					"cin_base"
+	"model"						"space_ship"
+	"anim"						"space"
+	"num_anims"					"3"
+	"anim1"						"space_a"
+	"anim2"						"space_b"
+	"anim3"						"space_c"
+
+
+	"smokeParticleSystem1"			"dropship_top1R"
+	"smokeParticleSystem2"			"dropship_top1L"
+	"smokeParticleSystem3"			"dropship_top2R"
+	"smokeParticleSystem4"			"dropship_top2L"
+	"smokeParticleSystem5"			"dropship1R"
+	"smokeParticleSystem6"			"dropship1L"
+	"smokeParticleSystem7"			"dropship2R"
+	"smokeParticleSystem8"			"dropship2L"
+	"smokeParticleSystem9"			"dropship3R"
+	"smokeParticleSystem10"			"dropship3L"
+
+	"snd_flyby"					"mc_ship_flyby"
+	"snd_flyby2"					"mc_ship_flyby2"
+	"snd_entry"					"mc_ship_reentry"
+}
+

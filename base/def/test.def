@@ -1,0 +1,87 @@
+
+/***********************************************************************
+
+ entity definitions for testing or as example
+
+***********************************************************************/
+
+export bmatt {
+	mesh	models/bmatt/smallsphere.ma
+} 
+
+export fred {
+
+	options 
+	mesh	models/fred/soldiertest2.mb
+	anim	models/fred/soldiertest2.mb
+}
+
+model test_soldier {
+	mesh							models/fred/soldiertest2.md5mesh
+	anim test						models/fred/soldiertest2.md5anim
+}
+
+entityDef test_soldier {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"	
+
+	"editor_usage"					"polygon problem on back"
+
+	"spawnclass"					"idAnimated"
+	"bleed"							"1"
+	"sleep"							"1"
+
+	"model"							"test_soldier"
+
+}
+
+model test_labcoat_black {
+	inherit							npc_labcoat
+	anim pda_idle_look				models/md5/chars/PDA_idle_look.md5anim
+	anim pda_idle					models/md5/chars/PDA_idle.md5anim
+	anim pda_talk					models/md5/chars/PDA_talk.md5anim
+	anim gui_operate				models/md5/chars/gui_operate_daniel.md5anim
+}
+
+entityDef test_labcoat_black {
+	"inherit"						"npc_base"
+	"model"							"char_labcoat_black"
+	"skin"							"skins/characters/npcs/soldier_black"
+	"eye_verticle_offset"			"0"
+	"def_head"						"head_black"
+	"head_joint"					"Shoulders"
+
+	"gib"							"1"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+}
+
+
+
+

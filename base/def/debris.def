@@ -1,0 +1,106 @@
+/***********************************************************************
+
+  debris.def
+
+***********************************************************************/
+
+entityDef debris_largeshrapnel {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/particles/shrapnel/large.lwo"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"500 0 40"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"						
+	"angular_velocity"			"10 -10 10"			// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.6"				// "air" friction
+	"angular_friction"			"0.4"
+	"contact_friction"			"0.1"
+	"bounce"					"0.6"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"4"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"5"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"debristrail.smoke"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef debris_shrapnel {
+	"spawnclass"				"idDebris"
+	"mins"						"-3 -3 -3"
+	"maxs"						"3 3 3"
+
+	"model" 					"models/particles/shrapnel/small.lwo"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"600 0 40"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_velocity"			"1"						
+	"angular_velocity"			"10 -10 10"			// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.6"				// "air" friction
+	"angular_friction"			"0.4"
+	"contact_friction"			"0.1"
+	"bounce"					"0.5"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"3"
+	"gravity"					"1066"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"4"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"smoke_fly"					"shrapneltrail.smoke"	// particle effect while in the air
+
+	// parametric particles -- temp
+	"model_detonate"			""
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_fuse"				""
+	"smoke_bounce"				""
+}
+
+entityDef debris_brass {
+	"spawnclass"				"idDebris"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+
+	"model" 					"models/weapons/shell1/mshell_lo.lwo"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"0 -100 120"		// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.6"				// "air" friction
+	"angular_friction"			"0.4"
+	"contact_friction"			"0.1"
+	"bounce"					"0.25"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"0.5"
+	"gravity"					"666"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"3"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+
+	"snd_bounce"				"casings_small_mix"
+}

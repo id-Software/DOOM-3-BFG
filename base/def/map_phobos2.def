@@ -1,0 +1,361 @@
+// HELLKNIGHT PHOBOS 2 TRAM
+
+export ronntram {
+	options -prefix HK_ -keep lknee1 rknee1 SPINNER rmissile lmissile target forehead1 -parent rmissile rhand -parent lmissile lhand -parent waist SPINNER -parent SPINNER body2 -parent drool jaw -parent backtongue jaw -parent upsaliva head -parent losaliva jaw
+
+	anim models/monsters/hellknight/cycles/phobos2.mb -dest models/md5/phobos2/hk_tramthrow
+
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+	addoptions -keepmesh marinebodymesh
+
+	anim models/monsters/hellknight/cycles/phobos2.mb -dest models/md5/phobos2/m_tramthrow
+
+	options -prefix TRAM_
+
+	mesh models/monsters/hellknight/cycles/phobos2.mb -dest models/md5/phobos2/tram
+	anim models/monsters/hellknight/cycles/phobos2.mb -dest models/md5/phobos2/t_tramthrow
+}
+
+
+model phobos2_hellknight {
+	inherit							"monster_demon_hellknight"
+	anim tramthrow					models/md5/phobos2/hk_tramthrow.md5anim {
+	frame 1							disableGravity
+	frame 1							disableWalkIK
+	frame 60		trigger hellknight_growl1
+	frame 160		trigger hellknight_growl2
+	frame 250       trigger hellknight_out
+	frame 250		trigger junction_influance // do a bunch of level stuff - adam
+	frame 250		trigger junction_hellknight_fx1 //play a teleport effect before the hellknight teleports out
+	frame 250		trigger junction_hellknight_fx2 //play a teleport effect before the hellknight teleports out
+	frame 265		trigger junction_hellknight_remove
+	frame 265		trigger hk_influence
+	frame 268		trigger bet_laugh1 // betruger laughs at you, - adam
+	}
+}
+
+entityDef phobos2_hellknight {
+	"inherit"					"monster_demon_hellknight"
+	"model"						"phobos2_hellknight"
+	"anim"						"tramthrow"
+}
+
+model phobos2_marine {
+	inherit							npc_marine
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+	anim tramthrow					models/md5/phobos2/m_tramthrow.md5anim {
+	frame 1							disableGravity
+	frame 1							disableWalkIK
+	frame 356	trigger junction_speaker3 //play a sound when the marine hits the window
+	frame 356	trigger junction_shake //shake the gondola when the marine hits the window
+	frame 356	trigger gondola_blood1 //show blood when marine hits the window
+	frame 356	trigger gondola_blood2 //show blood when marine hits the window
+	frame 356	trigger gondola_02_spray1 //show blood when marine hits the window
+	frame 430	trigger junction_marine_remove
+	}
+}
+
+entityDef phobos2_marine {
+	"inherit"						"npc_base"
+	"head_joint"					"Shoulders"
+	"def_head"						"head_marine_helmet"
+	"model"							"phobos2_marine"
+}
+
+model phobos2_tram {
+	mesh 							models/md5/phobos2/tram.md5mesh
+	anim tramthrow					models/md5/phobos2/t_tramthrow.md5anim {
+	frame 40		trigger junction_door1 //close the doors behind the tram
+	frame 115		trigger junction_influance
+	frame 115		trigger junction_hellknight_fx1 //play a teleport effect before the hellknight is spawned
+	frame 115		trigger junction_hellknight_fx2 //play a teleport effect before the hellknight is spawned
+	frame 137		trigger junction_hellknight
+	}
+}
+
+entityDef phobos2_tram {
+	//"inherit"				"cin_base"
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+
+	"spawnclass"			"idAnimated"
+	"model"						"phobos2_tram"
+	"anim"						"tramthrow"
+
+	"snd_precache"			"p1_gondola_start"
+}
+
+
+/******************************************
+	Phobos2 HUNTER Intro
+******************************************/
+export cine_phobos2 {
+
+//	HUNTER INTRO CAMERA
+//	camera	models/cinematics/phobos2/invulnrability.mb -dest models/md5/cinematics/phobos2/phobos2_hunterintro
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 0 123 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_a
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 124 184 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_b
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 185 228 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_c
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 229 276 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_d
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 277 313 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_e
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 314 374 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_f
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 375 528 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_g
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 529 565 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_h
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 566 614 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_i
+//	camera	models/cinematics/phobos2/invulnrability.mb -range 615 690 -dest models/md5/cinematics/phobos2/phobos2_hunterintro_j
+
+//	HUNTER OUTRO CAMERA
+	camera	models/cinematics/phobos2/invulnrability_death.mb -dest models/md5/cinematics/phobos2/phobos2_hunteroutro
+//	HUNTER INVUL INTRO ANIMS
+ 	options -prefix INV_ -keep RMISSILE LMISSILE HMISSILE ALL -parent HMISSILE ALL -parent RMISSILE Rpalm -parent LMISSILE Lpalm
+
+	addoptions -align ALL
+	addoptions -sourcedir models/cinematics/phobos2
+	addoptions -destdir models/md5/monsters/d3xp_invul/
+
+	anim	invulnrability.mb -dest models/md5/monsters/d3xp_invul/intro
+
+//	HUNTER INVUL OUTRO ANIMS
+	anim	invulnrability_death.mb -dest models/md5/monsters/d3xp_invul/death
+
+//  AI DUMMY OUTRO ANIMS
+
+	options -prefix AI_DUMMY_
+	mesh	models/cinematics/phobos2/invulnrability_death.mb -dest models/md5/cinematics/phobos2/ai_dummy_deathmesh
+	anim	models/cinematics/phobos2/invulnrability_death.mb -dest models/md5/cinematics/phobos2/ai_dummy_death
+	anim	models/cinematics/phobos2/invulnrability_death.mb -range 0 0 -dest models/md5/cinematics/phobos2/ai_dummy_death_idle
+
+}
+
+entityDef phobos2_hunterintro {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim phobos2_hunterintro"			"models/md5/cinematics/phobos2/phobos2_hunterintro.md5camera"
+	"anim phobos2_hunterintro1"			"models/md5/cinematics/phobos2/phobos2_hunterintro_a.md5camera"
+	"anim phobos2_hunterintro2"			"models/md5/cinematics/phobos2/phobos2_hunterintro_b.md5camera"
+	"anim phobos2_hunterintro3"			"models/md5/cinematics/phobos2/phobos2_hunterintro_c.md5camera"
+	"anim phobos2_hunterintro4"			"models/md5/cinematics/phobos2/phobos2_hunterintro_d.md5camera"
+	"anim phobos2_hunterintro5"			"models/md5/cinematics/phobos2/phobos2_hunterintro_e.md5camera"
+	"anim phobos2_hunterintro6"			"models/md5/cinematics/phobos2/phobos2_hunterintro_f.md5camera"
+	"anim phobos2_hunterintro7"			"models/md5/cinematics/phobos2/phobos2_hunterintro_g.md5camera"
+	"anim phobos2_hunterintro8"			"models/md5/cinematics/phobos2/phobos2_hunterintro_h.md5camera"
+	"anim phobos2_hunterintro9"			"models/md5/cinematics/phobos2/phobos2_hunterintro_i.md5camera"
+	"anim phobos2_hunterintro10"		"models/md5/cinematics/phobos2/phobos2_hunterintro_j.md5camera"
+}
+
+/******************************************
+	Phobos2 HUNTER Outro
+******************************************/
+model phobos2_cinematic_player_death {
+	mesh						models/md5/cinematics/phobos2/playeroutro.md5mesh
+	anim outro					models/md5/cinematics/phobos2/playeroutro.md5anim {
+		frame	1					skin skins/weapons/artifact_3rd_fx2
+		frame	2					sound_global p2_death_voc1 
+		frame	109					sound_voice2 p2_death_voc2
+		frame	119					sound_voice p2_death_fadeout
+		frame	246					sound_global p2_death_transition
+		frame	250					skin skins/weapons/artifact_fx3
+		frame	250					call setShaderTime
+		frame	280					skin skins/weapons/artifact_3rd_fx3
+		frame	280					call setShaderTime
+	}
+}
+
+entityDef phobos2_cinematic_player_death {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_cinematic_player_death"
+	"anim"						"outro"
+}
+
+model phobos2_cinematic_hunterdeath {
+	mesh						models/md5/monsters/d3xp_invul/d3xp_invul.md5mesh
+	anim phobos2_outro			models/md5/monsters/d3xp_invul/death.md5anim {
+	frame	120					trigger inv_death_func_fx
+	frame	225					call map_phobos2_invul::StartInvulDeathBurn
+
+	}
+}
+
+entityDef phobos2_cinematic_hunterdeath {
+	"skin"						"skins/monsters/hunter_invul/invuln_no_shell2"
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_cinematic_hunterdeath"
+	"anim"						"phobos2_outro"
+
+}
+
+entityDef phobos2_hunteroutro {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"anim phobos2_hunteroutro"		"models/md5/cinematics/phobos2/phobos2_hunteroutro.md5camera"
+}
+
+model phobos2_ai_dummy {
+//	mesh				models/md5/enviroments/ai_dummy/ai_dummy.md5mesh
+	mesh				models/md5/cinematics/phobos2/ai_dummy_deathmesh.md5mesh
+
+	channel torso					( *joint1 )
+	channel legs					( *origin -*joint1 )
+
+//	anim idle			models/md5/environments/ai_dummy/idle.md5anim
+	anim idle			models/md5/cinematics/phobos2/ai_dummy_death_idle.md5anim
+	anim death			models/md5/cinematics/phobos2/ai_dummy_death.md5anim	{
+		frame 210			start_emitter deathstuff joint1 ht_deathjuice.prt
+		frame 275			stop_emitter deathstuff
+	}
+}
+
+entityDef phobos2_ai_dummy {
+	"no_damage"				"1"
+
+	"inherit"				"monster_default"
+	"scriptobject"			"monster_dummy"
+	"editor_color"			"1 1 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"model"					"phobos2_ai_dummy"
+	"anim"					"idle"
+	"SmokeParticleSystem"	"imp_trail2-joint1"
+	"nonsolid"				"1"
+}
+
+/******************************************
+	Phobos2 MCNEIL ANIMATION
+******************************************/
+export cine_phobos2 {
+
+//	MCNEIL CAMERA
+	camera	models/cinematics/phobos2/mcneil.mb -range 0 1350 -dest models/md5/cinematics/phobos2/phobos2_McNeil
+//  MCNEIL MODEL EXPORT
+	options		-prefix MCNEIL_ -keep LkneeVector RkneeVector HEAD_Leyeaim HEAD_Reyeaim
+//  addoptions -align ALL
+
+	mesh	models/cinematics/phobos2/mcneil.mb -dest models/md5/chars/mcneil/phobos2_mcneil
+	anim	models/cinematics/phobos2/mcneil.mb -range 0 0 -dest models/md5/chars/mcneil/phobos2_chair_idle
+	anim	models/cinematics/phobos2/mcneil.mb -range 0 1350 -dest models/md5/chars/mcneil/phobos2
+//  CHAIR MODEL EXPORT
+	options		-prefix CHAIR_
+
+	mesh	models/cinematics/phobos2/mcneil.mb -dest models/md5/cinematics/phobos2/phobos2_mcneil_chair
+	anim	models/cinematics/phobos2/mcneil.mb -range 0 0 -dest models/md5/cinematics/phobos2/phobos2_mcneil_chair_idle
+	anim	models/cinematics/phobos2/mcneil.mb -range 0 1350 -dest models/md5/cinematics/phobos2/phobos2_mcneil_chair_anim
+}
+
+model phobos2_mcneil_chair {
+	mesh						models/md5/cinematics/phobos2/phobos2_mcneil_chair.md5mesh
+	anim chair_idle				models/md5/cinematics/phobos2/phobos2_mcneil_chair_idle.md5anim
+	anim mcneil					models/md5/cinematics/phobos2/phobos2_mcneil_chair_anim.md5anim
+
+}
+
+entityDef phobos2_mcneil_chair {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_mcneil_chair"
+	"anim"						"mcneil"
+}
+
+model phobos2_mcneil_player {
+	mesh						models/md5/cinematics/phobos2/player_noshotgun.md5mesh
+	anim mcneil					models/md5/cinematics/phobos2/player_mcneil.md5anim{
+		frame 60					sound_body p2_mcneil_meeting1
+		frame 610					call map_phobos2::mcneil_viewer_start
+		frame 950					sound_body p2_mcneil_meeting2
+		frame 1041					call map_phobos2::mcneil_viewer_maps
+		frame 1175					sound_body p2_mcneil_meeting3
+		frame 1290					call map_phobos2::open_mcneil_door
+	}
+}
+
+entityDef phobos2_mcneil_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_mcneil_player"
+	"anim"						"mcneil"
+}
+
+model phobos2_mcneil_fem {
+	mesh						models/md5/chars/mcneil/phobos2_mcneil.md5mesh
+
+	channel torso						( *Waist )
+	channel legs						( *Hips origin Body )
+
+	anim stand					models/md5/chars/mcneil/phobos2_chair_idle.md5anim
+	anim mcneil					models/md5/chars/mcneil/phobos2.md5anim
+
+}
+entityDef phobos2_mcneil_fem {
+
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_mcneil_fem"
+	"anim"						"stand"
+
+}
+
+entityDef phobos2_McNeil_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"anim phobos2_McNeil"			"models/md5/cinematics/phobos2/phobos2_McNeil.md5camera"
+}
+
+///////////////////////////////////
+//    MCNEIL TYPING LOOP
+///////////////////////////////////
+
+export cine_phobos2 {
+
+	options		-prefix MCNEIL_ -keep LkneeVector RkneeVector HEAD_Leyeaim HEAD_Reyeaim
+
+	mesh	models/cinematics/phobos2/mcneil_typing_loop.mb -dest models/md5/chars/mcneil/phobos2_mcneil_typing_loopmesh
+	anim	models/cinematics/phobos2/mcneil_typing_loop.mb -dest models/md5/chars/mcneil/phobos2_mcneil_typing_loop
+}
+
+model phobos2_mcneil_typing {
+	mesh						models/md5/chars/mcneil/phobos2_mcneil_typing_loopmesh.md5mesh
+
+	channel torso						( *Waist )
+	channel legs						( *Hips origin Body )
+
+	anim idle					models/md5/chars/mcneil/phobos2_mcneil_typing_loop.md5anim
+
+}
+entityDef phobos2_mcneil_typing {
+
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+	"spawnclass"				"idAnimated"
+	"model"						"phobos2_mcneil_typing"
+	"anim"						"idle"
+
+}

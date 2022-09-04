@@ -1,0 +1,549 @@
+/***********************************************************************
+
+monster_zsec_pistol.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix ZOMBIE_ -keep Rhand Lknee Rknee eject barrel flash Body Body2 headcontrol neckcontrol loneckcontrol SPINNER Lhand1 Rhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent shield Lloarm -parent pistol Rhand1 -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER  -rename peject eject -rename pbarrel barrel -rename pflash flash -parent eject pistol -parent flash pistol -parent barrel pistol
+
+	addoptions -keepmesh securitybodymesh
+	addoptions -keepmesh sec_rshldrmesh
+	addoptions -keepmesh sec_lshldrmesh
+	addoptions -keepmesh w_pistolmesh
+	addoptions -keepmesh pflash1
+	addoptions -keepmesh pflash2
+	addoptions -keepmesh secsheild_outerglass
+	addoptions -keepmesh secsheild_innerglass
+	addoptions -keepmesh secsheild_innermesh
+	addoptions -keepmesh secsheild_outermesh
+	addoptions -keepmesh skeletonmesh
+	
+	mesh	models/monsters/zombie/cycles/zombie_mesh.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/zsecpistol
+
+	anim	models/monsters/zombie/cycles/attacks/pistol_aim.mb  -range 16 16 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/aim
+	anim	models/monsters/zombie/cycles/attacks/pistol_raise.mb -range 1 16 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/raise
+	anim	models/monsters/zombie/cycles/attacks/pistol_raise.mb -range 16 32 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/lower
+	
+	anim	models/monsters/zombie/cycles/idles/security_afpose.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/af_pose -prefix SUIT_
+	anim	models/monsters/zombie/cycles/runs/shield_run.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_shield/shield_run
+
+	anim	models/monsters/zombie/cycles/idles/pistol_stand.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/stand
+
+	anim	models/monsters/zombie/cycles/walks/pistol_step_left.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/step_left
+	anim	models/monsters/zombie/cycles/walks/pistol_step_right.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/step_right
+
+	anim	models/monsters/zombie/cycles/idles/pistol_sight.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/sight
+
+	anim	models/monsters/zombie/cycles/walks/pistol_walk2.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/walk2
+
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_aim.mb -rotate 90 -range 11 11 -dest models/md5/monsters/zombies/zsec_pistol/crouch_aim
+
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_aim_pain_lft.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/crouch_aim_pain_left
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_aim_pain_center.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/crouch_pain_center
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_aim_pain_rt.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/crouch_aim_pain_right
+
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_raise_fire_lower.mb -range 1 11 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/crouch_raise
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_raise_fire_lower.mb -range 11 37 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/crouch_fire
+	anim	models/monsters/zombie/cycles/attacks/pistol_crouch_raise_fire_lower.mb -range 37 50 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/crouch_lower
+
+	anim	models/monsters/zombie/cycles/attacks/pistol_fire1.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/fire1
+
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 44 63 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/chestpain1
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 65 83 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/leftarmpain1
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 85 105 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/rightarmpain1
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 108 125 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/chestpain2
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 133 155 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/headpain1
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 163 185 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/leftarmpain2
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 187 215 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/leftarmpain3
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 248 274 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/headpain2
+	anim	models/monsters/zombie/cycles/pains/zsec_pistol_pains.mb -range 308 338 -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/rightarmpain2
+
+	anim	models/monsters/zombie/cycles/runs/pistol_run1.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/run1
+	anim	models/monsters/zombie/cycles/runs/pistol_run2.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/run2
+
+	anim	models/monsters/zombie/cycles/runs/evade_left.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/evade_left
+	anim	models/monsters/zombie/cycles/runs/evade_right.mb -rotate 90 -dest models/md5/monsters/zombies/zsec_pistol/evade_right
+}
+
+model model_monster_zsec_pistol {
+	mesh							models/md5/monsters/zombies/zsec_pistol/zsecpistol.md5mesh
+	
+	skin							skins/monsters/zombies/zsecurity_pistol.skin
+
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER )
+
+	anim af_pose					models/md5/monsters/zombies/zsec_pistol/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/zombies/zsec_pistol/af_pose.md5anim
+
+	anim idle						models/md5/monsters/zombies/zsec_pistol/stand.md5anim
+	anim stand						models/md5/monsters/zombies/zsec_pistol/stand.md5anim
+	
+	anim sight						models/md5/monsters/zombies/zsec_pistol/sight.md5anim {
+		frame 1						sound_voice monster_zombie_security_sight
+	}
+
+	anim walk						models/md5/monsters/zombies/zsec_pistol/walk2.md5anim {
+		frame 4						sound_body monster_zombie_security_footstep					
+		frame 12					sound_body monster_zombie_security_footstep					
+		frame 22					sound_body monster_zombie_security_footstep					
+		frame 34					sound_body monster_zombie_security_footstep					
+	}
+
+	anim step_left					models/md5/monsters/zombies/zsec_pistol/step_left.md5anim {
+
+		frame 7						sound_body monster_zombie_security_footstep
+		frame 16					sound_body monster_zombie_security_footstep
+	
+	}
+
+	anim step_right					models/md5/monsters/zombies/zsec_pistol/step_right.md5anim {
+
+		frame 7						sound_body monster_zombie_security_footstep
+		frame 12					sound_body monster_zombie_security_footstep
+
+	}
+
+	anim run1						models/md5/monsters/zombies/zsec_pistol/run1.md5anim {
+		frame 9						sound_body monster_zombie_security_footstep					
+		frame 16					sound_body monster_zombie_security_footstep					
+	}
+		
+	anim run2						models/md5/monsters/zombies/zsec_pistol/run2.md5anim {
+		frame 1						sound_body monster_zombie_security_footstep					
+		frame 10					sound_body monster_zombie_security_footstep
+		frame 19					sound_body monster_zombie_security_footstep
+		frame 28					sound_body monster_zombie_security_footstep
+	
+	}
+
+	anim pain						models/md5/monsters/zombies/zsec_pistol/chestpain1.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_head1					models/md5/monsters/zombies/zsec_pistol/headpain1.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_head2					models/md5/monsters/zombies/zsec_pistol/headpain2.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_chest1				models/md5/monsters/zombies/zsec_pistol/chestpain1.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_chest2				models/md5/monsters/zombies/zsec_pistol/chestpain2.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_left_arm1				models/md5/monsters/zombies/zsec_pistol/leftarmpain1.md5anim {
+		frame 5						sound_voice monster_zombie_security_pain
+	}
+	anim pain_left_arm2				models/md5/monsters/zombies/zsec_pistol/leftarmpain2.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_left_arm3				models/md5/monsters/zombies/zsec_pistol/leftarmpain3.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_right_arm1			models/md5/monsters/zombies/zsec_pistol/rightarmpain1.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim pain_right_arm2			models/md5/monsters/zombies/zsec_pistol/rightarmpain2.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+
+	anim stepoutleft_out			models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_B.md5anim {
+
+		frame 13					sound_body monster_zombie_security_footstep
+
+	}
+	anim stepoutleft_fire			models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_C.md5anim {
+		frame 2						launch_missile pistol
+		frame 2						sound_weapon monster_pistol_fire
+	}
+	anim stepoutleft_in				models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_D.md5anim {
+
+		frame 11					sound_body monster_zombie_security_footstep
+		frame 18					sound_body monster_zombie_security_footstep
+
+	}
+	
+	anim stepoutleft_wait			models/md5/monsters/zombies/zsec_pistol/wallstepleftpistol_A.md5anim
+
+	anim stepoutright_out			models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_B.md5anim {
+
+		frame 7						sound_body monster_zombie_security_footstep
+		frame 13					sound_body monster_zombie_security_footstep
+		
+	}
+	anim stepoutright_fire			models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_C.md5anim {
+		frame 2						launch_missile pistol
+		frame 2						sound_weapon monster_pistol_fire
+	}
+	anim stepoutright_in			models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_D.md5anim {
+
+		frame 16					sound_body monster_zombie_security_footstep
+	
+	}
+	anim stepoutright_wait			models/md5/monsters/zombies/zsec_pistol/wallsteprightpistol_A.md5anim
+
+	anim rotoutleft1_out			models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_B.md5anim {
+
+		frame 11					sound_body monster_zombie_security_footstep
+		frame 13					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutleft1_fire			models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_C.md5anim {
+		frame 2						launch_missile pistol
+		frame 2						sound_weapon monster_pistol_fire
+	}
+	anim rotoutleft1_in				models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_D.md5anim {
+
+		frame 12					sound_body monster_zombie_security_footstep
+		frame 16					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutleft1_wait			models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol_A.md5anim
+
+	anim rotoutleft2_out			models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_B.md5anim {
+
+		frame 12					sound_body monster_zombie_security_footstep
+	
+	}
+	anim rotoutleft2_fire			models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_C.md5anim {
+		frame 2						launch_missile pistol
+		frame 2						sound_weapon monster_pistol_fire
+	}
+	anim rotoutleft2_in				models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_D.md5anim {
+
+		frame 16					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutleft2_wait			models/md5/monsters/zombies/zsec_pistol/wallrotleftpistol2_A.md5anim
+
+	anim rotoutright1_out			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_B.md5anim {
+
+		frame 5						sound_body monster_zombie_security_footstep
+		frame 14					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutright1_fire			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_C.md5anim {
+		frame 2						launch_missile pistol
+		frame 2						sound_weapon monster_pistol_fire
+	}
+	anim rotoutright1_in			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_D.md5anim {
+
+		frame 13					sound_body monster_zombie_security_footstep
+		frame 19					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutright1_wait			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol_A.md5anim
+
+	anim rotoutright2_out			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_B.md5anim {
+
+		frame 13					sound_body monster_zombie_security_footstep
+		frame 15					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutright2_fire			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_C.md5anim {
+		frame 2						launch_missile pistol
+		frame 2						sound_weapon monster_pistol_fire
+	}
+	anim rotoutright2_in			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_D.md5anim {
+
+		frame 3						sound_body monster_zombie_security_footstep
+		frame 12					sound_body monster_zombie_security_footstep
+		frame 15					sound_body monster_zombie_security_footstep
+
+	}
+	anim rotoutright2_wait			models/md5/monsters/zombies/zsec_pistol/wallrotrightpistol2_A.md5anim
+
+	anim craterotright_out			models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_B.md5anim {
+
+		frame 17					sound_body monster_zombie_security_footstep
+
+	}
+	anim craterotright_fire			models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_C.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}
+	anim craterotright_in			models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_D.md5anim {
+
+		frame 22					sound_body monster_zombie_security_footstep
+
+	}
+	anim craterotright_wait			models/md5/monsters/zombies/zsec_pistol/craterotrightpistol_A.md5anim
+
+	anim cratestand_out				models/md5/monsters/zombies/zsec_pistol/cratestandpistol_B.md5anim 
+	anim cratestand_fire			models/md5/monsters/zombies/zsec_pistol/cratestandpistol_C.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}
+	anim cratestand_in				models/md5/monsters/zombies/zsec_pistol/cratestandpistol_D.md5anim
+	anim cratestand_wait			models/md5/monsters/zombies/zsec_pistol/cratestandpistol_A.md5anim
+
+ 
+	anim crouch_out					models/md5/monsters/zombies/zsec_pistol/crouch_raise.md5anim 
+	anim crouch_fire				models/md5/monsters/zombies/zsec_pistol/crouch_fire.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}					
+	anim crouch_in					models/md5/monsters/zombies/zsec_pistol/crouch_lower.md5anim {
+
+		frame 10					sound_body monster_zombie_security_footstep
+	}
+	anim crouch_wait				models/md5/monsters/zombies/zsec_pistol/crouch_aim.md5anim
+
+	anim range_attack_aim			models/md5/monsters/zombies/zsec_pistol/aim.md5anim
+	anim range_attack				models/md5/monsters/zombies/zsec_pistol/raise.md5anim
+	anim range_attack_loop			models/md5/monsters/zombies/zsec_pistol/fire1.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}
+	anim range_attack_end			models/md5/monsters/zombies/zsec_pistol/lower.md5anim
+
+	anim crouch_range_attack_aim	models/md5/monsters/zombies/zsec_pistol/crouch_aim.md5anim 
+	anim crouch_range_attack		models/md5/monsters/zombies/zsec_pistol/crouch_raise.md5anim 
+	anim crouch_range_attack_loop	models/md5/monsters/zombies/zsec_pistol/crouch_fire.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}					
+	anim crouch_range_attack_end	models/md5/monsters/zombies/zsec_pistol/crouch_lower.md5anim {
+
+		frame 10					sound_body monster_zombie_security_footstep
+
+	}
+
+	anim crouch_pain				models/md5/monsters/zombies/zsec_pistol/crouch_pain_center.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim crouch_pain_head			models/md5/monsters/zombies/zsec_pistol/crouch_pain_center.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim crouch_pain_chest			models/md5/monsters/zombies/zsec_pistol/crouch_pain_center.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim crouch_pain_left_arm		models/md5/monsters/zombies/zsec_pistol/crouch_aim_pain_left.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+	anim crouch_pain_right_arm		models/md5/monsters/zombies/zsec_pistol/crouch_aim_pain_right.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+	}
+
+	anim evade_left					models/md5/monsters/zombies/zsec_pistol/evade_left.md5anim {
+		frame 1						sound_voice monster_zombie_security_pain
+		frame 16					sound_body monster_zombie_security_footstep
+		frame 18					sound_body monster_zombie_security_footstep
+		frame 30					sound_body monster_zombie_security_footstep
+
+	}
+	anim evade_right				models/md5/monsters/zombies/zsec_pistol/evade_right.md5anim {
+
+		frame 1						sound_voice monster_zombie_security_pain
+		frame 13					sound_body monster_zombie_security_footstep
+		frame 16					sound_body monster_zombie_security_footstep
+		frame 25					sound_body monster_zombie_security_footstep
+
+	}
+}
+
+entityDef monster_zsec_pistol {
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie_security_pistol"
+	"size"							"40 40 72"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"55"
+	"def_projectile"				"projectile_bullet_zsec_pistol"
+	"attack_cone"					"70"
+	"attack_accuracy"				"3"
+	"projectile_spread"				"2"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+	"turn_rate"						"360"
+	"mass"							"150"
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+
+	"ragdoll"						"monster_zombie_security_pistol"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body2"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+
+	"model"							"model_monster_zsec_pistol"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*loneckcontrol"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips"
+
+	"damage_scale head"				"1.25"
+		
+
+	"def_head"						"head_zombie6"
+	"head_joint"					"Shoulders"
+
+	"skin_dropGib"					"skins/monsters/zombies/securitygib.skin"
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+	"def_dropDeathItem9"			"moveable_item_pistol"
+	"dropDeathItem9Joint"			"pistol"
+	"skin_dropDeath"				"skins/monsters/zombies/zsecurity.skin"
+
+	
+	"snd_bounce"					"ragdoll_impact"
+	"snd_footstep"					"monster_zombie_security_footstep"
+	"snd_chatter"					"monster_zombie_security_chatter"
+	"snd_chatter_combat"			"monster_zombie_security_chatter_combat"
+	"snd_death"						"monster_zombie_security_die"
+
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"80"
+}
+
+model model_monster_zsec_pistol_slowfire {
+	inherit 						model_monster_zsec_pistol
+	anim range_attack_loop			models/md5/monsters/zombies/zsec_pistol/fire1.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}
+	anim crouch_range_attack_loop	models/md5/monsters/zombies/zsec_pistol/crouch_fire.md5anim {
+		frame 1						sound_weapon monster_pistol_fire
+		frame 1						launch_missile pistol
+	}		
+
+}
+
+entityDef monster_zsec_pistol_slowfire {
+	"inherit"						"monster_zsec_pistol"
+	"model"							"model_monster_zsec_pistol_slowfire"
+}
+
+
+
+entityDef	damage_bullet_zsec_pistol {
+	"damage"						"4"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"1"
+	
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				"textures/decals/dsplat2"
+	"mtr_splat_flesh2"				"textures/decals/dsplat5"
+	"mtr_splat_flesh3"				"textures/decals/dsplat7"
+	"mtr_splat_flesh4"				"textures/decals/dsplat11"
+	"snd_flesh"						"bullet_impact_flesh"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef projectile_bullet_zsec_pistol {
+	"spawnclass"					"idProjectile"
+	"mins"							"-1 -1 -1"
+	"maxs"							"1 1 1"
+	"cone"							"3"
+	"scale"							"0.1"
+	"noshadows"						"1"
+
+	"snd_ricochet"					"bullet_ricochet"
+	"snd_impact"					"bullet_impact_metal"
+
+	"def_damage"					"damage_bullet_zsec_pistol"
+
+	"launchFromBarrel"				"0"
+	"health"						"0"
+	"velocity"						"2000 0 0"	// slowed down for tracer effect
+	"angular_velocity"				"0 0 0"
+	"thrust"						"0"
+	"thrust_start"					"0"
+	"thrust_end"					"0"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0.6"
+	"mass"							"2"
+	"gravity"						"0"
+	"fuse"							"4"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"0"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"			"1"
+	"impact_gib"					"1"
+
+	"mtr_detonate"					"textures/decals/bulleth02"
+	"decal_size"					"10"
+
+	"smoke_fly"						""
+	"smoke_detonate"				"smokeandspark.smoke"
+	"smoke_bounce"					""	//particles/bullet_sparks.particle"
+	"smoke_fuse"					""
+									
+	"mtr_light_shader"				""
+	"light_color"					"0 0 0"
+	"light_radius"					"0"
+	"light_offset"					"0 0 0"
+
+	"mtr_explode_light_shader"		""
+	"explode_light_color"			"0 0 0"
+	"explode_light_radius"			"0"
+	"explode_light_fadetime"		"0"
+}

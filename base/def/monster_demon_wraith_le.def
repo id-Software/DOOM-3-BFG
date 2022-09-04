@@ -1,0 +1,25 @@
+/***********************************************************************
+
+Lost Mission Wraith
+
+***********************************************************************/
+		
+export wraith {
+
+ 	options -prefix W_ -keep Lknee Rknee -keep fireball ROT  -parent fireball head_FK -parent spine_1 ROT -parent ROT root
+
+	addoptions -sourcedir models/monsters/wraith/cycles 
+	addoptions -destdir models/md5/monsters/wraith
+	addoptions -align movement
+
+	anim	eating.ma
+ 	
+//Enpro 1 intro animation
+	
+	options -prefix W: -keep Lknee Rknee -keep fireball ROT  -parent fireball head_FK -parent spine_1 ROT -parent ROT root
+	addoptions -sourcedir maps/user/eric/le_enpro 
+	addoptions -destdir models/md5/cinematics/le_enpro1
+
+	anim	wraith_intro.ma  -rotate 180 
+
+} 

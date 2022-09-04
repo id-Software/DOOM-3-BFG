@@ -1,0 +1,278 @@
+/***********************************************************************
+
+ai_monster_boss_cyberdemon.script
+
+monster_boss_cyberdemon
+
+***********************************************************************/
+
+#define CYBER_ATTACK_RATE			5
+#define	CYBER_PAIN_DELAY			0.25
+#define CYBER_NOFOVTIME				4
+
+// anim blend times
+#define	CYBER_PAIN_TO_IDLE			2
+#define CYBER_PAIN_TO_PAIN			0
+#define	CYBER_MELEE_TO_IDLE			4
+#define CYBER_RANGE_TO_IDLE			4
+#define CYBER_IDLE_TO_PAIN			0
+#define CYBER_IDLE_TO_WALK			4
+#define CYBER_WALK_TO_IDLE			4
+#define CYBER_WALK_TO_RANGEATTACK	4
+#define CYBER_WALK_TO_MELEE			4
+
+object monster_boss_cyberdemon : monster_base {
+	float		nextAttack;
+	string		range_attack_anim;
+	entity		kick_entity;
+	float		nextNoFOVAttack;
+
+	// ai state
+	void		init();
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_boss_cyberdemon::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	while( !AI_SPECIAL_DAMAGE ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", CYBER_IDLE_TO_PAIN );
+}
+
+void monster_boss_cyberdemon::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + CYBER_PAIN_DELAY;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, CYBER_PAIN_TO_IDLE ) ) {
+		if ( AI_SPECIAL_DAMAGE ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", CYBER_PAIN_TO_PAIN );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", CYBER_PAIN_TO_IDLE );
+}
+
+void monster_boss_cyberdemon::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !AI_SPECIAL_DAMAGE && !animDone( ANIMCHANNEL_TORSO, CYBER_MELEE_TO_IDLE ) ) {
+		lookAtEnemy( 0.1 );
+		waitFrame();
+	}
+
+	finishAction( "melee_attack" );
+
+	if ( AI_SPECIAL_DAMAGE ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_Pain", CYBER_IDLE_TO_PAIN );
+	}
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", CYBER_MELEE_TO_IDLE );
+}
+
+void monster_boss_cyberdemon::Torso_RangeAttack() {
+	disablePain();
+
+	playAnim( ANIMCHANNEL_TORSO, range_attack_anim );
+	while( !AI_SPECIAL_DAMAGE && !animDone( ANIMCHANNEL_TORSO, CYBER_RANGE_TO_IDLE ) ) {
+		lookAtEnemy( 1 );	
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "range_attack" );
+
+	if ( AI_SPECIAL_DAMAGE ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_Pain", CYBER_IDLE_TO_PAIN );
+	}
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", CYBER_RANGE_TO_IDLE );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_boss_cyberdemon::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	while( !AI_FORWARD ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Walk", CYBER_IDLE_TO_WALK );
+}
+
+void monster_boss_cyberdemon::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	while( AI_FORWARD )	{
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", CYBER_WALK_TO_IDLE );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_cyberdemon::init
+=====================
+*/
+void monster_boss_cyberdemon::init() {
+	nextNoFOVAttack = 0;
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_cyberdemon::state_Begin
+=====================
+*/
+void monster_boss_cyberdemon::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_boss_cyberdemon::state_Idle
+=====================
+*/
+void monster_boss_cyberdemon::state_Idle() {
+	wait_for_enemy();
+
+	nextAttack	= 0;
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_cyberdemon::do_attack
+=====================
+*/
+void monster_boss_cyberdemon::do_attack( float attack_flags ) {
+	nextNoFOVAttack = sys.getTime() + CYBER_NOFOVTIME;
+	if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_boss_cyberdemon::check_attacks
+=====================
+*/
+float monster_boss_cyberdemon::check_attacks() {
+	float currentTime;
+	float attack_flags;
+	vector org;
+	
+	attack_flags = 0;
+
+	if ( AI_ENEMY_VISIBLE ) {
+		org = getOrigin();
+		kick_entity = findActorsInBounds( org + '-65 -65 0', org + '65 65 300' );
+		if ( kick_entity ) {
+			attack_flags |= ATTACK_MELEE;
+		}
+	}
+
+	if ( ( ( sys.getTime() > nextNoFOVAttack ) && AI_ENEMY_VISIBLE ) || AI_ENEMY_IN_FOV ) {
+		currentTime = sys.getTime();
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			range_attack_anim = chooseAnim( ANIMCHANNEL_LEGS, "range_attack" );
+			if ( canHitEnemyFromAnim( range_attack_anim ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_boss_cyberdemon::combat_range
+=====================
+*/
+void monster_boss_cyberdemon::combat_range() {
+	faceEnemy();
+	stopMove();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", CYBER_WALK_TO_RANGEATTACK );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( CYBER_ATTACK_RATE );
+	nextNoFOVAttack = sys.getTime() + CYBER_NOFOVTIME;
+}
+
+/*
+=====================
+monster_boss_cyberdemon::combat_melee
+=====================
+*/
+void monster_boss_cyberdemon::combat_melee() {
+	kickObstacles( kick_entity, 200 );
+	sys.wait( 0.5 );
+	directDamage( kick_entity, "melee_cyberdemon_kick" );
+}

@@ -1,0 +1,136 @@
+/***********************************************************************
+
+	monster_boss_sabaoth.def
+
+***********************************************************************/
+
+export James {
+ 	options -prefix SAB_ -keep ROT -align movement -sourcedir models/monsters/sabaoth/cycles -destdir models/md5/monsters/sabaoth
+
+	mesh	sabaoth_mesh.mb -dest sabaoth
+	anim	idle1.mb
+	anim	idle2.mb
+	anim	attack_claw.mb
+	anim	attack_bfg.mb
+	anim	move_backward.mb
+	anim	move_forward.mb
+	anim	move_start.mb
+	anim	move_stop.mb
+	anim	pain_chest.mb
+	anim	pain_head.mb
+	anim	pain_left.mb
+	anim	pain_right.mb
+	anim	sight.mb
+	anim	travel.mb
+	anim	af_pose.mb
+	anim	death.mb
+}
+
+model monster_boss_sabaoth {
+	mesh								models/md5/monsters/sabaoth/sabaoth.md5mesh
+	channel torso						( *mech_spine_2 )
+	channel legs						( *origin -*mech_spine_2 ROT )
+
+	anim stand							models/md5/monsters/sabaoth/idle1.md5anim
+	anim range_attack					models/md5/monsters/sabaoth/attack_bfg.md5anim {
+		frame 5								object_call fire_bfg
+		frame 3								sound_weapon sabaoth_bfg_fire
+		
+	}
+	anim move_start						models/md5/monsters/sabaoth/move_start.md5anim 
+	anim move_forward					models/md5/monsters/sabaoth/travel.md5anim 
+	anim move_stop						models/md5/monsters/sabaoth/move_stop.md5anim
+	anim sight							models/md5/monsters/sabaoth/sight.md5anim {
+		frame 1								sound_voice2 sabaoth_sight
+	}
+	anim af_pose						models/md5/monsters/sabaoth/af_pose.md5anim
+
+	anim melee_attack					models/md5/monsters/sabaoth/attack_claw.md5anim {
+		frame 1								sound_weapon sabaoth_melee
+		frame 40							melee melee_sabaoth
+	}
+	anim death							models/md5/monsters/sabaoth/death.md5anim {
+		frame 1								sound_voice sabaoth_death
+	}
+}
+
+entityDef monster_boss_sabaoth {
+	"editor_mins"						"-86 -86 0"
+	"editor_maxs"						"86 86 144"
+	"inherit"							"monster_default"
+	"scriptobject"						"monster_boss_sabaoth"
+	"ragdoll"							"monster_boss_sabaoth"
+	"size"								"172 172 144"
+	"use_aas"							"aas_sabaoth"
+	"turn_rate"							"140"
+	"team"								"1"
+	"rank"								"2"
+	"health"							"1750"
+	"fov"								"360"
+	"model"								"monster_boss_sabaoth"
+	"fly_speed"							"200"
+	"def_projectile"					"projectile_sabaoth_bfg"
+	"attack_cone"						"360"
+	"attack_accuracy"					"1"	
+	"projectile_spread"					"0"
+	"num_projectiles"					"1"
+	"melee_range"						"220"
+
+	"head_focus_rate"					"0.05"
+
+	"look_min"							"0 -180 0"
+	"look_max"							"0 180 0"
+	"look_joint mech_spine_1"			"0 1 0"
+
+	"bone_focus"						"organic_head"
+	
+	"damage_zone head"					"*organic_neck_1"
+	"damage_zone chest"					"*organic_spine_1 -*organic_stub_1 -*organic_clavicle -*organic_neck_1"
+	"damage_zone left_arm"				"*organic_clavicle"
+	"damage_zone right_arm"				"*organic_stub_1"
+	"damage_zone legs"					"*origin -*mech_spine_2 ROT"
+	"damage_scale legs"					"0.75"
+	"mass"   							"99999999"
+	"pain_threshold"					"50"
+	
+	"mtr_flashShader"					"muzzleflash"
+	"flashTime"							"0.15"
+	"flashColor"						"0 0.8 0"
+	"flashRadius"						"120"
+	
+	"chatter_combat_min"				"5"
+	"chatter_combat_max"				"15"
+	
+	"snd_chatter_combat"				"sabaoth_taunts"
+	"snd_death"							"sabaoth_death"
+	"snd_move_start"					"sabaoth_move_start"
+	"snd_move"							"sabaoth_move"
+	"snd_move_stop"						"sabaoth_move_stop"
+}
+
+entityDef projectile_sabaoth_bfg {
+	"inherit"							"projectile_bfg"
+	"no_contents"						"0"
+}
+
+entityDef melee_sabaoth {
+	"snd_hit"							"monster_demon_imp_melee_hit"
+	"snd_miss"							"monster_demon_imp_melee_miss"
+	"kickDir"							"0 1 0"
+
+	"damage"							"40"
+
+	"mtr_blob"							"rightSlash"
+	"blob_time"							"300"
+	"blob_x"							"-100"
+	"blob_y"							"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"							"70"
+
+	"kick_time"							"400"
+	"kick_amplitude"					"2"
+
+	"dv_time"							"200"
+}

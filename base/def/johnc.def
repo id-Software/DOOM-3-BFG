@@ -1,0 +1,81 @@
+// development testing stuff
+
+material particleSurfaceTestMaterial {
+	deform particle particleSurfaceParticle
+	
+	// the noshadows and _default stage are just so the surface
+	// will draw when "r_skipdeforms 1" is seet
+	noshadows
+	{
+		map	_default
+	}
+}
+
+particle particleSurfaceParticle {
+	{
+		time			1.0
+		material		textures/sfx/shotgunpuff				// which shader to use
+		count			100									// how many particles to trigger
+//		orientation		aimed	1 2
+		size			20
+		rotation		100
+//		direction		cone	100
+		speed			20
+		fadeColor		1 1 1 0									// we are alpha fading
+		fadeIn			0.5
+		fadeOut			0.5
+		gravity			10
+	}
+	{
+		time			0.8
+		material			textures/particles/spark3
+		count			3
+		orientation		aimed	0.5
+		size			10
+		rotation		100
+//		direction		cone	100
+		speed			100
+		color			1 1 0 0
+		fadeColor		0 0 0 0
+		fadeIn			0.5
+		fadeOut			0.5
+		gravity			10
+	}
+}
+
+
+
+material burnedImp
+{
+	unsmoothedTangents
+	renderbump  -size 512 512 -aa 3 models/monsters/imp/imp_local.tga models/monsters/imp/work/imp_hp.lwo
+	{
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		map models/monsters/spectre/dis2.tga
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		map models/monsters/spectre/dis2.tga
+		alphaTest 0.3 * (time - parm7)
+	}
+	bumpmap	addnormals (models/monsters/imp/imp_local, heightmap (models/monsters/imp/imp_bmp.tga, 6) )
+	diffusemap models/monsters/imp/imp_d
+	specularmap	models/monsters/imp/imp_s
+}	
+
+skin testBurnedImp
+{
+	*			burnedImp
+}
+

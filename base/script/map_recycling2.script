@@ -1,0 +1,453 @@
+void make_player_cough() {
+
+	$player1.startSoundShader ("player_cough", SND_CHANNEL_VOICE);
+}
+
+namespace map_recycling2 {
+
+	void mover_startsound (entity ent) {
+		ent.startSoundShader ("m1_start", SND_CHANNEL_VOICE);
+		sys.wait (0.75);
+		ent.startSoundShader ("m1_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound (entity ent) {
+		ent.startSoundShader ("m1_stop", SND_CHANNEL_VOICE2);
+		ent.startSoundShader ("rec1_pump_endclack_01", SND_CHANNEL_ITEM );
+	}
+	
+	void mover_startsound2 (entity ent) {
+		ent.startSoundShader ("m2_start", SND_CHANNEL_VOICE);
+		sys.wait (0.75);
+		ent.startSoundShader ("m2_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound2 (entity ent) {
+		ent.startSoundShader ("m2_stop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_startsound3 (entity ent) {
+		ent.startSoundShader ("m3_start", SND_CHANNEL_VOICE);
+		sys.wait (1);
+		ent.startSoundShader ("m3_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound3 (entity ent) {
+		ent.startSoundShader ("m3_stop", SND_CHANNEL_VOICE2);
+	}
+
+
+	void setup_objects ()
+	{
+			$pump1nozzle1.bind ($pump1axis);
+			$pump1_tubecap.bind ($pump1_tube);
+			$pump1_tube.bind ($pump1_tube_anchor);
+			$cyl_1.bind ($cyl_1_anchor);
+			$elev2_light.bind ($elev1);
+			//$elev2_speaker.bind ($elev1);			
+			$walkway.bind ($walkway_anchor);
+			$light_warning_spin.bind ($light_warning_anchor);
+			$light_warning_2.bind ($light_warning_anchor);
+			$light_warning_flare.bind ($light_warning_anchor);
+			$light_warning_off.bind ($light_warning_anchor);
+			$light_warning_on.bind ($light_warning_anchor);
+                        
+	}
+
+	///////////////////
+	// first pump room
+	//////////////////
+
+	void pump1piston1_start ()
+	{
+		while (1)
+		{ 
+				$pump1piston1.accelTime (.5);
+				$pump1piston1.decelTime (.2);
+				$pump1piston1.time (1);
+				thread mover_startsound ($pump1piston1);
+				$pump1piston1.moveTo ($pump1piston1_btm);
+				sys.waitFor ($pump1piston1);
+				mover_stopsound ($pump1piston1);
+		        
+				sys.wait (1);
+		        
+				$pump1piston1.accelTime (.5);
+				$pump1piston1.decelTime (.8);
+				
+				thread mover_startsound ($pump1piston1);
+				
+				$pump1piston1.time (1.6);
+				$pump1piston1.moveTo ($pump1piston1_top);
+				sys.waitFor ($pump1piston1);
+				
+				mover_stopsound ($pump1piston1);
+		}
+	}
+
+	void pump1piston2_start ()
+	{
+		while (1)
+		{              
+				$pump1piston2.time (1.5);
+				thread mover_startsound3 ($pump1piston2);
+				$pump1piston2.move (DOWN ,96);
+				sys.waitFor ($pump1piston2);
+				mover_stopsound2 ($pump1piston2);
+
+				sys.wait (.5);
+
+				$pump1piston2.time (2);
+				thread mover_startsound3 ($pump1piston2);
+				$pump1piston2.move (UP ,96);
+				sys.waitFor ($pump1piston2);
+				mover_stopsound3 ($pump1piston2);
+				sys.wait (.5);
+		}
+	}
+
+	void pump1machine_start ()
+	{
+		while (1)
+		{ 
+				$pump1axis.decelTime (.5);                        
+				$pump1axis.time (1);
+				$pump1axis.rotateOnce ('0 180 0');
+				sys.waitFor ($pump1axis);
+
+				sys.trigger ($pump1_bubbles);
+
+				$pump1_tube_anchor.time (.5);
+				$pump1_tube_anchor.rotateOnce ('0 0 90');
+				sys.waitFor ($pump1_tube_anchor);
+	                        
+				$pump1_tubecap.unbind ();
+				$pump1_tubecap.time (.5);
+				$pump1_tubecap.moveTo ($pump1_tubecap_spot2);
+				sys.waitFor ($pump1_tubecap);
+				$pump1_tubecap.bind ($pump1nozzle1);
+
+				$pump1speaker.startSoundShader("sact1_vent_1s", SND_CHANNEL_ANY );
+		   
+				$pump1nozzle1.time (.5);
+				$pump1nozzle1.rotateOnce ('0 0 360');
+				sys.waitFor ($pump1nozzle1);
+				$pump1_tubecap.unbind ();
+
+				sys.trigger ($pump1_bubbles);
+
+				sys.wait (1.5);
+	                        
+				$pump1_tubecap.time (.5);
+				$pump1_tubecap.moveTo ($pump1_tubecap_spot1);
+				sys.waitFor ($pump1_tubecap);
+				$pump1_tubecap.bind ($pump1_tube);
+	                        	        
+				$pump1_tube_anchor.time (.5);
+				$pump1_tube_anchor.rotateOnce ('0 0 -90');
+				sys.waitFor ($pump1_tube_anchor);
+		       
+				$pump1axis.decelTime (.5);                        
+				$pump1axis.time (1);
+				$pump1axis.rotateOnce ('0 180 0');
+				sys.waitFor ($pump1axis);
+
+							sys.trigger ($pump1_bubbles);
+
+				$pump1_tube_anchor.time (.5);
+				$pump1_tube_anchor.rotateOnce ('0 0 90');
+				sys.waitFor ($pump1_tube_anchor);
+
+				$pump1_tubecap.unbind ();
+				$pump1_tubecap.time (.5);
+				$pump1_tubecap.moveTo ($pump1_tubecap_spot2);
+				sys.waitFor ($pump1_tubecap);
+				$pump1_tubecap.bind ($pump1nozzle1);
+
+							$pump1speaker.startSoundShader("sact1_vent_1s", SND_CHANNEL_ANY );
+		   
+				$pump1nozzle1.time (.5);
+				$pump1nozzle1.rotateOnce ('0 0 360');
+				sys.waitFor ($pump1nozzle1);
+				$pump1_tubecap.unbind ();
+
+							sys.trigger ($pump1_bubbles);
+
+							sys.wait (1.5);
+	                        
+				$pump1_tubecap.time (.5);
+				$pump1_tubecap.moveTo ($pump1_tubecap_spot1);
+				sys.waitFor ($pump1_tubecap);
+				$pump1_tubecap.bind ($pump1_tube);
+
+	                        
+		        
+				$pump1_tube_anchor.time (.5);
+				$pump1_tube_anchor.rotateOnce ('0 0 -90');
+				sys.waitFor ($pump1_tube_anchor);
+		                       
+		}
+	}
+
+        void block_door ()
+        {
+                                             
+                        sys.trigger ($block_door);
+                          
+        }
+
+         void bust_window ()
+        {
+                        
+                        sys.trigger ($imp_1);
+                        sys.wait (1);
+                        sys.trigger ($bustfield1);
+                        sys.trigger ($bustout1);
+                 
+                        sys.wait (4);
+                        sys.trigger ($imp_2);
+                        sys.wait (1);
+                        sys.trigger ($bustfield2);
+                        sys.trigger ($bustout2);                                                                                                                                   
+        }
+	
+	void light_warning_on ()
+	{ 
+	             
+			$light_warning_off.hide ();
+			$light_warning_on.show (); 
+			$light_warning_flare.show ();
+			$light_warning_anchor.rotate ('0 200 0');	
+			sys.trigger ($speaker_alarm1);			             
+	}
+        
+        void change1 ()
+        { 
+               $btrigger2.remove ();
+               $firstroom_on2.remove ();         
+               $speaker_290.remove();
+        }
+        void change2 ()
+        {      
+               $btrigger1.remove ();
+               $firstroom_on1.remove ();
+               $mainscreen.setGuiParm ( "gui_parm1" , 2);
+               $screen2.setGuiParm ( "gui_parm1" , 2);
+               $screen4.setGuiParm ( "gui_parm1" , 2);
+               $speaker_291.remove();
+        }
+        
+
+	///////////////////
+	// first gas room
+	//////////////////
+
+	void ventgas_off ()
+	{              	       
+      		sys.trigger ($ventgas1);
+			sys.trigger ($ventgas2);
+            sys.wait (.5);
+            sys.trigger ($ventgas1_in);
+		    sys.trigger ($ventgas2_in);
+            sys.wait (4);
+            sys.trigger ($ventgas1_in);
+		    sys.trigger ($ventgas2_in);               
+	}	
+
+	///////////////////
+	// exit gas room
+	//////////////////
+
+	void exitgas1_off ()
+	{              
+	       sys.trigger ($exitgas1);
+               sys.wait (.5);
+               sys.trigger ($exitgas1_in);
+	                    
+	}
+	void exitgas2_off ()
+	{              
+	        sys.trigger ($exitgas2);
+            sys.wait (.5);
+            sys.trigger ($exitgas2_in);
+	                   
+	}
+	void exitgas3_off ()
+	{              
+	        sys.trigger ($exitgas3);
+            sys.wait (.5);
+            sys.trigger ($exitgas3_in);
+	                    
+	}
+    
+    void exitgas_in ()
+	{              	   
+		sys.wait (4);
+		sys.trigger ($exitgas1_in);
+		sys.trigger ($exitgas2_in);
+		sys.trigger ($exitgas3_in);
+		        
+	}
+                                             
+
+	/////////////////
+	// misc
+	////////////////
+
+
+	void pump2piston_start ()
+	{
+	while (1)
+	{        
+		$pump2piston.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE );
+		$pump2piston.time (1);
+		$pump2piston.moveTo ($pump2piston_spot1);
+		sys.waitFor ($pump2piston);
+
+		$pump2piston.startSoundShader ("rec2_pump_05s_01", SND_CHANNEL_VOICE2 );
+		$pump2piston.time (0.5);
+		$pump2piston.moveTo ($pump2piston_spot2);
+		sys.waitFor ($pump2piston);
+
+	}                 
+	}
+
+	void cyl1_start ()
+	{
+	while (1)
+	{    
+            sys.trigger ($cyl1_gas);
+           
+			$vent1.time (.5);       
+			$vent1.rotateOnce ('0 -100 0');
+			$vent2.time (.5);       
+			$vent2.rotateOnce ('0 -70 0');
+			$vent3.time (.5);       
+			$vent3.rotateOnce ('0 -70 0');
+			$thingspeaker.startSoundShader("sact1_vent_05s_close", SND_CHANNEL_ANY );
+			sys.wait (.5); 
+	     
+			$cyl_1_anchor.time (1);
+			$cyl_1_anchor.rotateOnce ('0 -150 0');
+			$thingspeaker.startSoundShader("sact1_vent_1s", SND_CHANNEL_ANY );
+			sys.waitFor ($cyl_1_anchor);
+                         
+			sys.wait (2);
+
+			$cyl_1_anchor.time (1);
+			$cyl_1_anchor.rotateOnce ('0 150 0');   
+			$thingspeaker.startSoundShader("sact1_vent_1s", SND_CHANNEL_ANY );
+			sys.waitFor ($cyl_1_anchor);
+
+			sys.wait (.5);
+
+			$vent1.time (.5);       
+			$vent1.rotateOnce ('0 100 0');
+			$vent2.time (.5);       
+			$vent2.rotateOnce ('0 70 0');
+			$vent3.time (.5);       
+			$vent3.rotateOnce ('0 70 0');
+			$thingspeaker.startSoundShader("sact1_vent_05s_open", SND_CHANNEL_ANY );
+
+			sys.trigger ($cyl1_gas);
+
+			sys.wait (3);
+	        
+	}
+	}
+
+
+	void lamp_sway1 ()
+	{
+
+			$storageswing_lamp1.sway( 25, 0, '20 10 10' );
+
+	}
+
+        void wallbox1_turn ()
+	{
+
+                        $wallbox1.time (.3);
+			$wallbox1.rotateOnce ('0 0 -8');
+                        $wallbox1_speaker.startSoundShader("smallpanel_impact", SND_CHANNEL_ANY );
+
+	}
+
+        void underhall_lights ()
+	{
+	while (1)
+	{ 
+			sys.trigger ($underhall_fadein1);
+                        sys.trigger ($underhall_fadein2);
+			
+			sys.wait (.7);
+
+                        sys.trigger ($underhall_fadeout1);
+                        sys.trigger ($underhall_fadeout2);
+			
+			sys.wait (.3);
+        }
+        }
+
+        void elev_crash ()
+	{
+
+			$elev1.bind ($elev_mover);
+                        $elev_mover.accelTime (.4);
+                        $elev_mover.time (1.5);
+                        $elev_mover.move (DOWN , 612);
+
+	}
+        
+	/////////////////////
+	// mancubusroom
+	////////////////////	
+
+	void walkway_fall ()
+	{              
+			$walkway_anchor.startSoundShader ("rec1_bridge_fall", SND_CHANNEL_VOICE );
+			$walkway_anchor.time (.6);
+			$walkway_anchor.accelTime (.4);
+			$walkway_anchor.rotateOnce ('18 0 0');
+            $walkway_speaker.startSoundShader("smallpanel_impact", SND_CHANNEL_ANY );
+
+			sys.waitFor ($walkway_anchor);
+
+			$walkway_anchor.time (.2);
+			$walkway_anchor.decelTime (.1);
+			$walkway_anchor.rotateOnce ('-5 0 0');
+			$walkway_anchor.time (.1);
+			$walkway_anchor.rotateOnce ('5 0 0');
+	             
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("player_cough");
+		sys.cacheSoundShader ("m1_start");
+		sys.cacheSoundShader ("m1_stop");
+		sys.cacheSoundShader ("m1_loop");
+		sys.cacheSoundShader ("m2_start");
+		sys.cacheSoundShader ("m2_stop");
+		sys.cacheSoundShader ("m2_loop");
+		sys.cacheSoundShader ("m3_start");
+		sys.cacheSoundShader ("m3_stop");
+		sys.cacheSoundShader ("m3_loop");
+		sys.cacheSoundShader ("rec1_pump_endclack_01");
+		sys.cacheSoundShader ("sact1_vent_1s");
+		sys.cacheSoundShader ("sact1_vent_05s_close");
+		sys.cacheSoundShader ("sact1_vent_05s_open");
+		sys.cacheSoundShader ("rec2_pump_1s_01");
+		sys.cacheSoundShader ("rec2_pump_05s_01");
+		sys.cacheSoundShader ("smallpanel_impact");
+		sys.cacheSoundShader ("rec1_bridge_fall");
+	}
+
+	 
+	void main ()
+	{
+		cache_sounds();
+		setup_objects();
+		pump2piston_start();
+
+	}
+}

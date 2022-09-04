@@ -1,0 +1,223 @@
+/***********************************************************************
+
+monster_zombie_maint.def
+
+***********************************************************************/
+
+export fred {
+	options		-prefix ZOMBIE1_ -sourcedir models/monsters/zombie/zombie01/cycles -destdir models/md5/monsters/zombies/zmaint
+	addoptions	-parent loneck shoulders	
+	addoptions	-parent Jaw head
+	addoptions	-parent Body2 Body
+	addoptions	-parent waist Body2
+	addoptions 	-parent Hips Body2
+	addoptions	-parent Luparm Lshldr
+	addoptions	-parent Lloarm Luparm
+	addoptions	-parent Ruparm Rshldr
+	addoptions	-parent Rloarm Ruparm
+	addoptions	-keep loneck head R_cheek L_cheek Up_lip Lbrow1 Lbrow2 Rbrow1 Rbrow2 llolid luplid rlolid
+	addoptions	-keep ruplid waist chest shoulders Rshldr Lshldr L_shirt R_shirt Back_shirt Luparm loarm_reg
+	addoptions	loarm_stump lrip2 lrip3 lrip1 lrip4 Lloarm Lhand Lcarp Lindex1 Lindex2 Lthumb0
+	addoptions	Lthumb1 Lthumb2 Lthumb3 Lfings1 Lfings2 Lfings3 Lcarp1 Lindex1a Lindex2a Lcarp2
+	addoptions	Lindex1b Lindex2c Ruparm rloarm_reg rloarm_stump rrip1 rrip2 rrip3 rrip4 Rloarm
+	addoptions	Rhand Rcarp Rindex1 Rindex2 Rthumb0 Rthumb1 Rthumb2 Rthumb3 Rfings1 Rfings2 Rfings3
+	addoptions	Rcarp1 Rindex1a Rindex2a Rcarp2 Rindex1b Rindex2b Hips Lupleg Lloleg Lankle_r Lball_r
+	addoptions	Ltoe_r Rupleg Rloleg Rankle_r Rball_r Rtoe_r Jaw Lo_lip Body Body2
+	addoptions -keep Lknee Rknee
+
+	mesh		zombie01_mesh.mb -dest zmaint
+	anim		idle1.ma
+	anim		walk1.ma
+	anim		walk2.ma
+	anim		mocapwalk2.mb -dest walk3
+	anim		mocapwalk3.mb -dest walk4
+	anim		mocapswings1.mb -range 139 173 -dest mocapswing1
+	anim		mocapswings2.mb -range 42 71 -dest mocapswing2
+	anim		mocapswings3.mb -range 135 166 -dest mocapswing3
+	anim		pain1.ma
+	anim		pain_legs.ma
+	anim		pain_chest.ma
+	anim		pain_ruparm.ma
+	anim		pain_luparm.ma
+	anim		pain_head.ma
+	anim		death1.ma
+	anim		death1_twitch.ma
+	anim		death1_getup_attempt.ma
+	anim		death1_getup.ma
+	anim		death1_getup.ma -range 1 1 -dest death1_getuppose
+	anim		attack1.ma
+	anim		attack2.ma
+	anim		attack3.ma
+	anim		sight1.ma
+	anim		initial.ma
+
+	addoptions  -rename origin old_origin -rename final_origin origin
+	anim		models/monsters/zombie/zombie01/cycles/getup_from_bed.ma -rotate -135 -dest models/md5/monsters/zombies/zmaint/getup_from_bed
+	anim		models/monsters/zombie/zombie01/cycles/laying_on_bed.ma -rotate -135 -dest models/md5/monsters/zombies/zmaint/laying_on_b
+}
+
+model monster_zombie_maint {
+	mesh							models/md5/monsters/zombies/zmaint/zmaint.md5mesh
+	channel torso					( *waist )
+	channel legs					( *Hips origin Body Body2 )
+
+	anim af_pose					models/md5/monsters/zombies/zmaint/initial.md5anim
+	anim ik_pose					models/md5/monsters/zombies/zmaint/initial.md5anim
+
+	anim initial					models/md5/monsters/zombies/zmaint/initial.md5anim
+	anim idle						models/md5/monsters/zombies/zmaint/idle1.md5anim
+	anim sight						models/md5/monsters/zombies/zmaint/sight1.md5anim {
+		frame 1							sound_voice snd_sight
+	}
+	anim walk1						models/md5/monsters/zombies/zmaint/walk1.md5anim {
+		frame 15						leftfoot
+		frame 30						rightfoot
+	}
+	anim walk2						models/md5/monsters/zombies/zmaint/walk2.md5anim {
+		frame 13						rightfoot
+		frame 24						leftfoot
+		frame 35						rightfoot
+		frame 46						leftfoot
+		frame 57						rightfoot
+		frame 68						leftfoot
+	}
+	anim walk3						models/md5/monsters/zombies/zmaint/walk3.md5anim
+	anim walk4						models/md5/monsters/zombies/zmaint/walk4.md5anim
+
+	anim pain						models/md5/monsters/zombies/zmaint/pain1.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/zombies/zmaint/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 15						rightfoot
+	}
+	anim pain_left_arm				models/md5/monsters/zombies/zmaint/pain_luparm.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 14						rightfoot
+	}
+	anim pain_right_arm				models/md5/monsters/zombies/zmaint/pain_ruparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_legs					models/md5/monsters/zombies/zmaint/pain_legs.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 4							leftfoot
+		frame 18						rightfoot
+	}
+	anim pain_chest					models/md5/monsters/zombies/zmaint/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim melee_attack4				models/md5/monsters/zombies/zmaint/mocapswing1.md5anim {
+		frame 1							call overrideLegs
+		frame 12						melee melee_zombie_maint_Right
+	}
+	anim melee_attack5				models/md5/monsters/zombies/zmaint/mocapswing2.md5anim {
+		frame 1							call overrideLegs
+		frame 10						melee melee_zombie_maint_Right
+	}
+	anim melee_attack6				models/md5/monsters/zombies/zmaint/mocapswing3.md5anim {
+		frame 1							call overrideLegs
+		frame 7							melee melee_zombie_maint_Left
+	}
+/*
+	anim death1_getup_attempt		models/md5/monsters/zombies/zmaint/death1_getup_attempt.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+		frame 34						sound_body snd_thud
+		frame 21						sound_voice snd_sight
+	}
+	anim death1_getup				models/md5/monsters/zombies/zmaint/death1_getup.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+		frame 20						sound_voice snd_sight
+		frame 31 						rightfoot
+		frame 43 						leftfoot
+		frame 45						sound_voice snd_melee_attack_1
+		frame 52						sound_voice snd_sight
+		frame 54						melee melee_zombie_maint_Right
+		frame 80 						rightfoot
+	}
+	anim death1_getuppose			models/md5/monsters/zombies/zmaint/death1_getuppose.md5anim {
+		ai_no_turn
+	}
+
+	anim death1_twitch				models/md5/monsters/zombies/zmaint/death1_twitch.md5anim {
+		ai_no_turn
+	}
+	anim getup_from_bed				models/md5/monsters/zombies/zmaint/getup_from_bed.md5anim {
+		ai_no_turn
+	}
+	anim laying_on_bed				models/md5/monsters/zombies/zmaint/laying_on_bed.md5anim {
+		ai_no_turn
+	}
+*/	
+}
+
+entityDef monster_zombie_maint {
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"50"
+	"melee_range"					"32"
+	"walk_on_sight"					"1"
+	"mass"							"150"
+
+	"model"							"monster_zombie_maint"
+	"ragdoll"						"monster_zombie_maint"
+	"skin"							"skins/monsters/zombies/zmaintb.skin"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"body"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	
+	"dropGibItem9Joint"				"head"
+	
+	"damage_zone head"				"*head"
+	"damage_zone chest"				"*waist -*Ruparm -*Luparm -*loneck"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Rupleg *Lupleg"
+
+	"damage_scale head"				"2"
+
+	"snd_sight"						"monster_zombie_maint_sight"
+	"snd_footstep"					"monster_zombie_maint_footstep"
+	"snd_melee_attack_1"			"monster_zombie_maint_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_maint_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_maint_attackmelee_3"
+	"snd_chatter"					"monster_zombie_maint_chatter"
+	"snd_chatter_combat"			"monster_zombie_maint_chatter_combat"
+	"snd_pain"						"monster_zombie_maint_pain"
+	"snd_thud"						"monster_zombie_maint_thud"
+	"snd_swipe"						"monster_zombie_maint_swipe"
+
+	"skin_dropGib"					"skins/monsters/zombies/zmaintb_gib"
+}
+
+entityDef monster_zombie_maint2 {
+	"inherit"						"monster_zombie_maint"
+	"skin"							"skins/monsters/zombies/zmaint.skin"
+}
+
+model monster_zombie_maint_fast {
+	inherit							monster_zombie_maint
+	remove walk
+	anim walk1						models/md5/monsters/zombies/zmaint/walk4.md5anim
+}
+
+entityDef monster_zombie_maint_fast {
+	"inherit"						"monster_zombie_maint"
+	"model"							"monster_zombie_maint_fast"
+}

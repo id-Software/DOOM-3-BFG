@@ -1,0 +1,274 @@
+/***********************************************************************
+
+	weapon_flashlight.def
+
+***********************************************************************/
+
+export fred {
+	// Flashlight
+	options -prefix FLASHLIGHT_  -keep flash -parent flash Flashlight
+	mesh	models/items/flashlight/cycles/allanims.mb -dest models/md5/items/flashlight_view/viewflashlight
+	anim	models/items/flashlight/cycles/allanims.mb -range 1 90 -dest models/md5/items/flashlight_view/idle
+	anim	models/items/flashlight/cycles/allanims.mb -range 91 102 -dest models/md5/items/flashlight_view/pushbutton
+	anim	models/items/flashlight/cycles/allanims.mb -range 112 135 -dest models/md5/items/flashlight_view/swing1
+	anim	models/items/flashlight/cycles/allanims.mb -range 137 162 -dest models/md5/items/flashlight_view/swing2
+	anim	models/items/flashlight/cycles/allanims.mb -range 165 170 -dest models/md5/items/flashlight_view/lower
+	anim	models/items/flashlight/cycles/allanims.mb -range 176 190 -dest models/md5/items/flashlight_view/raise
+	
+	// world model flashlight
+	options -prefix PLAYER_FL_ -keep ATTACHER flash -parent flash Flashlight -rename ATTACHER origin -clearorigin
+	mesh	models/characters/player/mocap/flashlight_idle.mb -dest models/md5/items/flashlight_world/worldflashlight
+	anim	models/characters/player/mocap/flashlight_idle.mb -dest models/md5/items/flashlight_world/flashlight_idle
+}
+
+entityDef weapon_flashlight {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Flashlight"
+	"editor_rotatable"			"1"
+	"model"						"models/items/flashlight/flashlight2_world.lwo"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model_view"				"viewmodel_flashlight"
+	"model_world" 				"worldmodel_flashlight"
+	"joint_attach"				"FL_ATTACHER"
+
+	"inv_name"					"#str_00100187"
+	"inv_weapon"				"weapon_flashlight"
+	"inv_item"					"5"
+	"icon"						"guis/assets/hud/wpn_10"
+
+	"inv_desc"					"#str_weapon_flashlight_desc"
+	"display_name"				"#str_02482"
+	"pdaIcon"					"guis/assets/hud/icons/flashlight_new.tga"
+	
+	"impact_damage_effect"		"1"
+	
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"weapon_scriptobject"		"weapon_flashlight"
+	"def_melee"					"damage_flashlight"
+	"melee_distance"			"48"
+	"ammoType"					""
+	"ammoRequired"				"0"
+	"clipSize"					"0"
+	"mtr_flashShader"			"lights/flashlight5"
+	"flashColor"				"1 1 1"
+	"flashTime"					"0.016"
+	"flashRadius"				"400"
+	"silent_fire"				"1"
+	"flashAngle"				"22.0"
+	"flashTarget"				"0 0 1280"
+	"flashUp"					"0 640 0"
+	"flashRight"				"-640 0 0"
+	"flashPointLight"			"0"
+
+	"snd_acquire"				"flashlight_pickup"
+
+	// MP
+	"skin_on"					"skins/models/weapons/flashlight_on"
+	"skin_on_invis"				"skins/models/weapons/flashlight_on_invis"
+	"skin_off"					"skins/models/weapons/flashlight_off"
+	"skin_off_invis"			"skins/models/weapons/flashlight_off_invis"
+}
+
+entityDef moveable_item_flashlight {
+	"inherit"					"weapon_flashlight"
+	"spawnclass"				"idMoveableItem"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+	"no_touch"				"1"
+}
+
+model worldmodel_flashlight {
+	mesh						models/md5/items/flashlight_world/worldflashlight.md5mesh
+
+	anim raise 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim idle 					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim aim					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim fire					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim reload					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim noammo					models/md5/items/flashlight_world/flashlight_idle.md5anim
+	anim putaway				models/md5/items/flashlight_world/flashlight_idle.md5anim
+}
+
+model viewmodel_flashlight {
+	mesh						models/md5/items/flashlight_view/viewflashlight.md5mesh
+	offset						( -7 2 16 )
+
+	anim raise					models/md5/items/flashlight_view/raise.md5anim {
+		frame	1				sound_weapon flashlight_raise
+	}
+	anim idle 					models/md5/items/flashlight_view/idle.md5anim
+	anim fire1 					models/md5/items/flashlight_view/swing1.md5anim
+	anim fire2 					models/md5/items/flashlight_view/swing2.md5anim
+	anim putaway				models/md5/items/flashlight_view/lower.md5anim
+	anim reload					models/md5/items/flashlight_view/pushbutton.md5anim
+	anim noammo					models/md5/items/flashlight_view/idle.md5anim
+}
+
+entityDef	damage_flashlight {
+	"damage"			"40" //may31 -Tim may be too high
+	"kickDir"			"-1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"gib"				"1"
+	"smoke_wound_flesh"	"burstysquirt.prt"
+	
+	"knockback"			"20"
+	"push"				"15000"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+	
+	"snd_flesh"					"flashlight_impact"
+	"snd_metal"					"monster_zombie_fat_wrench"
+	"snd_ricochet"				"monster_zombie_fat_wrench"	// need this 
+	"snd_stone"					"monster_zombie_fat_wrench"
+	"snd_wood"					"flashlight_impact"
+	"snd_cardboard"				"flashlight_impact"
+	"snd_glass"					"monster_zombie_fat_wrench"
+//	"snd_liquid"				"bullet_impact_liquid"
+	"snd_plastic"				"flashlight_impact"
+	"snd_shatter"				"melee_impact_glass"	
+	
+	"snd_hit"			"flashlight_impact"		// TEMP
+	"snd_miss"			"fist_whoosh"			// TEMP
+	"snd_hit_berserk"	"fist_gorepunch"
+}
+
+material lights/flashlight5broken {
+	lightFalloffImage	makeIntensity( lights/flashoff.tga )
+	{
+		map	lights/flashlight5broken.tga
+		zeroClamp
+		//rotate	time * -.01
+		//colored
+		rgb		xray02table[ time * .5 ] * parm3
+	}
+}
+
+material lights/flashlight5 {
+	lightFalloffImage	makeIntensity( lights/flashoff.tga )
+	{
+		map	lights/flashlight5.tga
+		zeroClamp
+		//rotate	time * -.01
+		//colored
+		rgb		bathroomtable[ time * .05 ] * parm3
+	}
+}
+
+material lights/flashlight5gore {
+	lightFalloffImage	makeIntensity( lights/flashoff.tga )
+	{
+		map	lights/flashlight5gore.tga
+		zeroClamp
+		//colored
+		rgb		bathroomtable[ time * .05 ] * parm3
+	}
+}
+
+material models/items/flashlight/flare {
+	translucent
+	deform sprite
+	{
+		blend			add
+		map				models/items/flashlight/flare.tga
+	}
+}
+
+material models/items/flashlight/beam1 {
+	translucent
+	deform tube
+	{
+		maskcolor
+		map makealpha(models/items/flashlight/beam1.tga)
+		//	scroll	time * 3 , time * 0	
+		forcehighquality	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	        maskalpha
+		map models/items/flashlight/dust
+		scale	 4 , 4
+		rotate time * -.02
+		scroll	time * .001 , time * .001
+	}
+}
+
+material models/items/flashlight/flare2 {
+	translucent
+	deform sprite
+	{
+		blend			add
+		map				models/items/flashlight/flare2.tga
+	}
+}
+
+material models/items/flashlight/beam2 {
+	translucent
+	deform tube
+	{
+		maskcolor
+		map makealpha(models/items/flashlight/beam1.tga)
+		//	scroll	time * 3 , time * 0	
+		forcehighquality
+	
+	
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	        maskalpha
+		map models/items/flashlight/dust
+		scale	 4 , 4
+		rotate time * -.02
+		scroll	time * .001 , time * .001
+	}
+}
+
+material models/items/flashlight/bulb {
+	translucent
+	{
+		blend			add
+		map				models/items/flashlight/bulb.tga		
+	}
+}
+
+skin skins/models/weapons/flashlight_off {
+	models/items/flashlight/flare textures/common/nodraw
+	models/items/flashlight/beam1 textures/common/nodraw
+	models/items/flashlight/flare2 textures/common/nodraw
+	models/items/flashlight/beam2 textures/common/nodraw
+	models/items/flashlight/bulb textures/common/nodraw
+}
+
+skin skins/models/weapons/flashlight_off_invis {
+	models/items/flashlight/flashlight2 models/items/flashlight/flashlight2_invis
+	models/characters/player/arm2	models/characters/player/arm2_invis
+	models/items/flashlight/flare textures/common/nodraw
+	models/items/flashlight/beam1 textures/common/nodraw
+	models/items/flashlight/flare2 textures/common/nodraw
+	models/items/flashlight/beam2 textures/common/nodraw
+	models/items/flashlight/bulb textures/common/nodraw
+}
+
+skin skins/models/weapons/flashlight_on {
+}
+
+skin skins/models/weapons/flashlight_on_invis {
+	models/items/flashlight/flashlight2 models/items/flashlight/flashlight2_invis
+	models/characters/player/arm2	models/characters/player/arm2_invis
+}
+

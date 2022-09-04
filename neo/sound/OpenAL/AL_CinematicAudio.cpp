@@ -243,9 +243,13 @@ void CinematicAudio_OpenAL::ShutdownAudio()
 		}
 	}
 
-	if( alMusicBuffercin )
+	alDeleteBuffers( NUM_BUFFERS, &alMusicBuffercin[0] );
+	if( CheckALErrors() == AL_NO_ERROR )
 	{
-		alDeleteBuffers( NUM_BUFFERS, alMusicBuffercin );
+		for( int i = 0; i < NUM_BUFFERS; i++ )
+		{
+			alMusicBuffercin[ i ] = 0;
+		}
 	}
 
 	while( !tBuffer.empty() )

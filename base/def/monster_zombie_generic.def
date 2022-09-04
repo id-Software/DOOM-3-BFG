@@ -1,0 +1,677 @@
+/***********************************************************************
+
+monster_zombie_generic.def
+
+***********************************************************************/
+
+model model_monster_zombie {
+	mesh							models/md5/chars/skeleton.md5mesh
+
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+
+	anim idle1						models/md5/monsters/zombies/zidle1.md5anim
+	anim idle2						models/md5/monsters/zombies/zombie_idle1.md5anim
+	anim idle3						models/md5/monsters/zombies/zombie_idle2.md5anim
+	
+	anim stand						models/md5/monsters/zombies/zidle1.md5anim
+	
+	anim sight1						models/md5/monsters/zombies/zsight1.md5anim {
+		frame 1						sound snd_sight1
+	}
+	anim sight2						models/md5/monsters/zombies/zsight2.md5anim {
+		frame 1						sound snd_sight1
+		frame 15						sound_body snd_footstep
+		frame 32						sound_body snd_footstep
+	}
+
+	anim walk						models/md5/monsters/zombies/zwalk1.md5anim {
+		frame 11						sound_body snd_footstep
+		frame 24						sound_body snd_footstep
+		frame 40						sound_body snd_footstep
+		frame 56						sound_body snd_footstep
+	}
+	
+	anim pain						models/md5/monsters/zombies/chestpain1.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_head1					models/md5/monsters/zombies/headpain1.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_head2					models/md5/monsters/zombies/headpain2.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_chest1				models/md5/monsters/zombies/chestpain1.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_chest2				models/md5/monsters/zombies/chestpain2.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_left_arm1				models/md5/monsters/zombies/leftarmpain1.md5anim {
+		frame 5						sound_voice snd_pain
+	}
+	anim pain_left_arm2				models/md5/monsters/zombies/leftarmpain2.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_left_arm3				models/md5/monsters/zombies/leftarmpain3.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_right_arm1			models/md5/monsters/zombies/rightarmpain1.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+	anim pain_right_arm2			models/md5/monsters/zombies/rightarmpain2.md5anim {
+		frame 1						sound_voice snd_pain
+	}
+
+	anim melee_attack1				models/md5/monsters/zombies/swing1.md5anim {
+		frame 11					melee melee_zombie_maint_Right
+		}
+	anim melee_attack2				models/md5/monsters/zombies/swing2.md5anim {
+		frame 11					melee melee_zombie_maint_Left
+		}
+	anim melee_attack3				models/md5/monsters/zombies/swing3.md5anim {
+		frame 11					melee melee_zombie_maint_Right
+		}
+	anim melee_attack4				models/md5/monsters/zombies/swing4.md5anim {
+		frame 1							call overrideLegs
+		frame 17						melee melee_zombie_maint_Right
+		frame 19						sound_body snd_footstep
+		frame 35						sound_body snd_footstep
+		frame 49						sound_body snd_footstep
+		frame 58						sound_body snd_footstep
+		}
+	anim melee_attack5				models/md5/monsters/zombies/swing5.md5anim {
+		frame 1							call overrideLegs
+		frame 5							melee melee_zombie_maint_Left
+		frame 21						sound_body snd_footstep
+		frame 28						melee melee_zombie_maint_Right		
+		frame 50						sound_body snd_footstep
+	}
+	anim crawl_n_getup				models/md5/monsters/zombies/zcrawl_n_getup.md5anim {
+		ai_no_turn					
+		frame 5						sound_voice snd_pain
+		frame 9						sound_body monster_zombie_fat_footstep
+		frame 16					sound_body monster_zombie_fat_footstep
+		frame 22					sound_body monster_zombie_fat_footstep
+		frame 37					sound_voice snd_pain
+		frame 53					sound_body snd_footstep
+	}
+	anim crawl_n_getup_idle			models/md5/monsters/zombies/zcrawl_n_getup_idle.md5anim {
+		ai_no_turn
+	}
+	anim getup1						models/md5/monsters/zombies/zombie_getup2.md5anim {
+		ai_no_turn
+		frame 1						sound_voice monster_zombie_maint_sight
+	}
+	anim getup1pose					models/md5/monsters/zombies/zombie_getup2_pose.md5anim {
+		ai_no_turn
+	}
+	anim getup2						models/md5/monsters/zombies/zombie_getup3.md5anim {
+		ai_no_turn
+		frame 1						sound_voice monster_zombie_maint_sight
+	}
+	anim getup2pose					models/md5/monsters/zombies/zombie_getup3_pose.md5anim {
+		ai_no_turn
+	}
+	anim benchpose					models/md5/monsters/zombies/keycardgetupidle.md5anim {
+		ai_no_turn
+	}
+	anim benchgetup					models/md5/monsters/zombies/keycardgetup.md5anim {
+		ai_no_turn
+	}	
+}
+
+entityDef monster_zombie_base {
+	"inherit"						"zombie_default"
+	"model"							"model_monster_zombie"
+	"scriptobject"					"monster_zombie"
+
+	"size"							"40 40 72"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"80"
+	"melee_range"					"32"
+
+	"turn_rate"						"360"
+	"mass"							"150"
+	
+	"burnaway"						"1.5"
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+	
+	"ragdoll"						"monster_zombie_base"
+
+	//"model_gib" 					"models/md5/monsters/zombies/skeletonzombie.md5mesh"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body2"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*loneckcontrol"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips"
+
+	"damage_scale head"				"2"
+	
+	"snd_sight1"					"monster_zombie_fat_sight1"
+		
+	"snd_idle"						"monster_zombie_chainsaw_idle"
+	"snd_footstep"					"monster_zombie_security_footstep"
+	"snd_chatter"					"monster_zombie_fat_chatter"
+	"snd_chatter_combat"			"monster_zombie_fat_chatter_combat"
+	"snd_pain"						"monster_zombie_fat_pain"
+	"snd_melee_attack"				"monster_zombie_fat_attackmelee_1"
+	"snd_melee_attack_1"			"monster_zombie_fat_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_fat_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_fat_attackmelee_3"
+	"snd_death"						"monster_zombie_fat_death_back"
+	"snd_thud"						"monster_zombie_fat_thud"
+
+}
+
+model monster_zombie_jumpy {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/jumpsuitzombie.md5mesh
+	skin							skins/monsters/zombies/jumpsuit.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+}
+
+model monster_zombie_jumpsuit {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/jumpsuitzombie.md5mesh
+	skin							skins/monsters/zombies/jumpsuit2.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim zjump_eats_zsci_loop		models/md5/monsters/zombies/deskeatloop.md5anim {
+		ai_no_turn
+		frame 1						disableWalkIK
+	}
+	anim zjump_eats_zsci_getup		models/md5/monsters/zombies/deskeatgetup.md5anim {
+		ai_no_turn
+	}
+
+	anim zjump_eats_zfat_loop		models/md5/monsters/zombies/flooreatloop.md5anim {
+		frame 1						disableWalkIK
+		ai_no_turn
+		
+	}
+	anim zjump_eats_zfat_getup		models/md5/monsters/zombies/flooreatgetup.md5anim {
+		ai_no_turn
+		frame 1						disableWalkIK
+		frame 80					enableWalkIK
+	}
+
+	anim benchgetup					models/md5/monsters/zombies/getup_from_bench.md5anim {
+		ai_no_turn
+		frame 1							sound_voice snd_sight1
+	}
+
+	anim benchidle					models/md5/monsters/zombies/getup_from_bench_idle.md5anim {
+		ai_no_turn
+	}
+
+}
+
+model monster_zombie_wrench {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/jumpsuitzombie.md5mesh
+	skin							skins/monsters/zombies/jumpsuit.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+
+	anim melee_attack1				models/md5/monsters/zombies/swing1.md5anim {
+		frame 11					melee melee_zombie_fat_right_wrench
+	}
+	anim melee_attack2				models/md5/monsters/zombies/swing2.md5anim {
+		frame 11					melee melee_zombie_maint_Left
+	}
+	anim melee_attack3				models/md5/monsters/zombies/swing3.md5anim {
+		frame 11					melee melee_zombie_fat_right_wrench
+	}
+	anim melee_attack4				models/md5/monsters/zombies/swing4.md5anim {
+		frame 1							call overrideLegs
+		frame 17						melee melee_zombie_fat_right_wrench
+		frame 19						sound_body snd_footstep
+		frame 35						sound_body snd_footstep
+		frame 49						sound_body snd_footstep
+		frame 58						sound_body snd_footstep
+	}
+	anim melee_attack5				models/md5/monsters/zombies/swing5.md5anim {
+		frame 1							call overrideLegs
+		frame 5							melee melee_zombie_maint_Left
+		frame 21						sound_body snd_footstep
+		frame 28						melee melee_zombie_fat_right_wrench		
+		frame 50						sound_body snd_footstep
+	}
+}
+
+model model_monster_zombie_flashlight {
+	inherit 						monster_zombie_jumpy
+	
+	anim walk						models/md5/monsters/zombies/flashlightwalk.md5anim
+	anim idle1						models/md5/monsters/zombies/zflashidle.md5anim
+	anim idle2						models/md5/monsters/zombies/zflashidle.md5anim
+	anim idle3						models/md5/monsters/zombies/zflashidle.md5anim
+	anim stand						models/md5/monsters/zombies/zflashidle.md5anim
+	anim sight1						models/md5/monsters/zombies/zflashsight.md5anim
+	anim sight2						models/md5/monsters/zombies/zflashsight.md5anim
+}
+
+model model_monster_zombie_camzombie {
+	inherit 						monster_zombie_jumpy
+
+	anim camzombie					models/md5/cinematics/commoutside/zombie_with_camera.md5anim {
+		frame 1		 				event disableEyeFocus
+	}
+}
+
+model monster_zombie_suit {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/suitzombie.md5mesh
+	skin							skins/monsters/zombies/suit.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+}
+
+model monster_zombie_labcoat {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/labcoatzombie.md5mesh
+	skin							skins/monsters/zombies/labcoat.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+}
+
+model monster_zombie_labcoat_hanging {
+	mesh							models/md5/monsters/zombies/labcoatzombie.md5mesh
+	skin							skins/monsters/zombies/labcoat.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+	anim hanging					models/md5/monsters/zombies/influence_hanging.md5anim {
+		ai_no_turn
+	}
+}
+
+model monster_zombie_soldier {
+	inherit							model_monster_zombie
+	mesh							models/md5/monsters/zombies/tshirtzombie.md5mesh
+	skin							skins/monsters/zombies/soldier.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+}
+
+entityDef monster_zombie_jumpsuit {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_jumpsuit"		
+	"def_head"						"head_zombie3"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_maint_bald {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_jumpy"
+
+	"def_head"						"head_bloodybald"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_maint_no_jaw {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_jumpy"
+	"skin"							"skins/monsters/zombies/jumpsuit.skin"
+	"def_head"						"head_zombie2"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_maint_nojaw {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_jumpy"
+	"skin"							"skins/monsters/zombies/jumpsuit.skin"
+	"def_head"						"head_zombie2"
+	"head_joint"					"Shoulders"
+}
+
+
+entityDef monster_zombie_maint_wrench {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_wrench"
+	"skin"							"skins/monsters/zombies/jumpsuit.skin"
+	"def_attach"					"prop_wrench"		
+	"def_head"						"head_zombie2"
+	"head_joint"					"Shoulders"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+	"def_dropDeathItem"				"moveable_wrench"
+	"dropDeathItemJoint"			"Rhand"
+}
+
+entityDef monster_zombie_maint_skinny {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_jumpy"
+	"skin"							"skins/monsters/zombies/jumpsuit.skin"
+	"def_head"						"head_zombie1"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_suit_neckstump {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_suit"
+	"skin"							"skins/monsters/zombies/suit.skin"			
+	"def_head"						"head_stump"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_suit_bloodymouth {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_suit"
+	"skin"							"skins/monsters/zombies/suit.skin"			
+	"def_head"						"head_zombie3"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_suit_skinny {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_suit"
+	"skin"							"skins/monsters/zombies/suit.skin"			
+	"def_head"						"head_zombie1"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_labcoat_neckstump {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_labcoat"
+	"skin"							"skins/monsters/zombies/labcoat.skin"			
+	"def_head"						"head_stump"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_labcoat_limb {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_labcoat"
+	"skin"							"skins/monsters/zombies/labcoat.skin"				
+	"def_head"						"head_zombie3"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_labcoat_skinny {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_labcoat"
+	"skin"							"skins/monsters/zombies/labcoat.skin"				
+	"def_head"						"head_zombie1"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_labcoat_pipe {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_labcoat"
+	"skin"							"skins/monsters/zombies/labcoat.skin"
+	"def_head"						"head_zombie4"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_labcoat_hanging {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_labcoat_hanging"
+	"skin"							"skins/monsters/zombies/labcoat.skin"
+	"def_head"						"head_zombie4"
+	"turn_rate"						"0"
+	"anim"							"hanging"
+	"head_joint"					"Shoulders"
+
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		"0 0 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+}
+
+entityDef monster_zombie_tshirt_bald {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_soldier"
+	"skin"							"skins/monsters/zombies/soldier.skin"	
+	"def_head"						"head_bloodybald"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_tshirt_blown {
+	"inherit"						"monster_zombie_base"
+	"model"							"monster_zombie_soldier"
+	"skin"							"skins/monsters/zombies/soldier.skin"	
+	"def_head"						"head_zombie4"
+	"head_joint"					"Shoulders"
+}
+
+entityDef monster_zombie_maint_flashlight {
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie"
+	"size"							"40 40 72"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"80"
+	"melee_range"					"32"
+	"turn_rate"						"360"
+	"mass"							"150"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+
+	"ragdoll"						"monster_zombie_misc.af"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body2"
+	"ik_foot1"						"Lball_r"
+	"ik_foot2"						"Rball_r"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+
+	"def_attach"					"prop_lftflashlight"
+	"def_dropDeathItem"				"moveable_item_flashlight"
+	"dropDeathItemJoint"			"LHANDCONNECTOR"
+	"dropDeathItemRotation"			"0 0 0"
+	"dropDeathItemOffset"			"0 0 0"
+
+	"model"							"model_monster_zombie_flashlight"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*loneckcontrol"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips"
+
+	"damage_scale head"				"2"
+		
+	"def_head"						"head_zombie2"
+	"head_joint"					"Shoulders"
+
+	"snd_sight1"					"monster_zombie_fat_sight1"
+		
+	"snd_idle"						"monster_zombie_chainsaw_idle"
+	"snd_footstep"					"monster_zombie_commando_footstep"
+	"snd_chatter"					"monster_zombie_fat_chatter"
+	"snd_chatter_combat"			"monster_zombie_fat_chatter_combat"
+	"snd_pain"						"monster_zombie_fat_pain"
+	"snd_melee_attack"				"monster_zombie_fat_attackmelee_1"
+	"snd_melee_attack_1"			"monster_zombie_fat_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_fat_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_fat_attackmelee_3"
+	"snd_thud"						"monster_zombie_fat_thud"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+}
+
+/***********************************************************************
+
+monster_zombie_maint seperate models mesh export
+
+***********************************************************************/
+
+export fred {
+	options		-prefix ZOMBIE2_
+	addoptions	-parent loneck shoulders	
+	addoptions	-parent Jaw head
+	addoptions	-parent waist Hips
+	addoptions	-parent Luparm Lshldr
+	addoptions	-parent Lloarm Luparm
+	addoptions	-parent Ruparm Rshldr
+	addoptions	-parent Rloarm Ruparm
+	addoptions	-keep loneck head R_cheek L_cheek Up_lip Lbrow1 Lbrow2 Rbrow1 Rbrow2 llolid luplid rlolid
+	addoptions	-keep ruplid waist chest shoulders Rshldr Lshldr L_shirt R_shirt Back_shirt Luparm loarm_reg
+	addoptions	loarm_stump lrip2 lrip3 lrip1 lrip4 Lloarm Lhand Lcarp Lindex1 Lindex2 Lthumb0
+	addoptions	Lthumb1 Lthumb2 Lthumb3 Lfings1 Lfings2 Lfings3 Lcarp1 Lindex1a Lindex2a Lcarp2
+	addoptions	Lindex1b Lindex2c Ruparm rloarm_reg rloarm_stump rrip1 rrip2 rrip3 rrip4 Rloarm
+	addoptions	Rhand Rcarp Rindex1 Rindex2 Rthumb0 Rthumb1 Rthumb2 Rthumb3 Rfings1 Rfings2 Rfings3
+	addoptions	Rcarp1 Rindex1a Rindex2a Rcarp2 Rindex1b Rindex2b Hips Lupleg Lloleg Lankle_r Lball_r
+	addoptions	Ltoe_r Rupleg Rloleg Rankle_r Rball_r Rtoe_r Jaw Lo_lip Body Body2
+	addoptions -keep Lknee Rknee
+
+	mesh		models/monsters/zombie/zombie01/cycles/ref_fullskin_allmeshes.ma -dest models/md5/monsters/zombies/zmaint/zmaint_allmeshes
+	addoptions -prefix ZOMBIE1_
+	anim		maps/fred/chainsaw/chainsaw.mb -dest models/md5/cinematics/delta2a/victim
+}
+
+/***********************************************************************
+
+	damage defs
+
+***********************************************************************/
+
+entityDef melee_zombie_maint_Left {
+	// melee specific parameters
+	"snd_hit"						"fist_impact"
+	"snd_miss"						"fist_whoosh"	
+	"kickDir"						"0 -1 0"
+
+	// damage parameters			
+	"damage"						"15"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"25"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_maint_Right {
+	"snd_hit"						"fist_impact"
+	"snd_miss"						"fist_whoosh"	
+	"kickDir"						"0 1 0"
+
+	"damage"						"15"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"50"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_maint_Push {
+	"snd_hit"						"fist_impact"
+	"snd_miss"						"fist_whoosh"	
+	"kickDir"						"1 0 1"
+
+	"damage"						"15"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"60"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_maint_Pull {
+	"snd_hit"						"fist_impact"
+	"snd_miss"						"fist_whoosh"	
+	"kickDir"						"1 0 -1"
+
+	"damage"						"20"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"700"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}

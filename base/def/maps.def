@@ -1,0 +1,638 @@
+
+mapDef game/mars_city1 {
+	"name"		"#str_03050"
+	"desc"		"#str_03502"
+	"subTitle"	"#str_03468"
+	"devname"		"01-Mars City"
+	"singleplayer"		"1"
+	"size0"		"241381796"
+	"size1"		"241381796"
+	"size2"		"360373649"
+	"size3"		"509824838"
+	"overbright"	"2.0"
+}
+mapDef game/mc_underground {
+	"name"		"#str_07150"
+	"devname"		"02-MC Underground"
+	"desc"		"#str_01504"
+	"subTitle"	"#str_03504"
+	"singleplayer"		"1"
+	"size0"		"255573815"
+	"size1"		"255573815"
+	"size2"		"382288635"
+	"size3"		"540655908"
+	"overbright"	"2.0"
+}
+mapDef game/mars_city2 {
+	"name"		"#str_03050"
+	"devname"		"03-Mars City 2"
+	"desc"		"#str_03502"
+	"subTitle"	"#str_03468"
+	"singleplayer"		"1"
+	"size0"		"214993446"
+	"size1"		"214993446"
+	"size2"		"337536192"
+	"size3"		"489790269"
+	"overbright"	"2.0"
+}
+mapDef game/admin {
+	"name"		"#str_07151"
+	"devname"		"04-Admin"
+	"desc"		"#str_01476"
+	"subTitle"	"#str_03468"
+	"singleplayer"		"1"
+	"size0"		"175009749"
+	"size1"		"175009749"
+	"size2"		"290086374"
+	"size3"		"425076481"
+	"overbright"	"2.0"
+}
+mapDef game/alphalabs1 {
+	"name"		"#str_07152"
+	"devname"		"05-Alpha 1"
+	"desc"		"#str_01477"
+	"subTitle"	"#str_03474"
+	"singleplayer"		"1"
+	"size0"		"208322592"
+	"size1"		"208322592"
+	"size2"		"325950691"
+	"size3"		"470025492"
+	"overbright"	"2.0"
+}
+mapDef game/alphalabs2 {
+	"name"		"#str_07153"
+	"devname"		"06-Alpha 2"
+	"desc"		"#str_01478"
+	"subTitle"	"#str_03474"
+	"singleplayer"		"1"
+	"size0"		"216968995"
+	"size1"		"216968995"
+	"size2"		"338687855"
+	"size3"		"479351335"
+	"overbright"	"2.0"
+}
+mapDef game/alphalabs3 {
+	"name"		"#str_07154"
+	"devname"		"07-Alpha 3"
+	"desc"		"#str_01479"
+	"subTitle"	"#str_03474"
+	"singleplayer"		"1"
+	"size0"		"149590497"
+	"size1"		"149590497"
+	"size2"		"246631772"
+	"size3"		"358483216"
+	"overbright"	"2.0"
+}
+mapDef game/alphalabs4 {
+	"name"		"#str_07155"
+	"devname"		"08-Alpha 4"
+	"desc"		"#str_01480"
+	"subTitle"	"#str_03474"
+	"singleplayer"		"1"
+	"size0"		"193870193"
+	"size1"		"193870193"
+	"size2"		"305560317"
+	"size3"		"442955571"
+	"overbright"	"2.0"
+}
+mapDef game/enpro {
+	"name"		"#str_02945"
+	"devname"		"09-Enpro"
+	"desc"		"#str_01495"
+	"subTitle"	"#str_03498"
+	"singleplayer"		"1"
+	"size0"		"214271969"
+	"size1"		"214271969"
+	"size2"		"336685005"
+	"size3"		"478756102"
+	"overbright"	"2.0"
+}
+mapDef game/commoutside {
+	"name"		"#str_07156"
+	"devname"		"10-Comm Out"
+	"desc"		"#str_01487"
+	"subTitle"	"#str_03484"
+	"singleplayer"		"1"
+	"size0"		"199297356"
+	"size1"		"199297356"
+	"size2"		"324143934"
+	"size3"		"470626437"
+	"overbright"	"2.0"
+}
+mapDef game/comm1 {
+	"name"		"#str_07175"
+	"devname"		"11-Communications"
+	"desc"		"#str_01486"
+	"subTitle"	"#str_03482"
+	"singleplayer"		"1"
+	"size0"		"219312713"
+	"size1"		"219312713"
+	"size2"		"345777343"
+	"size3"		"506793983"
+	"overbright"	"2.0"
+}
+mapDef game/recycling1 {
+	"name"		"#str_07157"
+	"devname"		"12-Recycling 1"
+	"desc"		"#str_03506"
+	"subTitle"	"#str_03505"
+	"singleplayer"		"1"
+	"size0"		"189751399"
+	"size1"		"189751399"
+	"size2"		"305798361"
+	"size3"		"426188600"
+	"overbright"	"2.0"
+}
+mapDef game/recycling2 {
+	"name"		"#str_07158"
+	"devname"		"13-Recycling 2"
+	"desc"		"#str_01510"
+	"subTitle"	"#str_03509"
+	"singleplayer"		"1"
+	"size0"		"168090603"
+	"size1"		"168090603"
+	"size2"		"265471659"
+	"size3"		"369650237"
+	"overbright"	"2.0"
+}
+mapDef game/monorail {
+	"name"		"#str_02679"
+	"devname"		"14-Monorail"
+	"desc"		"#str_01505"
+	"subTitle"	"#str_03505"
+	"singleplayer"		"1"
+	"size0"		"192843018"
+	"size1"		"192843018"
+	"size2"		"309521938"
+	"size3"		"440702822"
+	"overbright"	"2.0"
+}
+mapDef game/delta1 {
+	"name"		"#str_07159"
+	"devname"		"15-Delta 1"
+	"desc"		"#str_01489"
+	"subTitle"	"#str_03493"
+	"singleplayer"		"1"
+	"size0"		"193509186"
+	"size1"		"193509186"
+	"size2"		"306636507"
+	"size3"		"439911244"
+	"overbright"	"2.0"
+}
+mapDef game/delta2a {
+	"name"		"#str_07160"
+	"devname"		"16-Delta 2A"
+	"desc"		"#str_01490"
+	"subTitle"	"#str_03493"
+	"singleplayer"		"1"
+	"size0"		"205050093"
+	"size1"		"205050093"
+	"size2"		"330096160"
+	"size3"		"477236506"
+	"overbright"	"2.0"
+}
+mapDef game/delta2b {
+	"name"		"#str_07161"
+	"devname"		"17-Delta 2B"
+	"desc"		"#str_01491"
+	"subTitle"	"#str_03493"
+	"singleplayer"		"1"
+	"size0"		"205949877"
+	"size1"		"205949877"
+	"size2"		"324818414"
+	"size3"		"475416418"
+	"overbright"	"2.0"
+}
+mapDef game/delta3 {
+	"name"		"#str_07162"
+	"devname"		"18-Delta 3"
+	"desc"		"#str_01492"
+	"subTitle"	"#str_03493"
+	"singleplayer"		"1"
+	"size0"		"188442086"
+	"size1"		"188442086"
+	"size2"		"293665120"
+	"size3"		"423450246"
+	"overbright"	"2.0"
+}
+mapDef game/delta4 {
+	"name"		"#str_07163"
+	"devname"		"19-Delta 4"
+	"desc"		"#str_01493"
+	"subTitle"	"#str_03493"
+	"singleplayer"		"1"
+	"size0"		"114374005"
+	"size1"		"114374005"
+	"size2"		"198882904"
+	"size3"		"298921007"
+	"overbright"	"2.0"
+}
+mapDef game/hell1 {
+	"name"		"#str_07164"
+	"desc"		"#str_00200222"
+	"devname"		"20-Hell"
+	"singleplayer"		"1"
+	"size0"		"186676678"
+	"size1"		"186676678"
+	"size2"		"302002774"
+	"size3"		"428573804"
+	"overbright"	"2.0"
+	"hellMap"	"1"
+}
+mapDef game/delta5 {
+	"name"		"#str_07165"
+	"devname"		"22-Delta 5"
+	"desc"		"#str_01494"
+	"subTitle"	"#str_03493"
+	"singleplayer"		"1"
+	"size0"		"175616475"
+	"size1"		"175616475"
+	"size2"		"280277981"
+	"size3"		"419592440"
+	"overbright"	"2.0"
+}
+mapDef game/cpu {
+	"name"		"#str_07176"
+	"devname"		"23-CPU 1"
+	"desc"		"#str_01488"
+	"subTitle"	"#str_03485"
+	"singleplayer"		"1"
+	"size0"		"158182640"
+	"size1"		"158182640"
+	"size2"		"261839023"
+	"size3"		"374825535"
+	"overbright"	"2.0"
+}
+mapDef game/cpuboss {
+	"name"		"#str_07166"
+	"devname"		"24-CPU Boss"
+	"desc"		"#str_01488"
+	"subTitle"	"#str_03486"
+	"singleplayer"		"1"
+	"size0"		"158533127"
+	"size1"		"158533127"
+	"size2"		"276219445"
+	"size3"		"404664900"
+	"overbright"	"2.0"
+}
+mapDef game/site3 {
+	"name"		"#str_02989"
+	"devname"		"26-Site 3"
+	"desc"		"#str_01511"
+	"subTitle"	"#str_03511"
+	"singleplayer"		"1"
+	"size0"		"181599152"
+	"size1"		"181599152"
+	"size2"		"301729201"
+	"size3"		"434146458"
+	"overbright"	"2.0"
+}
+mapDef game/caverns1 {
+	"name"		"#str_07167"
+	"devname"		"27-Caverns 1"
+	"desc"		"#str_01484"
+	"subTitle"	"#str_03479"
+	"singleplayer"		"1"
+	"size0"		"187042073"
+	"size1"		"187042073"
+	"size2"		"290594108"
+	"size3"		"397547743"
+	"overbright"	"2.0"
+}
+mapDef game/caverns2 {
+	"name"		"#str_07168"
+	"devname"		"28-Caverns 2"
+	"desc"		"#str_01485"
+	"subTitle"	"#str_03481"
+	"singleplayer"		"1"
+	"size0"		"142680291"
+	"size1"		"142680291"
+	"size2"		"233599715"
+	"size3"		"327039879"
+	"overbright"	"2.0"
+}
+mapDef game/hellhole {
+	"name"		"#str_07169"
+	"devname"		"29-Hell Hole"
+	"desc"		"#str_03499"
+	"subTitle"	"#str_03501"
+	"singleplayer"		"1"
+	"size0"		"158309408"
+	"size1"		"158309408"
+	"size2"		"268269006"
+	"size3"		"389205648"
+	"overbright"	"2.0"
+}
+
+mapDef game/erebus1 {
+	"name"		"#str_00100832"
+	"devname"		"01-EREBUS - LEVEL 1"
+	"desc"		"#str_00100035"
+	"subTitle"	"#str_00100944"
+	"singleplayer"		"1"
+	"size0"		"448018986"
+	"size1"		"434663176"
+	"size2"		"525758846"
+	"size3"		"615459568"
+}
+mapDef game/erebus2 {
+	"name"		"#str_00100036"
+	"devname"		"02-Erebus Dig Site"
+	"desc"		"#str_00100035"
+	"subTitle"	"#str_00100717"
+	"singleplayer"		"1"
+	"size0"		"170933560"
+	"size1"		"170933560"
+	"size2"		"205683837"
+	"size3"		"244999114"
+}
+mapDef game/erebus3 {
+	"name"		"#str_00100039"
+	"devname"		"03-Erebus Labs"
+	"desc"		"#str_00100038"
+	"subTitle"	"#str_00100068"
+	"singleplayer"		"1"
+	"size0"		"161473928"
+	"size1"		"161473928"
+	"size2"		"204371623"
+	"size3"		"264828312"
+}
+mapDef game/erebus4 {
+	"name"		"#str_00100041"
+	"devname"		"04-Erebus Control"
+	"desc"		"#str_00100040"
+	"subTitle"	"#str_00100719"
+	"singleplayer"		"1"
+	"size0"		"131458679"
+	"size1"		"131458679"
+	"size2"		"153711539"
+	"size3"		"196054728"
+}
+mapDef game/erebus5 {
+	"name"		"#str_00100044"
+	"devname"		"05-Erebus Research"
+	"desc"		"#str_00100540"
+	"subTitle"	"#str_00100071"
+	"singleplayer"		"1"
+	"size0"		"184790674"
+	"size1"		"184790674"
+	"size2"		"218959874"
+	"size3"		"256155950"
+}
+mapDef game/erebus6 {
+	"name"		"#str_00100833"
+	"devname"		"06-Erebus Station"
+	"desc"		"#str_00100046"
+	"subTitle"	"#str_00100074"
+	"singleplayer"		"1"
+	"size0"		"219582793"
+	"size1"		"219582793"
+	"size2"		"254120177"
+	"size3"		"303657494"
+}
+mapDef game/phobos1 {
+	"name"		"#str_00100950"
+	"devname"		"07-PHOBOS LABS - SECTOR 1"
+	"desc"		"#str_00100048"
+	"subTitle"	"#str_00100050"
+	"singleplayer"		"1"
+	"size0"		"183338527"
+	"size1"		"183338527"
+	"size2"		"231638992"
+	"size3"		"299744741"
+}
+mapDef game/phobos2 {
+	"name"		"#str_00100951"
+	"devname"		"08-PHOBOS LABS - SECTOR 2"
+	"desc"		"#str_00100051"
+	"subTitle"	"#str_00100053"
+	"singleplayer"		"1"
+	"size0"		"240843377"
+	"size1"		"240856340"
+	"size2"		"276178450"
+	"size3"		"295089522"
+}
+mapDef game/phobos3 {
+	"name"		"#str_00100952"
+	"devname"		"09-PHOBOS LABS - SECTOR 3"
+	"desc"		"#str_00100054"
+	"subTitle"	"#str_00100056"
+	"singleplayer"		"1"
+	"size0"		"195141966"
+	"size1"		"195141966"
+	"size2"		"230349531"
+	"size3"		"269342394"
+}
+mapDef game/phobos4 {
+	"name"		"#str_00100953"
+	"devname"		"10-PHOBOS LABS - SECTOR 1"
+	"desc"		"#str_00100057"
+	"subTitle"	"#str_00100050"
+	"singleplayer"		"1"
+	"size0"		"115263820"
+	"size1"		"115263820"
+	"size2"		"135059183"
+	"size3"		"167043339"
+}
+mapDef game/deltax {
+	"name"		"#str_00100954"
+	"devname"		"11-DELTA LABS - UNKNOWN"
+	"desc"		"#str_00100603"
+	"subTitle"	"#str_00100034"
+	"singleplayer"		"1"
+	"size0"		"135379615"
+	"size1"		"135379615"
+	"size2"		"182203442"
+	"size3"		"256724900"
+}
+
+mapDef game/hell {
+	"name"		"#str_00100955"
+	"desc"		"#str_00200223"
+	"devname"		"12-HELL"
+	"singleplayer"		"1"
+	"size0"		"172390352"
+	"size1"		"172592086"
+	"size2"		"225155513"
+	"size3"		"276958868"
+	"hellMap"	"1"
+}
+
+
+mapDef game/mp/d3dm1 {
+	"name"		"#str_07170"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"size0"		"114318720"
+	"size1"		"114318720"
+	"size2"		"196881115"
+	"size3"		"312221073"
+}
+mapDef game/mp/d3dm2 {
+	"name"		"#str_07171"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"size0"		"95408403"
+	"size1"		"95408403"
+	"size2"		"156752006"
+	"size3"		"240774370"
+}
+mapDef game/mp/d3dm3 {
+	"name"		"#str_07172"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"size0"		"98412930"
+	"size1"		"98412930"
+	"size2"		"162811225"
+	"size3"		"254773562"
+}
+mapDef game/mp/d3dm4 {
+	"name"		"#str_07173"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"size0"		"111003170"
+	"size1"		"111003170"
+	"size2"		"181057809"
+	"size3"		"275655248"
+}
+mapDef game/mp/d3dm5 {
+	"name"		"#str_07174"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"size0"		"93855710"
+	"size1"		"93855710"
+	"size2"		"156267217"
+	"size3"		"237413960"
+}
+mapDef game/mp/d3xpdm1 {
+	"name"		"#str_00100956"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"CTF"		"0"
+	"size0"		"58838791"
+	"size1"		"58838791"
+	"size2"		"69024404"
+	"size3"		"84151840"
+}
+mapDef game/mp/d3xpdm2 {
+	"name"		"#str_00100957"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"CTF"		"0"
+	"size0"		"37505942"
+	"size1"		"37505942"
+	"size2"		"48006743"
+	"size3"		"61262040"
+}
+mapDef game/mp/d3xpdm3 {
+	"name"		"#str_00101057"
+	"Deathmatch"		"1"
+	"Team DM"		"1"
+	"Last Man"		"1"
+	"Tourney"		"1"
+	"CTF"		"0"
+	"size0"		"58312305"
+	"size1"		"58312305"
+	"size2"		"68530265"
+	"size3"		"84168526"
+}
+
+/*********************************
+Tim wanted this map removed.
+If it supports no modes,
+it won't show up in the menus.
+*********************************/
+mapDef game/mp/d3xpdm4 {
+	"name"		"#str_00100959"
+	"Deathmatch"		"0"
+	"Team DM"		"0"
+	"Last Man"		"0"
+	"Tourney"		"0"
+	"CTF"		"0"
+	"size0"		"56029215"
+	"size1"		"56029215"
+	"size2"		"69923104"
+	"size3"		"88145760"
+}
+
+mapDef game/le_hell {
+	"name"		"#str_00100955"
+	"desc"		"#str_00200224"
+	"singleplayer"		"1"
+	"hellMap"	"1"
+}
+
+mapDef game/le_hell_post {
+	"name"		"#str_hell_outpost"
+	"desc"		"#str_00200225"
+	"singleplayer"		"1"
+	"hellMap"	"1"
+}
+
+mapDef game/le_enpro1 {
+	"name"		"#str_00200003"
+	"desc"		"#str_00200005"
+	"subTitle"	"#str_00200004"
+	"singleplayer"		"1"
+}
+
+mapDef game/le_enpro2 {
+	"name"		"#str_00200006"
+	"desc"		"#str_00200008"
+	"subTitle"	"#str_00200007"
+	"singleplayer"		"1"
+}
+
+mapDef game/le_exis1 {
+	"name"		"#str_00200000"
+	"desc"		"#str_00200002"
+	"subTitle"	"#str_00200001"
+	"singleplayer"		"1"
+}
+
+mapDef game/le_exis2 {
+	"name"		"#str_00200000"
+	"desc"		"#str_00200002"
+	"subTitle"	"#str_00200001"
+	"singleplayer"		"1"
+}
+
+mapDef game/le_underground {
+	"name"		"#str_00200009"
+	"desc"		"#str_00200011"
+	"subTitle"	"#str_00200010"
+	"singleplayer"		"1"
+}
+
+mapDef game/le_underground2 {
+	"name"		"#str_00200009"
+	"desc"		"#str_00200011"
+	"subTitle"	"#str_00200010"
+	"singleplayer"		"1"
+}
+mapDef demo/enpro_e3_2012 {
+	"name"		"#str_02945"
+	"devname"		"09-Enpro"
+	"desc"		"#str_01495"
+	"subTitle"	"#str_03498"
+	"singleplayer"		"1"
+	"size0"		"214271969"
+	"size1"		"214271969"
+	"size2"		"336685005"
+	"size3"		"478756102"
+	"overbright"	"2.0"
+}

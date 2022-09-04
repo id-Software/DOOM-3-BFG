@@ -1,0 +1,920 @@
+/***********************************************************************
+
+	monster_zombie_commando_cgun.def
+
+***********************************************************************/
+
+export James {
+
+ 	options -prefix ZCC_ -keep Lknee Rknee eject flash chain_root ROT barrel -align movement -parent barrel chain_root -parent flash barrel -parent eject chain_root -parent spine_1 ROT -parent ROT Body -parent chain_root gun -sourcedir models/monsters/zombie/zcc/cycles -destdir models/md5/monsters/zcc
+
+
+	// -xyzprecision 0.01 -quatprecision 0.00006
+	
+	mesh	zcc_mesh.mb -dest zcc
+	anim	chaingun_idle.mb 
+	anim	chaingun_step_left.mb
+	anim	chaingun_step_right.mb
+	anim	chaingun_walk.mb
+	anim	chaingun_pain_chest.mb
+	anim	chaingun_pain_head.mb
+	anim	chaingun_pain_left.mb
+	anim	chaingun_pain_right.mb
+	anim	chaingun_run.mb
+	anim	chaingun_evade_left.mb
+	anim	chaingun_evade_right.mb
+	anim	chaingun_sight.mb
+	anim	chaingun_on_activate.mb
+	anim	chaingun_reload.mb
+
+	anim	chaingun_af_pose.mb
+	anim	chaingun_crouch_range_attack.mb -range 1 12 -dest chaingun_crouch_range_attack
+	anim	chaingun_crouch_range_attack.mb -range 13 52 -dest chaingun_crouch_range_attack_loop
+	anim	chaingun_crouch_range_attack.mb -range 53 65 -dest chaingun_crouch_range_attack_end
+	
+	anim	chaingun_crouch_range_aim.mb -dest chaingun_crouch_range_attack_aim
+	anim	chaingun_crouch_left_pain.mb
+	anim	chaingun_crouch_right_pain.mb
+	
+	anim	chaingun_stand_fire.mb -range 1 6 -dest chaingun_raise
+	anim	chaingun_stand_fire.mb -range 7 51
+	anim	chaingun_stand_fire.mb -range 52 65 -dest chaingun_lower
+	anim	chaingun_stand_aim.mb
+
+	anim	chaingun_leanout_right.mb -range 1 1 -dest chaingun_wallleanright_A
+	anim	chaingun_leanout_right.mb -range 1 15 -dest chaingun_wallleanright_B
+	anim	chaingun_leanout_right.mb -range 16 60 -dest chaingun_wallleanright_C
+	anim	chaingun_leanout_right.mb -range 61 100 -dest chaingun_wallleanright_D
+	
+	anim	chaingun_leanout_left.mb -range 1 1 -dest chaingun_wallleanleft_A
+	anim	chaingun_leanout_left.mb -range 1 15 -dest chaingun_wallleanleft_B
+	anim	chaingun_leanout_left.mb -range 16 60 -dest chaingun_wallleanleft_C
+	anim	chaingun_leanout_left.mb -range 61 100 -dest chaingun_wallleanleft_D
+
+	anim	chaingun_wallstep_right.mb -range 1 1 -dest chaingun_wallstepright_A
+	anim	chaingun_wallstep_right.mb -range 1 15 -dest chaingun_wallstepright_B
+	anim	chaingun_wallstep_right.mb -range 16 62 -dest chaingun_wallstepright_C
+	anim	chaingun_wallstep_right.mb -range 63 75 -dest chaingun_wallstepright_D
+	
+	anim	chaingun_wallstep_left.mb -range 1 1 -dest chaingun_wallstepleft_A
+	anim	chaingun_wallstep_left.mb -range 1 15 -dest chaingun_wallstepleft_B
+	anim	chaingun_wallstep_left.mb -range 16 62 -dest chaingun_wallstepleft_C
+	anim	chaingun_wallstep_left.mb -range 63 75 -dest chaingun_wallstepleft_D
+
+	anim	chaingun_crate_range_attack.mb -range 1 1 -dest chaingun_crate_up_A
+	anim	chaingun_crate_range_attack.mb -range 1 18 -dest chaingun_crate_up_B
+	anim	chaingun_crate_range_attack.mb -range 19 65 -dest chaingun_crate_up_C
+	anim	chaingun_crate_range_attack.mb -range 66 85 -dest chaingun_crate_up_D
+
+	anim	chaingun_wallrot_right.mb -range 1 1 -dest chaingun_wallrotright_A
+	anim	chaingun_wallrot_right.mb -range 1 15 -dest chaingun_wallrotright_B
+	anim	chaingun_wallrot_right.mb -range 16 60 -dest chaingun_wallrotright_C
+	anim	chaingun_wallrot_right.mb -range 61 100 -dest chaingun_wallrotright_D
+	
+	anim	chaingun_wallrot_left.mb -range 1 1 -dest chaingun_wallrotleft_A
+	anim	chaingun_wallrot_left.mb -range 1 15 -dest chaingun_wallrotleft_B
+	anim	chaingun_wallrot_left.mb -range 16 60 -dest chaingun_wallrotleft_C
+	anim	chaingun_wallrot_left.mb -range 61 100 -dest chaingun_wallrotleft_D
+
+}
+
+model monster_zombie_commando_cgun {
+	mesh							models/md5/monsters/zcc/zcc.md5mesh
+	channel torso					( *spine_1 )
+	channel legs					( *origin -*spine_1 ROT )
+
+	anim idle						models/md5/monsters/zcc/chaingun_idle.md5anim {
+		frame 1 						sound_voice monster_zombie_commando_breath_inhale
+		frame 150 						sound_voice monster_zombie_commando_breath_exhale
+	}
+
+
+	anim reload						models/md5/monsters/zcc/chaingun_reload.md5anim {
+		frame 9							sound_body monster_zombie_commando_cgun_reload
+	}
+
+	anim stand						models/md5/monsters/zcc/chaingun_idle.md5anim {
+		frame 1 						sound_voice monster_zombie_commando_breath_inhale
+		frame 150 						sound_voice monster_zombie_commando_breath_exhale
+	}
+
+	anim range_attack_loop1			models/md5/monsters/zcc/chaingun_stand_fire.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim range_attack_loop2			models/md5/monsters/zcc/chaingun_stand_fire.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim step_left					models/md5/monsters/zcc/chaingun_step_left.md5anim {
+		frame 6							sound_body monster_zombie_commando_footstep
+		frame 6							sound_body2 monster_zombie_commando_footstep_clinks
+		frame 13						sound_body monster_zombie_commando_footstep
+		frame 13						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim step_right 				models/md5/monsters/zcc/chaingun_step_right.md5anim {
+		frame 6							sound_body monster_zombie_commando_footstep
+		frame 6							sound_body2 monster_zombie_commando_footstep_clinks
+		frame 12						sound_body monster_zombie_commando_footstep
+		frame 12						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim walk 						models/md5/monsters/zcc/chaingun_walk.md5anim {
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 25						sound_body monster_zombie_commando_footstep
+		frame 25						sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 38						sound_body monster_zombie_commando_footstep
+		frame 38						sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 52						sound_body monster_zombie_commando_footstep
+		frame 52						sound_body2 monster_zombie_commando_footstep_clinks
+		
+	}
+	anim run 						models/md5/monsters/zcc/chaingun_run.md5anim {
+		frame 8							sound_body monster_zombie_commando_footstep
+		frame 8							sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 16						sound_body monster_zombie_commando_footstep
+		frame 16						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+
+	anim pain						models/md5/monsters/zcc/chaingun_pain_left.md5anim {
+		frame 1							sound_voice monster_zombie_commando_pain
+	}
+	anim pain_chest					models/md5/monsters/zcc/chaingun_pain_chest.md5anim {
+		frame 1							sound_voice monster_zombie_commando_pain
+	}
+	anim pain_head					models/md5/monsters/zcc/chaingun_pain_head.md5anim {
+		frame 1							sound_voice monster_zombie_commando_pain
+	}
+	anim pain_right_arm				models/md5/monsters/zcc/chaingun_pain_right.md5anim {
+		frame 1							sound_voice monster_zombie_commando_pain
+	}
+	anim pain_left_arm				models/md5/monsters/zcc/chaingun_pain_left.md5anim {
+		frame 1							sound_voice monster_zombie_commando_pain
+	}
+	anim evade_left           		models/md5/monsters/zcc/chaingun_evade_left.md5anim {
+		frame 7							sound_body monster_zombie_commando_footstep
+		frame 7							sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 12						sound_body monster_zombie_commando_footstep
+		frame 12						sound_body2 monster_zombie_commando_footstep_clinks
+		
+	}
+	anim evade_right				models/md5/monsters/zcc/chaingun_evade_right.md5anim {
+		frame 9						sound_body monster_zombie_commando_footstep
+		frame 9						sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 13						sound_body monster_zombie_commando_footstep
+		frame 13						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim on_activate				models/md5/monsters/zcc/chaingun_on_activate.md5anim {
+		frame 1							sound_voice monster_zombie_commando_sight1
+		frame 9                  	    sound_weapon monster_zombie_commando_windup
+		frame 17						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 17							launch_missile barrel
+		frame 20						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20							launch_missile barrel
+		frame 23						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23							launch_missile barrel
+		frame 26						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 26							launch_missile barrel
+		frame 29						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 29							launch_missile barrel
+		frame 32						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 32							launch_missile barrel
+		frame 35						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 35							launch_missile barrel
+		frame 40                 	  	sound_weapon monster_zombie_commando_winddown
+	}
+	
+	anim sight					models/md5/monsters/zcc/chaingun_sight.md5anim {
+		frame 1							sound_voice monster_zombie_commando_sight1
+	}
+
+	anim af_pose						models/md5/monsters/zcc/chaingun_af_pose.md5anim
+	anim ik_pose						models/md5/monsters/zcc/chaingun_af_pose.md5anim
+	anim crouch_range_attack			models/md5/monsters/zcc/chaingun_crouch_range_attack.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		
+		frame 4								sound_body monster_zombie_commando_footstep
+		frame 4								sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 9								sound_body monster_zombie_commando_footstep
+		frame 9								sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim crouch_range_attack_loop		models/md5/monsters/zcc/chaingun_crouch_range_attack_loop.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 38					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 38						launch_missile barrel
+	}
+
+	anim crouch_range_attack_end		models/md5/monsters/zcc/chaingun_crouch_range_attack_end.md5anim {
+		frame 1                    sound_weapon monster_zombie_commando_winddown
+		
+		frame 6							sound_body monster_zombie_commando_footstep
+		frame 6							sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 11						sound_body monster_zombie_commando_footstep
+		frame 11						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim crouch_range_attack_aim		models/md5/monsters/zcc/chaingun_crouch_range_attack_aim.md5anim
+	anim crouch_pain					models/md5/monsters/zcc/chaingun_crouch_left_pain.md5anim {
+		frame 1						sound_voice monster_zombie_commando_pain
+	}
+	anim crouch_pain_chest				models/md5/monsters/zcc/chaingun_crouch_left_pain.md5anim {
+		frame 1						sound_voice monster_zombie_commando_pain
+	}
+	anim crouch_pain_head				models/md5/monsters/zcc/chaingun_crouch_right_pain.md5anim {
+		frame 1						sound_voice monster_zombie_commando_pain
+	}
+	anim crouch_pain_left_arm			models/md5/monsters/zcc/chaingun_crouch_left_pain.md5anim {
+		frame 1						sound_voice monster_zombie_commando_pain
+	}
+	anim crouch_pain_right_arm			models/md5/monsters/zcc/chaingun_crouch_right_pain.md5anim {
+		frame 1						sound_voice monster_zombie_commando_pain
+	}
+	anim range_attack					models/md5/monsters/zcc/chaingun_raise.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+	}
+	anim range_attack_end				models/md5/monsters/zcc/chaingun_lower.md5anim {
+		frame 1                    sound_weapon monster_zombie_commando_winddown
+	}
+	anim range_attack_aim				models/md5/monsters/zcc/chaingun_stand_aim.md5anim
+	
+	anim stepoutright_out				models/md5/monsters/zcc/chaingun_wallstepright_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		
+		frame 5								sound_body monster_zombie_commando_footstep
+		frame 5								sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 14							sound_body monster_zombie_commando_footstep
+		frame 14							sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim stepoutright_fire				models/md5/monsters/zcc/chaingun_wallstepright_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim stepoutright_in				models/md5/monsters/zcc/chaingun_wallstepright_D.md5anim {
+		frame 1                    sound_weapon monster_zombie_commando_winddown
+		
+		frame 5							sound_body monster_zombie_commando_footstep
+		frame 5							sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 8							sound_body monster_zombie_commando_footstep
+		frame 8							sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim stepoutright_wait				models/md5/monsters/zcc/chaingun_wallstepright_A.md5anim
+	
+	anim stepoutleft_out				models/md5/monsters/zcc/chaingun_wallstepleft_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		
+		frame 8								sound_body monster_zombie_commando_footstep
+		frame 8								sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 15							sound_body monster_zombie_commando_footstep
+		frame 15							sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim stepoutleft_fire				models/md5/monsters/zcc/chaingun_wallstepleft_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim stepoutleft_in					models/md5/monsters/zcc/chaingun_wallstepleft_D.md5anim {
+		frame 1                    sound_weapon monster_zombie_commando_winddown
+		
+		frame 3							sound_body monster_zombie_commando_footstep
+		frame 3							sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 8							sound_body monster_zombie_commando_footstep
+		frame 8							sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim stepoutleft_wait				models/md5/monsters/zcc/chaingun_wallstepleft_A.md5anim
+	anim leanoutright_out				models/md5/monsters/zcc/chaingun_wallleanright_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 8								sound_body monster_zombie_commando_footstep
+		frame 8								sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim leanoutright_fire				models/md5/monsters/zcc/chaingun_wallleanright_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim leanoutright_in				models/md5/monsters/zcc/chaingun_wallleanright_D.md5anim {
+		frame 1                    sound_weapon monster_zombie_commando_winddown
+		frame 21						sound_body monster_zombie_commando_footstep
+		frame 21						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim leanoutright_wait				models/md5/monsters/zcc/chaingun_wallleanright_A.md5anim
+	anim leanoutleft_out				models/md5/monsters/zcc/chaingun_wallleanleft_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 9								sound_body monster_zombie_commando_footstep
+		frame 9								sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim leanoutleft_fire				models/md5/monsters/zcc/chaingun_wallleanleft_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim leanoutleft_in					models/md5/monsters/zcc/chaingun_wallleanleft_D.md5anim {
+		frame 1                    sound_weapon monster_zombie_commando_winddown
+		frame 25						sound_body monster_zombie_commando_footstep
+		frame 25						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim leanoutleft_wait				models/md5/monsters/zcc/chaingun_wallleanleft_A.md5anim
+	anim cratestand_out					models/md5/monsters/zcc/chaingun_crate_up_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 12							sound_body monster_zombie_commando_footstep
+		frame 12							sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim cratestand_fire				models/md5/monsters/zcc/chaingun_crate_up_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim cratestand_in					models/md5/monsters/zcc/chaingun_crate_up_D.md5anim {
+
+		frame 1                     sound_weapon monster_zombie_commando_winddown
+		frame 10						sound_body monster_zombie_commando_footstep
+		frame 16						sound_body monster_zombie_commando_footstep
+	}
+	anim cratestand_wait				models/md5/monsters/zcc/chaingun_crate_up_A.md5anim 
+
+	anim crate_up_out					models/md5/monsters/zcc/chaingun_crate_up_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 7								sound_body monster_zombie_commando_footstep
+		frame 12							sound_body monster_zombie_commando_footstep
+	}
+	anim crate_up_fire					models/md5/monsters/zcc/chaingun_crate_up_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim crate_up_in					models/md5/monsters/zcc/chaingun_crate_up_D.md5anim {
+
+		frame 1                  	sound_weapon monster_zombie_commando_winddown
+		
+		frame 10						sound_body monster_zombie_commando_footstep
+		frame 10						sound_body2 monster_zombie_commando_footstep_clinks
+		
+		frame 16						sound_body monster_zombie_commando_footstep
+		frame 16						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim crate_up_wait					models/md5/monsters/zcc/chaingun_crate_up_A.md5anim
+
+	anim rotoutleft1_out				models/md5/monsters/zcc/chaingun_wallrotleft_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		
+		frame 9								sound_body monster_zombie_commando_footstep
+		frame 9								sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutleft1_fire				models/md5/monsters/zcc/chaingun_wallrotleft_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+
+	}
+
+	anim rotoutleft1_in					models/md5/monsters/zcc/chaingun_wallrotleft_D.md5anim {
+		frame 1                     sound_weapon monster_zombie_commando_winddown
+		frame 25						sound_body monster_zombie_commando_footstep
+		frame 25						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutleft1_wait				models/md5/monsters/zcc/chaingun_wallrotleft_A.md5anim
+	anim rotoutright1_out				models/md5/monsters/zcc/chaingun_wallrotright_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 8								sound_body monster_zombie_commando_footstep
+		frame 8								sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutright1_fire				models/md5/monsters/zcc/chaingun_wallrotright_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+
+	}
+
+	anim rotoutright1_in				models/md5/monsters/zcc/chaingun_wallrotright_D.md5anim {
+		frame 1                     sound_weapon monster_zombie_commando_winddown
+		frame 20						sound_body monster_zombie_commando_footstep
+		frame 20						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutright1_wait				models/md5/monsters/zcc/chaingun_wallrotright_A.md5anim
+
+	anim rotoutleft2_out				models/md5/monsters/zcc/chaingun_wallrotleft_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 9								sound_body monster_zombie_commando_footstep
+		frame 9								sound_body2 monster_zombie_commando_footstep_clinks
+		
+	}
+	anim rotoutleft2_fire				models/md5/monsters/zcc/chaingun_wallrotleft_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim rotoutleft2_in					models/md5/monsters/zcc/chaingun_wallrotleft_D.md5anim {
+		frame 1                     sound_weapon monster_zombie_commando_winddown
+		frame 25						sound_body monster_zombie_commando_footstep
+		frame 25						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutleft2_wait				models/md5/monsters/zcc/chaingun_wallrotleft_A.md5anim
+	anim rotoutright2_out				models/md5/monsters/zcc/chaingun_wallrotright_B.md5anim {
+		frame 1                    			sound_weapon monster_zombie_commando_windup
+		frame 8								sound_body monster_zombie_commando_footstep
+		frame 8								sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutright2_fire				models/md5/monsters/zcc/chaingun_wallrotright_C.md5anim {
+		frame 3						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 3							launch_missile barrel
+		frame 6						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 6							launch_missile barrel
+		frame 9						sound_weapon monster_zombie_commando_cgun_fire	
+		frame 9							launch_missile barrel
+		frame 12					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 12						launch_missile barrel
+		frame 16					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 16						launch_missile barrel
+		frame 20					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 20						launch_missile barrel
+		frame 23					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 23						launch_missile barrel
+		frame 27					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 27						launch_missile barrel
+		frame 30					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 30						launch_missile barrel
+		frame 33					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 33						launch_missile barrel
+		frame 37					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 37						launch_missile barrel
+		frame 41					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 41						launch_missile barrel
+		frame 45					sound_weapon monster_zombie_commando_cgun_fire	
+		frame 45						launch_missile barrel
+	}
+
+	anim rotoutright2_in			models/md5/monsters/zcc/chaingun_wallrotright_D.md5anim {
+		frame 1					        sound_weapon monster_zombie_commando_winddown
+		frame 21						sound_body monster_zombie_commando_footstep
+		frame 21						sound_body2 monster_zombie_commando_footstep_clinks
+	}
+	anim rotoutright2_wait			models/md5/monsters/zcc/chaingun_wallrotright_A.md5anim
+}
+
+entityDef monster_zombie_commando_cgun {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_zombie_commando_cgun"
+	"ragdoll"						"monster_zombie_commando_cgun"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"225"
+	"def_projectile"				"projectile_zombie_commando_cgun"
+	"attack_cone"					"70"
+	"attack_accuracy"				"2"	
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"model"							"monster_zombie_commando_cgun"
+	"bone_focus"					"Head"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+	"gib"							"0"
+	"bleed"							"1"
+
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp.prt-spine_1"
+
+	"blockedRadius"					"10"
+	"blockedMoveTime"				"500"
+	"blockedAttackTime"				"500"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint spine_1"			"0.4 0.4 0"
+	"look_joint Head"				"0.6 0.6 0"	
+
+	"damage_zone head"				"*neck_1"
+	"damage_zone chest"				"*spine_1 -*Rshldr -*Lshldr -*neck_1"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"origin lolegs"
+	"damage_scale head"				"2"
+
+	"mass"   						"450"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lankle"
+	"ik_ankle2"						"Rankle"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lball"
+	"ik_foot2"						"Rball"
+
+	"snd_fire"						"monster_zombie_commando_cgun_fire"
+	"snd_winddown"					"monster_zombie_commando_winddown"
+	"snd_windup"					"monster_zombie_commando_windup"
+	"snd_sight1"					"monster_zombie_commando_sight1"
+	"snd_sight2"					"monster_zombie_commando_sight2"
+	"snd_chatter"					"monster_zombie_commando_chatter"
+	"snd_chatter_combat"			"monster_zombie_commando_chatter_combat"
+	"snd_pain"						"monster_zombie_commando_pain"
+	//"snd_attackmissile"			"monster_zombie_commando_attackmissile"
+	"snd_melee_attack_1"			"monster_zombie_commando_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_commando_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_commando_attackmelee_3"
+	"snd_melee_attack_4"			"monster_zombie_commando_attackmelee_4"
+	"snd_melee_attack_5"			"monster_zombie_commando_attackmelee_5"
+	"snd_death"						"monster_zombie_commando_death"
+	"snd_thud"						"monster_zombie_commando_thud"
+	"snd_footstep"					"monster_zombie_commando_footstep"
+	"snd_breath"					"monster_zombie_commando_breath"
+	"snd_inhale"					"monster_zombie_commando_breath_inhale"
+	"snd_exhale"					"monster_zombie_commando_breath_exhale"
+	"snd_bounce"					"ragdoll_impact"
+	"snd_bodyroll"					"monster_zombie_commando_body_roll"
+	"snd_range_attack_1"			"monster_zombie_commando_range_attack_1"
+	"snd_range_attack_2"			"monster_zombie_commando_range_attack_2"
+	"snd_range_attack_3"			"monster_zombie_commando_range_attack_3"
+	"snd_burn"						"monster_demon_tick_burn"
+
+	"def_dropDeathItem"				"moveable_item_chaingun"
+	"dropDeathItemJoint"			"chain_root"
+	"skin_dropDeath"				"zcc_dropgun"
+	
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"80"
+}
+
+entityDef projectile_zombie_commando_cgun {
+	"spawnclass"				"idProjectile"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+	"cone"						"3"
+	"scale"						"0.1"
+	"noshadows"					"1"
+	"tracers"					"1"
+	"model_tracer"				"models/particles/tracer/tracer.lwo"
+								
+	"snd_tracer"				"bullet_flight"
+	"snd_ricochet"				"bullet_ricochet"
+	"snd_impact"				""			// we need a much smaller impact sound for the chaingun bullet  "bullet_impact_metal"
+
+	"decal_scale"				"8"
+								
+	"def_damage"				"damage_zombie_commando_cgun"
+				
+	"launchFromBarrel"			"1"
+	"health"					"0"
+								// slowed down for tracers
+	"velocity"					"2000 0 0"	// .38 Special 600 fps.  Source: Petzal, David E. "How fast is a speeding bullet." Field and Stream. 97 (1992): 23
+	"angular_velocity"			"0 0 0"
+	"thrust"					"0"
+	"thrust_start"				"0"
+	"thrust_end"				"0"
+	"linear_friction"			"0"
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"
+	"mass"						"2"
+	"gravity"					"0"
+	"fuse"						"4"
+								
+	"detonate_on_fuse"			"0"
+	"detonate_on_death"			"0"
+	"detonate_on_world"			"1"
+	"detonate_on_actor"			"1"
+								
+	"impact_damage_effect"		"1"
+	"impact_gib"				"1"
+								
+	"mtr_detonate"				"textures/decals/bulleth02"
+	"decal_size"				"10"
+								
+	"smoke_detonate"			"smokeandspark.smoke"
+	"smoke_residue" 			""	//particles/chaingun_residue.particle"
+	"smoke_bounce"				""	//particles/chaingun_bounce.particle"
+	"smoke_fuse"				""
+								
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0"
+	"light_radius"				"0"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	""
+	"explode_light_color"		"0 0 0"
+	"explode_light_radius"		"0"
+	"explode_light_fadetime"	"0"
+}
+
+entityDef damage_zombie_commando_cgun {
+	"damage"			"3"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"1"
+	
+	"smoke_wound_flesh"	"bloodwound.smoke"
+	
+	"kick_time"			"10"
+	"kick_amplitude"	"0"
+
+	"dv_time"			"100"
+}

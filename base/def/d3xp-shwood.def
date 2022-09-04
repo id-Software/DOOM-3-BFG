@@ -1,0 +1,173 @@
+export jaydummy {
+
+	options -prefix AI_DUMMY_
+
+	mesh	models/mapobjects/ai_dummy/cycles/idle.mb -dest models/md5/enviroments/ai_dummy/ai_dummy
+	anim	models/mapobjects/ai_dummy/cycles/idle.mb -range 1 1 -dest models/md5/environments/ai_dummy/idle
+}
+
+model env_ai_dummy {
+	mesh				models/md5/enviroments/ai_dummy/ai_dummy.md5mesh
+	anim idle			models/md5/environments/ai_dummy/idle.md5anim
+}
+
+entityDef env_ai_dummy {
+	"inherit"				"monster_default"
+	"scriptobject"					"monster_base"
+	"editor_color"			"1 1 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"model"				"env_ai_dummy"
+	"anim"				"idle"
+}
+
+
+entityDef env_hellpuzzle_smoke {
+	"no_damage"				"1"
+	"inherit"				"env_ai_dummy"
+	"SmokeParticleSystem"	"ancient_puzzle_trail-joint1"
+	
+}
+
+export jay {
+
+	options -prefix lamp_ -keep light_bottom -keep light_top -keep light_right -keep light_left
+
+	mesh	models/mapobjects/lamp/lamp_base.mb -dest models/md5/environments/lamp
+	anim	models/mapobjects/lamp/lamp_anim.mb -range 1 1 -dest models/md5/environments/lampoff
+	anim	models/mapobjects/lamp/lamp_anim.mb -range 60 60 -dest models/md5/environments/lampon
+	anim	models/mapobjects/lamp/lamp_anim.mb -range 1 60 -dest models/md5/environments/lampturnon
+	anim	models/mapobjects/lamp/lamp_anim.mb -range 60 140 -dest models/md5/environments/lampturnoff
+}
+
+model env_lamp {
+	mesh				models/md5/environments/lamp.md5mesh
+	anim off			models/md5/environments/lampoff.md5anim
+	anim on				models/md5/environments/lampon.md5anim
+	anim turnon			models/md5/environments/lampturnon.md5anim
+	anim turnoff			models/md5/environments/lampturnoff.md5anim
+}
+
+entityDef env_lamp {
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+
+	"spawnclass"			"idAnimated"
+	"model"				"env_lamp"
+	"anim"				"off"
+
+	"combatModel"			"1"
+}
+
+
+export jay {
+
+	options -prefix firetail_ -keep joint7 -parent joint7 joint6
+
+	mesh	models/monsters/lostsoul2/fx/tail.mb -dest models/md5/monsters/lostsoul2_fx/tail
+	anim	models/monsters/lostsoul2/fx/tail.mb -range 1 1 -dest models/md5/monsters/lostsoul2_fx/tail
+}
+
+model env_lostsoul2_fx {
+	mesh						models/md5/monsters/lostsoul2_fx/tail.md5mesh
+	anim af_pose					models/md5/monsters/lostsoul2_fx/tail.md5anim
+}
+
+entityDef env_lostsoul2_fx {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"
+
+	"editor_usage"					"Ragdoll fx for lostsoul2"
+
+	"spawnclass"					"idAFEntity_Generic"
+
+	"model"						"env_lostsoul2_fx"
+	"anim"						"af_pose"
+	"articulatedFigure"				"env_lostsoul2_fx.af"
+	"snd_bounce"					"bodyparts"
+}
+
+export jake {
+
+	options -prefix PCGEN_ -keep pcell1 -keep pcell2 -parent pcell1 joint1 -parent pcell2 joint1
+
+	mesh	models/mapobjects/exgen/cycles/idle.mb -dest models/md5/environments/pcellgen/pcellgen
+	anim	models/mapobjects/exgen/cycles/idle.mb -range 1 1 -dest models/md5/environments/pcellgen/idle_open
+	anim	models/mapobjects/exgen/cycles/idle.mb -range 1 12 -dest models/md5/environments/pcellgen/anim_closing
+	anim	models/mapobjects/exgen/cycles/idle.mb -range 12 12 -dest models/md5/environments/pcellgen/idle_closed
+	anim	models/mapobjects/exgen/cycles/idle.mb -range 12 24 -dest models/md5/environments/pcellgen/anim_opening
+}
+
+model env_pcellgen {
+	mesh				models/md5/environments/pcellgen/pcellgen.md5mesh
+	anim open			models/md5/environments/pcellgen/idle_open.md5anim
+	anim closing		models/md5/environments/pcellgen/anim_closing.md5anim
+	anim closed			models/md5/environments/pcellgen/idle_closed.md5anim
+	anim opening		models/md5/environments/pcellgen/anim_opening.md5anim
+}
+
+entityDef env_pcellgen {
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_usage"			"Powercell Generator"
+	"size"					"32 32 32"
+	"spawnclass"			"idAnimated"
+	"model"					"env_pcellgen"
+	"anim"					"open"
+	"combatModel"			"1"
+}
+
+
+
+export ronncine {
+
+	camera	models/cinematics/ronn/ronn.mb -dest models/md5/cinematics/ronn/ronn
+
+}
+
+entityDef ronn_cinematic_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim ronn_cinematic_cam_1"			"models/md5/cinematics/ronn/ronn.md5camera"
+}
+
+
+
+export jake {
+
+	options -prefix PCGEN_single_ -keep pcell_1
+
+	mesh	models/mapobjects/exgen/cycles/single_idle.mb -dest models/md5/environments/pcellgen_single/pcellgen_single
+	anim	models/mapobjects/exgen/cycles/single_idle.mb -range 0 0 -dest models/md5/environments/pcellgen_single/idle_open
+	anim	models/mapobjects/exgen/cycles/single_idle.mb -range 1 10 -dest models/md5/environments/pcellgen_single/anim_closing
+	anim	models/mapobjects/exgen/cycles/single_idle.mb -range 10 10 -dest models/md5/environments/pcellgen_single/idle_closed
+	anim	models/mapobjects/exgen/cycles/single_idle.mb -range 10 20 -dest models/md5/environments/pcellgen_single/anim_opening
+}
+
+model env_pcellgen_single {
+	mesh				models/md5/environments/pcellgen_single/pcellgen_single.md5mesh
+	anim open			models/md5/environments/pcellgen_single/idle_open.md5anim
+	anim closing		models/md5/environments/pcellgen_single/anim_closing.md5anim
+	anim closed			models/md5/environments/pcellgen_single/idle_closed.md5anim
+	anim opening		models/md5/environments/pcellgen_single/anim_opening.md5anim
+}
+
+entityDef env_pcellgen_single {
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_usage"			"Powercell Generator Single"
+	"size"					"32 32 32"
+	"spawnclass"			"idAnimated"
+	"model"					"env_pcellgen_single"
+	"anim"					"open"
+	"combatModel"			"1"
+}

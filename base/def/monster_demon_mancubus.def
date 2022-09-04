@@ -1,0 +1,284 @@
+/***********************************************************************
+
+	monster_demon_mancubus.def
+
+***********************************************************************/
+
+export james {
+	
+	  options	-prefix MANC_ -keep Lknee Rknee -keep ROT Rmissile Lmissile -parent Rmissile Rloarm -parent Lmissile Lloarm -parent Waist ROT -parent ROT Body 
+
+  	  anim    maps/james/recycling2.mb -dest models/md5/cinematics/recycling2/mancintro_manc
+
+
+	  options	-prefix MANC_ -keep Lknee Rknee -align movement -keep ROT Rmissile Lmissile -parent Rmissile Rloarm -parent Lmissile Lloarm -parent Waist ROT -parent ROT Body  -sourcedir models/monsters/mancubus/cycles -destdir models/md5/monsters/mancubus/james
+
+	  
+	  mesh	mancubus_mesh.mb -dest mancubus
+	  anim	af_pose.mb
+	  anim	walk.mb	
+	  anim	idle.mb
+	  anim	teleport.mb
+	  anim	pain.mb
+	  anim	pain_head.mb
+	  anim	pain_chest.mb
+	  anim	pain_ruparm.mb
+	  anim	pain_luparm.mb
+	  anim	sight1.mb
+	  anim	multifire1.mb
+	  anim	multifire1_start.mb
+	  anim	multifire1_end.mb
+	  anim	multifire2.mb
+	  anim	multifire2.mb -dest multifire3
+	  anim	fire1.mb
+	  anim	fire2.mb
+	  anim	fire3.mb
+	  anim	fire4.mb
+	  anim	attack1.mb
+}
+
+model monster_demon_mancubus {
+	mesh							models/md5/monsters/mancubus/james/mancubus.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *origin Body ROT -*Waist )
+
+	anim af_pose					models/md5/monsters/mancubus/james/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/mancubus/james/af_pose.md5anim
+
+	anim idle						models/md5/monsters/mancubus/james/idle.md5anim
+	anim stand						models/md5/monsters/mancubus/james/idle.md5anim
+	anim teleport					models/md5/monsters/mancubus/james/teleport.md5anim {
+		frame 5							sound_body snd_footstep
+		frame 15						sound_voice snd_sight
+	}
+	
+	anim walk					    models/md5/monsters/mancubus/james/walk.md5anim {
+		frame 11						sound_body snd_footstep
+		frame 26						sound_body snd_footstep
+	}
+
+	anim pain						models/md5/monsters/mancubus/james/pain.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim pain_head					models/md5/monsters/mancubus/james/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+/*
+	anim turret_attack1				models/md5/monsters/mancubus/james/fire1.md5anim {
+		frame 1							call overrideLegs	
+		frame 12						sound_weapon snd_attackmissile
+		frame 12						launch_missile Lmissile
+	}
+
+	anim turret_attack2				models/md5/monsters/mancubus/james/fire2.md5anim {
+		frame 1							call overrideLegs
+		frame 12						sound_weapon snd_attackmissile
+		frame 12						launch_missile Rmissile
+	}
+
+	anim turret_attack3				models/md5/monsters/mancubus/james/multifire2.md5anim {
+		frame 1							call overrideLegs
+		frame 12	    				launch_missile Lmissile	
+		frame 12	    				sound_weapon snd_attackmissile
+		frame 23						launch_missile Rmissile
+		frame 23	    				sound_weapon snd_attackmissile
+		frame 38						launch_missile Lmissile
+		frame 38	    				sound_weapon snd_attackmissile
+	}
+
+	anim turret_attack4				models/md5/monsters/mancubus/james/fire3.md5anim {
+		frame 1							call overrideLegs	
+		frame 12	    				sound_weapon snd_attackmissile
+		frame 12	    				launch_missile Lmissile
+	}
+
+	anim turret_attack5				models/md5/monsters/mancubus/james/fire4.md5anim {
+		frame 1							call overrideLegs	
+		frame 12	    				sound_weapon snd_attackmissile
+		frame 12	    				launch_missile Rmissile
+	}
+	
+*/
+
+	anim pain_chest					models/md5/monsters/mancubus/james/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm				models/md5/monsters/mancubus/james/pain_ruparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/mancubus/james/pain_luparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim sight1						models/md5/monsters/mancubus/james/sight1.md5anim {
+		frame 1							sound_voice snd_sight
+	}
+
+	anim range_attack_start			models/md5/monsters/mancubus/james/multifire1_start.md5anim
+	anim range_attack_loop			models/md5/monsters/mancubus/james/multifire1.md5anim {
+		frame 3							launch_missile Lmissile	
+		frame 3							sound_weapon snd_attackmissile
+		frame 19						launch_missile Rmissile
+		frame 19						sound_weapon snd_attackmissile
+	}
+	anim range_attack_end			models/md5/monsters/mancubus/james/multifire1_end.md5anim
+	
+	anim melee_attack1				models/md5/monsters/mancubus/james/attack1.md5anim {
+		frame 16						melee melee_mancubus_stomp
+		frame 16						sound_body snd_footstep
+		frame 17						sound_body snd_footstep
+	}
+
+}
+
+entityDef monster_demon_mancubus {
+	"editor_mins"					"-61 -61 0"
+	"editor_maxs"					"61 61 96"
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_mancubus"
+	"model"							"monster_demon_mancubus"
+	"ragdoll"						"monster_demon_mancubus2"
+	"size"							"122 122 96"
+	"use_aas"						"aas_mancubus"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"1000"
+	"melee_range"					"90"
+	"def_projectile"				"projectile_mancubus_rocket"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"turn_rate"						"120"
+	"chatter_min"					"3"
+	"chatter_max"					"3"
+	"attack_cone"					"30"
+	"attack_accuracy"				"0.5"
+	"pain_threshold"				"16"
+	"on_activate_blend"				"2"
+
+	"damage_zone head"				"*Loneck"
+	"damage_zone chest"				"*Waist -*Ruparm -*Luparm -*Loneck"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Lupleg *Rupleg origin"
+	"damage_scale head"				"1.5"
+	"mass"   						"800"
+	
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"			"burn_manc.prt-waist"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_ankle1"						"Lfoot"
+	"ik_ankle2"						"Rfoot"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"Lfoot"
+	"ik_foot2"						"Rfoot"
+
+	"snd_sight"						"monster_demon_mancubus_sight"
+	"snd_chatter"					"monster_demon_mancubus_chatter"
+	"snd_chatter_combat"			"monster_demon_mancubus_chatter_combat"
+	"snd_pain"						"monster_demon_mancubus_pain"
+	"snd_attackmissile"				"monster_demon_mancubus_attackmissle"
+	"snd_death"						"monster_demon_mancubus_die"
+	"snd_footstep"					"monster_demon_mancubus_step"
+	"snd_burn"						"monster_demon_mancubus_burn"
+}
+
+entityDef damage_mancubusblast {
+	"damage"						"20"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"snd_flesh"						"bullet_impact_flesh"
+}
+
+entityDef damage_mancubusSplash {
+	"damage"						"20"
+	"radius"						"40"
+	"knockback"						"30"
+	"push"							"200"
+}
+
+entityDef projectile_mancubus_rocket {
+	"spawnclass"					"idProjectile"
+	"mins"							"-8 -8 -8"
+	"maxs"							"8 8 8"
+	"cone"							"3"
+	"model" 						"manc_fireball.prt"
+
+	"bindOnImpact"					"0"
+
+	"def_damage"					"damage_mancubusblast"
+	"def_splash_damage"				"damage_mancubusSplash"
+
+	"launchFromBarrel"				"1"
+	"health"						"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"700 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_shader_spin"			"1"					// sets shader parm 5 which if appropriate the projectile shader will use this as an alternating spin
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"100"
+	"gravity"						"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"70" 
+
+	//"smoke_fly"						"plasmatrail.smoke"	// particle effect while in the air
+	"smoke_detonate"				""					// particle effect when detonates
+	"smoke_residue"					""					// particle effect while in the air
+	"smoke_bounce"					""					// particle effect when bounces
+	"smoke_fuse"					""					// particle effect when removed from fuse expiring
+
+	"model_detonate"				"manc_explosion.prt"
+
+//	"mtr_light_shader"				""
+//	"light_color"					"0 0 0.8"
+//	"light_radius"					"160"
+//	"light_offset"					"-8 0 0"
+
+//	"mtr_explode_light_shader"		"muzzleflash"
+//	"explode_light_color"			"0 0 1"
+//	"explode_light_radius"			"160"
+//	"explode_light_fadetime"		"0.25"
+
+	"snd_fly"						"monster_demon_imp_fireball_flight"					// sound effect while in the air
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+}
+
+entityDef melee_mancubus_stomp {
+	"damage"						"40"
+	"kickDir"						"1 0 -1"
+	"blob_time"						"600"
+	//"blob_size"						"600"
+	//"blob_offset_x"					"600"
+	"mtr_blob"						"leftSmack"
+	"blob_x"						"50"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"80"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}

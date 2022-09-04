@@ -1,0 +1,177 @@
+
+testInteractions/AllStatic
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+	}
+}
+
+testInteractions/BumpMoving
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+		scroll	time, 0
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+	}
+}
+
+testInteractions/DiffuseMoving
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+		scroll	time, 0
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+	}
+}
+
+testInteractions/BumpAndDiffuseMoving
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+		scroll	time, 0
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+		scroll	time, 0
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+	}
+}
+
+testInteractions/SpecularMoving
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+		scroll	time, 0
+	}
+}
+
+
+testInteractions/BumpAndSpecularMoving
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+		scroll	time, 0
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+		scroll	time, 0
+	}
+}
+
+testInteractions/DiffuseAndSpecularMoving
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+		scroll	time, 0
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+		scroll	time, 0
+	}
+}
+
+testInteractions/DiffuseColored
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+		rgb		sintable[time]
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+	}
+}
+
+
+testInteractions/SpecularColored
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+		rgb		sintable[time]
+	}
+}
+
+
+testInteractions/DiffuseAndSpecularColored
+{
+	{
+		blend	bumpmap
+		map		addnormals( textures/base_wall/a_factoutwall1_local01_fin.tga  , heightmap( textures/base_wall/a_factoutwall1_01_fin.tga, 3 ) )
+	}
+	{
+		blend	diffusemap
+		map		textures/base_wall/a_factoutwall1_d01_fin.tga
+		rgb		sintable[time]
+	}
+	{
+		blend	specularmap
+		map		textures/base_wall/a_factoutwall1_s01_fin.tga
+		rgb		sintable[time]
+	}
+}
+

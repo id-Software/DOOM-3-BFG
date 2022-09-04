@@ -1,0 +1,201 @@
+/***********************************************************************
+
+weapon_shotgun_double.script
+
+***********************************************************************/
+
+//#define SHOTGUN_DOUBLE_FIRERATE		1.333
+#define SHOTGUN_DOUBLE_FIRERATE		2.2
+
+#define SHOTGUN_DOUBLE_REQUIRED			2
+
+// blend times
+#define SHOTGUN_DOUBLE_IDLE_TO_IDLE	0
+#define SHOTGUN_DOUBLE_IDLE_TO_LOWER	4
+#define SHOTGUN_DOUBLE_IDLE_TO_FIRE	0
+#define	SHOTGUN_DOUBLE_IDLE_TO_RELOAD	4
+#define	SHOTGUN_DOUBLE_IDLE_TO_NOAMMO	4
+#define SHOTGUN_DOUBLE_NOAMMO_TO_RELOAD	4
+#define SHOTGUN_DOUBLE_NOAMMO_TO_IDLE	4
+#define SHOTGUN_DOUBLE_RAISE_TO_IDLE	4
+#define SHOTGUN_DOUBLE_FIRE_TO_IDLE	4
+#define SHOTGUN_DOUBLE_RELOAD_TO_IDLE	4
+#define	SHOTGUN_DOUBLE_RELOAD_TO_FIRE	4
+
+
+//Shotgun Projectile Information
+#define SHOTGUN_CENTER_PROJECTILES		8
+//#define SHOTGUN_CENTER_PROJECTILES 7
+#define SHOTGUN_BIG_PROJECTILES			12
+//#define SHOTGUN_BIG_PROJECTILES 13
+
+#define SHOTGUN_CENTER_WIDTH			5
+#define SHOTGUN_CENTER_HEIGHT			10
+//#define SHOTGUN_CENTER_HEIGHT 12
+#define SHOTGUN_BIG_WIDTH				22
+//#define SHOTGUN_BIG_WIDTH 25
+#define SHOTGUN_BIG_HEIGHT				15
+
+
+object weapon_shotgun_double : weapon_base {
+
+	float		next_attack;
+
+	void		init();
+
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		NoAmmo();
+	void		Fire();
+	void		Reload();
+
+	void		EjectBrass();
+
+	void		ExitCinematic();
+};
+
+void weapon_shotgun_double::init() {
+	next_attack = 0;
+
+	weaponState( "Raise", 0 );
+}
+
+void weapon_shotgun_double::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, SHOTGUN_DOUBLE_RAISE_TO_IDLE ) );
+
+	weaponState( "Idle", SHOTGUN_DOUBLE_RAISE_TO_IDLE );
+}
+
+void weapon_shotgun_double::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_shotgun_double::Idle() {
+	float currentTime;
+	float ammoClip;
+	float ammoAvail;
+	float avail;
+	float clip_size;
+
+	clip_size = clipSize();
+
+
+	if ( !ammoInClip() ) {
+		weaponOutOfAmmo();
+	} else {
+		weaponReady();
+	}
+	playAnim( ANIMCHANNEL_ALL, "idle" );
+	while( !animDone( ANIMCHANNEL_ALL, SHOTGUN_DOUBLE_IDLE_TO_IDLE ) ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", SHOTGUN_DOUBLE_IDLE_TO_LOWER );
+		}
+		currentTime = sys.getTime();
+
+		ammoClip = ammoInClip();
+		ammoAvail = ammoAvailable();
+
+
+		if ( ( currentTime >= next_attack ) && ( WEAPON_ATTACK || WEAPON_NETFIRING ) ) {
+
+			if ( WEAPON_NETFIRING || ammoClip > 0 ) {
+				weaponState( "Fire", SHOTGUN_DOUBLE_IDLE_TO_FIRE );
+			} else if ( ammoAvailable() >= SHOTGUN_DOUBLE_REQUIRED ) {
+				if ( autoReload() ) {
+					netReload();
+					weaponState( "Reload", SHOTGUN_DOUBLE_IDLE_TO_RELOAD );
+				} else {
+
+					weaponState( "NoAmmo", SHOTGUN_DOUBLE_IDLE_TO_NOAMMO );
+				}
+			} else {
+				//weaponState( "NoAmmo", SHOTGUN_DOUBLE_IDLE_TO_NOAMMO );
+				nextWeapon();
+			}
+		}
+		//if ( WEAPON_RELOAD && ( ammoAvail > ammoClip ) && ( ammoClip < clip_size ) ) {
+		if ( WEAPON_RELOAD && ( ammoAvail >= SHOTGUN_DOUBLE_REQUIRED ) && ( ammoClip != clip_size ) ) {
+			netReload();
+			weaponState( "Reload", SHOTGUN_DOUBLE_IDLE_TO_RELOAD );
+		}
+		if ( WEAPON_NETRELOAD ) {
+
+			WEAPON_NETRELOAD = false;
+			weaponState( "Reload", SHOTGUN_DOUBLE_IDLE_TO_RELOAD );
+		}
+		waitFrame();
+	}
+	weaponState( "Idle", SHOTGUN_DOUBLE_IDLE_TO_IDLE );
+}
+
+void weapon_shotgun_double::NoAmmo() {
+
+	if ( WEAPON_NETRELOAD ) {
+		WEAPON_NETRELOAD = false;
+
+		weaponState( "Reload", SHOTGUN_DOUBLE_IDLE_TO_RELOAD );
+	}
+
+	playAnim( ANIMCHANNEL_ALL, "noammo" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, SHOTGUN_DOUBLE_NOAMMO_TO_IDLE ) );
+
+	weaponState( "Idle", SHOTGUN_DOUBLE_NOAMMO_TO_IDLE );
+}
+
+void weapon_shotgun_double::Fire() {
+
+	if ( WEAPON_NETRELOAD ) {
+		WEAPON_NETRELOAD = false;
+
+		weaponState( "Reload", SHOTGUN_DOUBLE_IDLE_TO_RELOAD );
+	}
+
+
+	next_attack = sys.getTime() + SHOTGUN_DOUBLE_FIRERATE;
+
+	launchProjectilesEllipse( SHOTGUN_CENTER_PROJECTILES, SHOTGUN_CENTER_WIDTH, SHOTGUN_CENTER_HEIGHT, 0, 1.0 );
+	launchProjectilesEllipse( SHOTGUN_BIG_PROJECTILES, SHOTGUN_BIG_WIDTH, SHOTGUN_BIG_HEIGHT, 0, 1.0 );
+
+	playAnim( ANIMCHANNEL_ALL, "fire" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, SHOTGUN_DOUBLE_FIRE_TO_IDLE ) );
+
+	if ( autoReload() && ammoAvailable() >= SHOTGUN_DOUBLE_REQUIRED) {
+		WEAPON_RELOAD = true;
+	}
+	weaponState( "Idle", SHOTGUN_DOUBLE_FIRE_TO_IDLE );
+
+}
+
+void weapon_shotgun_double::Reload() {
+	weaponReloading();
+
+	playAnim( ANIMCHANNEL_ALL, "reload_start" );
+
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+
+	addToClip( clipSize() );
+
+	if ( WEAPON_ATTACK ) {
+		weaponState( "Fire", SHOTGUN_DOUBLE_RELOAD_TO_FIRE );
+	}
+
+	weaponState( "Idle", SHOTGUN_DOUBLE_RELOAD_TO_IDLE );
+}
+
+void weapon_shotgun_double::EjectBrass() {
+	ejectBrass();
+	ejectBrass();
+}
+
+void weapon_shotgun_double::ExitCinematic() {
+	next_attack = 0;
+	weaponState( "Idle", 0 );
+}

@@ -1,0 +1,255 @@
+/***********************************************************************
+
+	monster_boss_vagary.def
+
+***********************************************************************/
+
+export fred {
+	options -prefix VAG_ -keep mouthmissile Lknee1 Lknee2 Lknee3 Rknee1 Rknee2 Rknee3 -parent mouthmissile Head 
+
+	anim	maps/fred/caverns2/bridge2.mb -range 315 490 -dest models/md5/cinematics/caverns2/bridge_pinky
+
+	addoptions -sourcedir models/monsters/vagary/cycles 
+	addoptions -destdir models/md5/monsters/vagary
+
+	mesh	vagary_mesh.mb -rotate 90 -dest vagary
+	anim	af_pose.mb -rotate -90
+	anim	stand.mb
+	anim	alert_idle.mb
+	anim	wake.mb
+	anim	sight.mb
+	//anim	walk.mb
+	anim	walk3.mb
+	anim	sleep.mb
+	anim	melee1.mb
+	anim	melee2.mb
+	anim	melee3.mb
+	anim	chestpain.mb
+	anim	headpain.mb
+	anim	luparmpain.mb
+	anim	ruparmpain.mb
+	anim	evade_right.mb
+	anim	evade_left.mb -rotate 90
+	anim	range_attack.mb
+	anim	downwalk.mb
+
+	anim	vagretreat.mb -rotate 180 -dest vagintro_retreat -sourcedir maps/fred/alphalabs3 -destdir models/md5/cinematics/alphalabs3	
+
+	addoptions -prefix VAG2_
+
+	anim	vags2.mb -dest vag2 -sourcedir maps/fred/caverns2 -destdir models/md5/cinematics/caverns2
+
+	addoptions -prefix VAG1_
+
+	anim	vags2.mb -rotate -180 -range 1 135 -dest vag1 -sourcedir maps/fred/caverns2 -destdir models/md5/cinematics/caverns2
+
+
+	anim	playershot1.mb -dest vagintro_vagary1 -sourcedir maps/fred/alphalabs3 -destdir models/md5/cinematics/alphalabs3
+	anim	vagaryintro2.mb -dest vagintro_vagary2 -sourcedir maps/fred/alphalabs3 -destdir models/md5/cinematics/alphalabs3
+
+	/********
+	web fx
+	*********/
+
+	options -prefix WEB_ -align Center
+	mesh	models/monsters/trite/cycles/web.mb
+	anim	models/monsters/trite/cycles/web.mb
+	anim	models/monsters/trite/cycles/webflight.mb
+	anim	models/monsters/trite/cycles/webgrowth.mb
+}
+
+model monster_boss_vagary {
+	mesh							models/md5/monsters/vagary/vagary.md5mesh
+	channel torso					( *Waist )
+	channel legs					( *origin -*Waist )
+
+	anim af_pose					models/md5/monsters/vagary/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/vagary/af_pose.md5anim
+
+	anim stand						models/md5/monsters/vagary/stand.md5anim 
+	anim idle						models/md5/monsters/vagary/alert_idle.md5anim
+	anim walk						models/md5/monsters/vagary/walk3.md5anim {
+		frame 4							sound_body snd_step
+		frame 7							sound_body snd_step
+		frame 12						sound_body snd_step
+		frame 17						sound_body snd_step
+		frame 23						sound_body snd_step
+		frame 27						sound_body snd_step
+		frame 30						sound_body snd_step
+		frame 34						sound_body snd_step
+		frame 41						sound_body snd_step
+	}
+	anim evade_right				models/md5/monsters/vagary/evade_right.md5anim {
+		frame 1							sound_body monster_boss_vagary_evade_right
+	}
+	anim evade_left					models/md5/monsters/vagary/evade_left.md5anim {
+		frame 1							sound_body monster_boss_vagary_evade_left
+	}
+	anim sight						models/md5/monsters/vagary/sight.md5anim {
+		frame 10						sound_voice snd_sight
+	}
+	anim melee_attack1				models/md5/monsters/vagary/melee1.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice2 monster_boss_vagary_attack1
+		frame 10						melee melee_vagRightClaw
+	}
+	anim melee_attack2				models/md5/monsters/vagary/melee2.md5anim {
+		frame 1							call overrideLegs
+		frame 1							sound_voice2 monster_boss_vagary_attack2
+		frame 18						melee melee_vagLeftClaw
+	}
+	anim melee_attack3				models/md5/monsters/vagary/melee3.md5anim {
+		frame 1							call overrideLegs	
+		frame 1							sound_voice2 monster_boss_vagary_attack3
+		frame 16						melee melee_vagRightClaw
+		frame 35						melee melee_vagLeftClaw
+		frame 38						melee melee_vagRightClaw
+	}
+	
+	anim pain						models/md5/monsters/vagary/chestpain.md5anim {
+		frame 1							sound_voice monster_boss_vagary_pain
+	}
+	anim pain_chest					models/md5/monsters/vagary/chestpain.md5anim {
+		frame 1							sound_voice monster_boss_vagary_pain
+	}
+	anim pain_head					models/md5/monsters/vagary/headpain.md5anim {
+		frame 1							sound_voice monster_boss_vagary_pain_head
+	}
+	anim pain_right_arm				models/md5/monsters/vagary/ruparmpain.md5anim {
+		frame 1							sound_voice monster_boss_vagary_pain_right_arm
+	}
+	anim pain_left_arm				models/md5/monsters/vagary/luparmpain.md5anim {
+		frame 1							sound_voice monster_boss_vagary_pain_left_arm
+	}
+}
+
+entityDef monster_boss_vagary {
+	"editor_mins"					"-48 -48 0"
+	"editor_maxs"					"48 48 96"
+
+	"inherit"						"monster_default"
+	"spawnclass"					"idAI_Vagary"
+	"scriptobject"					"monster_boss_vagary"
+	"ragdoll"						"monster_demon_vagary"
+	"model"							"monster_boss_vagary"
+	"anim"							"idle"
+	"size"							"80 80 96"
+	"use_aas"						"aas96"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"1300"
+	"melee_range"					"64"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"turn_rate"						"360"
+	"mass"							"600"
+	"smoke_burnParticleSystem"		"burn_manc.prt-body"
+	"burnaway"						"0.50"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Torso"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint Head"				"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+
+	"ik_numLegs"					"6"
+	"ik_footSize"					"0"
+	"ik_waist"						"Body"
+	"ik_hip1"						"Lclaw3b"
+	"ik_hip2"						"Rclaw3b"
+	"ik_hip3"						"Lclaw3c"
+	"ik_hip4"						"Rclaw3c"
+	"ik_hip5"						"Lclaw3d"
+	"ik_hip6"						"Rclaw3d"
+	"ik_knee1"						"Lclaw4b"
+	"ik_knee2"						"Rclaw4b"
+	"ik_knee3"						"Lclaw4c"
+	"ik_knee4"						"Rclaw4c"
+	"ik_knee5"						"Lclaw4d"
+	"ik_knee6"						"Rclaw4d"
+	"ik_ankle1"						"Lclaw5b"
+	"ik_ankle2"						"Rclaw5b"
+	"ik_ankle3"						"Lclaw5c"
+	"ik_ankle4"						"Rclaw5c"
+	"ik_ankle5"						"Lclaw5d"
+	"ik_ankle6"						"Rclaw5d"
+	"ik_dir1"						"Lknee1"
+	"ik_dir2"						"Rknee1"
+	"ik_dir3"						"Lknee2"
+	"ik_dir4"						"Rknee2"
+	"ik_dir5"						"Lknee3"
+	"ik_dir6"						"Rknee3"
+	"ik_foot1"						"Lclaw7b"
+	"ik_foot2"						"Lclaw7c"
+	"ik_foot3"						"Lclaw7d"
+	"ik_foot4"						"Rclaw7b"
+	"ik_foot5"						"Rclaw7c"
+	"ik_foot6"						"Rclaw7d"
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Ruparm -*Luparm -*Neck"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Tail"
+
+	"damage_scale head"				"2"
+
+	"snd_sight"						"monster_boss_vagary_sight"
+	"snd_chatter"					"monster_boss_vagary_idle"
+	"snd_chatter_combat"			"monster_boss_vagary_chatter_combat"
+	"snd_pain"						"monster_boss_vagary_pain"
+	"snd_pickup"					"monster_boss_vagary_pickup"
+	"snd_death"						"monster_boss_vagary_death"
+	"snd_step"						"monster_demon_vagary_step"
+	"snd_melee"						"monster_zombie_commando_melee_miss"
+	"snd_burn"						"monster_demon_tick_burn"
+}
+
+entityDef melee_vagLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters
+	"damage"						"12"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_vagRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"12"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"30"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}

@@ -1,0 +1,49 @@
+ textures/wood/plank_01
+{
+	
+	 noSelfShadow
+ 	
+	qer_editorimage		textures/wood/plank_d_01
+	
+
+	bumpmap				textures/wood/plank_local_01
+	diffusemap			textures/wood/plank_d_01
+	specularmap			textures/wood/plank_s_01
+}
+
+textures/wood/plank_02
+{
+	noSelfShadow
+	
+	qer_editorimage		textures/wood/plank_d_02
+	
+
+	bumpmap				textures/wood/plank_local_02
+	diffusemap			textures/wood/plank_d_02
+	specularmap			textures/wood/plank_s_02
+}
+
+textures/wood/plank_03
+{
+	noSelfShadow
+	
+	qer_editorimage		textures/wood/plank_d_03
+	
+
+	bumpmap				textures/wood/plank_local_03
+	diffusemap			textures/wood/plank_d_03
+	specularmap			textures/wood/plank_s_03
+}
+
+textures/wood/plank_04
+{
+
+	noSelfShadow
+
+	qer_editorimage		textures/wood/plank_d_04
+	
+
+	bumpmap				textures/wood/plank_local_04
+	diffusemap			textures/wood/plank_d_04
+	specularmap			textures/wood/plank_s_04
+} 

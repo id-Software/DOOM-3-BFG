@@ -1,0 +1,35 @@
+model static_hunter3 {
+	mesh						models/md5/monsters/d3xp_invul/d3xp_invul.md5mesh
+	skin						"skins/monsters/hunter_invul/invuln_no_shell"
+	anim zoo_idle				models/md5/monsters/d3xp_invul/idle1.md5anim
+}
+
+entityDef static_hunter3 {
+	"inherit"					"cin_base"
+	"anim"						"zoo_idle"
+	"model"						"static_hunter3"
+}
+
+model static_hunter2 {
+	mesh						models/md5/monsters/hunter_berzerk/idle.md5mesh
+	skin						"skins/monsters/hunter_berserk/hunter_berserk_enrage"
+	anim zoo_idle				models/md5/monsters/hunter_berzerk/berzerk_idle.md5anim
+}
+
+entityDef static_hunter2 {
+	"inherit"					"cin_base"
+	"anim"						"zoo_idle"
+	"model"						"static_hunter2"
+}
+
+model static_hunter1 {
+	mesh						models/md5/monsters/hunter_helltime/idle.md5mesh
+	skin						"skins/models/monsters/hunter_helltimenochunks"
+	anim zoo_idle				models/md5/monsters/hunter_helltime/idle.md5anim
+}
+
+entityDef static_hunter1 {
+	"inherit"					"cin_base"
+	"anim"						"zoo_idle"
+	"model"						"static_hunter1"
+}

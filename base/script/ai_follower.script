@@ -1,0 +1,387 @@
+/***********************************************************************
+
+ai_follower.script
+
+***********************************************************************/
+
+#define FOLLOW_MAXDIST	120
+#define FOLLOW_MINDIST	80
+#define FOLLOW_RUNDIST	180
+
+object follower : ai {
+	string		customAnim;
+	boolean		inCustomAnim;
+	float		customBlendOut;
+	boolean		run;
+	
+	//
+	// States
+	//
+	void		state_Idle();
+	void		state_Killed();
+	void		state_Follow();
+	void		getCloser();
+
+	void		init();
+	
+	void		playCustomCycle( string animname, float blendTime );
+	void		playCustomAnim( string animname, float blendIn, float blendOut );
+
+	float		should_turn_left();
+	float		should_turn_right();
+		
+	// torso anim states
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_CustomAnim();
+	void		Torso_CustomCycle();
+	
+	// legs anim states
+	void		Legs_Death();
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_Run();
+	void		Legs_TurnLeft();
+	void		Legs_TurnRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void follower::Torso_CustomCycle() {
+	overrideAnim( ANIMCHANNEL_LEGS );
+	playCycle( ANIMCHANNEL_TORSO, customAnim );
+	eachFrame {
+		;
+	}
+}
+
+void follower::Torso_CustomAnim() {
+	inCustomAnim = true;
+	playAnim( ANIMCHANNEL_TORSO, customAnim );
+	
+	while( !( animDone( ANIMCHANNEL_TORSO, customBlendOut ) ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "customAnim" );
+	inCustomAnim = false;
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", customBlendOut );
+}
+
+void follower::Torso_Death() {
+	finishAction( "dead" );
+}
+
+void follower::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+}
+
+void follower::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+			}
+		}
+		waitFrame();
+	}
+	
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void follower::Legs_Death() {
+}
+
+float follower::should_turn_left() {
+	float turnAmount;
+	
+	turnAmount = getTurnDelta();
+	if ( turnAmount > 10 ) {
+		if ( hasAnim( ANIMCHANNEL_LEGS, "turn_left" ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+float follower::should_turn_right() {
+	float turnAmount;
+	
+	turnAmount = getTurnDelta();
+	if ( turnAmount < -10 ) {
+		if ( hasAnim( ANIMCHANNEL_LEGS, "turn_right" ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void follower::Legs_Idle() {
+	if ( !AI_FORWARD && !facingIdeal() ) {
+		if ( should_turn_left() ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+		}
+		if ( should_turn_right() ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+		}
+	}
+	
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+	eachFrame {
+		if ( AI_FORWARD ) {
+			if ( run ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Run", 12 );
+			} else {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		
+		if ( !facingIdeal() ) {
+			if ( should_turn_left() ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+			}
+			if ( should_turn_right() ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+			}
+		}
+	}
+}
+
+void follower::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	while( AI_FORWARD && !run )	{
+		waitFrame();
+	}
+	
+	if ( AI_FORWARD && run ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Run", 12 );
+	}
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+}
+
+void follower::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+	
+	while( AI_FORWARD && run )	{
+		waitFrame();
+	}
+	
+	if ( AI_FORWARD ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+	}
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+}
+
+void follower::Legs_TurnLeft() {
+	float turnAmount;
+	
+	turnAmount = getTurnDelta();
+	if ( turnAmount > 110 ) {
+		// do it in two turns
+		turnAmount *= 0.5;
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		waitFrame();
+	}
+	
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void follower::Legs_TurnRight() {
+	float turnAmount;
+	
+	turnAmount = getTurnDelta();
+	if ( turnAmount < -110 ) {
+		// do it in two turns
+		turnAmount *= 0.5;
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		waitFrame();
+	}
+	
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+follower::init
+=====================
+*/
+void follower::init() {
+	inCustomAnim = false;
+	run = false;
+	
+	float mod;
+	mod = getIntKey( "head_look" );
+	setBoneMod( mod );
+	
+	setTalkState( TALK_OK );
+
+	self.setKey( "conversationNext", "" );
+	
+	setKey( "wander", "1" );
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+follower::playCustomCycle
+=====================
+*/
+void follower::playCustomCycle( string animname, float blendTime ) {
+	customAnim = animname;
+	animState( ANIMCHANNEL_TORSO, "Torso_CustomCycle", blendTime );
+}
+
+/*
+=====================
+follower::playCustomAnim
+=====================
+*/
+void follower::playCustomAnim( string animname, float blendIn, float blendOut ) {
+	customBlendOut = blendOut;
+	customAnim = animname;
+	inCustomAnim = true;
+	animState( ANIMCHANNEL_TORSO, "Torso_CustomAnim", blendIn );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+follower::state_Idle
+=====================
+*/
+void follower::state_Idle() {
+	stopMove();
+	setTalkTarget( $null_entity );
+	while( 1 ) {
+		if ( AI_TALK ) {
+			setState( "state_Follow" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+follower::state_Killed
+=====================
+*/
+void follower::state_Killed() {
+	stopMove();
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+
+	waitAction( "dead" );
+	stopThinking();
+}
+
+/*
+=====================
+follower::state_Follow
+=====================
+*/
+void follower::state_Follow() {
+	entity leader;
+
+	leader = getTalkTarget();
+	if ( !leader ) {
+		leader = $player1;
+	}
+	setTalkTarget( $null_entity );
+	while( 1 ) {
+		lookAt( leader, 0.1 );
+		if ( AI_TALK ) {
+			setState( "state_Idle" );
+		}
+		if ( distanceTo( leader ) > FOLLOW_MAXDIST ) {
+			getCloser();
+		} else {
+			faceEntity( leader );
+		}
+		waitFrame();
+	}
+}
+
+void follower::getCloser() {
+	entity leader;
+
+	leader = getTalkTarget();
+	if ( !leader ) {
+		leader = $player1;
+	}
+	setTalkTarget( $null_entity );
+	run = false;
+	moveToEntity( leader );
+	while( !AI_DEST_UNREACHABLE && !AI_MOVE_DONE && ( distanceTo( leader ) > FOLLOW_MINDIST ) ) {
+		lookAt( leader, 0.1 );
+		if ( distanceTo( leader ) > FOLLOW_RUNDIST ) {
+			run = true;
+		}
+		if ( distanceTo( leader ) < FOLLOW_MAXDIST ) {
+			run = false;
+		}
+		if ( AI_TALK ) {
+			setState( "state_Idle" );
+		}
+			
+		waitFrame();
+	}
+	stopMove();
+}

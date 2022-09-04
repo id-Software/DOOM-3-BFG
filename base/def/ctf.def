@@ -1,0 +1,181 @@
+/***********************************************************************
+
+        Threewave Capture the Flag Definitions
+
+***********************************************************************/
+
+entityDef item_team_default {
+	"editor_color"                      ".3 .3 1"
+	"editor_mins"                       "-16 -32 0"
+	"editor_maxs"                       "16 32 32"
+	"editor_rotatable"                  "1"
+	
+	"inv_item"                          "1"
+
+	"snd_acquire"                       "sound_item_acquire"
+	"snd_respawn"                       "sound_item_respawn"
+	
+	"editor_bool inv_item"              "if set to 1, show item acquisition gui when picked up"
+	"editor_var inv_name"               "name referenced for triggers etc.. requiring this to be in inventory to work"
+	"editor_var inv_icon"               "icon name for hud graphics"
+	"editor_bool inv_carry"             "if set to 1, is carried as opposed to instant use"
+	"editor_bool no_touch"              "trigger to give to player instead of picking up"
+	"editor_model model"                "visual model"
+	"editor_var triggersize"            "amount to expand the pickup trigger by"
+	"editor_var inv_id"                 "id number as defined in guis/itemdefs.h"
+
+	"editor_var script_taken"           "script on item take"
+	"editor_var script_dropped"         "script on item dropped"
+	"editor_var script_returned"        "script on item returned"
+	"editor_var script_captured"        "script on item captured"
+
+	"editor_copy3"                      "script_taken"
+	"editor_copy4"                      "script_dropped"
+	"editor_copy5"                      "script_returned"
+	"editor_copy6"                      "script_captured"
+
+	"density"                           "1000.0"
+	"friction"                          "0.1"
+	"bouncyness"                        "0.0"
+	"nonsolid"                          "0"
+
+	"spawnclass"                        "idItemTeam"
+}
+
+
+entityDef team_CTF_redflag {
+    "inherit"                           "item_team_default"
+
+	"editor_usage"                      "CTF: the red flag" 
+    
+    "model"                             "models/ctf/ctf_flag.ase"
+    "team"                              "0"
+    "spin"                              "0"
+    "skin"                              "skins/ctf/red_flag"
+    "skin_carried"                      "skins/ctf/red_flag_not_idle"
+    "inv_name"                          "redflag"
+
+	"script_taken"                      "red_flag_taken"
+	"script_dropped"                    ""
+	"script_returned"                   "red_flag_returned"
+	"script_captured"                   "red_flag_captured"
+
+	// Nugget-less
+
+	"bouncyness"                        "0"
+	"friction"                          "0.8"
+	"density"                           "500"
+	"gravity"                           "-35"
+
+	"pickupDelay"                       "500"
+
+	"net_dynamic"                       "1"
+    "noshadows"                         "1"
+}
+
+
+entityDef team_CTF_blueflag {
+    "inherit"                           "item_team_default"
+    
+	"editor_usage"                      "CTF: the blue flag" 
+
+    "model"                             "models/ctf/ctf_flag.ase"
+    "team"                              "1"
+    "spin"                              "0"
+    "skin"                              "skins/ctf/blue_flag"
+    "skin_carried"                      "skins/ctf/blue_flag_not_idle"
+    "inv_name"                          "blueflag"
+
+	"script_taken"                      "blue_flag_taken"
+	"script_dropped"                    ""
+	"script_returned"                   "blue_flag_returned"
+	"script_captured"                   "blue_flag_captured"
+
+	// Nugget-less
+
+	"bouncyness"                        "0"
+	"friction"                          "0.8"
+	"density"                           "500"
+	"gravity"                           "-35"
+
+	"pickupDelay"                       "500"
+
+	"net_dynamic"                       "1"
+    "noshadows"                         "1"
+}
+
+
+entityDef trigger_CTF_flag_default {
+	"inherit"                           "trigger_multiple"
+
+	"editor_usage"                      "CTF : triggers a flag capture when the red or blue flag enters it's bounding box." 
+
+	"player"                            "1"
+	"spawnclass"                        "idTrigger_Flag"
+	"eventflag"                         "flagcapture"
+}
+
+
+// trigger_CTF_redteam_capture is a more appropriate name
+entityDef trigger_CTF_redflag {
+	"inherit"                           "trigger_CTF_flag_default"
+	"team"                              "0"
+}
+
+entityDef trigger_CTF_blueflag {
+	"inherit"                           "trigger_CTF_flag_default"
+	"team"                              "1"
+}
+
+entityDef trigger_CTF_nodrop {
+	"inherit"                           "trigger_multiple"
+
+	"team"                              "-1"
+	"player"                            "0"
+	"eventflag"                         "flagreturn"
+	"spawnclass"                        "idTrigger_Flag"
+
+}
+
+entityDef team_CTF_redflag_nugget {
+	"inherit"                           "moveable_item_default"
+
+	// if you remove "model", make sure to include in a replacement "clipmodel"
+	"model"                             "models/ctf/flagfx/red_ember.ase"
+	"clipmodel"                         "models/ctf/flagfx/red_ember.ase"
+	"density"                           "0.5"
+	"friction"                          "0.5"
+	"bouncyness"                        "0.3"
+	"smoke_trail"                       "red_flag_smoke_fx.prt" //"wormsteam"
+	"nopulse"                           "1"
+	"repeatSmoke"                       "1"
+
+	"networkSync"                       "1"
+}
+
+entityDef team_CTF_blueflag_nugget {
+	"inherit"                           "moveable_item_default"
+
+	// if you remove "model", make sure to include in a replacement "clipmodel"
+	"model"                             "models/ctf/flagfx/blue_ember.ase"
+	"clipmodel"                         "models/ctf/flagfx/blue_ember.ase"
+	"density"                           "0.5"
+	"friction"                          "0.5"
+	"bouncyness"                        "0.3"
+	"smoke_trail"                       "blue_flag_smoke_fx.prt" //"wormsteam"
+	"nopulse"                           "1"
+	"repeatSmoke"                       "1"
+
+	"networkSync"                       "1"
+}
+
+entitydef player_doommarine_ctf {
+	"inherit"                           "player_doommarine_mp"
+
+	"mtr_icon_lag"                      "textures/sfx/lag"
+	"mtr_icon_chat"                     "textures/sfx/chat"
+	"mtr_icon_redteam"                  "textures/ctf/icon_redteam.tga"
+	"mtr_icon_blueteam"                 "textures/ctf/icon_blueteam.tga"
+
+	"fx_spawn"                          "fx/teleporterplayer_lite.fx"		// spawn effect to be used in CTF
+}

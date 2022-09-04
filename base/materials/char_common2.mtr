@@ -1,0 +1,62 @@
+
+models/characters/common/mcneilrightgreen
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	.4, .4
+
+	}
+}
+
+
+models/characters/common/mcneilleftgreen
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	.4, .4
+	}
+}
+
+models/characters/common/rightbetruger
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet2.tga
+		centerScale	0.25, 0.25
+	}
+
+
+}
+
+models/characters/common/leftbetruger
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.25, 0.25
+	}
+
+
+}

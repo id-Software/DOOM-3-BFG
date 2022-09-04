@@ -766,7 +766,7 @@ void F_BunnyScroll (void)
 	::g->laststage = stage;
     }
 	
-    sprintf (name,"END%i",stage);
+    snprintf (name, strlen(name), "END%i",stage);
     V_DrawPatch ((ORIGINAL_WIDTH-13*8)/2, (ORIGINAL_HEIGHT-8*8)/2,0, (patch_t*)W_CacheLumpName (name,PU_CACHE_SHARED));
 }
 

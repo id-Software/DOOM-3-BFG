@@ -1,0 +1,19 @@
+
+/***********************************************************************
+
+ target
+
+***********************************************************************/
+
+entityDef target_achievement {
+	"editor_color"						"0 .5 .8"
+	"editor_mins"						"-12 -12 -12"
+	"editor_maxs"						"12 12 12"
+
+	"editor_usage"						"When triggered, this registers an achievement has been accomplished."
+	"editor_usage1"						"Enter the achievement number to register (found in DeclAchievements.h) ."
+
+	"editor_var achievement"			"achievement number"
+
+	"spawnclass"						"idTarget_Achievement"
+}

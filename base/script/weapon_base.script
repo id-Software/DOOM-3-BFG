@@ -1,0 +1,112 @@
+/***********************************************************************
+
+weapon_base.script
+
+Base object for weapons.  Contains variables required by game code.
+
+***********************************************************************/
+
+object weapon_base {
+				// required by game
+	boolean		WEAPON_ATTACK;
+	boolean		WEAPON_RELOAD;
+	boolean		WEAPON_NETRELOAD;
+	boolean		WEAPON_NETENDRELOAD;
+	boolean		WEAPON_NETFIRING;
+	boolean		WEAPON_RAISEWEAPON;
+	boolean		WEAPON_LOWERWEAPON;
+
+				// required by player script.
+	boolean		WEAPON_START_FIRING;
+
+				// called by game
+	void		EnterCinematic();
+	void		ExitCinematic();
+	void		NetCatchup();
+	void		WeaponStolen();
+	void		OwnerDied();
+	void		UpdateSkin();
+
+				// called by player script
+	string		GetFireAnim();
+};
+
+/*
+=====================
+weapon_base::EnterCinematic
+
+Required by game code for cinematics.  Implemented in subclasses.
+=====================
+*/
+void weapon_base::EnterCinematic() {
+}
+
+/*
+=====================
+weapon_base::ExitCinematic
+
+Required by game code for cinematics.  Implemented in subclasses.
+=====================
+*/
+void weapon_base::ExitCinematic() {
+}
+
+/*
+=====================
+weapon_base::NetCatchup
+
+Required by game code for networking.  Implemented in subclasses.
+=====================
+*/
+void weapon_base::NetCatchup() {
+	weaponState( "Idle", 0 );
+}
+
+/*
+=====================
+weapon_base::WeaponStolen
+
+Required by game code for multiplayer when weapon is stolen.  Implemented in subclasses.
+=====================
+*/
+void weapon_base::WeaponStolen() {
+}
+
+/*
+=====================
+weapon_base::OwnerDied
+
+Required by game code for when the weapon owner dies.  Implemented in subclasses.
+Script is destroyed right after this is called, so any code must execute in a single frame.
+=====================
+*/
+void weapon_base::OwnerDied() {
+}
+
+/*
+=====================
+weapon_base::UpdateSkin
+
+Required by game code for when the skin needs to change (for example, when the player has a power up).  Implemented in subclasses.
+Code is called is only guaranteed to execute for one frame, so any code should either set the weapon state or start a new thread.
+=====================
+*/
+void weapon_base::UpdateSkin() {
+	if ( isInvisible() ) {
+		setSkin( getKey( "skin_invisible" ) );
+	} else {
+		setSkin( "" );
+	}
+}
+
+/*
+=====================
+weapon_base::GetFireAnim
+
+Used by the player script to get the fire anim.  Subclasses can override this in order to sync the
+viewmodel with the player model.
+=====================
+*/
+string weapon_base::GetFireAnim() {
+	return "fire";
+}

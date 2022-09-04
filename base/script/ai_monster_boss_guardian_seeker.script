@@ -1,0 +1,444 @@
+/***********************************************************************
+
+ai_monster_boss_guardian_seeker.script
+
+monster_boss_guardian_seeker
+
+***********************************************************************/
+
+#define SEEKER_TOOCLOSE_RANGE	200
+#define	SEEKER_TOOFAR_RANGE		650
+#define	SEEKER_IDEAL_RANGE		430
+#define	SEEKER_MAXIMUM_RETREAT_RANGE ( SEEKER_TOOFAR_RANGE + 200 )
+
+#define SEEKER_RUNTIME			2
+#define SEEKER_GETCLOSER_DELAY	3
+#define SEEKER_GETCLOSER_TIME	1
+#define SEEKER_SIGHTTIME		2
+#define SEEKER_ESCAPE_SPEED		800
+
+object monster_boss_guardian_seeker : seeker_base {
+	//
+	// States
+	//
+	void		state_Inactive();
+	void		state_Idle();
+	void		state_WatchPlayer();
+	void		state_GetCloser();
+	void		state_FindPlayer();
+	void		state_Retreat();
+	void		state_RunAway();
+
+	void		init();
+	
+	// Torso anim states
+	void		Torso_Idle();
+	void		Torso_Fly();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+
+	monster_boss_guardian	guardian;
+	entity					light1;
+	entity					light2;
+	entity					light_beam;
+	float					last_enemy_sight;
+	float					fly_speed;
+};
+
+void monster_boss_guardian_seeker::Torso_Idle() {
+	playCycle( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( AI_PAIN )		{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Fly", 4 ); }
+	}
+}
+
+void monster_boss_guardian_seeker::Torso_Fly() {
+	playCycle( ANIMCHANNEL_TORSO, "fly" );
+	
+	eachFrame {
+		if ( AI_PAIN )		{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 ); }
+		if ( !AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 ); }
+	}
+}
+
+void monster_boss_guardian_seeker::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+	
+	guardian.AI_PAIN = true;
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_boss_guardian_seeker::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_boss_guardian_seeker::Torso_Death() {
+	waitUntil( 0 );
+}
+
+void monster_boss_guardian_seeker::see_enemy() {
+	if ( last_enemy_sight < sys.getTime() ) {
+		startSound( "snd_sight", SND_CHANNEL_VOICE, false );
+	}
+	last_enemy_sight = sys.getTime() + SEEKER_SIGHTTIME;
+	guardian.sightEnemy();
+	//light1.setColor( 1, 0.8, 0.4 );
+	//light2.setColor( 1, 0.8, 0.4 );
+}
+
+void monster_boss_guardian_seeker::lost_enemy() {
+	light1.setColor( 0.5, 0.2, 0.1 );
+	light2.setColor( 0.5, 0.2, 0.1 );
+}
+
+void monster_boss_guardian_seeker::init() {
+	string name;
+	entity ent;
+	string classname;
+
+	ent = getTarget( 0 );
+	if ( ent ) {
+		guardian = getTarget( 0 );
+		if ( !guardian ) {
+			sys.error( "Entity '" + ent.getName() + "' targeted by '" + getName() + "' is not monster_boss_guardian" );
+		}
+		guardian.addSeeker( self );
+	}
+
+	fly_speed = getFloatKey( "fly_speed" );
+
+	// point light
+	//sys.setSpawnArg( "name", getName() + "_light1" );
+	//classname = getKey( "def_light1" );
+	//light1 = sys.spawn( classname );
+	//light1.bindToJoint( self, "head", true );
+	//light1.setOrigin( '0 0 30' );
+
+	// spot light
+	//float distance = 3096;
+	//sys.setSpawnArg( "light_target", "0 1 0" );
+	//sys.setSpawnArg( "light_up", "0 0 0.5" );
+	//sys.setSpawnArg( "light_right", "-0.5 0 0" );	
+	//sys.setSpawnArg( "light_end", "0 " + distance + " 0" );
+	//sys.setSpawnArg( "name", getName() + "_light2" );
+	//classname = getKey( "def_light2" );
+	//light2 = sys.spawn( classname );
+	//light2.bindToJoint( self, "head", true );
+	//light2.setOrigin( '0 0 30' );
+
+	// light beam
+	sys.setSpawnArg( "name", getName() + "_lightbeam" );
+    sys.setSpawnArg( "model", getKey( "model_lightbeam" ) );
+	sys.setSpawnArg( "noclipmodel", "1" );
+	classname = getKey( "def_light2" );
+	light_beam = sys.spawn( "func_static" );
+	light_beam.bindToJoint( self, "head", true );
+	light_beam.setOrigin( '0 0 30' );
+	light_beam.setAngles( '0 0 -90' );
+
+	last_enemy_sight = 0;
+	lost_enemy();
+
+	setMoveType( MOVETYPE_FLY );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+
+	if ( guardian ) {
+		setState( "state_Inactive" );
+	} else {
+		setState( "state_Idle" );
+	}
+}
+
+void monster_boss_guardian_seeker::destory() {
+	light_beam.remove();
+	//light1.remove();
+	//light2.remove();
+}
+
+void monster_boss_guardian_seeker::respawnSeeker( entity enemy ) {
+	setEnemy( enemy );
+	setState( "state_Respawn" );
+}
+
+void monster_boss_guardian_seeker::state_Respawn() {
+	float health;
+	vector ang;
+	vector dir;
+
+	ang_y = sys.random( 360 );
+	dir = sys.angToForward( ang );
+	setAngles( ang );
+
+	setOrigin( guardian.spawner.getWorldOrigin() - '0 0 48' + dir * 82 );
+	waitUntil( canBecomeSolid() );
+	clearBurn();
+	show();
+	health = getFloatKey( "health" );
+	setHealth( health );
+	setMoveType( MOVETYPE_FLY );
+	setEnemy( guardian.getEnemy() );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+
+	moveToPosition( getOrigin() + dir * 512 );
+
+	// invulnerable for a bit so player can't just keep firing rockets at spawn location
+	ignoreDamage();
+
+	waitFrame();
+
+	light_beam.show();
+	//light1.On();
+	//light2.On();
+
+	sys.wait( 2 );
+	allowDamage();
+	setState( "state_Idle" );
+}
+
+void monster_boss_guardian_seeker::state_Inactive() {
+	AI_DEAD = true;
+	light_beam.hide();
+	//light1.Off();
+	//light2.Off();
+	hide();
+	while( 1 ) {
+		waitFrame();
+	}
+}
+
+void monster_boss_guardian_seeker::state_Idle() {
+	wait_for_enemy();
+	guardian.setEnemy( getEnemy() );
+	setState( "state_FindPlayer" );
+}
+
+void monster_boss_guardian_seeker::state_Killed() {
+	guardian.AI_PAIN = true;
+	light_beam.hide();
+	//light1.Off();
+	//light2.Off();
+	stopMove();
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	burn();
+	startSound( "snd_burn", SND_CHANNEL_BODY, false );
+	sys.wait( 4 );
+	hide();
+	clearBurn();
+
+	if ( !guardian ) {
+		remove();
+	}
+
+	waitUntil( 0 );
+}
+
+void monster_boss_guardian_seeker::state_WatchPlayer() {
+	float getCloserTime;
+	float range;
+
+	getCloserTime = sys.getTime() + SEEKER_GETCLOSER_DELAY;
+	eachFrame {
+		faceEnemy();
+		moveToEnemyHeight();
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+			continue;
+		}
+		
+		if ( AI_DAMAGE ) {
+			setState( "state_RunAway" );
+		}
+
+		if ( !AI_ENEMY_VISIBLE ) {
+			lost_enemy();
+			setState( "state_FindPlayer" );
+		}
+
+		range = enemyRange2D();
+		if ( range < SEEKER_TOOCLOSE_RANGE ) {
+			lost_enemy();
+			setState( "state_Retreat" );
+		}
+
+		if ( range > SEEKER_TOOFAR_RANGE ) {
+			if ( sys.getTime() > getCloserTime ) {
+				setState( "state_GetCloser" );
+			}
+		}
+
+		if ( AI_ENEMY_IN_FOV ) {
+			see_enemy();
+		}
+	}
+}
+
+void monster_boss_guardian_seeker::state_GetCloser() {
+	float getCloserTime;
+	float range;
+
+	setFlySpeed( fly_speed );
+	getCloserTime = sys.getTime() + SEEKER_GETCLOSER_TIME;
+	moveToEnemy();
+
+	while( !AI_ENEMY_DEAD ) {
+		if ( AI_MOVE_DONE && !enemyPositionValid() ) {
+			// Cheat
+			locateEnemy();
+			moveToEnemy();
+		}
+
+		if ( !AI_ENEMY_VISIBLE ) {
+			lost_enemy();
+			setState( "state_FindPlayer" );
+		}
+		if ( AI_DAMAGE ) {
+			setState( "state_RunAway" );
+		}
+		range = enemyRange2D() - sys.vecLength( getLinearVelocity() ) * 0.25;
+		if ( range < SEEKER_TOOCLOSE_RANGE ) {
+			lost_enemy();
+			setState( "state_Retreat" );
+		}
+
+		if ( range < SEEKER_IDEAL_RANGE ) {
+			setState( "state_WatchPlayer" );
+		}
+		
+		if ( AI_ENEMY_IN_FOV ) {
+			see_enemy();
+		}
+
+		waitFrame();
+	}
+	setState( "state_WatchPlayer" );
+}
+
+void monster_boss_guardian_seeker::state_FindPlayer() {
+	float visTime;
+	boolean visible;
+
+	visible = false;
+	moveToEnemy();
+	while( !AI_ENEMY_DEAD ) {
+		if ( AI_MOVE_DONE && !enemyPositionValid() ) {
+			// Cheat
+			locateEnemy();
+			moveToEnemy();
+		}
+		if ( AI_DAMAGE ) {
+			setState( "state_RunAway" );
+		}
+		// don't spot the player instantly
+		if ( AI_ENEMY_VISIBLE ) {
+			if ( !visible ) {
+				visTime = sys.getTime() + 0.5;
+				visible = true;
+			} else if ( sys.getTime() > visTime ) {
+				break;
+			}
+		} else {
+			visible = false;
+		}
+
+		waitFrame();
+	}
+
+	setFlySpeed( fly_speed );
+
+	setState( "state_WatchPlayer" );
+}
+
+void monster_boss_guardian_seeker::state_Retreat() {
+	float run_time;
+
+	setFlySpeed( SEEKER_ESCAPE_SPEED );
+
+	run_time = sys.getTime() + SEEKER_RUNTIME;
+	moveOutOfRange( getEnemy(), enemyRange2D() + 200 );
+	while( !AI_ENEMY_DEAD && AI_ENEMY_VISIBLE ) {
+		if ( AI_MOVE_DONE ) {
+			// can't find a place to run to so just move randomly
+			wander();
+		}
+		if ( AI_DAMAGE ) {
+			setState( "state_RunAway" );
+		}
+		if ( AI_ENEMY_IN_FOV ) {
+			see_enemy();
+		}
+		if ( ( sys.getTime() > run_time ) || ( ( enemyRange2D() + sys.vecLength( getLinearVelocity() ) * 0.5 ) > SEEKER_MAXIMUM_RETREAT_RANGE ) ) {
+			break;
+		}
+		waitFrame();
+	}
+	setState( "state_WatchPlayer" );
+}
+
+void monster_boss_guardian_seeker::state_RunAway() {
+	float run_time;
+	float lastSightTime;
+
+	setFlySpeed( SEEKER_ESCAPE_SPEED );
+
+	AI_DAMAGE = false;
+	sys.wait( 0.5 );
+	moveOutOfRange( getEnemy(), enemyRange2D() + 200 );
+	run_time = sys.getTime() + SEEKER_RUNTIME;
+	lastSightTime = sys.getTime();
+	while( !AI_ENEMY_DEAD ) {
+		if ( AI_MOVE_DONE ) {
+			// can't find a place to run to so just move randomly
+			wander();
+		}
+		// run away until we haven't seen the player for a bit
+		if ( AI_ENEMY_VISIBLE ) {
+			lastSightTime = sys.getTime();
+			if ( AI_ENEMY_IN_FOV ) {
+				see_enemy();
+			}
+		} else if ( sys.getTime() > lastSightTime + 0.5 ) {
+			break;
+		}
+		if ( AI_DAMAGE ) {
+			run_time = sys.getTime() + SEEKER_RUNTIME;
+			AI_DAMAGE = false;
+		}
+		if ( sys.getTime() > run_time ) {
+			if ( ( enemyRange2D() + sys.vecLength( getLinearVelocity() ) * 0.5 ) > SEEKER_MAXIMUM_RETREAT_RANGE ) {
+				break;
+			}
+		}
+		waitFrame();
+	}
+
+	setFlySpeed( fly_speed );
+	setState( "state_WatchPlayer" );
+}

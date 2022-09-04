@@ -1,0 +1,62 @@
+/**
+* monster_dummy_target
+*
+* Simple AI that lives a specified number of seconds
+* once it is activated.
+*/
+object monster_dummy_target : ai {
+
+	//Initialization
+	void		init();
+	
+	//States
+	void		state_WaitForActivate();
+	void		state_TimedDeath();
+	void		state_Killed();
+};
+
+void monster_dummy_target::init() {
+
+	setState("state_WaitForActivate");
+
+}
+
+void monster_dummy_target::state_WaitForActivate() {
+	
+	//sys.print("Dummy Init\n");
+	
+	becomeNonSolid();
+	
+	
+	eachFrame {
+		//sys.print("Wating to activate\n");
+		if(AI_ACTIVATED) {
+			setState("state_TimedDeath");
+		}
+	}
+}
+
+void monster_dummy_target::state_TimedDeath() {
+
+	//sys.print("Dummy Timed Death\n");
+	
+	float startTime;
+	float duration;
+	float currentTime;
+	
+	startTime = sys.getTime();
+	duration = self.getFloatKey("death_timer");
+	
+	eachFrame {
+		currentTime = sys.getTime();
+		if(currentTime - startTime > duration) {
+			//sys.print("Time Kill\n");
+			kill();
+		}
+	}
+}
+
+void  monster_dummy_target::state_Killed() {
+	//sys.print("Dummy Killed\n");
+	remove();
+}

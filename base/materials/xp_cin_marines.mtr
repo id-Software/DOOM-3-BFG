@@ -1,0 +1,191 @@
+models/wipes/orb03
+{
+	noselfshadow
+	noshadows
+		{
+           		blend bumpmap
+	 		map 	    addnormals (models/wipes/orb03_local.tga, heightmap (models/wipes/orb03_h.tga, 5) )
+			
+		}
+		{
+           		blend diffusemap
+	 		map 	   models/wipes/orb03.tga
+					
+		}
+		{
+           		blend  	specularmap
+	 		map 	    	models/wipes/orb03_s.tga
+					
+		}
+		{
+           		blend  	add
+	 		map 	    	models/wipes/orb03fx.tga
+		
+			rgb		fireballtable[ time * .05 ]			
+		}
+	  	
+}
+models/monsters/bet_skull/bet_skull
+
+{
+
+   	 noselfShadow
+	noShadows
+	//twosided
+	clamp
+
+	bumpmap		addnormals(models/monsters/bet_skull/bet_skull_local.tga, heightmap(models/monsters/bet_skull/bet_skull_h.tga, 6 ) )
+	diffusemap	    models/monsters/bet_skull/bet_skull.tga
+	 specularmap	models/monsters/bet_skull/bet_skull_s.tga
+
+
+
+}
+
+models/monsters/bet_skull/mal_rot
+{
+	unsmoothedTangents
+	noselfshadow
+	noshadows
+	flesh
+	{
+		if	parm4
+		blend	gl_zero, gl_one
+		map models/monsters/bet_skull/mal_rot_dis
+		alphaTest 0.05 + 0.3 * (time + parm4 ) 
+	}
+	{
+		if parm4
+		privatePolygonOffset	-1
+        blend add
+        blend gl_one, gl_zero
+
+		map models/monsters/bet_skull/mal_rot_dis
+		alphaTest 0.3 * (time + parm4 ) 
+	}
+	forceOverlays
+	bumpmap	addnormals(models/monsters/maledict/maledict_local.tga, heightmap( models/monsters/maledict/maledict_h.tga, 3 ) )
+	diffusemap models/monsters/maledict/maledict_d.tga
+	specularmap	models/monsters/maledict/maledict_s.tga
+}
+
+
+models/monsters/bet_skull/bet_rot
+{
+	unsmoothedTangents
+	noselfshadow
+	noshadows
+	flesh
+	{
+		if	parm4
+		blend	gl_zero, gl_one
+		map models/monsters/bet_skull/bet_rot_dis
+		alphaTest 0.05 + 0.2 * (time + parm4)
+	}
+	{
+		if parm4
+		privatePolygonOffset	-1
+        blend add
+        blend gl_one, gl_zero
+
+		map models/monsters/bet_skull/bet_rot_dis
+		alphaTest 0.2 * (time + parm4)
+	}
+	forceOverlays
+	bumpmap	addnormals(models/monsters/maledict/mtongue_local.tga, heightmap( models/monsters/maledict/mtongue_h.tga, 3 ) )
+	diffusemap models/monsters/maledict/mtongue.tga
+	specularmap	models/monsters/maledict/mtongue_s.tga
+}
+
+
+textures/particlesd3xp/newzot
+{
+    noselfShadow
+    noshadows
+	nonsolid
+	noimpact
+	translucent
+	//twosided
+
+	qer_editorimage  textures/particlesd3xp/newzot.tga
+
+	{
+		maskcolor
+		map makealpha(textures/particles/bfgboltarcmask.tga)
+		vertexcolor
+
+
+	}
+
+	{
+		blend gl_dst_alpha, gl_one
+	        maskalpha
+	 	map		textures/particlesd3xp/newzot.tga
+		translate	time * -0.8, 0
+		scale 1.3, 1
+		vertexcolor
+
+	}
+	{
+		blend gl_dst_alpha, gl_one
+	        maskalpha
+	 	map		textures/particlesd3xp/newzot.tga
+		translate	time * -1.4, 0
+		vertexcolor
+	}
+}
+
+
+
+models\characters\player_character\body\rotbody
+{
+	unsmoothedTangents
+	noselfshadow
+	flesh
+	{
+		if	parm7
+		blend	gl_zero, gl_one
+		map models\characters\player_character\body\rotbody_dis
+		alphaTest 0.05 + .8 * (time - parm7)
+	}
+	{
+		if parm7
+		privatePolygonOffset	-1
+        blend add
+        blend gl_one, gl_zero
+
+		map models\characters\player_character\body\rotbody_dis
+		alphaTest .8 * (time - parm7)
+	}
+	forceOverlays
+	bumpmap	models/characters/player_character/body/body_local.tga
+	diffusemap models/characters/player_character/body/body2
+	specularmap	models/characters/player_character/body/body_s
+}
+
+models\characters\player_character\helmet\rothelmet
+{
+	unsmoothedTangents
+	noselfshadow
+	flesh
+	{
+		if	parm7
+		blend	gl_zero, gl_one
+		map models\characters\player_character\helmet\rothelmet_dis
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{
+		if parm7
+		privatePolygonOffset	-1
+        blend add
+        blend gl_one, gl_zero
+
+		map models\characters\player_character\helmet\rothelmet_dis
+		alphaTest 0.3 * (time - parm7)
+	}
+	forceOverlays
+	bumpmap	models\characters\player_character\helmet\cine_helmet_local.tga
+	diffusemap models\characters\player_character\helmet\cine_helmet
+	specularmap	models\characters\player_character\helmet\cine_helmet_s
+}
+

@@ -1,0 +1,246 @@
+
+
+models/weapons/artifact/artifact
+{
+     noselfShadow
+     unsmoothedTangents
+
+		renderbump  -size 1024 1024 -aa 2  models/weapons/artifact/artifact_local.tga models/weapons/artifact/artifact_hi.lwo
+
+
+        	diffusemap  models/weapons/artifact/artifact.tga
+	{
+ 		blend bumpmap
+                map  addnormals(models/weapons/artifact/artifact_local.tga, heightmap(models/weapons/artifact/artifact_h.tga, 2 ) )
+ 		  
+     	}
+	
+            	specularmap	models/weapons/artifact/artifact_s.tga
+
+	{
+		if parm9
+		map	models/weapons/artifact/artifact_helltimefx.tga
+		blend	add
+		rgb	crazyblink2 [ time * .3 ]
+	}
+	{
+		if parm10
+		map	models/weapons/artifact/artifact_berzerkfx.tga
+		blend	add
+		rgb	crazyblink2 [ time * .3 ]
+	}
+	{
+		if parm11
+		map	models/weapons/artifact/artifact_invfx.tga
+		blend	add
+		rgb	crazyblink2 [ time * .3 ]
+	}
+}
+
+/////////////////////////////////
+//
+//	ORB ALPHA FX 
+//
+/////////////////////////////////
+
+
+models/weapons/artifact/artifactfx
+{
+	noShadows
+        noselfShadow
+        translucent
+	
+	qer_editorimage textures/hell/bacteria_5.tga
+
+
+	{
+		maskcolor
+		map makealpha(models/weapons/artifact/artifact_mask.tga)
+	
+	}
+
+	{
+	        blend gl_dst_alpha, gl_one
+		map models/weapons/artifact/artifact_fire.tga
+		translate	time * 0.1 , time * .2
+			red 	(crazyblink2 [ time * .3 ]) * Parm0
+			green 	(crazyblink2 [ time * .3 ]) * Parm1
+			blue 	(crazyblink2 [ time * .3 ]) * Parm2
+
+	}
+		    
+		
+}
+
+
+
+models/weapons/artifact/worm
+{
+        noselfShadow
+		unsmoothedTangents
+		renderbump  -size 512 512 -aa 2  models/weapons/artifact/worm_local.tga models/weapons/artifact/worm_hi.lwo
+
+        	diffusemap	models/weapons/artifact/worm.tga
+		{
+ 		    blend bumpmap
+                    map  addnormals(models/weapons/artifact/worm_local.tga, heightmap(models/weapons/artifact/worm_h.tga, 2 ) )
+ 		  
+     	        }
+	
+                    specularmap	 models/weapons/artifact/worm_s.tga
+}
+
+
+
+models/weapons/artifact/berserk
+{
+        noselfShadow
+
+		{
+ 		    blend add
+                    map  models/weapons/artifact/berserk
+		    rgb		(sinTable [(time*.2)]+1)*0.5
+ 		  
+     	        }
+	
+
+}
+
+models/weapons/artifact/invulnerable
+{
+        noselfShadow
+
+		{
+ 		    blend add
+                    map  models/weapons/artifact/invulnerable
+		    rgb		(sinTable [(time*.2)]+1)*0.5
+ 		  
+     	        }
+	
+
+}
+models/weapons/artifact/helltime
+{
+        noselfShadow
+
+		{
+ 		    blend add
+                    map  models/weapons/artifact/helltime
+		    rgb		(sinTable [(time*.2)]+1)*0.5
+ 		  
+     	        }
+	
+
+}
+models/weapons/artifact/artifactfx3
+{
+        noselfShadow
+
+		{
+ 		    blend add
+                    map  models/weapons/artifact/artifactfx3
+		    rgb		(sinTable [(time*.2)]+1)*0.5
+ 		  
+     	        }
+	
+
+}
+
+
+
+
+
+
+
+
+
+
+models/characters/player/deadarm2
+{
+        noselfShadow
+		noShadows
+		clamp
+	renderbump  -size 1024 2048 -trace 0.03 -colorMap   models/characters/player/deadarm2_local.tga models/characters/player/deadarm2_hi.lwo
+
+// blended part
+	clamp
+	{
+		blend 		bumpmap
+	        map  addnormals(models/characters/player/arm2_local.tga, heightmap(models/characters/player/arm2_h.tga, 3 ) )
+	// note that you do NOT put vertexColor on the bumpmap
+	}
+	{
+		blend 		diffusemap
+		map	  	models/characters/player/arm2
+		//rgb		(sinTable [(time*.2)]+1)*0.5
+		//alphaTest .5 + 0.5 * sintable [ time * .1  ]
+		rgb		1-death_fade[(time+Parm4)*.3]
+	}
+	{
+		blend		specularmap
+		map		models/characters/player/arm2_s
+		//rgb		(sinTable [(time*.2)]+1)*0.5
+		rgb		1-death_fade[(time+Parm4)*.3]
+	}
+// inverse blended part
+	{
+		blend		bumpmap
+		map  addnormals(models/characters/player/deadarm2_local.tga, heightmap(models/characters/player/arm2_h.tga, 3 ) )
+	}
+	{
+		blend		diffusemap
+		map			models/characters/player/deadarm2
+		//rgb		1-(sinTable [(time*.2)]+1)*0.5
+		//alphaTest .5 + 0.5 * sintable [ time * .1  ]
+		rgb		death_fade[(time+Parm4)*.3]
+	}
+	{
+		blend 		specularmap
+		map	     models/characters/player/deadarm2_s
+		//rgb		1-(sinTable [(time*.2)]+1)*0.5
+		rgb		death_fade[(time+Parm4)*.3]
+	}
+}
+
+
+models/weapons/artifact/berserkgui
+{
+        noselfShadow
+		{
+ 		    blend add
+                    map  textures/pat/berzerkgui
+     	        }
+}
+
+models/weapons/artifact/invulnerablegui
+{
+        noselfShadow
+		{
+ 		    blend add
+                    map  textures/pat/invulgui
+     	        }
+}
+models/weapons/artifact/helltimegui
+{
+        noselfShadow
+		{
+ 		    blend add
+                    map  textures/pat/helltimegui
+     	        }
+}
+models/weapons/artifact/bloodorbgui
+{
+        noselfShadow
+		{
+ 		    blend add
+                    map  textures/pat/bloodorbgui
+     	        }
+}
+models/weapons/artifact/fragmentgui
+{
+        noselfShadow
+		{
+ 		    blend add
+                    map  textures/pat/fragmentgui
+     	        }
+}

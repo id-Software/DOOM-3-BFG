@@ -1,0 +1,126 @@
+
+// the calculated alpha value will be the distance that the fog texture
+// extends from the viewer, unless it equals the default 1.0, in which case
+// it will be set to 500
+
+// If you replace the default internal fog projection image with your own
+// texture, make sure that the alpha starts at 0 in the center, reaches
+// 255 at the borders, and is generally radially symetrical.
+// The color channel can be left solid white, or it can have additional
+// color changes with position.
+
+// you are free to modify the color or distance with math in the shaders
+
+fogs/basicFog
+{
+	fogLight			// tell the engine it is fog and not a light
+	noShadows
+	{
+		map		_fog	// the internal fog image
+		colored			// take rgba from entity shaderparms
+	}
+}
+
+//==================================================================================
+
+
+// blendLight allows a light projection with an arbitrary blend to be
+// applied to everything inside it, allowing simple fogs that increase
+// in a given direction without caring about the viewer position
+
+
+
+fogs/sentest
+{
+	blendLight
+	noShadows
+	lightFalloffImage		shapes/pitFalloff2.tga	
+	{
+		blend		blend		
+		map			shapes/alphaSquare.tga
+		alphazeroclamp
+		colored
+	}
+}
+
+
+fogs/pitFog
+{
+	blendLight
+	noShadows
+	lightFalloffImage		shapes/pitFalloff.tga	// white in color channel, 
+											// alpha ramps from 0 to 255, then stays at 255 a bit,
+											// than has another 0 at the other end
+	{
+		blend		blend		// alpha blend on surfaces
+		map			shapes/alphaSquare.tga		// solid white in color, single pixel alpha border
+		alphazeroclamp			// make sure it doesn't bleed over the edges
+		colored					// take rgba from entity shaderparms
+	}
+}
+
+fogs/pitFog_to_black
+{
+	lightFalloffImage		lights/xfalloff.tga
+	//lightFalloffImage		lights/fogoff.tga
+	fogLight			// tell the engine it is fog and not a light
+	noShadows
+	{
+		map		_fog	// the internal fog image
+		colored			// take rgba from entity shaderparms
+	}
+}
+
+fogs/glare2
+{
+	blendLight
+	noShadows
+	lightFalloffImage	lights/squarelight1a
+	{
+		blend		add			// add on top of alpha blend on surfaces
+		map			lights/spot01
+		zeroclamp				// make sure it doesn't bleed over the edges
+		colored					// take rgba from entity shaderparms
+	}
+}
+
+fogs/glare
+{
+	blendLight
+	noShadows
+	lightFalloffImage	lights/squarelight1a
+	{
+		blend		add			// add on top of alpha blend on surfaces
+		map			lights/squarelight1
+		zeroclamp				// make sure it doesn't bleed over the edges
+		colored					// take rgba from entity shaderparms
+	}
+}
+
+fogs/glare_snd
+{
+	blendLight
+	noShadows
+	lightFalloffImage	lights/squarelight1a
+	{
+		blend		add			// add on top of alpha blend on surfaces
+		map			lights/squarelight1
+		zeroclamp				// make sure it doesn't bleed over the edges
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+	}
+}
+
+fogs/filter
+{
+	blendLight
+	noShadows
+	lightFalloffImage	lights/squarelight1a
+	{
+		blend		GL_ZERO, GL_ONE_MINUS_SRC_COLOR	// get dimmer as the textures get brighter
+		map			lights/squarelight1
+		zeroclamp				// make sure it doesn't bleed over the edges
+		colored					// take rgba from entity shaderparms
+	}
+}

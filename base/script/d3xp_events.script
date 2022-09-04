@@ -1,0 +1,76 @@
+
+
+//Sys
+scriptEvent float	asin( float a );	
+scriptEvent float	acos( float a );
+scriptEvent float	randomInt( float range );
+scriptEvent vector	VecToOrthoBasisAngles( vector vec );
+scriptEvent vector	rotateVector( vector vec, vector ang );
+
+//Entity
+scriptEvent void	setGui(float guiNum, string gui);
+scriptEvent void	precacheGui(string gui);
+scriptEvent string	getGuiParm(float guiNum, string key);
+scriptEvent float	getGuiParmFloat(float guiNum, string key);
+scriptEvent void	guiNamedEvent(float guiNum, string event);
+
+//Actor
+scriptEvent void	setDamageGroupScale(string groupName, float scale);
+scriptEvent void	setDamageGroupScaleAll(float scale);
+scriptEvent float	getDamageGroupScale(string goupName);
+scriptEvent void	setDamageCap(float cap);
+scriptEvent void	setWaitState(string waitState);
+scriptEvent string	getWaitState();
+
+//AI
+scriptEvent void	moveToPositionDirect( vector pos );
+scriptEvent void	avoidObstacles( float avoid );
+
+scriptEvent void	triggerFX( string joint, string fx );
+scriptEvent entity	startEmitter( string name, string joint, string particle );
+scriptEvent entity  getEmitter( string name );
+scriptEvent void	stopEmitter( string name );
+
+//D3XP Player Events
+scriptEvent void	giveInventoryItem(string name);
+scriptEvent void	removeInventoryItem(string name);
+scriptEvent string	getIdealWeapon();
+scriptEvent void	setPowerupTime( float powerup, float time );
+scriptEvent float	isPowerupActive( float powerup );
+scriptEvent float	weaponAvailable( string name );
+scriptEvent void	startWarp();
+scriptEvent void	stopHelltime( float mode );
+scriptEvent void	toggleBloom( float on );
+scriptEvent void	setBloomParms( float speed, float intensity );
+
+// Vehicle events
+scriptEvent void	setVelocity( float _vel );
+scriptEvent void	setTorque( float _torque );
+scriptEvent void	setSteeringSpeed( float _steer );
+scriptEvent void	setWaypoint( entity _waypoint );
+
+//Weapon
+scriptEvent	void 	launchProjectilesEllipse( float num_projectiles, float spreada, float spreadb, float fuseOffset, float power );
+scriptEvent void	launchPowerup( string powerup, float duration, float useAmmo );
+
+scriptEvent void	startWeaponSmoke();
+scriptEvent void	stopWeaponSmoke();
+scriptEvent void	startWeaponParticle( string name );
+scriptEvent void	stopWeaponParticle( string name );
+scriptEvent void	startWeaponLight( string name );
+scriptEvent void	stopWeaponLight( string name );
+scriptEvent void	ejectBrass();
+
+scriptEvent void	grabberGrabDistance( float dist );
+
+//idAnimated
+scriptEvent void	setAnimation(string animName);
+scriptEvent float	getAnimationLength();
+
+//idProjectile
+scriptEvent void	projectileCreateProjectile( entity owner, vector start, vector dir );
+scriptEvent void	projectileLaunchProjectile( vector start, vector dir, vector pushVelocity );
+scriptEvent void	setGravity( float gravity );
+
+//idElevator
+scriptEvent void	setGuiStates();

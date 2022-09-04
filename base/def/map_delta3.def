@@ -1,0 +1,38 @@
+
+//DELTA3
+
+model delta3_betruger_head {
+	mesh							models/md5/heads/betruger/betruger.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/betruger/betrugeridle.md5anim
+	anim stand						models/md5/heads/betruger/betrugeridle.md5anim
+}
+
+
+model delta3_betruger {
+	inherit							npc_labcoat
+
+	anim laugh						models/md5/chars/betruger/delta4/betrugerlaugh.md5anim {
+		frame 64					sound_voice snd_escape
+		frame 112					sound_voice snd_laugh
+	}
+	
+	anim point						models/md5/chars/betruger/delta3/betruger_point.md5anim
+	anim point_down					models/md5/chars/betruger/delta3/betruger_point_down.md5anim
+
+}
+
+entityDef delta3_betruger {
+	"inherit"						"npc_base"
+	"model"							"delta3_betruger"
+	"anim"							"laugh"
+	"size"							"1 1 1"
+	"ik_numlegs"					"0"
+	"def_head"						"delta3_betruger_head"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+
+	"snd_escape"					"delta4_betruger_escape"
+	"snd_laugh"						"delta4_betruger_laugh"
+}

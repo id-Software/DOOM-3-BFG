@@ -1,0 +1,11 @@
+models/mapobjects/doors/recyc_door/doorclamp
+{
+      renderbump  -trace .2 -size 128 128 -aa 2 models/mapobjects/doors/recyc_door/doorclamp_local.tga models/mapobjects/doors/recyc_door/doorclamp_hp.ase
+	qer_editorimage models/mapobjects/doors/recyc_door/doorclamp.tga
+
+	diffusemap	textures/recyc_wall/corrugated05_d.tga
+	specularmap	textures/recyc_wall/corrugated05_s.tga
+      bumpmap	models/mapobjects/doors/recyc_door/doorclamp_local.tga 
+
+ }
+

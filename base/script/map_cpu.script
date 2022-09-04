@@ -1,0 +1,307 @@
+namespace map_cpu {
+	
+	float	RAISE_HELL_PILLARS = 0;
+	float	PLAYED_TRITE_STINGER = FALSE;
+		
+	void init_world() {
+		$fixed_panel.hide();
+	}
+
+	void trite_stinger() {
+		if ( PLAYED_TRITE_STINGER == FALSE ) {
+			PLAYED_TRITE_STINGER = TRUE;
+			sys.trigger ($cpu1_monster_trite_1);
+			sys.trigger ($trite_stinger_2);
+			sys.trigger ($trite_stinger_3);
+		}
+	}
+
+	void trigger_secmon_exit() {
+		sys.trigger ($trigger_relay_20);
+		sys.wait (1.2);
+		
+		sys.trigger ($trigger_relay_21);
+		sys.wait (2);
+		
+		sys.trigger ($trigger_relay_22);
+		sys.wait (0.8);
+		
+		sys.trigger ($trigger_relay_23);
+	}
+/*
+	void haunted_cabinet() {
+		
+//		sys.print ("Entering haunted_cabinet...\n");
+		
+                $anchor.time (.3);
+		$anchor.moveTo ($hcab_p1);
+		sys.waitFor ($anchor);
+		
+		sys.wait (.1);
+		
+		$anchor.moveTo ($hcab_p2);
+		sys.waitFor ($anchor);
+		
+		//$fc1.unbind();
+		$anchor.moveTo ($hcab_p3);
+		sys.trigger ($func_forcefield_4);
+		
+		sys.wait (0.4);
+				
+		//sys.waitFor ($anchor);
+		$fc1.unbind();
+	
+	}
+*/
+
+	/*
+		Returns a random vector from 0-maxValue for each axis
+	*/
+		
+	vector getRandomVector(float maxX, float maxY, float maxZ) {
+		vector	vec;
+		vec_x = int ( sys.random (maxX) );
+		vec_y = int ( sys.random (maxY) );
+		vec_z = int ( sys.random (maxZ) );
+		
+		return vec;
+	}
+	
+	// Open ceiling hatch area in monitoring room.
+	void open_cpuhatch() {
+		$ladder_floor_hatch.time (0.5);
+		$cpuladder.time (3);
+		$ladder_ceiling_panel.time (0.5);
+		
+		$ladder_floor_hatch.move (DOWN, 8);
+		$ladder_ceiling_panel.move (UP, 8);
+		
+		sys.waitFor ($ladder_floor_hatch);
+		
+		$ladder_floor_hatch.move (SOUTH, 72);
+		$ladder_ceiling_panel.move (SOUTH, 72);
+		
+		sys.waitFor ($ladder_floor_hatch);
+		
+		$cpuladder.accelTime (1);
+		$cpuladder.decelTime (2);
+		$cpuladder.move (UP, 264);	
+	}	
+
+	
+	// HK Lift before Lab A door
+	void raise_hlift() {
+		$hlift.speed (32);
+		$hlift.move (UP, 160);
+		sys.wait (0.2);
+		
+		$mb1.remove();
+		$mb2.remove();
+		$mb3.remove();
+		$mb4.remove();
+		
+		//sys.trigger ($mb1);
+		//sys.trigger ($mb2);
+		//sys.trigger ($mb3);
+		//sys.trigger ($mb4);
+		
+		sys.waitFor ($hlift);
+		sys.print ("stopped moving\n");		
+
+	}
+
+
+	void raise_hell_pillars() {
+		if (RAISE_HELL_PILLARS == 0) {
+			RAISE_HELL_PILLARS = 1;
+			$hp_01_anchor.rotateOnce ('0 90 0');
+			$hp_01.move (UP, 350);
+			sys.wait (1.5);
+			
+			$hp_02_anchor.rotateOnce ('0 90 0');
+			$hp_02.move (UP, 350);
+			sys.wait (1.5);
+					
+			$hp_03_anchor.rotateOnce ('0 90 0');
+			$hp_03.move (UP, 350);
+			sys.wait (1.5);
+		}
+	}
+
+
+	void fixed_maindoor() {
+		$fixed_panel.show();
+		$broken_panel.hide();
+	}
+
+	void sparks_cpubank_01() {
+		while (1) {
+			sys.trigger ($cpubank_01_sparks);
+			sys.wait ( sys.random (4) + 1);
+		}
+	}
+
+	void sparks_cpubank_02() {
+		while (1) {
+			sys.trigger ($cpubank_02_sparks);
+			sys.wait ( sys.random (3) + 1);
+		}
+	}
+
+	void move_cpubank_01() {
+		$cpubank_01.speed (64);
+		thread ( sparks_cpubank_01() );
+		$cpubank_01.moveTo ($cpubank_01_target);
+	}
+
+	void move_cpubank_02() {
+		$cpubank_02.speed (64);
+		thread ( sparks_cpubank_02() );
+		$cpubank_02.moveTo ($cpubank_02_target);
+	}
+
+	void cpu_secret_01() {
+		sys.trigger ($cpu_secret_01_speaker);
+		sys.print ("You have found a secret area !\n");
+	}
+
+	void drop_object(string entityname) {
+		entity	ent, ent_anchor;
+		vector	vec;
+		
+		ent = sys.getEntity (entityname);
+		
+		ent.time (4);
+		ent.accelTime (2);
+		
+		ent_anchor = sys.getEntity (entityname + "_anchor");
+		
+		//vec = getRandomVector (30, 45, 45);
+		vec = getRandomVector (10, 10, 10);
+		
+		ent_anchor.rotate (vec);
+		ent.move (DOWN, 356);
+		
+		sys.waitFor (ent);
+		
+		ent.remove();
+		ent_anchor.remove();
+	}
+
+	void raise_object(string entityname) {
+		entity	ent, ent_anchor;
+		vector	vec;
+		
+		ent = sys.getEntity (entityname);
+		
+		ent.time (4);
+		ent.accelTime (2);
+		
+		ent_anchor = sys.getEntity (entityname + "_anchor");
+		
+		;vec = getRandomVector (30, 45, 45);
+		vec = getRandomVector (10, 10, 10);
+		
+		ent_anchor.rotate (vec);
+		ent.move (UP, 356);
+		
+		sys.waitFor (ent);
+		
+		ent.remove();
+		ent_anchor.remove();
+	}
+
+	void dropscene1() {
+		float	i;
+		entity	ent;
+		
+		for (i = 1; i<=2; i++) {
+			thread drop_object ("hpp_" + i);
+			sys.wait (0.3);
+		}
+
+		$hp_3_anchor.time (4);
+		$hp_5_anchor.time (4);
+		$hp_8_anchor.time (4);
+		
+
+		for (i = 1; i<=12; i++) {
+			if (i == 3) {
+				//$hp_3_anchor.moveTo ($hp3_dest);
+				$hp_3.bob (4, 0.2, '0 0 2');
+			}
+			else if (i == 5) {
+				//$hp_5_anchor.moveTo ($hp5_dest);
+				$hp_5.bob (4, 0.6, '0 0 4');
+			}
+			else if (i == 8) {
+				//$hp_8_anchor.moveTo ($hp8_dest);
+				$hp_8.bob (4, 0.8, '0 0 3');
+			}
+			else {
+				thread drop_object ("hp_" + i);
+			}
+			sys.wait (0.3);
+		}
+		$hp_3_anchor.moveTo ($hp3_dest);
+		$hp_5_anchor.moveTo ($hp5_dest);
+		$hp_8_anchor.moveTo ($hp8_dest);
+	}
+
+	void dropscene2() {
+		float	i;
+		entity	ent;
+		
+		for (i = 1; i<=10; i++) {
+			thread raise_object ("hpc_" + i);
+			sys.wait (0.3);
+		}
+	}
+
+	void dropscene3() {
+		float	i;
+		entity	ent;
+	
+		for (i = 1; i<=3; i++) {
+			thread drop_object ("hp_wall_" + i);
+			sys.wait (0.3);
+		}
+	}
+
+	void battle_sounds() {
+		sys.wait (2);
+		sys.trigger ($speaker_cherubs);
+		sys.wait (45);
+		sys.trigger ($speaker_imps);
+	}
+
+	void dropscene() {
+		sys.trigger ($speaker_hallway_fall);
+		
+		sys.trigger ($speaker_inf_01);			// Shut some stuff off
+		sys.trigger ($speaker_inf_02);
+		sys.trigger ($speaker_inf_03);
+		
+		thread dropscene1();
+		thread dropscene2();
+		thread dropscene3();
+		sys.wait (7);
+
+		sys.trigger ($speaker_inf_01);			// Turn it back on
+		sys.trigger ($speaker_inf_02);
+		sys.trigger ($speaker_inf_03);
+
+
+
+		//$hpillar_01_anchor.rotateOnce ('0 90 0');
+		//$hpillar_01.move (UP, 400);
+		//sys.wait (1.5);
+		
+		//$hpillar_02_anchor.rotateOnce ('0 -90 0');
+		//$hpillar_02.move (UP, 400);
+	}
+	
+	void main() {
+		init_world();
+	}
+}

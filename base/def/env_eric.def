@@ -1,0 +1,755 @@
+
+/***********************************************************************
+
+Environmental Entities
+
+***********************************************************************/
+
+/***************************************************
+env_hellchain
+***************************************************/
+
+export eric {
+	mesh 	models/mapobjects/hell/chainlink.mb -dest models/md5/environments/hellchain	
+	anim 	models/mapobjects/hell/chainlink.mb -dest models/md5/environments/hellchain
+} 
+
+model env_hellchain {
+	mesh						models/md5/environments/hellchain.md5mesh
+	anim af_pose				models/md5/environments/hellchain.md5anim
+}
+
+entityDef env_hellchain {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+	"model"							"env_hellchain"
+	"articulatedFigure"				"env_hellchain.af"
+}
+
+
+/***************************************************
+env_evilmeat
+***************************************************/
+
+export eric {
+	mesh 	models/mapobjects/hell/evilmeat/evilmeat.mb -dest models/md5/environments/evilmeat
+	anim 	models/mapobjects/hell/evilmeat/evilmeat.mb -dest models/md5/environments/evilmeat
+} 
+
+model env_evilmeat {
+	mesh						models/md5/environments/evilmeat.md5mesh
+	anim af_pose				models/md5/environments/evilmeat.md5anim
+}
+
+entityDef env_evilmeat {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+	"model"							"env_evilmeat"
+	"articulatedFigure"				"env_evilmeat.af"
+}
+
+
+/***************************************************
+env_juglamp
+***************************************************/
+
+export eric {
+	mesh 	models/mapobjects/swinglights/juglamp/models_002.mb -dest models/md5/environments/env_juglamp
+	anim 	models/mapobjects/swinglights/juglamp/models_002.mb -dest models/md5/environments/env_juglamp
+} 
+
+model env_juglamp {
+	mesh						models/md5/environments/env_juglamp.md5mesh
+	anim af_pose				models/md5/environments/env_juglamp.md5anim
+}
+
+entityDef env_juglamp {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+	"model"							"env_juglamp"
+	"articulatedFigure"				"env_juglamp.af"
+}
+
+/***************************************************
+env_hires_steampipe
+***************************************************/
+
+export eric {
+	mesh 	maps/eric/steampipes/hirespipe.mb -dest models/md5/environments/env_hires_steampipe
+	anim 	maps/eric/steampipes/hirespipe.mb -dest models/md5/environments/env_hires_steampipe
+} 
+
+model env_hires_steampipe {
+	mesh							models/md5/environments/env_hires_steampipe.md5mesh
+	anim af_pose					models/md5/environments/env_hires_steampipe.md5anim
+}
+
+entityDef env_hires_steampipe {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_SteamPipe"							
+
+	"model"							"env_hires_steampipe"
+	"articulatedFigure"				"env_steampipe_hires.af"
+	"steambody"						"body20"
+	"steamforce"					"200"
+	"steamupforce"					"5"
+}
+
+/***************************************************
+env_bluesteampipe_128
+***************************************************/
+
+export eric {
+	options -prefix blue_
+
+	mesh 	maps/eric/steampipes/steampipes_128.mb -dest models/md5/environments/env_bluesteampipe_128
+	anim 	maps/eric/steampipes/steampipes_128.mb -dest models/md5/environments/env_bluesteampipe_128
+} 
+
+model env_bluesteampipe_128 {
+	mesh							models/md5/environments/env_bluesteampipe_128.md5mesh
+	anim af_pose					models/md5/environments/env_bluesteampipe_128.md5anim
+}
+
+entityDef env_bluesteampipe_128 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_SteamPipe"
+	"model"							"env_bluesteampipe_128"
+	"articulatedFigure"				"env_steampipe_blue_128.af"
+	"steambody"						"body9"
+	"steamforce"					"200"
+	"steamupforce"					"5"
+}
+
+/***************************************************
+env_greysteampipe_128
+***************************************************/
+
+export eric {
+	options -prefix grey_
+
+	mesh 	maps/eric/steampipes/steampipes_128.mb -dest models/md5/environments/env_greysteampipe_128
+	anim 	maps/eric/steampipes/steampipes_128.mb -dest models/md5/environments/env_greysteampipe_128
+
+} 
+
+model env_greysteampipe_128 {
+	mesh							models/md5/environments/env_greysteampipe_128.md5mesh
+	anim af_pose					models/md5/environments/env_greysteampipe_128.md5anim
+}
+
+entityDef env_greysteampipe_128 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_SteamPipe"
+	"model"							"env_greysteampipe_128"
+
+	"articulatedFigure"				"env_steampipe_grey_128.af"
+	"steambody"						"body9"
+	"steamforce"					"200"
+	"steamupforce"					"5"
+}
+
+/***************************************************
+env_orangesteampipe_128
+***************************************************/
+
+export eric {
+	options -prefix orange_
+
+	mesh 	maps/eric/steampipes/steampipes_128.mb -dest models/md5/environments/env_orangesteampipe_128
+	anim 	maps/eric/steampipes/steampipes_128.mb -dest models/md5/environments/env_orangesteampipe_128
+
+} 
+
+model env_orangesteampipe_128 {
+	mesh							models/md5/environments/env_orangesteampipe_128.md5mesh
+	anim af_pose					models/md5/environments/env_orangesteampipe_128.md5anim
+}
+
+entityDef env_orangesteampipe_128 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_SteamPipe"
+	"model"							"env_orangesteampipe_128"
+	"articulatedFigure"				"env_steampipe_orange_128.af"
+	"steambody"						"body9"
+	"steamforce"					"200"
+	"steamupforce"					"5"
+}
+
+/***************************************************
+trite_pose
+***************************************************/
+
+export eric {
+	options		-prefix TRITE_ -keep Mouth -parent Mouth Head -keep strand1 -parent strand1 Spine3
+	anim		maps/fred/caverns2/trite.mb -range 1 1 -dest models/md5/monsters/trite/pose1_t1
+	anim		maps/fred/caverns2/trite.mb -range 2 2 -dest models/md5/monsters/trite/pose2_t1
+	//anim		maps/fred/caverns2/trite.mb -range 3 3 -dest models/md5/monsters/trite/pose3_t1
+
+	addoptions -prefix TRITE2_
+	anim		maps/fred/caverns2/trite.mb -range 1 1 -dest models/md5/monsters/trite/pose1_t2
+	anim		maps/fred/caverns2/trite.mb -range 2 2 -dest models/md5/monsters/trite/pose2_t2
+
+	addoptions -prefix TRITE3_
+	anim		maps/fred/caverns2/trite.mb -range 1 1 -dest models/md5/monsters/trite/pose1_t3
+
+	addoptions -prefix TRITE4_
+	anim		maps/fred/caverns2/trite.mb -range 1 1 -dest models/md5/monsters/trite/pose1_t4
+
+
+}
+
+model ss_trite {
+	inherit							monster_demon_trite
+	anim pose1						models/md5/monsters/trite/pose1_t1.md5anim
+	anim pose2						models/md5/monsters/trite/pose2_t1.md5anim
+	//anim pose3					models/md5/monsters/trite/pose3_t1.md5anim
+}
+
+entityDef ss_trite {
+	"inherit"						"monster_demon_trite"
+	"model"							"ss_trite"
+}
+
+model ss_trite2 {
+	inherit							monster_demon_trite
+	anim pose1						models/md5/monsters/trite/pose1_t2.md5anim
+	anim pose2 						models/md5/monsters/trite/pose2_t2.md5anim
+	//anim pose3					models/md5/monsters/trite/pose3_t2.md5anim
+}
+
+entityDef ss_trite2 {
+	"inherit"						"monster_demon_trite"
+	"model"							"ss_trite2"
+}
+
+model ss_trite3 {
+	inherit							monster_demon_trite
+	anim pose1						models/md5/monsters/trite/pose1_t3.md5anim
+	//anim pose2					models/md5/monsters/trite/pose2_t3.md5anim
+	//anim pose3					models/md5/monsters/trite/pose3_t3.md5anim
+}
+
+entityDef ss_trite3 {
+	"inherit"						"monster_demon_trite"
+	"model"							"ss_trite3"
+}
+
+model ss_trite4 {
+	inherit							monster_demon_trite
+	anim pose1						models/md5/monsters/trite/pose1_t4.md5anim
+	//anim pose2					models/md5/monsters/trite/pose2_t4.md5anim
+	//anim pose3					models/md5/monsters/trite/pose3_t4.md5anim
+}
+
+entityDef ss_trite4 {
+	"inherit"						"monster_demon_trite"
+	"model"							"ss_trite4"
+}
+
+/***************************************************
+env_swinglight_sl128
+***************************************************/
+
+export eric {
+	options	
+
+	mesh 	models/mapobjects/caves/lights/eric_sl128setup.mb -dest models/md5/environments/env_swinglight_sl128
+	anim 	models/mapobjects/caves/lights/eric_sl128setup.mb -dest models/md5/environments/env_swinglight_sl128
+
+} 
+
+model env_swinglight_sl128 {
+	mesh							models/md5/environments/env_swinglight_sl128.md5mesh
+	anim af_pose					models/md5/environments/env_swinglight_sl128.md5anim
+}
+
+entityDef env_swinglight_sl128 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+	"model"							"env_swinglight_sl128"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_swinglight_sl128.af"
+}
+
+entityDef env_swinglight_sl128_fixed {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+	"model"							"env_swinglight_sl128"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_swinglight_sl128_fixed.af"
+}
+
+/***************************************************
+env_swinglight_sl64
+***************************************************/
+
+export eric {
+	options	
+
+	mesh 	models/mapobjects/caves/lights/eric_sl64setup.mb -dest models/md5/environments/env_swinglight_sl64
+	anim 	models/mapobjects/caves/lights/eric_sl64setup.mb -dest models/md5/environments/env_swinglight_sl64
+
+} 
+
+model env_swinglight_sl64 {
+	mesh							models/md5/environments/env_swinglight_sl64.md5mesh
+	anim af_pose					models/md5/environments/env_swinglight_sl64.md5anim
+}
+
+entityDef env_swinglight_sl64 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"anim"							"af_pose"
+	"model"							"env_swinglight_sl64"
+	"articulatedFigure"				"env_swinglight_sl64.af"
+}
+
+/***************************************************
+env_hellcage_long
+***************************************************/
+
+export eric {
+	options -prefix long_
+
+	mesh 	models/mapobjects/hellcages/eric_setup.mb -dest models/md5/environments/env_hellcage_long
+	anim 	models/mapobjects/hellcages/eric_setup.mb -dest models/md5/environments/env_hellcage_long
+}
+
+model env_hellcage_long {
+	mesh							models/md5/environments/env_hellcage_long.md5mesh
+	anim af_pose					models/md5/environments/env_hellcage_long.md5anim
+}
+
+entityDef env_hellcage_long {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_hellcage_long"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_hellcage_long.af"
+
+}
+
+/***************************************************
+env_hellcage_medium
+***************************************************/
+
+export eric {
+	options -prefix medium_
+	mesh 	models/mapobjects/hellcages/eric_setup.mb -dest models/md5/environments/env_hellcage_medium
+	anim 	models/mapobjects/hellcages/eric_setup.mb -dest models/md5/environments/env_hellcage_medium
+} 
+
+model env_hellcage_medium {
+	mesh							models/md5/environments/env_hellcage_medium.md5mesh
+	anim af_pose					models/md5/environments/env_hellcage_medium.md5anim
+}
+
+entityDef env_hellcage_medium {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_hellcage_medium"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_hellcage_medium.af"
+}
+
+/***************************************************
+env_hellcage_short
+***************************************************/
+
+export eric {
+	options -prefix short_
+
+	mesh 	models/mapobjects/hellcages/eric_setup.mb -dest models/md5/environments/env_hellcage_short
+	anim 	models/mapobjects/hellcages/eric_setup.mb -dest models/md5/environments/env_hellcage_short
+} 
+
+model env_hellcage_short {
+	mesh							models/md5/environments/env_hellcage_short.md5mesh
+	anim af_pose					models/md5/environments/env_hellcage_short.md5anim
+}
+
+entityDef env_hellcage_short {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_hellcage_short"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_hellcage_short.af"
+}
+
+
+/***************************************************
+env_xianbutton_1
+***************************************************/
+
+export eric {
+	options -prefix xpipe1_
+
+	mesh 	models/mapobjects/xianbutton/xianbutton.mb -dest models/md5/environments/env_xianbutton_1
+	anim 	models/mapobjects/xianbutton/xianbutton.mb -dest models/md5/environments/env_xianbutton_1
+} 
+
+model env_xianbutton_1 {
+	mesh							models/md5/environments/env_xianbutton_1.md5mesh
+	anim af_pose					models/md5/environments/env_xianbutton_1.md5anim
+}
+
+entityDef env_xianbutton_1 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_xianbutton_1"
+	"anim"							"af_pose"
+
+	"articulatedFigure"				"env_xianbutton_1.af"
+}
+
+/***************************************************
+env_xianbutton_2
+***************************************************/
+
+export eric {
+	options -prefix xpipe2_
+
+	mesh 	models/mapobjects/xianbutton/xianbutton.mb -dest models/md5/environments/env_xianbutton_2
+	anim 	models/mapobjects/xianbutton/xianbutton.mb -dest models/md5/environments/env_xianbutton_2
+
+} 
+
+model env_xianbutton_2 {
+	mesh							models/md5/environments/env_xianbutton_2.md5mesh
+	anim af_pose					models/md5/environments/env_xianbutton_2.md5anim
+}
+
+entityDef env_xianbutton_2 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_xianbutton_2"
+	"anim"							"af_pose"
+
+	"articulatedFigure"				"env_xianbutton_2.af"
+}
+
+/***************************************************
+env_xianbutton_3
+***************************************************/
+
+export eric {
+	options -prefix xpipe3_
+
+	mesh 	models/mapobjects/xianbutton/xianbutton.mb -dest models/md5/environments/env_xianbutton_3
+	anim 	models/mapobjects/xianbutton/xianbutton.mb -dest models/md5/environments/env_xianbutton_3
+
+} 
+
+model env_xianbutton_3 {
+	mesh							models/md5/environments/env_xianbutton_3.md5mesh
+	anim af_pose					models/md5/environments/env_xianbutton_3.md5anim
+}
+
+entityDef env_xianbutton_3 {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_xianbutton_3"
+	"anim"							"af_pose"
+
+	"articulatedFigure"				"env_xianbutton_3.af"
+}
+
+/***************************************************
+steampipe_a
+***************************************************/
+
+model env_steampipe_a {
+	mesh							models/md5/environments/env_wirea.md5mesh
+	anim af_pose					models/md5/environments/env_wirea.md5anim
+}
+
+entityDef env_steampipe_a {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"	
+
+	"editor_usage"					"Steam pipe."
+
+	"spawnclass"					"idAFEntity_SteamPipe"
+	"model"							"env_steampipe_a"
+	"articulatedFigure"				"env_steampipe_a.af"
+	
+	"steambody"						"body9"
+	"steamforce"					"2000"
+	"steamupforce"					"10"
+}
+
+/***************************************************
+steampipe_b
+***************************************************/
+
+model env_steampipe_b {
+	mesh							models/md5/environments/env_wireb.md5mesh
+	anim af_pose					models/md5/environments/env_wireb.md5anim
+}
+
+entityDef env_steampipe_b {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"	
+
+	"editor_usage"					"Steam pipe."
+
+	"spawnclass"					"idAFEntity_SteamPipe"
+	"model"							"env_steampipe_b"
+	"articulatedFigure"				"env_steampipe_b.af"
+	
+	"steambody"						"body9"
+	"steamforce"					"2000"
+	"steamupforce"					"10"
+}
+
+/***************************************************
+steampipe_c
+***************************************************/
+
+model env_steampipe_c {
+	mesh							models/md5/environments/env_wirec.md5mesh
+	anim af_pose					models/md5/environments/env_wirec.md5anim
+}
+
+entityDef env_steampipe_c {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"	
+
+	"editor_usage"					"Steam pipe."
+
+	"spawnclass"					"idAFEntity_SteamPipe"
+	"model"							"env_steampipe_c"
+
+	"articulatedFigure"				"env_steampipe_c.af"	
+	
+	"steambody"						"body9"
+	"steamforce"					"2000"
+	"steamupforce"					"10"
+}
+
+/***************************************************
+env_wirea
+***************************************************/
+
+export eric {
+	options -prefix WIREA_
+
+	mesh 	models/mapobjects/steampipe/wires.mb -dest models/md5/environments/env_wirea
+	anim 	models/mapobjects/steampipe/wires.mb -dest models/md5/environments/env_wirea
+
+} 
+
+model env_wirea {
+	mesh							models/md5/environments/env_wirea.md5mesh
+	anim af_pose					models/md5/environments/env_wirea.md5anim
+}
+
+entityDef env_wirea {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_wirea"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_wirea.af"
+}
+
+/***************************************************
+env_wireb
+***************************************************/
+
+export eric {
+	options -prefix WIREB_
+
+	mesh 	models/mapobjects/steampipe/wires.mb -dest models/md5/environments/env_wireb
+	anim 	models/mapobjects/steampipe/wires.mb -dest models/md5/environments/env_wireb
+} 
+
+model env_wireb {
+	mesh							models/md5/environments/env_wireb.md5mesh
+	anim af_pose					models/md5/environments/env_wireb.md5anim
+}
+
+entityDef env_wireb {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_wireb"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_wireb.af"
+}
+
+/***************************************************
+env_wirec
+***************************************************/
+
+export eric {
+	options -prefix WIREC_
+
+	mesh 	models/mapobjects/steampipe/wires.mb -dest models/md5/environments/env_wirec
+	anim 	models/mapobjects/steampipe/wires.mb -dest models/md5/environments/env_wirec
+} 
+
+model env_wirec {
+	mesh							models/md5/environments/env_wirec.md5mesh
+	anim af_pose					models/md5/environments/env_wirec.md5anim
+}
+
+entityDef env_wirec {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"editor_ragdoll"				"1"	
+									
+	"spawnclass"					"idAFEntity_Generic"
+							
+	"model"							"env_wirec"
+	"anim"							"af_pose"
+	"articulatedFigure"				"env_wirec.af"
+}
+
+/***************************************************
+cage_corpse
+***************************************************/
+
+export eric {
+
+	options -prefix setup_ -parent L_leglow Pelvis -parent R_leglow Pelvis
+
+	mesh	models/mapobjects/corpses/eric/corpse_still.mb -dest models/md5/environments/cage_corpse
+	anim	models/mapobjects/corpses/eric/corpse_slow_swing.mb -dest models/md5/environments/corpse_slowswing
+	anim	models/mapobjects/corpses/eric/corpse_twitch1.mb -dest models/md5/environments/corpse_twitch1
+	anim	models/mapobjects/corpses/eric/corpse_twitch2.mb -dest models/md5/environments/corpse_twitch2
+}
+
+model env_cage_corpse {
+	mesh							models/md5/environments/cage_corpse.md5mesh
+	anim slowswing					models/md5/environments/corpse_slowswing.md5anim
+	anim twitch1					models/md5/environments/corpse_twitch1.md5anim
+	anim twitch2					models/md5/environments/corpse_twitch2.md5anim
+}
+
+entityDef env_cage_corpse {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+									
+	"spawnclass"					"idAnimated"
+	"model"							"env_cage_corpse"
+	"anim"							"slowswing"
+}
+
+/***************************************************
+skullgate
+***************************************************/
+
+export eric {
+	options -prefix SKULL_
+
+	mesh	models/mapobjects/skullgate/eric/tongue_move.mb -dest models/md5/environments/skullgate
+	anim	models/mapobjects/skullgate/eric/tongue_move.mb -dest models/md5/environments/skullgate_tongue_move
+	anim	models/mapobjects/skullgate/eric/opening.mb -dest models/md5/environments/skullgate_opening
+	anim	models/mapobjects/skullgate/eric/afteropen.mb -dest models/md5/environments/skullgate_openidle
+}
+
+model env_skullgate {
+	mesh							models/md5/environments/skullgate.md5mesh
+	anim idle_closed				models/md5/environments/skullgate_tongue_move.md5anim
+	anim open						models/md5/environments/skullgate_opening.md5anim
+	anim idle_open					models/md5/environments/skullgate_openidle.md5anim
+}
+
+entityDef env_skullgate {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+									
+	"spawnclass"					"idAnimated"
+	"model"							"env_skullgate"
+	"anim"							"idle_closed"
+}

@@ -1,0 +1,716 @@
+model delta2a_commando {
+	inherit						monster_zombie_commando
+
+	anim columns				models/md5/monsters/zct/delta2a_leapdown.md5anim {
+		ai_no_turn
+		frame 1						call overrideLegs
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+
+		frame 11					sound_body snd_footstep
+		frame 19					sound_body snd_footstep
+		frame 24					sound_body snd_footstep
+		frame 31					sound_body snd_footstep
+		frame 43					sound_voice monster_zombie_commando_sight1		
+		frame 64					sound_body snd_tentacle_out
+		frame 69					sound_body snd_footstep
+		frame 80					enableGravity
+		frame 80					enableWalkIK				
+		frame 72					sound_body snd_thud
+		frame 87					sound_voice monster_zombie_commando_sight7
+		frame 91					sound_weapon snd_tentacle_in
+	}
+}
+
+entityDef delta2a_commando {
+	"inherit"						"monster_zombie_commando"
+	"scriptobject"					"monster_zombie_commando_tentacle"
+	"model"							"delta2a_commando"
+}
+
+model delta2a_fatty {
+	inherit							monster_zombie_fat
+	anim bathroomidle				models/md5/monsters/zfat/deltabathroomloop.md5anim {
+		ai_no_turn
+	}
+	anim bathroomgetup				models/md5/monsters/zfat/deltabathroomgetup.md5anim {
+		ai_no_turn
+		frame 1						sound_voice2 monster_zombie_fat_sight1
+	}
+}
+
+entityDef delta2a_fatty {
+	"inherit"						"monster_zombie_fat"
+	"model"							"delta2a_fatty"
+
+	"anim"							"bathroomidle"
+	"on_activate"					"bathroomgetup"
+	"walk_on_sight"					"0"
+}
+
+
+model delta2a_cin_fatty {
+	mesh						models/md5/monsters/zfat/zfat.md5mesh
+	anim office3				models/md5/cinematics/delta2a/zoffice3.md5anim {
+		frame 26				sound_voice d2a_fat_hit_glass
+	}
+
+}
+
+entityDef delta2a_cin_fatty {
+	"inherit"					"cin_base"
+	"anim"						"office3"
+	"model"						"delta2a_cin_fatty"
+	"skin"						"skins/monsters/zombies/zfat.skin"
+
+}
+
+
+entityDef delta2a_zombie_office1 {
+	"inherit"						"monster_zombie_maint_bald"
+	"scriptobject"					"character"	
+	"model"							"model_delta2a_zombie_nojaw"
+	"def_head"						"head_bloodybald"
+	"head_joint"					"Shoulders"
+
+	"snd_footstep"					"monster_zombie_security_footstep"
+}
+
+entityDef delta2a_zombie_office2 {
+	"inherit"						"monster_zombie_maint_bald"
+	"scriptobject"					"character"
+	"model"							"model_delta2a_zombie_nojaw"
+	"def_head"						"head_zombie2"
+	"head_joint"					"Shoulders"
+	"size"							""
+
+	"snd_footstep"					"monster_zombie_security_footstep"
+}
+
+model model_delta2a_zombie_nojaw {
+	inherit 						model_monster_zombie
+	mesh							models/md5/monsters/zombies/jumpsuitzombie.md5mesh
+	skin							skins/monsters/zombies/jumpsuit.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim stand						models/md5/cinematics/delta2a/zoffice2end.md5anim
+	anim idle						models/md5/cinematics/delta2a/zoffice2end.md5anim
+	anim office2start				models/md5/cinematics/delta2a/zoffice2start.md5anim {
+		ai_no_turn
+	}
+	anim office2					models/md5/cinematics/delta2a/zoffice2.md5anim {
+		frame 1							event ignoreDamage
+		frame 21					sound_body snd_footstep
+		frame 51					sound_body snd_footstep
+		frame 65					sound_body snd_footstep
+		frame 78					sound_body snd_footstep
+		frame 89					sound_body snd_footstep
+		frame 94					sound_body snd_footstep
+		frame 97					sound_body snd_footstep
+		ai_no_turn
+	}
+	anim office2end					models/md5/cinematics/delta2a/zoffice2end.md5anim {
+	frame 1							event ignoreDamage
+	}
+	anim office1					models/md5/cinematics/delta2a/zoffice1.md5anim
+}
+
+/***********************************************************************
+
+delta2a_imp
+
+***********************************************************************/
+
+model delta2a_imp {
+	inherit						monster_demon_imp
+
+	anim columnidle				models/md5/monsters/imp/idlecolumn.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+	}
+	anim columncrawl			models/md5/monsters/imp/leapdowncolumn.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 1						sound_voice snd_crawlersight	
+		frame 13					sound_weapon snd_thud
+		frame 13					sound_body snd_glassfootstep
+		frame 14					sound_body snd_glassfootstep
+		frame 17					sound_body snd_glassfootstep
+		frame 24					sound_body snd_glassfootstep
+		frame 29					sound_body snd_glassfootstep
+
+		frame 30					sound_voice snd_crawlergetoff
+
+		frame 33					sound_body snd_glassfootstep
+		frame 37					sound_body snd_glassfootstep
+		frame 41					sound_body snd_glassfootstep
+		frame 42					sound_body snd_glassfootstep
+		frame 48					sound_body snd_footstep
+		frame 49					enableGravity
+		frame 49					enableWalkIK
+		frame 50					sound snd_thud
+	}
+
+	anim corneridle      		models/md5/monsters/imp/d1corneridle.md5anim {
+		ai_no_turn
+	}
+	anim cornercrawl		  	models/md5/monsters/imp/d1corner.md5anim {
+		ai_no_turn
+	}
+
+	anim cageidle				models/md5/monsters/imp/idlecages.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+	}
+	
+	anim cageleap				models/md5/monsters/imp/leapdowncages.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 35					enableGravity
+		frame 35					enableWalkIK
+	}
+}
+
+entityDef delta2a_imp {
+	"inherit"					"monster_demon_imp"
+	"model"						"delta2a_imp"
+
+	"snd_crawlersight"			"delta2a_columncrawlersight"
+	"snd_crawlergetoff"			"monster_demon_imp_attackmelee_2"
+	"snd_glassfootstep"			"monster_demon_imp_footstep_glass"
+}
+
+//Ian the Scientist
+	
+export fred {
+	
+	camera	maps/fred/delta2a/ian_shot1.mb -range 1 756 -dest models/md5/cinematics/delta2a/scientist_cam
+
+}
+
+entityDef delta2a_scientist_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim scientist"				"models/md5/cinematics/delta2a/scientist_cam.md5camera"
+}
+
+
+entityDef delta2a_sci_tele_hell_visions_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim teleport"					"models/md5/cinematics/delta2a/teleporter_cam.md5cameras"
+}
+
+model delta2a_player {
+	mesh						models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin						skins/player/shotgun.skin
+
+	anim teleport				models/md5/cinematics/delta2a/teleporterplayer.md5anim {
+		frame 1					skin skins/player/noguns.skin
+		frame 1					sound_global delta2a_ending_sfx
+	}
+
+	anim scientist_a				models/md5/cinematics/delta2a/scientistplayer_a.md5anim {
+		frame 8						sound_body snd_footstep
+		frame 22						sound_body snd_footstep
+		frame 37						sound_body snd_footstep
+		frame 55						sound_body snd_footstep
+		frame 60						sound_body snd_footstep
+		frame 88						sound_body snd_footstep	
+		frame 106						sound_body snd_footstep
+		frame 128						sound_body snd_footstep
+		frame 146						sound_body snd_footstep
+		frame 164						sound_body snd_footstep
+	}
+
+	anim scientist_b				models/md5/cinematics/delta2a/scientistplayer_b.md5anim {
+		frame 4						sound_body snd_footstep
+		frame 30						sound_body snd_footstep
+		frame 50						sound_body snd_footstep
+		frame 70						sound_body snd_footstep
+	}
+	
+}
+
+entityDef delta2a_player {
+	"inherit"					"cin_base"
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+	"anim"						"teleport"
+	"model"						"delta2a_player"
+	"snd_footstep"				"player_sounds_footstep"
+	"cinematic"					"1"
+
+}
+
+entityDef delta2a_player_scientist {
+	"inherit"					"cin_base"
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+	"anim"						"scientist_a"
+	"model"						"delta2a_player"
+	"snd_footstep"				"player_sounds_footstep"
+	"cinematic"					"1"
+
+	"auto_advance"					"1"
+	"num_anims"						"2"
+	"anim1"							"scientist_a"
+	"anim2"							"scientist_b"
+
+}
+
+model delta2a_scientist_head {
+
+	mesh								models/md5/heads/head02young/h2_cinematic.md5mesh
+	anim stand							models/md5/heads/head02young/h2idle_cinematic.md5anim
+	anim idle							models/md5/heads/head02young/h2idle_cinematic.md5anim
+	anim dead							models/md5/heads/head02young/h2death_cinematic.md5anim
+	
+	anim start							models/md5/heads/head02young/delta2a/delta2a_01_ian_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_wuh
+	}
+	anim shot_one						models/md5/heads/head02young/delta2a/delta2a_02_ian_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_thankgod
+	}
+	anim shot_two						models/md5/heads/head02young/delta2a/delta2a_03_ian_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_iwaspart
+	}
+	anim shot_three						models/md5/heads/head02young/delta2a/delta2a_04_ian_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_youhaveto
+	}
+	anim shot_four						models/md5/heads/head02young/delta2a/delta2a_05_ian_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_imgoin
+	}
+	anim talk_primary					models/md5/heads/head02young/delta2a/delta2a_ian_primary_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_primary1
+	}
+	anim talk_secondary1				models/md5/heads/head02young/delta2a/delta2a_ian_secondary_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_secondary1
+	}
+	anim talk_secondary2				models/md5/heads/head02young/delta2a/delta2a_06_ian_first.md5anim {
+		frame 1								sound_voice		delta2a_sci_imgonnastay
+	}
+}
+
+model delta2a_scientist {
+
+	mesh						models/md5/chars/labcoat.md5mesh
+	
+	channel torso				( *Waist )
+	channel legs				( origin Body Body2 *Hips -*Waist SPINNER chair eyecontrol)
+	
+	anim af_pose				models/md5/chars/af_pose.md5anim
+	anim stand					models/md5/chars/ian_d2a/ianpart4_stand.md5anim {
+		frame 1								event disableEyeFocus
+		frame 2						sound_body typing
+		frame 11					sound_body2 typing
+		frame 18					sound_body typing
+		frame 28					sound_body2 typing
+		frame 32					sound_body typing
+		frame 35					sound_body2 typing
+		frame 38					sound_body typing
+		frame 42					sound_body2 typing
+		frame 45					sound_body typing
+		frame 73					sound_body2 typing
+		frame 77					sound_body typing
+		frame 80					sound_body2 typing
+		frame 84					sound_body typing
+		frame 89					sound_body2 typing
+		frame 94					sound_body typing
+		frame 97					sound_body2 typing
+		frame 100					sound_body typing
+		frame 104					sound_body2 typing
+		frame 107					sound_body typing
+		frame 135					sound_body2 typing
+		frame 138					sound_body typing
+		frame 145					sound_body2 typing
+		frame 149					sound_body typing
+		frame 152					sound_body2 typing
+		frame 155					sound_body typing
+		frame 159					sound_body2 typing
+		frame 162					sound_body typing
+		frame 168					sound_body2 typing
+		frame 172					sound_body typing
+		frame 175					sound_body2 typing
+		frame 178					sound_body typing
+		frame 184					sound_body2 typing
+		frame 195					sound_body typing
+		frame 202					sound_body2 typing
+		frame 212					sound_body typing
+		frame 216					sound_body2 typing
+		frame 219					sound_body typing
+		frame 222					sound_body2 typing
+		frame 226					sound_body typing
+		frame 229					sound_body2 typing
+		frame 236					sound_body typing
+		frame 258					sound_body2 typing
+		frame 261					sound_body typing
+		frame 265					sound_body2 typing
+		frame 268					sound_body typing
+		frame 274					sound_body2 typing
+		frame 278					sound_body typing
+		frame 281					sound_body2 typing
+		frame 284					sound_body typing
+		frame 288					sound_body2 typing
+		frame 291					sound_body typing
+	}
+	anim idle					models/md5/chars/ian_d2a/ianpart4_stand.md5anim {
+		frame 1								event disableEyeFocus
+				frame 2						sound_body typing
+		frame 11					sound_body2 typing
+		frame 18					sound_body typing
+		frame 28					sound_body2 typing
+		frame 32					sound_body typing
+		frame 35					sound_body2 typing
+		frame 38					sound_body typing
+		frame 42					sound_body2 typing
+		frame 45					sound_body typing
+		frame 73					sound_body2 typing
+		frame 77					sound_body typing
+		frame 80					sound_body2 typing
+		frame 84					sound_body typing
+		frame 89					sound_body2 typing
+		frame 94					sound_body typing
+		frame 97					sound_body2 typing
+		frame 100					sound_body typing
+		frame 104					sound_body2 typing
+		frame 107					sound_body typing
+		frame 135					sound_body2 typing
+		frame 138					sound_body typing
+		frame 145					sound_body2 typing
+		frame 149					sound_body typing
+		frame 152					sound_body2 typing
+		frame 155					sound_body typing
+		frame 159					sound_body2 typing
+		frame 162					sound_body typing
+		frame 168					sound_body2 typing
+		frame 172					sound_body typing
+		frame 175					sound_body2 typing
+		frame 178					sound_body typing
+		frame 184					sound_body2 typing
+		frame 195					sound_body typing
+		frame 202					sound_body2 typing
+		frame 212					sound_body typing
+		frame 216					sound_body2 typing
+		frame 219					sound_body typing
+		frame 222					sound_body2 typing
+		frame 226					sound_body typing
+		frame 229					sound_body2 typing
+		frame 236					sound_body typing
+		frame 258					sound_body2 typing
+		frame 261					sound_body typing
+		frame 265					sound_body2 typing
+		frame 268					sound_body typing
+		frame 274					sound_body2 typing
+		frame 278					sound_body typing
+		frame 281					sound_body2 typing
+		frame 284					sound_body typing
+		frame 288					sound_body2 typing
+		frame 291					sound_body typing
+		
+
+	}
+	anim cower					models/md5/chars/ian_d2a/iancower.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim start					models/md5/chars/ian_d2a/ianstart.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim shot_one				models/md5/chars/ian_d2a/ianpart1.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim shot_two				models/md5/chars/ian_d2a/ianpart2.md5anim {
+		frame 1								event disableEyeFocus
+		frame 92						sound_body snd_footstep
+		frame 113						sound_body snd_footstep
+		frame 131						sound_body snd_footstep
+	}
+	anim shot_three				models/md5/chars/ian_d2a/ianpart3.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim shot_four				models/md5/chars/ian_d2a/ianpart4.md5anim {
+		frame 1						event disableEyeFocus
+		frame 9						sound_body typing
+		frame 12					sound_body2 typing
+		frame 18					sound_body typing
+		frame 22					sound_body2 typing
+		frame 25					sound_body typing
+		frame 28					sound_body2 typing
+		frame 33					sound_body typing
+		frame 36					sound_body2 typing
+		frame 46					sound_body typing
+		frame 54					sound_body2 typing
+		frame 57					sound_body typing
+		frame 63					sound_body2 typing
+		frame 67					sound_body typing
+		frame 70					sound_body2 typing
+		frame 70					event enableEyeFocus
+		frame 73					sound_body typing
+		frame 78					sound_body2 typing
+		frame 81					sound_body typing
+		frame 88					sound_body2 typing
+		frame 91					sound_body typing
+				
+		frame 220					event enableEyeFocus
+		frame 390					event disableEyeFocus
+		frame 391					trigger mal_func_static_3065
+		frame 435					event enableEyeFocus
+		frame 500					event enableEyeFocus
+		frame 528					event disableEyeFocus
+		frame 529					event enableEyeFocus
+	}
+	anim talk_primary			models/md5/chars/ian_d2a/ianpart4_talk.md5anim {
+		frame 1								event enableEyeFocus
+	}
+	anim talk_secondary1		models/md5/chars/ian_d2a/ianpart4_talk.md5anim {
+		frame 1								event enableEyeFocus
+	}
+	anim talk_secondary2		models/md5/chars/ian_d2a/ianpart4_talk.md5anim {
+		frame 1								event enableEyeFocus
+	}
+}
+
+
+entityDef delta2a_scientist {
+	"inherit"						"npc_base"
+	"anim"							"shot_one"
+	"model"							"delta2a_scientist"
+	"def_head"						"delta2a_scientist_head"
+	"head_joint"					"Shoulders"
+	"size"							"20 20 70"
+
+	"skin"							"skins/characters/npcs/labcoat_chair.skin"
+	"def_dropDeathItem"				"moveable_chair2"
+	"dropDeathItemJoint"			"chair"
+	"dropDeathItemRotation"			"0 0 -90"
+	"dropDeathItemOffset"			"0 -10 30"
+	"skin_dropDeath"				"skins/characters/npcs/labcoat_old.skin"
+
+	"look_joint Waist"				"-0.2 0 0"
+	"look_joint Chest"				"-0.2 0 0"
+	"look_joint Shoulders"			"-0.2 0 0"
+	"look_joint headcontrol"		"-0.4 0.4 0"
+	"look_joint neckcontrol"		"-0.4 0.4 0"
+	"look_joint Ruparm"				"0.5 0 0"
+	"look_joint Luparm"				"0.5 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"	
+	"turn_rate"						"0"
+	"def_attach"					"prop_soft_desk_chair2"
+	"ik_numlegs"					"0"
+	
+	"talk_time"						"0"
+	"talkradius"					"384"
+	"cinematic"						"1"
+
+	"snd_wuh"						"delta2a_sci_wuh"
+	"snd_thankgod"					"delta2a_sci_thankgod"
+	"snd_iwaspart"					"delta2a_sci_iwaspart"
+	"snd_youhaveto"					"delta2a_sci_youhaveto"
+	"snd_imgoin"					"delta2a_sci_imgoin"
+	"snd_imgonnastay"				"delta2a_sci_imgonnastay"
+	"snd_primary1"					"delta2a_sci_primary1"
+	"snd_secondary1"				"delta2a_sci_secondary1"
+
+}
+
+model delta2a_scientist_head_return {
+
+	mesh							models/md5/heads/head02young/h2_cinematic.md5mesh
+	anim stand						models/md5/heads/head02young/h2idle_cinematic.md5anim
+	anim idle						models/md5/heads/head02young/h2idle_cinematic.md5anim
+	anim dead						models/md5/heads/head02young/h2death_cinematic.md5anim
+	
+	anim talk_trigger				models/md5/heads/head02young/delta2a/delta2a_01_ian_second.md5anim {
+		frame 1							sound_voice		delta2a_sci_excellent
+		frame 430						sound_voice		delta2a_sci_butbefore
+		frame 510						sound_voice		delta2a_sci_itsajournal
+		frame 511						trigger vidcd_trigger1
+	}
+	anim talk_primary				models/md5/heads/head02young/delta2a/delta2a_ian_primary_second.md5anim {
+		frame 1							sound_voice		delta2a_sci_primary2
+	}
+	anim talk_secondary1			models/md5/heads/head02young/delta2a/delta2a_ian_secondary_second.md5anim {
+		frame 1							sound_voice		delta2a_sci_secondary2
+	}
+	anim talk_secondary2			models/md5/heads/head02young/delta2a/delta2a_ian_primary_second.md5anim {
+		frame 1							sound_voice		delta2a_sci_primary2
+	}
+}
+
+model delta2a_scientist_return {
+
+	mesh						models/md5/chars/labcoat.md5mesh
+	skin						skins/characters/npcs/labcoat_chair.skin
+	
+	channel torso				( *Waist )
+	channel legs				( origin Body Body2 *Hips -*Waist SPINNER chair)
+	
+	anim af_pose				models/md5/chars/af_pose.md5anim
+	anim stand					models/md5/chars/ian_d2a/ianpart4_stand.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim idle					models/md5/chars/ian_d2a/ianpart4_stand.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim cower					models/md5/chars/ian_d2a/iancower.md5anim {
+		frame 1								event disableEyeFocus
+	}
+	anim talk_trigger			models/md5/chars/ian_d2a/ianpart4_talk_trigger.md5anim {
+		frame 1								event enableEyeFocus
+	}
+	anim talk_primary			models/md5/chars/ian_d2a/ianpart4_talk.md5anim {
+		frame 1								event enableEyeFocus
+	}
+	anim talk_secondary1		models/md5/chars/ian_d2a/ianpart4_talk.md5anim {
+		frame 1								event enableEyeFocus
+	}
+	anim talk_secondary2		models/md5/chars/ian_d2a/ianpart4_talk.md5anim {
+		frame 1								event enableEyeFocus
+	}
+}
+
+
+entityDef delta2a_scientist_return {
+	"inherit"						"npc_base"
+	"anim"							"shot_one"
+	"model"							"delta2a_scientist_return"
+	"def_head"						"delta2a_scientist_head_return"
+	"head_joint"					"Shoulders"
+	"size"							"20 20 70"
+
+	"skin"							"skins/characters/npcs/labcoat_chair.skin"
+	"def_dropDeathItem"				"moveable_chair2"
+	"dropDeathItemJoint"			"chair"
+	"dropDeathItemRotation"			"0 0 -90"
+	"dropDeathItemOffset"			"0 -10 30"
+	"skin_dropDeath"				"skins/characters/npcs/labcoat_old.skin"
+	"ik_numlegs"					"0"
+
+	"look_joint Waist"				"-0.2 0 0"
+	"look_joint Chest"				"-0.2 0 0"
+	"look_joint Shoulders"			"-0.2 0 0"
+	"look_joint headcontrol"		"-0.4 0.4 0"
+	"look_joint neckcontrol"		"-0.4 0.4 0"
+	"look_joint Ruparm"				"0.5 0 0"
+	"look_joint Luparm"				"0.5 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"	
+	"turn_rate"						"0"
+	
+	"def_attach"					"prop_soft_desk_chair2"
+	
+	"talk_time"						"0"
+	"talkradius"					"384"
+	"cinematic"						"1"
+
+	"snd_excellent"					"delta2a_sci_excellent"
+	"snd_butbefore"					"delta2a_sci_butbefore"
+	"snd_itsajournal"				"delta2a_sci_itsajournal"
+
+	"snd_primary2"					"delta2a_sci_primary2"
+	"snd_secondary2"				"delta2a_sci_secondary2"
+
+}
+
+
+
+//TELEPORTATION ROOM...
+	
+export fred {
+	camera	maps/fred/delta2a/malteleporterroom.mb -dest models/md5/cinematics/delta2a/teleporter_cam
+
+	options -prefix TELE_ -keep ALL -parent EARMUFFS ALL
+
+	mesh	maps/fred/delta2a/malteleporterroom.mb -dest models/md5/cinematics/delta2a/teleporter
+	anim	maps/fred/delta2a/malteleporterroom.mb -dest models/md5/cinematics/delta2a/teleporter
+	anim	maps/fred/delta2a/tele_arms_return.mb -dest models/md5/cinematics/delta2a/teleporter_return
+}
+
+
+entityDef delta2a_teleporter_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	
+	"cinematic"						"1"
+	"anim teleport"					"models/md5/cinematics/delta2a/teleporter_cam.md5camera"
+}
+
+model delta2a_teleporter {
+	mesh						models/md5/cinematics/delta2a/teleporter.md5mesh
+	anim brace					models/md5/cinematics/delta2a/teleporter.md5anim {
+		frame 1					sound_body d2a_tp_warmup
+	}
+	anim return					models/md5/cinematics/delta2a/teleporter_return.md5anim
+}
+
+entityDef delta2a_teleporter {
+	"inherit"					"cin_base"
+	"anim"						"brace"
+	"model"						"delta2a_teleporter"
+	"cinematic"					"1"
+}
+
+//Cam Toob...
+
+export fred {
+
+	camera	models/Fred/cam_toob.mb -dest models/md5/cinematics/delta2a/cam_toob
+
+	options -prefix TOOB_ -keep CONNECT
+
+	mesh	models/Fred/cam_toob.mb -dest models/md5/cinematics/delta2a/toob
+	anim	models/Fred/cam_toob.mb -dest models/md5/cinematics/delta2a/toob
+}
+
+entityDef cin_toob_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim"							"toobcam"
+	"cinematic"						"1"
+
+	"anim toobcam"					"models/md5/cinematics/delta2a/cam_toob.md5camera"
+}
+
+model cin_toob {
+	mesh							models/md5/cinematics/delta2a/toob.md5mesh
+	anim toob						models/md5/cinematics/delta2a/toob.md5anim
+}
+
+entityDef cin_toob {
+	"inherit"						"cin_base"
+	"anim"							"toob"
+	"model"							"cin_toob"
+	"cinematic"					"1"
+
+}

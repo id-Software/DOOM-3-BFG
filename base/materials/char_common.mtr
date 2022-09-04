@@ -1,0 +1,1439 @@
+table eye_table { { .5,.49,.5,.498,.5,.49,.5,.495,.5,.49,.5,.49  } }
+table eye_table2 { { .59,.6,.59,.59,.6,.59,.59,.6,.59,.6,.59,.6  } }
+table eye_movement_table { { .004, 0,0,0,0,0,.003,0,0,0,0,-.005,0,0,0,0,.004,0,0,0,0,0 } }
+
+models/characters/common/rightpoppy
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	0.4, 0.4	
+	}
+
+
+
+
+
+}
+
+
+models/characters/common/leftpoppy
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	0.4, 0.4	
+	}
+	
+
+
+
+}
+
+
+models/characters/common/rightzsarge
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	.35, .35	
+	
+	}	
+	
+
+
+}
+
+
+models/characters/common/leftzsarge
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	.35, .35	
+	
+	}	
+	
+
+
+}
+
+
+
+models/characters/common/teethdeadb
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		renderbump  -size 128 128  -colorMap -aa 2  models/characters/common/teeth_local.tga models/characters/common/teeth_hi.lwo
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teethdeadb.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+
+
+
+
+models/characters/common/teethdead
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		renderbump  -size 128 128  -colorMap -aa 2  models/characters/common/teeth_local.tga models/characters/common/teeth_hi.lwo
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teethdead.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+models/characters/common/teethhead01
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		renderbump  -size 128 128  -colorMap -aa 2  models/characters/common/teeth_local.tga models/characters/common/teeth_hi.lwo
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+models/characters/common/teethhead02
+{
+        noShadows
+		//noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+models/characters/common/teethhead03
+{
+        noShadows
+		//noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+models/characters/common/teethhead04
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+models/characters/common/teethhead05
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+
+//////////////////////////////////
+//				//
+//	Old Poppy Teeth		//
+//				//
+//////////////////////////////////
+
+
+//	models/characters/common/teethpoppy
+//	{
+//        	noShadows
+//		noselfshadow
+//		unsmoothedTangents
+//		{       
+//     			 blend	diffusemap
+//			 map	models/characters/common/teeth.tga
+//			 alphaTest 0.2
+//		}
+//		bumpmap	   models/characters/common/teeth_local.tga
+//		specularmap models/characters/common/teeth_s.tga        	
+//	}
+
+
+
+//////////////////////////////////
+//				//
+//	New Poppy Teeth		//
+//				//
+//////////////////////////////////
+
+models/characters/common/teethpoppy
+{
+        	noShadows
+		noselfshadow
+		unsmoothedTangents
+
+	
+		{       
+      			blend	diffusemap
+			map	models/characters/common/teeth_new.tga
+			alphaTest 0.2
+		}
+		{
+			blend	bumpmap	   
+			map	addnormals (models/characters/common/teeth_local.tga, heightmap(models/characters/common/teeth_new_h.tga, 3 ) )
+		}
+			specularmap models/characters/common/teeth_new_s.tga
+        	
+}
+
+
+models/characters/common/teethhead06
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+models/characters/common/teethplayer
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+
+models/characters/common/teethbet
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{       
+      			blend	diffusemap
+			map	models/characters/common/teethbet_new.tga
+			alphaTest 0.2
+		}
+
+		bumpmap	   models/characters/common/teeth_local.tga
+		specularmap models/characters/common/teethbet_new_s.tga
+        	
+}
+
+//models/characters/common/teethswann
+//{
+//        noShadows
+//		noselfshadow
+//		unsmoothedTangents
+//		{       
+//      			 blend	diffusemap
+//			 map	models/characters/common/teeth.tga
+//			 alphaTest 0.2
+//		}
+//		bumpmap	   models/characters/common/teeth_local.tga
+//
+//		specularmap models/characters/common/teeth_s.tga        	
+//}
+
+
+//////////////////////////
+//			//
+//	New Swann Teeth	//
+//			//
+//////////////////////////
+
+models/characters/common/teethswann
+{
+        	noShadows
+		noselfshadow
+		unsmoothedTangents
+
+	
+		{       
+      			blend	diffusemap
+			map	models/characters/common/teeth_new.tga
+			alphaTest 0.2
+		}
+		{
+			blend	bumpmap	   
+			map	addnormals (models/characters/common/teeth_local.tga, heightmap(models/characters/common/teeth_new_h.tga, 2 ) )
+		}
+			specularmap models/characters/common/teeth_new_s.tga        	
+}
+
+
+//////////////////////////
+//			//
+//	Old Sarge Teeth	//
+//			//
+//////////////////////////
+
+//models/characters/common/teethsarge
+//{
+//        noShadows
+//		noselfshadow
+//		unsmoothedTangents
+//		{       
+//      			 blend	diffusemap
+//			 map	models/characters/common/teeth.tga
+//			 alphaTest 0.2
+//		}
+//		bumpmap	   models/characters/common/teeth_local.tga
+//
+//		specularmap models/characters/common/teeth_s.tga
+//        	
+//}
+
+
+
+//////////////////////////
+//			//
+//	New Sarge Teeth	//
+//			//
+//////////////////////////
+
+models/characters/common/teethsarge
+{
+        noShadows
+	noselfshadow
+	unsmoothedTangents
+		{       
+      			blend	diffusemap
+			map	models/characters/common/teeth_new.tga
+			red	.85
+			green	.85
+			blue	.8
+			alphaTest 0.2
+		}
+		{
+			blend	bumpmap	   
+			map	addnormals (models/characters/common/teeth_local.tga, heightmap(models/characters/common/teeth_new_h.tga, 0 ) )
+		}
+			
+		{	
+			blend specularmap 
+			map	models/characters/common/teeth_new_s.tga
+			red	.85
+			green	.85
+			blue	.85
+		}        
+}
+
+
+models/characters/common/teethsecurity
+{
+        noShadows
+		noselfshadow
+		unsmoothedTangents
+		{       
+      			 blend	diffusemap
+			 map	models/characters/common/teeth.tga
+			 alphaTest 0.2
+		}
+		bumpmap	   models/characters/common/teeth_local.tga
+
+		specularmap models/characters/common/teeth_s.tga
+        	
+}
+
+//models/characters/common/teethcampbell
+//{
+//        noShadows
+//		noselfshadow
+//		unsmoothedTangents
+//		{       
+//      			 blend	diffusemap
+//			 map	models/characters/common/teeth.tga
+//			 alphaTest 0.2
+//		}
+//		bumpmap	   models/characters/common/teeth_local.tga
+//
+//		specularmap models/characters/common/teeth_s.tga
+//        	
+//}
+
+
+//////////////////////////////////
+//				//
+//	New Campbell Teeth	//
+//				//
+//////////////////////////////////
+
+models/characters/common/teethcampbell
+{
+        	noShadows
+		noselfshadow
+		unsmoothedTangents
+
+	
+		{       
+      			blend	diffusemap
+			map	models/characters/common/teeth_new.tga
+			alphaTest 0.2
+		}
+		{
+			blend	bumpmap	   
+			map	addnormals (models/characters/common/teeth_local.tga, heightmap(models/characters/common/teeth_new_h.tga, 2 ) )
+		}
+			specularmap models/characters/common/teeth_new_s.tga        	
+}
+
+
+
+//models/characters/common/rightcampbell
+//{
+//	translucent
+//	noshadows
+//	deform	eyeBall
+//	sort decal
+//
+//	{
+//		blend filter
+//		map models/characters/common/blue.tga
+//		centerScale	0.4, 0.4	
+//	}
+//}
+
+
+//models/characters/common/leftcampbell
+//{
+//	translucent
+//	noshadows
+//	deform	eyeBall
+//	sort decal
+//
+//	{
+//		blend filter
+//		map models/characters/common/blue.tga
+//		centerScale	0.4, 0.4	
+//	}
+//}
+
+
+
+
+//////////////////////////////////
+//				//
+//	New Campbell Eye	//
+//				//
+//////////////////////////////////
+
+models/characters/common/leftcampbell
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+
+	{	
+		maskcolor				
+	    	map	makealpha(models/characters/common/eye_new_mask.tga)
+	}
+
+	{
+		blend filter
+		maskalpha
+		map models/characters/common/blue.tga
+		centerscale 	eye_table [time * .1], eye_table [time * .1]	
+	}
+}
+
+
+//////////////////////////////////
+//				//
+//	New Campbell Eye	//
+//				//
+//////////////////////////////////
+
+models/characters/common/rightcampbell
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+
+	{	
+		maskcolor				
+	    	map	makealpha(models/characters/common/eye_new_mask.tga)
+	}
+
+	{
+		blend filter
+		maskalpha
+		map models/characters/common/blue.tga
+		centerscale 	eye_table [time * .1], eye_table [time * .1]	
+	}
+}
+
+
+
+
+models/characters/common/rightsecurity
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5	
+	}	
+
+
+}
+
+
+models/characters/common/leftsecurity
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5	
+	}	
+	
+
+
+}
+
+
+
+models/characters/common/rightplayer
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5	
+	}	
+
+
+}
+
+
+models/characters/common/leftplayer
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5	
+	}	
+	
+
+
+}
+
+//////////////////////////////////
+//				//
+//	Old Sarge Eye		//
+//				//
+//////////////////////////////////
+
+//models/characters/common/leftsarge
+//{
+//	translucent
+//	noshadows
+//	deform	eyeBall
+//	sort decal
+//
+//	{
+//		blend filter
+//		map models/characters/common/bet.tga
+//		centerScale	0.6, 0.6	
+//	}	
+//	
+//}
+
+//////////////////////////////////
+//				//
+//	Old Sarge Eye		//
+//				//
+//////////////////////////////////
+
+//models/characters/common/rightsarge
+//{
+//	translucent
+//	noshadows
+//	deform	eyeBall
+//	sort decal
+//
+//	{
+//		blend filter
+//		map models/characters/common/bet.tga
+//		centerScale	0.6, 0.6	
+//	}	
+//	
+//}
+
+
+//////////////////////////////////
+//				//
+//	New Sarge Eye		//
+//				//
+//////////////////////////////////
+
+models/characters/common/leftsarge
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		red	.85
+		green	.85
+		blue	.85
+		centerScale	0.6, 0.6	
+	}	
+	
+
+
+}
+
+
+//////////////////////////////////
+//				//
+//	New Sarge Eye		//
+//				//
+//////////////////////////////////
+
+models/characters/common/rightsarge
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		red	.85
+		green	.85
+		blue	.85
+		centerScale	0.6, 0.6		
+	}	
+	
+}
+
+
+
+
+
+models/characters/common/rightbet
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet2_new.tga
+		centerscale 	eye_table [time * .1], eye_table [time * .1]
+		translate eye_movement_table [ time * .2 ], eye_movement_table [ time * 1 ]
+	}
+
+}
+
+models/characters/common/leftbet
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet_new.tga
+		centerscale 	eye_table [time * .1], eye_table [time * .1]
+		translate eye_movement_table [ time * .2 ], eye_movement_table [ time * 1 ]	
+	}	
+
+
+}
+
+models/characters/common/rightmaledict
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet2.tga
+		centerScale	.25, .25	
+	}	
+
+
+}
+
+models/characters/common/leftmaledict
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	.25, .25
+	}	
+
+
+}
+
+
+
+
+
+//models/characters/common/rightswann
+//{
+//	translucent
+//	noshadows
+//	deform	eyeBall
+//	sort decal
+//
+//	{
+//		blend filter
+//		map models/characters/common/bet.tga
+//		centerScale	0.5, 0.5	
+//	}	
+//	
+//}
+
+
+//models/characters/common/leftswann
+//{
+//	translucent
+//	noshadows
+//	deform	eyeBall
+//	sort decal
+//
+//	{
+//		blend filter
+//		map models/characters/common/bet.tga
+//		centerScale	0.5, 0.5	
+//	}	
+//	 
+//
+//}
+
+
+
+//////////////////////////
+//			//
+//	New Swann Eye	//
+//			//
+//////////////////////////
+
+models/characters/common/rightswann
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+
+	{	
+		maskcolor				
+	    	map	makealpha(models/characters/common/eye_new_mask.tga)
+	}
+
+	
+
+	{
+		blend filter
+		maskalpha
+		map models/characters/common/bet_new.tga
+		centerscale 	eye_table [time * .1], eye_table [time * .1]	
+	}
+
+	//{
+	//	blend bumpmap
+	//	map models/characters/common/eye_local.tga
+	//	centerScale	.6, .6	
+	//}
+
+
+	//{
+	//	blend specularmap
+	//	map models/characters/common/eye_new_s.tga
+	//	centerScale	1, 1	
+	//}		
+}
+
+
+
+
+
+//////////////////////////
+//			//
+//	New Swann Eye	//
+//			//
+//////////////////////////
+
+models/characters/common/leftswann
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+
+	{	
+		maskcolor				
+	    	map	makealpha(models/characters/common/eye_new_mask.tga)
+	}
+
+	{
+		blend filter
+		maskalpha
+		map models/characters/common/bet_new.tga
+		centerscale 	eye_table [time * .1], eye_table [time * .1]	
+	}
+
+	//{
+	//	blend bumpmap
+	//	map models/characters/common/eye_local.tga
+	//	centerScale	.6, .6	
+	//}
+	//{
+	//	blend specularmap
+	//	map models/characters/common/eye_new_s.tga
+	//	centerScale	1, 1	
+	//}
+
+}
+
+
+
+models/characters/common/righthead01
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+}
+
+
+models/characters/common/lefthead01
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+
+}
+
+models/characters/common/righthead02
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5	
+	}	
+	//{
+	//	blend bumpmap
+	//	map models/characters/common/eye_local.tga
+	//	centerScale	0.7, 0.7	
+	//}
+	//{
+	//	blend specularmap
+	//	map models/characters/common/eye_s.tga
+	//	centerScale	0.7, 0.7	
+	//}
+
+
+}
+
+
+models/characters/common/lefthead02
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.5, 0.5	
+	}	
+	//{
+	//	blend bumpmap
+	//	map models/characters/common/eye_local.tga
+	//	centerScale	0.7, 0.7	
+	//}
+	//{
+	//	blend specularmap
+	//	map models/characters/common/eye_s.tga
+	//	centerScale	0.7, 0.7	
+	// }
+}
+
+models/characters/common/righthead03
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+	//{
+	//	blend bumpmap
+	//	map models/characters/common/eye_local.tga
+	//	centerScale	0.7, 0.7	
+	//}
+	//{
+	//	blend specularmap
+	//	map models/characters/common/eye_s.tga
+	//	centerScale	0.7, 0.7	
+	//}
+}
+
+models/characters/common/lefthead03
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+	//{
+	//	blend bumpmap
+	//	map models/characters/common/eye_local.tga
+	//	centerScale	0.7, 0.7	
+	//}
+	//{
+	//	blend specularmap
+	//	map models/characters/common/eye_s.tga
+	//	centerScale	0.7, 0.7	
+	//}
+}
+
+models/characters/common/righthead04
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+
+}
+
+
+models/characters/common/lefthead04
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+}
+
+models/characters/common/righthead05
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+}
+
+
+models/characters/common/lefthead05
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+}
+
+models/characters/common/righthead06
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+}
+
+
+models/characters/common/lefthead06
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/bet.tga
+		centerScale	0.5, 0.5	
+	}	
+
+}
+
+models/characters/common/tongue
+
+{
+    noselfShadow
+	noshadows
+	unsmoothedTangents
+	renderbump  -size 128 256 -trace 0.1 -colorMap -aa 2  models/characters/common/tongue_local.tga models/characters/common/tongue_hi.lwo
+ 	
+	    diffusemap	    models/characters/common/tongue.tga
+		bumpmap		addnormals(models/characters/common/tongue_local.tga, heightmap(models/characters/common/tongue_h.tga, 4 ) )
+		specularmap		models/characters/common/tongue_s.tga
+
+}
+
+
+
+
+models/characters/common/rightdead3
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend add
+		map models/characters/common/dead3.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+
+models/characters/common/leftdead3
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend add
+		map models/characters/common/dead3.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+
+
+models/characters/common/rightdead2
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend add
+		map models/characters/common/dead2.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+
+models/characters/common/leftdead2
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend add
+		map models/characters/common/dead2.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+
+
+models/characters/common/rightgreen
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+
+}
+
+
+models/characters/common/leftgreen
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/green.tga
+		centerScale	0.6, 0.6	
+	}	
+}
+
+models/characters/common/rightbrown2
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/brown.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+
+models/characters/common/leftbrown2
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/brown.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+
+models/characters/common/rightbrown
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/brown.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+
+}
+
+
+models/characters/common/leftbrown
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/brown.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+
+}
+
+models/characters/common/rightblue2
+{
+	translucent
+	noshadows
+	noselfshadow
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	0.4, 0.4	
+	}	
+
+}
+
+
+models/characters/common/leftblue2
+{
+	translucent
+	noshadows
+	noselfshadow
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	0.4, 0.4	
+	}
+
+
+
+}
+
+
+
+models/characters/common/rightblue
+{
+	translucent
+	noshadows
+	noselfshadow
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	0.4, 0.4	
+	}
+
+}
+
+
+models/characters/common/leftblue
+{
+	translucent
+	noshadows
+	noselfshadow
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/blue.tga
+		centerScale	0.4, 0.4	
+	}
+
+}
+
+models/characters/player/eyes
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/player/eyes.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+models/characters/common/rightdead
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/dead.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}
+
+models/characters/common/leftdead
+{
+	translucent
+	noshadows
+	deform	eyeBall
+	sort decal
+
+	{
+		blend filter
+		map models/characters/common/dead.tga
+		centerScale	0.6, 0.6	
+	}	
+
+
+}

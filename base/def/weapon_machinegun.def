@@ -1,0 +1,246 @@
+/***********************************************************************
+
+	weapon_machinegun.def
+
+***********************************************************************/
+
+export fred {
+	// view model machinegun
+	options -prefix MGUN_ -keep barrel eject guilight flash -parent barrel Ext -parent eject Ext -parent guilight Bod -parent flash Bod -rename origin blah -sourcedir models/weapons/machinegun/cycles -destdir models/md5/weapons/machinegun_view
+
+	mesh	idle1.ma -dest viewmachinegun
+	anim	idle1.ma -range 1 45 -dest idle
+	anim	fire1.ma -range 1 4 -dest fire1
+	anim	fire2.ma -range 1 4 -dest fire2
+	anim	fire4.ma -range 1 4 -dest fire4
+	anim	putaway.ma -dest putaway
+	anim	pullup1.ma -dest pullup
+	anim	reload1.ma -range 1 60 -dest reload
+	anim	empty.ma -dest empty
+
+	// world model machinegun
+	options -ignorescale -prefix PLAYER_MG -keep ATTACHER barrel guilight eject flash -parent guilight Body -parent flash Body -parent eject Body -rename MGbarrel barrel -rename ATTACHER origin -clearorigin
+	addoptions -skipmesh PLAYER_mgdisplaymesh		
+	addoptions -skipmesh PLAYER_mgextendermesh
+	addoptions -skipmesh PLAYER_mgbodymesh
+	addoptions -skipmesh PLAYER_mgclipmesh
+	addoptions -skipmesh PLAYER_mgtriggermesh
+
+	mesh	models/characters/player/mocap/machinegun_idle.mb -dest models/md5/weapons/machinegun_world/worldmachinegun
+	anim	models/characters/player/mocap/machinegun_idle.mb -dest models/md5/weapons/machinegun_world/machinegun_idle
+	anim	models/characters/player/mocap/machinegun_reload.mb -dest models/md5/weapons/machinegun_world/machinegun_reload
+}
+
+entityDef weapon_machinegun {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Machinegun"
+	"editor_rotatable"			"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model"						"models/weapons/machinegun/w_machinegun.lwo"
+	"model_view" 				"viewmodel_machinegun"
+	"model_world" 				"worldmodel_machinegun"
+	"joint_attach"				"MGATTACHER"
+	"def_dropItem"				"moveable_item_machinegun"
+
+	"weaponAngleOffsetAverages" "10"
+	"weaponAngleOffsetScale" 	".25"
+	"weaponAngleOffsetMax"		"15"
+	"weaponOffsetTime"			"400"
+	"weaponOffsetScale"			"0.005"
+
+
+	"inv_name"					"#str_00100180"
+	"inv_weapon"				"weapon_machinegun"
+	"inv_ammo_clip"				"10"
+	"inv_item"					"5"
+	"inv_desc"					"#str_02535"
+	"display_name"				"#str_02476"
+
+	"weapon_scriptobject"		"weapon_machinegun"
+	"def_projectile"			"projectile_bullet_machinegun"
+	"ammoType"					"ammo_clip"
+	"ammoRequired"				"1"
+	"clipSize"					"60"
+	"lowAmmo"					"10"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"silent_fire"				"0"
+	
+	"gui"						"guis/weapons/machinegun.gui"
+	"mtr_guiLightShader"		"lights/viewWeaponGuiLight"
+	
+	"icon"						"guis/assets/hud/wpn_3"
+	"pdaIcon"					"guis/assets/hud/icons/machinegun_new.tga"
+	"hudIcon"					"guis/assets/hud/icons/machinegunw.tga"	
+	"muzzle_kick_time"			"0.2"
+	"muzzle_kick_maxtime"		"0.6"
+	"muzzle_kick_angles"		"0 0 0"
+	"muzzle_kick_offset"		"1 1 2"
+	"recoilTime"				"145"
+	"recoilAngles"				"-1 0 0"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"smoke_muzzle"				"mgmuzzlesmoke.prt"
+	"def_ejectBrass"			"debris_brass"
+	"ejectBrassDelay"			"10"
+
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+	"snd_lowammo" 				"player_machinegun_lowammo"
+	"snd_glass"					"bullet_impact_glass"
+	"skin_invisible"			"skins/machinegun_invis"
+	
+	"spread"					"1"
+
+	"controllerShakeHighMag"	"0.5"
+	"controllerShakeHighTime"	"100"
+	"controllerShakeLowMag"		"0.3"
+	"controllerShakeLowTime"	"60"
+}
+
+entityDef moveable_item_machinegun {
+	"inherit"					"weapon_machinegun"
+	"spawnclass"				"idMoveableItem"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+}
+
+
+model worldmodel_machinegun {
+	mesh		 				models/md5/weapons/machinegun_world/worldmachinegun.md5mesh
+
+	anim raise					models/md5/weapons/machinegun_world/machinegun_idle.md5anim	
+	anim idle 					models/md5/weapons/machinegun_world/machinegun_idle.md5anim
+	anim aim					models/md5/weapons/machinegun_world/machinegun_idle.md5anim
+	anim fire1 					models/md5/weapons/machinegun_world/machinegun_idle.md5anim
+	anim reload					models/md5/weapons/machinegun_world/machinegun_reload.md5anim
+	anim noammo					models/md5/weapons/machinegun_world/machinegun_idle.md5anim
+	anim putaway				models/md5/weapons/machinegun_world/machinegun_idle.md5anim
+}
+
+model viewmodel_machinegun {
+	mesh 					models/md5/weapons/machinegun_view/viewmachinegun.md5mesh
+	anim raise				models/md5/weapons/machinegun_view/pullup.md5anim {
+		frame 1				sound_body player_machinegun_raise
+	}
+	anim idle 				models/md5/weapons/machinegun_view/idle.md5anim
+	anim fire1				models/md5/weapons/machinegun_view/fire4.md5anim {
+		frame 1				sound_voice player_machinegun_fire
+		frame 1				sound_voice2  player_machinegun_mech
+	}
+	anim reload				models/md5/weapons/machinegun_view/reload.md5anim {
+		frame 1				sound_item player_machinegun_reload
+	}
+	anim noammo				models/md5/weapons/machinegun_view/empty.md5anim {
+		frame 1				sound_voice player_machinegun_empty	
+	}
+	anim putaway			models/md5/weapons/machinegun_view/putaway.md5anim
+}
+
+entityDef damage_bullet_machinegun {
+	"damage"			"9"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"2"
+	
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+	"mtr_wound_metal"	"textures/decals/hurtmetal"
+	"mtr_wound_ricochet"	"textures/decals/hurtmetal"
+	"mtr_splat_flesh"	"textures/decals/dsplat2"
+	"mtr_splat_flesh2"	"textures/decals/dsplat5"
+	"mtr_splat_flesh3"	"textures/decals/dsplat7"
+	"mtr_splat_flesh4"	"textures/decals/dsplat11"
+	
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+
+	"gib"				"1"
+	"smoke_wound_flesh"	"burstysquirt.prt"
+	
+}
+
+entityDef projectile_bullet_machinegun {
+	"spawnclass"				"idProjectile"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+	"cone"						"3"
+//	"model" 					"models/items/projectiles/rocket.ase"
+	"scale"						"0.1"
+	"noshadows"					"1"
+
+	"model_tracer"				"models/particles/tracer/tracer.lwo"
+
+	"def_damage"				"damage_bullet_machinegun"
+
+	"launchFromBarrel"			"0"
+	"health"					"0"
+	"velocity"					"7200 0 0"	// .38 Special 600 fps.  Source: Petzal, David E. "How fast is a speeding bullet." Field and Stream. 97 (1992): 23
+	"angular_velocity"			"0 0 0"
+	"thrust"					"0"
+	"thrust_start"				"0"
+	"thrust_end"				"0"
+	"linear_friction"			"0"
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"
+	"mass"						"1"
+	"gravity"					"0"
+	"fuse"						"4"
+
+	"detonate_on_fuse"			"0"
+	"detonate_on_death"			"0"
+	"detonate_on_world"			"1"
+	"detonate_on_actor"			"1"
+
+	"impact_damage_effect"		"1"
+	"impact_gib"				"1"
+
+	"mtr_detonate"				"textures/decals/bulleth02"
+	"mtr_detonate_glass"		"textures/decals/testbulletglass1"
+	"decal_size"				"10"
+	"model_smokespark"			"bulletsmokeandspark.prt"
+	"model_ricochet"			"bulletricochet.prt"
+
+	"smoke_fly"					""
+	"smoke_detonate"			"smokeandspark.smoke"
+	"smoke_bounce"				""	//particles/bullet_sparks.particle"
+	"smoke_fuse"				""
+								
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0"
+	"light_radius"				"0"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	""
+	"explode_light_color"		"0 0 0"
+	"explode_light_radius"		"0"
+	"explode_light_fadetime"	"0"
+	
+	"snd_tracer"				"bullet_flight"
+	"snd_ricochet"				"bullet_ricochet"
+	"snd_flesh"					"bullet_impact_flesh"
+	"snd_metal"					"bullet_impact_metal"
+	"snd_stone"					"bullet_impact_stone"
+	"snd_wood"					"bullet_impact_wood"
+	"snd_cardboard"				"bullet_impact_cardboard"
+	"snd_glass"					"bullet_impact_glass"
+	"snd_liquid"				"bullet_impact_liquid"
+	"snd_plastic"				"small_plastic"
+	//"snd_impact"				"bullet_impact_metal"
+}

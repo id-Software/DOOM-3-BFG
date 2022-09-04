@@ -1,0 +1,624 @@
+//////////////////////////////////////////////
+//Maledict death Cinematic
+//////////////////////////////////////////////
+
+
+//////////////////////////////////////////////
+//Exports
+//////////////////////////////////////////////
+
+export james {
+
+	camera	models/characters/mocap/maledict_death/dragon_heart.mb	-range 1 170 -dest models/md5/cinematics/maledict_death/m_heart_camera_a
+	camera	models/characters/mocap/maledict_death/dragon_heart_flyin.mb	-range 1 71 -dest models/md5/cinematics/maledict_death/m_heart_flyin_camera_a
+	camera	models/characters/mocap/maledict_death/dragon_heart_closeup.mb	-range 1 71 -dest models/md5/cinematics/maledict_death/m_heart_closeup_camera_a
+
+
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 1 22		-dest models/md5/cinematics/maledict_death/m_rocket_camera_a
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 23 90	-dest models/md5/cinematics/maledict_death/m_rocket_camera_b
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 91 142	-dest models/md5/cinematics/maledict_death/m_rocket_camera_c
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 143 176	-dest models/md5/cinematics/maledict_death/m_rocket_camera_d
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 177 261	-dest models/md5/cinematics/maledict_death/m_rocket_camera_e
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 262 341	-dest models/md5/cinematics/maledict_death/m_rocket_camera_f
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 342 395	-dest models/md5/cinematics/maledict_death/m_rocket_camera_g
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 396 471	-dest models/md5/cinematics/maledict_death/m_rocket_camera_h
+	camera	models/characters/mocap/maledict_death/dragon_rocket.mb	-range 472 520	-dest models/md5/cinematics/maledict_death/m_rocket_camera_i
+
+	camera	models/characters/mocap/maledict_death/dragon_death.mb	-range 1 85		-dest models/md5/cinematics/maledict_death/m_death_camera_a
+	camera	models/characters/mocap/maledict_death/dragon_death.mb	-range 86 213	-dest models/md5/cinematics/maledict_death/m_death_camera_b
+	camera	models/characters/mocap/maledict_death/dragon_death.mb	-range 214 500	-dest models/md5/cinematics/maledict_death/m_death_camera_c
+
+	mesh	models/characters/mocap/outro/player_heartartifact_end.mb -dest		models/md5/cinematics/maledict_death/player_heartartifact_end
+	mesh	models/characters/mocap/outro/player_turnrun_end.mb  -dest	models/md5/cinematics/maledict_death/player_turnrun_end
+	mesh	models/characters/mocap/outro/player_rocketlauncher_end.mb -dest	models/md5/cinematics/maledict_death/player_rocketlauncher_end
+	mesh	models/characters/cinematic_models/skull.mb 			 -dest		models/md5/cinematics/maledict_death/skull
+
+	options -prefix SKULL_
+	anim	models/characters/mocap/maledict_death/dragon_death.mb -dest	models/md5/cinematics/maledict_death/skull_dynamics
+
+	options -prefix RUN_
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 1 22		-dest models/md5/cinematics/maledict_death/end_player_run_a
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 23 90	-dest models/md5/cinematics/maledict_death/end_player_run_b
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 91 142	-dest models/md5/cinematics/maledict_death/end_player_run_c
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 143 176	-dest models/md5/cinematics/maledict_death/end_player_run_d
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 177 261	-dest models/md5/cinematics/maledict_death/end_player_run_e
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 262 341	-dest models/md5/cinematics/maledict_death/end_player_run_f
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 342 395	-dest models/md5/cinematics/maledict_death/end_player_run_g
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 396 471	-dest models/md5/cinematics/maledict_death/end_player_run_h
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 472 520	-dest models/md5/cinematics/maledict_death/end_player_run_i
+
+	options -prefix TURNRUN_
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 1 22		-dest models/md5/cinematics/maledict_death/end_player_turnrun_a
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 23 90	-dest models/md5/cinematics/maledict_death/end_player_turnrun_b
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 91 142	-dest models/md5/cinematics/maledict_death/end_player_turnrun_c
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 143 176	-dest models/md5/cinematics/maledict_death/end_player_turnrun_d
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 177 261	-dest models/md5/cinematics/maledict_death/end_player_turnrun_e
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 262 341	-dest models/md5/cinematics/maledict_death/end_player_turnrun_f
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 342 395	-dest models/md5/cinematics/maledict_death/end_player_turnrun_g
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 396 471	-dest models/md5/cinematics/maledict_death/end_player_turnrun_h
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 472 520	-dest models/md5/cinematics/maledict_death/end_player_turnrun_i
+
+	options -prefix ROCKET_
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 1 178 -dest models/md5/cinematics/maledict_death/end_player_shoot
+
+	options -prefix HEART_
+	anim	models/characters/mocap/maledict_death/dragon_heart_baked.mb -dest models/md5/cinematics/maledict_death/end_player_heartcram
+	anim	models/characters/mocap/maledict_death/dragon_heart_flyin.mb -range 1 71 -dest models/md5/cinematics/maledict_death/end_player_flyin
+	anim	models/characters/mocap/maledict_death/dragon_heart_closeup.mb -dest models/md5/cinematics/maledict_death/end_player_closeup
+
+	options -prefix MALEDICT_ -keep tongue1 -parent tongue1 Dhead
+	mesh	models/characters/cinematic_models/maledict_makemesh.mb -dest models/md5/cinematics/maledict_death/maledict
+
+	options -prefix MALEDICT_ -keep tongue1 -parent tongue1 Dhead
+	anim	models/characters/mocap/maledict_death/dragon_heart_baked.mb			-dest models/md5/cinematics/maledict_death/dragon_heart
+	anim	models/characters/mocap/maledict_death/dragon_heart_flyin.mb -range 1 71 -dest models/md5/cinematics/maledict_death/dragon_heart_flyin
+	anim	models/characters/mocap/maledict_death/dragon_heart_closeup.mb			-dest models/md5/cinematics/maledict_death/dragon_heart_closeup
+	anim    models/characters/mocap/maledict_death/dragon_death.mb					-dest models/md5/cinematics/maledict_death/dragon_death
+
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 1 22     -dest models/md5/cinematics/maledict_death/dragon_rocket_a
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 23 90    -dest models/md5/cinematics/maledict_death/dragon_rocket_b
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 91 142   -dest models/md5/cinematics/maledict_death/dragon_rocket_c
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 143 176  -dest models/md5/cinematics/maledict_death/dragon_rocket_d
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 177 261  -dest models/md5/cinematics/maledict_death/dragon_rocket_e
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 262 341  -dest models/md5/cinematics/maledict_death/dragon_rocket_f
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 342 395  -dest models/md5/cinematics/maledict_death/dragon_rocket_g
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 396 471  -dest models/md5/cinematics/maledict_death/dragon_rocket_h
+	anim	models/characters/mocap/maledict_death/dragon_rocket.mb -range 472 520  -dest models/md5/cinematics/maledict_death/dragon_rocket_i
+}
+
+//////////////////////////////////////////////
+//Cameras
+//////////////////////////////////////////////
+
+entityDef maledict_heart_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_heart_camera_a"			"models/md5/cinematics/maledict_death/m_heart_camera_a.md5camera"
+
+}
+
+entityDef maledict_heart_flyin_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_heart_flyin_camera_a"			"models/md5/cinematics/maledict_death/m_heart_flyin_camera_a.md5camera"
+
+}
+
+entityDef maledict_heart_closeup_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_heart_closeup_camera_a"			"models/md5/cinematics/maledict_death/m_heart_closeup_camera_a.md5camera"
+
+}
+
+entityDef maledict_rocket_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_rocket_camera_a"			"models/md5/cinematics/maledict_death/m_rocket_camera_a.md5camera"
+	"anim maledict_rocket_camera_b"			"models/md5/cinematics/maledict_death/m_rocket_camera_b.md5camera"
+	"anim maledict_rocket_camera_c"			"models/md5/cinematics/maledict_death/m_rocket_camera_c.md5camera"
+	"anim maledict_rocket_camera_d"			"models/md5/cinematics/maledict_death/m_rocket_camera_d.md5camera"
+	"anim maledict_rocket_camera_e"			"models/md5/cinematics/maledict_death/m_rocket_camera_e.md5camera"
+	"anim maledict_rocket_camera_f"			"models/md5/cinematics/maledict_death/m_rocket_camera_f.md5camera"
+	"anim maledict_rocket_camera_g"			"models/md5/cinematics/maledict_death/m_rocket_camera_g.md5camera"
+	"anim maledict_rocket_camera_h"			"models/md5/cinematics/maledict_death/m_rocket_camera_h.md5camera"
+	"anim maledict_rocket_camera_i"			"models/md5/cinematics/maledict_death/m_rocket_camera_i.md5camera"
+
+}
+
+entityDef maledict_death_cinematic_cam {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim maledict_death_camera_a"			"models/md5/cinematics/maledict_death/m_death_camera_a.md5camera"
+	"anim maledict_death_camera_b"			"models/md5/cinematics/maledict_death/m_death_camera_b.md5camera"
+	"anim maledict_death_camera_c"			"models/md5/cinematics/maledict_death/m_death_camera_c.md5camera"
+
+}
+
+//////////////////////////////////////////////
+// MALEDICT
+//////////////////////////////////////////////
+
+model maledict_death_cinematic {
+
+	mesh									models/md5/cinematics/maledict_death/maledict.md5mesh
+
+	anim dragon_heart					models/md5/cinematics/maledict_death/dragon_heart.md5anim {
+		frame 29								sound_voice		snd_returnwhatisours
+
+		frame 114								trigger func_emitter_cinematic_bloodspew	//shwood
+		frame 114								call map_hell::hideFuncEmitterHeartcram		//shwood
+
+		frame	93								sound_global	hd_thrust_stinger
+		frame	108								sound_global	hd_hand_thrust
+		frame	121								sound_global	hd_dragondeath
+
+
+
+		frame 126								trigger func_emitter_cinematic_heartspew	//shwood
+
+		//frame 146								call map_erebus1::bloom_on			//shwood
+
+		frame 146								sound_body		e1_headlift
+	}
+
+	anim dragon_heart_flyin				models/md5/cinematics/maledict_death/dragon_heart_flyin.md5anim {
+		frame	15						sound_global	hd_dragon_grunt
+	}
+
+	anim dragon_heart_closeup				models/md5/cinematics/maledict_death/dragon_heart_closeup.md5anim {
+	
+	
+	}
+
+	anim dragon_death					models/md5/cinematics/maledict_death/dragon_death.md5anim {
+
+		frame	10								sound_global	hd_dscream_01
+		frame	22								sound_global	hd_dscream_02
+
+		frame 30								sound_body		snd_wingflap_03
+		frame 52								sound_body		snd_wingflap_01
+		
+		frame	53								sound_global	hd_violin
+		
+		frame	59								sound_global	hd_death_whoosh
+		
+		frame 76								sound_body		snd_wingflap_02
+		frame 97								sound_body		snd_wingflap_03
+
+		frame 1									call map_hell::hideFuncEmitterHeartSpew		//shwood
+		frame 1									trigger func_emitter_deathjuice				//shwood
+
+		frame 45								trigger func_emitter_deathblossom 			//shwood
+		frame 45								trigger func_emitter_deathflames 			//shwood
+
+		frame 60								skin	skins/die_mal						//shwood
+		frame 60								call	setShaderTime						//shwood
+
+		frame 85								call map_hell::showskullsmoke				//shwood
+		frame	85								sound_global	hd_deathscream
+
+		frame	128								sound_global	hd_death_preslam
+
+		//frame 200								call map_erebus1::bloom_off					//shwood
+
+		frame	212							sound_global	hd_deathbounce_01
+		frame	236							sound_global	hd_deathbounce_02
+		frame	252							sound_global	hd_deathbounce_02
+		frame	271							sound_global	hd_deathbounce_03
+
+
+
+	}
+
+}
+
+entityDef maledict_death_cinematic {
+	"inherit"						"cin_base"
+	"anim"							"maledict_death"
+	"model"							"maledict_death_cinematic"
+	"cinematic"						"1"
+
+	"skin"							"skins/models/monsters/maledict_burning"		//shwood
+
+	"snd_returnwhatisours"			"hd_bet_returnwhatisours"
+	"snd_hellreachesout"			"e1_bet_hellreachesout"
+
+	"snd_wingflap"					"e1_maledict_wingflap"
+	"snd_wingflap_01"				"e1_wingflap_01"
+	"snd_wingflap_02"				"e1_wingflap_03"
+	"snd_wingflap_03"				"e1_wingflap_04"
+	"snd_wingflap_04"				"e1_wingflap_07"
+	"snd_wingflap_05"				"e1_wingflap_08"
+	"snd_footstep"					"e1_maledict_fs1"
+	"snd_chatter"					"monster_demon_guardian_chatter"
+	"snd_death"						"monster_demon_guardian_die"
+
+}
+
+
+//////////////////////////////////////////////
+// MALEDICT_SPLIT
+//////////////////////////////////////////////
+
+model maledict_death_cinematic_split {
+
+	mesh									models/md5/cinematics/maledict_death/maledict.md5mesh
+	channel torso						()
+	channel legs						(*origin)
+
+	anim dragon_rocket_a					models/md5/cinematics/maledict_death/dragon_rocket_a.md5anim {
+		frame	1								sound_global	hd_intro
+		frame 5									sound_body		snd_wingflap_01
+	}
+	anim dragon_rocket_b					models/md5/cinematics/maledict_death/dragon_rocket_b.md5anim {
+		frame	11								sound_global	hd_scream_01
+		frame 25								sound_body		snd_wingflap_01
+		frame	65								sound_global	hd_rocket_fire
+	}
+	anim dragon_rocket_c					models/md5/cinematics/maledict_death/dragon_rocket_c.md5anim {
+		frame	5								sound_global	hd_scream_02
+		frame 6									sound_body		snd_wingflap_02
+	}
+	anim dragon_rocket_d					models/md5/cinematics/maledict_death/dragon_rocket_d.md5anim {
+		frame 6									sound_body		snd_wingflap_03
+	}
+	anim dragon_rocket_e					models/md5/cinematics/maledict_death/dragon_rocket_e.md5anim {
+		frame	1								sound_global	hd_scream_03
+		frame 23								sound_global	hd_dragon_landing
+		frame 23								trigger footpuff1							//shwood
+		frame 23								trigger footpuff2							//shwood
+
+		frame	33								sound_global	hd_lstep_01
+		frame 34								sound_body2		e1_wingbillow_02
+		frame 34								trigger wingpuffleft1							//shwood
+		frame 34								trigger wingpuffright1							//shwood
+
+		frame 45								trigger footpuff3							//shwood
+		frame	44								sound_global	hd_dstep_01
+		
+		frame 67								trigger footpuff4							//shwood
+		frame	67								sound_global	hd_dstep_02
+
+		frame	76								sound_global	hd_lstep_02
+		frame 76								trigger wingpuffleft2							//shwood
+	}
+	anim dragon_rocket_f					models/md5/cinematics/maledict_death/dragon_rocket_f.md5anim {
+		frame 6									trigger footpuff5							//shwood
+		frame	6								sound_global	hd_dstep_01
+
+		frame 14								trigger wingpuffright2							//shwood
+		frame	14								sound_global	hd_lstep_03
+
+		frame	28								sound_voice		hd_scream_03
+			
+		frame 31								trigger footpuff6							//shwood
+		frame	31								sound_global	hd_dstep_01
+
+		frame 39								trigger wingpuffleft3							//shwood
+		frame	39								sound_global	hd_lstep_01
+
+		frame 54								trigger footpuff7							//shwood
+		frame	54								sound_global	hd_dstep_02
+
+		frame 62								trigger wingpuffright3							//shwood
+		frame	62								sound_global	hd_lstep_02
+	
+		frame	68								sound_global	hd_windupchomp
+
+		frame 74								trigger footpuff8							//shwood
+		frame	74								sound_global	hd_dstep_01
+	}
+	
+	anim dragon_rocket_g					models/md5/cinematics/maledict_death/dragon_rocket_g.md5anim {
+		frame	3								sound_global	hd_neckmove
+		frame 7									trigger wingpuffleft4							//shwood
+		frame 20								trigger footpuff9							//shwood
+		frame	28								sound_global	hd_neckmove
+		frame 29								trigger wingpuffright4							//shwood
+		frame	36								sound_global	hd_dragonchomp 
+		frame	49								sound_global	hd_headwhip_01
+	}
+	
+	anim dragon_rocket_h					models/md5/cinematics/maledict_death/dragon_rocket_h.md5anim {
+		frame	13							sound_global	hd_headwhip_02
+		frame	17							sound_global	hd_headwhip_03
+		frame	34							sound_global	hd_headwhip_04
+		frame	45							sound_global	hd_headwhip_05
+		frame	64							sound_global	hd_headwhip_06
+		frame	70							sound_global	hd_headwhip_07
+	}
+	anim dragon_rocket_i					models/md5/cinematics/maledict_death/dragon_rocket_i.md5anim {
+		frame	1							sound_global	hd_lstep_04
+		frame	7							sound_global	hd_slam_impact
+		frame	15							sound_global	hd_male_cluster
+		frame 10								trigger headpuff							//shwood
+	}
+
+
+}
+
+entityDef maledict_death_cinematic_split {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"anim"							"dragon_rocket_a"
+	"model"							"maledict_death_cinematic_split"
+
+	"skin"							"skins/models/monsters/maledict_burning"		//shwood
+
+	"num_cinematics"				"9"
+
+	"anim1"							"dragon_rocket_a"
+	"anim2"							"dragon_rocket_b"
+	"anim3"							"dragon_rocket_c"
+	"anim4"							"dragon_rocket_d"
+	"anim5"							"dragon_rocket_e"
+	"anim6"							"dragon_rocket_f"
+	"anim7"							"dragon_rocket_g"
+	"anim8"							"dragon_rocket_h"
+	"anim9"							"dragon_rocket_i"
+
+	"cinematic"						"1"
+	"health"						"1"
+
+	"snd_returnwhatisours"			"hd_bet_returnwhatisours"
+	"snd_hellreachesout"			"e1_bet_hellreachesout"
+
+	"snd_wingflap"					"e1_maledict_wingflap"
+	"snd_wingflap_01"				"e1_wingflap_01"
+	"snd_wingflap_02"				"e1_wingflap_03"
+	"snd_wingflap_03"				"e1_wingflap_04"
+	"snd_wingflap_04"				"e1_wingflap_07"
+	"snd_wingflap_05"				"e1_wingflap_08"
+	"snd_footstep"					"xp_maledict_fs1"
+//	"snd_footstep"					"e1_maledict_fs1"
+	"snd_chatter"					"monster_demon_guardian_chatter"
+	"snd_death"						"monster_demon_guardian_die"
+
+}
+
+//////////////////////////////////////////////
+// PLAYER ROCKETLAUNCHER
+//////////////////////////////////////////////
+
+model maledict_death_player_rocket {
+
+	mesh										models/md5/cinematics/maledict_death/player_rocketlauncher_end.md5mesh
+	channel torso						()
+	channel legs						(*origin)
+	anim end_player_shoot						models/md5/cinematics/maledict_death/end_player_shoot.md5anim {
+		frame 1										trigger light_1
+		frame 1										trigger light_2
+		frame 1										trigger light_3
+
+		frame 84 									trigger endrockettrail
+		frame 86									trigger light_1
+		frame 86									trigger light_2
+		frame 86									trigger light_3
+		frame 84									sound_voice sound\xian\foley\explosions/explode_01.wav
+	}
+}
+
+entityDef maledict_death_player_rocket {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+
+	"inherit"						"cin_base"
+	"anim"							"end_player_shoot"
+	"model"							"maledict_death_player_rocket"
+	"cinematic"						"1"
+	"health"						"1"
+
+}
+
+//////////////////////////////////////////////
+// PLAYER TURNRUN
+//////////////////////////////////////////////
+
+model maledict_death_player_turnrun {
+
+	mesh										models/md5/cinematics/maledict_death/player_turnrun_end.md5mesh
+	channel torso						()
+	channel legs						(*origin)
+	anim end_player_turnrun_a					models/md5/cinematics/maledict_death/end_player_turnrun_a.md5anim
+	anim end_player_turnrun_b					models/md5/cinematics/maledict_death/end_player_turnrun_b.md5anim
+	anim end_player_turnrun_c					models/md5/cinematics/maledict_death/end_player_turnrun_c.md5anim
+	anim end_player_turnrun_d					models/md5/cinematics/maledict_death/end_player_turnrun_d.md5anim
+	anim end_player_turnrun_e					models/md5/cinematics/maledict_death/end_player_turnrun_e.md5anim
+	anim end_player_turnrun_f					models/md5/cinematics/maledict_death/end_player_turnrun_f.md5anim
+	anim end_player_turnrun_g					models/md5/cinematics/maledict_death/end_player_turnrun_g.md5anim
+	anim end_player_turnrun_h					models/md5/cinematics/maledict_death/end_player_turnrun_h.md5anim
+	anim end_player_turnrun_i					models/md5/cinematics/maledict_death/end_player_turnrun_i.md5anim
+
+}
+
+entityDef maledict_death_player_turnrun {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"maledict_death_player_turnrun"
+	"anim"							"end_player_turnrun_a"
+
+	"num_cinematics"				"9"
+
+	"anim1"							"end_player_turnrun_a"
+	"anim2"							"end_player_turnrun_b"
+	"anim3"							"end_player_turnrun_c"
+	"anim4"							"end_player_turnrun_d"
+	"anim5"							"end_player_turnrun_e"
+	"anim6"							"end_player_turnrun_f"
+	"anim7"							"end_player_turnrun_g"
+	"anim8"							"end_player_turnrun_h"
+	"anim9"							"end_player_turnrun_i"
+
+	"cinematic"						"1"
+
+	"health"						"1"
+}
+
+//////////////////////////////////////////////
+// PLAYER RUN
+//////////////////////////////////////////////
+
+model maledict_death_player_run {
+
+	mesh										models/md5/cinematics/maledict_death/player_turnrun_end.md5mesh
+	channel torso						()
+	channel legs						(*origin)
+	anim end_player_run_a					models/md5/cinematics/maledict_death/end_player_run_a.md5anim
+	anim end_player_run_b					models/md5/cinematics/maledict_death/end_player_run_b.md5anim
+	anim end_player_run_c					models/md5/cinematics/maledict_death/end_player_run_c.md5anim
+	anim end_player_run_d					models/md5/cinematics/maledict_death/end_player_run_d.md5anim
+	anim end_player_run_e					models/md5/cinematics/maledict_death/end_player_run_e.md5anim
+	anim end_player_run_f					models/md5/cinematics/maledict_death/end_player_run_f.md5anim
+	anim end_player_run_g					models/md5/cinematics/maledict_death/end_player_run_g.md5anim
+	anim end_player_run_h					models/md5/cinematics/maledict_death/end_player_run_h.md5anim
+	anim end_player_run_i					models/md5/cinematics/maledict_death/end_player_run_i.md5anim
+}
+
+entityDef maledict_death_player_run {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"maledict_death_player_run"
+	"anim"							"end_player_run_a"
+
+	"num_cinematics"				"9"
+
+	"anim1"							"end_player_run_a"
+	"anim2"							"end_player_run_b"
+	"anim3"							"end_player_run_c"
+	"anim4"							"end_player_run_d"
+	"anim5"							"end_player_run_e"
+	"anim6"							"end_player_run_f"
+	"anim7"							"end_player_run_g"
+	"anim8"							"end_player_run_h"
+	"anim9"							"end_player_run_i"
+
+	"cinematic"						"1"
+
+	"health"						"1"
+
+}
+
+//////////////////////////////////////////////
+// PLAYER HEARTARTIFACT
+//////////////////////////////////////////////
+
+model maledict_death_player_heart {
+
+	mesh										models/md5/cinematics/maledict_death/player_heartartifact_end.md5mesh
+	anim end_player_flyin						models/md5/cinematics/maledict_death/end_player_flyin.md5anim {
+//		frame 1										trigger func_emitter_player_heart_flyin //shwood
+//		frame 1										trigger func_emitter_player_heart_closeup //shwood
+//		frame 1										trigger func_emitter_player_heartcram	//shwood
+
+		frame 1										call map_hell::showFuncEmitterHeartFlyin	//shwood
+		frame 1										call map_hell::hideFuncEmitterHeartCloseup	//shwood
+		frame 1										call map_hell::hideFuncEmitterHeartcram		//shwood
+
+	}
+	anim end_player_closeup						models/md5/cinematics/maledict_death/end_player_closeup.md5anim {
+		frame	1									sound_global	hd_heartbeat
+		frame 1										call map_hell::hideFuncEmitterHeartFlyin	//shwood
+		frame 1										call map_hell::showFuncEmitterHeartCloseup	//shwood
+	}
+	
+	anim end_player_heartcram					models/md5/cinematics/maledict_death/end_player_heartcram.md5anim {
+		frame 1										call map_hell::hideFuncEmitterHeartCloseup	//shwood
+		frame 1										call map_hell::showFuncEmitterHeartcram		//shwood
+	}
+}
+
+entityDef maledict_death_player_heart {
+	"inherit"						"cin_base"
+	"anim"							"end_player_heartcram"
+	"model"							"maledict_death_player_heart"
+	"cinematic"						"1"
+}
+
+//////////////////////////////////////////////
+// PLAYER HEARTARTIFACT FLYIN
+//////////////////////////////////////////////
+
+model maledict_death_player_heart_flyin {
+
+	mesh										models/md5/cinematics/maledict_death/player_heartartifact_end.md5mesh
+	anim end_player_flyin						models/md5/cinematics/maledict_death/end_player_flyin.md5anim
+}
+
+entityDef maledict_death_player_heart_flyin {
+	"inherit"						"cin_base"
+	"anim"							"end_player_heartcram"
+	"model"							"maledict_death_player_heart_flyin"
+	"cinematic"						"1"
+}
+
+
+//////////////////////////////////////////////
+// SKULL
+//////////////////////////////////////////////
+
+model maledict_death_skull {
+
+	mesh										models/md5/cinematics/maledict_death/skull.md5mesh
+	anim	skull_dynamics							models/md5/cinematics/maledict_death/skull_dynamics.md5anim {
+	}
+}
+
+entityDef maledict_death_skull {
+	"inherit"						"cin_base"
+	"anim"							"skull_dynamics"
+	"model"							"maledict_death_skull"
+	"cinematic"						"1"
+}
+
+//////////////////////////////////////////////
+// SKULL SMOKE
+//////////////////////////////////////////////
+
+entityDef maledict_death_skull_smoke {
+	"no_damage"				"1"
+	"inherit"				"env_ai_dummy"
+	"SmokeParticleSystem"	"maledict_death_skullsmoke-joint1"
+
+}

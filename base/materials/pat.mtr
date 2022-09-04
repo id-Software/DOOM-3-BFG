@@ -1,0 +1,3726 @@
+
+///////////////////////////////////////////////////////////////////////
+//
+//	Pat's Tables
+//
+///////////////////////////////////////////////////////////////////////
+
+
+table lightblink { { .5,1,.5,0,0,0 } }
+table lightblink2 { { 0,0,0,.5,1,.5 } }
+table crazyblink { { 0, .3, .1, .5, .3, .8, .9, .5, .2, .1, .7, .4, 1, .2, .5, 0, .2, .7, .5 } }
+table crazyblink2 { { .5, .7, .6, .5, .3, .8, .9, .5, .7, .5, .7, 1, .3, .5, 1, .5, .7, .5 } }
+table slowblink { { .6, .8, .4, .6, 1} }
+
+
+
+
+textures/phobos/pj_enwall1
+{
+	qer_editorimage		textures/phobos/pj_enwall1
+	bumpmap			textures/enpro/enwall13_local
+	diffusemap		textures/phobos/pj_enwall1
+	specularmap		textures/enpro/enwall13a_s
+}
+
+
+textures/phobos/pj_sflgrate2
+{
+	qer_editorimage		textures/phobos/pj_sflgrate2a_d
+	bumpmap			textures/base_floor/sflgrate2_local
+	diffusemap		textures/phobos/pj_sflgrate2a_d
+	specularmap		textures/phobos/pj_sflgrate2a_s
+}
+
+
+textures/phobos/pj_sflgrate2adiag
+{
+	qer_editorimage		textures/phobos/pj_sflgrate2adiag_d
+	bumpmap			textures/base_floor/sflgrate2diag_local
+	diffusemap		textures/phobos/pj_sflgrate2adiag_d
+	specularmap		textures/phobos/pj_sflgrate2diag_s
+}
+
+
+
+textures/phobos/pj_mcityc13
+{
+	qer_editorimage		textures/phobos/pj_mcityc13_d
+	bumpmap			textures/mcity/mcityc13_local
+	diffusemap		textures/phobos/pj_mcityc13_d
+	specularmap		textures/mcity/mcityc13a_s
+}
+
+
+textures/phobos/pj_enwall7
+{
+	qer_editorimage		textures/phobos/pj_enwall7_d
+	bumpmap			textures/enpro/enwall7_local
+	diffusemap		textures/phobos/pj_enwall7_d
+	specularmap		textures/phobos/pj_enwall7_s
+}
+
+textures/phobos/pj_diafloor
+{
+	qer_editorimage		textures/phobos/pj_diafloor_d
+	bumpmap			textures/base_floor/diafloor_local
+	diffusemap		textures/phobos/pj_diafloor_d
+	specularmap		textures/phobos/pj_diafloor_s
+}
+
+textures/phobos/pj_enwall14
+{
+	qer_editorimage		textures/phobos/pj_enwall14
+	bumpmap			textures/enpro/enwall14_local
+	diffusemap		textures/phobos/pj_enwall14
+	specularmap		textures/phobos/pj_enwall14_s
+}
+
+
+textures/phobos/pj_a_enwall21
+{
+	qer_editorimage		textures/phobos/pj_a_enwall21a
+	bumpmap			textures/base_wall/snpanel17_local
+	diffusemap		textures/phobos/pj_a_enwall21a
+	specularmap		textures/phobos/pj_a_enwall21_s
+}
+
+
+textures/phobos/pj_lfwall13a
+{
+	qer_editorimage		textures/phobos/pj_lfwall13a_d
+	bumpmap			textures/base_wall/lfwall13a_local
+	diffusemap		textures/phobos/pj_lfwall13a_d
+	specularmap		textures/phobos/pj_lfwall13a2_s
+}
+
+textures/phobos/pj_lfwall13b
+{
+	qer_editorimage		textures/phobos/pj_lfwall13b_d
+	bumpmap			textures/base_wall/lfwall13b_local
+	diffusemap		textures/phobos/pj_lfwall13b_d
+	specularmap		textures/base_wall/lfwall13b2_s
+}
+
+textures/phobos/pj_lfwall13c
+{
+	qer_editorimage		textures/phobos/pj_lfwall13c_d
+	bumpmap			textures/base_wall/lfwall13c_local
+	diffusemap		textures/phobos/pj_lfwall13c_d
+	specularmap		textures/base_wall/lfwall13c2_s
+}
+
+textures/phobos/pj_lfwall13d
+{
+	qer_editorimage		textures/phobos/pj_lfwall13d_d
+	bumpmap			textures/base_wall/lfwall13d_local
+	diffusemap		textures/phobos/pj_lfwall13d_d
+	specularmap		textures/base_wall/lfwall13d2_s
+}
+
+
+textures/phobos/pj_lfwall17a
+{
+	qer_editorimage		textures/phobos/pj_lfwall17a_d
+	bumpmap			textures/base_wall/lfwall17_local
+	diffusemap		textures/phobos/pj_lfwall17a_d
+	specularmap		textures/base_wall/lfwall17a_s
+}
+
+
+
+textures/phobos/pj_lfwall13f3
+{
+	qer_editorimage		textures/phobos/pj_lfwall13f3_d
+	bumpmap			textures/base_wall/lfwall13f_local
+	diffusemap		textures/phobos/pj_lfwall13f3_d
+	specularmap		textures/base_wall/lfwall13f3_s
+}
+
+
+textures/phobos/pj_lfwall12b2
+{
+	qer_editorimage		textures/phobos/pj_lfwall12b2_d
+	bumpmap			textures/base_wall/lfwall12b_local
+	diffusemap		textures/phobos/pj_lfwall12b2_d
+	specularmap		textures/base_wall/lfwall12b_s
+}
+
+
+textures/phobos/pj_lfwall12a2
+{
+	qer_editorimage		textures/phobos/pj_lfwall12a2_d
+	bumpmap			textures/base_wall/lfwall12a_local
+	diffusemap		textures/phobos/pj_lfwall12a2_d
+	specularmap		textures/base_wall/lfwall12a_s
+}
+
+textures/phobos/pj_lfwall13g4
+{
+	qer_editorimage		textures/phobos/pj_lfwall13g4_d
+	bumpmap			textures/base_wall/lfwall13g_local
+	diffusemap		textures/phobos/pj_lfwall13g4_d
+	specularmap		textures/base_wall/lfwall13g4_s
+}
+
+
+textures/phobos/pj_enwall22b
+{
+	qer_editorimage		textures/phobos/pj_enwall22b_d
+	bumpmap			textures/base_wall/snpanel18_local
+	diffusemap		textures/phobos/pj_enwall22b_d
+	specularmap		textures/phobos/pj_enwall22_s
+}
+
+
+textures/phobos/pj_lfwall14g4
+{
+	qer_editorimage		textures/phobos/pj_lfwall14g4_d
+	bumpmap			textures/base_wall/lfwall14g_local
+	diffusemap		textures/phobos/pj_lfwall14g4_d
+	specularmap		textures/base_wall/lfwall14g_s
+}
+
+
+textures/phobos/pj_lfwall21b
+{
+	qer_editorimage		textures/phobos/pj_lfwall21b_d
+	bumpmap			textures/base_wall/lfwall21_local
+	diffusemap		textures/phobos/pj_lfwall21b_d
+	specularmap		textures/base_wall/lfwall21b_s
+}
+
+
+
+textures/phobos/pj_lfwall16a
+{
+	qer_editorimage		textures/phobos/pj_lfwall16a_d
+	bumpmap			textures/base_wall/lfwall16_local
+	diffusemap		textures/phobos/pj_lfwall16a_d
+	specularmap		textures/base_wall/lfwall16a_s
+}
+
+textures/phobos/pj_enwall20d
+{
+	qer_editorimage		textures/phobos/pj_enwall20d_d
+	bumpmap			textures/enpro/enwall20_local
+	diffusemap		textures/phobos/pj_enwall20d_d
+	specularmap		textures/enpro/enwall20_s
+}
+
+textures/pat/ice1
+{
+	qer_editorimage		textures/pat/ice1_d
+	bumpmap			textures/pat/ice_bump1_local
+	diffusemap		textures/pat/ice1_d
+	specularmap		textures/pat/ice1_s
+}
+
+textures/phobos/ice2
+{
+	qer_editorimage		textures/pat/ice1_d
+	bumpmap			textures/rock/skyrock3_local.tga
+	diffusemap		textures/pat/ice1_d
+	specularmap		textures/pat/ice1_s
+}
+textures/pat/ice1_d
+{
+	noSelfShadow	
+	qer_editorimage	textures/pat/ice1_d.tga
+	
+	//ICE
+//	{
+//		vertexColor
+//		blend	bumpmap
+//		map	textures/pat/ice_bump1_local.tga
+//	}
+	{
+		vertexColor
+		blend	bumpmap
+		map	textures/rock/skyrock3_local.tga
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/pat/ice1_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/pat/ice1_s.tga
+	}
+
+	//ROCK
+//	{
+//		inverseVertexColor
+//		blend	bumpmap
+//		map	textures/pat/mars_rock1_local.tga
+//	}
+//	{
+//		inverseVertexColor
+//		blend	diffusemap
+//		map	textures/pat/mars_rock1_d.tga
+//	}
+//	{
+//		inverseVertexColor
+//		blend	specularmap
+//		map	textures/pat/mars_rock1_s.tga
+//	}
+	//id ice
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	textures/pat/sharprock_local.tga
+	}
+	{
+		inverseVertexColor
+		blend	diffusemap
+		map	textures/pat/sharprock_dark_d.tga
+	}
+	{
+		inverseVertexColor
+		blend	specularmap
+		map	textures/pat/sharprock_ice_s.tga
+	}
+}
+
+
+textures/pat/doom_panel_1
+{
+// 	noShadows
+	qer_editorimage	textures/pat/doom_panel_1_d.tga
+	bumpmap		textures/pat/doom_panel_1_bump.tga
+       	diffusemap	textures/pat/doom_panel_1_d.tga
+	specularmap	textures/pat/doom_panel_1_s.tga
+	{
+		blend 	add
+		map		textures/pat/doom_panel_1_glow.tga
+		rgb		lightblink [ time * 1 ]
+	}
+}
+
+// DOOM LAVA TEST
+
+textures/pat/patlavalava2
+{
+	qer_editorimage	textures/pat/patlava2.tga
+	{
+		map     textures/hell/lava2.tga
+		scale	1 , 1
+		translate	time * 0.005, time * -0.01
+		rgb		fireballtable[ time * .05 ]
+	}
+	{
+		blend add
+		map     textures/hell/lava2.tga
+		scale	1.4, 1.5
+		translate	time * 0, time * -0.03
+		rgb		fireballtable[ time * .04 ]
+
+	}
+	{
+		blend add
+		map     textures/hell/lava2.tga
+		scale	.8, 1.1
+		translate	time * -0.001, time * -0.02
+		rgb		fireballtable[ time * .1 ]
+
+	}
+}
+
+////////////////////////////////////
+//
+//	Test to make alpha effects	
+//
+////////////////////////////////////
+
+textures/pat/doom_panel_2
+{
+// 	noShadows
+	qer_editorimage	textures/pat/doom_panel_2_d.tga
+
+	{       
+      		blend diffuseMap
+	 	map	textures/pat/doom_panel_2_d.tga
+	 	alphatest .5
+	}
+		
+		bumpmap		textures/pat/doom_panel_1_bump.tga
+		specularmap	textures/pat/doom_panel_1_s.tga
+	{
+		blend 	add
+		map		textures/pat/doom_panel_1_glow.tga
+		rgb		lightblink [ time * 1 ]
+	}
+
+
+}
+
+
+//////////////////////////////////////
+//
+//	PHOBOS ICE GLASS
+//
+//////////////////////////////////////
+
+
+textures/phobos/phob_ice_glass1
+{
+	translucent
+	noshadows
+	twoSided
+	qer_editorimage			textures/phobos/phob_ice_glass1.tga
+	specularmap			textures/phobos/phob_ice_glass1s.tga
+	{
+		blend			add
+		map			textures/phobos/phob_ice_glass1.tga
+	}
+	{
+		blend			add
+		cubeMap			env/darkashell
+		texgen			reflect
+	}
+}
+
+//////////////////////////////////////
+//
+//	PHOBOS DOOR GLASS
+//
+//////////////////////////////////////
+
+
+textures/phobos/phob_door_glass1
+{
+	translucent
+	noshadows
+	twoSided
+	qer_editorimage			textures/phobos/phob_door_glass1_d.tga
+	specularmap			textures/phobos/phob_ice_glass1s.tga
+	{
+		blend			add
+		map			textures/phobos/phob_door_glass1_d.tga
+	}
+	{
+		blend			add
+		cubeMap			env/darkashell
+		texgen			reflect
+	}
+}
+//////////////////////////////////////////
+//
+//	SNOW EDGE
+//
+//////////////////////////////////////////
+
+textures/phobos/pj_snow_edge
+{
+//	translucent
+//	noshadows
+//	twoSided
+	qer_editorimage			textures/phobos/pj_snow_edge.tga
+//	bumpmap 			textures/pat/ice_bump1_local.tga
+//	specularmap			textures/phobos/pj_snow_edge_s.tga
+
+	{
+		blend	diffusemap
+		map	textures/phobos/pj_snow_edge.tga
+		alphatest .1
+	}
+	
+		
+		bumpmap		textures/pat/ice_bump1_local.tga
+		specularmap	textures/phobos/pj_snow_edge_s.tga
+	
+
+}
+
+
+textures/phobos/pj_snow_decal1
+{
+	translucent
+//	twoSided
+	noshadows
+	qer_editorimage			textures/phobos/pj_snow_decal1.tga
+//	bumpmap				textures/pat/ice_bump1_local
+//	specularMap			textures/phobos/pj_snow_decal1.tga
+
+	{
+		blend 	add
+		map 	textures/phobos/pj_snow_decal1.tga
+	}
+	{
+	
+		blend	specularmap
+		map	textures/phobos/pj_snow_decal1.tga
+	}
+
+
+
+
+}
+///////////////////////////////////////////
+//
+//	ICE TEXTURES
+//
+///////////////////////////////////////////
+
+textures/phobos/pj_mchangar5_ice_d
+{
+	qer_editorimage		textures/phobos/pj_mchangar5_ice_d.tga
+	bumpmap			textures/phobos/pj_mchangar5_ice_local.tga
+	diffusemap		textures/phobos/pj_mchangar5_ice_d.tga
+	specularmap		textures/phobos/pj_mchangar5_ice_s.tga
+}
+
+textures/phobos/pj_outfactory1_ice
+{
+	qer_editorimage		textures/phobos/pj_outfactory1_ice_d.tga
+	bumpmap			textures/phobos/pj_outfactory1_ice_local.tga
+	diffusemap		textures/phobos/pj_outfactory1_ice_d.tga
+	specularmap		textures/phobos/pj_outfactory1_ice_s.tga
+}
+
+textures/phobos/pj_a_redskybuilding1_ice
+{
+	qer_editorimage		textures/phobos/pj_a_redskybuilding1_ice_d.tga
+	bumpmap			textures/phobos/pj_a_redskybuilding1_ice_local.tga
+	diffusemap		textures/phobos/pj_a_redskybuilding1_ice_d.tga
+	specularmap		textures/phobos/pj_a_redskybuilding1_ice_s.tga
+}
+
+textures/phobos/pj_mcityb11_ice
+{
+	qer_editorimage		textures/phobos/pj_mcityb11_ice.tga
+	bumpmap			textures/phobos/pj_mcityb11_ice_local.tga
+	diffusemap		textures/phobos/pj_mcityb11_ice.tga
+	specularmap		textures/phobos/pj_mcityb11_ice_s.tga
+}
+
+textures/phobos/pj_a_reactorpipe64_03b_fin_ice
+{
+	qer_editorimage		textures/phobos/pj_a_reactorpipe64_03b_fin_ice.tga
+	bumpmap			textures/base_trim/a_reactorpipe64_local02b_fin.tga
+	diffusemap		textures/phobos/pj_a_reactorpipe64_03b_fin_ice.tga
+	specularmap		textures/base_trim/a_reactorpipe64_s03_fin.tga
+}
+
+textures/phobos/pj_enwall20f_ice
+{
+	qer_editorimage		textures/phobos/pj_enwall20f_ice.tga
+	bumpmap			textures/phobos/pj_enwall20_ice_local.tga
+	diffusemap		textures/phobos/pj_enwall20f_ice.tga
+	specularmap		textures/phobos/pj_enwall20f_ice_s.tga
+}
+
+textures/phobos/pj_enwall13_ice
+{
+	qer_editorimage		textures/phobos/pj_enwall13_ice.tga
+	bumpmap			textures/phobos/pj_enwall13_ice_local.tga
+	diffusemap		textures/phobos/pj_enwall13_ice.tga
+	specularmap		textures/phobos/pj_enwall13a_s.tga
+}
+
+textures/phobos/pj_enwall3_ice
+{
+	qer_editorimage		textures/phobos/pj_enwall3_ice.tga
+	bumpmap			textures/phobos/pj_enwall3_ice_local.tga
+	diffusemap		textures/phobos/pj_enwall3_ice.tga
+	specularmap		textures/phobos/pj_enwall3_ice_s.tga
+}
+
+textures/phobos/pj_outfactory11_ice
+{
+	qer_editorimage		textures/phobos/pj_outfactory11_ice_d.tga
+	bumpmap			textures/phobos/pj_outfactory11_ice_local.tga
+	diffusemap		textures/phobos/pj_outfactory11_ice_d.tga
+	specularmap		textures/phobos/pj_outfactory11_ice_s.tga
+}
+
+textures/phobos/pj_asupport07d_fin_ice
+{
+	qer_editorimage		textures/phobos/pj_asupport07d_fin_ice.tga
+	bumpmap			textures/recyc_wall/asupport07d_local_fin.tga
+	diffusemap		textures/phobos/pj_asupport07d_fin_ice.tga
+	specularmap		textures/recyc_wall/asupport07d_s_fin.tga
+}
+
+textures/phobos/pj_mchangar4_ice
+{
+	qer_editorimage		textures/phobos/pj_mchangar4_ice_d.tga
+	bumpmap			textures/phobos/pj_mchangar4_ice_local.tga
+	diffusemap		textures/phobos/pj_mchangar4_ice_d.tga
+	specularmap		textures/phobos/pj_mchangar4_ice_s.tga
+}
+
+textures/phobos/pj_cavfgirder1_ice
+{
+	qer_editorimage		textures/phobos/pj_cavfgirder1_ice.tga
+	bumpmap			textures/caves/cavfgirder1_local.tga
+	diffusemap		textures/phobos/pj_cavfgirder1_ice.tga
+	specularmap		textures/caves/cavfgirder1_s.tga
+}
+
+textures/phobos/pj_sflgrate2_ice
+{
+	qer_editorimage		textures/phobos/pj_sflgrate2a_ice_d
+	bumpmap			textures/base_floor/sflgrate2_local
+	diffusemap		textures/phobos/pj_sflgrate2a_ice_d
+	specularmap		textures/phobos/pj_sflgrate2a_s
+}
+
+textures/phobos/pj_a_redskybuilding2_ice_d01
+{
+	qer_editorimage		textures/phobos/pj_a_redskybuilding2_ice_d01
+	bumpmap			textures/phobos/pj_a_redskybuilding2_ice_local
+	diffusemap		textures/phobos/pj_a_redskybuilding2_ice_d01
+	specularmap		textures/phobos/pj_a_redskybuilding2_ice_s01
+}
+
+
+
+////////////////////////////////////////
+//
+//		POWER CELLS
+//
+////////////////////////////////////////
+
+models/items/powercell/powercell1
+{
+//	TwoSided
+	noselfshadow
+	renderbump  -size 512 512 -aa 2   models/items/powercell/powercell1.tga models/items/powercell/powercell1_hi.lwo
+ 	diffusemap	models/items/powercell/powercell1_d.tga
+        bumpmap		models/items/powercell/powercell1_local.tga
+	specularmap	models/items/powercell/powercell1_s.tga
+}
+
+
+
+//models/items/powercell/powercell1_glass
+//{
+//	TwoSided
+//	noselfshadow
+//	renderbump  -size 512 512 -aa 2   models/items/powercell/powercell1_glass.tga models/items/powercell/powercell1_hi.lwo
+// 	diffusemap	models/items/powercell/powercell1_glass.tga
+//        bumpmap		models/items/powercell/powercell1_glass_local.tga
+//	specularmap	models/items/powercell/powercell1_glass_s.tga
+//}
+
+models/items/powercell/powercell1_glass
+{
+	twoSided
+	noShadows	
+	translucent	
+//	qer_editorimage	textures/researchoutpost/adam_frostedglass1_d.tga
+	{
+		blend	add
+		cubeMap	env/darkashell
+		texGen	reflect
+		alpha	1
+	}
+	{
+		blend	add
+		map	textures/researchoutpost/adam_frostedglass1_d.tga
+	}
+}
+
+
+models/items/powercell/powercell2_glass
+{
+	twoSided
+	noShadows	
+	translucent	
+//        {
+//		blend add
+//                map models/items/powercell/glass_fx3.tga
+//                scroll	time * 2 , time * -1
+//        }
+        {
+		blend add
+                map models/items/powercell/glass_surface1.tga
+                scale 4,2
+        }
+	{
+		blend filter
+		map	models/items/powercell/glass_lines.tga
+		scale 4,2
+	}
+
+}
+
+
+models/items/powercell/powercell2
+{
+//	TwoSided
+	noselfshadow
+	renderbump  -size 512 512 -aa 2   models/items/powercell/powercell2.tga models/items/powercell/powercell2_hi.lwo
+ 	diffusemap	models/items/powercell/powercell2_d.tga
+        bumpmap		models/items/powercell/powercell2_local.tga
+	specularmap	models/items/powercell/powercell2_s.tga
+
+	{
+		blend 	add
+		map		models/items/powercell/powercell2_d_glow.tga
+//		rgb		lightblink [ time * 1 ]
+	}
+}
+
+
+models/items/powercell/powercell2fx
+{
+	noShadows	
+	diffusemap	models/items/powercell/powercell2_core.tga
+	specularmap	models/items/powercell/powercell1_s.tga	
+//        {
+//		 blend add
+//                 map models/items/powercell/glass_fx4.tga
+//                 scroll	time * -2.2 , time * 0
+//        }
+//        {
+//		 blend add
+//                 map models/items/powercell/glass_fx4.tga
+//                 scroll	time * 1.8 , time * 0
+//        }
+//        {
+//		 blend add
+//                 map models/items/powercell/glass_fx5.tga
+//                 scroll	time * 10 , time * -2
+//		 scale 2,2
+//        }
+         {
+                 maskcolor
+                 map makealpha(models/items/powercell/core_mask.tga)
+
+         }
+         {
+                 blend gl_dst_alpha, gl_one
+                     maskalpha
+                 map models/items/powercell/pulse.tga
+//                 rotate  ( time * .05 )
+		scroll	time * 0 , time * -1.5
+                 clamp
+         }
+         {
+                 blend gl_dst_alpha, gl_one
+                     maskalpha
+                 map models/items/powercell/pentastic1fx.tga
+                 rotate  ( time * .5 )
+//		scroll	time * 0 , time * -1.5
+                 clamp
+         }
+	{
+		blend 	add
+		map		models/items/powercell/core_glow.tga
+		rgb		lightblink [ time * 1 ]
+	}
+
+
+}
+
+
+
+
+///////////////////////////
+//
+//	HELL-AFIED WALL FX
+//
+///////////////////////////
+
+textures/erebus/tembrick2fx
+{
+            noSelfShadow
+             noshadows
+
+         qer_editorimage         textures/pat/pj_tembrick2_d.tga
+         diffusemap              textures/pat/pj_tembrick2_d.tga
+         bumpmap     		 textures/pat/pj_tembrick2_local.tga
+//         specularmap             textures/caves/tembrick2_s.tga
+         {
+                 maskcolor
+                 map makealpha(textures/pat/tembrick2_mask1.tga)
+
+         }
+         {
+                 blend gl_dst_alpha, gl_one
+                 maskalpha
+                 map textures/pat/tembrick2_fx1.tga
+//		 scroll	 time * .05 , time * .05
+                 rotate  ( time * .05 )
+//                 clamp
+         }
+
+}
+
+////////////////////////////////
+//
+// RENDER BUMP TEST
+//
+//
+////////////////////////////////
+
+
+textures/pat/casethingy2
+{
+	
+	
+	bumpmap			textures/pat/casethingy2_local
+	diffusemap		textures/pat/casethingy2_d
+//	specularmap		textures/pat/casethingy_s
+}
+
+
+/////////////////////////////////
+//
+//	CASE RENDER
+//
+/////////////////////////////////
+
+textures/pat/pj_case1
+{
+	renderbump		-size 512 512 -aa 2 -colorMap textures/pat/pj_case1.tga textures/pat/pj_case1_hi.lwo
+
+	bumpmap			textures/pat/pj_case1_local
+	diffusemap		textures/pat/pj_case1
+	specularmap		textures/pat/pj_case1_s
+}
+
+textures/pat/pj_case1b
+{
+	renderbump		-size 512 512 -aa 2 -colorMap textures/pat/pj_case1b.tga textures/pat/pj_case1_hi.lwo
+
+	bumpmap			textures/pat/pj_case1b_local
+	diffusemap		textures/pat/pj_case1b
+	specularmap		textures/pat/pj_case1b_s
+}
+
+//////////////////////////////////////
+//
+//	CASE GLASS
+//
+//////////////////////////////////////
+
+
+textures/phobos/case1_glass
+{
+	translucent
+	noshadows
+	twoSided
+	qer_editorimage			textures/phobos/phob_door_glass1_d.tga
+	specularmap			textures/phobos/phob_case_glass1s.tga
+	{
+		blend			add
+		map			textures/phobos/phob_door_glass1_d.tga
+	}
+	{
+		blend			add
+		cubeMap			env/darkashell
+		texgen			reflect
+	}
+}
+
+/////////////////////////////////
+//
+//	FISHTANK RENDER
+//
+/////////////////////////////////
+
+textures/pat/pj_fishtank1
+{
+	renderbump		-size 512 256 -aa 2 -trace .1 -colorMap textures/pat/pj_fishtank1.tga textures/pat/pj_fishtank_hi.lwo
+
+	bumpmap			textures/pat/pj_fishtank1_local
+	diffusemap		textures/pat/pj_fishtank1_d
+	specularmap		textures/pat/pj_fishtank1_s
+}
+
+textures/pat/pj_fishtank1b
+{
+//	renderbump		-size 256 128 -aa 2 -colorMap textures/pat/pj_fishtank1b.tga textures/pat/pj_fishtank_hi.lwo
+
+	bumpmap			textures/pat/pj_fishtank1b_local
+	diffusemap		textures/pat/pj_fishtank1b_d
+	specularmap		textures/pat/pj_fishtank1b_s
+}
+
+/////////////////////////////////
+//
+//	FLOOR LAMP RENDER
+//
+/////////////////////////////////
+
+textures/pat/pj_flamp1
+{
+	renderbump		-size 128 512 -aa 2 -colorMap textures/pat/pj_flamp1.tga textures/pat/pj_flamp1_hi.lwo
+
+	bumpmap			textures/pat/pj_flamp1_local
+	diffusemap		textures/pat/pj_flamp1_d
+	specularmap		textures/pat/pj_flamp1_s
+}
+
+textures/pat/pj_flamp1b
+{
+	renderbump		-size 128 128 -aa 2 -colorMap textures/pat/pj_flamp1b.tga textures/pat/pj_flamp1_hi.lwo
+
+	bumpmap			textures/pat/pj_flamp1b_local
+	diffusemap		textures/pat/pj_flamp1b_d
+	specularmap		textures/pat/pj_flamp1b_s
+}
+
+
+/////////////////////////////////
+//
+//	TRAM DOOR RENDER
+//
+/////////////////////////////////
+
+textures/pat/tram_door1
+
+{
+	
+	bumpmap			textures/pat/pj_tram_door_local
+	diffusemap		textures/pat/pj_tram_door_d
+	specularmap		textures/pat/pj_tram_door_s
+}
+
+
+/////////////////////////////////
+//
+//	TRAM DOOR FRAME RENDER
+//
+/////////////////////////////////
+
+textures/pat/tram_door_frame1
+
+{
+	renderbump		-size 256 512 -aa 2  -colorMap textures/pat/tram_door_frame1.tga textures/pat/tram_door_frame_hi.lwo	
+	bumpmap			textures/pat/pj_tram_door_frame_local
+	diffusemap		textures/pat/pj_tram_door_frame_d
+	specularmap		textures/pat/pj_tram_door_frame_s
+}
+/////////////////////////////////
+//
+//	TRAM DOOR FRAME RENDER NEW NEW NEW
+//
+/////////////////////////////////
+
+textures/pat/tram_door_frame1_new
+
+{
+	renderbump		-size 256 512 -aa 2  -colorMap textures/pat/tram_door_frame1_new.tga textures/pat/tram_door_frame_hi_new.lwo	
+	bumpmap			textures/pat/pj_tram_door_frame_new_local
+	diffusemap		textures/pat/pj_tram_door_frame_new_d
+	specularmap		textures/pat/pj_tram_door_frame_new_s
+}
+
+//textures/pat/tram_door_frame1_snow
+//
+//{
+//		
+//	bumpmap			textures/pat/pj_tram_door_frame_snow_local
+//	diffusemap		textures/pat/pj_tram_door_frame_d_snow
+//	specularmap		textures/pat/pj_tram_door_frame_s
+//}
+
+/////////////////////////////////
+//
+//	CAVE ROCK
+//
+/////////////////////////////////
+
+
+textures/phobos/caverock
+{
+	qer_editorimage		textures/rock/sharprock_dark
+	bumpmap				addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+	diffusemap			textures/pat/sharprock_pat
+	specularmap			textures/rock/sharprock_dark_s
+}
+
+
+/////////////////////////////////
+//
+//	EREBUS CAVE ROCK
+//
+/////////////////////////////////
+
+
+textures/erebus/ereb_caverock
+//{
+//	qer_editorimage		textures/rock/sharprock_dark
+//	bumpmap				addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) ) 
+//	diffusemap			textures/pat/sharprock_pat
+//	specularmap			textures/rock/sharprock_dark_s
+//}
+{
+	noSelfShadow	
+	qer_editorimage	textures/pat/ice1_d.tga
+	
+	//ICE
+//	{
+//		vertexColor
+//		blend	bumpmap
+//		map	textures/pat/ice_bump1_local.tga
+//	}
+	{
+		vertexColor
+		blend	bumpmap
+		map	textures/rock/skyrock3_local.tga
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/pat/ice1_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/pat/ice1_s.tga
+	}
+
+	//ROCK
+//	{
+//		inverseVertexColor
+//		blend	bumpmap
+//		map	textures/pat/mars_rock1_local.tga
+//	}
+//	{
+//		inverseVertexColor
+//		blend	diffusemap
+//		map	textures/pat/mars_rock1_d.tga
+//	}
+//	{
+//		inverseVertexColor
+//		blend	specularmap
+//		map	textures/pat/mars_rock1_s.tga
+//	}
+	//id ice
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	textures/pat/sharprock_local.tga
+	}
+	{
+		inverseVertexColor
+		blend	diffusemap
+		map	textures/pat/sharprock_dark_d.tga
+	}
+	{
+		inverseVertexColor
+		blend	specularmap
+		map	textures/pat/sharprock_ice_s.tga
+	}
+}
+
+/////////////////////////////////
+//
+//	GONDOLA RENDER
+//
+/////////////////////////////////
+
+textures/pat/gondola_1
+
+{
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/gondola_1.tga textures/pat/gondola_hi.lwo	
+	bumpmap			textures/pat/pj_gondola_1_local
+	diffusemap		textures/pat/pj_gondola_1_d
+//	specularmap		textures/pat/pj_gondola_1_s
+}
+
+
+/////////////////////////////////
+//
+//	GONDOLA DOOR RENDER
+//
+/////////////////////////////////
+
+textures/pat/gon_door_1
+
+{
+	renderbump		-size 256 512 -aa 2 -trace .1 -colorMap textures/pat/gon_door_1.tga textures/pat/gon_door_hi.lwo	
+	bumpmap			textures/pat/pj_gon_door_1_local
+	diffusemap		textures/pat/pj_gon_door_1_d
+//	specularmap		textures/pat/pj_gon_door_1_s
+}
+/////////////////////////////////
+//
+//	GONDOLA DOOR PANELS
+//
+/////////////////////////////////
+
+textures/pat/gon_door_panels_1
+
+{
+	
+	bumpmap			textures/pat/pj_sopanel4_local
+	diffusemap		textures/pat/pj_sopanel4_d
+	specularmap		textures/pat/pj_sopanel4_s
+}
+
+
+/////////////////////////////////
+//
+//	GONDOLA DOOR RENDER NEW
+//
+/////////////////////////////////
+
+textures/pat/gon_door_l_new
+{
+	renderbump	-size 256 512 -aa 2 -trace .1 -colorMap textures/pat/gon_door_l_new.tga textures/pat/gon_door_L_hi_new.lwo
+	bumpmap		textures/pat/pj_gon_door_L_local
+	diffusemap	textures/pat/gon_door_l_new_color
+	specularmap	textures/pat/pj_gon_door_L_s
+}
+
+/////////////////////////////////
+//
+//	GONDOLA SHELL
+//
+/////////////////////////////////
+
+textures/pat/gon_shell_1
+{
+	renderbump	-size 512 512 -aa 2 -trace .1 -colorMap textures/pat/gon_shell_1.tga textures/pat/shell_half_hi.lwo
+	bumpmap		textures/pat/pj_gon_shell_local
+	diffusemap	textures/pat/pj_gon_shell_d
+	specularmap	textures/pat/pj_gon_shell_s
+
+	{
+		
+		map	textures/pat/pj_gon_shell_glow
+		blend	add
+		rgb		slowblink [ time * .5 ]
+	}
+}
+
+/*
+	Generated by the Material Editor.
+	Type 'materialeditor' at the console to launch the material editor.
+*/
+textures/pat/gon_glass_1
+{
+	translucent	
+	twoSided	
+	noShadows	
+	qer_editorimage	textures/phobos/phob_door_glass1_d.tga
+	specularmap	textures/phobos/ta_phob_gon_glass1s.tga
+	{
+		name	"Stage 2"
+		map	textures/phobos/ta_phob_door_glass1_d.tga
+		blend	add
+	}
+	{
+		name	"Stage 3"
+		blend	add
+		cubeMap	env/darkashell
+		texGen	reflect
+	}
+}
+
+
+/////////////////////////////////
+//
+//	GONDOLA ARM  RENDER
+//
+/////////////////////////////////
+
+textures/pat/gon_arm_1
+
+{
+	renderbump		-size 256 512 -aa 2  -colorMap textures/pat/gon_arm_1.tga textures/pat/gon_arm_hi.lwo	
+	bumpmap			textures/pat/gon_arm_local
+	diffusemap		textures/pat/gon_arm_d
+	specularmap		textures/pat/gon_arm_s
+}
+
+/////////////////////////////////
+//
+//	GONDOLA PIPE RENDER
+//
+/////////////////////////////////
+
+textures/pat/gon_pipe_1
+
+{
+	renderbump		-size 128 256 -aa 2  -colorMap textures/pat/gon_pipe_1.tga textures/pat/gon_pipe_hi.lwo	
+	bumpmap			textures/pat/gon_pipe_local
+	diffusemap		textures/pat/gon_pipe_d
+	specularmap		textures/pat/gon_pipe_s
+}
+
+/////////////////////////////////
+//
+//	GONDOLA nobby RENDER
+//
+/////////////////////////////////
+
+textures/pat/gon_nobby_1
+
+{
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/gon_nobby_1.tga textures/pat/gon_nobby_hi.lwo	
+	bumpmap			textures/pat/gon_nobby_local
+	diffusemap		textures/pat/gon_nobby_d
+	specularmap		textures/pat/gon_nobby_s
+}
+
+
+/////////////////////////////////
+//
+//	ZOMBIE FEMALE RENDER
+//
+/////////////////////////////////
+
+models/monsters/zombie/zfem2/zom_fem1_d
+
+{
+	renderbump		-size 1024 1024 -aa 2  -colorMap textures/pat/zombie_fem_1.tga textures/pat/zom_fem1_hi.lwo	
+	bumpmap			models/monsters/zombie/zfem2/zom_fem1_local
+	diffusemap		models/monsters/zombie/zfem2/zom_fem1_d
+	specularmap		models/monsters/zombie/zfem2/zom_fem1_s
+}
+
+
+
+/////////////////////////////////
+//
+//	SEAL RENDER
+//
+/////////////////////////////////
+
+textures/pat/pjseal1
+
+{
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/pjseal1.tga textures/pat/pjseal1_hi.lwo	
+	bumpmap			textures/pat/pj_seal1_local
+	diffusemap		textures/pat/pj_seal1_d
+	specularmap		textures/pat/pj_seal1_s
+
+	{
+		blend 	add
+		map		textures/pat/pj_seal1_glow.tga
+		rgb		slowblink [ time * .5 ]
+	}
+}
+
+/////////////////////////////////
+//
+//	SEAL  GADGETS RENDER
+//
+/////////////////////////////////
+
+textures/pat/pjseal_tech1
+
+{
+	renderbump		-size 256 256 -aa 2  -colorMap textures/pat/pjseal_tech1.tga textures/pat/pjseal_tech1_hi.lwo	
+	bumpmap			textures/pat/pj_seal_tech1_local
+	diffusemap		textures/pat/pj_seal_tech1_d
+	specularmap		textures/pat/pj_seal_tech1_s
+}
+
+
+/////////////////////////////////
+//
+//	EREBUS CAVE ROCK
+//
+/////////////////////////////////
+
+
+textures/erebus/ereb_caverock2
+ 
+
+{
+	noSelfShadow	
+	qer_editorimage	textures/pat/ice1_d.tga
+	
+	//	ROCK
+
+	{
+		VertexColor
+		blend	bumpmap
+		map	textures/pat/sharprock_local.tga
+	}
+	{
+		VertexColor
+		blend	diffusemap
+//		map	textures/pat/sharprock_dark_d.tga
+		map	textures/pat/sharprock_gray.tga
+	}
+	{
+		VertexColor
+		blend	specularmap
+		map	textures/pat/sharprock_ice_s.tga
+	}
+
+	//	ANUS
+//
+//
+//	{
+//		inverseVertexColor
+//		blend		bumpmap	 
+//		map		textures/hell/anustubescroll_local.tga
+//		translate	time*-.01,time*-.025
+//	}
+//	{
+//		inverseVertexColor
+//		blend		diffusemap	 
+//		map		textures/hell/anustubescroll.tga
+//		translate	time*-.01,time*-.025
+//		
+//	}
+//	{
+//		inverseVertexColor
+//		blend		specularmap	 
+//		map		textures/hell/anustubescroll_s.tga
+//		translate	time*-.01,time*-.025
+//	}
+//	
+//
+}
+
+
+/////////////////////////////////
+//
+//	EREBUS HELL DOORWAY
+//
+/////////////////////////////////
+
+
+textures/erebus/hell_doorway1
+ 
+{
+	noShadows
+        noselfShadow
+	
+		
+		qer_editorimage textures/hell/treeroots.tga
+
+	{
+
+		blend		bumpmap	 
+		map		addnormals( textures/hell/treeroots_local.tga, heightmap (textures/hell/treeroots_h.tga, 10 ) )
+		translate	time *.0, time*.025
+	}
+	{
+		blend		diffusemap	 
+		map			textures/hell/treeroots.tga
+		translate	time*.0, time*.025
+		
+
+	}
+	{
+		blend		specularmap	 
+		map			textures/hell/treeroots_s.tga
+		translate	time*.0, time*.025
+		
+		
+	}
+
+
+}
+
+
+
+textures/erebus/hell_doorway2
+
+{
+	noShadows
+      	noselfShadow
+	//translucent
+
+	qer_editorimage textures/hell/wrinkle2.tga
+
+	{
+		blend		diffusemap	 
+		map			textures/hell/wrinkle2.tga
+		translate	time*-.02,time*-.01
+		rotate	( time * 0.002 )
+
+	}
+	{
+		blend		bumpmap	 
+		map		addnormals( textures/hell/wrinkle2_local.tga, heightmap( textures/hell/wrinkle2_h.tga, 14 ) )
+		translate	time*-.02,time*-.01
+		rotate	( time * 0.002 )
+
+	}
+	{
+		blend		specularmap	 
+		map		textures/hell/wrinkle2_s.tga
+		translate	time*-.02,time*-.01
+		rotate	( time * 0.002 )
+
+	}
+	
+}
+
+
+
+	
+/////////////////////////////////
+//
+//	INVULNERABLE RENDER
+//
+/////////////////////////////////
+
+models/monsters/hunter_invul/invul_1
+
+{
+	renderbump		-size 1024 1024 -aa 2  -colorMap textures/pat/invul_1.tga textures/pat/invul_hi.lwo	
+//	bumpmap			models/monsters/hunter_invul/invul_1_local
+	bumpmap	   	addnormals(models/monsters/hunter_invul/invul_1_local.tga, heightmap(models/monsters/hunter_invul/invul_1_h.tga, 8 ) )
+	diffusemap		models/monsters/hunter_invul/invul_1_d
+//	specularmap		models/monsters/hunter_invul/invul_1_s
+}
+
+
+////////////////////////////////
+//
+//	EREBUS ANUS FADE
+//
+//
+////////////////////////////////
+
+d3xp/bloodstone/erebus_anus_fade
+{
+	nonsolid	
+	noShadows
+	twosided	
+	qer_editorimage	textures/caves/sbricks1.tga
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if	parm8			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 1.0-(0.3 * (time - parm8))
+	}
+	{	// burning corpse effect
+		if parm8			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		highQuality
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 1.0-(0.05 + 0.3 * (time - parm8))
+	}
+	{
+		blend 		bumpmap
+		map			textures/hell/wrinklewall_tile_local
+		translate	.01*sintable[ time *.1 ],  	.02*sintable[ time *.1 ]
+
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/wrinklewall_tile
+		translate	.01*sintable[ time *.1 ], 	.02*sintable[ time *.1 ]
+
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/wrinklewall_tile_ss
+		translate	.005*sintable[ time *.1 ], 	.01*sintable[ time *.1 ]
+
+	}
+	{
+		blend		specularmap
+		map			textures/hell/wrinklewall_tile_s
+		translate 	.01*sintable[ time *.1 ],	.02*sintable[ time *.1 ]
+
+	}
+	/*{
+		name	"AlphaTestStage"
+		if	parm7
+		map	textures/bmatt/wallfadealpha1.tga
+		blend	add
+		maskColor	
+		alphatest	.7*(time - parm7)
+	}*/
+}
+
+
+////////////////////////
+//
+//	TRAM FLOOR
+//
+////////////////////////
+
+textures/pat/tram_floor
+
+{
+		
+	bumpmap			textures/pat/tram_floor_local
+	diffusemap		textures/pat/tram_floor_d
+//	specularmap		textures/pat/tram_floor_s
+}
+
+////////////////////////
+//
+//	TRAM ROOF
+//
+////////////////////////
+
+textures/pat/tram_roof1
+
+{
+//    noselfShadow
+//    noshadows
+
+	
+		
+		bumpmap		models/seneca/labtex/newlabtex2_local
+		diffusemap	models/seneca/labtex/newlabtex2_d
+//		specularmap	models/seneca/labtex/newlabtex2_s
+	
+
+//	{
+//		blend 	add
+//		map		models/seneca/labtex/newlabtex2_add.tga
+//		rgb		lightblink [ time * 1 ]
+//	}
+}
+
+
+
+/////////////////////////////////
+//
+//	PHOBOS BRIDGE
+//
+/////////////////////////////////
+
+textures/pat/phobos_bridge1
+
+{
+		
+	bumpmap			textures/pat/phob_bridge_hi_local
+	diffusemap		textures/pat/phob_bridge_hi_d
+	specularmap		textures/pat/phob_bridge_hi_s
+}
+
+textures/pat/bridge_trim1
+
+{
+		
+	bumpmap			textures/pat/pj_a_sfltrim7_local.tga
+	diffusemap		textures/pat/pj_a_sfltrim7_d.tga
+	specularmap		textures/pat/pj_a_sfltrim7_s.tga
+}
+
+
+
+/////////////////////////////////
+//
+//	INVULNERABLE 2,0 RENDER
+//
+/////////////////////////////////
+
+//models/monsters/hunter_invul/invul_1_new
+//
+//{
+//	renderbump		-size 1024 1024 -aa 2  -colorMap textures/pat/invul_1_new.tga textures/pat/invul_half_hi_z.lwo
+//	unsmoothedTangents	
+//	bumpmap			models/monsters/hunter_invul/invul_1_new_local
+//	diffusemap		models/monsters/hunter_invul/invul_1_new_d
+//	specularmap		models/monsters/hunter_invul/invul_1_new_s
+//}
+
+
+/////////////////////////////////
+//
+//	NEW NEW NEW EREBUS CAVE ROCK YAY
+//
+/////////////////////////////////
+
+
+textures/pat/pj_cave_rock_1
+ 
+
+{
+	noSelfShadow	
+	qer_editorimage	textures/pat/pj_cave_rock_1_d.tga
+	
+	//	ROCK
+
+	{
+		VertexColor
+		blend	bumpmap
+		map	textures/pat/pj_cave_rock1_local.tga
+	}
+	{
+		VertexColor
+		blend	diffusemap
+		map	textures/pat/pj_cave_rock_1_d.tga
+	}
+	{
+		VertexColor
+		blend	specularmap
+		map	textures/pat/pj_cave_rock_1_s.tga
+	}
+
+	//	OTHER ROCK
+
+
+	{
+		inverseVertexColor
+		blend		bumpmap	 
+		map		textures/pat/pj_cave_rock2_local.tga		
+	}
+	{
+		inverseVertexColor
+		blend		diffusemap	 
+		map		textures/pat/pj_cave_rock2_d.tga			
+	}
+//	{
+//		inverseVertexColor
+//		blend		specularmap	 
+//		map		textures/pat/pj_cave_rock2_s.tga		
+//	}
+	
+
+}
+//////////////////////////////////////
+//
+//	BRIDGE LIGHT	
+//
+//////////////////////////////////////
+
+
+textures/pat/pj_mchangar13
+{
+	qer_editorimage		textures/mcity/mchangar13
+	bumpmap				textures/mcity/mchangar13_local
+	diffusemap			textures/pat/pj_mchangar13
+	specularmap			textures/mcity/mchangar13_s
+	{
+		blend			add
+		map				textures/pat/pj_mchangar13_add
+		colored
+	}
+}
+
+
+/////////////////////////////////
+//
+//	ZOMBIE FEMALE RENDER 2
+//
+/////////////////////////////////
+
+models/monsters/zombie/zfem2/zom_fem2_d
+
+{
+	renderbump		-size 1024 1024 -aa 2  -colorMap textures/pat/zombie_fem_2.tga textures/pat/zom_fem2_hi.lwo	
+	bumpmap			models/monsters/zombie/zfem2/zom_fem2_local
+	diffusemap		models/monsters/zombie/zfem2/zom_fem2_d
+	specularmap		models/monsters/zombie/zfem2/zom_fem2_s
+}
+/////////////////////////////////
+//
+//	ZOMBIE FEMALE RENDER 3
+//
+/////////////////////////////////
+
+models/monsters/zombie/zfem2/zom_fem3_d
+
+{
+	renderbump		-size 512 1024 -aa 2  -colorMap textures/pat/zombie_fem_3.tga textures/pat/zom_fem_bald_hi.lwo	
+	bumpmap			models/monsters/zombie/zfem2/zom_fem3_local
+	diffusemap		models/monsters/zombie/zfem2/zom_fem3_d
+	specularmap		models/monsters/zombie/zfem2/zom_fem3_s
+}
+
+
+////////////////////////////////
+//
+//		LAVA/SLIME
+//
+////////////////////////////////
+
+textures/pat/slime1
+{
+	nonsolid
+	noimpact
+	translucent
+	qer_editorimage		textures/pat/slime1.tga
+//	{
+//		map     textures/pat/slime1.tga
+//		scale	1 , 1
+//		translate	time * 0.005, time * -0.01
+//		rgb		fireballtable[ time * .05 ]
+//	}
+//	{
+//		blend 		bumpmap
+//		map		    textures/hell/hhlava_local.tga
+//		translate	time * 0 , time * -0.02
+//		scale .35, .35
+//	} 
+	{
+		blend 		specularmap
+		map		textures/pat/slime1_s.tga
+		scale	.8, 1.1
+		translate	time * -0.001, time * -0.02
+	}
+	{
+		blend 			diffusemap
+		map     textures/pat/slime1.tga
+		scale	1.4, 1.5
+		translate	time * 0, time * -0.03
+		rgb		fireballtable[ time * .04 ]
+	}
+	{
+		blend add
+		map     textures/pat/slime1.tga
+		scale	.8, 1.1
+		translate	time * -0.001, time * -0.02
+//		rgb		fireballtable[ time * .1 ]
+
+	}
+}
+
+//////////////////////////////////////
+//
+//		SLIME 2
+//
+//////////////////////////////////////
+
+textures/pat/slime2
+{
+	qer_editorimage		textures/hell/lava1movenoshadow.tga
+	nonsolid
+	noimpact
+	noSelfShadow
+	noshadows
+//	translucent
+	deform particle slimepuffs
+	    	
+	{
+		blend 		diffusemap
+		map		textures/pat/slime1.tga
+		translate	time * 0 , time * -0.1
+		red	1
+		green	.5
+		blue	.65
+
+	} 
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+		translate	time * 0 , time * -0.1
+	} 
+	{
+		blend 		specularmap
+		map		textures/pat/slime1_s.tga
+	}   
+	{
+		maskcolor
+		map textures/pat/slime1.tga
+		translate	time * 0 , time * -0.1
+		red	1
+		green	.5
+		blue	.65
+	}
+	{
+		blend 	add
+		map		textures/pat/slime1.tga
+		rgb		lightblink [ time * 1 ]
+	}
+//	{
+//		blend gl_dst_alpha , gl_one_minus_dst_alpha
+//		map textures/hell/lava1fx.tga
+//		rgb		fireballtable[ time * .6 ]
+//		translate	time * 0.02 , time * 0.1
+//	}
+//	{
+//		blend add
+//		map textures/hell/lava1fx.tga
+//		rgb		fireballtable[ time * .5 ]
+//		translate	time * 0 , time * -0.1
+//		red	1
+//		green	.5
+//		blue	.65
+//	}
+ }
+
+///////////////////////////////
+//
+//	SLIME 3
+//
+///////////////////////////////
+
+
+
+textures/pat/slime3
+{
+	qer_editorimage		textures/hell/lava1movenoshadow.tga
+	nonsolid
+	noimpact
+	noSelfShadow
+	noshadows
+//	translucent
+	deform particle slimepuffs
+	{
+		blend			bumpmap
+		map				addnormals( textures/hell/lava1_local.tga, heightmap( textures/pat/slime1.tga, 20 ) )
+		translate	time * 0 , time * -0.02
+	}
+	{
+		blend			diffusemap
+		map		textures/pat/slimescroll
+		translate	time * 0 , time * -0.02
+	}
+	{
+		map		textures/pat/slimescroll
+		maskcolor
+		translate	time * 0 , time * -0.02
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/lava1_s.tga
+		translate	time * -0.02 , time * 0.05
+	}   
+	{
+		blend		gl_dst_alpha , gl_one
+		map 		textures/pat/slime1fx.tga
+		rgb		fireballtable[ time * .05 ]
+		translate	time * .01 , time * -0.025
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map 		textures/pat/slime1fx.tga
+		rgb		fireballtable[ time *.25 ]
+		translate	time * -.02 , 1
+	}
+}
+
+
+//////////////////////////////////
+//
+//	CAVE DOOR SKIN
+//
+//////////////////////////////////
+
+models/mapobjects/doors/pjcavedoor
+{
+	
+
+	bumpmap			models/mapobjects/doors/cavedoor2/cavedoor2_local
+	diffusemap		models/mapobjects/doors/pjcavedoor2_d
+	specularmap		models/mapobjects/doors/pjcavedoor2_s
+}
+
+//////////////////////////////////
+//
+//	MANCUBUS SLIME SKIN
+//
+//////////////////////////////////
+
+models/monsters/mancubus/mancubus_slime
+{
+	
+	noselfShadow
+    	noshadows
+	flesh
+	unsmoothedTangents
+	clamp
+	
+	{					// burning corpse effect
+		if	parm7			// only when dead
+		
+						// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one		// don't draw anything
+		
+		map models/monsters/mancubus/mancubus_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{					// burning corpse effect
+		if parm7			// only when dead
+
+						// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1	// stage-only polygon offset
+        	blend add	
+        	blend gl_one, gl_zero
+		
+		map models/monsters/mancubus/mancubus_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+		forceOverlays
+//		bumpmap			models/monsters/mancubus/mancubus_slime_local.tga
+		diffusemap 		models/monsters/mancubus/mancubus_slime_d.tga
+		bumpmap addnormals(models/monsters/mancubus/mancubus_slime_local.tga, heightmap(models/monsters/mancubus/mancubus_slime_h.tga, 2 ) )
+		specularmap		models/monsters/mancubus/mancubus_slime_s.tga
+}
+
+
+/////////////////////////////////
+//
+//	ALPHA GRATE
+//
+/////////////////////////////////
+
+textures/base_floor/a_sflgrate2_alpha
+
+{	
+	qer_editorimage		textures/base_floor/a_sflgrate2_01_fin
+	twosided
+	{       
+      		blend diffusemap
+	 	map		textures/pat/a_sflgrate2_alpha
+	 	alphatest .6
+	}	
+		bumpmap		textures/base_floor/a_sflgrate2_local01_fin
+		specularmap	textures/base_floor/a_sflgrate2_s01_fin	
+}
+
+///////////////////////////////////
+//
+//	SLIME BARREL
+//
+///////////////////////////////////
+
+models/mapobjects/fuel_barrel/exp_barrel_slime
+{
+	noSelfShadow
+	{
+		blend		bumpmap			
+		map		addnormals (models/mapobjects/fuel_barrel/exp_barrel_local, heightmap (models/mapobjects/fuel_barrel/exp_barrel_slime_s, 2) ) 
+	}
+		diffusemap	models/mapobjects/fuel_barrel/exp_barrel_slime_d
+		specularmap	models/mapobjects/fuel_barrel/exp_barrel_slime_s
+}
+
+models/mapobjects/fuel_barrel/exp_barrel_slime2a
+{
+	noshadows
+{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.25 + 0.5 * (time - parm7)
+	}
+	{
+		blend		bumpmap			
+		map		addnormals (models/mapobjects/fuel_barrel/exp_barrel_local, heightmap (models/mapobjects/fuel_barrel/exp_barrel_slime_s, 2) ) 
+	}
+	{
+		if ( parm7 == 0 )
+		blend		diffusemap		
+		map		models/mapobjects/fuel_barrel/exp_barrel_slime_d
+		alphatest	.45
+		rgb		.2
+	}
+	{
+		if ( parm7 )
+		blend		diffusemap		
+		map		models/mapobjects/fuel_barrel/exp_barrel_slime_d
+		// alphatest	.45
+		rgb		.2
+	}
+}
+
+models/mapobjects/fuel_barrel/exp_barrel_slime2
+{
+	noshadows
+{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.25 + 0.5 * (time - parm7)
+	}
+	{
+		blend		bumpmap			
+		map		addnormals (models/mapobjects/fuel_barrel/exp_barrel_local, heightmap (models/mapobjects/fuel_barrel/exp_barrel_slime_s, 2) ) 
+	}
+	{
+		if ( parm7 == 0 )
+		blend		diffusemap		
+		map		models/mapobjects/fuel_barrel/exp_barrel_slime_d
+		alphatest	.45
+	}
+	{
+		if ( parm7 )
+		blend		diffusemap		
+		map		models/mapobjects/fuel_barrel/exp_barrel_slime_d
+		// alphatest	.45
+	}
+	specularmap		models/mapobjects/fuel_barrel/exp_barrel_slime_s
+}
+
+
+/////////////////////////////////
+//
+//	HELL SPIKE
+//
+/////////////////////////////////
+
+textures/pat/hellspike1
+
+{
+    noselfShadow
+    noshadows
+    unsmoothedTangents
+
+	renderbump		-size 1024 1024 -aa 2  -colorMap textures/pat/hellspike.tga textures/pat/hellspike_hi.lwo
+{
+	blend		bumpmap
+	map		addnormals (textures/pat/hellspike_local, heightmap (textures/pat/hellspike_h, 4) )
+}	
+//	bumpmap			textures/pat/hellspike_local
+	diffusemap		textures/pat/hellspike_d
+	specularmap		textures/pat/hellspike_s
+}
+
+/////////////////////////////////
+//
+//	HELL TEETH
+//
+/////////////////////////////////
+
+textures/pat/hellteeth1
+
+{
+    noselfShadow
+    noshadows
+    unsmoothedTangents
+
+	renderbump		-size 256 256 -aa 2  -colorMap textures/pat/hellteeth.tga textures/pat/hell_teeth_hi.lwo
+{
+	blend		bumpmap
+	map		addnormals (textures/pat/hellteeth_local, heightmap (textures/pat/hellteeth_h, 4) )
+}	
+//	bumpmap			textures/pat/hellteeth_local
+	diffusemap		textures/pat/hellteeth_d
+	specularmap		textures/pat/hellteeth_s
+}
+
+
+/////////////////////////////////
+//
+//	STARGATE
+//
+/////////////////////////////////
+
+textures/pat/stargate1
+
+{
+    noselfShadow
+    noshadows
+    unsmoothedTangents
+
+	renderbump		-size 1024 1024 -aa 2  -colorMap textures/pat/stargate.tga textures/pat/stargate_hi.lwo	
+	bumpmap			textures/pat/stargate_local
+	diffusemap		textures/pat/stargate_d
+	specularmap		textures/pat/stargate_s
+}
+
+///////////////////////////////////
+//
+//	TUMBLER
+//
+///////////////////////////////////
+
+textures/pat/tumbler
+{
+	qer_editorimage		textures/pat/tumbler_local
+	bumpmap			textures/pat/tumbler_local
+	diffusemap		textures/pat/tumbler_d
+	specularmap		textures/pat/tumbler_s
+}
+
+/////////////////////////////////
+//
+//	DUMPSTER
+//
+/////////////////////////////////
+
+textures/pat/dumpster1
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 256 256 -aa 3   -colorMap textures/pat/dumpster.tga models/patj/dumpster_hi.lwo	
+	bumpmap			textures/pat/dumpster_local
+	diffusemap		textures/pat/dumpster_d
+	specularmap		textures/pat/dumpster_s
+}
+
+
+
+/////////////////////////////////
+//
+//	GRINDER
+//
+/////////////////////////////////
+
+textures/pat/grinder1
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 256 512 -aa 2   -colorMap textures/pat/grinder.tga models/patj/grinder_hi.lwo
+	qer_editorimage		textures/pat/grinder_local	
+	bumpmap			textures/pat/grinder_local
+	diffusemap		textures/pat/grinder_d
+	specularmap		textures/pat/grinder_s
+}
+
+
+/////////////////////////////////
+//
+//	REACTOR part 1
+//
+/////////////////////////////////
+
+textures/pat/reactor1
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 1024 1024 -aa 2   -colorMap textures/pat/reactor.tga textures/pat/reactor1_hi.lwo
+	qer_editorimage		textures/pat/reactor1_local	
+	bumpmap			textures/pat/reactor1_local
+	diffusemap		textures/pat/reactor1_d
+	specularmap		textures/pat/reactor1_s
+
+	{
+		blend 	add
+		map		textures/pat/reactor1_add.tga
+		colored
+//		rgb		crazyblink2 [ time * .3 ]
+		red 	(crazyblink2 [ time * .1 ]) * Parm0
+		green 	(crazyblink2 [ time * .1 ]) * Parm1
+		blue 	(crazyblink2 [ time * .1 ]) * Parm2
+	}
+}
+/////////////////////////////////
+//
+//	REACTOR part 2
+//
+/////////////////////////////////
+
+textures/pat/reactor2
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 256 256 -aa 2   -colorMap textures/pat/reactor2.tga textures/pat/reactor2_hi.lwo
+	qer_editorimage		textures/pat/reactor2_local	
+	bumpmap			textures/pat/reactor2_local
+	diffusemap		textures/pat/reactor2_d
+	specularmap		textures/pat/reactor2_s
+}
+/////////////////////////////////
+//
+//	REACTOR part 3
+//
+/////////////////////////////////
+
+textures/pat/reactor3
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 128 128 -aa 2   -colorMap textures/pat/reactor3.tga textures/pat/reactor3_hi.lwo
+	qer_editorimage		textures/pat/reactor3_local	
+	bumpmap			textures/pat/reactor3_local
+	diffusemap		textures/pat/reactor3_d
+	specularmap		textures/pat/reactor3_s
+}
+/////////////////////////////////
+//
+//	REACTOR part 4
+//
+/////////////////////////////////
+
+textures/pat/reactor4
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 256 256 -aa 2   -colorMap textures/pat/reactor4.tga textures/pat/reactor4_hi.lwo
+	qer_editorimage		textures/pat/reactor4_local	
+	bumpmap			textures/pat/reactor4_local
+	diffusemap		textures/pat/reactor4_d
+	specularmap		textures/pat/reactor4_s
+}
+
+/////////////////////////////////
+//
+//	TRAM FLOOR
+//
+/////////////////////////////////
+
+textures/pat/tram_floor1
+
+{
+    noselfShadow
+    noshadows
+//    unsmoothedTangents
+
+	renderbump		-size 256 512 -aa 2   -colorMap textures/pat/tramfloor.tga textures/pat/tram_floor_hi.lwo
+	qer_editorimage		textures/pat/tramfloor_local	
+	bumpmap			textures/pat/tramfloor_local
+	diffusemap		textures/pat/tramfloor_d
+	specularmap		textures/pat/tramfloor_s
+}
+
+
+/////////////////////////////////
+//
+//	TRAM DASH
+//
+/////////////////////////////////
+
+textures/pat/tram_dash1
+
+{
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/tram_dash1.tga textures/pat/tram_dash_hi.lwo	
+	bumpmap			textures/pat/tram_dash_local
+	diffusemap		textures/pat/tram_dash_d
+	specularmap		textures/pat/tram_dash_s
+}
+
+
+
+models/outdoors/tram/pj_tram_gui
+{
+    renderbump  	-size 256 256 -colorMap -aa 2 models/outdoors/tram/tram_gui_local.tga models/outdoors/tram/work/tram_gui_hp.lwo
+	{
+		blend			bumpmap
+		map			models/outdoors/tram/tram_gui_local
+		
+	}
+		diffusemap		textures/pat/pj_tram_gui
+		specularmap		models/outdoors/tram/tram_gui_s
+}
+
+/////////////////////////////////
+//
+//	TRAM SEATS
+//
+/////////////////////////////////
+
+textures/pat/tram_seats1
+
+{
+
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/tram_seats1.tga textures/pat/tram_seats_hi.lwo	
+	bumpmap			textures/pat/tram_seats_local
+	diffusemap		textures/pat/tram_seats_d
+	specularmap		textures/pat/tram_seats_s
+}
+
+
+/////////////////////////////////
+//
+//	GRABBER FOR CINEMATICS
+//
+/////////////////////////////////
+
+textures/pat/pj_grabber1
+
+{
+    noselfShadow
+    //noshadows
+	//unsmoothedtangents
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/pj_grabber1.tga models/weapons/grabber/grabber_world_hi.ase	
+	bumpmap			addnormals(textures/pat/pj_grabber_local.tga, heightmap(textures/pat/ta_grabber_h.tga, 4 ) )
+	diffusemap		textures/pat/ta_grabber_d.tga
+	specularmap		textures/pat/ta_grabber_s.tga
+	{
+			name	"Stage 3"
+			map	textures/pat/ta_grabber_l.tga
+			blend	add
+			rgb	flickertable [ time * 2 ]
+	}
+}
+
+textures/pat/pj_grabber1_invis
+{
+	noShadows
+	noselfShadow
+	unsmoothedTangents
+	translucent
+
+	bumpmap	addnormals(textures/pat/pj_grabber_local.tga, heightmap(textures/pat/ta_grabber_h.tga, 4 ) )
+	{
+		blend specularmap
+		map	models/invis_s.tga
+		translate	0, time * 0.6
+	}
+}
+
+///////////////////////////////////
+//
+//        WEB
+//
+///////////////////////////////////
+
+textures/pat/pj_web
+{
+	translucent
+	noshadows
+	twosided
+	nonsolid
+	flesh
+	sort	5
+	bumpmap			heightmap (textures/pat/pj_web.tga, 2)
+    diffusemap		textures/pat/pj_web.tga
+	{
+		blend		specularmap	
+		map		textures/pat/pj_web.tga
+		red		.25
+		green		.25
+		blue		.2
+	}
+}
+
+
+
+////////////////////////////////////
+//
+//	STAR BLADE THING	
+//
+////////////////////////////////////
+
+textures/pat/star1
+{
+// 	noShadows
+	twosided
+	qer_editorimage	textures/pat/star_local.tga
+
+	{       
+      		blend diffuseMap
+	 	map	textures/pat/star_d.tga
+	 	alphatest .9
+	}
+		
+//		bumpmap		textures/pat/star_local.tga
+		bumpmap		addnormals(textures/pat/star_local.tga, heightmap(textures/pat/star_h.tga, 20 ) )
+		specularmap	textures/pat/star_s.tga
+
+
+
+}
+
+
+/////////////////////////////////
+//
+//	BERG CONSOLE
+//
+/////////////////////////////////
+
+textures/pat/berg_con1
+
+{
+
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/berg_con1.tga textures/pat/berg_console_half_hi2.lwo	
+	bumpmap			textures/pat/berg_con1
+	diffusemap		textures/pat/berg_con1_color
+	specularmap		textures/pat/berg_con_s
+}
+
+
+/////////////////////////////////
+//
+//	REACTOR TOP
+//
+/////////////////////////////////
+
+textures/pat/reactor_top1
+
+{
+	qer_editorimage	textures/pat/reactor_top_local.tga
+	noselfShadow
+   	noshadows
+
+	renderbump		-size 512 512 -aa 2 -trace .1 -colorMap textures/pat/reactor_top1.tga textures/pat/reactor_top_hi.lwo	
+	bumpmap			textures/pat/reactor_top_local
+	diffusemap		textures/pat/reactor_top_d
+	specularmap		textures/pat/reactor_top_s
+
+	{
+		blend 	add
+		map		textures/pat/reactor_top_glow.tga
+		colored
+//		rgb		crazyblink2 [ time * .3 ]
+		red 	(crazyblink2 [ time * .1 ]) * Parm0
+		green 	(crazyblink2 [ time * .1 ]) * Parm1
+		blue 	(crazyblink2 [ time * .1 ]) * Parm2		
+	}
+}
+
+/////////////////////////////////
+//
+//	HASTE FIRE
+//
+/////////////////////////////////
+
+models/items/powerups/hasteflame1
+
+{
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/pjflame3_strip.tga
+//		red		.1
+//		green		.2
+//		blue		1
+		scale 1 / 32 , 1
+		scroll table32[ time * .7 ] , 0
+	}
+
+}
+
+
+/////////////////////////////////
+//
+//	PLASMA FX FOR INVULNERABLE ICON
+//
+/////////////////////////////////
+
+
+models/weapons/plasmagun/inv1x
+{
+	qer_editorimage textures/particles/flame_strip.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/plasmaflame_strip.tga
+		scale 1 / 32 , 1
+		scroll table32[ time * 1.9 ] , 0
+		red		0
+		green		1
+		blue		0
+	}
+}
+
+models/weapons/plasmagun/inv2x
+{
+	qer_editorimage textures/particles/plasmaflame_strip.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/plasmaflame_strip.tga
+		scale 1 / 32 , 1
+		scroll table32[ time * 1.7 ] , 0
+		red		0
+		green		1
+		blue		0
+	}
+}
+
+models/weapons/plasmagun/inv3x
+{
+	qer_editorimage textures/particles/plasmaflame_strip.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/plasmaflame_strip.tga
+		scale 1 / 32 , 1
+		scroll table32[ time * 1.8 ] , 0
+		red		0
+		green		1
+		blue		0
+	}
+}
+
+models/weapons/plasmagun/inv1
+{
+	qer_editorimage textures/particles/flame_strip.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/plasmaflame_strip.tga
+		scale 1 / 32 , 1
+		scroll table32[ time * .7 ] , 0
+		red		0
+		green		1
+		blue		0
+
+	}
+}
+
+models/weapons/plasmagun/inv2
+{
+	qer_editorimage textures/particles/plasmaflame_strip.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/plasmaflame_strip.tga
+		scale 1 / 32 , 1
+		scroll table32[ time * .6 ] , 0
+		red		0
+		green		1
+		blue		0
+
+	}
+}
+
+models/weapons/plasmagun/inv3
+{
+	qer_editorimage textures/particles/plasmaflame_strip.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	deform tube
+	{
+		blend add
+		map textures/particles/plasmaflame_strip.tga
+		scale 1 / 32 , 1
+		scroll table32[ time * .8 ] , 0
+		red		0
+		green		1
+		blue		0
+
+	}
+}
+
+/////////////////////////////////
+//
+//	INVULNERABLE FIRE FX
+//
+/////////////////////////////////
+
+models/items/powerups/invfx1poop
+{
+	noselfShadow
+    	noshadows	
+	translucent
+
+	{
+		maskcolor
+		map makealpha(models/items/mp_invuln/invulmask.tga)
+	
+	}
+	{
+	        blend gl_dst_alpha, gl_one
+			//maskalpha
+		    map models/items/mp_invuln/invfx.tga
+			translate	time * 0.1 , time * 2
+		red		0
+		green		1
+		blue		1
+	}
+	{
+		blend add
+		map models/items/powerups/berserkerfx2.tga
+
+	}
+
+}
+
+
+
+/////////////////////////////////
+//
+//	HASTE FIRE FX
+//
+/////////////////////////////////
+
+
+models/items/powerups/hastefx
+{
+	noselfShadow
+    	noshadows	
+	translucent
+
+	{
+		maskcolor
+		map makealpha(models/items/mp_haste/hastemask.tga)
+	
+	}
+	{
+	        blend gl_dst_alpha, gl_one
+			//maskalpha
+		    map models/items/powerups/berserkerfx.tga
+			translate	time * 0.1 , time * 2
+		red		0
+		green		1
+		blue		1
+	}
+	{
+		blend add
+		map models/items/powerups/berserkerfx2.tga
+
+	}
+
+}
+
+
+/////////////////////////////////
+//
+//	DESK VIEWER
+//
+/////////////////////////////////
+
+textures/pat/desk_viewer
+
+{
+	qer_editorimage	textures/pat/desk_viewer_local.tga
+	noselfShadow
+   	noshadows
+
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/desk_viewer1.tga textures/pat/viewer_desk_hi.lwo	
+	bumpmap			textures/pat/desk_viewer_local
+	diffusemap		textures/pat/desk_viewer_d
+	specularmap		textures/pat/desk_viewer_s
+	{
+		blend 	add
+		map		textures/pat/desk_viewer_glow.tga
+		rgb		slowblink [ time * .2 ]
+	}
+
+
+}
+/////////////////////////////////
+//
+//	DESK VIEWER SCREEN
+//
+/////////////////////////////////
+
+textures/pat/desk_screen
+
+{
+	qer_editorimage	textures/pat/desk_screen_local.tga
+	noselfShadow
+   	noshadows
+
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/desk_screen1.tga textures/pat/viewer_screen_hi.lwo	
+	bumpmap			textures/pat/desk_screen_local
+	diffusemap		textures/pat/desk_screen_d
+	specularmap		textures/pat/desk_screen_s
+
+
+}
+
+
+/////////////////////////////////
+//
+//	DESK VIEWER SCREEN GRAY
+//
+/////////////////////////////////
+
+textures/pat/desk_screen2
+
+{
+	qer_editorimage	textures/pat/desk_screen_local.tga
+	noselfShadow
+   	noshadows
+
+	renderbump		-size 512 512 -aa 2  -colorMap textures/pat/desk_screen1.tga textures/pat/viewer_screen_hi.lwo	
+	bumpmap			textures/pat/desk_screen_local
+	diffusemap		textures/pat/desk_screen_dgray
+	specularmap		textures/pat/desk_screen_s
+
+
+}
+
+
+/////////////////////////////////
+//
+// ROTATING TELE-COLON
+//
+/////////////////////////////////
+
+models/mapobjects/teleporter/pjtelecolon2
+
+{
+	noSelfShadow
+	noShadows
+	translucent
+	//twosided
+	{
+			blend bumpmap	
+			map models/mapobjects/teleporter/telecolon1_local.tga
+			scale 4,4
+//			scroll	time * 1 , time * 2.2
+			scroll	time * .1 , time * .1
+			
+	}
+
+
+	{
+			blend specularmap
+			map models/mapobjects/teleporter/telecolon2_s.tga
+			scale 4,4
+//			scroll	time * 2 , time * .5
+			scroll	time * .1 , time * .1
+			
+	}
+}
+
+
+models/mapobjects/teleporter/pjtelecolon1
+
+{
+	noSelfShadow
+	noShadows
+	//deform particle delta2a_telecolon_fx
+
+	{
+			blend bumpmap	
+			map textures/rock/lanrock1_local.tga
+			//scale 4 , 4
+			scale 4,4
+//			scroll	time * -.7 , time * .8
+			scroll	time * -.1 , time * .1
+			
+	}
+	{
+			blend diffusemap	
+			map models/mapobjects/teleporter/telecolon1.tga
+			//scale 1 , 3
+			scale 4,4
+//			scroll	time * 0.9 , time * 0.7
+			scroll	time * 0.1 , time * 0.1
+			
+	}
+
+	{
+			blend specularmap
+			map models/mapobjects/teleporter/telecolon1_s.tga
+
+			//scale 1 , 3
+			scale 4,4
+//			scroll	time * -0.9 , time * 1
+			scroll	time * -0.1 , time * .1	
+			
+	}
+	{
+			blend add	
+			map models/mapobjects/teleporter/telecolon1_fx.tga
+			rgb		meattable[ time * .2 ] -.5
+			//scale .4 , .4
+			scale 4,4
+//			scroll	time * -.7 , time * .8
+			scroll	time * -.1 , time * .1
+			
+	}
+}
+
+
+///////////////////////////////////
+//
+//	VIEWER SCAN BEAM
+//
+///////////////////////////////////
+
+
+textures/pat/bioscanbeam_blue
+ {
+	sort nearest
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	nonsolid
+	noimpact
+
+
+
+	qer_editorimage textures/pat/bioscanbeam_blue.tga
+
+	{
+		blend	add
+		map	textures/pat/bioscanbeam_blue.tga
+		rgb	crazyblink2 [ time * 1 ]
+	}
+		
+}
+
+////////////////////////////
+//
+//	ADAMS GLASS
+//
+////////////////////////////
+
+textures/pat/gridglass1
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+	sort decal
+
+	qer_editorimage textures/sfx/act1glass_d.tga
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .4         // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1   // the normal map for distortion			
+             
+    	}
+	{	
+		maskcolor				
+	    	map	makealpha(textures/pat/darkglass1)
+	}
+
+	{
+	 	 blend	diffuseMap
+		map textures/sfx/act1glass_d.tga
+		
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+		red	Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+
+	
+}
+/////////////////////////////////////
+//
+//	ADAMS GLASS BROWN
+//
+////////////////////////////
+
+
+textures/pat/gridglassbrown
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+	sort decal
+
+	qer_editorimage textures/pat/brownact1glass_d.tga
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .4         // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1   // the normal map for distortion			
+             
+    	}
+	{	
+		maskcolor				
+	    	map	makealpha(textures/pat/darkglass2)
+	}
+
+	{
+	 	 blend	diffuseMap
+		map textures/pat/brownact1glass_d.tga
+		
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+		red	Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+
+	
+}
+/////////////////////////////////////
+//
+// WALL MONITOR
+//
+/////////////////////////////////////
+
+models/patj/wallmonitor1
+{
+
+qer_editorimage textures/pat/wallmonitor1_d.tga
+
+	bumpmap			textures/pat/wallmonitor1_local.tga
+	diffusemap		textures/pat/wallmonitor1_d.tga
+	specularmap		textures/pat/wallmonitor1_s.tga
+
+	{
+		blend	add
+		map	textures/pat/wallmonitor1_add.tga
+		rgb	lightblink [ time * 2 ]
+	}
+}
+
+/////////////////////////////////////
+//
+// 	GUI SHOTS
+//
+/////////////////////////////////////
+
+
+phobosgui_map1
+ {
+	{
+		blend	add
+		map	guis/assets/phobos/map1.tga	
+	}	
+}
+
+phobosgui_map2
+ {
+	{
+		blend	add
+		map	guis/assets/phobos/map2.tga	
+	}	
+}
+phobosgui_map3
+ {
+	{
+		blend	add
+		map	guis/assets/phobos/map3.tga	
+	}	
+}
+
+phobosgui_map4
+ {
+	{
+		blend	add
+		map	guis/assets/phobos/map4.tga	
+	}	
+}
+
+phobosgui_shot1
+{
+	
+		diffusemap	guis/assets/phobos/shot1.tga
+}
+phobosgui_shot2
+{
+	
+		diffusemap	guis/assets/phobos/shot2.tga
+}
+phobosgui_shot3
+{
+	
+		diffusemap	guis/assets/phobos/shot3.tga
+}
+phobosgui_shot4
+{
+	
+		diffusemap	guis/assets/phobos/shot4.tga
+}
+//////////////////////////////////////
+//
+// 	PHOBOS REACTOR GUI
+//
+//////////////////////////////////////
+
+phobos/reactor/background
+{
+	{
+		blend blend
+		map 	guis/assets/phobos/reactor/background.tga
+		colored
+		clamp
+	}
+}
+
+
+phobos/reactor/reactor_glow
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/reactor_glow.tga
+		colored
+		clamp
+	}
+}
+
+phobos/reactor/reactor_highlight
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/reactor_glow.tga
+		colored
+		clamp
+	}
+}
+
+
+phobos/reactor/button
+{
+	{       
+      		blend blend
+	 	map 	guis/assets/phobos/reactor/button.tga
+	 	
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+phobos/reactor/output00
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output00.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output01
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output01.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output02
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output02.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output03
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output03.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output04
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output04.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output05
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output05.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output06
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output06.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output07
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output07.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output08
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output08.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output09
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output09.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output10
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output10.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output11
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output11.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output12
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output12.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output13
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output13.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output14
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output14.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output15
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output15.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output16
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output16.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output17
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output17.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output18
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output18.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output19
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output19.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output20
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output20.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output21
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output21.tga
+		colored
+		clamp
+	}
+}
+phobos/reactor/output22
+{
+	{
+		blend add
+		map 	guis/assets/phobos/reactor/output22.tga
+		colored
+		clamp
+	}
+}
+
+
+gui/thermal/nospin
+{
+
+	{
+		blend	blend
+		map		guis/assets/teleporter/spin.tga
+//		rotate	time * 0.1
+		colored
+		clamp
+	}
+}
+
+models/mapobjects/phobos/envirotank
+{
+	noSelfShadow
+ 	renderbump  -size 512 512 -aa 2 -trace 0.005 -colorMap models/items/aircannister/aircannister_local.tga models/items/aircannister/aircannister_hi.lwo
+	
+	bumpmap			models/mapobjects/phobos/envirotank_local.tga
+	diffusemap		models/mapobjects/phobos/envirotank_d.tga
+	specularmap		models/mapobjects/phobos/envirotank_s.tga
+	{
+			blend	add
+			map	models/mapobjects/phobos/envirotank_glow.tga
+			colored
+			rgb	lightblink [ time * 2 ]
+	}
+}
+
+////////////////////////////////
+//
+//	SHARP ROCK noshadow
+//
+////////////////////////////////
+
+textures/rock/no_sharprockblend  
+{
+	qer_editorimage	textures/rock/sharprockblend
+	stone
+
+	noselfShadow
+	{
+		blend 		bumpmap
+		map			addnormals (textures/rock/skysand1_local.tga, heightmap (textures/rock/skysand1_bmp.tga, 4))
+	}
+	{
+		blend 		diffusemap
+		map			textures/rock/skysand1_d.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map			addnormals (textures/rock/sharprock_local, heightmap (textures/rock/newdarkrock_bmp.tga, 10) )
+	}
+	{
+		blend		diffusemap
+		map			textures/rock/sharprock
+		inverseVertexColor
+	}
+	{
+		blend		specularmap
+		map			textures/rock/sharprock_s
+		inverseVertexColor
+	}
+}
+
+/////////////////////////////////
+//
+//	BLOODY THING
+//
+/////////////////////////////////
+
+
+textures/decals/bloodyfilmred_d3xp
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/greystatica.tga
+	
+	{
+		program	colorProcess.vfp
+		vertexParm		0	  1   // sinTable[ time * 0.5 ]	// 0.0 = source color, 1.0 = target color
+		vertexParm		1		1.2, .0, .0	// target full intensity RGB
+		fragmentMap		0		_currentRender
+	}
+	{
+
+	    blend		add
+		scale 2,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/greystatica.tga
+
+	}
+
+	{
+
+	    blend		filter
+		scale 2,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/oldfilm.tga
+
+	}
+	{
+
+	    blend		filter
+		scale 1, .007
+		translate time * 0, time * -40
+
+		map    textures/decals/oldfilm3.tga
+
+	}
+}
+//////////////////////////
+//
+//	enpro	grate
+//
+//////////////////////////
+
+
+textures/phobos/encyl3_grate
+{
+	qer_editorimage		textures/phobos/encyl3_grate_d
+	noshadows
+	twosided
+	bumpmap				textures/phobos/encyl3_grate_local
+	{
+		blend			diffusemap			
+		map				textures/phobos/encyl3_grate_d
+		alphatest		.65
+	}
+	specularmap			textures/phobos/encyl3_grate_s
+}
+
+
+//////////////////////////////////////////////////////////
+//
+//	LAVA METEOR
+//
+//
+//
+/////////////////////////////////////////////////////////
+
+textures/pat/meteor1
+
+	
+
+{
+	qer_editorimage	textures/hell/cracked2_local.tga
+	noselfShadow
+	noshadows
+
+	{
+		blend 		bumpmap
+		map		    addnormals( textures/hell/cracked2b_local.tga, heightmap( textures/hell/cracked2_h.tga, 9 ) )
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/cracked2lava.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map			textures/hell/cracked2lava_s.tga
+		vertexColor
+	}
+	{//black verts
+		blend		bumpmap
+		map		    addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 9 ) )
+	}
+	{
+		blend		diffusemap
+		map			textures/hell/lavascroll.tga
+		inverseVertexColor
+	}
+	{
+		map			textures/hell/lavascroll
+		maskcolor
+	}
+	{
+		blend 		specularmap
+		map			textures/hell/lava1_s.tga
+		translate	time * .02 , time * -0.05
+		inverseVertexColor
+	}   
+	{
+		blend		gl_dst_alpha , gl_one
+		map			textures/hell/lava1fx.tga
+		rgb			fireballtable[ time * .05 ]
+		translate	time * .01 , time * -0.025
+		inverseVertexColor
+	}
+	{
+		blend		gl_dst_alpha , gl_one
+		map textures/hell/lava1fx.tga
+		rgb			fireballtable[ time * .25  ]
+		translate	time * -.02 , 1
+		inverseVertexColor
+	}
+}
+
+
+////////////////////
+//
+//	METEOR FX
+//
+////////////////////
+
+
+models/patj/meteor_fx
+{
+	noShadows
+	noselfshadow
+	//deform sprite
+	flesh
+	nonsolid
+	noimpact
+	translucent
+
+	{
+		if	( parm7 == 0 )
+		maskcolor
+//		map makealpha(models/monsters/forgotten/forgotten_fx)
+		map makealpha(textures/pat/meteor_fx_mask)
+	
+	}
+	{
+		if	( parm7 == 0 )
+	        blend gl_dst_alpha, gl_one
+			maskalpha
+		    map models/monsters/lost/lostfx.tga
+			red   1
+			blue  .6
+			green 1
+			translate	time * -1.5 , time * .1
+	}
+	{
+		if	( parm7 == 0 )
+	        blend gl_dst_alpha, gl_one
+			maskalpha
+		    map models/monsters/lost/lostfx.tga
+			red   .2
+			blue  .2
+			green .2
+			translate	time * -1.7 , time * -.1
+	}
+
+
+
+ }
+
+////////////////////////////////
+//
+//	McNeil shutters
+//
+////////////////////////////////
+
+textures/phobos/mcneil_shutters
+
+{
+	qer_editorimage		textures/phobos/mcneil_shutters_local.tga
+	bumpmap			textures/phobos/mcneil_shutters_local.tga
+	diffusemap		textures/phobos/mcneil_shutters_d.tga
+	specularmap		textures/phobos/mcneil_shutters_s.tga
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+//
+//	PARTICLES
+//
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+textures/particles/pj_hellring1
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/particles/caco_shot2
+		vertexcolor					
+	}
+
+}
+
+textures/particles/pj_motherfuck2
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/particles/grabber_hell
+		vertexcolor
+
+
+						
+	}
+
+}
+
+textures/particles/pj_hellsymbol
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/particles/symbol_letters_01d
+		vertexcolor
+
+
+						
+	}
+
+}
+
+textures/particles/pj_pent1
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/hell/pentastic1
+		vertexcolor
+//		rgb		slowblink [ time * 1 ]
+						
+	}
+
+}
+textures/particles/pj_pent1fx
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/hell/pentagramfx
+		vertexcolor
+		rgb		crazyblink [ time * 1 ]
+						
+	}
+
+}
+
+textures/particles/pj_pent_blur1
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/pat/pj_pent_blur1
+		vertexcolor
+						
+	}
+
+}
+textures/particles/pj_pent_blur2
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/pat/pj_pent_blur2
+		vertexcolor
+						
+	}
+
+}
+
+textures/particles/pj_cacoring
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+
+	{ 
+      
+      	blend add
+	    map	textures/pat/pj_cacoring
+		vertexcolor
+						
+	}
+
+}
+
+/////////////////////////////////////////
+//
+//	SKY
+//
+/////////////////////////////////////////
+
+
+
+textures/pat/pj_sky1
+{
+    	noselfShadow
+    	noshadows	
+	nonsolid
+	noimpact
+
+	qer_editorimage		textures/pat/pj_sky1
+//	diffusemap		textures/pat/pj_sky1
+{
+		blend		blend
+		map		textures/pat/pj_sky1
+		translate 	time * .005, 001
+}
+
+}
+
+textures/sfx/outsidedustpass1pj
+{
+	qer_editorimage		textures/sfx/outsidedustpass1
+	translucent
+	noshadows
+	{
+		blend		add
+		map		textures/sfx/outsidedustpass1.tga
+		translate 	time * .08, 0
+		colored
+	}
+	{
+		blend		add
+		map		textures/sfx/outsidedustpass1.tga
+		translate 	time * 0.1, 0.05
+		colored
+	}
+}		

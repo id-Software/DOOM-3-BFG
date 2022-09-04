@@ -1,0 +1,213 @@
+/***********************************************************************
+
+weapon_bfg.script
+
+***********************************************************************/
+
+#define BFG_MINRELEASETIME		0.05
+#define BFG_FUSE				2.0
+#define BFG_SHORTFUSE			0.5
+#define BFG_MAXPOWER			4.0
+#define BFG_FIRERATE			4
+#define BFG_FIREDELAY			4
+#define BFG_NUMPROJECTILES		1
+
+// blend times
+#define BFG_IDLE_TO_LOWER		4
+#define BFG_IDLE_TO_FIRE		4
+#define	BFG_IDLE_TO_RELOAD		4
+#define BFG_RAISE_TO_IDLE		4
+#define BFG_FIRE_TO_IDLE		4
+#define BFG_RELOAD_TO_IDLE		4
+
+object weapon_bfg : weapon_base {
+	float		spread;	
+	float		next_attack;
+	
+	void		init();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		Reload();
+	void		OverCharge();
+	void		ExitCinematic();
+};
+
+void weapon_bfg::init() {
+	next_attack = 0;
+	spread = getFloatKey( "spread" );
+	setGuiParm( "powerlevel", 0 );
+	setGuiParm( "overcharge", 0 );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bfg::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, BFG_RAISE_TO_IDLE ) );
+	weaponState( "Idle", BFG_RAISE_TO_IDLE );
+}
+
+void weapon_bfg::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bfg::Idle() {
+	float currentTime;
+	float ammoClip;
+	float avail;
+	float clip_size;
+
+	setColor( 0, 0, 0 );
+	clip_size = clipSize();	
+	
+	if ( !ammoInClip() ) {
+		playCycle( ANIMCHANNEL_ALL, "idle_empty" );
+		weaponOutOfAmmo();
+	} else {
+		playCycle( ANIMCHANNEL_ALL, "idle" );
+		weaponReady();
+	}
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", BFG_IDLE_TO_LOWER );
+		}
+		currentTime = sys.getTime();
+		ammoClip = ammoInClip();
+		if ( ( currentTime >= next_attack ) && WEAPON_ATTACK ) {
+			if ( ammoClip > 0 ) {
+				weaponState( "Fire", BFG_IDLE_TO_FIRE );
+			} else if ( ammoAvailable() > 0 ) {
+				if ( autoReload() ) {
+					netReload();
+					weaponState( "Reload", BFG_IDLE_TO_RELOAD );
+				}
+			}
+		}
+		if ( WEAPON_RELOAD && ( ammoAvailable() > ammoClip ) && ( ammoClip < clip_size ) ) {
+			netReload();
+			weaponState( "Reload", BFG_IDLE_TO_RELOAD );
+		}
+		if ( WEAPON_NETRELOAD ) {
+			WEAPON_NETRELOAD = false;
+			weaponState( "Reload", BFG_IDLE_TO_RELOAD );
+		}
+		waitFrame();
+	}
+}
+
+void weapon_bfg::Fire() {
+	float fuse_start;
+	float fuse_end;
+	float current_time;
+	float time_held;
+	float power;
+	float powerLevel;
+	float intensity;
+	float fire_time;
+	
+	playAnim( ANIMCHANNEL_ALL, "fire_begin" );
+	
+	current_time = sys.getTime();
+	fuse_start = current_time;
+	fuse_end = current_time + BFG_FUSE;
+	while( current_time < fuse_end ) {
+		if ( ( current_time > BFG_MINRELEASETIME ) && !WEAPON_ATTACK ) {
+			break;
+		}
+		waitFrame();
+		current_time = sys.getTime();
+		powerLevel = ( current_time - fuse_start ) / BFG_FUSE;
+		setColor( powerLevel, powerLevel, powerLevel );
+		setGuiParm( "powerlevel",  powerLevel );
+	}
+	
+	if ( WEAPON_ATTACK ) {
+		current_time = sys.getTime();
+		fuse_end = current_time + BFG_SHORTFUSE;
+		while ( WEAPON_ATTACK && current_time < fuse_end ) {
+			waitFrame();
+			current_time = sys.getTime();
+		}
+		powerLevel = ( current_time - fuse_start ) / BFG_FUSE;
+		setGuiParm( "powerlevel", powerLevel );
+	}
+	
+	if ( current_time >= fuse_end ) {
+		OverCharge();
+	} else {
+		time_held = current_time - fuse_start;
+		power = ( BFG_MAXPOWER * ( time_held / BFG_FUSE ) );
+		if ( power > BFG_MAXPOWER ) {
+			power = BFG_MAXPOWER;
+		}
+		playAnim( ANIMCHANNEL_ALL, "fire" );
+		fire_time = sys.getTime();
+		launchProjectiles( BFG_NUMPROJECTILES, spread, time_held, 1.0, power );
+		while( !animDone( ANIMCHANNEL_ALL, BFG_FIRE_TO_IDLE ) ) {
+			current_time = sys.getTime();
+			intensity = 1 - ( ( current_time - fire_time ) / 0.5 );
+			if ( intensity < 0 ) {
+				intensity = 0;
+			}
+			setColor( intensity, intensity, intensity );
+			waitFrame();
+		}
+
+		while ( powerLevel > 0 ) {
+			powerLevel -= 0.05;
+			setGuiParm( "powerlevel", powerLevel );
+			waitFrame();
+		}
+	}
+
+	setGuiParm( "powerlevel", 0 );
+	weaponState( "Idle", BFG_FIRE_TO_IDLE );
+}
+
+void weapon_bfg::Reload() {
+	weaponReloading();
+	playAnim( ANIMCHANNEL_ALL, "reload" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, BFG_RELOAD_TO_IDLE ) );
+	addToClip( clipSize() );
+	weaponState( "Idle", BFG_RELOAD_TO_IDLE );
+}
+
+void weapon_bfg::OverCharge() {
+	string	entname;
+	entity	explosion;
+	vector	forward;
+	vector	angles;
+	entity	owner;
+
+	owner = getOwner();
+
+	allowDrop( false );
+	useAmmo( clipSize() );
+
+	angles = owner.getViewAngles();
+	forward = sys.angToForward( angles );
+
+	entname = getKey( "def_overcharge" );
+	explosion = sys.spawn( entname );
+	explosion.setOrigin( getOrigin() + forward * 16 );
+	explosion.setShaderParm( SHADERPARM_TIMEOFFSET, -sys.getTime() );
+	delayRemove( explosion, 2 );
+
+	startSound( "snd_explode", SND_CHANNEL_ANY, false );
+	sys.radiusDamage( getOrigin(), self, owner, $null_entity, "damage_bfg_overcharge", 1.0 );
+}
+
+void weapon_bfg::ExitCinematic() {
+	next_attack = 0;
+	setColor( 0, 0, 0 );
+	setGuiParm( "powerlevel", 0 );
+	weaponState( "Idle", 0 );
+}

@@ -1,0 +1,443 @@
+textures/glass/outdoor_glass1
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+	sort decal
+
+	qer_editorimage textures/glass/glass1
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .5        // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1  // the normal map for distortion			
+             
+    }
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/glass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+	{
+     blend filter
+	map textures/glass/outdoor_glass1fx
+	}
+	
+}
+
+textures/glass/breakyglass3
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass3
+	{
+                Program           heatHazeWithMaskAndVertex.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .5        // magnitude of the distortion
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/glass/breakyglass3   // the normal map for distortion		
+	            fragmentMap             2       textures/glass/4x4  // the normal map for distortion		
+             
+    }
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass3)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass3_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass3
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass3)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass2
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass2
+	{
+                Program           heatHazeWithMaskAndVertex.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .5        // magnitude of the distortion
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/glass/breakyglass2   // the normal map for distortion		
+	            fragmentMap             2       textures/glass/4x4  // the normal map for distortion		
+             
+    }
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass2)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass2_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass2
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass2)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass1_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass1
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+textures/glass/breakyglass1
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/breakyglass1
+	{
+                Program           heatHazeWithMaskAndVertex.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .5        // magnitude of the distortion
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/glass/breakyglass1   // the normal map for distortion		
+	            fragmentMap             2       textures/glass/4x4  // the normal map for distortion		
+             
+    }
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/breakyglass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+		vertexColor
+	}
+	
+}
+
+
+
+textures/glass/mc_scannerglass
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/mc_scannerglass
+
+
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/mc_scannerglass)
+	}
+	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/mc_scanner2
+        texgen		reflect
+
+	}
+
+		
+}
+
+textures/glass/glass1
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass1
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .4         // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1   // the normal map for distortion			
+             
+    }
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/glass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+	
+}
+
+textures/glass/glass1_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass1
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/glass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+	
+}
+
+textures/glass/glass2_nvp
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass2
+
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/glass2)
+	}
+	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+
+		
+}
+
+
+
+textures/glass/glass2
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass2
+
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .4         // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1   // the normal map for distortion
+             
+    }
+
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/glass2)
+	}
+	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+
+		
+}
+//same as glass2 with green reinforced glass diffuse texture added
+textures/glass/glass3
+ {
+	noSelfShadow
+	noshadows
+	twosided
+	translucent
+	glass
+	forceoverlays
+
+	qer_editorimage textures/glass/glass2
+
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       .4         // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1   // the normal map for distortion
+             
+    }
+
+	{	
+		maskcolor				
+	    map	makealpha(textures/glass/glass2)
+	}
+	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+	
+	{
+	 	 blend	diffuseMap
+		map textures/sfx/chiglass1blue_d.tga
+		//scale	 16 , 16
+		scale	 32 , 32
+	}
+
+		
+}
+
+

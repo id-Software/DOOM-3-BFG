@@ -1,0 +1,593 @@
+namespace map_cpuboss {
+	#define PUMP_DISTANCE 90
+	#define EXTEND_MID 64
+	#define EXTEND_NUT 64
+	#define FLOOR_SPEED 2			// Seconds
+
+	float	bridge_down = 0;
+	float	bridge_dir = 0;		
+	float	bridge_moving = 0;
+	float	PLAYMUSIC = TRUE;
+	float	monsterstatus = 1;
+	float	started_music = 0;
+	float	bridge_rot_time = 6;	// How long will it take the bridge to rotate to it's place ?
+			
+	float stop_pumps = FALSE;
+	float stop_floors = FALSE;
+	float stop_lights = FALSE;
+	
+	float mach1_loc = 2;			// Which rung is it on ? starts in middle rung
+									// 1 == bottom, 2 == middle, 3== top
+	float mach1_loc_last = 0;		// Where were we last ? 
+
+
+	void mover_startsound3 (entity ent) {
+		ent.startSoundShader ("cpu_m3_start", SND_CHANNEL_VOICE);
+		sys.wait (1);
+		ent.startSoundShader ("cpu_m3_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound3 (entity ent) {
+		ent.startSoundShader ("cpu_m3_stop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_startsound4 (entity ent) {
+		ent.startSoundShader ("cpu_m4_start", SND_CHANNEL_VOICE);
+		sys.wait (1);
+		ent.startSoundShader ("cpu_m4_loop", SND_CHANNEL_VOICE2);
+	}
+
+	void mover_stopsound4 (entity ent) {
+		ent.startSoundShader ("cpu_m4_stop", SND_CHANNEL_VOICE2);
+	}
+
+    //Sab room   -open and close the pillar shields
+
+    void cpillar1_open() 
+    {
+		$cpillar1_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar1_shield1.moveTo ($cpillar1_shield_s1);
+		$cpillar1_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar1_shield2.moveTo ($cpillar1_shield_s2);
+	}
+
+    void cpillar2_open() 
+    {
+		$cpillar2_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar2_shield1.moveTo ($cpillar2_shield_s1);
+		$cpillar2_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar2_shield2.moveTo ($cpillar2_shield_s2);
+	}
+
+    void cpillar3_open() 
+    {
+		$cpillar3_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar3_shield1.moveTo ($cpillar3_shield_s1);
+		$cpillar3_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar3_shield2.moveTo ($cpillar3_shield_s2);
+	}
+
+    void cpillar4_open() 
+    {
+		$cpillar4_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar4_shield1.moveTo ($cpillar4_shield_s1);
+		$cpillar4_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar4_shield2.moveTo ($cpillar4_shield_s2);
+	}
+
+    void cpillar1_close() 
+    {
+		$cpillar1_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar1_shield1.moveTo ($cpillar1_shield_s0);
+		$cpillar1_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar1_shield2.moveTo ($cpillar1_shield_s0);
+	}
+
+    void cpillar2_close() 
+    {
+		$cpillar2_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar2_shield1.moveTo ($cpillar2_shield_s0);
+		$cpillar2_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar2_shield2.moveTo ($cpillar2_shield_s0);
+	}
+
+    void cpillar3_close() 
+    {
+		$cpillar3_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar3_shield1.moveTo ($cpillar3_shield_s0);
+		$cpillar3_shield2.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar3_shield2.moveTo ($cpillar3_shield_s0);
+	}
+
+    void cpillar4_close() 
+    {
+		$cpillar4_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+		$cpillar4_shield1.moveTo ($cpillar4_shield_s0);
+		$cpillar4_shield1.startSoundShader ("cpu_shields", SND_CHANNEL_VOICE2 );
+        $cpillar4_shield2.moveTo ($cpillar4_shield_s0);
+	}
+
+
+        //
+
+	// ---
+	// Init base-state of world entities here
+	// ---
+
+	void init_world() {
+                
+        // Sabaoth room electrical pillar shield times
+                
+        $cpillar1_shield1.accelTime (.2);
+        $cpillar1_shield2.accelTime (.2);
+        $cpillar2_shield1.accelTime (.2);
+        $cpillar2_shield2.accelTime (.2);
+        $cpillar3_shield1.accelTime (.2);
+        $cpillar3_shield2.accelTime (.2);
+        $cpillar4_shield1.accelTime (.2);
+        $cpillar4_shield2.accelTime (.2);
+        $cpillar1_shield1.time (.5);
+        $cpillar1_shield2.time (.5);
+        $cpillar2_shield1.time (.5);
+        $cpillar2_shield2.time (.5);
+        $cpillar3_shield1.time (.5);
+        $cpillar3_shield2.time (.5);
+        $cpillar4_shield1.time (.5);
+        $cpillar4_shield2.time (.5);
+
+        // old boss room
+
+		$tooth_1.sway (8, 0.2, '0 5 -4');
+		$tooth_2.sway (7, 0.4, '0 -4 4');
+		$tooth_3.sway (8, 0.6, '0 6 2');
+		$tooth_4.sway (6, 0.32, '0 5 3');
+		$tooth_5.sway (7, 0.9, '0 -3 2');
+		$tooth_6.sway (7, 0.78, '0 2 5');
+		$tooth_7.sway (5, 0.5, '0 4 -5');
+		$tooth_8.sway (6, 0.6, '0 3 -2');
+		
+		$bm_arm1_anchor.time (3);
+		$bm_arm1_anchor.accelTime (0.5);
+		$bm_arm1_anchor.decelTime (1.5);
+
+		$bm_mach1_wheel1_anchor.bind ($bm_mach1_support);
+		$bm_mach1_wheel2_anchor.bind ($bm_mach1_support);
+		$bm_mach1_wheel3_anchor.bind ($bm_mach1_support);
+		$bm_mach1_wheel4_anchor.bind ($bm_mach1_support);
+					
+		$mach1_support_anchor.time (3);
+		
+		float	i;
+		entity	ent, ent2, ent3;
+		
+		$pentagram.rotate ('0 20 0');
+		
+		for (i=1; i<=4; i++) {
+			
+			// Top pumps
+			ent = sys.getEntity ("bm_pump" + i + "a");
+			ent.time (5);
+			ent.accelTime (0.75);
+			ent.decelTime (1.5);
+			
+			ent = sys.getEntity ("bm_pump" + i + "a_anchor");
+			ent.time (5);
+			ent.accelTime (0.75);
+			ent.decelTime (1.5);
+
+			// Bottom pump
+			
+			ent = sys.getEntity ("bm_pump" + i + "b");
+			ent.time (5);
+			ent.accelTime (0.75);
+			ent.decelTime (1.5);
+
+			ent = sys.getEntity ("bm_pump" + i + "b_anchor");
+			ent.time (5);
+			ent.accelTime (0.75);
+			ent.decelTime (1.5);
+		}
+
+		// bind sector 1
+		for ( i = 1; i <= 3; i++ ) {
+			ent=sys.getEntity ("s1_" + i);
+			ent2=sys.getEntity ("s1_" + i + "_anchor");
+			ent.time (FLOOR_SPEED);
+			ent2.time (FLOOR_SPEED);
+			ent.bind (ent2);
+			ent2.bind ($sector_1);
+		}
+
+		// bind sector 2
+		for ( i = 1; i <= 3; i++ ) {
+			ent=sys.getEntity ("s2_" + i);
+			ent2=sys.getEntity ("s2_" + i + "_anchor");
+			ent.time (FLOOR_SPEED);
+			ent2.time (FLOOR_SPEED);
+			ent.bind (ent2);
+			ent2.bind ($sector_2);
+		}
+		
+		// bind sector 3
+		for ( i = 1; i <= 9; i++ ) {
+			ent=sys.getEntity ("s3_" + i);
+			ent2=sys.getEntity ("s3_" + i + "_anchor");
+			ent.time (FLOOR_SPEED);
+			ent2.time (FLOOR_SPEED);
+			ent.bind (ent2);
+			ent2.bind ($sector_3);
+		}
+		
+		$bm_arm1_bolt.time (2);
+		$bm_arm1_bolt.accelTime (0.25);
+		$bm_arm1_bolt.decelTime (0.75);
+		
+		$bm_arm1_mid.move (RIGHT, 40);
+		$bm_arm1_nut.move (RIGHT, 40);
+		
+		sys.wait (1);
+		
+	}
+
+	// ---
+	// Init base position for the central bridge
+	// ---
+
+	void init_bridge() {
+		$bridge_support.time (6);
+		$bridge_support.accelTime (0.75);
+		$bridge_support.decelTime (1);
+
+		$cpubridge_anchor.time (6);
+		$cpubridge_anchor.accelTime (2);
+		$cpubridge_anchor.decelTime (3);
+		
+		$bridge_ramp_right.time (2);
+		$bridge_ramp_left.time (2);
+
+		$bridge_arm_anchor.time (2);
+
+		$bridge_base.bind ($bridge_support);
+		$bridge_arm_anchor.bind ($bridge_base);
+
+		$bridge_rail_right.bind ($bridge_ramp_right);
+		$bridge_rail_left.bind ($bridge_ramp_left);
+
+		$bridge_ramp_right.bind ($bridge_arm_anchor);
+		$bridge_ramp_left.bind ($bridge_arm_anchor);
+		$bridge_gui.bind ($bridge_arm_anchor);
+
+		$bridge_ramp_right.time (1);
+		$bridge_ramp_left.time (1);	
+
+		$bridge_ramp_right.rotateOnce ('0 0 -90');
+		$bridge_ramp_left.rotateOnce ('0 0 90');
+		$bridge_arm_anchor.rotateOnce ('-90 0 0');
+
+		$bridge_support.move (UP, 1024);
+
+	}
+
+	void test_bridge() {
+		float	i;
+
+		if (bridge_down == 0) {
+			sys.trigger ($bridge_vo_1);
+			// Sound of bridge coming down
+			$speaker_bridge_1.startSoundShader ("cpu_bridge_down_6s", SND_CHANNEL_BODY );		
+			
+			$bridge_support.move (DOWN, 1024);
+			$bridge_support.rotateOnce ('0 -450 0');
+			sys.waitFor ($bridge_support);
+			
+			
+			
+			$bridge_arm_anchor.time (5);
+			// Sound of Arm rotating down
+			$speaker_bridge_3.startSoundShader ("cpu_arm_down_5s", SND_CHANNEL_ITEM );
+			$bridge_arm_anchor.rotateOnce ('90 0 0');			// Down
+			sys.waitFor ($bridge_arm_anchor);
+			
+			$bridge_arm_anchor.time (2);
+
+			// Bounce the bridge as it comes down
+
+			$bridge_arm_anchor.time (0.3);
+			$bridge_arm_anchor.rotateOnce ('-2 0 0');			// Up
+			sys.waitFor ($bridge_arm_anchor);
+
+			$bridge_arm_anchor.time (0.2);
+			$bridge_arm_anchor.rotateOnce ('2 0 0');			// Down
+			sys.waitFor ($bridge_arm_anchor);
+			
+			$bridge_ramp_right.startSoundShader ("cpu_bridge_rails", SND_CHANNEL_VOICE );
+			$bridge_ramp_right.rotateOnce ('0 0 90');
+			
+			$bridge_ramp_left.startSoundShader ("cpu_bridge_rails", SND_CHANNEL_VOICE );	
+			$bridge_ramp_left.rotateOnce ('0 0 -90');
+			sys.waitFor ($bridge_ramp_left);
+
+		//	$bridge_support.rotateOnce ('0 -90 0');
+			//$bridge_ramp_right.rotateOnce ('-90 0 0');
+			//$bridge_ramp_left.rotateOnce ('90 0 0');
+			
+			bridge_down = 1;
+			bridge_dir = 3;
+		}
+	}
+
+	vector bridge_getRotationAngles (float target_dir)
+	{
+		vector	vec;
+		
+		if ( (bridge_dir != 1) && (target_dir == 1) ) {
+			$cpubridge_anchor.move (DOWN, 256);
+		}
+		
+		else if ( (bridge_dir == 1) && (target_dir != 1) ) {
+			$cpubridge_anchor.move (UP, 256);
+		}
+
+		//else {
+		//	sys.print ("not moving up or down\n");
+		//}
+
+		if ( (bridge_dir - target_dir) == -3 )
+			return '0 90 0';
+		if ( (bridge_dir - target_dir) == 3 )
+			return '0 -90 0';
+
+		vec_x = 0;
+		vec_z = 0;
+		vec_y = (bridge_dir - target_dir) * 90;
+		
+		
+		if ( ( vec_y == 90 ) || ( vec_y == -90 ) ) {
+			$bridge_support.time (6);
+			$cpubridge_anchor.time (6);
+			bridge_rot_time = 6;
+		}
+		if ( ( vec_y == 180 ) || (vec_y == -180) ) {
+			$bridge_support.time (10);
+			$cpubridge_anchor.time (10);
+			bridge_rot_time = 10;
+		}
+		if ( ( vec_y == 270 ) || (vec_y == -270) ) {
+			$bridge_support.time (10);
+			$cpubridge_anchor.time (10);
+			bridge_rot_time = 10;
+		}
+		return vec;	
+	}
+
+	void bridge_rotation_sound() {
+		
+		if (bridge_rot_time == 6) {
+			$speaker_bridge_2.startSoundShader ("bridge_rotation_6s", SND_CHANNEL_BODY );
+			return;
+		}
+		else {
+			$speaker_bridge_2.startSoundShader ("bridge_rotation_10s", SND_CHANNEL_BODY );
+			return;
+		}
+	
+	}
+
+	void bridge_rotate_south()
+	{
+		
+		vector	vec;
+		
+		if ( bridge_dir == 3 )
+			return;						// Bridge is already at this location
+		
+		if (bridge_moving == 0) {
+			bridge_moving = 1;
+			$bridge_gui.disable();
+
+			if (bridge_down == 0)
+				test_bridge();	
+			else
+			{
+				vec = bridge_getRotationAngles (3);
+				
+				thread bridge_rotation_sound();
+				
+				$bridge_support.rotateOnce (vec);
+				sys.waitFor ($bridge_support);
+				
+				bridge_dir = 3;
+			}
+			$bridge_gui.enable();
+			bridge_moving = 0;
+		}
+	}
+
+	void bridge_rotate_east()
+	{
+		vector	vec;
+		
+		if (bridge_dir == 2)
+			return;							// Bridge is already at this location
+		
+		if (bridge_moving == 0) {
+			bridge_moving = 1;
+			$bridge_gui.disable();
+			vec = bridge_getRotationAngles (2);
+			
+			thread bridge_rotation_sound();
+			
+			sys.print ("rot time ==" + bridge_rot_time + "\n");
+			$bridge_support.rotateOnce (vec);
+			sys.waitFor ($bridge_support);
+			
+			bridge_dir = 2;
+			$bridge_gui.enable();
+			bridge_moving = 0;
+		}
+	}
+
+	void bridge_rotate_west()
+	{
+		vector	vec;
+		
+		if (bridge_dir == 4)
+			return;						// Bridge is already at this location
+		
+		if (bridge_moving == 0) {
+			bridge_moving = 1;
+			$bridge_gui.disable();
+			vec = bridge_getRotationAngles (4);
+			
+			thread bridge_rotation_sound();
+			
+			sys.print ("rot time ==" + bridge_rot_time + "\n");
+			$bridge_support.rotateOnce (vec);
+			sys.waitFor ($bridge_support);
+			
+			bridge_dir = 4;
+			$bridge_gui.enable();
+			bridge_moving = 0;
+		}
+	}
+
+	void bridge_rotate_north()
+	{
+		vector	vec;
+		
+		if (bridge_dir == 1)
+			return;							// Bridge is already at this location
+		
+		if (bridge_moving == 0) {
+			bridge_moving = 1;			
+			$bridge_gui.disable();
+			vec = bridge_getRotationAngles (1);
+			
+			thread bridge_rotation_sound();
+
+			sys.trigger ($trigger_objectivecomplete);
+
+			sys.print ("rot time ==" + bridge_rot_time + "\n");
+			$bridge_support.rotateOnce (vec);
+			sys.waitFor ($bridge_support);
+                         
+            
+			
+			bridge_dir = 1;
+			$bridge_gui.enable();
+			bridge_moving = 0;
+		}
+	}
+
+	void init_running_lights() {
+		entity	l1, l2, l3, l4;
+		float	i;
+		
+		for ( i=1; i<=13; i++ ) {
+			l1 = sys.getEntity ("rrun_" + i);
+			l2 = sys.getEntity ("lrun_" + i);
+			l3 = sys.getEntity ("trrun_" + i);
+			l4 = sys.getEntity ("tlrun_" + i);
+	
+			l1.Off();
+			l2.Off();
+			l3.Off();
+			l4.Off();
+		}
+	}
+
+	void running_lights() {
+		entity	l1, l2, l3, l4;
+		float	i;
+		
+		for ( i=1; i<=13; i++ ) {
+			l1 = sys.getEntity ("rrun_" + i);
+			l2 = sys.getEntity ("lrun_" + i);
+			l3 = sys.getEntity ("trrun_" + i);
+			l4 = sys.getEntity ("tlrun_" + i);
+	
+			l1.On();
+			l1.startSoundShader ("cpu_light_sounds", SND_CHANNEL_VOICE );
+			l2.On();
+			l2.startSoundShader ("cpu_light_sounds", SND_CHANNEL_VOICE );
+			l3.On();
+			l3.startSoundShader ("cpu_light_sounds", SND_CHANNEL_VOICE );
+			l4.On();
+			l4.startSoundShader ("cpu_light_sounds", SND_CHANNEL_VOICE );
+			
+			sys.wait (0.15);
+			
+			l1.Off();
+			l2.Off();
+			l3.Off();
+			l4.Off();
+			
+			sys.wait (0.15);
+		}
+	
+	}
+
+	void running_lights_thread() {
+		while (1) {
+			thread running_lights();
+			sys.wait (2);
+		}
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("cpu_bridge_down_6s");
+		sys.cacheSoundShader ("cpu_arm_down_5s");		
+		sys.cacheSoundShader ("cpu_bridge_rails");
+		sys.cacheSoundShader ("bridge_rotation_6s");		
+		sys.cacheSoundShader ("bridge_rotation_10s");		
+		sys.cacheSoundShader ("cpu_light_sounds");	
+		sys.cacheSoundShader ("cpu_shields");	
+		sys.cacheSoundShader ("cpu_m3_start");
+		sys.cacheSoundShader ("cpu_m3_stop");
+		sys.cacheSoundShader ("cpu_m3_loop");
+		sys.cacheSoundShader ("cpu_m4_start");
+		sys.cacheSoundShader ("cpu_m4_stop");
+		sys.cacheSoundShader ("cpu_m4_loop");
+
+	}
+
+	void fadeout_endroom() {
+		
+		$cspeaker_1.remove();
+		$cspeaker_2.remove();
+		$cspeaker_3.remove();
+		$cspeaker_4.remove();
+		
+		$trigger_multiple_1.remove();
+		$trigger_multiple_2.remove();
+		$trigger_multiple_3.remove();
+		$trigger_multiple_4.remove();
+		
+		$ctrigger_hurt_1.remove();
+		$ctrigger_hurt_2.remove();
+		$ctrigger_hurt_3.remove();
+		$ctrigger_hurt_4.remove();
+		
+		//$cspeaker_1.fadeSound ( SND_CHANNEL_ANY, -60, 1 );
+		//$cspeaker_2.fadeSound ( SND_CHANNEL_ANY, -60, 1 );
+		//$cspeaker_3.fadeSound ( SND_CHANNEL_ANY, -60, 1 );
+		//$cspeaker_4.fadeSound ( SND_CHANNEL_ANY, -60, 1 );
+	}
+
+	void main() 
+	{
+		cache_sounds();
+		init_world();
+		
+		// Exec all other required threads here
+
+//		thread move_pumps();
+//		thread move_arm1();
+		
+		init_bridge();
+		init_running_lights();
+		thread running_lights_thread();
+	}
+}
+
+

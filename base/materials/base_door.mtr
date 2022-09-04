@@ -1,0 +1,297 @@
+textures/base_door/stedoorframe2_toggle
+{
+	qer_editorimage	textures/base_door/stedoorframe2.tga
+	bumpmap		textures/base_door/stedoorframe2_local.tga
+	diffusemap		textures/base_door/stedoorframe2_d.tga
+	specularmap		textures/base_door/stedoorframe2_s.tga
+	{
+		if ( parm7 == 0 )
+		blend 	add
+		map		textures/base_door/stedoorframered_add.tga
+		rgb		5
+	}
+	{
+		if ( parm7 == 1 )
+		blend 	add
+		map		textures/base_door/stedoorframegrn_add.tga
+		rgb		5
+	}
+}
+
+textures/base_door/stedoorframe2_trim
+{
+	qer_editorimage	textures/base_door/stedoorframe2_trim.tga
+	bumpmap			textures/base_door/stedoorframe2_trim_local.tga
+	diffusemap		textures/base_door/stedoorframe2_trim_d.tga
+	specularmap		textures/base_door/stedoorframe2_trim_s.tga
+}
+
+textures/base_door/smalldoortexdirty
+{
+	qer_editorimage		textures/base_door/smalldoortexdirty.tga
+	//bumpmap		textures/base_door/smalldoortex_local.tga
+	diffusemap		textures/base_door/smalldoortexdirty_d.tga
+	bumpmap			addnormals( textures/base_door/smalldoortex_local.tga	, heightmap( textures/base_door/smalldoortexdirty_b.tga, 1 ) )
+	specularmap		textures/base_door/smalldoortexdirty_s.tga
+}
+
+
+textures/base_door/leftframe2
+{
+
+	qer_editorimage textures/base_door/leftframe2.tga
+
+	diffusemap	textures/base_door/leftframe2_d.tga
+	specularmap	textures/base_door/leftframe2_s.tga
+    bumpmap		textures/base_door/leftframe2_local.tga 
+
+ }
+
+
+
+textures/base_door/gdoor1glass
+{
+	translucent
+	//nonsolid
+	//noimpact
+	monsterclip
+	playerclip
+	twoSided
+	noshadows
+	//polygonOffset
+	qer_editorimage	textures/base_door/gdoor1glass.tga
+	
+	{
+		blend diffuseMap
+		map textures/base_door/gdoor1glass.tga
+	}
+//	{
+//		blend bumpmap 	
+//		map	heightmap( textures/base_door/gdoor1glass_local.tga, 3 ) 
+//
+//
+//	}
+	{
+		blend add
+		cubeMap		env/bland
+		texgen		reflect
+	}
+
+
+
+}
+
+
+textures/base_door/gdoor1
+
+{
+ 	noShadows
+	//polygonOffset
+	twoSided
+	noimpact
+	qer_editorimage textures/base_door/gdoor1.tga
+
+	{       
+      	 blend	diffuseMap 
+	 map	textures/base_door/gdoor1_d.tga
+	 alphaTest 0.5
+	}
+	specularmap	textures/base_door/gdoor1_s.tga
+ 	bumpmap		addnormals(textures/base_door/gdoor1_local.tga  , heightmap( textures/base_door/gdoor1_h.tga, 6 ) )
+       
+
+}
+
+
+textures/base_door/leftframe
+{
+
+	qer_editorimage textures/base_door/leftframe.tga
+
+	diffusemap	textures/base_door/leftframe_d.tga
+	specularmap	textures/base_door/leftframe_s.tga
+      	bumpmap		textures/base_door/leftframe_local.tga 
+
+ }
+
+
+textures/base_door/nobbydoor_fx
+{
+
+	qer_editorimage textures/base_door/nobbydoor_fx.tga
+
+	{
+		blend add
+		Map	textures/base_door/nobbydoor_fx.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+
+ }
+
+textures/base_door/nobbydoor
+{
+
+	qer_editorimage textures/base_door/nobbydoor.tga
+//			discrete		
+//	flarepic		textures/base_door/nobbydoor_flare.tga
+	bumpmap			addnormals( textures/base_door/nobbydoor_local.tga  , heightmap( textures/base_door/nobbydoor_h.tga, 7 ) )
+	diffusemap		textures/base_door/nobbydoor_d.tga
+	specularmap		textures/base_door/nobbydoor_s.tga
+}
+
+
+textures/base_door/glass_door
+{
+	translucent
+	//nonsolid
+	//noimpact
+	monsterclip
+	playerclip
+	twoSided
+	noshadows
+	//polygonOffset
+	qer_editorimage	textures/base_door/glass_door.tga
+	
+	{
+		blend diffuseMap
+		map textures/base_door/glass_door.tga
+	}
+	{
+		blend add
+		cubeMap		env/bland
+		texgen		reflect
+	}
+
+
+
+}
+
+textures/base_door/cold_door2
+{
+
+	qer_editorimage textures/base_door/cold_door2.tga
+
+	diffusemap	textures/base_door/cold_door2_d.tga
+	specularmap	textures/base_door/cold_door_s.tga
+        bumpmap		addnormals( textures/base_door/cold_door_local.tga  , heightmap( textures/base_door/cold_door_h.tga, 3 ) )
+
+ }
+
+
+textures/base_door/cold_door
+{
+
+	qer_editorimage textures/base_door/cold_door.tga
+
+	diffusemap	textures/base_door/cold_door_d.tga
+	specularmap	textures/base_door/cold_door_s.tga
+        bumpmap		addnormals( textures/base_door/cold_door_local.tga  , heightmap( textures/base_door/cold_door_h.tga, 3 ) )
+
+ }
+
+
+
+textures/base_door/stor_door
+{
+
+	qer_editorimage textures/base_door/stor_door.tga
+
+	diffusemap	textures/base_wall/squarepanel_d.tga
+	specularmap	textures/base_wall/squarepanel_s.tga
+        bumpmap		addnormals( textures/base_wall/squarepanel_local.tga  , heightmap( textures/base_wall/squarepanel_h.tga, 3 ) )
+
+ }
+
+
+textures/base_door/door1
+{
+	qer_editorimage		textures/base_door/door1.tga
+	bumpmap			models/seneca/textures/door1_local.tga
+	diffusemap			models/seneca/textures/door1_d.tga
+	specularmap			models/seneca/textures/door1_s.tga
+}
+
+//[Texture is used for the track on which sliding doors run.
+
+textures/base_door/doortrak
+{
+	qer_editorimage textures/base_door/doortrak.tga
+	diffusemap		textures/base_door/doortrak_d.tga
+	bumpmap heightmap (textures/base_door/doortrak_b.tga, 5)
+	specularmap		textures/base_door/doortrak_s.tga
+}
+
+textures/base_door/a_delelev1_d01
+{
+	qer_editorimage		textures/base_door/a_delelev1_d01.tga
+	bumpmap 		textures/base_door/a_delelev1_local02.tga
+	diffusemap		textures/base_door/a_delelev1_d01.tga
+	specularmap		textures/base_door/a_delelev1_s01.tga
+}
+
+textures/base_door/a_delelev1_d02
+{
+	qer_editorimage		textures/base_door/a_delelev1_d02.tga
+	bumpmap 		textures/base_door/a_delelev1_local02.tga
+	diffusemap		textures/base_door/a_delelev1_d02.tga
+	specularmap		textures/base_door/a_delelev1_s01.tga
+}
+
+textures/base_door/a_delelev1_d02b
+{
+	qer_editorimage		textures/base_door/a_delelev1_d02b.tga
+	bumpmap 		addnormals( textures/base_door/a_delelev1_local02.tga  , heightmap( textures/base_door/a_delelev1_b02b.tga, 3 ) )
+	diffusemap		textures/base_door/a_delelev1_d02b.tga
+	specularmap		textures/base_door/a_delelev1_s02b.tga
+}
+
+textures/base_door/a_delelev1_d03
+{
+	qer_editorimage		textures/base_door/a_delelev1_d03.tga
+	bumpmap 		textures/base_door/a_delelev1_local02.tga
+	diffusemap		textures/base_door/a_delelev1_d03.tga
+	specularmap		textures/base_door/a_delelev1_s03.tga
+}
+
+textures/base_door/a_delelev1_d04
+{
+	qer_editorimage		textures/base_door/a_delelev1_d04.tga
+	bumpmap 		textures/base_door/a_delelev1_local02.tga
+	diffusemap		textures/base_door/a_delelev1_d04.tga
+	specularmap		textures/base_door/a_delelev1_s01.tga
+}
+
+textures/base_door/a_delelev1_d05
+{
+	qer_editorimage		textures/base_door/a_delelev1_d05.tga
+	bumpmap 		textures/base_door/a_delelev1_local02.tga
+	diffusemap		textures/base_door/a_delelev1_d05.tga
+	specularmap		textures/base_door/a_delelev1_s01.tga
+}
+
+textures/base_door/a_delelev1org_d01
+{
+	qer_editorimage		textures/base_door/a_delelev1org_d01.tga
+	bumpmap 		addnormals( textures/base_door/a_delelev1_local02.tga  , heightmap( textures/base_door/a_delelev1org_b01.tga, 3 ) )
+	diffusemap		textures/base_door/a_delelev1org_d01.tga
+	specularmap		textures/base_door/a_delelev1org_s01.tga
+}
+
+textures/base_door/a_delelev1white_d02
+{
+	qer_editorimage		textures/base_door/a_delelev1white_d02.tga
+	bumpmap 		addnormals( textures/base_door/a_delelev1_local02.tga  , heightmap( textures/base_door/a_delelev1white_b02.tga, 3 ) )
+	diffusemap		textures/base_door/a_delelev1white_d02.tga
+	specularmap		textures/base_door/a_delelev1white_s02.tga
+}
+
+
+textures/base_door/a_deldoorgutter_d02
+{
+	qer_editorimage		textures/base_door/a_deldoorgutter_d02.tga
+	bumpmap 		textures/base_door/a_deldoorgutter_local.tga
+	diffusemap		textures/base_door/a_deldoorgutter_d02.tga
+	specularmap		textures/base_door/a_deldoorgutter_s02.tga
+}

@@ -1,0 +1,552 @@
+/***********************************************************************
+
+char_sentry
+
+***********************************************************************/
+
+model char_sentry {
+	mesh							models/md5/monsters/sentry/sentry.md5mesh
+	skin 							skins/models/monsters/sentrynobeam.skin
+
+	channel torso					( *Loneck )
+	channel legs					( *Hips origin -*Loneck )
+	
+	anim af_pose					models/md5/monsters/sentry/initial.md5anim
+	anim ik_pose					models/md5/monsters/sentry/initial.md5anim	
+	anim initial					models/md5/monsters/sentry/initial.md5anim	
+	anim stand						models/md5/monsters/sentry/idle_stand1.md5anim
+	anim turn_left					models/md5/monsters/sentry/turn_left.md5anim {
+		frame 8							sound_body snd_step
+		frame 10						sound_body2 snd_step
+	}
+	
+	anim talk_excuseme				models/md5/monsters/sentry/talk_primary.md5anim {
+		frame 1							sound_voice snd_talk_excuseme
+		frame 9							sound_body snd_step
+		frame 16						sound_body snd_step
+		frame 17						sound_body2 snd_step
+		frame 23						sound_body snd_step
+		frame 63						sound_body snd_step
+		frame 65						sound_body2 snd_step
+		frame 78						sound_body snd_step
+		frame 82						sound_body snd_step
+	}
+
+	anim turn_right					models/md5/monsters/sentry/turn_right.md5anim {
+		frame 8							sound_body snd_step
+		frame 9							sound_body2 snd_step
+	}
+
+	anim unlock_door				models/md5/monsters/sentry/talk_primary.md5anim	{
+		frame 9							sound_body snd_step
+		frame 16						sound_body snd_step
+		frame 17						sound_body2 snd_step
+		frame 23						sound_body snd_step
+		frame 63						sound_body snd_step
+		frame 65						sound_body2 snd_step
+		frame 78						sound_body snd_step
+		frame 82						sound_body snd_step
+	}
+
+	anim fold						models/md5/monsters/sentry/fold.md5anim {
+		frame 1							disableWalkIK
+	}		
+	anim folded						models/md5/monsters/sentry/folded.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+	}
+
+	anim unfold						models/md5/monsters/sentry/unfold.md5anim {
+		frame 1							sound_voice snd_active
+		frame 1							disableWalkIK
+		frame 13						sound_body snd_step
+		frame 14						sound_body2 snd_step
+		frame 26						sound_body snd_step
+		frame 27						sound_body2 snd_step
+		frame 39						sound_body snd_step		
+		frame 46						sound_body snd_step
+		frame 57						sound_body snd_step
+		frame 64						sound_body snd_step
+		frame 70						enableWalkIK
+	}	
+	
+	anim walk						models/md5/monsters/sentry/walk1.md5anim {
+		frame 1							sound_body snd_step
+		frame 3							sound_body2 snd_step
+		frame 6							sound_body3 snd_step
+		frame 9							sound_body snd_step
+	}
+		
+	anim range_attack				models/md5/monsters/sentry/range_attackstart.md5anim {
+		frame 4							sound_body snd_step
+		frame 10						sound_body2 snd_step
+		frame 15						sound_body3 snd_step
+	}
+
+	anim range_attack_loop			models/md5/monsters/sentry/range_attack1.md5anim {
+		frame 1							launch_missile barrel
+	}
+	anim range_attack_aim			models/md5/monsters/sentry/idle_stand1.md5anim
+	anim range_attack_end			models/md5/monsters/sentry/range_attackend.md5anim
+
+	anim run						models/md5/monsters/sentry/walk1.md5anim {
+		frame 1							sound_body snd_step
+		frame 3							sound_body2 snd_step
+		frame 6							sound_body3 snd_step
+		frame 9							sound_body snd_step
+	}
+		
+	anim pain						models/md5/monsters/sentry/walk1_pain.md5anim {
+		frame 4							sound_body snd_step
+		frame 8							sound_body2 snd_step
+		frame 12						sound_body3 snd_step
+		frame 16						sound_body snd_step
+	}
+	
+	anim sight						models/md5/monsters/sentry/unfold.md5anim {
+		frame 1							disableWalkIK
+		frame 13						sound_body snd_step
+		frame 14						sound_body2 snd_step
+		frame 26						sound_body snd_step
+		frame 27						sound_body2 snd_step
+		frame 39						sound_body snd_step		
+		frame 46						sound_body snd_step
+		frame 57						sound_body snd_step
+		frame 64						sound_body snd_step
+		frame 79						enableWalkIK
+	}	
+}
+
+entityDef char_sentry {
+	"editor_var unfolded"			"If set, sentry starts out in standing position, otherwise, he starts out in a folded position."
+	"editor_var lead_player"		"If set, sentry leads the player along its path."
+	
+	"inherit"						"character_default"
+	"scriptobject"					"char_sentry"
+	"model"							"char_sentry"
+	"ragdoll"						"char_sentry"
+	"talks"							"0"
+	"fov"							"120"
+	"size"							"48 48 48"
+	"use_aas"						"aas48"
+	"team"							"0"
+	"rank"							"0"
+	"health"						"300"
+	"anim"							"folded"
+	"on_activate"					"unfold"
+	"bleed"							"0"
+	"def_projectile"				"projectile_sentry_bullet"
+	"attack_cone"					"10"
+	"attack_accuracy"				"1"	
+	"turn_rate"						"360"
+	"bone_focus"					"Head"
+	"head_look"						"1"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"blockedRadius"					"20"
+	
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Loneck"				"0.4 0.4 0"
+	"look_joint Head"				"0.6 0.6 0"
+
+	"ik_numLegs"					"4"
+	"ik_footSize"					"0"
+	"ik_minWaistFloorDist"			"20"
+	"ik_waist"						"Hips"
+	"ik_hip1"						"L1_upleg"
+	"ik_hip2"						"R1_upleg"
+	"ik_hip3"						"L2_upleg"
+	"ik_hip4"						"R2_upleg"
+	"ik_knee1"						"L1_midleg"
+	"ik_knee2"						"R1_midleg"
+	"ik_knee3"						"L2_midleg"
+	"ik_knee4"						"R2_midleg"
+	"ik_ankle1"						"L1_loleg"
+	"ik_ankle2"						"R1_loleg"
+	"ik_ankle3"						"L2_loleg"
+	"ik_ankle4"						"R2_loleg"
+	"ik_dir1"						"Lelbow"
+	"ik_dir2"						"Relbow"
+	"ik_dir3"						"Lknee"
+	"ik_dir4"						"Rknee"
+	"ik_foot1"						"L1toe"
+	"ik_foot2"						"R1toe"
+	"ik_foot3"						"L2toe"
+	"ik_foot4"						"R2toe"
+	
+	"damage_zone head"				"*Loneck"
+	"damage_zone chest"				"*Hips -*R1_upleg -*L1_upleg -*R2_upleg -*L2_upleg -*Loneck"
+	"damage_zone left_arm"			"*L1_upleg"
+	"damage_zone right_arm"			"*R1_upleg"
+	"damage_zone legs"				"*L2_upleg *R2_upleg"
+
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+
+	"snd_fire"						"char_sentry_fire"
+	"snd_active"					"char_sentry_active"
+	"snd_cant_reach_player"			"char_sentry_cant_reach_player"
+	"snd_death"						"char_sentry_destroyed"
+	"snd_sight_enemy"				"char_sentry_sight_enemy"
+	"snd_sight_friendly"			"char_sentry_sight_friendly"
+	"snd_open_door"					"char_sentry_open_door"
+	"snd_pain"						"char_sentry_pain"
+	"snd_shutdown"					"char_sentry_shutdown"
+	"snd_target_lost"				"char_sentry_target_lost"
+	"snd_waiting_for_player"		"char_sentry_waiting_for_player"
+	"snd_step"						"char_sentry_step"
+	"snd_gear"						"char_sentry_gears"
+	"snd_talk_excuseme"				"char_sentry_waiting_for_player"
+}
+
+model char_sentry_flashlight {
+	inherit  						char_sentry
+	anim walk						models/md5/monsters/sentry/walk1_beam.md5anim {
+
+		frame 1						sound_body snd_step
+		frame 3						sound_body2 snd_step
+		frame 6						sound_body3 snd_step
+		frame 9						sound_body snd_step
+	}
+
+}
+
+entityDef char_sentry_flashlight {
+	"inherit"						"char_sentry"
+	"editor_var flashlight_on"		"Turns flashlight on when sentry activates"
+	
+	"flashlight"					"2"
+	"flashlight_distance"			"640"
+	"mtr_flashlight"				"lights/sentrylight"
+	"skin_flashlight_off"			"skins/models/monsters/sentrynobeam.skin"
+	"skin_flashlight_on"			"skins/models/monsters/sentrybeam.skin"	
+	"model"							"char_sentry_flashlight"
+}
+
+entityDef projectile_sentry_bullet {
+	"spawnclass"				"idProjectile"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+	"cone"						"2"
+	"scale"						"0.1"
+	"noshadows"					"1"
+	"tracers"					"1"
+	"model_tracer"				"models/particles/tracer/tracer.lwo"
+								
+	"snd_ricochet"				"bullet_ricochet"
+	"snd_impact"				""			// we need a much smaller impact sound for the chaingun bullet  "bullet_impact_metal"
+
+	"decal_scale"				"8"
+								
+	"def_damage"				"damage_sentry_bullet"
+				
+	"launchFromBarrel"			"1"
+	"health"					"0"
+								// slowed down for tracers
+	"velocity"					"2000 0 0"	// .38 Special 600 fps.  Source: Petzal, David E. "How fast is a speeding bullet." Field and Stream. 97 (1992): 23
+	"angular_velocity"			"0 0 0"
+	"thrust"					"0"
+	"thrust_start"				"0"
+	"thrust_end"				"0"
+	"linear_friction"			"0"
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"
+	"mass"						"2"
+	"gravity"					"0"
+	"fuse"						"4"
+								
+	"detonate_on_fuse"			"0"
+	"detonate_on_death"			"0"
+	"detonate_on_world"			"1"
+	"detonate_on_actor"			"1"
+								
+	"impact_damage_effect"		"1"
+	"impact_gib"				"1"
+								
+	"mtr_detonate"				"textures/decals/bulleth02"
+	"decal_size"				"10"
+								
+	"smoke_detonate"			"smokeandspark.smoke"
+	"smoke_residue" 			""	//particles/chaingun_residue.particle"
+	"smoke_bounce"				""	//particles/chaingun_bounce.particle"
+	"smoke_fuse"				""
+								
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0"
+	"light_radius"				"0"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	""
+	"explode_light_color"		"0 0 0"
+	"explode_light_radius"		"0"
+	"explode_light_fadetime"	"0"
+}
+
+entityDef damage_sentry_bullet {
+	"damage"					"5"
+	"kickDir"					"1 0 0"
+
+	"mtr_blob"					"genericDamage"
+	"blob_time"					"300"
+	"blob_size"					"400"
+	"blob_offset_x"				"400"
+
+	"knockback"					"1"
+	
+	"smoke_wound_flesh"			"bloodwound.smoke"
+	
+	"kick_time"					"10"
+	"kick_amplitude"			"0"
+
+	"dv_time"					"100"
+}
+ 
+sound char_sentry_fire {
+	minDistance	3
+	maxDistance	30	
+	volume		0
+
+	sound/xian/sentry/gun/fire_01.wav
+	sound/xian/sentry/gun/fire_02.wav
+	sound/xian/sentry/gun/fire_03.wav
+	sound/xian/sentry/gun/fire_04.wav
+	sound/xian/sentry/gun/fire_05.wav
+
+}
+
+sound char_sentry_active {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/activate_01.wav
+}
+
+sound char_sentry_cant_reach_player {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/cant_reach_player_01.wav
+	sound/xian/sentry/vocals/cant_reach_player_02.wav
+}
+
+sound char_sentry_damaged {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/damaged_01.wav
+}
+
+sound char_sentry_destroyed {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/destroyed_01.wav
+}
+
+sound char_sentry_destroyed_damaged {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/damaged_destroyed_01.wav
+}
+
+sound char_sentry_sight_enemy {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/sight_enemy_01.wav
+	sound/xian/sentry/vocals/sight_enemy_02.wav
+}
+
+sound char_sentry_sight_friendly {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/sight_friendly_01.wav
+}
+
+sound char_sentry_open_door {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/open_door_01.wav
+}
+
+sound char_sentry_pain {
+	minDistance	2
+	maxDistance	25
+	volume		-2
+	no_dups
+
+	sound/xian/sentry/vocals/pain_01.wav
+	sound/xian/sentry/vocals/pain_02.wav
+	sound/xian/sentry/vocals/pain_03.wav
+	sound/xian/sentry/vocals/pain_04.wav
+}
+
+sound char_sentry_shutdown {
+ 	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/xian/sentry/vocals/shutdown_01.wav
+}
+
+sound char_sentry_target_lost {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	
+	sound/xian/sentry/vocals/lost_target_01.wav
+}
+
+sound char_sentry_waiting_for_player {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	no_dups
+	
+	sound/xian/sentry/vocals/wait_for_player_01.wav
+	sound/xian/sentry/vocals/wait_for_player_02.wav
+	sound/xian/sentry/vocals/wait_for_player_03.wav
+}
+
+sound char_sentry_step {
+	minDistance		1
+	maxDistance 		16
+	volume			-8
+
+	sound/xian/sentry/steps/sstep_01.wav
+	sound/xian/sentry/steps/sstep_02.wav
+	sound/xian/sentry/steps/sstep_03.wav
+	sound/xian/sentry/steps/sstep_04.wav
+	sound/xian/sentry/steps/sstep_05.wav
+	sound/xian/sentry/steps/sstep_06.wav
+	sound/xian/sentry/steps/sstep_07.wav
+}
+
+sound char_sentry_gears {
+	minDistance		3
+	maxDistance		16
+	volume			-3
+
+	sound/xian/sentry/gears/walk_01.wav
+	sound/xian/sentry/gears/walk_02.wav
+	sound/xian/sentry/gears/walk_03.wav
+	sound/xian/sentry/gears/walk_04.wav
+	sound/xian/sentry/gears/walk_05.wav
+	sound/xian/sentry/gears/walk_06.wav
+	sound/xian/sentry/gears/walk_07.wav
+	sound/xian/sentry/gears/walk_08.wav
+	sound/xian/sentry/gears/walk_09.wav
+	sound/xian/sentry/gears/walk_10.wav
+	sound/xian/sentry/gears/walk_11.wav
+	sound/xian/sentry/gears/walk_12.wav
+	sound/xian/sentry/gears/walk_13.wav
+}
+
+sound char_sentry_wakeup {
+	minDistance	3
+	maxDistance	16
+	volume		-3
+	
+	sound/xian/sentry/wakeup_01.wav
+}
+
+sound char_sentry_extend {
+	minDistance	3
+	maxDistance	16
+	volume		-3
+	
+	sound/xian/sentry/extend_01.wav
+}
+
+sound char_sentry_activation {
+	minDistance	3
+	maxDistance	16
+	volume		-3
+	
+	sound/xian/sentry/activate_01.wav
+}
+
+entityDef path_sentry_light_on {
+	"editor_color"			".5 .3  0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Tells sentry to turn on his flashlight."
+	"editor_var target"		"next path entity."
+	"editor_var trigger"	"entity to trigger when turn finishes."
+
+	"spawnclass"			"idPathCorner"
+}
+
+entityDef path_sentry_light_off {
+	"editor_color"			".5 .3  0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Tells sentry to turn on his flashlight."
+	"editor_var target"		"next path entity."
+	"editor_var trigger"	"entity to trigger when turn finishes."
+
+	"spawnclass"			"idPathCorner"
+}
+
+entityDef path_sentry_shutdown {
+	"editor_color"			".5 .3  0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_showangle"		"1"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Tells sentry to shutdown until triggered again."
+	"editor_var target"		"next path entity."
+	"editor_var trigger"	"entity to trigger when turn finishes."
+
+	"spawnclass"			"idPathCorner"
+}
+
+entityDef path_sentry_unlock_door {
+	"editor_color"			".5 .3  0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_showangle"		"1"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Sentry walks to this location and plays the unlock door animation.  Set 'trigger' to name of target_lock entity that unlocks the door."
+	"editor_var target"		"next path entity."
+	"editor_var trigger"	"entity to trigger when turn finishes."
+
+	"spawnclass"			"idPathCorner"
+}
+
+entityDef path_sentry_lead_player {
+	"editor_color"			".5 .3  0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_showangle"		"1"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Tells sentry to start leading the player to his destination.  Imediately goes to next path entity."
+	"editor_var target"		"next path entity."
+	"editor_var trigger"	"entity to trigger when turn finishes."
+
+	"spawnclass"			"idPathCorner"
+}
+
+entityDef path_sentry_ignore_player {
+	"editor_color"			".5 .3  0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+	"editor_showangle"		"1"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Tells sentry to stop leading the player to his destination.  Imediately goes to next path entity."
+	"editor_var target"		"next path entity."
+	"editor_var trigger"	"entity to trigger when turn finishes."
+
+	"spawnclass"			"idPathCorner"
+}

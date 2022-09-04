@@ -1,0 +1,38 @@
+entityDef moveable_rubble_01 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/hellhole/d3xp_rubbleA.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_medium"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_rubble_02 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/hellhole/d3xp_rubbleB.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}
+
+entityDef moveable_rubble_03 {
+	"inherit"					"moveable_base_fixed"
+	"model"						"models/mapobjects/hellhole/d3xp_rubbleC.lwo"
+	"density"					"0.005"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"stone_impact"
+
+	"def_damage"				"damage_moveable_player"
+	"monster_damage"			"damage_moveable_small"
+	"damageWhenActive"			"1"
+}

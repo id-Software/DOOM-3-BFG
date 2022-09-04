@@ -1,0 +1,118 @@
+/***********************************************************************
+
+	weapon_fists.def
+
+***********************************************************************/
+
+export fred {
+	// view model fists
+	options -prefix FIST_
+	mesh	models/weapons/berserk/cycles/idle.mb -dest models/md5/weapons/fists_view/fists
+	anim	models/weapons/berserk/cycles/idle.mb -rotate 180 -dest models/md5/weapons/fists_view/idle
+	anim	models/weapons/berserk/cycles/berserk_idle.mb -rotate 180 -dest models/md5/weapons/fists_view/berserk_idle
+	anim	models/weapons/berserk/cycles/berserk_punch1.mb -rotate 180 -dest models/md5/weapons/fists_view/berserk_punch1
+	anim	models/weapons/berserk/cycles/berserk_punch2.mb -rotate 180 -dest models/md5/weapons/fists_view/berserk_punch2
+	anim	models/weapons/berserk/cycles/berserk_punch3.mb -rotate 180 -dest models/md5/weapons/fists_view/berserk_punch3
+	anim	models/weapons/berserk/cycles/berserk_punch4.mb -rotate 180 -dest models/md5/weapons/fists_view/berserk_punch4
+
+
+	anim	models/weapons/berserk/cycles/punch1.mb -range 30 53 -rotate 180 -dest models/md5/weapons/fists_view/punch1
+	anim	models/weapons/berserk/cycles/punch2.mb -range 30 53 -rotate 180 -dest models/md5/weapons/fists_view/punch2
+	anim	models/weapons/berserk/cycles/punch2.mb -range 133 160 -rotate 180 -dest models/md5/weapons/fists_view/punch3
+	anim	models/weapons/berserk/cycles/punch2.mb -range 186 193 -rotate 180 -dest models/md5/weapons/fists_view/punch4
+	anim	models/weapons/berserk/cycles/punch2.mb -range 193 213 -rotate 180 -dest models/md5/weapons/fists_view/punch5
+	anim	models/weapons/berserk/cycles/punch2.mb -range 20 30 -rotate 180 -dest models/md5/weapons/fists_view/raise
+	anim	models/weapons/berserk/cycles/punch2.mb -range 213 218 -rotate 180 -dest models/md5/weapons/fists_view/lower
+}
+
+entityDef weapon_fists {
+	"model_view" 				"viewmodel_fists"
+
+	"inv_name"					"#str_00100188"
+	"inv_weapon"				"weapon_fists"
+	"inv_desc"					"#str_weapon_fists_desc"
+	"display_name"				"#str_02475"
+	"icon"						"guis/assets/hud/wpn_12"
+	"pdaIcon"					"guis/assets/hud/icons/fists_new.tga"
+	"hudIcon"					"guis/assets/hud/icons/fistw.tga"	
+
+	"weapon_scriptobject"		"weapon_fists"
+	"def_melee"					"damage_fists"
+	"melee_distance"			"48"
+	"ammoType"					""
+	"ammoRequired"				"0"
+	"clipSize"					"0"
+	"mtr_flashShader"			""
+	"flashColor"				""
+	"flashRadius"				"0"
+	"silent_fire"				"1"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"impact_damage_effect"		"1"
+
+	"snd_acquire"				"guisounds_weapon"
+	"skin_invisible"			"skins/fists_invis"
+	
+	"stealing"					"1"					// this weapon steals other player weapon
+
+	"controllerShakeHighMag"	"0.3"
+	"controllerShakeHighTime"	"50"
+	"controllerShakeLowMag"		"0.6"
+	"controllerShakeLowTime"	"100"
+}
+
+model viewmodel_fists {
+	mesh			models/md5/weapons/fists_view/fists.md5mesh
+	offset			( -10 0 -6.5 )
+
+	anim raise			models/md5/weapons/fists_view/raise.md5anim {
+		frame	1		sound_weapon fist_raise
+	}
+	anim idle 			models/md5/weapons/fists_view/idle.md5anim
+	anim berserk_idle 	models/md5/weapons/fists_view/berserk_idle.md5anim
+	anim aim 			models/md5/weapons/fists_view/idle.md5anim
+	anim punch_left1	models/md5/weapons/fists_view/berserk_punch1.md5anim
+	anim punch_left2	models/md5/weapons/fists_view/berserk_punch3.md5anim
+	anim punch_right1	models/md5/weapons/fists_view/berserk_punch2.md5anim
+	anim punch_right2	models/md5/weapons/fists_view/berserk_punch4.md5anim
+	anim putaway 		models/md5/weapons/fists_view/lower.md5anim
+}
+
+entityDef damage_fists {
+	"damage"			"20"
+	"kickDir"			"-1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"20"
+	"push"				"20000"
+
+	"gib"				"1"
+	"smoke_wound_flesh"	"burstysquirt.prt"
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+
+	"snd_metal"			"fist_impact"
+	"snd_ricochet"		"fist_impact"
+	"snd_flesh"			"fist_impact_flesh"
+	"snd_stone"			"fist_impact"
+	"snd_wood"			"fist_impact"
+	"snd_cardboard"		"fist_impact"
+	"snd_glass"			"fist_impact"
+	"snd_liquid"		"fist_impact"
+	"snd_plastic"		"fist_impact"
+	"snd_shatter"		"melee_impact_glass"	
+	
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"		
+	"snd_hit_berserk"	"fist_gorepunch"
+}

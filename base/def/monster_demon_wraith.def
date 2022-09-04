@@ -1,0 +1,266 @@
+/***********************************************************************
+
+	monster_demon_wraith.def
+
+***********************************************************************/
+
+export James {
+ 	options -prefix W_ -keep Lknee Rknee -keep fireball ROT  -parent fireball head_FK -parent spine_1 ROT -parent ROT root
+
+	addoptions -sourcedir models/monsters/wraith/cycles 
+	addoptions -destdir models/md5/monsters/wraith
+
+	anim	ceiling_idle_128.mb -rotate 90
+	anim	ceiling_idle_192.mb -rotate 90
+	anim	ceiling_idle_256.mb -rotate 90
+
+	anim	ceiling_idle_128_attack.mb -rotate 90 -dest ceiling_attack_128
+	anim	ceiling_idle_192_attack.mb -rotate 90 -dest ceiling_attack_192
+	anim	ceiling_idle_256_attack.mb -rotate 90 -dest ceiling_attack_256
+
+	addoptions -align movement
+
+	mesh	wraith_mesh.mb -dest wraith
+	anim	idle.mb
+	anim	walk.mb
+	anim	run.mb
+	anim	sight.mb
+ 	anim	pain_chest.mb
+	anim	pain_head.mb
+	anim	pain_luparm.mb
+	anim	pain_ruparm.mb
+	anim	teleport.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	leap_attack.mb -range 12 13 -dest jump_start
+	anim	leap_attack.mb -range 14 27 -dest jump_loop
+	anim	leap_attack.mb -range 27 50 -dest jump_end
+	anim	af_pose.mb -range 1 1
+
+}
+
+model monster_demon_wraith {
+	mesh						    models/md5/monsters/wraith/wraith.md5mesh
+	channel torso					( *spine_1 )
+	channel legs					( *Hips origin root ROT )
+
+	anim idle						models/md5/monsters/wraith/idle.md5anim
+	anim walk					    models/md5/monsters/wraith/walk.md5anim {
+		frame 7							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 24						sound_body snd_footstep
+		frame 31						sound_body snd_footstep
+	}
+	anim run						models/md5/monsters/wraith/run.md5anim {
+		frame 3							sound_body snd_footstep
+		frame 8							sound_body snd_footstep
+		frame 12						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+	}
+	anim sight						models/md5/monsters/wraith/sight.md5anim {
+		frame 5							sound_voice snd_sight
+	}
+	anim pain 						models/md5/monsters/wraith/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/wraith/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/wraith/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/wraith/pain_luparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_right_arm				models/md5/monsters/wraith/pain_ruparm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim teleport					models/md5/monsters/wraith/teleport.md5anim {
+		frame 5							sound_voice snd_thud
+		frame 15						sound_voice snd_sight2
+	}
+	anim melee_attack1				models/md5/monsters/wraith/attack1.md5anim {
+		frame 1							sound_voice monster_demon_wraith_attackmelee_1
+		//frame 11						sound_voice snd_attackmelee_1
+		frame 12						melee melee_wraithRightClaw
+	}
+	anim melee_attack2				models/md5/monsters/wraith/attack2.md5anim {
+		frame 1							sound_voice monster_demon_wraith_attackmelee_2
+		//frame 11						sound_voice snd_attackmelee_2
+		frame 12						melee melee_wraithLeftClaw
+	}
+	anim melee_attack3				models/md5/monsters/wraith/attack3.md5anim {
+		frame 1							sound_voice monster_demon_wraith_attackmelee_3
+		//frame 13						sound_voice snd_attackmelee_1
+		frame 13						melee melee_wraithCenterAttack
+	}
+	anim evade_left					models/md5/monsters/wraith/evade_left.md5anim {
+		frame 1							sound_body monster_demon_wraith_evade_left
+//		frame 7							sound_body monster_demon_imp_footstep
+//		frame 8							sound_body monster_demon_imp_footstep
+//		frame 10						sound_body monster_demon_imp_footstep
+	}
+	anim evade_right				models/md5/monsters/wraith/evade_right.md5anim {
+		frame 1							sound_body monster_demon_wraith_evade_right
+//		frame 8							sound_body monster_demon_imp_footstep
+//		frame 9							sound_body monster_demon_imp_footstep
+//		frame 11						sound_body monster_demon_imp_footstep
+	}
+	anim af_pose					models/md5/monsters/wraith/af_pose.md5anim
+
+// no longer jumps	
+//	anim jump_start					models/md5/monsters/wraith/jump_start.md5anim
+//	anim jump_loop					models/md5/monsters/wraith/jump_loop.md5anim
+//	anim jump_end					models/md5/monsters/wraith/jump_end.md5anim {
+//		frame 6							sound_body snd_thud
+//	}
+
+	anim ceiling_idle1				models/md5/monsters/wraith/ceiling_idle_128.md5anim
+	anim ceiling_idle2				models/md5/monsters/wraith/ceiling_idle_192.md5anim
+	anim ceiling_idle3				models/md5/monsters/wraith/ceiling_idle_256.md5anim
+
+	anim ceiling_attack1			models/md5/monsters/wraith/ceiling_attack_128.md5anim {
+		frame 1							sound_voice monster_demon_wraith_ceiling_attack1
+//		frame 4							sound_voice snd_thud
+//		frame 8							sound_voice snd_attackmelee_1
+	}
+	anim ceiling_attack2			models/md5/monsters/wraith/ceiling_attack_192.md5anim {
+		frame 1							sound_voice monster_demon_wraith_ceiling_attack2
+//		frame 8							sound_voice snd_thud
+//		frame 11						sound_voice snd_attackmelee_2
+	}
+	anim ceiling_attack3			models/md5/monsters/wraith/ceiling_attack_256.md5anim {
+		frame 1							sound_voice monster_demon_wraith_ceiling_attack3
+//		frame 7							sound_voice snd_thud
+//		frame 12						sound_voice snd_attackmelee_1
+	}
+	anim	wraith_intro			models/md5/cinematics/le_enpro1/wraith_intro.md5anim {
+	}			
+}
+
+entityDef monster_demon_wraith {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_wraith"
+	"model"						    "monster_demon_wraith"
+	"ragdoll"						"monster_demon_wraith"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"130"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"melee_range"					"48"
+	"bone_focus"					"head_FK"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint spine_1"			"0.4 0.4 0"
+	"look_joint head_FK"			"0.6 0.6 0"
+
+	"damage_zone head"				"*spine_7"
+	"damage_zone chest"				"*spine_1 -*Rshldr -*Lshldr -*spine_7"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_scale head"				"2"
+	"mass"   						"250"
+	
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp.prt-root"
+	
+	"def_spawneffect_precache"		"wraith_spawneffect"
+	
+	"snd_footstep"					"monster_demon_wraith_footstep"
+	"snd_sight"						"monster_demon_wraith_sight"
+	"snd_sight2"					"monster_demon_wraith_sight2"
+	"snd_chatter"					"monster_demon_wraith_chatter"
+	"snd_chatter_combat"			"monster_demon_wraith_chatter_combat"
+	"snd_pain"						"monster_demon_wraith_pain"
+	"snd_attackmelee_1"				"monster_demon_wraith_attackmelee_1"
+	"snd_attackmelee_2"				"monster_demon_wraith_attackmelee_2"
+	"snd_death"						"monster_demon_wraith_die"
+	"snd_thud"						"monster_demon_imp_thud"
+	"snd_fade_in"					"monster_demon_wraith_fade_in"
+	"snd_fade_out"					"monster_demon_wraith_fade_out"
+	"snd_burn"						"monster_demon_tick_burn"
+}
+
+entityDef wraith_spawneffect {
+	"spawnclass"					"idSpawnableEntity"
+	"model"							"wraithfade.prt"
+	
+	// make sure it gets removed in cinematics
+	"cinematic_remove"				"1"
+}
+
+
+entityDef melee_wraithLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters
+	"damage"						"8"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_wraithRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+	"damage"						"8"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"30"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_wraithCenterAttack {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"1 0 0"
+
+	"damage"						"8"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"30"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}

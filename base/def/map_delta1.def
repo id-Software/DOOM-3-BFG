@@ -1,0 +1,113 @@
+
+
+
+//sarge vcd
+
+export fred {
+	camera	maps/eric/delta1/sarge_video.mb -dest models/md5/cinematics/delta1/sarge_vcd
+
+	options -prefix LAB_ -keepmesh labcoatmesh -keepmesh oldhead_head02 -keepmesh oldhead_righteyemesh -keepmesh oldhead_lefteyemesh
+
+	mesh maps/fred/delta1/scipull_idle.mb -dest models/md5/cinematics/delta1/scipull_mesh
+	anim maps/fred/delta1/scipull_idle.mb -dest models/md5/cinematics/delta1/scipull_idle
+	anim maps/fred/delta1/scipull.mb -dest models/md5/cinematics/delta1/scipull
+
+}
+
+entityDef delta1_sargevcd_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim sarge_vcd"				"models/md5/cinematics/delta1/sarge_vcd.md5camera"
+}
+
+
+
+//Reactor...
+
+export fred {
+
+	options -prefix REACTOR_ -align ALL //-keep blah -parent disc2 ALL
+
+	mesh	models/seneca/reactor/anims/idle.mb -dest models/md5/environments/reactor 
+	anim	models/seneca/reactor/anims/idle.mb -dest models/md5/environments/idle // -range 1 100
+	anim	models/seneca/reactor/anims/startup.mb -dest models/md5/environments/startup
+}
+
+model delta1_reactor {
+	mesh							models/md5/environments/reactor.md5mesh
+	anim idle						models/md5/environments/idle.md5anim
+	anim startup					models/md5/environments/startup.md5anim
+}
+
+entityDef delta1_reactor {
+	"editor_color"					"1 .5 .3"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 32"
+	"editor_copy2"					"anim"
+
+	"spawnclass"					"idAnimated"
+	"model"							"delta1_reactor"
+	"anim"							"idle"
+}
+
+
+//scipull...
+
+
+model delta1_scipull {
+	mesh							models/md5/cinematics/delta1/scipull_mesh.md5mesh
+	anim idle						models/md5/cinematics/delta1/scipull_idle.md5anim
+	anim pull						models/md5/cinematics/delta1/scipull.md5anim
+}
+
+entityDef delta1_scipull {
+	"editor_color"					"1 .5 .3"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 32"
+	"editor_copy2"					"anim"
+
+	"spawnclass"					"idAnimated"
+	"model"							"delta1_scipull"
+	"anim"							"idle"
+}
+
+
+//sarge vcd
+
+model delta1_sarge_video_head {
+	mesh							models/md5/heads/sarge/sarge.md5mesh
+	anim stand						models/md5/heads/sarge/sargeidle.md5anim
+	
+	anim sarge_vcd					models/md5/heads/sarge/delta1/sarge_vcd.md5anim 				
+}
+
+model delta1_sarge_video {
+	inherit							npc_marine
+	
+	anim sarge_vcd					models/md5/chars/sarge/delta1/sarge_vcd.md5anim {
+		frame 1							event disableEyeFocus
+//		frame 1							aviGame delta1_sarge_vcd
+		frame 15						sound_voice	delta1_sarge_vcd	
+//		frame 580						aviGame			
+	
+	}
+}
+
+entityDef delta1_sarge_video {
+	"inherit"						"npc_base"
+	"model"							"delta1_sarge_video"
+	"size"							"12 12 74"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"eye_horizontal_offset"			"0"
+
+	"def_head"						"delta1_sarge_video_head"
+	"head_joint"					"Shoulders"
+}
+
+
+

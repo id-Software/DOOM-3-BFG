@@ -1,0 +1,52 @@
+/***********************************************************************
+
+ai_monster_zombie_base.script
+
+base class for all zombies.  implements common behavior.
+
+***********************************************************************/
+
+object monster_zombie_base : monster_base {
+	void		archvile_minion();
+	boolean		can_resurrect();
+	void		state_Killed();
+};
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_base::archvile_minion
+=====================
+*/
+void monster_zombie_base::archvile_minion() {
+	sys.error( "'" + getName() + "': Zombies cannot be minions for archviles\n" );
+}
+
+/*
+=====================
+monster_zombie_base::can_resurrect
+=====================
+*/
+boolean monster_zombie_base::can_resurrect() {
+	return false;
+}
+
+/*
+=====================
+monster_zombie_base::state_Killed
+=====================
+*/
+void monster_zombie_base::state_Killed() {
+	stopMove();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+
+	waitAction( "dead" );
+	stopThinking();
+}

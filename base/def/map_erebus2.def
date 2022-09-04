@@ -1,0 +1,300 @@
+export jaycine2 {
+
+//	HELLTIME HUNTER EXPORT
+
+	options -prefix H1_ -keep origin ALL CHUNKS chunk1_joint chunk2_joint chunk3_joint chunk4_joint chunk5_joint chunk6_joint chunk7_joint chunk8_joint body body2 RMISSILE LMISSILE -parent RMISSILE rhand1 -parent LMISSILE lhand1 -parent body2 body -parent chunk1_joint CHUNKS -parent chunk2_joint CHUNKS -parent chunk3_joint CHUNKS -parent chunk4_joint CHUNKS -parent chunk5_joint CHUNKS -parent chunk6_joint CHUNKS -parent chunk7_joint CHUNKS -parent chunk8_joint CHUNKS
+
+	addoptions -align ALL
+
+	mesh	models/cinematics/erebus2/helltime2.mb -dest models/md5/cinematics/erebus2/hunter1intromesh
+	anim	models/monsters/hunter_helltime/cycles/intro_player.mb -range 0 480 -dest models/md5/cinematics/erebus2/hunter1introanim
+
+}
+
+export cine_erebus2 {
+
+	camera	models/monsters/hunter_helltime/cycles/intro_player.mb -range 0 720 -dest models/md5/cinematics/erebus2/erebus2_hunterintro
+	camera	models/monsters/hunter_helltime/cycles/death_player.mb -range 0 488 -dest models/md5/cinematics/erebus2/erebus2_hunteroutro
+}
+
+export erebus2_locker_spooked {
+	options -prefix locker_ -rotate 90
+
+	mesh	maps/eric/spooked3.mb 			-dest	models/md5/cinematics/erebus2/lockermesh
+	anim	maps/eric/spooked3.mb -range 0 43	-dest	models/md5/cinematics/erebus2/locker_triggered
+	anim	maps/eric/spooked3.mb -range 44 394	-dest	models/md5/cinematics/erebus2/locker_primary
+	anim	maps/eric/spooked3.mb -range 395 396	-dest	models/md5/cinematics/erebus2/idle
+
+}
+
+export cine_erebus2 {
+
+	camera	models/cinematics/erebus2/vulgarintro.mb -dest models/md5/cinematics/erebus2/erebus2_vulgarintro
+}
+
+model erebus2_cinematic_hunter1 {
+	inherit							"monster_hunter_helltime"
+
+	anim cinematic					models/md5/cinematics/erebus2/hunter1introanim.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 1							start_emitter chunk1_emitter chunk1_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk2_emitter chunk2_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk3_emitter chunk3_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk4_emitter chunk4_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk5_emitter chunk5_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk6_emitter chunk6_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk7_emitter chunk7_joint helltime_fireball2.prt
+		frame 1							start_emitter chunk8_emitter chunk8_joint helltime_fireball2.prt
+		frame 20						trigger speaker_ring_rotation
+		frame 48						trigger speaker_betruger_taunt1
+		frame 80						trigger speaker_rockring_loop		// Turn it on
+		//frame 20						trigger	portal_rotate
+		//frame 20						trigger	portal_rotate2
+		frame 86						trigger speaker_portal_appear				// -Xian
+		frame 100						trigger speaker_vortex						// -Xian
+		frame 100						trigger	portal_hellfire
+		frame 100						trigger	portal_spooge
+		frame 150						trigger speaker_forgotten_exit				// -Xian
+		//frame 170						trigger portal_spooge2
+		frame 255						trigger speaker_turret_rotation_01
+		frame 265						trigger speaker_turret_rotation_02			// -Xian
+		frame 282						trigger speaker_turret_fire					// -Xian
+		frame 380						trigger speaker_hunter_appear				// -Xian
+		//frame 400						trigger speaker_hunter_roar					// -Xian
+		frame 400						sound_body3 snd_appear // - BJ
+		//frame 440						trigger speaker_betruger_taunt1
+		frame 450						trigger speaker_growl_1						// -Xian
+		frame 480						trigger speaker_growl_2						// -Xian
+	}
+	anim cinematic_death			models/md5/monsters/hunter_helltime/death.md5anim {
+		frame 1							sound_global e2_hunter_bigdeath				 // - Xian (was BJ)
+		frame 100						trigger speaker_hunter_poof					// - Xian
+		frame 121						call map_erebus2_helltime::StartHelltimeDeathBurn
+		frame 121						trigger speaker_hunter_anger				// - Xian
+		//frame 168						sound_body snd_absorb // - BJ
+		frame 160						trigger speaker_betruger_taunt2
+		frame 168						start_emitter chunk1_emitter2 chunk1_joint ht_deathjuice.prt
+		//frame 168						start_emitter chunk2_emitter2 chunk2_joint ht_deathjuice.prt
+
+		frame 240						stop_emitter chunk1_emitter2
+		frame 240						trigger speaker_betruger_taunt3
+		//frame 240						stop_emitter chunk2_emitter2
+	}
+}
+
+model erebus2_cinematic_player_vulgarintro {
+
+	mesh						models/md5/cinematics/erebus2/player_vulgarintro.md5mesh
+	anim vulgarintro			models/md5/cinematics/erebus2/vulgarintro.md5anim {
+		frame 16						sound_body snd_footstep
+		frame 28						sound_body snd_footstep
+		frame 40						sound_body snd_footstep
+		frame 53						sound_body snd_footstep
+		frame 66						sound_body snd_footstep
+		frame 77						sound_body snd_footstep
+	}
+}
+
+entityDef erebus2_cinematic_player_vulgarintro {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+
+	"model"						"erebus2_cinematic_player_vulgarintro"
+	"anim"						"vulgarintro"
+	"snd_footstep"				"player_sounds_footstep"
+}
+
+entityDef erebus2_cinematic_hunter1 {
+	"inherit"					"monster_hunter_helltime"
+	"model"						"erebus2_cinematic_hunter1"
+
+	"anim"						"cinematic"
+}
+
+model erebus2_cinematic_player {
+	mesh						models/md5/cinematics/erebus2/player_grabber.md5mesh
+	anim intro					models/md5/cinematics/erebus2/intro.md5anim {
+		frame 15					sound_body snd_footstep
+		frame 25					sound_body snd_footstep
+		frame 38					sound_body snd_footstep
+		frame 48					sound_body snd_footstep
+		frame 55					sound_body snd_footstep
+		frame 63					sound_body snd_footstep
+		frame 72					sound_body snd_footstep
+		frame 83					sound_body snd_footstep
+		frame 94					sound_body snd_footstep
+		frame 104					sound_body snd_footstep
+		frame 129					sound_body snd_footstep
+	}
+}
+
+entityDef erebus2_cinematic_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+
+	"model"						"erebus2_cinematic_player"
+	"anim"						"intro"
+	"snd_footstep"				"player_sounds_footstep"
+}
+
+model erebus2_cinematic_player_end {
+	mesh						models/md5/cinematics/erebus2/player_orb.md5mesh
+	anim outro					models/md5/cinematics/erebus2/outro.md5anim {
+		frame	1					skin skins/weapons/artifact3rd_petrified
+		frame   255					call map_erebus2::outro_heartlight
+		frame   270					sound_body artifact_cine_raise
+		frame	270					skin skins/weapons/artifact_petrified_fx
+		frame   270					sound_voice artifact_idlecharged
+		frame	270					call setShaderTime
+		frame	310					skin skins/weapons/artifact_3rd_normal
+		frame	310					call setShaderTime
+		frame   360					call map_erebus2::mcneil_radio_static
+		frame 	420					sound_voice grabber_cin_silent
+	}
+}
+
+entityDef erebus2_cinematic_player_end {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+
+	"model"						"erebus2_cinematic_player_end"
+	"anim"						"outro"
+}
+
+entityDef erebus2_hunterintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim erebus2_hunterintro"			"models/md5/cinematics/erebus2/erebus2_hunterintro.md5camera"
+	"anim erebus2_hunteroutro"			"models/md5/cinematics/erebus2/erebus2_hunteroutro.md5camera"
+}
+
+entityDef erebus2_vulgarintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim erebus2_vulgarintro"			"models/md5/cinematics/erebus2/erebus2_vulgarintro.md5camera"
+}
+
+
+/************************
+    NPC in the Locker
+ ************************/
+model erebus2_spooked_head {
+	inherit						head_young
+
+	anim talk_primary				models/md5/characters/heads/young/erebus2/spooked_primary.md5anim {
+		frame 1							sound_voice e2_spooked_primary
+	}
+	anim talk_secondary1			models/md5/characters/heads/young/erebus2/spooked_secondary1.md5anim {
+		frame 1							sound_voice e2_spooked_secondary1
+	}
+	anim talk_secondary2			models/md5/characters/heads/young/erebus2/spooked_secondary2.md5anim {
+		frame 1							sound_voice e2_spooked_secondary2
+	}
+}
+
+skin erebus2_spooked_skin {
+	textures/object/offlocker1side		textures/object/offlocker1side_spooked
+	textures/object/a_offlocker1_d02 	textures/object/a_offlocker1_d02_spooked
+	textures/base_floor/grill_floor5 	textures/base_floor/grill_floor5_spooked
+}
+
+model erebus2_spooked {
+	mesh								models/md5/chars/erebus2/spooked.md5mesh
+	skin								erebus2_spooked_skin
+	channel torso						( *Waist )
+	channel legs						( origin *locker_locker Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim idle							models/md5/chars/erebus2/spooked_secondary1.md5anim
+	anim stand							models/md5/chars/erebus2/spooked_secondary1.md5anim
+	anim pain							models/md5/chars/erebus2/spooked_pain.md5anim
+	anim cower							models/md5/chars/erebus2/spooked_secondary1.md5anim {
+		//frame 1				sound_body spooked_lockerclose
+		//frame 1					trigger e2_spooked_lockershut
+	}
+	anim look							models/md5/chars/erebus2/spooked_look.md5anim
+	anim talk_trigger					models/md5/chars/erebus2/spooked_look.md5anim {
+		frame 1				sound_body spooked_lockeropen
+		frame 42			sound_body spooked_lockerclose
+	}
+	anim talk_primary					models/md5/chars/erebus2/spooked_primary.md5anim {
+		frame 1				sound_body spooked_lockeropen
+		frame 344			sound_body spooked_lockerclose
+	}
+	anim talk_secondary1				models/md5/chars/erebus2/spooked_secondary1.md5anim
+	anim talk_secondary2				models/md5/chars/erebus2/spooked_secondary2.md5anim
+}
+
+entityDef erebus2_spooked {
+	"inherit"						"npc_base"
+	"model"							"erebus2_spooked"
+	"def_head"						"erebus2_spooked_head"
+	"head_joint"					"Shoulders"
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"400"
+	"health"						"1000"
+	"gib"							"0"
+	"no_cower"						"0"
+
+	"mass"							"100000000"
+	"bleed"							"0"
+	"model_gib" 					""
+	"ragdoll"						""
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+
+	"head_focus_rate"				"0.1"
+
+	"ignore_push"					"1"
+
+	"copy_joint_world eyecontrol"	""
+
+	"damage_zone locker"			"*locker_locker"
+	"damage_scale locker"			"0"
+
+	"talk0_blendin"					"0"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"0"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"0"
+	"talk2_blendout"				"8"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".8 .8 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+
+	"eye_turn_min"					"-20 -10 0"
+	"eye_turn_max"					"20 10 0"
+
+	"snd_talk_trigger"				"e2_spooked_triggered"
+	"snd_talk_primary"				"e2_spooked_primary"
+	"snd_talk_secondary1"			"e2_spooked_secondary1"
+	"snd_talk_secondary2"			"e2_spooked_secondary2"
+}

@@ -1,0 +1,10 @@
+/***********************************************************************
+
+	monster_demon_trite_jump.def
+
+***********************************************************************/
+
+entityDef monster_demon_trite_jump {
+	"inherit"						"monster_demon_trite"
+	"scriptobject"					"monster_demon_trite_jump"
+}

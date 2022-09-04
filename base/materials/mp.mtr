@@ -1,0 +1,27 @@
+models/items/powerups/atom_blue
+{
+	noSelfShadow
+	translucent
+	twosided
+	noShadows
+	{
+		blend add
+		map models/items/powerups/atom3.tga
+		translate	time * 2 , time * 0
+		//rgb bliteTable[ time * 1.2 ]
+	}
+}
+
+models/items/powerups/atom_green
+{
+	noSelfShadow
+	translucent
+	twosided
+	noShadows
+	{
+		blend add
+		map models/items/powerups/atom2.tga
+		translate	time * 2 , time * 0
+		//rgb bliteTable[ time * 1.2 ]
+	}
+}
