@@ -695,7 +695,6 @@ public:
 	idStr		extensions;
 	gltfExtra	extras;
 };
-typedef gltfExt_KHR_lights_punctual_spot spot;
 
 //KHR_lights_punctual
 //https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_lights_punctual/schema/light.schema.json
@@ -705,7 +704,7 @@ public:
 	gltfExt_KHR_lights_punctual() : color( vec3_one ), intensity( 1.0f ), range( -1.0f ), intType( -1 ) { }
 	idVec3		color;
 	float		intensity;
-	spot		spot;
+	gltfExt_KHR_lights_punctual_spot		spot;
 	idStr		type; //directional=0,point=1,spot=2
 	float		range;
 	idStr		name;
