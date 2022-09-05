@@ -752,9 +752,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 //// For these to function you need to add an private idList<gltf{name}*> {target}
-#define GLTFCACHEITEM(name,target) \
-gltf##name * name () { target.AssureSizeAlloc( target.Num()+1,idListNewElement<gltf##name>); return target[target.Num()-1];} \
-const inline idList<gltf##name*> & ##name##List() { return target; }
+//#define GLTFCACHEITEM(name,target) \
+//gltf##name * name () { target.AssureSizeAlloc( target.Num()+1,idListNewElement<gltf##name>); return target[target.Num()-1];} \
+//const inline idList<gltf##name*> & ##name##List() { return target; }
 
 
 // URI's are resolved during parsing so that
@@ -1254,6 +1254,162 @@ public:
 	{
 		return scene;
 	}
+
+//#define GLTFCACHEITEM(name,target) \
+//gltf##name * name () { target.AssureSizeAlloc( target.Num()+1,idListNewElement<gltf##name>); return target[target.Num()-1];} \
+//const inline idList<gltf##name*> & ##name##List() { return target; }
+
+	gltfBuffer* Buffer()
+	{
+		buffers.AssureSizeAlloc( buffers.Num() + 1 , idListNewElement<gltfBuffer> );
+		return buffers[buffers.Num() - 1];
+	}
+	const inline idList<gltfBuffer*>& BufferList()
+	{
+		return buffers;
+	}
+
+	gltfSampler* Sampler()
+	{
+		samplers.AssureSizeAlloc( samplers.Num() + 1 , idListNewElement<gltfSampler> );
+		return samplers[samplers.Num() - 1];
+	}
+	const inline idList<gltfSampler*>& SamplerList()
+	{
+		return samplers;
+	}
+
+	gltfBufferView* BufferView()
+	{
+		bufferViews.AssureSizeAlloc( bufferViews.Num() + 1 , idListNewElement<gltfBufferView> );
+		return bufferViews[bufferViews.Num() - 1];
+	}
+	const inline idList<gltfBufferView*>& BufferViewList()
+	{
+		return bufferViews;
+	}
+
+	gltfImage* Image()
+	{
+		images.AssureSizeAlloc( images.Num() + 1 , idListNewElement<gltfImage> );
+		return images[images.Num() - 1];
+	}
+	const inline idList<gltfImage*>& ImageList()
+	{
+		return images;
+	}
+
+	gltfTexture* Texture()
+	{
+		textures.AssureSizeAlloc( textures.Num() + 1 , idListNewElement<gltfTexture> );
+		return textures[textures.Num() - 1];
+	}
+	const inline idList<gltfTexture*>& TextureList()
+	{
+		return textures;
+	}
+
+	gltfAccessor* Accessor()
+	{
+		accessors.AssureSizeAlloc( accessors.Num() + 1 , idListNewElement<gltfAccessor> );
+		return accessors[accessors.Num() - 1];
+	}
+	const inline idList<gltfAccessor*>& AccessorList()
+	{
+		return accessors;
+	}
+
+	gltfExtensionsUsed* ExtensionsUsed()
+	{
+		extensionsUsed.AssureSizeAlloc( accessors.Num() + 1 , idListNewElement<gltfExtensionsUsed> );
+		return extensionsUsed[extensionsUsed.Num() - 1];
+	}
+	const inline idList<gltfExtensionsUsed*>& ExtensionsUsedList()
+	{
+		return extensionsUsed;
+	}
+
+	gltfMesh* Mesh()
+	{
+		meshes.AssureSizeAlloc( meshes.Num() + 1 , idListNewElement<gltfMesh> );
+		return meshes[meshes.Num() - 1];
+	}
+	const inline idList<gltfMesh*>& MeshList()
+	{
+		return meshes;
+	}
+
+	gltfScene* Scene()
+	{
+		scenes.AssureSizeAlloc( scenes.Num() + 1 , idListNewElement<gltfScene> );
+		return scenes[scenes.Num() - 1];
+	}
+	const inline idList<gltfScene*>& SceneList()
+	{
+		return scenes;
+	}
+
+	gltfNode* Node()
+	{
+		nodes.AssureSizeAlloc( nodes.Num() + 1 , idListNewElement<gltfNode> );
+		return nodes[nodes.Num() - 1];
+	}
+	const inline idList<gltfNode*>& NodeList()
+	{
+		return nodes;
+	}
+
+	gltfCamera* Camera()
+	{
+		cameras.AssureSizeAlloc( cameras.Num() + 1 , idListNewElement<gltfCamera> );
+		return cameras[cameras.Num() - 1];
+	}
+	const inline idList<gltfCamera*>& CameraList()
+	{
+		return cameras;
+	}
+
+	gltfMaterial* Material()
+	{
+		materials.AssureSizeAlloc( materials.Num() + 1 , idListNewElement<gltfMaterial> );
+		return materials[materials.Num() - 1];
+	}
+	const inline idList<gltfMaterial*>& MaterialList()
+	{
+		return materials;
+	}
+
+	gltfExtensions* Extensions()
+	{
+		extensions.AssureSizeAlloc( extensions.Num() + 1 , idListNewElement<gltfExtensions> );
+		return extensions[extensions.Num() - 1];
+	}
+	const inline idList<gltfExtensions*>& ExtensionsList()
+	{
+		return extensions;
+	}
+
+	gltfAnimation* Animation()
+	{
+		animations.AssureSizeAlloc( animations.Num() + 1 , idListNewElement<gltfAnimation> );
+		return animations[animations.Num() - 1];
+	}
+	const inline idList<gltfAnimation*>& AnimationList()
+	{
+		return animations;
+	}
+
+	gltfSkin* Skin()
+	{
+		skins.AssureSizeAlloc( skins.Num() + 1 , idListNewElement<gltfSkin> );
+		return skins[skins.Num() - 1];
+	}
+	const inline idList<gltfSkin*>& SkinList()
+	{
+		return skins;
+	}
+
+	/*
 	GLTFCACHEITEM( Buffer, buffers )
 	GLTFCACHEITEM( Sampler, samplers )
 	GLTFCACHEITEM( BufferView, bufferViews )
@@ -1269,6 +1425,7 @@ public:
 	GLTFCACHEITEM( Extensions, extensions )
 	GLTFCACHEITEM( Animation, animations )
 	GLTFCACHEITEM( Skin, skins )
+	*/
 
 	//gltfCameraManager * cameraManager;
 private:

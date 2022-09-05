@@ -60,6 +60,8 @@ private:
 	void ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data );
 	void UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf, const modelSurface_t& sourceSurf );
 	void UpdateMd5Joints();
+
+	const idMD5Joint*			FindMD5Joint( const idStr& name ) const;
 	gltfData* data;
 	gltfNode* root;
 	bool fileExclusive;

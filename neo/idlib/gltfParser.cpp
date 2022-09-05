@@ -290,6 +290,11 @@ gltfPropertyArray::Iterator gltfPropertyArray::end()
 	return Iterator{ this , endPtr};
 }
 
+gltfItemArray::~gltfItemArray()
+{
+	items.DeleteContents( true );
+}
+
 int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 {
 	idToken token;
@@ -1975,7 +1980,7 @@ bool GLTF_Parser::loadGLB( idStr filename )
 		int read = file->Read( ( void* )data, chunk_length );
 		if( read != chunk_length )
 		{
-			common->FatalError( "Could not read full chunk (%i bytes) in file %s", chunk_length, filename );
+			common->FatalError( "Could not read full chunk (%i bytes) in file %s", chunk_length, filename.c_str() );
 		}
 		length -= read;
 		if( chunk_type == gltfChunk_Type_JSON )
@@ -2075,7 +2080,7 @@ bool GLTF_Parser::Parse()
 	}
 	else
 	{
-		common->FatalError( "%s not fully loaded.", currentFile );
+		common->FatalError( "%s not fully loaded.", currentFile.c_str() );
 	}
 
 	buffersDone = false;

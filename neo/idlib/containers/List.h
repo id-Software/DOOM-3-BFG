@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __LIST_H__
 
 #include <new>
+#include <initializer_list>
 
 /*
 ===============================================================================
@@ -124,6 +126,7 @@ public:
 
 	idList( int newgranularity = 16 );
 	idList( const idList& other );
+	idList( std::initializer_list<_type_> initializerList );
 	~idList();
 
 	void			Clear();											// clear the list
@@ -200,6 +203,7 @@ public:
 		memTag = ( byte )tag_;
 	};
 
+	/*
 	struct Iterator
 	{
 		_type_* p;
@@ -225,6 +229,54 @@ public:
 	{
 		return Iterator{list + Num()};
 	};
+	*/
+
+	// Begin/End methods for range-based for loops.
+	_type_* begin()
+	{
+		if( num > 0 )
+		{
+			return &list[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	_type_* end()
+	{
+		if( num > 0 )
+		{
+			return &list[num - 1];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+	const _type_* begin() const
+	{
+		if( num > 0 )
+		{
+			return &list[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	const _type_* end() const
+	{
+		if( num > 0 )
+		{
+			return &list[num - 1];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
 
 private:
 	int				num;
@@ -260,6 +312,14 @@ ID_INLINE idList<_type_, _tag_>::idList( const idList& other )
 {
 	list = NULL;
 	*this = other;
+}
+
+template< typename _type_, memTag_t _tag_ >
+ID_INLINE idList<_type_, _tag_>::idList( std::initializer_list<_type_> initializerList )
+	: idList( 16 )
+{
+	SetNum( initializerList.size() );
+	std::copy( initializerList.begin(), initializerList.end(), list );
 }
 
 /*
@@ -312,7 +372,10 @@ ID_INLINE void idList<_type_, _tag_>::DeleteContents( bool clear )
 
 	for( i = 0; i < num; i++ )
 	{
-		delete list[ i ];
+		if( list[i] )
+		{
+			delete list[i];
+		}
 		list[ i ] = NULL;
 	}
 
@@ -548,7 +611,6 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( int newSize )
 
 	if( newSize > size )
 	{
-
 		if( granularity == 0 )  	// this is a hack to fix our memset classes
 		{
 			granularity = 16;
@@ -557,9 +619,9 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( int newSize )
 		newSize += granularity - 1;
 		newSize -= newSize % granularity;
 		Resize( newSize );
-	}
 
-	num = newNum;
+		num = newNum;
+	}
 }
 
 /*

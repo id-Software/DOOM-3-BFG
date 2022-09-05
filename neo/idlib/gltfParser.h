@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 struct parsable
 {
 public:
+	virtual ~parsable() {}
+
 	virtual void parse( idToken& token ) = 0;
 	virtual void parse( idToken& token , idLexer* parser ) {};
 	virtual idStr& Name() = 0;
@@ -229,10 +231,7 @@ gltfItemClass( boolean, bool, if( token.Icmp( "true" ) == 0 ) *item = true; else
 class gltfItemArray
 {
 public:
-	~gltfItemArray()
-	{
-		items.DeleteContents( true );
-	}
+	~gltfItemArray();
 	gltfItemArray() { };
 	int Num()
 	{
