@@ -32,24 +32,24 @@ If you have questions concerning this license or the applicable additional terms
 class idRenderModelGLTF : public idRenderModelStatic
 {
 public:
-	virtual void				InitFromFile( const char* fileName );
-	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
-	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
-	virtual dynamicModel_t		IsDynamicModel() const;
-	virtual idBounds			Bounds( const struct renderEntity_s* ent ) const;
-	virtual void				Print() const;
-	virtual void				List() const;
-	virtual void				TouchData();
-	virtual void				PurgeModel();
-	virtual void				LoadModel();
-	virtual int					Memory() const;
-	virtual idRenderModel* 		InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel );
-	virtual int					NumJoints() const;
-	virtual const idMD5Joint* 	GetJoints() const;
-	virtual jointHandle_t		GetJointHandle( const char* name ) const;
-	virtual const char* 		GetJointName( jointHandle_t handle ) const;
-	virtual const idJointQuat* 	GetDefaultPose() const;
-	virtual int					NearestJoint( int surfaceNum, int a, int b, int c ) const;
+	virtual void				InitFromFile( const char* fileName ) override;
+	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) override;
+	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const override;
+	virtual dynamicModel_t		IsDynamicModel() const override;
+	virtual idBounds			Bounds( const struct renderEntity_s* ent ) const override;
+	virtual void				Print() const override;
+	virtual void				List() const override;
+	virtual void				TouchData() override;
+	virtual void				PurgeModel() override;
+	virtual void				LoadModel() override;
+	virtual int					Memory() const override;
+	virtual idRenderModel* 		InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel ) override;
+	virtual int					NumJoints() const override;
+	virtual const idMD5Joint* 	GetJoints() const override;
+	virtual jointHandle_t		GetJointHandle( const char* name ) const override;
+	virtual const char* 		GetJointName( jointHandle_t handle ) const override;
+	virtual const idJointQuat* 	GetDefaultPose() const override;
+	virtual int					NearestJoint( int surfaceNum, int a, int b, int c ) const override;
 	virtual bool				SupportsBinaryModel() override
 	{
 		return true;
