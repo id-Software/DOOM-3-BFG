@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,49 +29,49 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 
 #ifdef __GNUG__
-#pragma implementation "dstrings.h"
+	#pragma implementation "dstrings.h"
 #endif
 #include "dstrings.h"
 
 #include "globaldata.h"
 
 
-const char* endmsg[NUM_QUITMESSAGES+1]=
+const char* endmsg[NUM_QUITMESSAGES + 1] =
 {
-  // DOOM1
-  QUITMSG,
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?"
+	// DOOM1
+	QUITMSG,
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?"
 
-  // QuitDOOM II messages
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?"
+	// QuitDOOM II messages
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?"
 
-  // FinalDOOM?
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
-  "are you sure you want to quit?",
+	// FinalDOOM?
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
+	"are you sure you want to quit?",
 
-  // Internal debug. Different style, too.
-  "are you sure you want to quit?"
+	// Internal debug. Different style, too.
+	"are you sure you want to quit?"
 };
 
 
-  
+
 
 
 

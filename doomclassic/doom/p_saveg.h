@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,22 +31,22 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
 // Persistent storage/archiving.
 // These are the load / save game routines.
-void P_ArchivePlayers (void);
-void P_UnArchivePlayers (void);
-void P_ArchiveWorld (void);
-void P_UnArchiveWorld (void);
-void P_ArchiveThinkers (void);
-void P_UnArchiveThinkers (void);
-void P_ArchiveSpecials (void);
-void P_UnArchiveSpecials (void);
+void P_ArchivePlayers( void );
+void P_UnArchivePlayers( void );
+void P_ArchiveWorld( void );
+void P_UnArchiveWorld( void );
+void P_ArchiveThinkers( void );
+void P_UnArchiveThinkers( void );
+void P_ArchiveSpecials( void );
+void P_UnArchiveSpecials( void );
 
-extern byte*		save_p; 
+extern byte*		save_p;
 
 
 #endif

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __P_LOCAL__
 
 #ifndef __R_LOCAL__
-#include "r_local.h"
+	#include "r_local.h"
 #endif
 
 #define FLOATSPEED		(FRACUNIT*4)
@@ -73,26 +73,26 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 // both the head and tail of the thinker list
-extern	thinker_t	thinkercap;	
+extern	thinker_t	thinkercap;
 
 
-void P_InitThinkers (void);
-void P_AddThinker (thinker_t* thinker);
-void P_RemoveThinker (thinker_t* thinker);
+void P_InitThinkers( void );
+void P_AddThinker( thinker_t* thinker );
+void P_RemoveThinker( thinker_t* thinker );
 
 
 //
 // P_PSPR
 //
-void P_SetupPsprites (player_t* curplayer);
-void P_MovePsprites (player_t* curplayer);
-void P_DropWeapon (player_t* player);
+void P_SetupPsprites( player_t* curplayer );
+void P_MovePsprites( player_t* curplayer );
+void P_DropWeapon( player_t* player );
 
 
 //
 // P_USER
 //
-void	P_PlayerThink (player_t* player);
+void	P_PlayerThink( player_t* player );
 
 
 //
@@ -110,7 +110,7 @@ extern int		iquehead;
 extern int		iquetail;
 
 
-void P_RespawnSpecials (void);
+void P_RespawnSpecials( void );
 
 mobj_t*
 P_SpawnMobj
@@ -119,20 +119,20 @@ P_SpawnMobj
   fixed_t	z,
   mobjtype_t	type );
 
-void 	P_RemoveMobj (mobj_t* th);
-qboolean	P_SetMobjState (mobj_t* mobj, statenum_t state);
-void 	P_MobjThinker (mobj_t* mobj);
+void 	P_RemoveMobj( mobj_t* th );
+qboolean	P_SetMobjState( mobj_t* mobj, statenum_t state );
+void 	P_MobjThinker( mobj_t* mobj );
 
-void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z);
-void 	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
-mobj_t* P_SpawnMissile (mobj_t* source, mobj_t* dest, mobjtype_t type);
-void	P_SpawnPlayerMissile (mobj_t* source, mobjtype_t type);
+void	P_SpawnPuff( fixed_t x, fixed_t y, fixed_t z );
+void 	P_SpawnBlood( fixed_t x, fixed_t y, fixed_t z, int damage );
+mobj_t* P_SpawnMissile( mobj_t* source, mobj_t* dest, mobjtype_t type );
+void	P_SpawnPlayerMissile( mobj_t* source, mobjtype_t type );
 
 
 //
 // P_ENEMY
 //
-void P_NoiseAlert (mobj_t* target, mobj_t* emmiter);
+void P_NoiseAlert( mobj_t* target, mobj_t* emmiter );
 
 
 //
@@ -140,21 +140,22 @@ void P_NoiseAlert (mobj_t* target, mobj_t* emmiter);
 //
 typedef struct
 {
-    fixed_t	x;
-    fixed_t	y;
-    fixed_t	dx;
-    fixed_t	dy;
-    
+	fixed_t	x;
+	fixed_t	y;
+	fixed_t	dx;
+	fixed_t	dy;
+
 } divline_t;
 
 typedef struct
 {
-    fixed_t	frac;		// along trace line
-    qboolean	isaline;
-    union {
-	mobj_t*	thing;
-	line_t*	line;
-    }			d;
+	fixed_t	frac;		// along trace line
+	qboolean	isaline;
+	union
+	{
+		mobj_t*	thing;
+		line_t*	line;
+	}			d;
 } intercept_t;
 
 #define MAXINTERCEPTS	128
@@ -162,24 +163,24 @@ typedef struct
 extern intercept_t	intercepts[MAXINTERCEPTS];
 extern intercept_t*	intercept_p;
 
-typedef qboolean (*traverser_t) (intercept_t *in);
+typedef qboolean( *traverser_t )( intercept_t* in );
 
-fixed_t P_AproxDistance (fixed_t dx, fixed_t dy);
-int 	P_PointOnLineSide (fixed_t x, fixed_t y, line_t* line);
-int 	P_PointOnDivlineSide (fixed_t x, fixed_t y, divline_t* line);
-void 	P_MakeDivline (line_t* li, divline_t* dl);
-fixed_t P_InterceptVector (divline_t* v2, divline_t* v1);
-int 	P_BoxOnLineSide (fixed_t* tmbox, line_t* ld);
+fixed_t P_AproxDistance( fixed_t dx, fixed_t dy );
+int 	P_PointOnLineSide( fixed_t x, fixed_t y, line_t* line );
+int 	P_PointOnDivlineSide( fixed_t x, fixed_t y, divline_t* line );
+void 	P_MakeDivline( line_t* li, divline_t* dl );
+fixed_t P_InterceptVector( divline_t* v2, divline_t* v1 );
+int 	P_BoxOnLineSide( fixed_t* tmbox, line_t* ld );
 
 extern fixed_t		opentop;
 extern fixed_t 		openbottom;
 extern fixed_t		openrange;
 extern fixed_t		lowfloor;
 
-void 	P_LineOpening (line_t* linedef);
+void 	P_LineOpening( line_t* linedef );
 
-qboolean P_BlockLinesIterator (int x, int y, qboolean(*func)(line_t*) );
-qboolean P_BlockThingsIterator (int x, int y, qboolean(*func)(mobj_t*) );
+qboolean P_BlockLinesIterator( int x, int y, qboolean( *func )( line_t* ) );
+qboolean P_BlockThingsIterator( int x, int y, qboolean( *func )( mobj_t* ) );
 
 #define PT_ADDLINES		1
 #define PT_ADDTHINGS	2
@@ -194,10 +195,10 @@ P_PathTraverse
   fixed_t	x2,
   fixed_t	y2,
   int		flags,
-  qboolean	(*trav) (intercept_t *));
+  qboolean( *trav )( intercept_t* ) );
 
-void P_UnsetThingPosition (mobj_t* thing);
-void P_SetThingPosition (mobj_t* thing);
+void P_UnsetThingPosition( mobj_t* thing );
+void P_SetThingPosition( mobj_t* thing );
 
 
 //
@@ -213,14 +214,14 @@ extern fixed_t		tmceilingz;
 
 extern	line_t*		ceilingline;
 
-qboolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y);
-qboolean P_TryMove (mobj_t* thing, fixed_t x, fixed_t y);
-qboolean P_TeleportMove (mobj_t* thing, fixed_t x, fixed_t y);
-void	P_SlideMove (mobj_t* mo);
-qboolean P_CheckSight (mobj_t* t1, mobj_t* t2);
-void 	P_UseLines (player_t* player);
+qboolean P_CheckPosition( mobj_t* thing, fixed_t x, fixed_t y );
+qboolean P_TryMove( mobj_t* thing, fixed_t x, fixed_t y );
+qboolean P_TeleportMove( mobj_t* thing, fixed_t x, fixed_t y );
+void	P_SlideMove( mobj_t* mo );
+qboolean P_CheckSight( mobj_t* t1, mobj_t* t2 );
+void 	P_UseLines( player_t* player );
 
-qboolean P_ChangeSector (sector_t* sector, qboolean crunch);
+qboolean P_ChangeSector( sector_t* sector, qboolean crunch );
 
 extern mobj_t*	linetarget;	// who got hit (or NULL)
 

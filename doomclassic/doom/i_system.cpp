@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_game.h"
 
 #ifdef __GNUG__
-#pragma implementation "i_system.h"
+	#pragma implementation "i_system.h"
 #endif
 #include "i_system.h"
 
@@ -55,15 +55,15 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-ticcmd_t*	I_BaseTiccmd(void)
+ticcmd_t*	I_BaseTiccmd( void )
 {
-    return &::g->emptycmd;
+	return &::g->emptycmd;
 }
 
 
-int  I_GetHeapSize (void)
+int  I_GetHeapSize( void )
 {
-    return ::g->mb_used*1024*1024;
+	return ::g->mb_used * 1024 * 1024;
 }
 
 
@@ -71,7 +71,7 @@ int  I_GetHeapSize (void)
 // I_GetTime
 // returns time in 1/70th second tics
 //
-int  I_GetTime (void)
+int  I_GetTime( void )
 {
 	return ::g->current_time;
 }
@@ -86,39 +86,39 @@ void I_SetTime( int time_in )
 //
 // I_Init
 //
-void I_Init (void)
+void I_Init( void )
 {
-    I_InitSound();
-    //  I_InitGraphics();
+	I_InitSound();
+	//  I_InitGraphics();
 }
 
 //
 // I_Quit
 //
-void I_Quit (void)
+void I_Quit( void )
 {
-    D_QuitNetGame ();
-    I_ShutdownSound();
-    I_ShutdownMusic();
-    M_SaveDefaults ();
-    I_ShutdownGraphics();
+	D_QuitNetGame();
+	I_ShutdownSound();
+	I_ShutdownMusic();
+	M_SaveDefaults();
+	I_ShutdownGraphics();
 //    exit(0);
 
 // Exceptions disabled by default on PS3
 //	throw;
 }
 
-void I_WaitVBL(int count)
+void I_WaitVBL( int count )
 {
 	// PS3 fixme
 	//Sleep(0);
 }
 
-void I_BeginRead(void)
+void I_BeginRead( void )
 {
 }
 
-void I_EndRead(void)
+void I_EndRead( void )
 {
 }
 
@@ -126,56 +126,59 @@ void I_EndRead(void)
 // I_Error
 //
 extern bool debugOutput;
-void I_Printf(const char* msg, ...)
+void I_Printf( const char* msg, ... )
 {
 	char pmsg[1024];
-    va_list	argptr;
+	va_list	argptr;
 
-    // Message first.
-	if( debugOutput ) {
-		va_start (argptr,msg);
-		vsprintf (pmsg, msg, argptr);
+	// Message first.
+	if( debugOutput )
+	{
+		va_start( argptr, msg );
+		vsprintf( pmsg, msg, argptr );
 
-		safeOutputDebug(pmsg);
+		safeOutputDebug( pmsg );
 
-		va_end (argptr);
+		va_end( argptr );
 	}
 }
 
 
-void I_PrintfE(const char* msg, ...)
+void I_PrintfE( const char* msg, ... )
 {
 	char pmsg[1024];
-    va_list	argptr;
+	va_list	argptr;
 
-    // Message first.
-	if( debugOutput ) {
-		va_start (argptr,msg);
-		vsprintf (pmsg, msg, argptr);
+	// Message first.
+	if( debugOutput )
+	{
+		va_start( argptr, msg );
+		vsprintf( pmsg, msg, argptr );
 
-		safeOutputDebug("ERROR: ");
-		safeOutputDebug(pmsg);
+		safeOutputDebug( "ERROR: " );
+		safeOutputDebug( pmsg );
 
-	    va_end (argptr);
+		va_end( argptr );
 	}
 }
 
-void I_Error(const char *error, ...)
+void I_Error( const char* error, ... )
 {
 	const int ERROR_MSG_SIZE = 1024;
 	char error_msg[ERROR_MSG_SIZE];
-    va_list	argptr;
+	va_list	argptr;
 
-    // Message first.
-	if( debugOutput ) {
-		va_start (argptr,error);
-		idStr::vsnPrintf (error_msg, ERROR_MSG_SIZE, error, argptr);
+	// Message first.
+	if( debugOutput )
+	{
+		va_start( argptr, error );
+		idStr::vsnPrintf( error_msg, ERROR_MSG_SIZE, error, argptr );
 
-		safeOutputDebug("Error: ");
-		safeOutputDebug(error_msg);
-		safeOutputDebug("\n");
+		safeOutputDebug( "Error: " );
+		safeOutputDebug( error_msg );
+		safeOutputDebug( "\n" );
 
-		va_end (argptr);
+		va_end( argptr );
 	}
 
 	// CRASH DUMP - enable this to get extra info on error from crash dumps

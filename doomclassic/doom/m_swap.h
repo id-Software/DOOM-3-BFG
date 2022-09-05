@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -42,20 +42,20 @@ If you have questions concerning this license or the applicable additional terms
 //long	SwapLONG(long);
 
 // Swap 16bit, that is, MSB and LSB byte.
-inline unsigned short SwapSHORT(unsigned short x)
+inline unsigned short SwapSHORT( unsigned short x )
 {
-    // No masking with 0xFF should be necessary. 
-    return (x>>8) | (x<<8);
+	// No masking with 0xFF should be necessary.
+	return ( x >> 8 ) | ( x << 8 );
 }
 
 // Swapping 32bit.
-inline unsigned long SwapLONG( unsigned long x)
+inline unsigned long SwapLONG( unsigned long x )
 {
-    return
-	(x>>24)
-	| ((x>>8) & 0xff00)
-	| ((x<<8) & 0xff0000)
-	| (x<<24);
+	return
+		( x >> 24 )
+		| ( ( x >> 8 ) & 0xff00 )
+		| ( ( x << 8 ) & 0xff0000 )
+		| ( x << 24 );
 }
 
 

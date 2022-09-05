@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "m_fixed.h"
 #include "info.h"
 #include "sounds.h"
-#include "r_defs.h" 
+#include "r_defs.h"
 #include "z_zone.h"
 #include "d_player.h"
 #include "m_cheat.h"
@@ -55,17 +55,18 @@ If you have questions concerning this license or the applicable additional terms
 #include "defs.h"
 #include "structs.h"
 
-struct Globals {
+struct Globals
+{
 	void InitGlobals();
 #include "vars.h"
 };
 
-extern Globals *g;
+extern Globals* g;
 
 #define GLOBAL( type, name ) type name
 #define GLOBAL_ARRAY( type, name, count ) type name[count]
 
-extern void localCalculateAchievements(bool epComplete);
+extern void localCalculateAchievements( bool epComplete );
 
 
 #endif

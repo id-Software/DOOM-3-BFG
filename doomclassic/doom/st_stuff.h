@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,42 +44,42 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 // Called by main loop.
-qboolean ST_Responder (event_t* ev);
+qboolean ST_Responder( event_t* ev );
 
 // Called by main loop.
-void ST_Ticker (void);
+void ST_Ticker( void );
 
 // Called by main loop.
-void ST_Drawer (qboolean fullscreen, qboolean refresh);
+void ST_Drawer( qboolean fullscreen, qboolean refresh );
 
 // Called when the console player is spawned on each level.
-void ST_Start (void);
+void ST_Start( void );
 
 // Called by startup code.
-void ST_Init (void);
+void ST_Init( void );
 
 
 
 // States for status bar code.
 typedef enum
 {
-    AutomapState,
-    FirstPersonState
-    
+	AutomapState,
+	FirstPersonState
+
 } st_stateenum_t;
 
 
 // States for the chat code.
 typedef enum
 {
-    StartChatState,
-    WaitDestState,
-    GetChatState
-    
+	StartChatState,
+	WaitDestState,
+	GetChatState
+
 } st_chatstateenum_t;
 
 
-qboolean ST_Responder(event_t* ev);
+qboolean ST_Responder( event_t* ev );
 
 
 

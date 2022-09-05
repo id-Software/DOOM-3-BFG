@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -43,31 +43,31 @@ extern fixed_t		dc_iscale;
 extern fixed_t		dc_texturemid;
 
 // first pixel in a column
-extern byte*		dc_source;		
+extern byte*		dc_source;
 
 
 // The span blitting interface.
 // Hook in assembler or system specific BLT
 //  here.
-void 	R_DrawColumn ( lighttable_t * dc_colormap,
-						byte * dc_source );
+void 	R_DrawColumn( lighttable_t* dc_colormap,
+					  byte* dc_source );
 
-void 	R_DrawColumnLow ( lighttable_t * dc_colormap,
-						  byte * dc_source );
+void 	R_DrawColumnLow( lighttable_t* dc_colormap,
+						 byte* dc_source );
 
 // The Spectre/Invisibility effect.
-void 	R_DrawFuzzColumn ( lighttable_t * dc_colormap,
-						  byte * dc_source );
-void 	R_DrawFuzzColumnLow ( lighttable_t * dc_colormap,
-						  byte * dc_source );
+void 	R_DrawFuzzColumn( lighttable_t* dc_colormap,
+						  byte* dc_source );
+void 	R_DrawFuzzColumnLow( lighttable_t* dc_colormap,
+							 byte* dc_source );
 
 // Draw with color translation tables,
 //  for player sprite rendering,
 //  Green/Red/Blue/Indigo shirts.
-void	R_DrawTranslatedColumn ( lighttable_t * dc_colormap,
-						  byte * dc_source );
-void	R_DrawTranslatedColumnLow ( lighttable_t * dc_colormap,
-						  byte * dc_source );
+void	R_DrawTranslatedColumn( lighttable_t* dc_colormap,
+								byte* dc_source );
+void	R_DrawTranslatedColumnLow( lighttable_t* dc_colormap,
+								   byte* dc_source );
 
 void
 R_VideoErase
@@ -86,7 +86,7 @@ extern fixed_t		ds_xstep;
 extern fixed_t		ds_ystep;
 
 // start of a 64*64 tile image
-extern byte*		ds_source;		
+extern byte*		ds_source;
 
 extern byte*		translationtables;
 extern byte*		dc_translation;
@@ -94,7 +94,7 @@ extern byte*		dc_translation;
 
 // Span blitting for rows, floor/ceiling.
 // No Sepctre effect needed.
-void 	R_DrawSpan (
+void 	R_DrawSpan(
 	fixed_t xfrac,
 	fixed_t yfrac,
 	fixed_t ds_y,
@@ -102,19 +102,19 @@ void 	R_DrawSpan (
 	int ds_x2,
 	fixed_t ds_xstep,
 	fixed_t ds_ystep,
-	lighttable_t * ds_colormap,
-	byte * ds_source );
+	lighttable_t* ds_colormap,
+	byte* ds_source );
 
 // Low resolution mode, 160x200?
-void 	R_DrawSpanLow ( fixed_t xfrac,
-				  fixed_t yfrac,
-				  fixed_t ds_y,
-				  int ds_x1,
-				  int ds_x2,
-				  fixed_t ds_xstep,
-				  fixed_t ds_ystep,
-				  lighttable_t * ds_colormap,
-				  byte * ds_source );
+void 	R_DrawSpanLow( fixed_t xfrac,
+					   fixed_t yfrac,
+					   fixed_t ds_y,
+					   int ds_x1,
+					   int ds_x2,
+					   fixed_t ds_xstep,
+					   fixed_t ds_ystep,
+					   lighttable_t* ds_colormap,
+					   byte* ds_source );
 
 
 void
@@ -125,15 +125,15 @@ R_InitBuffer
 
 // Initialize color translation tables,
 //  for player rendering etc.
-void	R_InitTranslationTables (void);
+void	R_InitTranslationTables( void );
 
 
 
 // Rendering function.
-void R_FillBackScreen (void);
+void R_FillBackScreen( void );
 
 // If the view size is not full screen, draws a border around it.
-void R_DrawViewBorder (void);
+void R_DrawViewBorder( void );
 
 
 

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-//  am_map.structs begin // 
+//  am_map.structs begin //
 typedef struct
 {
 	int x, y;
@@ -39,7 +39,7 @@ typedef struct
 } fline_t;
 typedef struct
 {
-	fixed_t		x,y;
+	fixed_t		x, y;
 } mpoint_t;
 typedef struct
 {
@@ -49,17 +49,18 @@ typedef struct
 {
 	fixed_t slp, islp;
 } islope_t;
-// am_map.structs end // 
-//  f_finale.structs begin // 
+// am_map.structs end //
+//  f_finale.structs begin //
 typedef struct
 {
-    const char		*name;
-    mobjtype_t	type;
+	const char*		name;
+	mobjtype_t	type;
 } castinfo_t;
-// f_finale.structs end // 
-//  i_input.structs begin // 
+// f_finale.structs end //
+//  i_input.structs begin //
 
-enum  {
+enum
+{
 	J_DELTAX,
 	J_DELTAY,
 };
@@ -69,7 +70,7 @@ enum InputEventType
 	IETButtonDigital,
 	IETButtonAnalog,
 	IETNone,
-} ;	
+} ;
 struct InputEvent
 {
 	InputEventType type;
@@ -77,10 +78,11 @@ struct InputEvent
 	int action;
 	int port;
 } ;
-// i_input.structs end // 
+// i_input.structs end //
 
-//  mus2midi.structs begin // 
-typedef struct tagMUSheader_t {
+//  mus2midi.structs begin //
+typedef struct tagMUSheader_t
+{
 	char    ID[4];          // identifier "MUS" 0x1A
 	WORD    scoreLen;
 	WORD    scoreStart;
@@ -90,7 +92,8 @@ typedef struct tagMUSheader_t {
 	WORD    dummy;
 	//// variable-length part starts here
 } MUSheader_t ;
-typedef struct tagMidiHeaderChunk_t {
+typedef struct tagMidiHeaderChunk_t
+{
 	char name[4];
 	int  length;
 
@@ -98,12 +101,13 @@ typedef struct tagMidiHeaderChunk_t {
 	short ntracks;			// make 1
 	short division;			// 0xe250??
 } MidiHeaderChunk_t;
-typedef struct tagMidiTrackChunk_t {
+typedef struct tagMidiTrackChunk_t
+{
 	char name[4];
 	int	length;
 } MidiTrackChunk_t;
-// mus2midi.structs end // 
-//  m_menu.structs begin // 
+// mus2midi.structs end //
+//  m_menu.structs begin //
 typedef struct
 {
 	// 0 = no cursor here, 1 = ok, 2 = arrows ok
@@ -114,29 +118,29 @@ typedef struct
 	// choice = menu item #.
 	// if status = 2,
 	//   choice=0:leftarrow,1:rightarrow
-	void	(*routine)(int choice);
+	void	( *routine )( int choice );
 
 	// hotkey in menu
-	char	alphaKey;			
+	char	alphaKey;
 } menuitem_t;
 typedef struct menu_s
 {
 	short		numitems;	// # of menu items
 	struct menu_s*	prevMenu;	// previous menu
 	menuitem_t*		menuitems;	// menu items
-	void		(*routine)();	// draw routine
+	void	( *routine )();	// draw routine
 	short		x;
 	short		y;		// x,y of menu
 	short		lastOn;		// last item user was on in menu
 } menu_t;
 typedef enum
 {
-    newgame = 0,
-    options,
-    loadgame,
-    savegame,    
-    quitdoom,
-    main_end
+	newgame = 0,
+	options,
+	loadgame,
+	savegame,
+	quitdoom,
+	main_end
 } main_e;
 typedef enum
 {
@@ -173,7 +177,7 @@ typedef enum
 	endgame,
 	scrnsize,
 	messages,
-	//detail,	
+	//detail,
 	option_empty1,
 	mousesens,
 	option_empty2,
@@ -208,106 +212,111 @@ typedef enum
 	load6,
 	load_end
 } load_e;
-// m_menu.structs end // 
-//  m_misc.structs begin // 
+// m_menu.structs end //
+//  m_misc.structs begin //
 struct default_t
 {
-    const char*	name;
-	union {
-		int *			location;
-		const char * *	charLocation;
+	const char*	name;
+	union
+	{
+		int* 			location;
+		const char ** 	charLocation;
 	};
-	union {
+	union
+	{
 		int				defaultvalue;
-		const char *	charDefault;
+		const char* 	charDefault;
 	};
-    int		scantranslate;		// PC scan code hack
-    int		untranslated;		// lousy hack
+	int		scantranslate;		// PC scan code hack
+	int		untranslated;		// lousy hack
 
 	default_t( ) :
 		name( NULL ),
 		location( NULL ),
 		defaultvalue( 0 ),
 		scantranslate( 0 ),
-		untranslated( 0 ) {
+		untranslated( 0 )
+	{
 	}
 
-	default_t( const char * name_, int * location_, int defaultvalue_ ) :
+	default_t( const char* name_, int* location_, int defaultvalue_ ) :
 		name( name_ ),
 		location( location_ ),
-		defaultvalue( defaultvalue_ ) {
+		defaultvalue( defaultvalue_ )
+	{
 	}
 
-	default_t( const char * name_, const char * * charLocation_, const char * charDefault_ ) :
+	default_t( const char* name_, const char * * charLocation_, const char* charDefault_ ) :
 		name( name_ ),
 		charLocation( charLocation_ ),
-		charDefault( charDefault_ ) {
+		charDefault( charDefault_ )
+	{
 	}
 };
 typedef struct
 {
-    char		manufacturer;
-    char		version;
-    char		encoding;
-    char		bits_per_pixel;
+	char		manufacturer;
+	char		version;
+	char		encoding;
+	char		bits_per_pixel;
 
-    unsigned short	xmin;
-    unsigned short	ymin;
-    unsigned short	xmax;
-    unsigned short	ymax;
-    
-    unsigned short	hres;
-    unsigned short	vres;
+	unsigned short	xmin;
+	unsigned short	ymin;
+	unsigned short	xmax;
+	unsigned short	ymax;
 
-    unsigned char	palette[48];
-    
-    char		reserved;
-    char		color_planes;
-    unsigned short	bytes_per_line;
-    unsigned short	palette_type;
-    
-    char		filler[58];
-    unsigned char	data;		// unbounded
+	unsigned short	hres;
+	unsigned short	vres;
+
+	unsigned char	palette[48];
+
+	char		reserved;
+	char		color_planes;
+	unsigned short	bytes_per_line;
+	unsigned short	palette_type;
+
+	char		filler[58];
+	unsigned char	data;		// unbounded
 } pcx_t;
-// m_misc.structs end // 
-//  p_enemy.structs begin // 
+// m_misc.structs end //
+//  p_enemy.structs begin //
 typedef enum
 {
-    DI_EAST,
-    DI_NORTHEAST,
-    DI_NORTH,
-    DI_NORTHWEST,
-    DI_WEST,
-    DI_SOUTHWEST,
-    DI_SOUTH,
-    DI_SOUTHEAST,
-    DI_NODIR,
-    NUMDIRS
-    
+	DI_EAST,
+	DI_NORTHEAST,
+	DI_NORTH,
+	DI_NORTHWEST,
+	DI_WEST,
+	DI_SOUTHWEST,
+	DI_SOUTH,
+	DI_SOUTHEAST,
+	DI_NODIR,
+	NUMDIRS
+
 } dirtype_t;
-// p_enemy.structs end // 
-//  p_saveg.structs begin // 
+// p_enemy.structs end //
+//  p_saveg.structs begin //
 typedef enum
 {
-    tc_end = 0,
-    tc_mobj
+	tc_end = 0,
+	tc_mobj
 
 } thinkerclass_t;
 typedef enum
 {
-    tc_ceiling = 2,
-    tc_door,
-    tc_floor,
-    tc_plat,
-    tc_flash,
-    tc_strobe,
-    tc_glow,
-    tc_endspecials,
+	tc_ceiling = 2,
+	tc_door,
+	tc_floor,
+	tc_plat,
+	tc_flash,
+	tc_strobe,
+	tc_glow,
+	tc_endspecials,
 	tc_fire
 
-} specials_e;	
-// p_saveg.structs end // 
-//  p_spec.structs begin // 
+} specials_e;
+// p_saveg.structs end //
+//  p_spec.structs begin //
 typedef struct
 {
 	qboolean	istexture;
@@ -324,82 +333,82 @@ typedef struct
 	char	startname[9];
 	int		speed;
 } animdef_t;
-// p_spec.structs end // 
-//  r_bsp.structs begin // 
+// p_spec.structs end //
+//  r_bsp.structs begin //
 typedef	struct
 {
-    int	first;
-    int last;
-    
+	int	first;
+	int last;
+
 } cliprange_t;
-// r_bsp.structs end // 
-//  r_data.structs begin // 
+// r_bsp.structs end //
+//  r_data.structs begin //
 typedef struct
 {
-    short	originx;
-    short	originy;
-    short	patch;
-    short	stepdir;
-    short	colormap;
+	short	originx;
+	short	originy;
+	short	patch;
+	short	stepdir;
+	short	colormap;
 } mappatch_t;
 typedef struct
 {
-    char		name[8];
-    int			masked;	
-    short		width;
-    short		height;
+	char		name[8];
+	int			masked;
+	short		width;
+	short		height;
 
-    // FR: Replaced obsolete void **columndirectory with int
-    // for 64-bit compatibility
-    int			columndirectory;	// OBSOLETE
-    short		patchcount;
-    mappatch_t	patches[1];
+	// FR: Replaced obsolete void **columndirectory with int
+	// for 64-bit compatibility
+	int			columndirectory;	// OBSOLETE
+	short		patchcount;
+	mappatch_t	patches[1];
 } maptexture_t;
 typedef struct
 {
-    // Block origin (allways UL),
-    // which has allready accounted
-    // for the internal origin of the patch.
-    int		originx;	
-    int		originy;
-    int		patch;
+	// Block origin (allways UL),
+	// which has allready accounted
+	// for the internal origin of the patch.
+	int		originx;
+	int		originy;
+	int		patch;
 } texpatch_t;
 typedef struct
 {
-    // Keep name for switch changing, etc.
-    char	name[8];		
-    short	width;
-    short	height;
-    
-    // All the patches[patchcount]
-    //  are drawn back to front into the cached texture.
-    short	patchcount;
-    texpatch_t	patches[1];		
-    
+	// Keep name for switch changing, etc.
+	char	name[8];
+	short	width;
+	short	height;
+
+	// All the patches[patchcount]
+	//  are drawn back to front into the cached texture.
+	short	patchcount;
+	texpatch_t	patches[1];
+
 } texture_t;
-// r_data.structs end // 
-//  r_things.structs begin // 
+// r_data.structs end //
+//  r_things.structs begin //
 typedef struct
 {
-    int		x1;
-    int		x2;
-	
-    int		column;
-    int		topclip;
-    int		bottomclip;
+	int		x1;
+	int		x2;
+
+	int		column;
+	int		topclip;
+	int		bottomclip;
 
 } maskdraw_t;
-// r_things.structs end // 
-//  st_stuff.structs begin // 
+// r_things.structs end //
+//  st_stuff.structs begin //
 typedef enum
 {
-    NoState = -1,
-    StatCount,
-    ShowNextLoc
+	NoState = -1,
+	StatCount,
+	ShowNextLoc
 
 } stateenum_t;
-// st_stuff.structs end // 
-//  s_sound.structs begin // 
+// st_stuff.structs end //
+//  s_sound.structs begin //
 typedef struct
 {
 	// sound information (if null, channel avail.)
@@ -412,79 +421,79 @@ typedef struct
 	int		handle;
 
 } channel_t;
-// s_sound.structs end // 
-//  wi_stuff.structs begin // 
+// s_sound.structs end //
+//  wi_stuff.structs begin //
 typedef enum
 {
-    ANIM_ALWAYS,
-    ANIM_RANDOM,
-    ANIM_LEVEL
+	ANIM_ALWAYS,
+	ANIM_RANDOM,
+	ANIM_LEVEL
 
 } animenum_t;
 typedef struct
 {
-    int		x;
-    int		y;
-    
+	int		x;
+	int		y;
+
 } point_t;
 typedef struct
 {
-    animenum_t	type;
+	animenum_t	type;
 
-    // period in tics between animations
-    int		period;
+	// period in tics between animations
+	int		period;
 
-    // number of animation frames
-    int		nanims;
+	// number of animation frames
+	int		nanims;
 
-    // location of animation
-    point_t	loc;
+	// location of animation
+	point_t	loc;
 
-    // ALWAYS: n/a,
-    // RANDOM: period deviation (<256),
-    // LEVEL: level
-    int		data1;
+	// ALWAYS: n/a,
+	// RANDOM: period deviation (<256),
+	// LEVEL: level
+	int		data1;
 
-    // ALWAYS: n/a,
-    // RANDOM: random base period,
-    // LEVEL: n/a
-    int		data2; 
+	// ALWAYS: n/a,
+	// RANDOM: random base period,
+	// LEVEL: n/a
+	int		data2;
 
-    // actual graphics for frames of animations
-    patch_t*	p[3]; 
+	// actual graphics for frames of animations
+	patch_t*	p[3];
 
-    // following must be initialized to zero before use!
+	// following must be initialized to zero before use!
 
-    // next value of bcnt (used in conjunction with period)
-    int		nexttic;
+	// next value of bcnt (used in conjunction with period)
+	int		nexttic;
 
-    // last drawn animation frame
-    int		lastdrawn;
+	// last drawn animation frame
+	int		lastdrawn;
 
-    // next frame number to animate
-    int		ctr;
-    
-    // used by RANDOM and LEVEL when animating
-    int		state;  
+	// next frame number to animate
+	int		ctr;
+
+	// used by RANDOM and LEVEL when animating
+	int		state;
 
 } anim_t;
-// wi_stuff.structs end // 
-//  z_zone.structs begin // 
+// wi_stuff.structs end //
+//  z_zone.structs begin //
 struct lumplookup
 {
 	int lump;
-	lumplookup *next;
-	lumplookup *prev;
+	lumplookup* next;
+	lumplookup* prev;
 };
 typedef struct
 {
-    // total bytes malloced, including header
-    int		size;
+	// total bytes malloced, including header
+	int		size;
 
-    // start / end cap for linked list
-    memblock_t	blocklist;
-    
-    memblock_t*	rover;
-    
+	// start / end cap for linked list
+	memblock_t	blocklist;
+
+	memblock_t*	rover;
+
 } memzone_t;
-// z_zone.structs end // 
+// z_zone.structs end //

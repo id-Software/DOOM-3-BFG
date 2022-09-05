@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,19 +32,19 @@ If you have questions concerning this license or the applicable additional terms
 #include "doomdef.h"
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
 // Weapon info: sprite frames, ammunition use.
 typedef struct
 {
-    ammotype_t	ammo;
-    int		upstate;
-    int		downstate;
-    int		readystate;
-    int		atkstate;
-    int		flashstate;
+	ammotype_t	ammo;
+	int		upstate;
+	int		downstate;
+	int		readystate;
+	int		atkstate;
+	int		flashstate;
 
 } weaponinfo_t;
 

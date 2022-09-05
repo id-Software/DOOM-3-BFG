@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // Purpose?
 const char snd_prefixen[]
-= { 'P', 'P', 'A', 'S', 'S', 'S', 'M', 'M', 'M', 'S', 'S', 'S' };
+	= { 'P', 'P', 'A', 'S', 'S', 'S', 'M', 'M', 'M', 'S', 'S', 'S' };
 
 
 // when to clip out sounds
@@ -107,18 +107,18 @@ const char snd_prefixen[]
 int
 S_getChannel
 ( void*		origin,
- sfxinfo_t*	sfxinfo );
+  sfxinfo_t*	sfxinfo );
 
 
 int
 S_AdjustSoundParams
 ( mobj_t*	listener,
- mobj_t*	source,
- int*		vol,
- int*		sep,
- int*		pitch );
+  mobj_t*	source,
+  int*		vol,
+  int*		sep,
+  int*		pitch );
 
-void S_StopChannel(int cnum);
+void S_StopChannel( int cnum );
 
 
 
@@ -129,33 +129,37 @@ void S_StopChannel(int cnum);
 //
 void S_Init
 ( int		sfxVolume,
- int		musicVolume )
-{  
+  int		musicVolume )
+{
 	int		i;
 
 	// Whatever these did with DMX, these are rather dummies now.
 	I_SetChannels();
 
-	S_SetSfxVolume(sfxVolume);
-	S_SetMusicVolume(musicVolume);
+	S_SetSfxVolume( sfxVolume );
+	S_SetMusicVolume( musicVolume );
 
 	// Allocating the internal ::g->channels for mixing
 	// (the maximum numer of sounds rendered
 	// simultaneously) within zone memory.
 	::g->channels =
-		(channel_t *) DoomLib::Z_Malloc(::g->numChannels*sizeof(channel_t), PU_STATIC, 0);
+		( channel_t* ) DoomLib::Z_Malloc( ::g->numChannels * sizeof( channel_t ), PU_STATIC, 0 );
 
 	// Free all ::g->channels for use
-	for (i=0 ; i < ::g->numChannels ; i++)
+	for( i = 0 ; i < ::g->numChannels ; i++ )
+	{
 		::g->channels[i].sfxinfo = 0;
+	}
 
 	// no sounds are playing, and they are not ::g->mus_paused
 	::g->mus_paused = 0;
 	::g->mus_looping = 0;
 
 	// Note that sounds have not been cached (yet).
-	for (i=1 ; i<NUMSFX ; i++)
+	for( i = 1 ; i < NUMSFX ; i++ )
+	{
 		S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
+	}
 }
 
 
@@ -166,29 +170,33 @@ void S_Init
 // Kills playing sounds at start of level,
 //  determines music if any, changes music.
 //
-void S_Start(void)
+void S_Start( void )
 {
 	int cnum;
 	int mnum;
 
 	// kill all playing sounds at start of level
 	//  (trust me - a good idea)
-	if( ::g->channels ) {
-		for (cnum=0 ; cnum < ::g->numChannels ; cnum++)
-			if (::g->channels[cnum].sfxinfo)
-				S_StopChannel(cnum);
+	if( ::g->channels )
+	{
+		for( cnum = 0 ; cnum < ::g->numChannels ; cnum++ )
+			if( ::g->channels[cnum].sfxinfo )
+			{
+				S_StopChannel( cnum );
+			}
 	}
 
 	// start new music for the level
 	::g->mus_paused = 0;
 
-	if (::g->gamemode == commercial) {
-		
+	if( ::g->gamemode == commercial )
+	{
+
 		mnum = mus_runnin + ::g->gamemap - 1;
-		
+
 		/*
 		Is this necessary?
-		
+
 		if ( ::g->gamemission == 0 ) {
 			mnum = mus_runnin + ::g->gamemap - 1;
 		}
@@ -199,7 +207,8 @@ void S_Start(void)
 	}
 	else
 	{
-		int spmus[] = {
+		int spmus[] =
+		{
 			// Song -	Who? -			Where?
 			mus_e3m4,	// American		e4m1
 			mus_e3m2,	// Romero		e4m2
@@ -212,17 +221,21 @@ void S_Start(void)
 			mus_e1m9	// Tim			e4m9
 		};
 
-		if (::g->gameepisode < 4)
-			mnum = mus_e1m1 + (::g->gameepisode-1)*9 + ::g->gamemap-1;
+		if( ::g->gameepisode < 4 )
+		{
+			mnum = mus_e1m1 + ( ::g->gameepisode - 1 ) * 9 + ::g->gamemap - 1;
+		}
 		else
-			mnum = spmus[::g->gamemap-1];
-	}	
+		{
+			mnum = spmus[::g->gamemap - 1];
+		}
+	}
 
 	S_StopMusic();
-	S_ChangeMusic(mnum, true);
+	S_ChangeMusic( mnum, true );
 
 	::g->nextcleanup = 15;
-}	
+}
 
 
 
@@ -231,8 +244,8 @@ void S_Start(void)
 void
 S_StartSoundAtVolume
 ( void*		origin_p,
- int		sfx_id,
- int		volume )
+  int		sfx_id,
+  int		volume )
 {
 
 	int		rc;
@@ -242,7 +255,7 @@ S_StartSoundAtVolume
 	sfxinfo_t*	sfx;
 	int		cnum;
 
-	mobj_t*	origin = (mobj_t *) origin_p;
+	mobj_t*	origin = ( mobj_t* ) origin_p;
 
 
 	// Debug.
@@ -251,34 +264,44 @@ S_StartSoundAtVolume
 	sfx_id, S_sfx[sfx_id].name );*/
 
 	// check for bogus sound #
-	if (sfx_id < 1 || sfx_id > NUMSFX)
-		I_Error("Bad sfx #: %d", sfx_id);
+	if( sfx_id < 1 || sfx_id > NUMSFX )
+	{
+		I_Error( "Bad sfx #: %d", sfx_id );
+	}
 
 	sfx = &S_sfx[sfx_id];
 
 	// Initialize sound parameters
-	if (sfx->link)
+	if( sfx->link )
 	{
 		pitch = sfx->pitch;
 		priority = sfx->priority;
 		volume += sfx->volume;
 
-		if (volume < 1)
+		if( volume < 1 )
+		{
 			return;
+		}
 
-		if ( volume > s_volume_sound.GetInteger() )
+		if( volume > s_volume_sound.GetInteger() )
+		{
 			volume = s_volume_sound.GetInteger();
+		}
 	}
 	else
 	{
 		pitch = NORM_PITCH;
 		priority = NORM_PRIORITY;
 
-		if (volume < 1)
+		if( volume < 1 )
+		{
 			return;
+		}
 
-		if ( volume > s_volume_sound.GetInteger() )
+		if( volume > s_volume_sound.GetInteger() )
+		{
 			volume = s_volume_sound.GetInteger();
+		}
 
 	}
 
@@ -286,23 +309,25 @@ S_StartSoundAtVolume
 	// Check to see if it is audible,
 	//  and if not, modify the params
 	// DHM - Nerve :: chainsaw!!!
-	if (origin && ::g->players[::g->consoleplayer].mo && origin != ::g->players[::g->consoleplayer].mo)
+	if( origin && ::g->players[::g->consoleplayer].mo && origin != ::g->players[::g->consoleplayer].mo )
 	{
-		rc = S_AdjustSoundParams(::g->players[::g->consoleplayer].mo,
-			origin,
-			&volume,
-			&sep,
-			&pitch);
+		rc = S_AdjustSoundParams( ::g->players[::g->consoleplayer].mo,
+								  origin,
+								  &volume,
+								  &sep,
+								  &pitch );
 
-		if ( origin->x == ::g->players[::g->consoleplayer].mo->x
-			&& origin->y == ::g->players[::g->consoleplayer].mo->y)
-		{	
+		if( origin->x == ::g->players[::g->consoleplayer].mo->x
+				&& origin->y == ::g->players[::g->consoleplayer].mo->y )
+		{
 			sep 	= NORM_SEP;
 		}
 
-		if (!rc)
+		if( !rc )
+		{
 			return;
-	}	
+		}
+	}
 	else
 	{
 		sep = NORM_SEP;
@@ -311,58 +336,67 @@ S_StartSoundAtVolume
 	// hacks to vary the sfx pitches
 	const bool isChainsawSound = sfx_id >= sfx_sawup && sfx_id <= sfx_sawhit;
 
-	if ( !isChainsawSound && sfx_id != sfx_itemup && sfx_id != sfx_tink)
+	if( !isChainsawSound && sfx_id != sfx_itemup && sfx_id != sfx_tink )
 	{
-		pitch += 16 - (M_Random()&31);
+		pitch += 16 - ( M_Random() & 31 );
 
-		if (pitch<0)
+		if( pitch < 0 )
+		{
 			pitch = 0;
-		else if (pitch>255)
+		}
+		else if( pitch > 255 )
+		{
 			pitch = 255;
+		}
 	}
 
 	// kill old sound
 	//S_StopSound(origin);
 
 	// try to find a channel
-	cnum = S_getChannel(origin, sfx);
+	cnum = S_getChannel( origin, sfx );
 
-	if (cnum<0) {
+	if( cnum < 0 )
+	{
 		printf( "No sound channels available for sfxid %d.\n", sfx_id );
 		return;
 	}
 
 	// get lumpnum if necessary
-	if (sfx->lumpnum < 0)
-		sfx->lumpnum = I_GetSfxLumpNum(sfx);
+	if( sfx->lumpnum < 0 )
+	{
+		sfx->lumpnum = I_GetSfxLumpNum( sfx );
+	}
 
 	// increase the usefulness
-	if (sfx->usefulness++ < 0)
+	if( sfx->usefulness++ < 0 )
+	{
 		sfx->usefulness = 1;
+	}
 
 	// Assigns the handle to one of the ::g->channels in the
 	//  mix/output buffer.
-	::g->channels[cnum].handle = I_StartSound(sfx_id, origin, ::g->players[::g->consoleplayer].mo, volume, pitch, priority);
-}	
+	::g->channels[cnum].handle = I_StartSound( sfx_id, origin, ::g->players[::g->consoleplayer].mo, volume, pitch, priority );
+}
 
-void S_StartSound ( void*		origin, int		sfx_id )
+void S_StartSound( void*		origin, int		sfx_id )
 {
-	S_StartSoundAtVolume(origin, sfx_id, s_volume_sound.GetInteger() );
+	S_StartSoundAtVolume( origin, sfx_id, s_volume_sound.GetInteger() );
 }
 
 
 
 
-void S_StopSound(void *origin)
+void S_StopSound( void* origin )
 {
 
 	int cnum;
 
-	for (cnum=0 ; cnum < ::g->numChannels ; cnum++)
+	for( cnum = 0 ; cnum < ::g->numChannels ; cnum++ )
 	{
-		if (::g->channels[cnum].sfxinfo && ::g->channels[cnum].origin == origin)
+		if( ::g->channels[cnum].sfxinfo && ::g->channels[cnum].origin == origin )
 		{
-			S_StopChannel(cnum);
+			S_StopChannel( cnum );
 			break;
 		}
 	}
@@ -375,20 +409,20 @@ void S_StopSound(void *origin)
 //
 // Stop and resume music, during game PAUSE.
 //
-void S_PauseSound(void)
+void S_PauseSound( void )
 {
-	if (::g->mus_playing && !::g->mus_paused)
+	if( ::g->mus_playing && !::g->mus_paused )
 	{
-		I_PauseSong(::g->mus_playing->handle);
+		I_PauseSong( ::g->mus_playing->handle );
 		::g->mus_paused = true;
 	}
 }
 
-void S_ResumeSound(void)
+void S_ResumeSound( void )
 {
-	if (::g->mus_playing && ::g->mus_paused)
+	if( ::g->mus_playing && ::g->mus_paused )
 	{
-		I_ResumeSong(::g->mus_playing->handle);
+		I_ResumeSong( ::g->mus_playing->handle );
 		::g->mus_paused = false;
 	}
 }
@@ -397,7 +431,7 @@ void S_ResumeSound(void)
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(void* listener_p)
+void S_UpdateSounds( void* listener_p )
 {
 	int		audible;
 	int		cnum;
@@ -407,81 +441,85 @@ void S_UpdateSounds(void* listener_p)
 	sfxinfo_t*	sfx;
 	channel_t*	c;
 
-	mobj_t*	listener = (mobj_t*)listener_p;
+	mobj_t*	listener = ( mobj_t* )listener_p;
 
-	for (cnum=0 ; cnum < ::g->numChannels ; cnum++)
+	for( cnum = 0 ; cnum < ::g->numChannels ; cnum++ )
 	{
 		c = &::g->channels[cnum];
 		sfx = c->sfxinfo;
 
-		if(sfx)
+		if( sfx )
 		{
-			if (I_SoundIsPlaying(c->handle))
+			if( I_SoundIsPlaying( c->handle ) )
 			{
 				// initialize parameters
 				volume = s_volume_sound.GetInteger();
 				pitch = NORM_PITCH;
 				sep = NORM_SEP;
 
-				if (sfx->link)
+				if( sfx->link )
 				{
 					pitch = sfx->pitch;
 					volume += sfx->volume;
 
-					if (volume < 1)	{
-						S_StopChannel(cnum);
+					if( volume < 1 )
+					{
+						S_StopChannel( cnum );
 						continue;
 
-					} else if ( volume > s_volume_sound.GetInteger() ) {
+					}
+					else if( volume > s_volume_sound.GetInteger() )
+					{
 						volume = s_volume_sound.GetInteger();
 					}
 				}
 
 				// check non-local sounds for distance clipping or modify their params
-				if (c->origin && listener_p != c->origin)
+				if( c->origin && listener_p != c->origin )
 				{
-					audible = S_AdjustSoundParams(listener,	(mobj_t*)c->origin,	&volume, &sep, &pitch);
-					if (!audible) {
-						S_StopChannel(cnum);
+					audible = S_AdjustSoundParams( listener,	( mobj_t* )c->origin,	&volume, &sep, &pitch );
+					if( !audible )
+					{
+						S_StopChannel( cnum );
 					}
 				}
 			}
 			else
 			{
 				// if channel is allocated but sound has stopped, free it
-				S_StopChannel(cnum);
+				S_StopChannel( cnum );
 			}
 		}
 	}
 }
 
 
-void S_SetMusicVolume(int volume)
+void S_SetMusicVolume( int volume )
 {
-	I_SetMusicVolume(volume);
+	I_SetMusicVolume( volume );
 	s_volume_midi.SetInteger( volume );
 }
 
 
 
-void S_SetSfxVolume(int volume)
+void S_SetSfxVolume( int volume )
 {
-	I_SetSfxVolume(volume);
+	I_SetSfxVolume( volume );
 	s_volume_sound.SetInteger( volume );
 }
 
 //
 // Starts some music with the music id found in sounds.h.
 //
-void S_StartMusic(int m_id)
+void S_StartMusic( int m_id )
 {
-	S_ChangeMusic(m_id, false);
+	S_ChangeMusic( m_id, false );
 }
 
-void S_ChangeMusic ( int			musicnum, int			looping )
+void S_ChangeMusic( int			musicnum, int			looping )
 {
 #ifdef ID_ENABLE_DOOM_CLASSIC_NETWORKING
-	if (gameLocal->IsSplitscreen() && DoomLib::GetPlayer() > 0 )
+	if( gameLocal->IsSplitscreen() && DoomLib::GetPlayer() > 0 )
 	{
 		// we aren't the key player... we have no control over music
 		return;
@@ -490,16 +528,20 @@ void S_ChangeMusic ( int			musicnum, int			looping )
 
 	musicinfo_t*	music = NULL;
 
-	if ( (musicnum <= mus_None)
-		|| (musicnum >= NUMMUSIC) )
+	if( ( musicnum <= mus_None )
+			|| ( musicnum >= NUMMUSIC ) )
 	{
-		I_Error("Bad music number %d", musicnum);
+		I_Error( "Bad music number %d", musicnum );
 	}
 	else
+	{
 		music = &::g->S_music[musicnum];
+	}
 
-	if (::g->mus_playing == music)
+	if( ::g->mus_playing == music )
+	{
 		return;
+	}
 
 	//I_Printf("S_ChangeMusic: Playing new track: '%s'\n", music->name);
 
@@ -509,21 +551,23 @@ void S_ChangeMusic ( int			musicnum, int			looping )
 }
 
 
-void S_StopMusic(void)
+void S_StopMusic( void )
 {
-	if (::g->doomcom.consoleplayer)
+	if( ::g->doomcom.consoleplayer )
 	{
 		// we aren't the key player... we have no control over music
 		return;
 	}
-	
-	if (::g->mus_playing)
-	{
-		if (::g->mus_paused)
-			I_ResumeSong(::g->mus_playing->handle);
 
-		I_StopSong(::g->mus_playing->handle);
-		I_UnRegisterSong(::g->mus_playing->handle);
+	if( ::g->mus_playing )
+	{
+		if( ::g->mus_paused )
+		{
+			I_ResumeSong( ::g->mus_playing->handle );
+		}
+
+		I_StopSong( ::g->mus_playing->handle );
+		I_UnRegisterSong( ::g->mus_playing->handle );
 		//Z_FreeTags( PU_MUSIC_SHARED, PU_MUSIC_SHARED );
 
 		::g->mus_playing->data = 0;
@@ -534,30 +578,32 @@ void S_StopMusic(void)
 
 
 
-void S_StopChannel(int cnum)
+void S_StopChannel( int cnum )
 {
 
 	int		i;
 	channel_t*	c = &::g->channels[cnum];
 
-	if (c->sfxinfo)
+	if( c->sfxinfo )
 	{
 		// stop the sound playing
-		if (I_SoundIsPlaying(c->handle))
+		if( I_SoundIsPlaying( c->handle ) )
 		{
 #ifdef SAWDEBUG
-			if (c->sfxinfo == &S_sfx[sfx_sawful])
-				I_PrintfE( "stopped\n");
+			if( c->sfxinfo == &S_sfx[sfx_sawful] )
+			{
+				I_PrintfE( "stopped\n" );
+			}
 #endif
-			I_StopSound(c->handle);
+			I_StopSound( c->handle );
 		}
 
 		// check to see
 		//  if other ::g->channels are playing the sound
-		for (i=0 ; i < ::g->numChannels ; i++)
+		for( i = 0 ; i < ::g->numChannels ; i++ )
 		{
-			if (cnum != i
-				&& c->sfxinfo == ::g->channels[i].sfxinfo)
+			if( cnum != i
+					&& c->sfxinfo == ::g->channels[i].sfxinfo )
 			{
 				break;
 			}
@@ -578,25 +624,28 @@ void S_StopChannel(int cnum)
 // If the sound is not audible, returns a 0.
 // Otherwise, modifies parameters and returns 1.
 //
-int S_AdjustSoundParams( mobj_t* listener, mobj_t* source, int* vol, int* sep, int* pitch ) {
+int S_AdjustSoundParams( mobj_t* listener, mobj_t* source, int* vol, int* sep, int* pitch )
+{
 	fixed_t	approx_dist;
 	fixed_t	adx;
 	fixed_t	ady;
 
 	// DHM - Nerve :: Could happen in multiplayer if a player exited the level holding the chainsaw
-	if ( listener == NULL || source == NULL ) {
+	if( listener == NULL || source == NULL )
+	{
 		return 0;
 	}
 
 	// calculate the distance to sound origin
 	//  and clip it if necessary
-	adx = abs(listener->x - source->x);
-	ady = abs(listener->y - source->y);
+	adx = abs( listener->x - source->x );
+	ady = abs( listener->y - source->y );
 
 	// From _GG1_ p.428. Appox. eucledian distance fast.
-	approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
+	approx_dist = adx + ady - ( ( adx < ady ? adx : ady ) >> 1 );
 
-	if ( approx_dist > S_CLIPPING_DIST)	{
+	if( approx_dist > S_CLIPPING_DIST )
+	{
 		return 0;
 	}
 
@@ -604,17 +653,19 @@ int S_AdjustSoundParams( mobj_t* listener, mobj_t* source, int* vol, int* sep, i
 	*sep = NORM_SEP;
 
 	// volume calculation
-	if (approx_dist < S_CLOSE_DIST)	{
+	if( approx_dist < S_CLOSE_DIST )
+	{
 		*vol = s_volume_sound.GetInteger();
 	}
-	else {
+	else
+	{
 		// distance effect
 		*vol = ( s_volume_sound.GetInteger()
-			* ((S_CLIPPING_DIST - approx_dist)>>FRACBITS))
-			/ S_ATTENUATOR; 
+				 * ( ( S_CLIPPING_DIST - approx_dist ) >> FRACBITS ) )
+			   / S_ATTENUATOR;
 	}
 
-	return (*vol > 0);
+	return ( *vol > 0 );
 }
 
 
@@ -627,7 +678,7 @@ int S_AdjustSoundParams( mobj_t* listener, mobj_t* source, int* vol, int* sep, i
 int
 S_getChannel
 ( void*		origin,
- sfxinfo_t*	sfxinfo )
+  sfxinfo_t*	sfxinfo )
 {
 	// channel number to use
 	int		cnum;
@@ -635,34 +686,39 @@ S_getChannel
 	channel_t*	c;
 
 	// Find an open channel
-	for (cnum=0 ; cnum < ::g->numChannels ; cnum++)
+	for( cnum = 0 ; cnum < ::g->numChannels ; cnum++ )
 	{
-		if (!::g->channels[cnum].sfxinfo)
-			break;
-		else if ( origin && ::g->channels[cnum].origin == origin && 
-				(::g->channels[cnum].handle == sfx_sawidl || ::g->channels[cnum].handle == sfx_sawful) )
+		if( !::g->channels[cnum].sfxinfo )
 		{
-			S_StopChannel(cnum);
+			break;
+		}
+		else if( origin && ::g->channels[cnum].origin == origin &&
+				 ( ::g->channels[cnum].handle == sfx_sawidl || ::g->channels[cnum].handle == sfx_sawful ) )
+		{
+			S_StopChannel( cnum );
 			break;
 		}
 	}
 
 	// None available
-	if (cnum == ::g->numChannels)
+	if( cnum == ::g->numChannels )
 	{
 		// Look for lower priority
-		for (cnum=0 ; cnum < ::g->numChannels ; cnum++)
-			if (::g->channels[cnum].sfxinfo->priority >= sfxinfo->priority) break;
+		for( cnum = 0 ; cnum < ::g->numChannels ; cnum++ )
+			if( ::g->channels[cnum].sfxinfo->priority >= sfxinfo->priority )
+			{
+				break;
+			}
 
-		if (cnum == ::g->numChannels)
+		if( cnum == ::g->numChannels )
 		{
-			// FUCK!  No lower priority.  Sorry, Charlie.    
+			// FUCK!  No lower priority.  Sorry, Charlie.
 			return -1;
 		}
 		else
 		{
 			// Otherwise, kick out lower priority.
-			S_StopChannel(cnum);
+			S_StopChannel( cnum );
 		}
 	}
 
