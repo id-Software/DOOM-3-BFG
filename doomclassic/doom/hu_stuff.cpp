@@ -319,7 +319,8 @@ void HU_Init(void)
 
 	int		i;
 	int		j;
-	char	buffer[9];
+	size_t	buffer_len = 9;
+	char	buffer[buffer_len];
 
 	shiftxform = english_shiftxform;
 
@@ -327,7 +328,7 @@ void HU_Init(void)
 	j = HU_FONTSTART;
 	for (i=0;i<HU_FONTSIZE;i++)
 	{
-		snprintf(buffer, strlen(buffer), "STCFN%.3d", j++);
+		snprintf(buffer, buffer_len, "STCFN%03d", j++);
 		::g->hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC_SHARED);
 	}
 
