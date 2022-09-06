@@ -830,7 +830,7 @@ void F_BunnyScroll( void )
 	int		x;
 	patch_t*	p1;
 	patch_t*	p2;
-	size_t	name_len = 10;
+	const size_t name_len = 10;
 	char	name[name_len];
 	int		stage;
 

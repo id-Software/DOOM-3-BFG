@@ -319,7 +319,7 @@ void HU_Init( void )
 
 	int		i;
 	int		j;
-	size_t	buffer_len = 9;
+	const size_t buffer_len = 9;
 	char	buffer[buffer_len];
 
 	shiftxform = english_shiftxform;
