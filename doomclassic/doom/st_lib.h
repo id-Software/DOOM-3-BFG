@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,30 +50,30 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef struct
 {
-    // upper right-hand corner
-    //  of the number (right-justified)
-    int		x;
-    int		y;
+	// upper right-hand corner
+	//  of the number (right-justified)
+	int		x;
+	int		y;
 
-    // max # of digits in number
-    int width;    
+	// max # of digits in number
+	int width;
 
-    // last number value
-    int		oldnum;
-    
-    // pointer to current value
-    int*	num;
+	// last number value
+	int		oldnum;
 
-    // pointer to qboolean stating
-    //  whether to update number
-    qboolean*	on;
+	// pointer to current value
+	int*	num;
 
-    // list of patches for 0-9
-    patch_t**	p;
+	// pointer to qboolean stating
+	//  whether to update number
+	qboolean*	on;
 
-    // user data
-    int data;
-    
+	// list of patches for 0-9
+	patch_t**	p;
+
+	// user data
+	int data;
+
 } st_number_t;
 
 
@@ -82,12 +82,12 @@ typedef struct
 //  or, more precisely, contains a number widget.)
 typedef struct
 {
-    // number information
-    st_number_t		n;
+	// number information
+	st_number_t		n;
 
-    // percent sign graphic
-    patch_t*		p;
-    
+	// percent sign graphic
+	patch_t*		p;
+
 } st_percent_t;
 
 
@@ -95,26 +95,26 @@ typedef struct
 // Multiple Icon widget
 typedef struct
 {
-     // center-justified location of icons
-    int			x;
-    int			y;
+	// center-justified location of icons
+	int			x;
+	int			y;
 
-    // last icon number
-    int			oldinum;
+	// last icon number
+	int			oldinum;
 
-    // pointer to current icon
-    int*		inum;
+	// pointer to current icon
+	int*		inum;
 
-    // pointer to qboolean stating
-    //  whether to update icon
-    qboolean*		on;
+	// pointer to qboolean stating
+	//  whether to update icon
+	qboolean*		on;
 
-    // list of icons
-    patch_t**		p;
-    
-    // user data
-    int			data;
-    
+	// list of icons
+	patch_t**		p;
+
+	// user data
+	int			data;
+
 } st_multicon_t;
 
 
@@ -124,24 +124,24 @@ typedef struct
 
 typedef struct
 {
-    // center-justified location of icon
-    int			x;
-    int			y;
+	// center-justified location of icon
+	int			x;
+	int			y;
 
-    // last icon value
-    int			oldval;
+	// last icon value
+	int			oldval;
 
-    // pointer to current icon status
-    qboolean*		val;
+	// pointer to current icon status
+	qboolean*		val;
 
-    // pointer to qboolean
-    //  stating whether to update icon
-    qboolean*		on;  
+	// pointer to qboolean
+	//  stating whether to update icon
+	qboolean*		on;
 
 
-    patch_t*		p;	// icon
-    int			data;   // user data
-    
+	patch_t*		p;	// icon
+	int			data;   // user data
+
 } st_binicon_t;
 
 
@@ -154,7 +154,7 @@ typedef struct
 // More precisely, initialize STMINUS,
 //  everything else is done somewhere else.
 //
-void STlib_init(void);
+void STlib_init( void );
 
 
 

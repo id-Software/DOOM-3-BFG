@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -63,8 +63,8 @@ extern int		viewheight;
 extern int		firstflat;
 
 // for global animation
-extern int*		flattranslation;	
-extern int*		texturetranslation;	
+extern int*		flattranslation;
+extern int*		texturetranslation;
 
 
 // Sprite....
@@ -116,8 +116,8 @@ extern player_t*	viewplayer;
 // ?
 extern angle_t		clipangle;
 
-extern int		viewangletox[FINEANGLES/2];
-extern angle_t		xtoviewangle[SCREENWIDTH+1];
+extern int		viewangletox[FINEANGLES / 2];
+extern angle_t		xtoviewangle[SCREENWIDTH + 1];
 //extern fixed_t		finetangent[FINEANGLES/2];
 
 extern fixed_t		rw_distance;

@@ -203,6 +203,7 @@ public:
 		memTag = ( byte )tag_;
 	};
 
+	/*
 	struct Iterator
 	{
 		_type_* p;
@@ -228,6 +229,54 @@ public:
 	{
 		return Iterator{list + Num()};
 	};
+	*/
+
+	// Begin/End methods for range-based for loops.
+	_type_* begin()
+	{
+		if( num > 0 )
+		{
+			return &list[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	_type_* end()
+	{
+		if( num > 0 )
+		{
+			return &list[num - 1];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+	const _type_* begin() const
+	{
+		if( num > 0 )
+		{
+			return &list[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	const _type_* end() const
+	{
+		if( num > 0 )
+		{
+			return &list[num - 1];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
 
 private:
 	int				num;
@@ -269,7 +318,7 @@ template< typename _type_, memTag_t _tag_ >
 ID_INLINE idList<_type_, _tag_>::idList( std::initializer_list<_type_> initializerList )
 	: idList( 16 )
 {
-	SetNum( std::size( initializerList ) );
+	SetNum( initializerList.size() );
 	std::copy( initializerList.begin(), initializerList.end(), list );
 }
 

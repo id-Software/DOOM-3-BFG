@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,13 +55,15 @@ static char*			mpArgVPtr[4][10];
 
 static bool drawFullScreen = false;
 
-DoomInterface::DoomInterface() {
+DoomInterface::DoomInterface()
+{
 	numplayers = 0;
 	bFinished[0] = bFinished[1] = bFinished[2] = bFinished[3] = false;
 	lastTicRun = 0;
 }
 
-DoomInterface::~DoomInterface() {
+DoomInterface::~DoomInterface()
+{
 }
 
 
@@ -74,105 +76,123 @@ void DoomInterface::Startup( int playerscount, bool multiplayer )
 	globalNetworking	= multiplayer;
 	lastTicRun			= 0;
 
-	if (DoomLib::Z_Malloc == NULL) {
+	if( DoomLib::Z_Malloc == NULL )
+	{
 		DoomLib::Z_Malloc = Z_Malloc;
 	}
 
 	// Splitscreen
-	if ( !multiplayer && playerscount > 1 ) {
+	if( !multiplayer && playerscount > 1 )
+	{
 		localdargc += 2; // for the '-net' and the console number
 		localdargc += playerscount;
 	}
 
-	if ( multiplayer ) {
+	if( multiplayer )
+	{
 		// Force online games to 1 local player for now.
 		// TODO: We should support local splitscreen and online.
 		numplayers = 1;
 	}
 
 	// Start up DooM Classic
-	for ( i = 0; i < numplayers; ++i)
+	for( i = 0; i < numplayers; ++i )
 	{
-		DoomLib::SetPlayer(i);
+		DoomLib::SetPlayer( i );
 
 		bFinished[i] = false;
 		DoomLib::InitGlobals( NULL );
 
-		if ( globalNetworking ) {
+		if( globalNetworking )
+		{
 			printf( "Starting mulitplayer game, argv = " );
-			for ( int j = 0; j < mpArgc[0]; ++j ) {
+			for( int j = 0; j < mpArgc[0]; ++j )
+			{
 				printf( " %s", mpArgVPtr[0][j] );
 			}
 			printf( "\n" );
-			DoomLib::InitGame(mpArgc[i], mpArgVPtr[i] );
-		} else {
-			DoomLib::InitGame(localdargc, (char **)dargv[i] );
+			DoomLib::InitGame( mpArgc[i], mpArgVPtr[i] );
+		}
+		else
+		{
+			DoomLib::InitGame( localdargc, ( char** )dargv[i] );
 		}
 
-		if( DoomLib::skipToLoad ) {
+		if( DoomLib::skipToLoad )
+		{
 			G_LoadGame( DoomLib::loadGamePath );
-			 DoomLib::skipToLoad = false;
-			 ::g->menuactive = 0;
+			DoomLib::skipToLoad = false;
+			::g->menuactive = 0;
 		}
 
-		if( DoomLib::skipToNew ) {
+		if( DoomLib::skipToNew )
+		{
 			static int startLevel = 1;
-			G_DeferedInitNew((skill_t)DoomLib::chosenSkill,DoomLib::chosenEpisode+1, startLevel);
+			G_DeferedInitNew( ( skill_t )DoomLib::chosenSkill, DoomLib::chosenEpisode + 1, startLevel );
 			DoomLib::skipToNew = false;
 			::g->menuactive = 0;
 		}
 
-		DoomLib::SetPlayer(-1);
+		DoomLib::SetPlayer( -1 );
 	}
 }
 
-bool DoomInterface::Frame( int iTime, idUserCmdMgr * userCmdMgr )
+bool DoomInterface::Frame( int iTime, idUserCmdMgr* userCmdMgr )
 {
 	int i;
 	bool bAllFinished = true;
 
-	if ( !globalNetworking || ( lastTicRun < iTime ) ) {
+	if( !globalNetworking || ( lastTicRun < iTime ) )
+	{
 
 		drawFullScreen = false;
 
 		DoomLib::SetPlayer( 0 );
 		DoomLib::PollNetwork();
 
-		for (i = 0; i < numplayers; ++i)
+		for( i = 0; i < numplayers; ++i )
 		{
 			DoomLib::SetPlayer( i );
 
 			I_SetTime( iTime );
 
-			if (bFinished[i] == false) {
+			if( bFinished[i] == false )
+			{
 				bAllFinished = false;
 				bFinished[i] = DoomLib::Poll();
-			} else {
+			}
+			else
+			{
 
-				if (::g->wipedone) {
-					if ( !waitingForWipe ) {
+				if( ::g->wipedone )
+				{
+					if( !waitingForWipe )
+					{
 						const bool didRunTic = DoomLib::Tic( userCmdMgr );
-						if ( didRunTic == false ) {
+						if( didRunTic == false )
+						{
 							//printf( "Skipping tic and yielding because not enough time has passed.\n" );
-						
+
 							// Give lower priority threads a chance to run.
 							Sys_Yield();
 						}
 					}
 					DoomLib::Frame();
 				}
-				if (::g->wipe) {
+				if( ::g->wipe )
+				{
 					DoomLib::Wipe();
 					// Draw the menus over the wipe.
 					M_Drawer();
 				}
 
-				if( ::g->gamestate != GS_LEVEL && GetNumPlayers() > 2 ) {
+				if( ::g->gamestate != GS_LEVEL && GetNumPlayers() > 2 )
+				{
 					drawFullScreen = true;
 				}
 			}
 
-			DoomLib::SetPlayer(-1);
+			DoomLib::SetPlayer( -1 );
 		}
 
 		DoomLib::SetPlayer( 0 );
@@ -181,7 +201,9 @@ bool DoomInterface::Frame( int iTime, idUserCmdMgr * userCmdMgr )
 		DoomLib::SetPlayer( -1 );
 
 		lastTicRun = iTime;
-	} else {
+	}
+	else
+	{
 		printf( "Skipping this frame becase it's not time to run a tic yet.\n" );
 	}
 
@@ -190,10 +212,12 @@ bool DoomInterface::Frame( int iTime, idUserCmdMgr * userCmdMgr )
 
 void I_ShutdownNetwork();
 
-void DoomInterface::Shutdown() {
+void DoomInterface::Shutdown()
+{
 	int i;
 
-	for ( i=0; i < numplayers; i++ ) {
+	for( i = 0; i < numplayers; i++ )
+	{
 		DoomLib::SetPlayer( i );
 		D_QuitNetGame();
 	}
@@ -201,7 +225,8 @@ void DoomInterface::Shutdown() {
 	// Shutdown local network state
 	I_ShutdownNetwork();
 
-	for ( i=0; i < numplayers; i++ ) {
+	for( i = 0; i < numplayers; i++ )
+	{
 		DoomLib::SetPlayer( i );
 		DoomLib::Shutdown();
 	}
@@ -213,11 +238,14 @@ void DoomInterface::Shutdown() {
 
 qboolean G_CheckDemoStatus();
 
-void DoomInterface::QuitCurrentGame() {
-	for ( int i = 0; i < numplayers; i++ ) {
+void DoomInterface::QuitCurrentGame()
+{
+	for( int i = 0; i < numplayers; i++ )
+	{
 		DoomLib::SetPlayer( i );
 
-		if(::g->netgame) {
+		if( ::g->netgame )
+		{
 			// Shut down networking
 			D_QuitNetGame();
 		}
@@ -232,8 +260,8 @@ void DoomInterface::QuitCurrentGame() {
 		lastTicRun = 0;
 
 		//if ( !gameLocal->IsSplitscreen() ) {
-			// Start background demos
-			D_StartTitle();
+		// Start background demos
+		D_StartTitle();
 		//}
 	}
 
@@ -241,12 +269,15 @@ void DoomInterface::QuitCurrentGame() {
 	I_ShutdownNetwork();
 }
 
-void DoomInterface::EndDMGame() {
+void DoomInterface::EndDMGame()
+{
 
-	for ( int i = 0; i < numplayers; i++ ) {
+	for( int i = 0; i < numplayers; i++ )
+	{
 		DoomLib::SetPlayer( i );
 
-		if(::g->netgame) {
+		if( ::g->netgame )
+		{
 			D_QuitNetGame();
 		}
 
@@ -263,41 +294,48 @@ void DoomInterface::EndDMGame() {
 	}
 }
 
-//static 
-int DoomInterface::CurrentPlayer() {
+//static
+int DoomInterface::CurrentPlayer()
+{
 	return DoomLib::GetPlayer();
 }
 
-int DoomInterface::GetNumPlayers() const {
+int DoomInterface::GetNumPlayers() const
+{
 	return numplayers;
 }
 
 #ifdef ID_ENABLE_DOOM_CLASSIC_NETWORKING
-void DoomInterface::SetNetworking( DoomLib::RecvFunc recv, DoomLib::SendFunc send, DoomLib::SendRemoteFunc sendRemote ) {
+void DoomInterface::SetNetworking( DoomLib::RecvFunc recv, DoomLib::SendFunc send, DoomLib::SendRemoteFunc sendRemote )
+{
 	DoomLib::SetNetworking( recv, send, sendRemote );
 }
 #endif
 
-void DoomInterface::SetMultiplayerPlayers(int localPlayerIndex, int playerCount, int localPlayer, std::vector<std::string> playerAddresses) {
-	
-	for(int i = 0; i < 10; i++) {
+void DoomInterface::SetMultiplayerPlayers( int localPlayerIndex, int playerCount, int localPlayer, std::vector<std::string> playerAddresses )
+{
+
+	for( int i = 0; i < 10; i++ )
+	{
 		mpArgVPtr[localPlayerIndex][i] = mpArgV[localPlayerIndex][i];
 	}
-	
-	mpArgc[localPlayerIndex] = playerCount+5;
 
-	strcpy(mpArgV[localPlayerIndex][0], "doomlauncher");
-	strcpy(mpArgV[localPlayerIndex][1], "-dup");
-	strcpy(mpArgV[localPlayerIndex][2], "1");
-	strcpy(mpArgV[localPlayerIndex][3], "-net");
-	
-	sprintf(mpArgV[localPlayerIndex][4], "%d", localPlayer);
-	strcpy(mpArgV[localPlayerIndex][5], playerAddresses[localPlayer].c_str());
+	mpArgc[localPlayerIndex] = playerCount + 5;
+
+	strcpy( mpArgV[localPlayerIndex][0], "doomlauncher" );
+	strcpy( mpArgV[localPlayerIndex][1], "-dup" );
+	strcpy( mpArgV[localPlayerIndex][2], "1" );
+	strcpy( mpArgV[localPlayerIndex][3], "-net" );
+
+	sprintf( mpArgV[localPlayerIndex][4], "%d", localPlayer );
+	strcpy( mpArgV[localPlayerIndex][5], playerAddresses[localPlayer].c_str() );
 
 	int currentArg = 6;
-	for(int i = 0; i < playerCount; i++) {
-		if(i != localPlayer) {
-			strcpy(mpArgV[localPlayerIndex][currentArg], playerAddresses[i].c_str());
+	for( int i = 0; i < playerCount; i++ )
+	{
+		if( i != localPlayer )
+		{
+			strcpy( mpArgV[localPlayerIndex][currentArg], playerAddresses[i].c_str() );
 			currentArg++;
 		}
 	}

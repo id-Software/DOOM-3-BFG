@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -46,17 +46,17 @@ If you have questions concerning this license or the applicable additional terms
 //  (parent of Scrolling Text and Input Text widgets)
 typedef struct
 {
-    // left-justified position of scrolling text window
-    int		x;
-    int		y;
-    
-    patch_t**	f;			// font
-    int		sc;			// start character
-    char	l[HU_MAXLINELENGTH+1];	// line of text
-    int		len;		      	// current line length
+	// left-justified position of scrolling text window
+	int		x;
+	int		y;
 
-    // whether this line needs to be udpated
-    int		needsupdate;	      
+	patch_t**	f;			// font
+	int		sc;			// start character
+	char	l[HU_MAXLINELENGTH + 1];	// line of text
+	int		len;		      	// current line length
+
+	// whether this line needs to be udpated
+	int		needsupdate;
 
 } hu_textline_t;
 
@@ -66,13 +66,13 @@ typedef struct
 //  (child of Text Line widget)
 typedef struct
 {
-    hu_textline_t	l[HU_MAXLINES];	// text lines to draw
-    int			h;		// height in lines
-    int			cl;		// current line number
+	hu_textline_t	l[HU_MAXLINES];	// text lines to draw
+	int			h;		// height in lines
+	int			cl;		// current line number
 
-    // pointer to qboolean stating whether to update window
-    qboolean*		on;
-    qboolean		laston;		// last value of *->on.
+	// pointer to qboolean stating whether to update window
+	qboolean*		on;
+	qboolean		laston;		// last value of *->on.
 
 } hu_stext_t;
 
@@ -82,14 +82,14 @@ typedef struct
 //  (child of Text Line widget)
 typedef struct
 {
-    hu_textline_t	l;		// text line to input on
+	hu_textline_t	l;		// text line to input on
 
-     // left margin past which I am not to delete characters
-    int			lm;
+	// left margin past which I am not to delete characters
+	int			lm;
 
-    // pointer to qboolean stating whether to update window
-    qboolean*		on; 
-    qboolean		laston; // last value of *->on;
+	// pointer to qboolean stating whether to update window
+	qboolean*		on;
+	qboolean		laston; // last value of *->on;
 
 } hu_itext_t;
 
@@ -99,28 +99,28 @@ typedef struct
 //
 
 // initializes heads-up widget library
-void HUlib_init(void);
+void HUlib_init( void );
 
 //
 // textline code
 //
 
 // clear a line of text
-void	HUlib_clearTextLine(hu_textline_t *t);
+void	HUlib_clearTextLine( hu_textline_t* t );
 
-void	HUlib_initTextLine(hu_textline_t *t, int x, int y, patch_t **f, int sc);
-
-// returns success
-qboolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
+void	HUlib_initTextLine( hu_textline_t* t, int x, int y, patch_t** f, int sc );
 
 // returns success
-qboolean HUlib_delCharFromTextLine(hu_textline_t *t);
+qboolean HUlib_addCharToTextLine( hu_textline_t* t, char ch );
+
+// returns success
+qboolean HUlib_delCharFromTextLine( hu_textline_t* t );
 
 // draws tline
-void	HUlib_drawTextLine(hu_textline_t *l, qboolean drawcursor);
+void	HUlib_drawTextLine( hu_textline_t* l, qboolean drawcursor );
 
 // erases text line
-void	HUlib_eraseTextLine(hu_textline_t *l); 
+void	HUlib_eraseTextLine( hu_textline_t* l );
 
 
 //
@@ -139,7 +139,7 @@ HUlib_initSText
   qboolean*	on );
 
 // add a new line
-void HUlib_addLineToSText(hu_stext_t* s);  
+void HUlib_addLineToSText( hu_stext_t* s );
 
 // ?
 void
@@ -149,10 +149,10 @@ HUlib_addMessageToSText
   const char*		msg );
 
 // draws stext
-void HUlib_drawSText(hu_stext_t* s);
+void HUlib_drawSText( hu_stext_t* s );
 
 // erases all stext lines
-void HUlib_eraseSText(hu_stext_t* s); 
+void HUlib_eraseSText( hu_stext_t* s );
 
 // Input Text Line widget routines
 void
@@ -165,13 +165,13 @@ HUlib_initIText
   qboolean*	on );
 
 // enforces left margin
-void HUlib_delCharFromIText(hu_itext_t* it);
+void HUlib_delCharFromIText( hu_itext_t* it );
 
 // enforces left margin
-void HUlib_eraseLineFromIText(hu_itext_t* it);
+void HUlib_eraseLineFromIText( hu_itext_t* it );
 
 // resets line and left margin
-void HUlib_resetIText(hu_itext_t* it);
+void HUlib_resetIText( hu_itext_t* it );
 
 // left of left-margin
 void
@@ -185,10 +185,10 @@ HUlib_keyInIText
 ( hu_itext_t*	it,
   unsigned char ch );
 
-void HUlib_drawIText(hu_itext_t* it);
+void HUlib_drawIText( hu_itext_t* it );
 
 // erases all itext lines
-void HUlib_eraseIText(hu_itext_t* it); 
+void HUlib_eraseIText( hu_itext_t* it );
 
 #endif
 

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -90,198 +90,221 @@ const char*	t6text = T6TEXT;
 const char*	finaletext;
 const char*	finaleflat;
 
-void	F_StartCast (void);
-void	F_CastTicker (void);
-qboolean F_CastResponder (event_t *ev);
-void	F_CastDrawer (void);
+void	F_StartCast( void );
+void	F_CastTicker( void );
+qboolean F_CastResponder( event_t* ev );
+void	F_CastDrawer( void );
 
 //
 // F_StartFinale
 //
-void F_StartFinale (void)
+void F_StartFinale( void )
 {
-    ::g->gameaction = ga_nothing;
-    ::g->gamestate = GS_FINALE;
-    ::g->viewactive = false;
-    ::g->automapactive = false;
+	::g->gameaction = ga_nothing;
+	::g->gamestate = GS_FINALE;
+	::g->viewactive = false;
+	::g->automapactive = false;
 
 	// Check for end of episode/mission
 	bool endOfMission = false;
 
-	if ( ( ::g->gamemission == doom || ::g->gamemission == doom2 || ::g->gamemission == pack_tnt ||  ::g->gamemission == pack_plut  ) && ::g->gamemap == 30 ) {
+	if( ( ::g->gamemission == doom || ::g->gamemission == doom2 || ::g->gamemission == pack_tnt ||  ::g->gamemission == pack_plut ) && ::g->gamemap == 30 )
+	{
 		endOfMission = true;
 	}
-	else if ( ::g->gamemission == pack_nerve && ::g->gamemap == 8 ) {
+	else if( ::g->gamemission == pack_nerve && ::g->gamemap == 8 )
+	{
 		endOfMission = true;
 	}
-	else if ( ::g->gamemission == pack_master && ::g->gamemap == 21 ) {
+	else if( ::g->gamemission == pack_master && ::g->gamemap == 21 )
+	{
 		endOfMission = true;
 	}
 
 	localCalculateAchievements( endOfMission );
 
-    // Okay - IWAD dependend stuff.
-    // This has been changed severly, and
-    //  some stuff might have changed in the process.
-    switch ( ::g->gamemode )
-    {
+	// Okay - IWAD dependend stuff.
+	// This has been changed severly, and
+	//  some stuff might have changed in the process.
+	switch( ::g->gamemode )
+	{
 
 		// DOOM 1 - E1, E3 or E4, but each nine missions
 		case shareware:
 		case registered:
 		case retail:
 		{
-			S_ChangeMusic(mus_victor, true);
+			S_ChangeMusic( mus_victor, true );
 
-			switch (::g->gameepisode)
+			switch( ::g->gameepisode )
 			{
-			  case 1:
-				finaleflat = "FLOOR4_8";
-				finaletext = e1text;
-				break;
-			  case 2:
-				finaleflat = "SFLR6_1";
-				finaletext = e2text;
-				break;
-			  case 3:
-				finaleflat = "MFLR8_4";
-				finaletext = e3text;
-				break;
-			  case 4:
-				finaleflat = "MFLR8_3";
-				finaletext = e4text;
-				break;
-			  default:
-				// Ouch.
-				break;
+				case 1:
+					finaleflat = "FLOOR4_8";
+					finaletext = e1text;
+					break;
+				case 2:
+					finaleflat = "SFLR6_1";
+					finaletext = e2text;
+					break;
+				case 3:
+					finaleflat = "MFLR8_4";
+					finaletext = e3text;
+					break;
+				case 4:
+					finaleflat = "MFLR8_3";
+					finaletext = e4text;
+					break;
+				default:
+					// Ouch.
+					break;
 			}
 			break;
 		}
-      
+
 		// DOOM II and missions packs with E1, M34
 		case commercial:
 		{
-			S_ChangeMusic(mus_read_m, true);
+			S_ChangeMusic( mus_read_m, true );
 
-			if ( ::g->gamemission == doom2 || ::g->gamemission == pack_tnt || ::g->gamemission == pack_plut ) {
-				switch (::g->gamemap)
+			if( ::g->gamemission == doom2 || ::g->gamemission == pack_tnt || ::g->gamemission == pack_plut )
+			{
+				switch( ::g->gamemap )
 				{
-				  case 6:
-					finaleflat = "SLIME16";
-					finaletext = c1text;
-					break;
-				  case 11:
-					finaleflat = "RROCK14";
-					finaletext = c2text;
-					break;
-				  case 20:
-					finaleflat = "RROCK07";
-					finaletext = c3text;
-					break;
-				  case 30:
-					finaleflat = "RROCK17";
-					finaletext = c4text;
-					break;
-				  case 15:
-					finaleflat = "RROCK13";
-					finaletext = c5text;
-					break;
-				  case 31:
-					finaleflat = "RROCK19";
-					finaletext = c6text;
-					break;
-				  default:
-					// Ouch.
-					break;
+					case 6:
+						finaleflat = "SLIME16";
+						finaletext = c1text;
+						break;
+					case 11:
+						finaleflat = "RROCK14";
+						finaletext = c2text;
+						break;
+					case 20:
+						finaleflat = "RROCK07";
+						finaletext = c3text;
+						break;
+					case 30:
+						finaleflat = "RROCK17";
+						finaletext = c4text;
+						break;
+					case 15:
+						finaleflat = "RROCK13";
+						finaletext = c5text;
+						break;
+					case 31:
+						finaleflat = "RROCK19";
+						finaletext = c6text;
+						break;
+					default:
+						// Ouch.
+						break;
 				}
-			} else if( ::g->gamemission == pack_master ) {
-				switch (::g->gamemap)
+			}
+			else if( ::g->gamemission == pack_master )
+			{
+				switch( ::g->gamemap )
 				{
 					case 21:
 						finaleflat = "SLIME16";
 						finaletext = c8Text;
 						break;
 				}
-			} else if ( ::g->gamemission == pack_nerve ) {
-				switch( ::g->gamemap ){
+			}
+			else if( ::g->gamemission == pack_nerve )
+			{
+				switch( ::g->gamemap )
+				{
 					case 8:
 						finaleflat = "SLIME16";
 						finaletext = c7text;
 						break;
 				}
 			}
-		
+
 			break;
-		}	
+		}
 
 		// Indeterminate.
 		default:
-			S_ChangeMusic(mus_read_m, true);
+			S_ChangeMusic( mus_read_m, true );
 			finaleflat = "F_SKY1"; // Not used anywhere else.
 			finaletext = c1text;  // FIXME - other text, music?
 			break;
 	}
-    
-    ::g->finalestage = 0;
-    ::g->finalecount = 0;
+
+	::g->finalestage = 0;
+	::g->finalecount = 0;
 }
 
 
 bool finaleButtonPressed = false;
 bool startButtonPressed = false;
-qboolean F_Responder (event_t *event)
+qboolean F_Responder( event_t* event )
 {
-	if( !common->IsMultiplayer() && event->type == ev_keydown && event->data1 == KEY_ESCAPE ) {
+	if( !common->IsMultiplayer() && event->type == ev_keydown && event->data1 == KEY_ESCAPE )
+	{
 		startButtonPressed = true;
 		return true;
 	}
 
-	if (::g->finalestage == 2)
-		return F_CastResponder (event);
+	if( ::g->finalestage == 2 )
+	{
+		return F_CastResponder( event );
+	}
 
-    return false;
+	return false;
 }
 
 
 //
 // F_Ticker
 //
-void F_Ticker (void)
+void F_Ticker( void )
 {
-    int		i;
-    
+	int		i;
+
 	// check for skipping
-	if ( (::g->gamemode == commercial) && ( ::g->finalecount > 50) )
+	if( ( ::g->gamemode == commercial ) && ( ::g->finalecount > 50 ) )
 	{
 		// go on to the next level
-		for (i=0 ; i<MAXPLAYERS ; i++)
-			if (::g->players[i].cmd.buttons)
+		for( i = 0 ; i < MAXPLAYERS ; i++ )
+			if( ::g->players[i].cmd.buttons )
+			{
 				break;
+			}
 
-		if ( finaleButtonPressed || i < MAXPLAYERS)
-		{	
+		if( finaleButtonPressed || i < MAXPLAYERS )
+		{
 			bool castStarted = false;
-			if( ::g->gamemission == doom2 || ::g->gamemission == pack_plut || ::g->gamemission == pack_tnt ) {
-				if (::g->gamemap == 30) {
-					F_StartCast ();
+			if( ::g->gamemission == doom2 || ::g->gamemission == pack_plut || ::g->gamemission == pack_tnt )
+			{
+				if( ::g->gamemap == 30 )
+				{
+					F_StartCast();
 					castStarted = true;
 				}
 
-			} else if(  ::g->gamemission == pack_master ) {
-				if( :: g->gamemap == 21 ) {
-					F_StartCast ();
+			}
+			else if( ::g->gamemission == pack_master )
+			{
+				if( :: g->gamemap == 21 )
+				{
+					F_StartCast();
 					castStarted = true;
 				}
 
-			} else if(  ::g->gamemission == pack_nerve ) {
-				if( :: g->gamemap == 8 ) {
-					F_StartCast ();
+			}
+			else if( ::g->gamemission == pack_nerve )
+			{
+				if( :: g->gamemap == 8 )
+				{
+					F_StartCast();
 					castStarted = true;
 				}
 
-			} 
+			}
 
-			if( castStarted == false ) {
+			if( castStarted == false )
+			{
 				::g->gameaction = ga_worlddone;
 			}
 		}
@@ -289,33 +312,37 @@ void F_Ticker (void)
 
 	bool SkipTheText = 	finaleButtonPressed;
 
-    // advance animation
-    ::g->finalecount++;
+	// advance animation
+	::g->finalecount++;
 	finaleButtonPressed = false;
-	
-    if (::g->finalestage == 2)
-    {
-		F_CastTicker ();
+
+	if( ::g->finalestage == 2 )
+	{
+		F_CastTicker();
 		return;
-    }
-	
-    if ( ::g->gamemode == commercial) {
+	}
+
+	if( ::g->gamemode == commercial )
+	{
 		startButtonPressed = false;
 		return;
 	}
-	
-	if( SkipTheText && ( ::g->finalecount > 50) ) {
-		::g->finalecount =  static_cast<int>(strlen(finaletext)) * TEXTSPEED + TEXTWAIT;
+
+	if( SkipTheText && ( ::g->finalecount > 50 ) )
+	{
+		::g->finalecount =  static_cast<int>( strlen( finaletext ) ) * TEXTSPEED + TEXTWAIT;
 	}
 
-    if (!::g->finalestage && ::g->finalecount > static_cast<int>(strlen(finaletext)) * TEXTSPEED + TEXTWAIT)
-    {
+	if( !::g->finalestage && ::g->finalecount > static_cast<int>( strlen( finaletext ) ) * TEXTSPEED + TEXTWAIT )
+	{
 		::g->finalecount = 0;
 		::g->finalestage = 1;
-		::g->wipegamestate = (gamestate_t)-1;		// force a wipe
-		if (::g->gameepisode == 3)
-		    S_StartMusic (mus_bunny);
-    }
+		::g->wipegamestate = ( gamestate_t ) - 1;		// force a wipe
+		if( ::g->gameepisode == 3 )
+		{
+			S_StartMusic( mus_bunny );
+		}
+	}
 
 	startButtonPressed = false;
 
@@ -330,76 +357,83 @@ void F_Ticker (void)
 #include "hu_stuff.h"
 
 
-void F_TextWrite (void)
+void F_TextWrite( void )
 {
-    byte*	src;
-    byte*	dest;
-    
-    int		x,y,w;
-    int		count;
-    const char*	ch;
-    int		c;
-    int		cx;
-    int		cy;
-    
-	if(::g->finalecount == 60 ) {
+	byte*	src;
+	byte*	dest;
+
+	int		x, y, w;
+	int		count;
+	const char*	ch;
+	int		c;
+	int		cx;
+	int		cy;
+
+	if( ::g->finalecount == 60 )
+	{
 		DoomLib::ShowXToContinue( true );
 	}
 
-    // erase the entire screen to a tiled background
-    src = (byte*)W_CacheLumpName ( finaleflat , PU_CACHE_SHARED);
-    dest = ::g->screens[0];
-	
-    for (y=0 ; y<SCREENHEIGHT ; y++)
-    {
-	for (x=0 ; x<SCREENWIDTH/64 ; x++)
-	{
-	    memcpy (dest, src+((y&63)<<6), 64);
-	    dest += 64;
-	}
-	if (SCREENWIDTH&63)
-	{
-	    memcpy (dest, src+((y&63)<<6), SCREENWIDTH&63);
-	    dest += (SCREENWIDTH&63);
-	}
-    }
+	// erase the entire screen to a tiled background
+	src = ( byte* )W_CacheLumpName( finaleflat , PU_CACHE_SHARED );
+	dest = ::g->screens[0];
 
-    V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
-    
-    // draw some of the text onto the screen
-    cx = 10;
-    cy = 10;
-    ch = finaletext;
-	
-    count = (::g->finalecount - 10)/TEXTSPEED;
-    if (count < 0)
-	count = 0;
-    for ( ; count ; count-- )
-    {
-	c = *ch++;
-	if (!c)
-	    break;
-	if (c == '\n')
+	for( y = 0 ; y < SCREENHEIGHT ; y++ )
 	{
-	    cx = 10;
-	    cy += 11;
-	    continue;
+		for( x = 0 ; x < SCREENWIDTH / 64 ; x++ )
+		{
+			memcpy( dest, src + ( ( y & 63 ) << 6 ), 64 );
+			dest += 64;
+		}
+		if( SCREENWIDTH & 63 )
+		{
+			memcpy( dest, src + ( ( y & 63 ) << 6 ), SCREENWIDTH & 63 );
+			dest += ( SCREENWIDTH & 63 );
+		}
 	}
-		
-	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c> HU_FONTSIZE)
+
+	V_MarkRect( 0, 0, SCREENWIDTH, SCREENHEIGHT );
+
+	// draw some of the text onto the screen
+	cx = 10;
+	cy = 10;
+	ch = finaletext;
+
+	count = ( ::g->finalecount - 10 ) / TEXTSPEED;
+	if( count < 0 )
 	{
-	    cx += 4;
-	    continue;
+		count = 0;
 	}
-		
-	w = SHORT (::g->hu_font[c]->width);
-	if (cx+w > SCREENWIDTH)
-	    break;
-	V_DrawPatch(cx, cy, 0, ::g->hu_font[c]);
-	cx+=w;
-    }
-	
+	for( ; count ; count-- )
+	{
+		c = *ch++;
+		if( !c )
+		{
+			break;
+		}
+		if( c == '\n' )
+		{
+			cx = 10;
+			cy += 11;
+			continue;
+		}
+
+		c = toupper( c ) - HU_FONTSTART;
+		if( c < 0 || c > HU_FONTSIZE )
+		{
+			cx += 4;
+			continue;
+		}
+
+		w = SHORT( ::g->hu_font[c]->width );
+		if( cx + w > SCREENWIDTH )
+		{
+			break;
+		}
+		V_DrawPatch( cx, cy, 0, ::g->hu_font[c] );
+		cx += w;
+	}
+
 }
 
 //
@@ -408,27 +442,27 @@ void F_TextWrite (void)
 //   in order of appearance
 //
 
-castinfo_t	castorder[] = 
+castinfo_t	castorder[] =
 {
-    {CC_ZOMBIE, MT_POSSESSED},
-    {CC_SHOTGUN, MT_SHOTGUY},
-    {CC_HEAVY, MT_CHAINGUY},
-    {CC_IMP, MT_TROOP},
-    {CC_DEMON, MT_SERGEANT},
-    {CC_LOST, MT_SKULL},
-    {CC_CACO, MT_HEAD},
-    {CC_HELL, MT_KNIGHT},
-    {CC_BARON, MT_BRUISER},
-    {CC_ARACH, MT_BABY},
-    {CC_PAIN, MT_PAIN},
-    {CC_REVEN, MT_UNDEAD},
-    {CC_MANCU, MT_FATSO},
-    {CC_ARCH, MT_VILE},
-    {CC_SPIDER, MT_SPIDER},
-    {CC_CYBER, MT_CYBORG},
-    {CC_HERO, MT_PLAYER},
+	{CC_ZOMBIE, MT_POSSESSED},
+	{CC_SHOTGUN, MT_SHOTGUY},
+	{CC_HEAVY, MT_CHAINGUY},
+	{CC_IMP, MT_TROOP},
+	{CC_DEMON, MT_SERGEANT},
+	{CC_LOST, MT_SKULL},
+	{CC_CACO, MT_HEAD},
+	{CC_HELL, MT_KNIGHT},
+	{CC_BARON, MT_BRUISER},
+	{CC_ARACH, MT_BABY},
+	{CC_PAIN, MT_PAIN},
+	{CC_REVEN, MT_UNDEAD},
+	{CC_MANCU, MT_FATSO},
+	{CC_ARCH, MT_VILE},
+	{CC_SPIDER, MT_SPIDER},
+	{CC_CYBER, MT_CYBORG},
+	{CC_HERO, MT_PLAYER},
 
-    {NULL,(mobjtype_t)0}
+	{NULL, ( mobjtype_t )0}
 };
 
 
@@ -438,132 +472,186 @@ castinfo_t	castorder[] =
 //
 
 
-void F_StartCast (void)
+void F_StartCast( void )
 {
-	if ( ::g->finalestage != 2 ) {
-		::g->wipegamestate = (gamestate_t)-1;		// force a screen wipe
+	if( ::g->finalestage != 2 )
+	{
+		::g->wipegamestate = ( gamestate_t ) - 1;		// force a screen wipe
 		::g->castnum = 0;
 		::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
 		::g->casttics = ::g->caststate->tics;
 		::g->castdeath = false;
-		::g->finalestage = 2;	
+		::g->finalestage = 2;
 		::g->castframes = 0;
 		::g->castonmelee = 0;
 		::g->castattacking = false;
-		S_ChangeMusic(mus_evil, true);
+		S_ChangeMusic( mus_evil, true );
 
 		::g->caststartmenu = ::g->finalecount + 50;
-	}	
+	}
 }
 
 
 //
 // F_CastTicker
 //
-void F_CastTicker (void)
+void F_CastTicker( void )
 {
-    int		st;
-    int		sfx;
+	int		st;
+	int		sfx;
 
-	if( ::g->finalecount == ::g->caststartmenu ) {
+	if( ::g->finalecount == ::g->caststartmenu )
+	{
 		DoomLib::ShowXToContinue( true );
 	}
 
-    if (--::g->casttics > 0)
-	return;			// not time to change state yet
-		
-    if (::g->caststate->tics == -1 || ::g->caststate->nextstate == S_NULL)
-    {
-	// switch from deathstate to next monster
-	::g->castnum++;
-	::g->castdeath = false;
-	if (castorder[::g->castnum].name == NULL)
-	    ::g->castnum = 0;
-	if (mobjinfo[castorder[::g->castnum].type].seesound)
-	    S_StartSound (NULL, mobjinfo[castorder[::g->castnum].type].seesound);
-	::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
-	::g->castframes = 0;
-    }
-    else
-    {
-	// just advance to next state in animation
-	if (::g->caststate == &::g->states[S_PLAY_ATK1])
-	    goto stopattack;	// Oh, gross hack!
-	st = ::g->caststate->nextstate;
-	::g->caststate = &::g->states[st];
-	::g->castframes++;
-	
-	// sound hacks....
-	switch (st)
+	if( --::g->casttics > 0 )
 	{
-	  case S_PLAY_ATK1:	sfx = sfx_dshtgn; break;
-	  case S_POSS_ATK2:	sfx = sfx_pistol; break;
-	  case S_SPOS_ATK2:	sfx = sfx_shotgn; break;
-	  case S_VILE_ATK2:	sfx = sfx_vilatk; break;
-	  case S_SKEL_FIST2:	sfx = sfx_skeswg; break;
-	  case S_SKEL_FIST4:	sfx = sfx_skepch; break;
-	  case S_SKEL_MISS2:	sfx = sfx_skeatk; break;
-	  case S_FATT_ATK8:
-	  case S_FATT_ATK5:
-	  case S_FATT_ATK2:	sfx = sfx_firsht; break;
-	  case S_CPOS_ATK2:
-	  case S_CPOS_ATK3:
-	  case S_CPOS_ATK4:	sfx = sfx_shotgn; break;
-	  case S_TROO_ATK3:	sfx = sfx_claw; break;
-	  case S_SARG_ATK2:	sfx = sfx_sgtatk; break;
-	  case S_BOSS_ATK2:
-	  case S_BOS2_ATK2:
-	  case S_HEAD_ATK2:	sfx = sfx_firsht; break;
-	  case S_SKULL_ATK2:	sfx = sfx_sklatk; break;
-	  case S_SPID_ATK2:
-	  case S_SPID_ATK3:	sfx = sfx_shotgn; break;
-	  case S_BSPI_ATK2:	sfx = sfx_plasma; break;
-	  case S_CYBER_ATK2:
-	  case S_CYBER_ATK4:
-	  case S_CYBER_ATK6:	sfx = sfx_rlaunc; break;
-	  case S_PAIN_ATK3:	sfx = sfx_sklatk; break;
-	  default: sfx = 0; break;
+		return;    // not time to change state yet
 	}
-		
-	if (sfx)
-	    S_StartSound (NULL, sfx);
-    }
-	
-    if (::g->castframes == 12)
-    {
-	// go into attack frame
-	::g->castattacking = true;
-	if (::g->castonmelee)
-	    ::g->caststate=&::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+
+	if( ::g->caststate->tics == -1 || ::g->caststate->nextstate == S_NULL )
+	{
+		// switch from deathstate to next monster
+		::g->castnum++;
+		::g->castdeath = false;
+		if( castorder[::g->castnum].name == NULL )
+		{
+			::g->castnum = 0;
+		}
+		if( mobjinfo[castorder[::g->castnum].type].seesound )
+		{
+			S_StartSound( NULL, mobjinfo[castorder[::g->castnum].type].seesound );
+		}
+		::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
+		::g->castframes = 0;
+	}
 	else
-	    ::g->caststate=&::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
-	::g->castonmelee ^= 1;
-	if (::g->caststate == &::g->states[S_NULL])
 	{
-	    if (::g->castonmelee)
-		::g->caststate=
-		    &::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
-	    else
-		::g->caststate=
-		    &::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+		// just advance to next state in animation
+		if( ::g->caststate == &::g->states[S_PLAY_ATK1] )
+		{
+			goto stopattack;    // Oh, gross hack!
+		}
+		st = ::g->caststate->nextstate;
+		::g->caststate = &::g->states[st];
+		::g->castframes++;
+
+		// sound hacks....
+		switch( st )
+		{
+			case S_PLAY_ATK1:
+				sfx = sfx_dshtgn;
+				break;
+			case S_POSS_ATK2:
+				sfx = sfx_pistol;
+				break;
+			case S_SPOS_ATK2:
+				sfx = sfx_shotgn;
+				break;
+			case S_VILE_ATK2:
+				sfx = sfx_vilatk;
+				break;
+			case S_SKEL_FIST2:
+				sfx = sfx_skeswg;
+				break;
+			case S_SKEL_FIST4:
+				sfx = sfx_skepch;
+				break;
+			case S_SKEL_MISS2:
+				sfx = sfx_skeatk;
+				break;
+			case S_FATT_ATK8:
+			case S_FATT_ATK5:
+			case S_FATT_ATK2:
+				sfx = sfx_firsht;
+				break;
+			case S_CPOS_ATK2:
+			case S_CPOS_ATK3:
+			case S_CPOS_ATK4:
+				sfx = sfx_shotgn;
+				break;
+			case S_TROO_ATK3:
+				sfx = sfx_claw;
+				break;
+			case S_SARG_ATK2:
+				sfx = sfx_sgtatk;
+				break;
+			case S_BOSS_ATK2:
+			case S_BOS2_ATK2:
+			case S_HEAD_ATK2:
+				sfx = sfx_firsht;
+				break;
+			case S_SKULL_ATK2:
+				sfx = sfx_sklatk;
+				break;
+			case S_SPID_ATK2:
+			case S_SPID_ATK3:
+				sfx = sfx_shotgn;
+				break;
+			case S_BSPI_ATK2:
+				sfx = sfx_plasma;
+				break;
+			case S_CYBER_ATK2:
+			case S_CYBER_ATK4:
+			case S_CYBER_ATK6:
+				sfx = sfx_rlaunc;
+				break;
+			case S_PAIN_ATK3:
+				sfx = sfx_sklatk;
+				break;
+			default:
+				sfx = 0;
+				break;
+		}
+
+		if( sfx )
+		{
+			S_StartSound( NULL, sfx );
+		}
 	}
-    }
-	
-    if (::g->castattacking)
-    {
-	if (::g->castframes == 24
-	    ||	::g->caststate == &::g->states[mobjinfo[castorder[::g->castnum].type].seestate] )
+
+	if( ::g->castframes == 12 )
 	{
-	  stopattack:
-	    ::g->castattacking = false;
-	    ::g->castframes = 0;
-	    ::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
+		// go into attack frame
+		::g->castattacking = true;
+		if( ::g->castonmelee )
+		{
+			::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+		}
+		else
+		{
+			::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+		}
+		::g->castonmelee ^= 1;
+		if( ::g->caststate == &::g->states[S_NULL] )
+		{
+			if( ::g->castonmelee )
+				::g->caststate =
+					&::g->states[mobjinfo[castorder[::g->castnum].type].meleestate];
+			else
+				::g->caststate =
+					&::g->states[mobjinfo[castorder[::g->castnum].type].missilestate];
+		}
 	}
-    }
-	
-    ::g->casttics = ::g->caststate->tics;
-    if (::g->casttics == -1)
-	::g->casttics = 15;
+
+	if( ::g->castattacking )
+	{
+		if( ::g->castframes == 24
+				||	::g->caststate == &::g->states[mobjinfo[castorder[::g->castnum].type].seestate] )
+		{
+stopattack:
+			::g->castattacking = false;
+			::g->castframes = 0;
+			::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].seestate];
+		}
+	}
+
+	::g->casttics = ::g->caststate->tics;
+	if( ::g->casttics == -1 )
+	{
+		::g->casttics = 15;
+	}
 }
 
 
@@ -571,107 +659,121 @@ void F_CastTicker (void)
 // F_CastResponder
 //
 
-qboolean F_CastResponder (event_t* ev)
+qboolean F_CastResponder( event_t* ev )
 {
-    if (ev->type != ev_keydown)
-	return false;
-		
-    if (::g->castdeath)
-	return true;			// already in dying frames
-		
-    // go into death frame
-    ::g->castdeath = true;
-    ::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].deathstate];
-    ::g->casttics = ::g->caststate->tics;
-    ::g->castframes = 0;
-    ::g->castattacking = false;
-    if (mobjinfo[castorder[::g->castnum].type].deathsound)
-	S_StartSound (NULL, mobjinfo[castorder[::g->castnum].type].deathsound);
-	
-    return true;
+	if( ev->type != ev_keydown )
+	{
+		return false;
+	}
+
+	if( ::g->castdeath )
+	{
+		return true;    // already in dying frames
+	}
+
+	// go into death frame
+	::g->castdeath = true;
+	::g->caststate = &::g->states[mobjinfo[castorder[::g->castnum].type].deathstate];
+	::g->casttics = ::g->caststate->tics;
+	::g->castframes = 0;
+	::g->castattacking = false;
+	if( mobjinfo[castorder[::g->castnum].type].deathsound )
+	{
+		S_StartSound( NULL, mobjinfo[castorder[::g->castnum].type].deathsound );
+	}
+
+	return true;
 }
 
 
-void F_CastPrint (const char* text)
+void F_CastPrint( const char* text )
 {
-    const char*	ch;
-    int		c;
-    int		cx;
-    int		w;
-    int		width;
-    
-    // find width
-    ch = text;
-    width = 0;
-	
-    while (ch)
-    {
-	c = *ch++;
-	if (!c)
-	    break;
-	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c> HU_FONTSIZE)
+	const char*	ch;
+	int		c;
+	int		cx;
+	int		w;
+	int		width;
+
+	// find width
+	ch = text;
+	width = 0;
+
+	while( ch )
 	{
-	    width += 4;
-	    continue;
+		c = *ch++;
+		if( !c )
+		{
+			break;
+		}
+		c = toupper( c ) - HU_FONTSTART;
+		if( c < 0 || c > HU_FONTSIZE )
+		{
+			width += 4;
+			continue;
+		}
+
+		w = SHORT( ::g->hu_font[c]->width );
+		width += w;
 	}
-		
-	w = SHORT (::g->hu_font[c]->width);
-	width += w;
-    }
-    
-    // draw it
-    cx = 160-width/2;
-    ch = text;
-    while (ch)
-    {
-	c = *ch++;
-	if (!c)
-	    break;
-	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c> HU_FONTSIZE)
+
+	// draw it
+	cx = 160 - width / 2;
+	ch = text;
+	while( ch )
 	{
-	    cx += 4;
-	    continue;
+		c = *ch++;
+		if( !c )
+		{
+			break;
+		}
+		c = toupper( c ) - HU_FONTSTART;
+		if( c < 0 || c > HU_FONTSIZE )
+		{
+			cx += 4;
+			continue;
+		}
+
+		w = SHORT( ::g->hu_font[c]->width );
+		V_DrawPatch( cx, 180, 0, ::g->hu_font[c] );
+		cx += w;
 	}
-		
-	w = SHORT (::g->hu_font[c]->width);
-	V_DrawPatch(cx, 180, 0, ::g->hu_font[c]);
-	cx+=w;
-    }
-	
+
 }
 
 
 //
 // F_CastDrawer
 //
-void V_DrawPatchFlipped (int x, int y, int scrn, patch_t *patch);
+void V_DrawPatchFlipped( int x, int y, int scrn, patch_t* patch );
 
-void F_CastDrawer (void)
+void F_CastDrawer( void )
 {
-    spritedef_t*	sprdef;
-    spriteframe_t*	sprframe;
-    int			lump;
-    qboolean		flip;
-    patch_t*		patch;
-    
-    // erase the entire screen to a background
-    V_DrawPatch (0,0,0, (patch_t*)W_CacheLumpName ("BOSSBACK", PU_CACHE_SHARED));
+	spritedef_t*	sprdef;
+	spriteframe_t*	sprframe;
+	int			lump;
+	qboolean		flip;
+	patch_t*		patch;
 
-    F_CastPrint (castorder[::g->castnum].name);
-    
-    // draw the current frame in the middle of the screen
-    sprdef = &::g->sprites[::g->caststate->sprite];
-    sprframe = &sprdef->spriteframes[ ::g->caststate->frame & FF_FRAMEMASK];
-    lump = sprframe->lump[0];
-    flip = (qboolean)sprframe->flip[0];
-			
-    patch = (patch_t*)W_CacheLumpNum (lump+::g->firstspritelump, PU_CACHE_SHARED);
-    if (flip)
-		V_DrawPatchFlipped (160,170,0,patch);
-    else
-		V_DrawPatch (160,170,0,patch);
+	// erase the entire screen to a background
+	V_DrawPatch( 0, 0, 0, ( patch_t* )W_CacheLumpName( "BOSSBACK", PU_CACHE_SHARED ) );
+
+	F_CastPrint( castorder[::g->castnum].name );
+
+	// draw the current frame in the middle of the screen
+	sprdef = &::g->sprites[::g->caststate->sprite];
+	sprframe = &sprdef->spriteframes[ ::g->caststate->frame & FF_FRAMEMASK];
+	lump = sprframe->lump[0];
+	flip = ( qboolean )sprframe->flip[0];
+
+	patch = ( patch_t* )W_CacheLumpNum( lump +::g->firstspritelump, PU_CACHE_SHARED );
+	if( flip )
+	{
+		V_DrawPatchFlipped( 160, 170, 0, patch );
+	}
+	else
+	{
+		V_DrawPatch( 160, 170, 0, patch );
+	}
 }
 
 
@@ -679,137 +781,155 @@ void F_CastDrawer (void)
 // F_DrawPatchCol
 //
 void
-F_DrawPatchCol( int x, patch_t* patch, int col ) {
-    postColumn_t*	column;
-    byte*			source;
-    int				count;
-	
-    column = (postColumn_t *)((byte *)patch + LONG(patch->columnofs[col]));
+F_DrawPatchCol( int x, patch_t* patch, int col )
+{
+	postColumn_t*	column;
+	byte*			source;
+	int				count;
+
+	column = ( postColumn_t* )( ( byte* )patch + LONG( patch->columnofs[col] ) );
 
 	int destx = x;
 	int desty = 0;
 
-    // step through the posts in a column
-    while (column->topdelta != 0xff )
-    {
-		source = (byte *)column + 3;
+	// step through the posts in a column
+	while( column->topdelta != 0xff )
+	{
+		source = ( byte* )column + 3;
 		desty = column->topdelta;
 		count = column->length;
-			
-		while (count--)
+
+		while( count-- )
 		{
 			int scaledx, scaledy;
 			scaledx = destx * GLOBAL_IMAGE_SCALER;
 			scaledy = desty * GLOBAL_IMAGE_SCALER;
 			byte src = *source++;
 
-			for ( int i = 0; i < GLOBAL_IMAGE_SCALER; i++ ) {
-				for ( int j = 0; j < GLOBAL_IMAGE_SCALER; j++ ) {
+			for( int i = 0; i < GLOBAL_IMAGE_SCALER; i++ )
+			{
+				for( int j = 0; j < GLOBAL_IMAGE_SCALER; j++ )
+				{
 					::g->screens[0][( scaledx + j ) + ( scaledy + i ) * SCREENWIDTH] = src;
 				}
 			}
 
 			desty++;
 		}
-		column = (postColumn_t *)(  (byte *)column + column->length + 4 );
-    }
+		column = ( postColumn_t* )( ( byte* )column + column->length + 4 );
+	}
 }
 
 
 //
 // F_BunnyScroll
 //
-void F_BunnyScroll (void)
+void F_BunnyScroll( void )
 {
-    int		scrolled;
-    int		x;
-    patch_t*	p1;
-    patch_t*	p2;
-    char	name[10];
-    int		stage;
-		
-    p1 = (patch_t*)W_CacheLumpName ("PFUB2", PU_LEVEL_SHARED);
-    p2 = (patch_t*)W_CacheLumpName ("PFUB1", PU_LEVEL_SHARED);
+	int		scrolled;
+	int		x;
+	patch_t*	p1;
+	patch_t*	p2;
+	const size_t name_len = 10;
+	char	name[name_len];
+	int		stage;
 
-    V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
-	
-    scrolled = 320 - (::g->finalecount-230)/2;
-    if (scrolled > 320)
-	scrolled = 320;
-    if (scrolled < 0)
-	scrolled = 0;
-		
-    for ( x=0 ; x<ORIGINAL_WIDTH ; x++)
-    {
-	if (x+scrolled < 320)
-	    F_DrawPatchCol (x, p1, x+scrolled);
-	else
-	    F_DrawPatchCol (x, p2, x+scrolled - 320);		
-    }
-	
-    if (::g->finalecount < 1130)
-	return;
-    if (::g->finalecount < 1180)
-    {
-	V_DrawPatch ((ORIGINAL_WIDTH-13*8)/2,
-		     (ORIGINAL_HEIGHT-8*8)/2,0, (patch_t*)W_CacheLumpName ("END0",PU_CACHE_SHARED));
-	::g->laststage = 0;
-	return;
-    }
-	
-    stage = (::g->finalecount-1180) / 5;
-    if (stage > 6)
-	stage = 6;
-    if (stage > ::g->laststage)
-    {
-	S_StartSound (NULL, sfx_pistol);
-	::g->laststage = stage;
-    }
-	
-    snprintf (name, strlen(name), "END%i",stage);
-    V_DrawPatch ((ORIGINAL_WIDTH-13*8)/2, (ORIGINAL_HEIGHT-8*8)/2,0, (patch_t*)W_CacheLumpName (name,PU_CACHE_SHARED));
+	p1 = ( patch_t* )W_CacheLumpName( "PFUB2", PU_LEVEL_SHARED );
+	p2 = ( patch_t* )W_CacheLumpName( "PFUB1", PU_LEVEL_SHARED );
+
+	V_MarkRect( 0, 0, SCREENWIDTH, SCREENHEIGHT );
+
+	scrolled = 320 - ( ::g->finalecount - 230 ) / 2;
+	if( scrolled > 320 )
+	{
+		scrolled = 320;
+	}
+	if( scrolled < 0 )
+	{
+		scrolled = 0;
+	}
+
+	for( x = 0 ; x < ORIGINAL_WIDTH ; x++ )
+	{
+		if( x + scrolled < 320 )
+		{
+			F_DrawPatchCol( x, p1, x + scrolled );
+		}
+		else
+		{
+			F_DrawPatchCol( x, p2, x + scrolled - 320 );
+		}
+	}
+
+	if( ::g->finalecount < 1130 )
+	{
+		return;
+	}
+	if( ::g->finalecount < 1180 )
+	{
+		V_DrawPatch( ( ORIGINAL_WIDTH - 13 * 8 ) / 2,
+					 ( ORIGINAL_HEIGHT - 8 * 8 ) / 2, 0, ( patch_t* )W_CacheLumpName( "END0", PU_CACHE_SHARED ) );
+		::g->laststage = 0;
+		return;
+	}
+
+	stage = ( ::g->finalecount - 1180 ) / 5;
+	if( stage > 6 )
+	{
+		stage = 6;
+	}
+	if( stage > ::g->laststage )
+	{
+		S_StartSound( NULL, sfx_pistol );
+		::g->laststage = stage;
+	}
+
+	snprintf( name, name_len, "END%i", stage );
+	V_DrawPatch( ( ORIGINAL_WIDTH - 13 * 8 ) / 2, ( ORIGINAL_HEIGHT - 8 * 8 ) / 2, 0, ( patch_t* )W_CacheLumpName( name, PU_CACHE_SHARED ) );
 }
 
 
 //
 // F_Drawer
 //
-void F_Drawer (void)
+void F_Drawer( void )
 {
-    if (::g->finalestage == 2)
-    {
-	F_CastDrawer ();
-	return;
-    }
-
-    if (!::g->finalestage)
-	F_TextWrite ();
-    else
-    {
-	switch (::g->gameepisode)
+	if( ::g->finalestage == 2 )
 	{
-	  case 1:
-	    if ( ::g->gamemode == retail )
-	      V_DrawPatch (0,0,0,
-			 (patch_t*)W_CacheLumpName("CREDIT",PU_CACHE_SHARED));
-	    else
-	      V_DrawPatch (0,0,0,
-			 (patch_t*)W_CacheLumpName("HELP2",PU_CACHE_SHARED));
-	    break;
-	  case 2:
-	    V_DrawPatch(0,0,0,
-			(patch_t*)W_CacheLumpName("VICTORY2",PU_CACHE_SHARED));
-	    break;
-	  case 3:
-	    F_BunnyScroll ();
-	    break;
-	  case 4:
-	    V_DrawPatch (0,0,0,
-			 (patch_t*)W_CacheLumpName("ENDPIC",PU_CACHE_SHARED));
-	    break;
+		F_CastDrawer();
+		return;
 	}
-    }
-			
+
+	if( !::g->finalestage )
+	{
+		F_TextWrite();
+	}
+	else
+	{
+		switch( ::g->gameepisode )
+		{
+			case 1:
+				if( ::g->gamemode == retail )
+					V_DrawPatch( 0, 0, 0,
+								 ( patch_t* )W_CacheLumpName( "CREDIT", PU_CACHE_SHARED ) );
+				else
+					V_DrawPatch( 0, 0, 0,
+								 ( patch_t* )W_CacheLumpName( "HELP2", PU_CACHE_SHARED ) );
+				break;
+			case 2:
+				V_DrawPatch( 0, 0, 0,
+							 ( patch_t* )W_CacheLumpName( "VICTORY2", PU_CACHE_SHARED ) );
+				break;
+			case 3:
+				F_BunnyScroll();
+				break;
+			case 4:
+				V_DrawPatch( 0, 0, 0,
+							 ( patch_t* )W_CacheLumpName( "ENDPIC", PU_CACHE_SHARED ) );
+				break;
+		}
+	}
+
 }
 
 

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -54,7 +54,7 @@ S_Init
 // Kills playing sounds at start of level,
 //  determines music if any, changes music.
 //
-void S_Start(void);
+void S_Start( void );
 
 
 //
@@ -77,11 +77,11 @@ S_StartSoundAtVolume
 
 
 // Stop sound for thing at <origin>
-void S_StopSound(void* origin);
+void S_StopSound( void* origin );
 
 
 // Start music using <music_id> from sounds.h
-void S_StartMusic(int music_id);
+void S_StartMusic( int music_id );
 
 // Start music using <music_id> from sounds.h,
 //  and set whether looping
@@ -91,20 +91,20 @@ S_ChangeMusic
   int		looping );
 
 // Stops the music fer sure.
-void S_StopMusic(void);
+void S_StopMusic( void );
 
 // Stop and resume music, during game PAUSE.
-void S_PauseSound(void);
-void S_ResumeSound(void);
+void S_PauseSound( void );
+void S_ResumeSound( void );
 
 
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(void* listener);
+void S_UpdateSounds( void* listener );
 
-void S_SetMusicVolume(int volume);
-void S_SetSfxVolume(int volume);
+void S_SetMusicVolume( int volume );
+void S_SetSfxVolume( int volume );
 
 
 #endif

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 #define MAXVISSPRITES  	128
@@ -55,17 +55,17 @@ extern fixed_t		pspritescale;
 extern fixed_t		pspriteiscale;
 
 
-void R_DrawMaskedColumn (postColumn_t* column);
+void R_DrawMaskedColumn( postColumn_t* column );
 
 
-void R_SortVisSprites (void);
+void R_SortVisSprites( void );
 
-void R_AddSprites (sector_t* sec);
-void R_AddPSprites (void);
-void R_DrawSprites (void);
-void R_InitSprites (const char* const* namelist);
-void R_ClearSprites (void);
-void R_DrawMasked (void);
+void R_AddSprites( sector_t* sec );
+void R_AddPSprites( void );
+void R_DrawSprites( void );
+void R_InitSprites( const char* const* namelist );
+void R_ClearSprites( void );
+void R_DrawMasked( void );
 
 void
 R_ClipVisSprite

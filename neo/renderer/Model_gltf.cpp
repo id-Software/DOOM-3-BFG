@@ -357,6 +357,20 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	return true;
 }
 
+const idMD5Joint* idRenderModelGLTF::FindMD5Joint( const idStr& name ) const
+{
+	for( auto& joint : md5joints )
+	{
+		if( joint.name == name )
+		{
+			return &joint;
+		}
+	}
+	assert( 0 );
+	static idMD5Joint staticJoint;
+	return &staticJoint;
+}
+
 void idRenderModelGLTF::UpdateMd5Joints()
 {
 	md5joints.Clear();
@@ -386,20 +400,6 @@ void idRenderModelGLTF::UpdateMd5Joints()
 		}
 	}
 
-	auto findMd5Joint = [&]( idStr & name ) -> auto
-	{
-		for( auto& joint : md5joints )
-		{
-			if( joint.name == name )
-			{
-				return &joint;
-			}
-		}
-		assert( 0 );
-		static idMD5Joint staticJoint;
-		return &staticJoint;
-	};
-
 	for( int i = 0 ; i < bones.Num(); i++ )
 	{
 		gltfNode* node = nodeList[bones[i]];
@@ -407,11 +407,11 @@ void idRenderModelGLTF::UpdateMd5Joints()
 		{
 			if( node->parent->name == ovrBoneName )
 			{
-				md5joints[i].parent = findMd5Joint( idStr( "origin" ) );
+				md5joints[i].parent = FindMD5Joint( idStr( "origin" ) );
 			}
 			else
 			{
-				md5joints[i].parent = findMd5Joint( node->parent->name );
+				md5joints[i].parent = FindMD5Joint( node->parent->name );
 			}
 		}
 	}
@@ -715,7 +715,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	// max_timestamp_value / totalFrames
 	// but keeping it fixed for now.
 	frameRate = gltf_AnimSampleRate.GetInteger();
-	INT animLength = ( ( numFrames - 1 ) * 1000 + frameRate - 1 ) / frameRate;
+	int animLength = ( ( numFrames - 1 ) * 1000 + frameRate - 1 ) / frameRate;
 
 	for( int i = 0; i < jointInfo.Num(); i++ )
 	{
@@ -1152,28 +1152,13 @@ void idRenderModelGLTF::LoadModel()
 		}
 	}
 
-	auto findMd5Joint = [&]( idStr & name ) -> auto
-	{
-		for( auto& joint : md5joints )
-		{
-			if( joint.name == name )
-			{
-				return &joint;
-			}
-		}
-		assert( 0 );
-		static idMD5Joint staticJoint;
-		return &staticJoint;
-	};
-
-
 	for( int i = 0; i < bones.Num(); i++ )
 	{
 		auto* node = nodes[bones[i]];
 
 		if( i && node->parent && node->parent != root )
 		{
-			md5joints[i].parent = findMd5Joint( node->parent->name );
+			md5joints[i].parent = FindMD5Joint( node->parent->name );
 		}
 	}
 
@@ -1658,7 +1643,7 @@ const idJointQuat* idRenderModelGLTF::GetDefaultPose() const
 
 int idRenderModelGLTF::NearestJoint( int surfaceNum, int a, int b, int c ) const
 {
-	for( modelSurface_t& surf : surfaces )
+	for( const modelSurface_t& surf : surfaces )
 	{
 		idDrawVert* verts = surf.geometry->verts;
 		int numVerts = surf.geometry->numVerts;

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "r_state.h"
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 // Retrieve column data for span blitting.
@@ -44,20 +44,20 @@ R_GetColumn
 
 
 // I/O, setting up the stuff.
-void R_InitData (void);
-void R_PrecacheLevel (void);
+void R_InitData( void );
+void R_PrecacheLevel( void );
 
 
 // Retrieval.
 // Floor/ceiling opaque texture tiles,
 // lookup by name. For animation?
-int R_FlatNumForName ( const char* name);
+int R_FlatNumForName( const char* name );
 
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
-int R_TextureNumForName (const char *name);
-int R_CheckTextureNumForName ( const char *name);
+int R_TextureNumForName( const char* name );
+int R_CheckTextureNumForName( const char* name );
 
 #endif
 

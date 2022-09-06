@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,27 +58,27 @@ If you have questions concerning this license or the applicable additional terms
 #include "sound/snd_local.h"
 
 #ifdef _MSC_VER // DG: xaudio can only be used with MSVC
-#include <xaudio2.h>
-#include <x3daudio.h>
+	#include <xaudio2.h>
+	#include <x3daudio.h>
 #endif // DG end
 
 #pragma warning ( disable : 4244 )
 
 #define	MIDI_CHANNELS		2
 #if 1
-#define MIDI_RATE			22050
-#define MIDI_SAMPLETYPE		XAUDIOSAMPLETYPE_8BITPCM
-#define MIDI_FORMAT			AUDIO_U8
-#define MIDI_FORMAT_BYTES	1
+	#define MIDI_RATE			22050
+	#define MIDI_SAMPLETYPE		XAUDIOSAMPLETYPE_8BITPCM
+	#define MIDI_FORMAT			AUDIO_U8
+	#define MIDI_FORMAT_BYTES	1
 #else
-#define MIDI_RATE			48000
-#define MIDI_SAMPLETYPE		XAUDIOSAMPLETYPE_16BITPCM
-#define MIDI_FORMAT			AUDIO_S16MSB
-#define MIDI_FORMAT_BYTES	2
+	#define MIDI_RATE			48000
+	#define MIDI_SAMPLETYPE		XAUDIOSAMPLETYPE_16BITPCM
+	#define MIDI_FORMAT			AUDIO_S16MSB
+	#define MIDI_FORMAT_BYTES	2
 #endif
 
 #ifdef _MSC_VER // DG: xaudio can only be used with MSVC
-IXAudio2SourceVoice*	pMusicSourceVoice;
+	IXAudio2SourceVoice*	pMusicSourceVoice;
 #endif
 
 MidiSong*				doomMusic;
@@ -90,7 +90,8 @@ bool	waitingForMusic;
 bool	musicReady;
 
 
-typedef struct tagActiveSound_t {
+typedef struct tagActiveSound_t
+{
 	IXAudio2SourceVoice*     m_pSourceVoice;         // Source voice
 	X3DAUDIO_DSP_SETTINGS   m_DSPSettings;
 	X3DAUDIO_EMITTER        m_Emitter;
@@ -100,18 +101,19 @@ typedef struct tagActiveSound_t {
 	int start;
 	int player;
 	bool localSound;
-	mobj_t *originator;
+	mobj_t* originator;
 } activeSound_t;
 
 
 // cheap little struct to hold a sound
-typedef struct {
+typedef struct
+{
 	int vol;
 	int player;
 	int pitch;
 	int priority;
-	mobj_t *originator;
-	mobj_t *listener;
+	mobj_t* originator;
+	mobj_t* listener;
 } soundEvent_t;
 
 // array of all the possible sounds
@@ -139,9 +141,9 @@ static bool		soundHardwareInitialized = false;
 
 // DG: xaudio can only be used with MSVC
 #ifdef _MSC_VER
-X3DAUDIO_HANDLE					X3DAudioInstance;
+	X3DAUDIO_HANDLE					X3DAudioInstance;
 
-X3DAUDIO_LISTENER				doom_Listener;
+	X3DAUDIO_LISTENER				doom_Listener;
 #endif
 
 //float							localSoundVolumeEntries[] = { 0.f, 0.f, 0.9f, 0.5f, 0.f, 0.f };
@@ -158,7 +160,7 @@ getsfx
 // This function loads the sound data from the WAD lump,
 //  for single sound.
 //
-void* getsfx ( const char* sfxname, int* len )
+void* getsfx( const char* sfxname, int* len )
 {
 	unsigned char*      sfx;
 	unsigned char*	    sfxmem;
@@ -169,36 +171,43 @@ void* getsfx ( const char* sfxname, int* len )
 
 	// Get the sound data from the WAD, allocate lump
 	//  in zone memory.
-	sprintf(name, "ds%s", sfxname);
+	sprintf( name, "ds%s", sfxname );
 
 	// Scale down the plasma gun, it clips
-	if ( strcmp( sfxname, "plasma" ) == 0 ) {
+	if( strcmp( sfxname, "plasma" ) == 0 )
+	{
 		scale = 0.75f;
 	}
-	if ( strcmp( sfxname, "itemup" ) == 0 ) {
+	if( strcmp( sfxname, "itemup" ) == 0 )
+	{
 		scale = 1.333f;
 	}
 
 	// If sound requested is not found in current WAD, use pistol as default
-	if ( W_CheckNumForName(name) == -1 )
-		sfxlump = W_GetNumForName("dspistol");
+	if( W_CheckNumForName( name ) == -1 )
+	{
+		sfxlump = W_GetNumForName( "dspistol" );
+	}
 	else
-		sfxlump = W_GetNumForName(name);
+	{
+		sfxlump = W_GetNumForName( name );
+	}
 
 	// Sound lump headers are 8 bytes.
 	const int SOUND_LUMP_HEADER_SIZE_IN_BYTES = 8;
 
 	size = W_LumpLength( sfxlump ) - SOUND_LUMP_HEADER_SIZE_IN_BYTES;
 
-	sfx = (unsigned char*)W_CacheLumpNum( sfxlump, PU_CACHE_SHARED );
-	const unsigned char * sfxSampleStart = sfx + SOUND_LUMP_HEADER_SIZE_IN_BYTES;
+	sfx = ( unsigned char* )W_CacheLumpNum( sfxlump, PU_CACHE_SHARED );
+	const unsigned char* sfxSampleStart = sfx + SOUND_LUMP_HEADER_SIZE_IN_BYTES;
 
 	// Allocate from zone memory.
 	//sfxmem = (float*)DoomLib::Z_Malloc( size*(sizeof(float)), PU_SOUND_SHARED, 0 );
-	sfxmem = (unsigned char*)malloc( size * sizeof(unsigned char) );
+	sfxmem = ( unsigned char* )malloc( size * sizeof( unsigned char ) );
 
 	// Now copy, and convert to Xbox360 native float samples, do initial volume ramp, and scale
-	for ( int i=0; i<size; i++ ) {
+	for( int i = 0; i < size; i++ )
+	{
 		sfxmem[i] = sfxSampleStart[i];// * scale;
 	}
 
@@ -209,7 +218,7 @@ void* getsfx ( const char* sfxname, int* len )
 	*len = size;
 
 	// Return allocated padded data.
-	return (void *) (sfxmem);
+	return ( void* )( sfxmem );
 }
 
 /*
@@ -217,17 +226,19 @@ void* getsfx ( const char* sfxname, int* len )
 I_SetChannels
 ======================
 */
-void I_SetChannels() {
+void I_SetChannels()
+{
 	// Original Doom set up lookup tables here
-}	
+}
 
 /*
 ======================
 I_SetSfxVolume
 ======================
 */
-void I_SetSfxVolume(int volume) {
-	x_SoundVolume = ((float)volume / 15.f) * GLOBAL_VOLUME_MULTIPLIER;
+void I_SetSfxVolume( int volume )
+{
+	x_SoundVolume = ( ( float )volume / 15.f ) * GLOBAL_VOLUME_MULTIPLIER;
 }
 
 /*
@@ -239,11 +250,11 @@ I_GetSfxLumpNum
 // Retrieve the raw data lump index
 //  for a given SFX name.
 //
-int I_GetSfxLumpNum(sfxinfo_t* sfx)
+int I_GetSfxLumpNum( sfxinfo_t* sfx )
 {
 	char namebuf[9];
-	sprintf(namebuf, "ds%s", sfx->name);
-	return W_GetNumForName(namebuf);
+	sprintf( namebuf, "ds%s", sfx->name );
+	return W_GetNumForName( namebuf );
 }
 
 /*
@@ -261,24 +272,28 @@ I_StartSound2
 //  priority, it is ignored.
 // Pitching (that is, increased speed of playback) is set
 //
-int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin, int pitch, int priority ) {
-	if ( !soundHardwareInitialized ) {
+int I_StartSound2( int id, int player, mobj_t* origin, mobj_t* listener_origin, int pitch, int priority )
+{
+	if( !soundHardwareInitialized )
+	{
 		return id;
 	}
-	
+
 	int i;
-	 XAUDIO2_VOICE_STATE state;
+	XAUDIO2_VOICE_STATE state;
 	activeSound_t* sound = 0;
 	int oldest = 0, oldestnum = -1;
 
 	// these id's should not overlap
-	if ( id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit || id == sfx_stnmov ) {
+	if( id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit || id == sfx_stnmov )
+	{
 		// Loop all channels, check.
-		for (i=0 ; i < NUM_SOUNDBUFFERS ; i++)
+		for( i = 0 ; i < NUM_SOUNDBUFFERS ; i++ )
 		{
 			sound = &activeSounds[i];
 
-			if (sound->valid && ( sound->id == id && sound->player == player ) ) {
+			if( sound->valid && ( sound->id == id && sound->player == player ) )
+			{
 				I_StopSound( sound->id, player );
 				break;
 			}
@@ -286,25 +301,30 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 	}
 
 	// find a valid channel, or one that has finished playing
-	for (i = 0; i < NUM_SOUNDBUFFERS; ++i) {
+	for( i = 0; i < NUM_SOUNDBUFFERS; ++i )
+	{
 		sound = &activeSounds[i];
-		
-		if (!sound->valid)
-			break;
 
-		if (!oldest || oldest > sound->start) {
+		if( !sound->valid )
+		{
+			break;
+		}
+
+		if( !oldest || oldest > sound->start )
+		{
 			oldestnum = i;
 			oldest = sound->start;
 		}
 
 		sound->m_pSourceVoice->GetState( &state );
-		if ( state.BuffersQueued == 0 ) {
+		if( state.BuffersQueued == 0 )
+		{
 			break;
 		}
 	}
 
 	// none found, so use the oldest one
-	if (i == NUM_SOUNDBUFFERS)
+	if( i == NUM_SOUNDBUFFERS )
 	{
 		i = oldestnum;
 		sound = &activeSounds[i];
@@ -318,7 +338,7 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 	XAUDIO2_BUFFER Packet = { 0 };
 	Packet.Flags = XAUDIO2_END_OF_STREAM;
 	Packet.AudioBytes = lengths[id];
-	Packet.pAudioData = (BYTE*)S_sfx[id].data;
+	Packet.pAudioData = ( BYTE* )S_sfx[id].data;
 	Packet.PlayBegin = 0;
 	Packet.PlayLength = 0;
 	Packet.LoopBegin = XAUDIO2_NO_LOOP_REGION;
@@ -331,14 +351,15 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 	sound->m_pSourceVoice->SetVolume( x_SoundVolume );
 
 	// Set voice pitch
-	sound->m_pSourceVoice->SetFrequencyRatio( 1 + ((float)pitch-128.f)/95.f );
+	sound->m_pSourceVoice->SetFrequencyRatio( 1 + ( ( float )pitch - 128.f ) / 95.f );
 
 	// Set initial spatialization
-	if ( origin && origin != listener_origin ) {
+	if( origin && origin != listener_origin )
+	{
 		// Update Emitter Position
-		sound->m_Emitter.Position.x = (float)(origin->x >> FRACBITS);
+		sound->m_Emitter.Position.x = ( float )( origin->x >> FRACBITS );
 		sound->m_Emitter.Position.y = 0.f;
-		sound->m_Emitter.Position.z = (float)(origin->y >> FRACBITS);
+		sound->m_Emitter.Position.z = ( float )( origin->y >> FRACBITS );
 
 		// Calculate 3D positioned speaker volumes
 		DWORD dwCalculateFlags = X3DAUDIO_CALCULATE_MATRIX;
@@ -348,7 +369,9 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 		sound->m_pSourceVoice->SetOutputMatrix( NULL, 1, numOutputChannels, sound->m_DSPSettings.pMatrixCoefficients );
 
 		sound->localSound = false;
-	} else {
+	}
+	else
+	{
 		// Local(or Global) sound, fixed speaker volumes
 		sound->m_pSourceVoice->SetOutputMatrix( NULL, 1, numOutputChannels, localSoundVolumeEntries );
 
@@ -357,12 +380,14 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 
 	// Submit packet
 	HRESULT hr;
-	if( FAILED( hr = sound->m_pSourceVoice->SubmitSourceBuffer( &Packet ) ) ) {
+	if( FAILED( hr = sound->m_pSourceVoice->SubmitSourceBuffer( &Packet ) ) )
+	{
 		int fail = 1;
 	}
 
 	// Play the source voice
-	if( FAILED( hr = sound->m_pSourceVoice->Start( 0 ) ) ) {
+	if( FAILED( hr = sound->m_pSourceVoice->Start( 0 ) ) )
+	{
 		int fail = 1;
 	}
 
@@ -381,9 +406,12 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 I_ProcessSoundEvents
 ======================
 */
-void I_ProcessSoundEvents() {
-	for( int i = 0; i < 128; i++ ) {
-		if( soundEvents[i].pitch ) {
+void I_ProcessSoundEvents()
+{
+	for( int i = 0; i < 128; i++ )
+	{
+		if( soundEvents[i].pitch )
+		{
 			I_StartSound2( i, soundEvents[i].player, soundEvents[i].originator, soundEvents[i].listener, soundEvents[i].pitch, soundEvents[i].priority );
 		}
 	}
@@ -395,19 +423,24 @@ void I_ProcessSoundEvents() {
 I_StartSound
 ======================
 */
-int I_StartSound ( int id, mobj_t *origin, mobj_t *listener_origin, int vol, int pitch, int priority ) {
+int I_StartSound( int id, mobj_t* origin, mobj_t* listener_origin, int vol, int pitch, int priority )
+{
 	// only allow player 0s sounds in intermission and finale screens
-	if( ::g->gamestate != GS_LEVEL && DoomLib::GetPlayer() != 0 ) {
+	if( ::g->gamestate != GS_LEVEL && DoomLib::GetPlayer() != 0 )
+	{
 		return 0;
 	}
 
 	// if we're only one player or we're trying to play the chainsaw sound, do it normal
 	// otherwise only allow one sound of each type per frame
-	if( PLAYERCOUNT == 1 || id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit ) {
+	if( PLAYERCOUNT == 1 || id == sfx_sawup || id == sfx_sawidl || id == sfx_sawful || id == sfx_sawhit )
+	{
 		return I_StartSound2( id, ::g->consoleplayer, origin, listener_origin, pitch, priority );
 	}
-	else {
-		if( soundEvents[ id ].vol < vol ) {
+	else
+	{
+		if( soundEvents[ id ].vol < vol )
+		{
 			soundEvents[ id ].player = DoomLib::GetPlayer();
 			soundEvents[ id ].pitch = pitch;
 			soundEvents[ id ].priority = priority;
@@ -424,7 +457,7 @@ int I_StartSound ( int id, mobj_t *origin, mobj_t *listener_origin, int vol, int
 I_StopSound
 ======================
 */
-void I_StopSound (int handle, int player)
+void I_StopSound( int handle, int player )
 {
 	// You need the handle returned by StartSound.
 	// Would be looping all channels,
@@ -434,19 +467,24 @@ void I_StopSound (int handle, int player)
 	int i;
 	activeSound_t* sound = 0;
 
-	for (i = 0; i < NUM_SOUNDBUFFERS; ++i)
+	for( i = 0; i < NUM_SOUNDBUFFERS; ++i )
 	{
 		sound = &activeSounds[i];
-		if (!sound->valid || sound->id != handle || (player >= 0 && sound->player != player) )
+		if( !sound->valid || sound->id != handle || ( player >= 0 && sound->player != player ) )
+		{
 			continue;
+		}
 		break;
 	}
 
-	if (i == NUM_SOUNDBUFFERS)
+	if( i == NUM_SOUNDBUFFERS )
+	{
 		return;
+	}
 
 	// stop the sound
-	if ( sound->m_pSourceVoice != NULL ) {
+	if( sound->m_pSourceVoice != NULL )
+	{
 		sound->m_pSourceVoice->Stop( 0 );
 	}
 
@@ -459,8 +497,10 @@ void I_StopSound (int handle, int player)
 I_SoundIsPlaying
 ======================
 */
-int I_SoundIsPlaying(int handle) {
-	if ( !soundHardwareInitialized ) {
+int I_SoundIsPlaying( int handle )
+{
+	if( !soundHardwareInitialized )
+	{
 		return 0;
 	}
 
@@ -468,14 +508,17 @@ int I_SoundIsPlaying(int handle) {
 	XAUDIO2_VOICE_STATE	state;
 	activeSound_t* sound;
 
-	for (i = 0; i < NUM_SOUNDBUFFERS; ++i)
+	for( i = 0; i < NUM_SOUNDBUFFERS; ++i )
 	{
 		sound = &activeSounds[i];
-		if (!sound->valid || sound->id != handle)
+		if( !sound->valid || sound->id != handle )
+		{
 			continue;
+		}
 
 		sound->m_pSourceVoice->GetState( &state );
-		if ( state.BuffersQueued > 0 ) {
+		if( state.BuffersQueued > 0 )
+		{
 			return 1;
 		}
 	}
@@ -490,8 +533,10 @@ I_UpdateSound
 */
 // Update Listener Position and go through all the
 // channels and update speaker volumes for 3D sound.
-void I_UpdateSound() {
-	if ( !soundHardwareInitialized ) {
+void I_UpdateSound()
+{
+	if( !soundHardwareInitialized )
+	{
 		return;
 	}
 
@@ -499,17 +544,20 @@ void I_UpdateSound() {
 	XAUDIO2_VOICE_STATE	state;
 	activeSound_t* sound;
 
-	for ( i=0; i < NUM_SOUNDBUFFERS; i++ ) {
+	for( i = 0; i < NUM_SOUNDBUFFERS; i++ )
+	{
 		sound = &activeSounds[i];
 
-		if ( !sound->valid || sound->localSound ) {
+		if( !sound->valid || sound->localSound )
+		{
 			continue;
 		}
 
 		sound->m_pSourceVoice->GetState( &state );
 
-		if ( state.BuffersQueued > 0 ) {
-			mobj_t *playerObj = ::g->players[ sound->player ].mo;
+		if( state.BuffersQueued > 0 )
+		{
+			mobj_t* playerObj = ::g->players[ sound->player ].mo;
 
 			// Update Listener Orientation and Position
 			angle_t	pAngle = playerObj->angle;
@@ -520,18 +568,18 @@ void I_UpdateSound() {
 			fx = finecosine[pAngle];
 			fz = finesine[pAngle];
 
-			doom_Listener.OrientFront.x = (float)(fx) / 65535.f;
+			doom_Listener.OrientFront.x = ( float )( fx ) / 65535.f;
 			doom_Listener.OrientFront.y = 0.f;
-			doom_Listener.OrientFront.z = (float)(fz) / 65535.f;
+			doom_Listener.OrientFront.z = ( float )( fz ) / 65535.f;
 
-			doom_Listener.Position.x = (float)(playerObj->x >> FRACBITS);
+			doom_Listener.Position.x = ( float )( playerObj->x >> FRACBITS );
 			doom_Listener.Position.y = 0.f;
-			doom_Listener.Position.z = (float)(playerObj->y >> FRACBITS);
+			doom_Listener.Position.z = ( float )( playerObj->y >> FRACBITS );
 
 			// Update Emitter Position
-			sound->m_Emitter.Position.x = (float)(sound->originator->x >> FRACBITS);
+			sound->m_Emitter.Position.x = ( float )( sound->originator->x >> FRACBITS );
 			sound->m_Emitter.Position.y = 0.f;
-			sound->m_Emitter.Position.z = (float)(sound->originator->y >> FRACBITS);
+			sound->m_Emitter.Position.z = ( float )( sound->originator->y >> FRACBITS );
 
 			// Calculate 3D positioned speaker volumes
 			DWORD dwCalculateFlags = X3DAUDIO_CALCULATE_MATRIX;
@@ -548,7 +596,8 @@ void I_UpdateSound() {
 I_UpdateSoundParams
 ======================
 */
-void I_UpdateSoundParams( int handle, int vol, int sep, int pitch) {
+void I_UpdateSoundParams( int handle, int vol, int sep, int pitch )
+{
 }
 
 /*
@@ -556,28 +605,35 @@ void I_UpdateSoundParams( int handle, int vol, int sep, int pitch) {
 I_ShutdownSound
 ======================
 */
-void I_ShutdownSound(void) {
+void I_ShutdownSound( void )
+{
 	int done = 0;
 	int i;
 
-	if ( S_initialized ) {
+	if( S_initialized )
+	{
 		// Stop all sounds, but don't destroy the XAudio2 buffers.
-		for ( i = 0; i < NUM_SOUNDBUFFERS; ++i ) {
-			activeSound_t * sound = &activeSounds[i];
+		for( i = 0; i < NUM_SOUNDBUFFERS; ++i )
+		{
+			activeSound_t* sound = &activeSounds[i];
 
-			if ( sound == NULL ) {
+			if( sound == NULL )
+			{
 				continue;
 			}
 
 			I_StopSound( sound->id, 0 );
 
-			if ( sound->m_pSourceVoice ) {
+			if( sound->m_pSourceVoice )
+			{
 				sound->m_pSourceVoice->FlushSourceBuffers();
 			}
 		}
 
-		for (i=1 ; i<NUMSFX ; i++) {
-			if ( S_sfx[i].data && !(S_sfx[i].link) ) {
+		for( i = 1 ; i < NUMSFX ; i++ )
+		{
+			if( S_sfx[i].data && !( S_sfx[i].link ) )
+			{
 				//Z_Free( S_sfx[i].data );
 				free( S_sfx[i].data );
 			}
@@ -599,7 +655,8 @@ Called from the tech4x initialization code. Sets up Doom classic's
 sound channels.
 ======================
 */
-void I_InitSoundHardware( int numOutputChannels_, int channelMask ) {
+void I_InitSoundHardware( int numOutputChannels_, int channelMask )
+{
 	::numOutputChannels = numOutputChannels_;
 
 	// Initialize the X3DAudio
@@ -608,7 +665,8 @@ void I_InitSoundHardware( int numOutputChannels_, int channelMask ) {
 	//  SpeedOfSound - not used by doomclassic
 	X3DAudioInitialize( channelMask, 340.29f, X3DAudioInstance );
 
-	for ( int i = 0; i < NUM_SOUNDBUFFERS; ++i ) {
+	for( int i = 0; i < NUM_SOUNDBUFFERS; ++i )
+	{
 		// Initialize source voices
 		I_InitSoundChannel( i, numOutputChannels );
 	}
@@ -627,26 +685,31 @@ Called from the tech4x shutdown code. Tears down Doom classic's
 sound channels.
 ======================
 */
-void I_ShutdownSoundHardware() {
+void I_ShutdownSoundHardware()
+{
 	soundHardwareInitialized = false;
 
 	I_ShutdownMusic();
 
-	for ( int i = 0; i < NUM_SOUNDBUFFERS; ++i ) {
-		activeSound_t * sound = &activeSounds[i];
+	for( int i = 0; i < NUM_SOUNDBUFFERS; ++i )
+	{
+		activeSound_t* sound = &activeSounds[i];
 
-		if ( sound == NULL ) {
+		if( sound == NULL )
+		{
 			continue;
 		}
 
-		if ( sound->m_pSourceVoice ) {
+		if( sound->m_pSourceVoice )
+		{
 			sound->m_pSourceVoice->Stop();
 			sound->m_pSourceVoice->FlushSourceBuffers();
 			sound->m_pSourceVoice->DestroyVoice();
 			sound->m_pSourceVoice = NULL;
 		}
 
-		if ( sound->m_DSPSettings.pMatrixCoefficients ) {
+		if( sound->m_DSPSettings.pMatrixCoefficients )
+		{
 			delete [] sound->m_DSPSettings.pMatrixCoefficients;
 			sound->m_DSPSettings.pMatrixCoefficients = NULL;
 		}
@@ -658,8 +721,9 @@ void I_ShutdownSoundHardware() {
 I_InitSoundChannel
 ======================
 */
-void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
-	activeSound_t	*soundchannel = &activeSounds[ channel ];
+void I_InitSoundChannel( int channel, int numOutputChannels_ )
+{
+	activeSound_t*	soundchannel = &activeSounds[ channel ];
 
 	// RB: fixed non-aggregates cannot be initialized with initializer list
 #if defined(USE_WINRT) //(_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
@@ -678,7 +742,7 @@ void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	soundchannel->m_Emitter.OrientTop.z           = 0.0f;
 	soundchannel->m_Emitter.Position              = ZeroVector;
 	soundchannel->m_Emitter.Velocity              = ZeroVector;
-	soundchannel->m_Emitter.pCone                 = &(soundchannel->m_Cone);
+	soundchannel->m_Emitter.pCone                 = &( soundchannel->m_Cone );
 	soundchannel->m_Emitter.pCone->InnerAngle     = 0.0f; // Setting the inner cone angles to X3DAUDIO_2PI and
 	// outer cone other than 0 causes
 	// the emitter to act like a point emitter using the
@@ -712,13 +776,13 @@ void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	WAVEFORMATEX voiceFormat = {0};
 	voiceFormat.wFormatTag = WAVE_FORMAT_PCM;
 	voiceFormat.nChannels = 1;
-    voiceFormat.nSamplesPerSec = 11025;
-    voiceFormat.nAvgBytesPerSec = 11025;
-    voiceFormat.nBlockAlign = 1;
-    voiceFormat.wBitsPerSample = 8;
-    voiceFormat.cbSize = 0;
+	voiceFormat.nSamplesPerSec = 11025;
+	voiceFormat.nAvgBytesPerSec = 11025;
+	voiceFormat.nBlockAlign = 1;
+	voiceFormat.wBitsPerSample = 8;
+	voiceFormat.cbSize = 0;
 
-	soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &soundchannel->m_pSourceVoice, (WAVEFORMATEX *)&voiceFormat );
+	soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &soundchannel->m_pSourceVoice, ( WAVEFORMATEX* )&voiceFormat );
 }
 
 /*
@@ -726,9 +790,11 @@ void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 I_InitSound
 ======================
 */
-void I_InitSound() {
+void I_InitSound()
+{
 
-	if (S_initialized == 0) {
+	if( S_initialized == 0 )
+	{
 		int i;
 
 		// RB: non-aggregates cannot be initialized with initializer list
@@ -749,19 +815,19 @@ void I_InitSound() {
 		doom_Listener.Position             = ZeroVector;
 		doom_Listener.Velocity             = ZeroVector;
 
-		for (i=1 ; i<NUMSFX ; i++)
-		{ 
+		for( i = 1 ; i < NUMSFX ; i++ )
+		{
 			// Alias? Example is the chaingun sound linked to pistol.
-			if (!S_sfx[i].link)
+			if( !S_sfx[i].link )
 			{
 				// Load data from WAD file.
 				S_sfx[i].data = getsfx( S_sfx[i].name, &lengths[i] );
-			}	
+			}
 			else
 			{
 				// Previously loaded already?
 				S_sfx[i].data = S_sfx[i].link->data;
-				lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
+				lengths[i] = lengths[( S_sfx[i].link - S_sfx ) / sizeof( sfxinfo_t )];
 			}
 		}
 
@@ -774,12 +840,13 @@ void I_InitSound() {
 I_SubmitSound
 ======================
 */
-void I_SubmitSound(void)
+void I_SubmitSound( void )
 {
 	// Only do this for player 0, it will still handle positioning
-	//		for other players, but it can't be outside the game 
+	//		for other players, but it can't be outside the game
 	//		frame like the soundEvents are.
-	if ( DoomLib::GetPlayer() == 0 ) {
+	if( DoomLib::GetPlayer() == 0 )
+	{
 		// Do 3D positioning of sounds
 		I_UpdateSound();
 
@@ -800,9 +867,9 @@ void I_SubmitSound(void)
 I_SetMusicVolume
 ======================
 */
-void I_SetMusicVolume(int volume)
+void I_SetMusicVolume( int volume )
 {
-	x_MusicVolume = (float)volume / 15.f;
+	x_MusicVolume = ( float )volume / 15.f;
 }
 
 /*
@@ -810,9 +877,10 @@ void I_SetMusicVolume(int volume)
 I_InitMusic
 ======================
 */
-void I_InitMusic(void)		
+void I_InitMusic( void )
 {
-	if ( !Music_initialized ) {
+	if( !Music_initialized )
+	{
 		// Initialize Timidity
 		Timidity_Init( MIDI_RATE, MIDI_FORMAT, MIDI_CHANNELS, MIDI_RATE, "classicmusic/gravis.cfg" );
 
@@ -833,7 +901,7 @@ void I_InitMusic(void)
 		voiceFormat.cbSize = 0;
 
 // RB: XAUDIO2_VOICE_MUSIC not available on Windows 8 SDK
-		soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &pMusicSourceVoice, (WAVEFORMATEX *)&voiceFormat/*, XAUDIO2_VOICE_MUSIC*/ );
+		soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &pMusicSourceVoice, ( WAVEFORMATEX* )&voiceFormat/*, XAUDIO2_VOICE_MUSIC*/ );
 // RB end
 
 		Music_initialized = true;
@@ -845,31 +913,38 @@ void I_InitMusic(void)
 I_ShutdownMusic
 ======================
 */
-void I_ShutdownMusic(void)	
+void I_ShutdownMusic( void )
 {
 	I_StopSong( 0 );
 
-	if ( Music_initialized ) {
-		if ( pMusicSourceVoice ) {
+	if( Music_initialized )
+	{
+		if( pMusicSourceVoice )
+		{
 			pMusicSourceVoice->Stop();
 			pMusicSourceVoice->FlushSourceBuffers();
 			pMusicSourceVoice->DestroyVoice();
 			pMusicSourceVoice = NULL;
 		}
 
-		if ( hMusicThread ) {
+		if( hMusicThread )
+		{
 			DWORD	rc;
 
-			do {
+			do
+			{
 				GetExitCodeThread( hMusicThread, &rc );
-				if ( rc == STILL_ACTIVE ) {
+				if( rc == STILL_ACTIVE )
+				{
 					Sleep( 1 );
 				}
-			} while( rc == STILL_ACTIVE );
+			}
+			while( rc == STILL_ACTIVE );
 
 			CloseHandle( hMusicThread );
 		}
-		if ( musicBuffer ) {
+		if( musicBuffer )
+		{
 			free( musicBuffer );
 		}
 
@@ -887,11 +962,12 @@ void I_ShutdownMusic(void)
 	Music_initialized = false;
 }
 
-int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len);
+int Mus2Midi( unsigned char* bytes, unsigned char* out, int* len );
 
-namespace {
-	const int MaxMidiConversionSize = 1024 * 1024;
-	unsigned char midiConversionBuffer[MaxMidiConversionSize];
+namespace
+{
+const int MaxMidiConversionSize = 1024 * 1024;
+unsigned char midiConversionBuffer[MaxMidiConversionSize];
 }
 
 /*
@@ -899,19 +975,21 @@ namespace {
 I_LoadSong
 ======================
 */
-DWORD WINAPI I_LoadSong( LPVOID songname ) {
+DWORD WINAPI I_LoadSong( LPVOID songname )
+{
 	idStr lumpName = "d_";
-	lumpName += static_cast< const char * >( songname );
+	lumpName += static_cast< const char* >( songname );
 
-	unsigned char * musFile = static_cast< unsigned char * >( W_CacheLumpName( lumpName.c_str(), PU_STATIC_SHARED ) );
+	unsigned char* musFile = static_cast< unsigned char* >( W_CacheLumpName( lumpName.c_str(), PU_STATIC_SHARED ) );
 
 	int length = 0;
 	Mus2Midi( musFile, midiConversionBuffer, &length );
 
 	doomMusic = Timidity_LoadSongMem( midiConversionBuffer, length );
 
-	if ( doomMusic ) {
-		musicBuffer = (byte *)malloc( MIDI_CHANNELS * MIDI_FORMAT_BYTES * doomMusic->samples );
+	if( doomMusic )
+	{
+		musicBuffer = ( byte* )malloc( MIDI_CHANNELS * MIDI_FORMAT_BYTES * doomMusic->samples );
 		totalBufferSize = doomMusic->samples * MIDI_CHANNELS * MIDI_FORMAT_BYTES;
 
 		Timidity_Start( doomMusic );
@@ -920,10 +998,12 @@ DWORD WINAPI I_LoadSong( LPVOID songname ) {
 		int		num_bytes = 0;
 		int		offset = 0;
 
-		do {
+		do
+		{
 			rc = Timidity_PlaySome( musicBuffer + offset, MIDI_RATE, &num_bytes );
 			offset += num_bytes;
-		} while ( rc != RC_TUNE_END );
+		}
+		while( rc != RC_TUNE_END );
 
 		Timidity_Stop();
 		Timidity_FreeSong( doomMusic );
@@ -939,13 +1019,15 @@ DWORD WINAPI I_LoadSong( LPVOID songname ) {
 I_PlaySong
 ======================
 */
-void I_PlaySong( const char *songname, int looping)
+void I_PlaySong( const char* songname, int looping )
 {
-	if ( !Music_initialized ) {
+	if( !Music_initialized )
+	{
 		return;
 	}
 
-	if ( pMusicSourceVoice != NULL ) {
+	if( pMusicSourceVoice != NULL )
+	{
 		// Stop the voice and flush packets before freeing the musicBuffer
 		pMusicSourceVoice->Stop();
 		pMusicSourceVoice->FlushSourceBuffers();
@@ -954,30 +1036,35 @@ void I_PlaySong( const char *songname, int looping)
 	// Make sure voice is stopped before we free the buffer
 	bool isStopped = false;
 	int d = 0;
-	while ( !isStopped ) {
+	while( !isStopped )
+	{
 		XAUDIO2_VOICE_STATE test = {};
 
-		if ( pMusicSourceVoice != NULL ) {
+		if( pMusicSourceVoice != NULL )
+		{
 			pMusicSourceVoice->GetState( &test );
 		}
 
-		if ( test.pCurrentBufferContext == NULL && test.BuffersQueued == 0 ) {
+		if( test.pCurrentBufferContext == NULL && test.BuffersQueued == 0 )
+		{
 			isStopped = true;
 		}
 		//I_Printf( "waiting to stop (%d)\n", d++ );
 	}
 
 	// Clear old state
-	if ( musicBuffer != NULL ) {
+	if( musicBuffer != NULL )
+	{
 		free( musicBuffer );
 		musicBuffer = NULL;
 	}
 
 	musicReady = false;
-	I_LoadSong( (LPVOID)songname );
+	I_LoadSong( ( LPVOID )songname );
 	waitingForMusic = true;
 
-	if ( DoomLib::GetPlayer() >= 0 ) {
+	if( DoomLib::GetPlayer() >= 0 )
+	{
 		::g->mus_looping = looping;
 	}
 }
@@ -987,21 +1074,26 @@ void I_PlaySong( const char *songname, int looping)
 I_UpdateMusic
 ======================
 */
-void I_UpdateMusic() {
-	if ( !Music_initialized ) {
+void I_UpdateMusic()
+{
+	if( !Music_initialized )
+	{
 		return;
 	}
 
-	if ( waitingForMusic ) {
+	if( waitingForMusic )
+	{
 
-		if ( musicReady && pMusicSourceVoice != NULL ) {
+		if( musicReady && pMusicSourceVoice != NULL )
+		{
 
-			if ( musicBuffer ) {
+			if( musicBuffer )
+			{
 				// Set up packet
 				XAUDIO2_BUFFER Packet = { 0 };
 				Packet.Flags = XAUDIO2_END_OF_STREAM;
 				Packet.AudioBytes = totalBufferSize;
-				Packet.pAudioData = (BYTE*)musicBuffer;
+				Packet.pAudioData = ( BYTE* )musicBuffer;
 				Packet.PlayBegin = 0;
 				Packet.PlayLength = 0;
 				Packet.LoopBegin = 0;
@@ -1011,12 +1103,14 @@ void I_UpdateMusic() {
 
 				// Submit packet
 				HRESULT hr;
-				if( FAILED( hr = pMusicSourceVoice->SubmitSourceBuffer( &Packet ) ) ) {
+				if( FAILED( hr = pMusicSourceVoice->SubmitSourceBuffer( &Packet ) ) )
+				{
 					int fail = 1;
 				}
 
 				// Play the source voice
-				if( FAILED( hr = pMusicSourceVoice->Start( 0 ) ) ) {
+				if( FAILED( hr = pMusicSourceVoice->Start( 0 ) ) )
+				{
 					int fail = 1;
 				}
 			}
@@ -1025,7 +1119,8 @@ void I_UpdateMusic() {
 		}
 	}
 
-	if ( pMusicSourceVoice != NULL ) {
+	if( pMusicSourceVoice != NULL )
+	{
 		// Set the volume
 		pMusicSourceVoice->SetVolume( x_MusicVolume * GLOBAL_VOLUME_MULTIPLIER );
 	}
@@ -1036,13 +1131,15 @@ void I_UpdateMusic() {
 I_PauseSong
 ======================
 */
-void I_PauseSong (int handle)
+void I_PauseSong( int handle )
 {
-	if ( !Music_initialized ) {
+	if( !Music_initialized )
+	{
 		return;
 	}
 
-	if ( pMusicSourceVoice != NULL ) {
+	if( pMusicSourceVoice != NULL )
+	{
 		// Stop the music source voice
 		pMusicSourceVoice->Stop( 0 );
 	}
@@ -1053,14 +1150,16 @@ void I_PauseSong (int handle)
 I_ResumeSong
 ======================
 */
-void I_ResumeSong (int handle)
+void I_ResumeSong( int handle )
 {
-	if ( !Music_initialized ) {
+	if( !Music_initialized )
+	{
 		return;
 	}
 
 	// Stop the music source voice
-	if ( pMusicSourceVoice != NULL ) {
+	if( pMusicSourceVoice != NULL )
+	{
 		pMusicSourceVoice->Start( 0 );
 	}
 }
@@ -1070,14 +1169,16 @@ void I_ResumeSong (int handle)
 I_StopSong
 ======================
 */
-void I_StopSong(int handle)
+void I_StopSong( int handle )
 {
-	if ( !Music_initialized ) {
+	if( !Music_initialized )
+	{
 		return;
 	}
 
 	// Stop the music source voice
-	if ( pMusicSourceVoice != NULL ) {
+	if( pMusicSourceVoice != NULL )
+	{
 		pMusicSourceVoice->Stop( 0 );
 	}
 }
@@ -1087,7 +1188,7 @@ void I_StopSong(int handle)
 I_UnRegisterSong
 ======================
 */
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong( int handle )
 {
 	// does nothing
 }
@@ -1097,7 +1198,7 @@ void I_UnRegisterSong(int handle)
 I_RegisterSong
 ======================
 */
-int I_RegisterSong(void* data, int length)
+int I_RegisterSong( void* data, int length )
 {
 	// does nothing
 	return 0;

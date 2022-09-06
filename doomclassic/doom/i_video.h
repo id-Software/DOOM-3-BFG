@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,42 +34,42 @@ If you have questions concerning this license or the applicable additional terms
 #include "d_event.h"
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 // Called by D_DoomMain,
 // determines the hardware configuration
 // and sets up the video mode
-void I_InitGraphics (void);
+void I_InitGraphics( void );
 
 
-void I_ShutdownGraphics(void);
+void I_ShutdownGraphics( void );
 
 // Takes full 8 bit values.
-void I_SetPalette (byte* palette);
+void I_SetPalette( byte* palette );
 
-void I_UpdateNoBlit (void);
-void I_FinishUpdate (void);
+void I_UpdateNoBlit( void );
+void I_FinishUpdate( void );
 
 // Wait for vertical retrace or pause a bit.
-void I_WaitVBL(int count);
+void I_WaitVBL( int count );
 
-void I_ReadScreen (byte* scr);
+void I_ReadScreen( byte* scr );
 
-void I_BeginRead (void);
-void I_EndRead (void);
+void I_BeginRead( void );
+void I_EndRead( void );
 
-void I_InitInput (void);
+void I_InitInput( void );
 
 void I_ShutdownInput() ;
 void I_InputFrame();
 
-void I_UpdateControllerState(void);
+void I_UpdateControllerState( void );
 struct controller_t;
-int I_PollMouseInputEvents( controller_t * ) ;
-int I_ReturnMouseInputEvent( const int n, event_t* e);
-int I_PollJoystickInputEvents( controller_t * ) ;
-int I_ReturnJoystickInputEvent( const int n, event_t* e);
+int I_PollMouseInputEvents( controller_t* ) ;
+int I_ReturnMouseInputEvent( const int n, event_t* e );
+int I_PollJoystickInputEvents( controller_t* ) ;
+int I_ReturnJoystickInputEvent( const int n, event_t* e );
 void I_EndJoystickInputEvents();
 
 #endif

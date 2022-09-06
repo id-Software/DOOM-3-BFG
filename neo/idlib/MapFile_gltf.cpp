@@ -95,8 +95,11 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	Mem_Free( indices );
 	bool sizeSet = false;
 
-	for( auto& attrib : prim->attributes )
+	//for( const auto& attrib : prim->attributes )
+	for( int a = 0; a < prim->attributes.Num(); a++ )
 	{
+		gltfMesh_Primitive_Attribute* attrib = prim->attributes[a];
+
 		gltfAccessor* attrAcc = data->AccessorList()[attrib->accessorIndex];
 		gltfBufferView* attrBv = data->BufferViewList()[attrAcc->bufferView];
 		gltfData* attrData = attrBv->parent;

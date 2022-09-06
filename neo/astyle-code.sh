@@ -37,3 +37,4 @@ fi
 $ASTYLE_BIN -v --formatted --options=astyle-options.ini --exclude="libs" --exclude="extern" --recursive "*.h"
 $ASTYLE_BIN -v --formatted --options=astyle-options.ini --exclude="libs" --exclude="extern" --exclude="d3xp/gamesys/SysCvar.cpp" --exclude="d3xp/gamesys/Callbacks.cpp" \
 		--exclude="sys/win32/win_cpu.cpp" --exclude="sys/win32/win_main.cpp" --recursive "*.cpp"
+$ASTYLE_BIN -v --formatted --options=astyle-options.ini --recursive "../doomclassic/doom/*.h" "../doomclassic/doom/*.cpp"

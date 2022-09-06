@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//  am_map.defs begin // 
+//  am_map.defs begin //
 #define REDS		(256-5*16)
 #define REDRANGE	16
 #define BLUES		(256-4*16+8)
@@ -94,13 +94,13 @@ If you have questions concerning this license or the applicable additional terms
 	if ((mx) < 0) (oc) |= LEFT; \
 	else if ((mx) >= ::g->f_w) (oc) |= RIGHT;
 #define PUTDOT(xx,yy,cc) ::g->fb[(yy)*::g->f_w+(xx)]=(cc)
-// am_map.defs end // 
-//  d_main.defs begin // 
+// am_map.defs end //
+//  d_main.defs begin //
 #define	BGCOLOR		7
 #define	FGCOLOR		8
 #define DOOMWADDIR "wads/"
-// d_main.defs end // 
-//  d_net.defs begin // 
+// d_main.defs end //
+//  d_net.defs begin //
 #define	NCMD_EXIT		0x80000000
 #define	NCMD_RETRANSMIT		0x40000000
 #define	NCMD_SETUP		0x20000000
@@ -108,25 +108,25 @@ If you have questions concerning this license or the applicable additional terms
 #define	NCMD_CHECKSUM	 	0x0fffffff
 #define	RESENDCOUNT	10
 #define	PL_DRONE	0x80	// bit flag in doomdata->player
-// d_net.defs end // 
-//  f_finale.defs begin // 
+// d_net.defs end //
+//  f_finale.defs begin //
 #define	TEXTSPEED	3
 #define	TEXTWAIT	250
-// f_finale.defs end // 
-//  g_game.defs begin // 
+// f_finale.defs end //
+//  g_game.defs begin //
 #define SAVESTRINGSIZE	64
-#define MAXPLMOVE		(::g->forwardmove[1]) 
+#define MAXPLMOVE		(::g->forwardmove[1])
 #define TURBOTHRESHOLD	0x32
-#define SLOWTURNTICS	6 
-#define NUMKEYS		256 
+#define SLOWTURNTICS	6
+#define NUMKEYS		256
 #define	BODYQUESIZE	32
-#define VERSIONSIZE		16 
+#define VERSIONSIZE		16
 #define DEMOMARKER		0x80
-// g_game.defs end // 
-//  hu_lib.defs begin // 
+// g_game.defs end //
+//  hu_lib.defs begin //
 #define noterased ::g->viewwindowx
-// hu_lib.defs end // 
-//  hu_stuff.defs begin // 
+// hu_lib.defs end //
+//  hu_stuff.defs begin //
 #define HU_TITLE	(mapnames[(::g->gameepisode-1)*9+::g->gamemap-1])
 #define HU_TITLE2	(mapnames2[::g->gamemap-1])
 #define HU_TITLEP	(mapnamesp[::g->gamemap-1])
@@ -140,8 +140,8 @@ If you have questions concerning this license or the applicable additional terms
 #define HU_INPUTWIDTH	64
 #define HU_INPUTHEIGHT	1
 #define QUEUESIZE		128
-// hu_stuff.defs end // 
-//  i_net.defs begin // 
+// hu_stuff.defs end //
+//  i_net.defs begin //
 // SMF
 /*
 #define ntohl(x) \
@@ -154,8 +154,8 @@ If you have questions concerning this license or the applicable additional terms
                               (((unsigned short int)(x) & 0xff00) >> 8))) \
 #define htonl(x) ntohl(x)
 #define htons(x) ntohs(x)
-// i_net.defs end // 
-//  i_net_xbox.defs begin // 
+// i_net.defs end //
+//  i_net_xbox.defs begin //
 #define ntohl(x) \
 	((unsigned long int)((((unsigned long int)(x) & 0x000000ffU) << 24) | \
 	(((unsigned long int)(x) & 0x0000ff00U) <<  8) | \
@@ -167,21 +167,21 @@ If you have questions concerning this license or the applicable additional terms
 
 #define htonl(x) ntohl(x)
 #define htons(x) ntohs(x)
-*/	  
+*/
 
 #define IPPORT_USERRESERVED	5000
-// i_net_xbox.defs end // 
-//  i_sound_xbox.defs begin // 
+// i_net_xbox.defs end //
+//  i_sound_xbox.defs begin //
 #define SAMPLECOUNT		512
 #define NUM_SOUNDBUFFERS		64
 #define BUFMUL                  4
 #define MIXBUFFERSIZE		(SAMPLECOUNT*BUFMUL)
-// i_sound_xbox.defs end // 
-//  i_video_xbox.defs begin // 
+// i_sound_xbox.defs end //
+//  i_video_xbox.defs begin //
 //#define TEXTUREWIDTH	512
 //#define TEXTUREHEIGHT	256
-// i_video_xbox.defs end // 
-//  mus2midi.defs begin // 
+// i_video_xbox.defs end //
+//  mus2midi.defs begin //
 #define MUSEVENT_KEYOFF	0
 #define MUSEVENT_KEYON	1
 #define MUSEVENT_PITCHWHEEL	2
@@ -190,46 +190,46 @@ If you have questions concerning this license or the applicable additional terms
 #define MUSEVENT_END	6
 #define MIDI_MAXCHANNELS	16
 #define MIDIHEADERSIZE 14
-// mus2midi.defs end // 
-//  m_menu.defs begin // 
+// mus2midi.defs end //
+//  m_menu.defs begin //
 #define SAVESTRINGSIZE 	64
 #define SKULLXOFF		-32
 #define LINEHEIGHT		16
-// m_menu.defs end // 
-//  p_enemy.defs begin // 
+// m_menu.defs end //
+//  p_enemy.defs begin //
 #define MAXSPECIALCROSS	8
 #define	FATSPREAD	(ANG90/8)
 #define	SKULLSPEED		(20*FRACUNIT)
-// p_enemy.defs end // 
-//  p_inter.defs begin // 
+// p_enemy.defs end //
+//  p_inter.defs begin //
 #define BONUSADD	6
-// p_inter.defs end // 
-//  p_map.defs begin // 
+// p_inter.defs end //
+//  p_map.defs begin //
 #define MAXSPECIALCROSS		8
-// p_map.defs end // 
-//  p_mobj.defs begin // 
+// p_map.defs end //
+//  p_mobj.defs begin //
 #define STOPSPEED		0x1000
 #define FRICTION		0xe800
-// p_mobj.defs end // 
-//  p_pspr.defs begin // 
+// p_mobj.defs end //
+//  p_pspr.defs begin //
 #define LOWERSPEED		FRACUNIT*6
 #define RAISESPEED		FRACUNIT*6
 #define WEAPONBOTTOM	128*FRACUNIT
 #define WEAPONTOP		32*FRACUNIT
-#define BFGCELLS		40		
-// p_pspr.defs end // 
-//  p_saveg.defs begin // 
+#define BFGCELLS		40
+// p_pspr.defs end //
+//  p_saveg.defs begin //
 #define PADSAVEP()	::g->save_p += (4 - ((intptr_t) ::g->save_p & 3)) & 3
-// p_saveg.defs end // 
-//  p_setup.defs begin // 
+// p_saveg.defs end //
+//  p_setup.defs begin //
 #define MAX_DEATHMATCH_STARTS	10
-// p_setup.defs end // 
-//  p_spec.defs begin // 
+// p_setup.defs end //
+//  p_spec.defs begin //
 #define MAXANIMS                32
 #define MAXLINEANIMS            64
 #define MAX_ADJOINING_SECTORS    	20
-// p_spec.defs end // 
-//  p_user.defs begin // 
+// p_spec.defs end //
+//  p_user.defs begin //
 #define INVERSECOLORMAP		32
 
 // DHM - NERVE :: MAXBOB reduced 25%
@@ -237,35 +237,35 @@ If you have questions concerning this license or the applicable additional terms
 #define MAXBOB	0xC0000
 
 #define ANG5   	(ANG90/18)
-// p_user.defs end // 
-//  r_bsp.defs begin // 
+// p_user.defs end //
+//  r_bsp.defs begin //
 #define MAXSEGS		32
-// r_bsp.defs end // 
-//  r_draw.defs begin // 
+// r_bsp.defs end //
+//  r_draw.defs begin //
 //#define MAXWIDTH			1120
 //#define MAXHEIGHT			832
 #define SBARHEIGHT		32 * GLOBAL_IMAGE_SCALER
-#define FUZZTABLE		50 
+#define FUZZTABLE		50
 #define FUZZOFF	(SCREENWIDTH)
-// r_draw.defs end // 
-//  r_main.defs begin // 
-#define FIELDOFVIEW		2048	
+// r_draw.defs end //
+//  r_main.defs begin //
+#define FIELDOFVIEW		2048
 #define DISTMAP		2
-// r_main.defs end // 
-//  r_plane.defs begin // 
+// r_main.defs end //
+//  r_plane.defs begin //
 //#define MAXVISPLANES	128
 #define MAXVISPLANES	384
 #define MAXOPENINGS	SCREENWIDTH*64
-// r_plane.defs end // 
-//  r_segs.defs begin // 
+// r_plane.defs end //
+//  r_segs.defs begin //
 #define HEIGHTBITS		12
 #define HEIGHTUNIT		(1<<HEIGHTBITS)
-// r_segs.defs end // 
-//  r_things.defs begin // 
+// r_segs.defs end //
+//  r_things.defs begin //
 #define MINZ				(FRACUNIT*4)
 #define BASEYCENTER			100
-// r_things.defs end // 
-//  st_stuff.defs begin // 
+// r_things.defs end //
+//  st_stuff.defs begin //
 #define STARTREDPALS		1
 #define STARTBONUSPALS		9
 #define NUMREDPALS			8
@@ -301,10 +301,10 @@ If you have questions concerning this license or the applicable additional terms
 #define ST_OUCHCOUNT		(1*TICRATE)
 #define ST_RAMPAGEDELAY		(2*TICRATE)
 #define ST_MUCHPAIN			20
-#define ST_AMMOWIDTH		3	
+#define ST_AMMOWIDTH		3
 #define ST_AMMOX			44
 #define ST_AMMOY			171
-#define ST_HEALTHWIDTH		3	
+#define ST_HEALTHWIDTH		3
 #define ST_HEALTHX			90
 #define ST_HEALTHY			171
 #define ST_ARMSX			111
@@ -314,7 +314,7 @@ If you have questions concerning this license or the applicable additional terms
 #define ST_ARMSXSPACE		12
 #define ST_ARMSYSPACE		10
 #define ST_FRAGSX			138
-#define ST_FRAGSY			171	
+#define ST_FRAGSY			171
 #define ST_FRAGSWIDTH		2
 #define ST_ARMORWIDTH		3
 #define ST_ARMORX			221
@@ -355,19 +355,19 @@ If you have questions concerning this license or the applicable additional terms
 #define ST_MAXAMMO3WIDTH		ST_MAXAMMO0WIDTH
 #define ST_MAXAMMO3X		314
 #define ST_MAXAMMO3Y		185
-#define ST_WEAPON0X			110 
+#define ST_WEAPON0X			110
 #define ST_WEAPON0Y			172
-#define ST_WEAPON1X			122 
+#define ST_WEAPON1X			122
 #define ST_WEAPON1Y			172
-#define ST_WEAPON2X			134 
+#define ST_WEAPON2X			134
 #define ST_WEAPON2Y			172
-#define ST_WEAPON3X			110 
+#define ST_WEAPON3X			110
 #define ST_WEAPON3Y			181
-#define ST_WEAPON4X			122 
+#define ST_WEAPON4X			122
 #define ST_WEAPON4Y			181
 #define ST_WEAPON5X			134
 #define ST_WEAPON5Y			181
-#define ST_WPNSX			109 
+#define ST_WPNSX			109
 #define ST_WPNSY			191
 #define ST_DETHX			109
 #define ST_DETHY			191
@@ -377,7 +377,7 @@ If you have questions concerning this license or the applicable additional terms
 #define ST_MSGHEIGHT		1
 #define ST_OUTTEXTX			0
 #define ST_OUTTEXTY			6
-#define ST_OUTWIDTH			52 
+#define ST_OUTWIDTH			52
 #define ST_OUTHEIGHT		1
 #define ST_MAPWIDTH	\
 	(strlen(mapnames[(::g->gameepisode-1)*9+(::g->gamemap-1)]))
@@ -385,8 +385,8 @@ If you have questions concerning this license or the applicable additional terms
 	(SCREENWIDTH - ST_MAPWIDTH * ST_CHATFONTWIDTH)
 #define ST_MAPTITLEY		0
 #define ST_MAPHEIGHT		1
-// st_stuff.defs end // 
-//  s_sound.defs begin // 
+// st_stuff.defs end //
+//  s_sound.defs begin //
 #define S_MAX_VOLUME		127
 #define S_CLIPPING_DIST		(1200*0x10000)
 #define S_CLOSE_DIST		(160*0x10000)
@@ -400,8 +400,8 @@ If you have questions concerning this license or the applicable additional terms
 #define S_IFRACVOL		30
 #define NA			0
 #define S_NUMCHANNELS		256
-// s_sound.defs end // 
-//  wi_stuff.defs begin // 
+// s_sound.defs end //
+//  wi_stuff.defs begin //
 #define NUMEPISODES	4
 #define NUMMAPS		9
 #define WI_TITLEY		2
@@ -425,18 +425,18 @@ If you have questions concerning this license or the applicable additional terms
 #define SP_KILLS		0
 #define SP_ITEMS		2
 #define SP_SECRET		4
-#define SP_FRAGS		6 
-#define SP_TIME			8 
+#define SP_FRAGS		6
+#define SP_TIME			8
 #define SP_PAR			ST_TIME
 #define SP_PAUSE		1
 #define SHOWNEXTLOCDELAY	4
-// wi_stuff.defs end // 
-//  w_wad.defs begin // 
+// wi_stuff.defs end //
+//  w_wad.defs begin //
 
-// w_wad.defs end // 
-//  z_zone.defs begin // 
+// w_wad.defs end //
+//  z_zone.defs begin //
 #define ZONEID	0x1d4a11
 #define NUM_ZONES 11
 #define MINFRAGMENT		64
 #define NO_SHARE_LUMPS
-// z_zone.defs end // 
+// z_zone.defs end //

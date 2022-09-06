@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,17 +42,19 @@ If you have questions concerning this license or the applicable additional terms
 // in the program's command line arguments.
 // Returns the argument number (1 to argc-1)
 // or 0 if not present
-int M_CheckParm (const char *check)
+int M_CheckParm( const char* check )
 {
-    int		i;
+	int		i;
 
-    for (i = 1; i < ::g->myargc; i++)
-    {
-		if ( !idStr::Icmp(check, ::g->myargv[i]) )
+	for( i = 1; i < ::g->myargc; i++ )
+	{
+		if( !idStr::Icmp( check, ::g->myargv[i] ) )
+		{
 			return i;
-    }
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
 

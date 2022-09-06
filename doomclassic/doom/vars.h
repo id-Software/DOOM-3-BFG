@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,10 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 // the all-important zone //
 memzone_t*	mainzone;
 
-idFile *	wadFileHandles[MAXWADFILES];
+idFile* 	wadFileHandles[MAXWADFILES];
 int		numWadFiles;
 
-//  am_map.vars begin // 
+//  am_map.vars begin //
 int 	cheating ;
 int 	grid ;
 int 	leveljuststarted ;
@@ -54,7 +54,7 @@ fixed_t 	m_x2, m_y2; // UR x,y where the window is on the map (map coords)
 fixed_t 	m_w;
 fixed_t	m_h;
 fixed_t 	min_x;
-fixed_t	min_y; 
+fixed_t	min_y;
 fixed_t 	max_x;
 fixed_t  max_y;
 fixed_t 	max_w; // max_x-min_x,
@@ -68,8 +68,8 @@ fixed_t old_m_x, old_m_y;
 mpoint_t f_oldloc;
 fixed_t scale_mtof ;
 fixed_t scale_ftom;
-player_t *amap_plr; // the player represented by an arrow
-patch_t *marknums[10]; // numbers used for marking by the automap
+player_t* amap_plr; // the player represented by an arrow
+patch_t* marknums[10]; // numbers used for marking by the automap
 mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
 int markpointnum ;
 int followplayer ;
@@ -81,19 +81,19 @@ int bigstate;
 char buffer[20];
 int nexttic ;
 int litelevelscnt ;
-// am_map.vars end // 
-//  doomlib.vars begin // 
+// am_map.vars end //
+//  doomlib.vars begin //
 fixed_t realoffset;
 fixed_t viewxoffset;
 fixed_t viewyoffset;
-// doomlib.vars end // 
-//  doomstat.vars begin // 
+// doomlib.vars end //
+//  doomstat.vars begin //
 GameMode_t gamemode ;
 int	gamemission ;
 Language_t   language ;
 qboolean	modifiedgame;
-// doomstat.vars end // 
-//  d_main.vars begin // 
+// doomstat.vars end //
+//  d_main.vars begin //
 qboolean		devparm;	// started game with -devparm
 qboolean         nomonsters;	// checkparm of -nomonsters
 qboolean         respawnparm;	// checkparm of -respawn
@@ -113,20 +113,20 @@ event_t         events[MAXEVENTS];
 int             eventhead;
 int 		eventtail;
 gamestate_t     wipegamestate ;
- qboolean		viewactivestate ;
- qboolean		menuactivestate ;
- qboolean		inhelpscreensstate ;
- qboolean		fullscreen ;
- int			borderdrawcount;
+qboolean		viewactivestate ;
+qboolean		menuactivestate ;
+qboolean		inhelpscreensstate ;
+qboolean		fullscreen ;
+int			borderdrawcount;
 qboolean			wipe ;
 int				wipestart;
 qboolean			wipedone;
 int             demosequence;
 int             pagetic;
-char                    *pagename;
+char*                    pagename;
 char            title[128];
-// d_main.vars end // 
-//  d_net.vars begin // 
+// d_main.vars end //
+//  d_net.vars begin //
 doomcom_t	doomcom;
 doomdata_t*	netbuffer;		// points inside doomcom
 ticcmd_t	localcmds[BACKUPTICS];
@@ -140,7 +140,7 @@ int		nodeforplayer[MAXPLAYERS];
 int             maketic;
 int		lastnettic;
 int		skiptics;
-int		ticdup;		
+int		ticdup;
 int		maxsend;	// BACKUPTICS/(2*ticdup)-1
 qboolean		reboundpacket;
 doomdata_t	reboundstore;
@@ -159,8 +159,8 @@ int		trt_realtics;
 int		trt_availabletics;
 int		trt_counts;
 int		trt_numplaying;
-// d_net.vars end // 
-//  f_finale.vars begin // 
+// d_net.vars end //
+//  f_finale.vars begin //
 int		finalestage;
 int		finalecount;
 int		castnum;
@@ -172,107 +172,107 @@ int		castonmelee;
 int		caststartmenu;
 qboolean		castattacking;
 int	laststage;
-// f_finale.vars end // 
-//  f_wipe.vars begin // 
+// f_finale.vars end //
+//  f_wipe.vars begin //
 qboolean	go ;
 byte*	wipe_scr_start;
 byte*	wipe_scr_end;
 byte*	wipe_scr;
-void *g_tempPointer;
+void* g_tempPointer;
 int*	wipe_y;
-// f_wipe.vars end // 
-//  g_game.vars begin // 
-gameaction_t    gameaction; 
+// f_wipe.vars end //
+//  g_game.vars begin //
+gameaction_t    gameaction;
 gamestate_t     gamestate;
 gamestate_t		oldgamestate;
-skill_t         gameskill; 
+skill_t         gameskill;
 qboolean		respawnmonsters;
-int             gameepisode; 
-int             gamemap; 
-qboolean         paused; 
-qboolean         sendpause;             	// send a pause event next tic 
-qboolean         sendsave;             	// send a save event next tic 
-qboolean         usergame;               // ok to save / end game 
-qboolean         timingdemo;             // if true, exit with report on completion 
-qboolean         nodrawers;              // for comparative timing purposes 
-qboolean         noblit;                 // for comparative timing purposes 
-int             starttime;          	// for comparative timing purposes  	 
-qboolean         viewactive; 
-qboolean         deathmatch;           	// only if started as net death 
-qboolean         netgame;                // only true if packets are broadcast 
-qboolean         playeringame[MAXPLAYERS]; 
-player_t        players[MAXPLAYERS]; 
-int             consoleplayer;          // player taking events and displaying 
-int             displayplayer;          // view being displayed 
-int             gametic; 
-int             levelstarttic;          // gametic at level start 
-int             totalkills, totalitems, totalsecret;    // for intermission 
-char            demoname[32]; 
+int             gameepisode;
+int             gamemap;
+qboolean         paused;
+qboolean         sendpause;             	// send a pause event next tic
+qboolean         sendsave;             	// send a save event next tic
+qboolean         usergame;               // ok to save / end game
+qboolean         timingdemo;             // if true, exit with report on completion
+qboolean         nodrawers;              // for comparative timing purposes
+qboolean         noblit;                 // for comparative timing purposes
+int             starttime;          	// for comparative timing purposes
+qboolean         viewactive;
+qboolean         deathmatch;           	// only if started as net death
+qboolean         netgame;                // only true if packets are broadcast
+qboolean         playeringame[MAXPLAYERS];
+player_t        players[MAXPLAYERS];
+int             consoleplayer;          // player taking events and displaying
+int             displayplayer;          // view being displayed
+int             gametic;
+int             levelstarttic;          // gametic at level start
+int             totalkills, totalitems, totalsecret;    // for intermission
+char            demoname[32];
 qboolean        demoplayback;
 qboolean        demorecording;
-qboolean		netdemo; 
+qboolean		netdemo;
 byte*		demobuffer;
 byte*		demo_p;
-byte*		demoend; 
-qboolean         singledemo;            	// quit after playing a demo from cmdline 
+byte*		demoend;
+qboolean         singledemo;            	// quit after playing a demo from cmdline
 qboolean         precache ;
-wbstartstruct_t wminfo;               	// parms for world map / intermission 
-short		consistancy[MAXPLAYERS][BACKUPTICS]; 
+wbstartstruct_t wminfo;               	// parms for world map / intermission
+short		consistancy[MAXPLAYERS][BACKUPTICS];
 byte*		savebuffer;
 int			savebufferSize;
 int             key_right;
 int		key_left;
 int		key_up;
-int		key_down; 
+int		key_down;
 int             key_strafeleft;
-int		key_straferight; 
+int		key_straferight;
 int             key_fire;
 int		key_use;
 int		key_strafe;
-int		key_speed; 
-int             mousebfire; 
-int             mousebstrafe; 
-int             mousebforward; 
-int             joybfire; 
-int             joybstrafe; 
-int             joybuse; 
-int             joybspeed; 
+int		key_speed;
+int             mousebfire;
+int             mousebstrafe;
+int             mousebforward;
+int             joybfire;
+int             joybstrafe;
+int             joybuse;
+int             joybspeed;
 fixed_t		forwardmove[2];
 fixed_t		sidemove[2];
 fixed_t		angleturn[3];
-qboolean         gamekeydown[NUMKEYS]; 
-int             turnheld;				// for accelerative turning 
-qboolean		mousearray[4]; 
+qboolean         gamekeydown[NUMKEYS];
+int             turnheld;				// for accelerative turning
+qboolean		mousearray[4];
 qboolean*	mousebuttons ;
 int             mousex;
-int		mousey;         
+int		mousey;
 int             dclicktime;
 int		dclickstate;
-int		dclicks; 
+int		dclicks;
 int             dclicktime2;
 int		dclickstate2;
 int		dclicks2;
 int             joyxmove;
 int		joyymove;
-qboolean         joyarray[5]; 
+qboolean         joyarray[5];
 qboolean*	joybuttons ;
-int		savegameslot; 
-char		savedescription[32]; 
-mobj_t*		bodyque[BODYQUESIZE]; 
-int		bodyqueslot; 
+int		savegameslot;
+char		savedescription[32];
+mobj_t*		bodyque[BODYQUESIZE];
+int		bodyqueslot;
 char turbomessage[80];
-qboolean		secretexit; 
+qboolean		secretexit;
 char	savename[256];
-skill_t	d_skill; 
-int     d_episode; 
-int     d_map; 
+skill_t	d_skill;
+int     d_episode;
+int     d_map;
 int		d_mission;
-char*	defdemoname; 
-// g_game.vars end // 
-//  hu_lib.vars begin // 
+char*	defdemoname;
+// g_game.vars end //
+//  hu_lib.vars begin //
 qboolean	lastautomapactive ;
-// hu_lib.vars end // 
-//  hu_stuff.vars begin // 
+// hu_lib.vars end //
+//  hu_stuff.vars begin //
 char			chat_char; // remove later.
 player_t*	plr;
 patch_t*		hu_font[HU_FONTSIZE];
@@ -291,60 +291,60 @@ qboolean		headsupactive ;
 char	chatchars[QUEUESIZE];
 int	head ;
 int	tail ;
-char		lastmessage[HU_MAXLINELENGTH+1];
+char		lastmessage[HU_MAXLINELENGTH + 1];
 qboolean	shiftdown ;
 qboolean	altdown ;
 int		num_nobrainers ;
-// hu_stuff.vars end // 
-//  i_input.vars begin // 
+// hu_stuff.vars end //
+//  i_input.vars begin //
 InputEvent mouseEvents[2];
 InputEvent joyEvents[18];
-// i_input.vars end // 
-//  i_net_xbox.vars begin // 
+// i_input.vars end //
+//  i_net_xbox.vars begin //
 int			sendsocket;
 int			insocket;
 //struct	sockaddr_in	sendaddress[MAXNETNODES];
-// i_net_xbox.vars end // 
-//  i_system.vars begin // 
+// i_net_xbox.vars end //
+//  i_system.vars begin //
 int	mb_used ;
 ticcmd_t	emptycmd;
 int current_time ;
-// i_system.vars end // 
-//  i_video_xbox.vars begin // 
+// i_system.vars end //
+//  i_video_xbox.vars begin //
 
 unsigned int	XColorMap[256];
-unsigned int *ImageBuff;
-unsigned int *ImageBuffs[2];
+unsigned int* ImageBuff;
+unsigned int* ImageBuffs[2];
 
-// i_video_xbox.vars end // 
-//  m_argv.vars begin // 
+// i_video_xbox.vars end //
+//  m_argv.vars begin //
 int		myargc;
 char**		myargv;
-// m_argv.vars end // 
-//  m_cheat.vars begin // 
+// m_argv.vars end //
+//  m_cheat.vars begin //
 int		firsttime ;
 unsigned char	cheat_xlate_table[256];
 unsigned char cheatbuffer[256];
 int usedcheatbuffer ;
-// m_cheat.vars end // 
-//  m_menu.vars begin // 
+// m_cheat.vars end //
+//  m_menu.vars begin //
 int			mouseSensitivity;       // has default
 int			showMessages;
-int			detailLevel;		
+int			detailLevel;
 int			screenblocks;		// has default
-int			screenSize;		
-int			quickSaveSlot;          
+int			screenSize;
+int			quickSaveSlot;
 int			messageToPrint;
-char*			messageString;		
-int			messx;			
+char*			messageString;
+int			messx;
 int			messy;
 int			messageLastMenuActive;
-qboolean			messageNeedsInput;     
+qboolean			messageNeedsInput;
 messageRoutine_t messageRoutine;
-int			saveStringEnter;              
+int			saveStringEnter;
 int             	saveSlot;	// which slot to save in
 int			saveCharIndex;	// which char we're editing
-char			saveOldString[SAVESTRINGSIZE];  
+char			saveOldString[SAVESTRINGSIZE];
 qboolean			inhelpscreens;
 qboolean			menuactive;
 char			savegamestrings[10][SAVESTRINGSIZE];
@@ -353,7 +353,7 @@ char	endstring[160];
 short		itemOn;			// menu item skull is on
 short		skullAnimCounter;	// skull animation counter
 short		whichSkull;		// which skull to draw
-menu_t*	currentMenu;                          
+menu_t*	currentMenu;
 menuitem_t MainMenu[5];
 menu_t  QuitDef;
 menuitem_t QuitMenu[3];
@@ -379,19 +379,19 @@ int     epi;
 int     exp;
 int     quitsounds[8];
 int     quitsounds2[8];
- int     joywait ;
- int     mousewait ;
- int     mmenu_mousey ;
- int     lasty ;
- int     mmenu_mousex ;
- int     lastx ;
+int     joywait ;
+int     mousewait ;
+int     mmenu_mousey ;
+int     lasty ;
+int     mmenu_mousex ;
+int     lastx ;
 short	md_x;
 short	md_y;
-// m_menu.vars end // 
-//  m_misc.vars begin // 
-const char * g_pszSaveFile ;
-const char * g_pszImagePath ;
-const char * g_pszImageMeta ;
+// m_menu.vars end //
+//  m_misc.vars begin //
+const char* g_pszSaveFile ;
+const char* g_pszImagePath ;
+const char* g_pszImageMeta ;
 int		usemouse;
 int		usejoystick;
 char*		mousetype;
@@ -399,15 +399,15 @@ char*		mousedev;
 default_t	defaults[35];
 int	numdefaults;
 const char*	defaultfile;
-// m_misc.vars end // 
-//  m_random.vars begin // 
+// m_misc.vars end //
+//  m_random.vars begin //
 int	rndindex ;
 int	prndindex ;
-// m_random.vars end // 
-//  p_ceilng.vars begin // 
+// m_random.vars end //
+//  p_ceilng.vars begin //
 ceiling_t*	activeceilings[MAXCEILINGS];
-// p_ceilng.vars end // 
-//  p_enemy.vars begin // 
+// p_ceilng.vars end //
+//  p_enemy.vars begin //
 mobj_t*		soundtarget;
 int	TRACEANGLE ;
 mobj_t*		corpsehit;
@@ -418,8 +418,8 @@ mobj_t*		braintargets[32];
 int		numbraintargets;
 int		braintargeton;
 int	easy ;
-// p_enemy.vars end // 
-//  p_map.vars begin // 
+// p_enemy.vars end //
+//  p_map.vars begin //
 fixed_t		tmbbox[4];
 mobj_t*		tmthing;
 int		tmflags;
@@ -441,7 +441,7 @@ fixed_t		tmxmove;
 fixed_t		tmymove;
 mobj_t*		linetarget;	// who got hit (or NULL)
 mobj_t*		shootthing;
-fixed_t		shootz;	
+fixed_t		shootz;
 int		la_damage;
 fixed_t		attackrange;
 fixed_t		aimslope;
@@ -451,8 +451,8 @@ mobj_t*		bombspot;
 int		bombdamage;
 qboolean		crushchange;
 qboolean		nofit;
-// p_map.vars end // 
-//  p_maputl.vars begin // 
+// p_map.vars end //
+//  p_maputl.vars begin //
 fixed_t opentop;
 fixed_t openbottom;
 fixed_t openrange;
@@ -462,26 +462,26 @@ intercept_t*	intercept_p;
 divline_t 	trace;
 qboolean 	earlyout;
 int		ptflags;
-// p_maputl.vars end // 
-//  p_mobj.vars begin // 
+// p_maputl.vars end //
+//  p_mobj.vars begin //
 int test;
 mapthing_t	itemrespawnque[ITEMQUESIZE];
 int		itemrespawntime[ITEMQUESIZE];
 int		iquehead;
 int		iquetail;
-// p_mobj.vars end // 
-//  p_plats.vars begin // 
+// p_mobj.vars end //
+//  p_plats.vars begin //
 plat_t*		activeplats[MAXPLATS];
-// p_plats.vars end // 
-//  p_pspr.vars begin // 
+// p_plats.vars end //
+//  p_pspr.vars begin //
 fixed_t		swingx;
 fixed_t		swingy;
 fixed_t		bulletslope;
-// p_pspr.vars end // 
-//  p_saveg.vars begin // 
+// p_pspr.vars end //
+//  p_saveg.vars begin //
 byte*		save_p;
-// p_saveg.vars end // 
-//  p_setup.vars begin // 
+// p_saveg.vars end //
+//  p_setup.vars begin //
 int		numvertexes;
 vertex_t*	vertexes;
 int		numsegs;
@@ -499,15 +499,15 @@ side_t*		sides;
 int		bmapwidth;
 int		bmapheight;	// size in mapblocks
 short*		blockmap;	// int for larger maps
-short*		blockmaplump;		
+short*		blockmaplump;
 fixed_t		bmaporgx;
 fixed_t		bmaporgy;
-mobj_t**	blocklinks;		
+mobj_t**	blocklinks;
 mapthing_t	deathmatchstarts[MAX_DEATHMATCH_STARTS];
 mapthing_t*	deathmatch_p;
 mapthing_t	playerstarts[MAXPLAYERS];
-// p_setup.vars end // 
-//  p_sight.vars begin // 
+// p_setup.vars end //
+//  p_sight.vars begin //
 fixed_t		sightzstart;		// eye z of looker
 fixed_t		topslope;
 fixed_t		bottomslope;		// slopes to top and bottom of target
@@ -515,8 +515,8 @@ divline_t	strace;			// from t1 to t2
 fixed_t		t2x;
 fixed_t		t2y;
 int		sightcounts[2];
-// p_sight.vars end // 
-//  p_spec.vars begin // 
+// p_sight.vars end //
+//  p_spec.vars begin //
 anim_t2		anims[MAXANIMS];
 anim_t2*		lastanim;
 qboolean		levelTimer;
@@ -524,20 +524,20 @@ int		levelTimeCount;
 int		levelFragCount;
 short		numlinespecials;
 line_t*		linespeciallist[MAXLINEANIMS];
-// p_spec.vars end // 
-//  p_switch.vars begin // 
+// p_spec.vars end //
+//  p_switch.vars begin //
 int		switchlist[MAXSWITCHES * 2];
 int		numswitches;
 button_t        buttonlist[MAXBUTTONS];
-// p_switch.vars end // 
-//  p_tick.vars begin // 
+// p_switch.vars end //
+//  p_tick.vars begin //
 int	leveltime;
 thinker_t	thinkercap;
-// p_tick.vars end // 
-//  p_user.vars begin // 
+// p_tick.vars end //
+//  p_user.vars begin //
 qboolean		onground;
-// p_user.vars end // 
-//  r_bsp.vars begin // 
+// p_user.vars end //
+//  r_bsp.vars begin //
 seg_t*		curline;
 side_t*		sidedef;
 line_t*		linedef;
@@ -548,8 +548,8 @@ drawseg_t*	ds_p;
 cliprange_t*	newend;
 cliprange_t	solidsegs[MAXSEGS];
 int	checkcoord[12][4];
-// r_bsp.vars end // 
-//  r_data.vars begin // 
+// r_bsp.vars end //
+//  r_data.vars begin //
 int		firstflat;
 int		lastflat;
 int		numflats;
@@ -561,48 +561,48 @@ int		lastspritelump;
 int		numspritelumps;
 int*		flattranslation;
 int*		texturetranslation;
-fixed_t*	spritewidth;	
+fixed_t*	spritewidth;
 fixed_t*	spriteoffset;
 fixed_t*	spritetopoffset;
-lighttable_t	*colormaps;
+lighttable_t*	colormaps;
 int		flatmemory;
 int		texturememory;
 int		spritememory;
-// r_data.vars end // 
-//  r_draw.vars begin // 
-byte*		viewimage; 
+// r_data.vars end //
+//  r_draw.vars begin //
+byte*		viewimage;
 int		viewwidth;
 int		scaledviewwidth;
 int		viewheight;
 int		viewwindowx;
-int		viewwindowy; 
-byte*		ylookup[MAXHEIGHT]; 
-int		columnofs[MAXWIDTH]; 
-byte		translations[3][256];	
-lighttable_t*		dc_colormap; 
-int			dc_x; 
-int			dc_yl; 
-int			dc_yh; 
-fixed_t			dc_iscale; 
+int		viewwindowy;
+byte*		ylookup[MAXHEIGHT];
+int		columnofs[MAXWIDTH];
+byte		translations[3][256];
+lighttable_t*		dc_colormap;
+int			dc_x;
+int			dc_yl;
+int			dc_yh;
+fixed_t			dc_iscale;
 fixed_t			dc_texturemid;
-byte*			dc_source;		
+byte*			dc_source;
 int			dccount;
 int	fuzzoffset[FUZZTABLE];
 int	fuzzpos ;
 byte*	dc_translation;
 byte*	translationtables;
-int			ds_y; 
-int			ds_x1; 
+int			ds_y;
+int			ds_x1;
 int			ds_x2;
-lighttable_t*		ds_colormap; 
-fixed_t			ds_xfrac; 
-fixed_t			ds_yfrac; 
-fixed_t			ds_xstep; 
+lighttable_t*		ds_colormap;
+fixed_t			ds_xfrac;
+fixed_t			ds_yfrac;
+fixed_t			ds_xstep;
 fixed_t			ds_ystep;
-byte*			ds_source;	
+byte*			ds_source;
 int			dscount;
-// r_draw.vars end // 
-//  r_main.vars begin // 
+// r_draw.vars end //
+//  r_main.vars begin //
 int			viewangleoffset;
 int			validcount ;
 lighttable_t*		fixedcolormap;
@@ -611,7 +611,7 @@ int			centery;
 fixed_t			centerxfrac;
 fixed_t			centeryfrac;
 fixed_t			projection;
-int			framecount;	
+int			framecount;
 int			sscount;
 int			linecount;
 int			loopcount;
@@ -622,19 +622,19 @@ angle_t			viewangle;
 fixed_t			viewcos;
 fixed_t			viewsin;
 player_t*		viewplayer;
-int			detailshift;	
+int			detailshift;
 angle_t			clipangle;
-int			viewangletox[FINEANGLES/2];
-angle_t			xtoviewangle[SCREENWIDTH+1];
+int			viewangletox[FINEANGLES / 2];
+angle_t			xtoviewangle[SCREENWIDTH + 1];
 lighttable_t*		scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t*		scalelightfixed[MAXLIGHTSCALE];
 lighttable_t*		zlight[LIGHTLEVELS][MAXLIGHTZ];
-int			extralight;			
+int			extralight;
 qboolean		setsizeneeded;
 int		setblocks;
 int		setdetail;
-// r_main.vars end // 
-//  r_plane.vars begin // 
+// r_main.vars end //
+//  r_plane.vars begin //
 planefunction_t		floorfunc;
 planefunction_t		ceilingfunc;
 short			openings[MAXOPENINGS];
@@ -653,17 +653,17 @@ fixed_t			cachedheight[SCREENHEIGHT];
 fixed_t			cacheddistance[SCREENHEIGHT];
 fixed_t			cachedxstep[SCREENHEIGHT];
 fixed_t			cachedystep[SCREENHEIGHT];
-// r_plane.vars end // 
-//  r_segs.vars begin // 
-qboolean		segtextured;	
-qboolean		markfloor;	
+// r_plane.vars end //
+//  r_segs.vars begin //
+qboolean		segtextured;
+qboolean		markfloor;
 qboolean		markceiling;
 qboolean		maskedtexture;
 int		toptexture;
 int		bottomtexture;
 int		midtexture;
 angle_t		rw_normalangle;
-int		rw_angle1;	
+int		rw_angle1;
 int		rw_x;
 int		rw_stopx;
 angle_t		rw_centerangle;
@@ -688,13 +688,13 @@ fixed_t		bottomfrac;
 fixed_t		bottomstep;
 lighttable_t**	walllights;
 short*		maskedtexturecol;
-// r_segs.vars end // 
-//  r_sky.vars begin // 
+// r_segs.vars end //
+//  r_sky.vars begin //
 int			skyflatnum;
 int			skytexture;
 int			skytexturemid;
-// r_sky.vars end // 
-//  r_things.vars begin // 
+// r_sky.vars end //
+//  r_things.vars begin //
 fixed_t		pspritescale;
 fixed_t		pspriteiscale;
 lighttable_t**	spritelights;
@@ -713,15 +713,15 @@ short*		mceilingclip;
 fixed_t		spryscale;
 fixed_t		sprtopscreen;
 vissprite_t	vsprsortedhead;
-// r_things.vars end // 
-//  sounds.vars begin // 
+// r_things.vars end //
+//  sounds.vars begin //
 musicinfo_t S_music[80];
-// sounds.vars end // 
-//  st_lib.vars begin // 
+// sounds.vars end //
+//  st_lib.vars begin //
 patch_t*		sttminus;
-// st_lib.vars end // 
-//  st_stuff.vars begin // 
-player_t*	plyr; 
+// st_lib.vars end //
+//  st_stuff.vars begin //
+player_t*	plyr;
 qboolean		st_firsttime;
 int		veryfirsttime ;
 int		lu_palette;
@@ -733,9 +733,9 @@ qboolean		st_statusbaron;
 qboolean		st_chat;
 qboolean		st_oldchat;
 qboolean		st_cursoron;
-qboolean		st_notdeathmatch; 
+qboolean		st_notdeathmatch;
 qboolean		st_armson;
-qboolean		st_fragson; 
+qboolean		st_fragson;
 patch_t*		sbar; // AffLANHACK IGNORE
 patch_t*		tallnum[10]; // AffLANHACK IGNORE
 patch_t*		tallpercent; // AffLANHACK IGNORE
@@ -748,21 +748,21 @@ patch_t*		arms[6][2];  // AffLANHACK IGNORE
 st_number_t	w_ready;
 st_number_t	w_frags;
 st_percent_t	w_health;
-st_binicon_t	w_armsbg; 
+st_binicon_t	w_armsbg;
 st_multicon_t	w_arms[6];
-st_multicon_t	w_faces; 
+st_multicon_t	w_faces;
 st_multicon_t	w_keyboxes[3];
 st_percent_t	w_armor;
 st_number_t	w_ammo[4];
-st_number_t	w_maxammo[4]; 
+st_number_t	w_maxammo[4];
 int	st_fragscount;
 int	st_oldhealth ;
-qboolean	oldweaponsowned[NUMWEAPONS]; 
+qboolean	oldweaponsowned[NUMWEAPONS];
 int	st_facecount ;
 int	st_faceindex ;
-int	keyboxes[3]; 
-int	st_randomnumber;  
-cheatseq_t	cheat_powerup[7]; 
+int	keyboxes[3];
+int	st_randomnumber;
+cheatseq_t	cheat_powerup[7];
 int	lastcalc;
 int	oldhealth ;
 int	lastattackdown ;
@@ -770,21 +770,21 @@ int	priority ;
 int	largeammo ;
 int st_palette ;
 qboolean	st_stopped ;
-// st_stuff.vars end // 
-//  s_sound.vars begin // 
+// st_stuff.vars end //
+//  s_sound.vars begin //
 channel_t*	channels;
-qboolean		mus_paused;	
+qboolean		mus_paused;
 qboolean		mus_looping;
 musicinfo_t*	mus_playing;
-int			numChannels;	
+int			numChannels;
 int		nextcleanup;
-// s_sound.vars end // 
-//  v_video.vars begin // 
-byte*				screens[5];	
-int				dirtybox[4]; 
+// s_sound.vars end //
+//  v_video.vars begin //
+byte*				screens[5];
+int				dirtybox[4];
 int	usegamma;
-// v_video.vars end // 
-//  wi_stuff.vars begin // 
+// v_video.vars end //
+//  wi_stuff.vars begin //
 anim_t epsd0animinfo[10];
 anim_t epsd1animinfo[9];
 anim_t epsd2animinfo[6];
@@ -795,16 +795,16 @@ int acceleratestage;
 int me;
 stateenum_t state;
 wbstartstruct_t* wbs;
-int cnt;  
+int cnt;
 int bcnt;
-int firstrefresh; 
+int firstrefresh;
 int cnt_kills[MAXPLAYERS];
 int cnt_items[MAXPLAYERS];
 int cnt_secret[MAXPLAYERS];
 int cnt_time;
 int cnt_par;
 int cnt_pause;
-int NUMCMAPS; 
+int NUMCMAPS;
 patch_t* colon;
 qboolean		snl_pointeron ;
 int		dm_state;
@@ -814,15 +814,15 @@ int	cnt_frags[MAXPLAYERS];
 int	dofrags;
 int	ng_state;
 int	sp_state;
-// wi_stuff.vars end // 
-//  w_wad.vars begin // 
+// wi_stuff.vars end //
+//  w_wad.vars begin //
 int			reloadlump;
-// w_wad.vars end // 
-//  z_zone.vars begin // 
-int sizes[NUM_ZONES+1];
-memzone_t*	zones[NUM_ZONES+1] ;        // SRS - Added +1 so NUM_ZONES index is not beyond end of array
+// w_wad.vars end //
+//  z_zone.vars begin //
+int sizes[NUM_ZONES + 1];
+memzone_t*	zones[NUM_ZONES + 1] ;      // SRS - Added +1 so NUM_ZONES index is not beyond end of array
 int NumAlloc ;
-// z_zone.vars end // 
+// z_zone.vars end //
 // info vars begin //
 state_t	states[NUMSTATES];
 // info vars end //
@@ -833,7 +833,7 @@ byte*		rejectmatrix;
 int		s_numtextures;
 texture_t**	s_textures;
 int*			s_texturewidthmask;
-// needed for texture pegging 
+// needed for texture pegging
 fixed_t*		s_textureheight;
 short**			s_texturecolumnlump;
 unsigned short**	s_texturecolumnofs;
@@ -841,41 +841,41 @@ byte**			s_texturecomposite;
 int*			s_texturecompositesize;
 // r_data end //
 // r_plane begin //
-visplane_t		visplanes[MAXVISPLANES]; 
-visplane_t*		lastvisplane; 
-visplane_t*		floorplane; 
-visplane_t*		ceilingplane; 
+visplane_t		visplanes[MAXVISPLANES];
+visplane_t*		lastvisplane;
+visplane_t*		floorplane;
+visplane_t*		ceilingplane;
 // r_plane end //
 
 // wi_stuff
 // background (map of levels).
-patch_t* bg; 
+patch_t* bg;
 
 // You Are Here graphic
-patch_t* yah[2];  
+patch_t* yah[2];
 
 // splat
-patch_t* splat; 
+patch_t* splat;
 
 // %, : graphics
-patch_t* percent; 
+patch_t* percent;
 
 // 0-9 graphic
-patch_t* num[10]; 
+patch_t* num[10];
 
 // minus sign
-patch_t* wiminus; 
+patch_t* wiminus;
 
 // "Finished!" graphics
-patch_t* finished; 
+patch_t* finished;
 
 // "Entering" graphic
-patch_t* entering;  
+patch_t* entering;
 
 // "secret"
-patch_t* sp_secret; 
+patch_t* sp_secret;
 
- // "Kills", "Scrt", "Items", "Frags"
+// "Kills", "Scrt", "Items", "Frags"
 patch_t* kills;
 patch_t* secret;
 patch_t* items;
@@ -888,7 +888,7 @@ patch_t* sucks;
 
 // "killers", "victims"
 patch_t* killers;
-patch_t* victims; 
+patch_t* victims;
 
 // "Total", your face, your dead face
 patch_t* total;
@@ -901,7 +901,7 @@ patch_t* wistuff_p[MAXPLAYERS];
 // "gray P[1..MAXPLAYERS]"
 patch_t* wistuff_bp[MAXPLAYERS];
 
- // Name graphics of each level (centered)
+// Name graphics of each level (centered)
 patch_t** lnames;
 
 const char*		spritename;

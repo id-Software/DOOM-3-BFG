@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -96,21 +96,21 @@ extern lighttable_t*	fixedcolormap;
 // Blocky/low detail mode.
 //B remove this?
 //  0 = high, 1 = low
-extern	int		detailshift;	
+extern	int		detailshift;
 
 
 //
 // Function pointers to switch refresh/drawing functions.
 // Used to select shadow mode etc.
 //
-extern void		(*colfunc) ( lighttable_t * ds_colormap,
-						byte * ds_source );
-extern void		(*basecolfunc) ( lighttable_t * ds_colormap,
-						byte * ds_source );
-extern void		(*fuzzcolfunc) ( lighttable_t * ds_colormap,
-						byte * ds_source );
+extern void	( *colfunc )( lighttable_t* ds_colormap,
+						  byte* ds_source );
+extern void	( *basecolfunc )( lighttable_t* ds_colormap,
+							  byte* ds_source );
+extern void	( *fuzzcolfunc )( lighttable_t* ds_colormap,
+							  byte* ds_source );
 // No shadow effects on floors.
-extern void		(*spanfunc) (
+extern void	( *spanfunc )(
 	fixed_t xfrac,
 	fixed_t yfrac,
 	fixed_t ds_y,
@@ -118,8 +118,8 @@ extern void		(*spanfunc) (
 	int ds_x2,
 	fixed_t ds_xstep,
 	fixed_t ds_ystep,
-	lighttable_t * ds_colormap,
-	byte * ds_source );
+	lighttable_t* ds_colormap,
+	byte* ds_source );
 
 
 //
@@ -154,7 +154,7 @@ R_PointToDist
   fixed_t	y );
 
 
-fixed_t R_ScaleFromGlobalAngle (angle_t visangle);
+fixed_t R_ScaleFromGlobalAngle( angle_t visangle );
 
 subsector_t*
 R_PointInSubsector
@@ -174,13 +174,13 @@ R_AddPointToBox
 //
 
 // Called by G_Drawer.
-void R_RenderPlayerView (player_t *player);
+void R_RenderPlayerView( player_t* player );
 
 // Called by startup code.
-void R_Init (void);
+void R_Init( void );
 
 // Called by M_Responder.
-void R_SetViewSize (int blocks, int detail);
+void R_SetViewSize( int blocks, int detail );
 
 #endif
 

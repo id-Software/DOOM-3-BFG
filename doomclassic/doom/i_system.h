@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,16 +33,16 @@ If you have questions concerning this license or the applicable additional terms
 #include "d_event.h"
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
 // Called by DoomMain.
-void I_Init (void);
+void I_Init( void );
 
 // Called by D_DoomLoop,
 // returns current time in tics.
-int I_GetTime (void);
+int I_GetTime( void );
 
 
 //
@@ -53,7 +53,7 @@ int I_GetTime (void);
 // are performed here (joystick reading).
 // Can call D_PostEvent.
 //
-void I_StartFrame (void);
+void I_StartFrame( void );
 
 
 //
@@ -71,17 +71,17 @@ void I_StartFrame (void);
 // or calls a loadable driver to build it.
 // This ticcmd will then be modified by the gameloop
 // for normal input.
-ticcmd_t* I_BaseTiccmd (void);
+ticcmd_t* I_BaseTiccmd( void );
 
 
 // Called by M_Responder when quit is selected.
 // Clean exit, displays sell blurb.
-void I_Quit (void);
+void I_Quit( void );
 
 
-void I_Error (const char *error, ...);
-void I_Printf(const char *error, ...);
-void I_PrintfE(const char *error, ...);
+void I_Error( const char* error, ... );
+void I_Printf( const char* error, ... );
+void I_PrintfE( const char* error, ... );
 
 
 #endif
