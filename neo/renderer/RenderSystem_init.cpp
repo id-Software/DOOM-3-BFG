@@ -998,18 +998,59 @@ bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nv
 	uint16_t* data = static_cast<uint16_t*>( pData );
 	uint16_t* outData = static_cast<uint16_t*>( floatRGB16F );
 
+#if 0
 	for( int i = 0; i < ( desc.width * desc.height ); i++ )
 	{
 		outData[ i * 3 + 0 ] = F32toF16( 1 );
 		outData[ i * 3 + 1 ] = F32toF16( 0 );
 		outData[ i * 3 + 2 ] = F32toF16( 0 );
 	}
+#endif
 
 	for( int i = 0; i < ( desc.width * desc.height ); i++ )
 	{
 		outData[ i * 3 + 0 ] = data[ i * 4 + 0 ];
 		outData[ i * 3 + 1 ] = data[ i * 4 + 1 ];
 		outData[ i * 3 + 2 ] = data[ i * 4 + 2 ];
+	}
+
+	// RB: filter out garbage and reset it to black
+	// this is a rare case but with a high visual impact
+	bool isCorrupted = false;
+
+	const idVec3 LUMINANCE_LINEAR( 0.299f, 0.587f, 0.144f );
+	idVec3 rgb;
+
+	for( int i = 0; i < ( desc.width * desc.height ); i++ )
+	{
+		rgb.x = F16toF32( outData[ i * 3 + 0 ] );
+		rgb.y = F16toF32( outData[ i * 3 + 1 ] );
+		rgb.z = F16toF32( outData[ i * 3 + 2 ] );
+
+		if( IsNAN( rgb.x ) || IsNAN( rgb.y ) || IsNAN( rgb.z ) )
+		{
+			isCorrupted = true;
+			break;
+		}
+
+		// captures within the Doom 3 main campaign usually have a luminance of ~ 0.5 - 4.0
+		// the threshold is a bit higher and might need to be adapted for total conversion content
+		float luminance = rgb * LUMINANCE_LINEAR;
+		if( luminance > 20.0f )
+		{
+			isCorrupted = true;
+			break;
+		}
+	}
+
+	if( isCorrupted )
+	{
+		for( int i = 0; i < ( desc.width * desc.height ); i++ )
+		{
+			outData[ i * 3 + 0 ] = F32toF16( 0 );
+			outData[ i * 3 + 1 ] = F32toF16( 0 );
+			outData[ i * 3 + 2 ] = F32toF16( 0 );
+		}
 	}
 
 	if( newData )
@@ -1020,7 +1061,7 @@ bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nv
 
 	device->unmapStagingTexture( stagingTexture );
 
-	return true;
+	return ( !isCorrupted );
 }
 
 /*

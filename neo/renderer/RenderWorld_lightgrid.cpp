@@ -1283,15 +1283,25 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 							byte* floatRGB16F = NULL;
 
+#if 0
+							// this probe fails in game/admin.map
+							if( a == 5 && tr.lightGridJobs.Num() == 17 && side == 4 )
+							{
+								idLib::Printf( "debugging shitty capture\n" );
+							}
+#endif
+							//bool validCapture =
 							R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, &floatRGB16F, captureSize, captureSize );
 
 							// release all in-flight references to the render targets
 							//deviceManager->GetDevice()->runGarbageCollection();
-
 #if 0
-							idStr testName;
-							testName.Format( "env/test/area%i_envprobe_%i_side_%i.exr", a, tr.lightGridJobs.Num(), side );
-							R_WriteEXR( testName, floatRGB16F, 3, captureSize, captureSize, "fs_basepath" );
+							if( !validCapture )
+							{
+								idStr testName;
+								testName.Format( "env/test/area%i_envprobe_%i_side_%i.exr", a, tr.lightGridJobs.Num(), side );
+								R_WriteEXR( testName, floatRGB16F, 3, captureSize, captureSize, "fs_basepath" );
+							}
 #endif
 
 #else
