@@ -52,6 +52,7 @@ public:
 	void			Event_PlayBackgroundMusic();
 
 private:
+	void			SetMusicTrack();
 
 	idStr			musicTrack;
 

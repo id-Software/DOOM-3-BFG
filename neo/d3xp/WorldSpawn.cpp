@@ -72,9 +72,107 @@ void idWorldspawn::Spawn()
 	g_gravity.SetFloat( spawnArgs.GetFloat( "gravity", va( "%f", DEFAULT_GRAVITY ) ) );
 
 	// RB: start some background music Quake style
+	SetMusicTrack();
+
+	// disable stamina on hell levels
+	if( spawnArgs.GetBool( "no_stamina" ) )
+	{
+		pm_stamina.SetFloat( 0.0f );
+	}
+
+	// load script
+	scriptname = gameLocal.GetMapName();
+	scriptname.SetFileExtension( ".script" );
+	if( fileSystem->ReadFile( scriptname, NULL, NULL ) > 0 )
+	{
+		gameLocal.program.CompileFile( scriptname );
+
+		// call the main function by default
+		func = gameLocal.program.FindFunction( "main" );
+		if( func != NULL )
+		{
+			thread = new idThread( func );
+			thread->DelayedStart( 0 );
+		}
+	}
+
+	// call any functions specified in worldspawn
+	kv = spawnArgs.MatchPrefix( "call" );
+	while( kv != NULL )
+	{
+		func = gameLocal.program.FindFunction( kv->GetValue() );
+		if( func == NULL )
+		{
+			gameLocal.Error( "Function '%s' not found in script for '%s' key on worldspawn", kv->GetValue().c_str(), kv->GetKey().c_str() );
+		}
+
+		thread = new idThread( func );
+		thread->DelayedStart( 0 );
+		kv = spawnArgs.MatchPrefix( "call", kv );
+	}
+}
+
+/*
+=================
+idWorldspawn::Save
+=================
+*/
+void idWorldspawn::Save( idSaveGame* savefile )
+{
+}
+
+/*
+=================
+idWorldspawn::Restore
+=================
+*/
+void idWorldspawn::Restore( idRestoreGame* savefile )
+{
+	assert( gameLocal.world == this );
+
+	g_gravity.SetFloat( spawnArgs.GetFloat( "gravity", va( "%f", DEFAULT_GRAVITY ) ) );
+
+	// RB: start some background music Quake style
+	SetMusicTrack();
+
+	// disable stamina on hell levels
+	if( spawnArgs.GetBool( "no_stamina" ) )
+	{
+		pm_stamina.SetFloat( 0.0f );
+	}
+}
+
+/*
+================
+idWorldspawn::~idWorldspawn
+================
+*/
+idWorldspawn::~idWorldspawn()
+{
+	if( gameLocal.world == this )
+	{
+		gameLocal.world = NULL;
+	}
+}
+
+/*
+================
+idWorldspawn::Event_Remove
+================
+*/
+void idWorldspawn::Event_Remove()
+{
+	gameLocal.Error( "Tried to remove world" );
+}
+
+// RB begin
+void idWorldspawn::SetMusicTrack()
+{
 	idStr music = spawnArgs.GetString( "music", "" );
 	if( music != "" )
 	{
+		musicTrack = music;
+
 		// play it after a few seconds
 		PostEventSec( &EV_PlayBackgroundMusic, 3 );
 	}
@@ -180,96 +278,8 @@ void idWorldspawn::Spawn()
 		fileSystem->FreeFileList( soundTracks );
 	}
 	// RB end
-
-	// disable stamina on hell levels
-	if( spawnArgs.GetBool( "no_stamina" ) )
-	{
-		pm_stamina.SetFloat( 0.0f );
-	}
-
-	// load script
-	scriptname = gameLocal.GetMapName();
-	scriptname.SetFileExtension( ".script" );
-	if( fileSystem->ReadFile( scriptname, NULL, NULL ) > 0 )
-	{
-		gameLocal.program.CompileFile( scriptname );
-
-		// call the main function by default
-		func = gameLocal.program.FindFunction( "main" );
-		if( func != NULL )
-		{
-			thread = new idThread( func );
-			thread->DelayedStart( 0 );
-		}
-	}
-
-	// call any functions specified in worldspawn
-	kv = spawnArgs.MatchPrefix( "call" );
-	while( kv != NULL )
-	{
-		func = gameLocal.program.FindFunction( kv->GetValue() );
-		if( func == NULL )
-		{
-			gameLocal.Error( "Function '%s' not found in script for '%s' key on worldspawn", kv->GetValue().c_str(), kv->GetKey().c_str() );
-		}
-
-		thread = new idThread( func );
-		thread->DelayedStart( 0 );
-		kv = spawnArgs.MatchPrefix( "call", kv );
-	}
 }
 
-/*
-=================
-idWorldspawn::Save
-=================
-*/
-void idWorldspawn::Save( idSaveGame* savefile )
-{
-}
-
-/*
-=================
-idWorldspawn::Restore
-=================
-*/
-void idWorldspawn::Restore( idRestoreGame* savefile )
-{
-	assert( gameLocal.world == this );
-
-	g_gravity.SetFloat( spawnArgs.GetFloat( "gravity", va( "%f", DEFAULT_GRAVITY ) ) );
-
-	// disable stamina on hell levels
-	if( spawnArgs.GetBool( "no_stamina" ) )
-	{
-		pm_stamina.SetFloat( 0.0f );
-	}
-}
-
-/*
-================
-idWorldspawn::~idWorldspawn
-================
-*/
-idWorldspawn::~idWorldspawn()
-{
-	if( gameLocal.world == this )
-	{
-		gameLocal.world = NULL;
-	}
-}
-
-/*
-================
-idWorldspawn::Event_Remove
-================
-*/
-void idWorldspawn::Event_Remove()
-{
-	gameLocal.Error( "Tried to remove world" );
-}
-
-// RB begin
 void idWorldspawn::Event_PlayBackgroundMusic()
 {
 	if( !musicTrack.IsEmpty() )
