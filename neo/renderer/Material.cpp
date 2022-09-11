@@ -1275,6 +1275,11 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 			cubeMap = CF_CAMERA;
 			continue;
 		}
+		if( !token.Icmp( "quakeCubeMap" ) )
+		{
+			cubeMap = CF_QUAKE1;
+			continue;
+		}
 		if( !token.Icmp( "cubeMapSingle" ) )
 		{
 			cubeMap = CF_SINGLE;
@@ -1809,6 +1814,14 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			str = R_ParsePastImageProgram( src );
 			idStr::Copynz( imageName, str, sizeof( imageName ) );
 			cubeMap = CF_CAMERA;
+			continue;
+		}
+
+		if( !token.Icmp( "quakeCubeMap" ) )
+		{
+			str = R_ParsePastImageProgram( src );
+			idStr::Copynz( imageName, str, sizeof( imageName ) );
+			cubeMap = CF_QUAKE1;
 			continue;
 		}
 
