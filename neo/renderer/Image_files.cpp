@@ -1538,6 +1538,9 @@ Loads six files with proper extensions
 bool R_LoadCubeImages( const char* imgName, cubeFiles_t extensions, byte* pics[6], int* outSize, ID_TIME_T* timestamp, int cubeMapSize )
 {
 	int		i, j;
+	const char*	quakeSides[6] =  { "_ft.tga", "_bk.tga", "_lf.tga", "_rt.tga",
+								   "_up.tga", "_dn.tga"
+								 };
 	const char*	cameraSides[6] =  { "_forward.tga", "_back.tga", "_left.tga", "_right.tga",
 									"_up.tga", "_down.tga"
 								  };
@@ -1551,6 +1554,10 @@ bool R_LoadCubeImages( const char* imgName, cubeFiles_t extensions, byte* pics[6
 	if( extensions == CF_CAMERA )
 	{
 		sides = cameraSides;
+	}
+	else if( extensions == CF_QUAKE1 )
+	{
+		sides = quakeSides;
 	}
 	else
 	{

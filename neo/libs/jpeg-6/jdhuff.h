@@ -13,9 +13,9 @@
 /* Short forms of external names for systems with brain-damaged linkers. */
 
 #ifdef NEED_SHORT_EXTERNAL_NAMES
-#define jpeg_make_d_derived_tbl	jMkDDerived
-#define jpeg_fill_bit_buffer	jFilBitBuf
-#define jpeg_huff_decode	jHufDecode
+	#define jpeg_make_d_derived_tbl	jMkDDerived
+	#define jpeg_fill_bit_buffer	jFilBitBuf
+	#define jpeg_huff_decode	jHufDecode
 #endif /* NEED_SHORT_EXTERNAL_NAMES */
 
 
@@ -23,28 +23,29 @@
 
 #define HUFF_LOOKAHEAD	8	/* # of bits of lookahead */
 
-typedef struct {
-  /* Basic tables: (element [0] of each array is unused) */
-  INT32 mincode[17];		/* smallest code of length k */
-  INT32 maxcode[18];		/* largest code of length k (-1 if none) */
-  /* (maxcode[17] is a sentinel to ensure jpeg_huff_decode terminates) */
-  int valptr[17];		/* huffval[] index of 1st symbol of length k */
+typedef struct
+{
+	/* Basic tables: (element [0] of each array is unused) */
+	INT32 mincode[17];		/* smallest code of length k */
+	INT32 maxcode[18];		/* largest code of length k (-1 if none) */
+	/* (maxcode[17] is a sentinel to ensure jpeg_huff_decode terminates) */
+	int valptr[17];		/* huffval[] index of 1st symbol of length k */
 
-  /* Link to public Huffman table (needed only in jpeg_huff_decode) */
-  JHUFF_TBL *pub;
+	/* Link to public Huffman table (needed only in jpeg_huff_decode) */
+	JHUFF_TBL* pub;
 
-  /* Lookahead tables: indexed by the next HUFF_LOOKAHEAD bits of
-   * the input data stream.  If the next Huffman code is no more
-   * than HUFF_LOOKAHEAD bits long, we can obtain its length and
-   * the corresponding symbol directly from these tables.
-   */
-  int look_nbits[1<<HUFF_LOOKAHEAD]; /* # bits, or 0 if too long */
-  UINT8 look_sym[1<<HUFF_LOOKAHEAD]; /* symbol, or unused */
+	/* Lookahead tables: indexed by the next HUFF_LOOKAHEAD bits of
+	 * the input data stream.  If the next Huffman code is no more
+	 * than HUFF_LOOKAHEAD bits long, we can obtain its length and
+	 * the corresponding symbol directly from these tables.
+	 */
+	int look_nbits[1 << HUFF_LOOKAHEAD]; /* # bits, or 0 if too long */
+	UINT8 look_sym[1 << HUFF_LOOKAHEAD]; /* symbol, or unused */
 } d_derived_tbl;
 
 /* Expand a Huffman table definition into the derived format */
-EXTERN void jpeg_make_d_derived_tbl JPP((j_decompress_ptr cinfo,
-				JHUFF_TBL * htbl, d_derived_tbl ** pdtbl));
+EXTERN void jpeg_make_d_derived_tbl JPP( ( j_decompress_ptr cinfo,
+		JHUFF_TBL* htbl, d_derived_tbl** pdtbl ) );
 
 
 /*
@@ -75,25 +76,27 @@ typedef INT32 bit_buf_type;	/* type of bit-extraction buffer */
  * because not all machines measure sizeof in 8-bit bytes.
  */
 
-typedef struct {		/* Bitreading state saved across MCUs */
-  bit_buf_type get_buffer;	/* current bit-extraction buffer */
-  int bits_left;		/* # of unused bits in it */
-  boolean printed_eod;		/* flag to suppress multiple warning msgs */
+typedef struct  		/* Bitreading state saved across MCUs */
+{
+	bit_buf_type get_buffer;	/* current bit-extraction buffer */
+	int bits_left;		/* # of unused bits in it */
+	boolean printed_eod;		/* flag to suppress multiple warning msgs */
 } bitread_perm_state;
 
-typedef struct {		/* Bitreading working state within an MCU */
-  /* current data source state */
-  const JOCTET * next_input_byte; /* => next byte to read from source */
-  size_t bytes_in_buffer;	/* # of bytes remaining in source buffer */
-  int unread_marker;		/* nonzero if we have hit a marker */
-  /* bit input buffer --- note these values are kept in register variables,
-   * not in this struct, inside the inner loops.
-   */
-  bit_buf_type get_buffer;	/* current bit-extraction buffer */
-  int bits_left;		/* # of unused bits in it */
-  /* pointers needed by jpeg_fill_bit_buffer */
-  j_decompress_ptr cinfo;	/* back link to decompress master record */
-  boolean * printed_eod_ptr;	/* => flag in permanent state */
+typedef struct  		/* Bitreading working state within an MCU */
+{
+	/* current data source state */
+	const JOCTET* next_input_byte;  /* => next byte to read from source */
+	size_t bytes_in_buffer;	/* # of bytes remaining in source buffer */
+	int unread_marker;		/* nonzero if we have hit a marker */
+	/* bit input buffer --- note these values are kept in register variables,
+	 * not in this struct, inside the inner loops.
+	 */
+	bit_buf_type get_buffer;	/* current bit-extraction buffer */
+	int bits_left;		/* # of unused bits in it */
+	/* pointers needed by jpeg_fill_bit_buffer */
+	j_decompress_ptr cinfo;	/* back link to decompress master record */
+	boolean* printed_eod_ptr;	/* => flag in permanent state */
 } bitread_working_state;
 
 /* Macros to declare and load/save bitread local variables. */
@@ -152,9 +155,9 @@ typedef struct {		/* Bitreading working state within an MCU */
 	(bits_left -= (nbits))
 
 /* Load up the bit buffer to a depth of at least nbits */
-EXTERN boolean jpeg_fill_bit_buffer JPP((bitread_working_state * state,
+EXTERN boolean jpeg_fill_bit_buffer JPP( ( bitread_working_state* state,
 		register bit_buf_type get_buffer, register int bits_left,
-		int nbits));
+		int nbits ) );
 
 
 /*
@@ -197,6 +200,6 @@ slowlabel: \
 }
 
 /* Out-of-line case for Huffman code fetching */
-EXTERN int jpeg_huff_decode JPP((bitread_working_state * state,
-		register bit_buf_type get_buffer, register int bits_left,
-		d_derived_tbl * htbl, int min_bits));
+EXTERN int jpeg_huff_decode JPP( ( bitread_working_state* state,
+								   register bit_buf_type get_buffer, register int bits_left,
+								   d_derived_tbl* htbl, int min_bits ) );

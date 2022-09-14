@@ -27,41 +27,44 @@
  */
 
 GLOBAL void
-jpeg_create_compress( j_compress_ptr cinfo ) {
-    int i;
+jpeg_create_compress( j_compress_ptr cinfo )
+{
+	int i;
 
-    /* For debugging purposes, zero the whole master structure.
-     * But error manager pointer is already there, so save and restore it.
-     */
-    {
-        struct jpeg_error_mgr * err = cinfo->err;
-        MEMZERO( cinfo, SIZEOF( struct jpeg_compress_struct ) );
-        cinfo->err = err;
-    }
-    cinfo->is_decompressor = FALSE;
+	/* For debugging purposes, zero the whole master structure.
+	 * But error manager pointer is already there, so save and restore it.
+	 */
+	{
+		struct jpeg_error_mgr* err = cinfo->err;
+		MEMZERO( cinfo, SIZEOF( struct jpeg_compress_struct ) );
+		cinfo->err = err;
+	}
+	cinfo->is_decompressor = FALSE;
 
-    /* Initialize a memory manager instance for this object */
-    jinit_memory_mgr( (j_common_ptr) cinfo );
+	/* Initialize a memory manager instance for this object */
+	jinit_memory_mgr( ( j_common_ptr ) cinfo );
 
-    /* Zero out pointers to permanent structures. */
-    cinfo->progress = NULL;
-    cinfo->dest = NULL;
+	/* Zero out pointers to permanent structures. */
+	cinfo->progress = NULL;
+	cinfo->dest = NULL;
 
-    cinfo->comp_info = NULL;
+	cinfo->comp_info = NULL;
 
-    for ( i = 0; i < NUM_QUANT_TBLS; i++ ) {
-        cinfo->quant_tbl_ptrs[i] = NULL;
-    }
+	for( i = 0; i < NUM_QUANT_TBLS; i++ )
+	{
+		cinfo->quant_tbl_ptrs[i] = NULL;
+	}
 
-    for ( i = 0; i < NUM_HUFF_TBLS; i++ ) {
-        cinfo->dc_huff_tbl_ptrs[i] = NULL;
-        cinfo->ac_huff_tbl_ptrs[i] = NULL;
-    }
+	for( i = 0; i < NUM_HUFF_TBLS; i++ )
+	{
+		cinfo->dc_huff_tbl_ptrs[i] = NULL;
+		cinfo->ac_huff_tbl_ptrs[i] = NULL;
+	}
 
-    cinfo->input_gamma = 1.0;/* in case application forgets */
+	cinfo->input_gamma = 1.0;/* in case application forgets */
 
-    /* OK, I'm ready */
-    cinfo->global_state = CSTATE_START;
+	/* OK, I'm ready */
+	cinfo->global_state = CSTATE_START;
 }
 
 
@@ -70,8 +73,9 @@ jpeg_create_compress( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_destroy_compress( j_compress_ptr cinfo ) {
-    jpeg_destroy( (j_common_ptr) cinfo );/* use common routine */
+jpeg_destroy_compress( j_compress_ptr cinfo )
+{
+	jpeg_destroy( ( j_common_ptr ) cinfo ); /* use common routine */
 }
 
 
@@ -81,8 +85,9 @@ jpeg_destroy_compress( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_abort_compress( j_compress_ptr cinfo ) {
-    jpeg_abort( (j_common_ptr) cinfo );/* use common routine */
+jpeg_abort_compress( j_compress_ptr cinfo )
+{
+	jpeg_abort( ( j_common_ptr ) cinfo ); /* use common routine */
 }
 
 
@@ -99,25 +104,31 @@ jpeg_abort_compress( j_compress_ptr cinfo ) {
  */
 
 GLOBAL void
-jpeg_suppress_tables( j_compress_ptr cinfo, boolean suppress ) {
-    int i;
-    JQUANT_TBL * qtbl;
-    JHUFF_TBL * htbl;
+jpeg_suppress_tables( j_compress_ptr cinfo, boolean suppress )
+{
+	int i;
+	JQUANT_TBL* qtbl;
+	JHUFF_TBL* htbl;
 
-    for ( i = 0; i < NUM_QUANT_TBLS; i++ ) {
-        if ( ( qtbl = cinfo->quant_tbl_ptrs[i] ) != NULL ) {
-            qtbl->sent_table = suppress;
-        }
-    }
+	for( i = 0; i < NUM_QUANT_TBLS; i++ )
+	{
+		if( ( qtbl = cinfo->quant_tbl_ptrs[i] ) != NULL )
+		{
+			qtbl->sent_table = suppress;
+		}
+	}
 
-    for ( i = 0; i < NUM_HUFF_TBLS; i++ ) {
-        if ( ( htbl = cinfo->dc_huff_tbl_ptrs[i] ) != NULL ) {
-            htbl->sent_table = suppress;
-        }
-        if ( ( htbl = cinfo->ac_huff_tbl_ptrs[i] ) != NULL ) {
-            htbl->sent_table = suppress;
-        }
-    }
+	for( i = 0; i < NUM_HUFF_TBLS; i++ )
+	{
+		if( ( htbl = cinfo->dc_huff_tbl_ptrs[i] ) != NULL )
+		{
+			htbl->sent_table = suppress;
+		}
+		if( ( htbl = cinfo->ac_huff_tbl_ptrs[i] ) != NULL )
+		{
+			htbl->sent_table = suppress;
+		}
+	}
 }
 
 
@@ -129,42 +140,51 @@ jpeg_suppress_tables( j_compress_ptr cinfo, boolean suppress ) {
  */
 
 GLOBAL void
-jpeg_finish_compress( j_compress_ptr cinfo ) {
-    JDIMENSION iMCU_row;
+jpeg_finish_compress( j_compress_ptr cinfo )
+{
+	JDIMENSION iMCU_row;
 
-    if ( ( cinfo->global_state == CSTATE_SCANNING ) ||
-        ( cinfo->global_state == CSTATE_RAW_OK ) ) {
-        /* Terminate first pass */
-        if ( cinfo->next_scanline < cinfo->image_height ) {
-            ERREXIT( cinfo, JERR_TOO_LITTLE_DATA );
-        }
-        ( *cinfo->master->finish_pass )( cinfo );
-    } else if ( cinfo->global_state != CSTATE_WRCOEFS ) {
-        ERREXIT1( cinfo, JERR_BAD_STATE, cinfo->global_state );
-    }
-    /* Perform any remaining passes */
-    while ( !cinfo->master->is_last_pass ) {
-        ( *cinfo->master->prepare_for_pass )( cinfo );
-        for ( iMCU_row = 0; iMCU_row < cinfo->total_iMCU_rows; iMCU_row++ ) {
-            if ( cinfo->progress != NULL ) {
-                cinfo->progress->pass_counter = (long) iMCU_row;
-                cinfo->progress->pass_limit = (long) cinfo->total_iMCU_rows;
-                ( *cinfo->progress->progress_monitor )( (j_common_ptr) cinfo );
-            }
-            /* We bypass the main controller and invoke coef controller directly;
-             * all work is being done from the coefficient buffer.
-             */
-            if ( !( *cinfo->coef->compress_data )( cinfo, (JSAMPIMAGE) NULL ) ) {
-                ERREXIT( cinfo, JERR_CANT_SUSPEND );
-            }
-        }
-        ( *cinfo->master->finish_pass )( cinfo );
-    }
-    /* Write EOI, do final cleanup */
-    ( *cinfo->marker->write_file_trailer )( cinfo );
-    ( *cinfo->dest->term_destination )( cinfo );
-    /* We can use jpeg_abort to release memory and reset global_state */
-    jpeg_abort( (j_common_ptr) cinfo );
+	if( ( cinfo->global_state == CSTATE_SCANNING ) ||
+			( cinfo->global_state == CSTATE_RAW_OK ) )
+	{
+		/* Terminate first pass */
+		if( cinfo->next_scanline < cinfo->image_height )
+		{
+			ERREXIT( cinfo, JERR_TOO_LITTLE_DATA );
+		}
+		( *cinfo->master->finish_pass )( cinfo );
+	}
+	else if( cinfo->global_state != CSTATE_WRCOEFS )
+	{
+		ERREXIT1( cinfo, JERR_BAD_STATE, cinfo->global_state );
+	}
+	/* Perform any remaining passes */
+	while( !cinfo->master->is_last_pass )
+	{
+		( *cinfo->master->prepare_for_pass )( cinfo );
+		for( iMCU_row = 0; iMCU_row < cinfo->total_iMCU_rows; iMCU_row++ )
+		{
+			if( cinfo->progress != NULL )
+			{
+				cinfo->progress->pass_counter = ( long ) iMCU_row;
+				cinfo->progress->pass_limit = ( long ) cinfo->total_iMCU_rows;
+				( *cinfo->progress->progress_monitor )( ( j_common_ptr ) cinfo );
+			}
+			/* We bypass the main controller and invoke coef controller directly;
+			 * all work is being done from the coefficient buffer.
+			 */
+			if( !( *cinfo->coef->compress_data )( cinfo, ( JSAMPIMAGE ) NULL ) )
+			{
+				ERREXIT( cinfo, JERR_CANT_SUSPEND );
+			}
+		}
+		( *cinfo->master->finish_pass )( cinfo );
+	}
+	/* Write EOI, do final cleanup */
+	( *cinfo->marker->write_file_trailer )( cinfo );
+	( *cinfo->dest->term_destination )( cinfo );
+	/* We can use jpeg_abort to release memory and reset global_state */
+	jpeg_abort( ( j_common_ptr ) cinfo );
 }
 
 
@@ -177,15 +197,17 @@ jpeg_finish_compress( j_compress_ptr cinfo ) {
 
 GLOBAL void
 jpeg_write_marker( j_compress_ptr cinfo, int marker,
-                   const JOCTET * dataptr, unsigned int datalen ) {
-    if ( ( cinfo->next_scanline != 0 ) ||
-        ( ( cinfo->global_state != CSTATE_SCANNING ) &&
-         ( cinfo->global_state != CSTATE_RAW_OK ) &&
-         ( cinfo->global_state != CSTATE_WRCOEFS ) ) ) {
-        ERREXIT1( cinfo, JERR_BAD_STATE, cinfo->global_state );
-    }
+				   const JOCTET* dataptr, unsigned int datalen )
+{
+	if( ( cinfo->next_scanline != 0 ) ||
+			( ( cinfo->global_state != CSTATE_SCANNING ) &&
+			  ( cinfo->global_state != CSTATE_RAW_OK ) &&
+			  ( cinfo->global_state != CSTATE_WRCOEFS ) ) )
+	{
+		ERREXIT1( cinfo, JERR_BAD_STATE, cinfo->global_state );
+	}
 
-    ( *cinfo->marker->write_any_marker )( cinfo, marker, dataptr, datalen );
+	( *cinfo->marker->write_any_marker )( cinfo, marker, dataptr, datalen );
 }
 
 
@@ -211,20 +233,22 @@ jpeg_write_marker( j_compress_ptr cinfo, int marker,
  */
 
 GLOBAL void
-jpeg_write_tables( j_compress_ptr cinfo ) {
-    if ( cinfo->global_state != CSTATE_START ) {
-        ERREXIT1( cinfo, JERR_BAD_STATE, cinfo->global_state );
-    }
+jpeg_write_tables( j_compress_ptr cinfo )
+{
+	if( cinfo->global_state != CSTATE_START )
+	{
+		ERREXIT1( cinfo, JERR_BAD_STATE, cinfo->global_state );
+	}
 
-    /* (Re)initialize error mgr and destination modules */
-    ( *cinfo->err->reset_error_mgr )( (j_common_ptr) cinfo );
-    ( *cinfo->dest->init_destination )( cinfo );
-    /* Initialize the marker writer ... bit of a crock to do it here. */
-    jinit_marker_writer( cinfo );
-    /* Write them tables! */
-    ( *cinfo->marker->write_tables_only )( cinfo );
-    /* And clean up. */
-    ( *cinfo->dest->term_destination )( cinfo );
-    /* We can use jpeg_abort to release memory. */
-    jpeg_abort( (j_common_ptr) cinfo );
+	/* (Re)initialize error mgr and destination modules */
+	( *cinfo->err->reset_error_mgr )( ( j_common_ptr ) cinfo );
+	( *cinfo->dest->init_destination )( cinfo );
+	/* Initialize the marker writer ... bit of a crock to do it here. */
+	jinit_marker_writer( cinfo );
+	/* Write them tables! */
+	( *cinfo->marker->write_tables_only )( cinfo );
+	/* And clean up. */
+	( *cinfo->dest->term_destination )( cinfo );
+	/* We can use jpeg_abort to release memory. */
+	jpeg_abort( ( j_common_ptr ) cinfo );
 }
