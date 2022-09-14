@@ -1800,6 +1800,7 @@ void idRenderBackend::ClearCaches()
 
 	currentVertexBuffer = nullptr;
 	currentIndexBuffer = nullptr;
+	currentJointBuffer = nullptr;
 	currentIndexOffset = -1;
 	currentVertexOffset = -1;
 	currentBindingLayout = nullptr;

@@ -1018,6 +1018,15 @@ static void R_CreateEnvprobeImage_UAC_lobby_radiance( idImage* image, nvrhi::ICo
 
 // RB end
 
+static void R_GuiEditFunction( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( nullptr, 640, 480, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true, false, 1 );
+}
+
+static void R_GuiEditDepthStencilFunction( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( nullptr, 640, 480, TF_NEAREST, TR_CLAMP, TD_DEPTH_STENCIL, nullptr, true, false, 1 );
+}
 
 /*
 ================
@@ -1127,6 +1136,9 @@ void idImageManager::CreateIntrinsicImages()
 	defaultUACRadianceCube = ImageFromFunction( "_defaultUACRadiance", R_CreateEnvprobeImage_UAC_lobby_radiance );
 #endif
 	// RB end
+
+	guiEdit = ImageFromFunction( "_guiEdit", R_GuiEditFunction );
+	guiEditDepthStencilImage = ImageFromFunction( "_guiEditDepthStencil", R_GuiEditDepthStencilFunction );
 
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );
 	release_assert( hellLoadingIconImage->referencedOutsideLevelLoad );

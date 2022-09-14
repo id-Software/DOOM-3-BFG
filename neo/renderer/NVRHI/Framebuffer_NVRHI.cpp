@@ -104,14 +104,14 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 	// RB: FIXME I think allocating new Framebuffers lead to a memory leak
 	framebuffers.DeleteContents( true );
 
-	uint32_t backBufferCount = deviceManager->GetBackBufferCount();
-	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );
-	globalFramebuffers.swapFramebuffers.SetNum( backBufferCount );
-
 	if( reloadImages )
 	{
 		ReloadImages();
 	}
+
+	uint32_t backBufferCount = deviceManager->GetBackBufferCount();
+	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );
+	globalFramebuffers.swapFramebuffers.SetNum( backBufferCount );
 
 	for( uint32_t index = 0; index < backBufferCount; index++ )
 	{
@@ -205,6 +205,11 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 				.addColorAttachment( globalImages->bloomRenderImage[i]->texture ) );
 	}
 
+	globalFramebuffers.guiRenderTargetFBO = new Framebuffer( "_guiEdit",
+			nvrhi::FramebufferDesc()
+			.addColorAttachment( globalImages->guiEdit->texture )
+			.setDepthAttachment( globalImages->guiEditDepthStencilImage->texture ) );
+
 	Framebuffer::Unbind();
 }
 
@@ -237,6 +242,7 @@ void Framebuffer::ReloadImages()
 	{
 		globalImages->bloomRenderImage[i]->Reload( false, tr.backend.commandList );
 	}
+	globalImages->guiEdit->Reload( false, tr.backend.commandList );
 	tr.backend.commandList->close();
 	deviceManager->GetDevice()->executeCommandList( tr.backend.commandList );
 }

@@ -113,7 +113,7 @@ public:
 	idScreenRect			GetViewPortInfo() const;
 
 private:
-	idStr					fboName;
+	idStr						fboName;
 
 	// FBO object
 	uint32_t					frameBuffer;
@@ -157,6 +157,7 @@ struct globalFramebuffers_t
 	Framebuffer*				geometryBufferFBO;
 	Framebuffer*				smaaEdgesFBO;
 	Framebuffer*				smaaBlendFBO;
+	Framebuffer*				guiRenderTargetFBO;
 };
 
 extern globalFramebuffers_t globalFramebuffers;

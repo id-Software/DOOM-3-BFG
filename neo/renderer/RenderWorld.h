@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -253,6 +254,7 @@ typedef struct renderView_s
 	idVec3					vieworg_weapon;		// has already been adjusted for stereo world seperation
 	idMat3					viewaxis;			// transformation matrix, view looks down the positive X axis
 
+//	idPlane                 clipPlane;			// SP
 	bool					cramZNear;			// for cinematics, we want to set ZNear much lower
 	bool					flipProjection;
 	bool					forceUpdate;		// for an update

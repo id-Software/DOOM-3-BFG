@@ -354,7 +354,7 @@ with a callback which must work at any time, allowing the OpenGL
 system to be completely regenerated if needed.
 ==================
 */
-idImage* idImageManager::ImageFromFunction( const char* _name, void ( *generatorFunction )( idImage* image, nvrhi::ICommandList* commandList ) )
+idImage* idImageManager::ImageFromFunction( const char* _name, ImageGeneratorFunction generatorFunction )
 {
 
 	// strip any .tga file extensions from anywhere in the _name

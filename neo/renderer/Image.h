@@ -284,6 +284,7 @@ ID_INLINE idDeferredImage::~idDeferredImage()
 	}
 }
 
+typedef void ( *ImageGeneratorFunction )( idImage* image, nvrhi::ICommandList* commandList );
 
 #include "BinaryImage.h"
 
@@ -509,12 +510,12 @@ private:
 	void				SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
 
 	// parameters that define this image
-	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
-	cubeFiles_t			cubeFiles;				// If this is a cube map, and if so, what kind
-	int                 cubeMapSize;
-	void	( *generatorFunction )( idImage* image, nvrhi::ICommandList* commandList );	// NULL for files
-	textureUsage_t		usage;					// Used to determine the type of compression to use
-	idImageOpts			opts;					// Parameters that determine the storage method
+	idStr					imgName;			// game path, including extension (except for cube maps), may be an image program
+	cubeFiles_t				cubeFiles;			// If this is a cube map, and if so, what kind
+	int						cubeMapSize;
+	ImageGeneratorFunction	generatorFunction;	// NULL for files
+	textureUsage_t			usage;				// Used to determine the type of compression to use
+	idImageOpts				opts;				// Parameters that determine the storage method
 
 	// Sampler settings
 	textureFilter_t		filter;
@@ -615,7 +616,7 @@ public:
 
 	// The callback will be issued immediately, and later if images are reloaded or vid_restart
 	// The callback function should call one of the idImage::Generate* functions to fill in the data
-	idImage* 			ImageFromFunction( const char* name, void ( *generatorFunction )( idImage* image, nvrhi::ICommandList* commandList ) );
+	idImage* 			ImageFromFunction( const char* name, ImageGeneratorFunction generatorFunction );
 
 	// scratch images are for internal renderer use.  ScratchImage names should always begin with an underscore
 	idImage* 			ScratchImage( const char* name, idImageOpts* imgOpts, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
@@ -705,6 +706,8 @@ public:
 	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
 	idImage* 			loadingIconImage;				// loading icon must exist always
 	idImage* 			hellLoadingIconImage;			// loading icon must exist always
+	idImage*			guiEdit;						// SP: GUI editor image
+	idImage*			guiEditDepthStencilImage;		// SP: Gui-editor image depth-stencil
 
 	//--------------------------------------------------------
 
