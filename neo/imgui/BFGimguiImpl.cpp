@@ -249,8 +249,6 @@ bool Init( int windowWidth, int windowHeight )
 	g_DisplaySize.y = windowHeight;
 	io.DisplaySize = g_DisplaySize;
 
-	io.RenderDrawListsFn = idRenderBackend::ImGui_RenderDrawLists;
-
 	// RB: FIXME double check
 	io.SetClipboardTextFn = SetClipboardText;
 	io.GetClipboardTextFn = GetClipboardText;
@@ -434,9 +432,8 @@ void Render()
 			ImGui::ShowDemoWindow();
 		}
 
-		//ImGui::End();
-
 		ImGui::Render();
+		idRenderBackend::ImGui_RenderDrawLists( ImGui::GetDrawData() );
 		g_haveNewFrame = false;
 	}
 }

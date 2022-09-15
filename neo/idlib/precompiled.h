@@ -157,10 +157,8 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // The editor entry points are always declared, but may just be
 // stubbed out on non-windows platforms.
-//#if defined(USE_MFC_TOOLS) || defined(USE_QT_TOOLS) || defined(USE_GTK_TOOLS)
 #include "../imgui/ImGui_Hooks.h"
 #include "../tools/edit_public.h"
-//#endif
 
 #include "../tools/compilers/compiler_public.h"
 

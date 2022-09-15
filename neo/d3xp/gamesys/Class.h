@@ -297,7 +297,6 @@ public:
 	static void					ListClasses_f( const idCmdArgs& args );
 	// RB begin
 	static void					ExportScriptEvents_f( const idCmdArgs& args );
-	static void					EditLights_f( const idCmdArgs& args );
 	// RB end
 	static idClass* 			CreateInstance( const char* name );
 	static int					GetNumTypes()
