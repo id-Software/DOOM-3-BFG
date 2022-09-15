@@ -1,10 +1,10 @@
 // [DEAR IMGUI]
-// This is a slightly modified version of stb_textedit.h 1.13.
+// This is a slightly modified version of stb_textedit.h 1.14.
 // Those changes would need to be pushed into nothings/stb:
 // - Fix in stb_textedit_discard_redo (see https://github.com/nothings/stb/issues/321)
 // Grep for [DEAR IMGUI] to find the changes.
 
-// stb_textedit.h - v1.13  - public domain - Sean Barrett
+// stb_textedit.h - v1.14  - public domain - Sean Barrett
 // Development of this library was sponsored by RAD Game Tools
 //
 // This C header file implements the guts of a multi-line text-editing
@@ -35,6 +35,7 @@
 //
 // VERSION HISTORY
 //
+//   1.14 (2021-07-11) page up/down, various fixes
 //   1.13 (2019-02-07) fix bug in undo size management
 //   1.12 (2018-01-29) user can change STB_TEXTEDIT_KEYTYPE, fix redo to avoid crash
 //   1.11 (2017-03-03) fix HOME on last line, dragging off single-line textfield
@@ -58,6 +59,7 @@
 //   Ulf Winklemann: move-by-word in 1.1
 //   Fabian Giesen: secondary key inputs in 1.5
 //   Martins Mozeiko: STB_TEXTEDIT_memmove in 1.6
+//   Louis Schnellbach: page up/down in 1.14
 //
 //   Bugfixes:
 //      Scott Graham
@@ -93,8 +95,8 @@
 //   moderate sizes. The undo system does no memory allocations, so
 //   it grows STB_TexteditState by the worst-case storage which is (in bytes):
 //
-//        [4 + 3 * sizeof(STB_TEXTEDIT_POSITIONTYPE)] * STB_TEXTEDIT_UNDOSTATE_COUNT
-//      +          sizeof(STB_TEXTEDIT_CHARTYPE)      * STB_TEXTEDIT_UNDOCHAR_COUNT
+//        [4 + 3 * sizeof(STB_TEXTEDIT_POSITIONTYPE)] * STB_TEXTEDIT_UNDOSTATECOUNT
+//      +          sizeof(STB_TEXTEDIT_CHARTYPE)      * STB_TEXTEDIT_UNDOCHARCOUNT
 //
 //
 // Implementation mode:
@@ -148,6 +150,8 @@
 //    STB_TEXTEDIT_K_RIGHT       keyboard input to move cursor right
 //    STB_TEXTEDIT_K_UP          keyboard input to move cursor up
 //    STB_TEXTEDIT_K_DOWN        keyboard input to move cursor down
+//    STB_TEXTEDIT_K_PGUP        keyboard input to move cursor up a page
+//    STB_TEXTEDIT_K_PGDOWN      keyboard input to move cursor down a page
 //    STB_TEXTEDIT_K_LINESTART   keyboard input to move cursor to start of line  // e.g. HOME
 //    STB_TEXTEDIT_K_LINEEND     keyboard input to move cursor to end of line    // e.g. END
 //    STB_TEXTEDIT_K_TEXTSTART   keyboard input to move cursor to start of text  // e.g. ctrl-HOME
@@ -170,14 +174,10 @@
 //    STB_TEXTEDIT_K_TEXTSTART2          secondary keyboard input to move cursor to start of text
 //    STB_TEXTEDIT_K_TEXTEND2            secondary keyboard input to move cursor to end of text
 //
-// Todo:
-//    STB_TEXTEDIT_K_PGUP        keyboard input to move cursor up a page
-//    STB_TEXTEDIT_K_PGDOWN      keyboard input to move cursor down a page
-//
 // Keyboard input must be encoded as a single integer value; e.g. a character code
 // and some bitflags that represent shift states. to simplify the interface, SHIFT must
 // be a bitflag, so we can test the shifted state of cursor movements to allow selection,
-// i.e. (STB_TEXTED_K_RIGHT|STB_TEXTEDIT_K_SHIFT) should be shifted right-arrow.
+// i.e. (STB_TEXTEDIT_K_RIGHT|STB_TEXTEDIT_K_SHIFT) should be shifted right-arrow.
 //
 // You can encode other things, such as CONTROL or ALT, in additional bits, and
 // then test for their presence in e.g. STB_TEXTEDIT_K_WORDLEFT. For example,
@@ -336,6 +336,10 @@ typedef struct
 	unsigned char insert_mode;
 	// each textfield keeps its own insert mode state. to keep an app-wide
 	// insert mode, copy this value in/out of the app state
+
+	int row_count_per_page;
+	// page size in number of row.
+	// this value MUST be set to >0 for pageup or pagedown in multilines documents.
 
 	/////////////////////
 	//
@@ -781,11 +785,7 @@ static int stb_textedit_paste_internal( STB_TEXTEDIT_STRING* str, STB_TexteditSt
 		state->has_preferred_x = 0;
 		return 1;
 	}
-	// remove the undo since we didn't actually insert the characters
-	if( state->undostate.undo_point )
-	{
-		--state->undostate.undo_point;
-	}
+	// note: paste failure will leave deleted selection, may be restored with an undo (see https://github.com/nothings/stb/issues/734 for details)
 	return 0;
 }
 
@@ -954,12 +954,16 @@ retry:
 
 		case STB_TEXTEDIT_K_DOWN:
 		case STB_TEXTEDIT_K_DOWN | STB_TEXTEDIT_K_SHIFT:
+		case STB_TEXTEDIT_K_PGDOWN:
+		case STB_TEXTEDIT_K_PGDOWN | STB_TEXTEDIT_K_SHIFT:
 		{
 			StbFindState find;
 			StbTexteditRow row;
-			int i, sel = ( key & STB_TEXTEDIT_K_SHIFT ) != 0;
+			int i, j, sel = ( key & STB_TEXTEDIT_K_SHIFT ) != 0;
+			int is_page = ( key & ~STB_TEXTEDIT_K_SHIFT ) == STB_TEXTEDIT_K_PGDOWN;
+			int row_count = is_page ? state->row_count_per_page : 1;
 
-			if( state->single_line )
+			if( !is_page && state->single_line )
 			{
 				// on windows, up&down in single-line behave like left&right
 				key = STB_TEXTEDIT_K_RIGHT | ( key & STB_TEXTEDIT_K_SHIFT );
@@ -979,12 +983,24 @@ retry:
 			stb_textedit_clamp( str, state );
 			stb_textedit_find_charpos( &find, str, state->cursor, state->single_line );
 
-			// now find character position down a row
-			if( find.length )
+			for( j = 0; j < row_count; ++j )
 			{
-				float goal_x = state->has_preferred_x ? state->preferred_x : find.x;
-				float x;
+				float x, goal_x = state->has_preferred_x ? state->preferred_x : find.x;
 				int start = find.first_char + find.length;
+
+				if( find.length == 0 )
+				{
+					break;
+				}
+
+				// [DEAR IMGUI]
+				// going down while being on the last line shouldn't bring us to that line end
+				if( STB_TEXTEDIT_GETCHAR( str, find.first_char + find.length - 1 ) != STB_TEXTEDIT_NEWLINE )
+				{
+					break;
+				}
+
+				// now find character position down a row
 				state->cursor = start;
 				STB_TEXTEDIT_LAYOUTROW( &row, str, state->cursor );
 				x = row.x0;
@@ -1013,18 +1029,26 @@ retry:
 				{
 					state->select_end = state->cursor;
 				}
+
+				// go to next line
+				find.first_char = find.first_char + find.length;
+				find.length = row.num_chars;
 			}
 			break;
 		}
 
 		case STB_TEXTEDIT_K_UP:
 		case STB_TEXTEDIT_K_UP | STB_TEXTEDIT_K_SHIFT:
+		case STB_TEXTEDIT_K_PGUP:
+		case STB_TEXTEDIT_K_PGUP | STB_TEXTEDIT_K_SHIFT:
 		{
 			StbFindState find;
 			StbTexteditRow row;
-			int i, sel = ( key & STB_TEXTEDIT_K_SHIFT ) != 0;
+			int i, j, prev_scan, sel = ( key & STB_TEXTEDIT_K_SHIFT ) != 0;
+			int is_page = ( key & ~STB_TEXTEDIT_K_SHIFT ) == STB_TEXTEDIT_K_PGUP;
+			int row_count = is_page ? state->row_count_per_page : 1;
 
-			if( state->single_line )
+			if( !is_page && state->single_line )
 			{
 				// on windows, up&down become left&right
 				key = STB_TEXTEDIT_K_LEFT | ( key & STB_TEXTEDIT_K_SHIFT );
@@ -1044,12 +1068,17 @@ retry:
 			stb_textedit_clamp( str, state );
 			stb_textedit_find_charpos( &find, str, state->cursor, state->single_line );
 
-			// can only go up if there's a previous row
-			if( find.prev_first != find.first_char )
+			for( j = 0; j < row_count; ++j )
 			{
+				float  x, goal_x = state->has_preferred_x ? state->preferred_x : find.x;
+
+				// can only go up if there's a previous row
+				if( find.prev_first == find.first_char )
+				{
+					break;
+				}
+
 				// now find character position up a row
-				float goal_x = state->has_preferred_x ? state->preferred_x : find.x;
-				float x;
 				state->cursor = find.prev_first;
 				STB_TEXTEDIT_LAYOUTROW( &row, str, state->cursor );
 				x = row.x0;
@@ -1078,6 +1107,16 @@ retry:
 				{
 					state->select_end = state->cursor;
 				}
+
+				// go to previous line
+				// (we need to scan previous line the hard way. maybe we could expose this as a new API function?)
+				prev_scan = find.prev_first > 0 ? find.prev_first - 1 : 0;
+				while( prev_scan > 0 && STB_TEXTEDIT_GETCHAR( str, prev_scan - 1 ) != STB_TEXTEDIT_NEWLINE )
+				{
+					--prev_scan;
+				}
+				find.first_char = find.prev_first;
+				find.prev_first = prev_scan;
 			}
 			break;
 		}
@@ -1228,10 +1267,6 @@ retry:
 			state->has_preferred_x = 0;
 			break;
 		}
-
-// @TODO:
-//    STB_TEXTEDIT_K_PGUP      - move cursor up a page
-//    STB_TEXTEDIT_K_PGDOWN    - move cursor down a page
 	}
 }
 
@@ -1295,7 +1330,7 @@ static void stb_textedit_discard_redo( StbUndoState* state )
 				}
 		}
 		// now move all the redo records towards the end of the buffer; the first one is at 'redo_point'
-		// {DEAR IMGUI]
+		// [DEAR IMGUI]
 		size_t move_size = ( size_t )( ( STB_TEXTEDIT_UNDOSTATECOUNT - state->redo_point - 1 ) * sizeof( state->undo_rec[0] ) );
 		const char* buf_begin = ( char* )state->undo_rec;
 		( void )buf_begin;
@@ -1550,6 +1585,7 @@ static void stb_textedit_clear_state( STB_TexteditState* state, int is_single_li
 	state->initialized = 1;
 	state->single_line = ( unsigned char ) is_single_line;
 	state->insert_mode = 0;
+	state->row_count_per_page = 0;
 }
 
 // API initialize
