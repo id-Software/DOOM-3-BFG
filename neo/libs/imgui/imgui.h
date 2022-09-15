@@ -3700,4 +3700,7 @@ enum ImGuiKeyModFlags_ { ImGuiKeyModFlags_None = ImGuiModFlags_None, ImGuiKeyMod
 	#include "imgui_user.h"
 #endif
 
+// RB: added idlib idStr integration for string inputs
+#include "imgui_stdlib.h"
+
 #endif // #ifndef IMGUI_DISABLE
