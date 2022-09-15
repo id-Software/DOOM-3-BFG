@@ -157,6 +157,8 @@ void	DrawToolWindows();
 
 void	LightEditorInit( const idDict* dict, idEntity* entity );
 
+void	AfEditorInit();
+
 }
 
 #endif /* !__EDIT_PUBLIC_H__ */

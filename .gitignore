@@ -35,6 +35,7 @@ base/sound/
 base/strings/
 base/video/
 base/wads/
+base/renderprogs2/
 
 GPATH
 GRTAGS

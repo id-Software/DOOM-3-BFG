@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // *INDENT-OFF*
 #if USE_GPU_SKINNING
-StructuredBuffer<float4> matrices : register(t11);
+StructuredBuffer<float4> matrices : register( t11 );
 #endif
 
 struct VS_IN
