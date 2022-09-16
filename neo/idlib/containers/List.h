@@ -203,11 +203,11 @@ public:
 		memTag = ( byte )tag_;
 	};
 
-	/*
+	template<typename T>
 	struct Iterator
 	{
-		_type_* p;
-		_type_& operator*()
+		T* p;
+		T& operator*()
 		{
 			return *p;
 		}
@@ -223,14 +223,15 @@ public:
 
 	auto begin() const   // const version
 	{
-		return Iterator{list};
+		return Iterator<_type_>{list};
 	};
 	auto end() const   // const version
 	{
-		return Iterator{list + Num()};
+		return Iterator<_type_>{list + Num( )};
 	};
-	*/
+	
 
+	/*
 	// Begin/End methods for range-based for loops.
 	_type_* begin()
 	{
@@ -277,7 +278,7 @@ public:
 			return nullptr;
 		}
 	}
-
+	*/
 private:
 	int				num;
 	int				size;

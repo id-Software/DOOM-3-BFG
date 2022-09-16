@@ -54,7 +54,6 @@ public:
 	}
 	virtual ~parseType()
 	{
-		delete item;
 	}
 	T* item;
 };
