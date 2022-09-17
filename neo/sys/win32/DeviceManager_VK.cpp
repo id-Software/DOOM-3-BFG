@@ -163,7 +163,7 @@ private:
 		// device
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-			VK_KHR_MAINTENANCE1_EXTENSION_NAME
+			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 		},
 	};
 
@@ -397,10 +397,10 @@ bool DeviceManager_VK::createInstance()
 		return false;
 	}
 
-	common->Printf( "Enabled Vulkan instance extensions:" );
+	common->Printf( "Enabled Vulkan instance extensions:\n" );
 	for( const auto& ext : enabledExtensions.instance )
 	{
-		common->Printf( "    %s", ext.c_str() );
+		common->Printf( "    %s\n", ext.c_str() );
 	}
 
 	std::unordered_set<std::string> requiredLayers = enabledExtensions.layers;
@@ -429,10 +429,10 @@ bool DeviceManager_VK::createInstance()
 		return false;
 	}
 
-	common->Printf( "Enabled Vulkan layers:" );
+	common->Printf( "Enabled Vulkan layers:\n" );
 	for( const auto& layer : enabledExtensions.layers )
 	{
-		common->Printf( "    %s", layer.c_str() );
+		common->Printf( "    %s\n", layer.c_str() );
 	}
 
 	auto instanceExtVec = stringSetToVector( enabledExtensions.instance );
@@ -705,7 +705,7 @@ bool DeviceManager_VK::createDevice()
 	common->Printf( "Enabled Vulkan device extensions:" );
 	for( const auto& ext : enabledExtensions.device )
 	{
-		common->Printf( "    %s", ext.c_str() );
+		common->Printf( "    %s\n", ext.c_str() );
 
 		if( ext == VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME )
 		{
@@ -713,6 +713,7 @@ bool DeviceManager_VK::createDevice()
 		}
 		else if( ext == VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME )
 		{
+			// RB: only makes problems at the moment
 			bufferAddressSupported = true;
 		}
 		else if( ext == VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME )
@@ -946,7 +947,7 @@ bool DeviceManager_VK::createSwapChain()
 	m_SwapChainFormat =
 	{
 		vk::Format( nvrhi::vulkan::convertFormat( deviceParms.swapChainFormat ) ),
-		vk::ColorSpaceKHR::eSrgbNonlinear // SP: Does this matter this is non-linear srgb?
+		vk::ColorSpaceKHR::eSrgbNonlinear
 	};
 
 	vk::Extent2D extent = vk::Extent2D( deviceParms.backBufferWidth, deviceParms.backBufferHeight );

@@ -1434,6 +1434,10 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
+#if defined( USE_VK )
+	tr.SetReadyToPresent();
+#endif
+
 	renderLog.CloseMainBlock( MRB_GPU_TIME );
 
 	commandList->close();
@@ -1442,6 +1446,10 @@ void idRenderBackend::GL_EndFrame()
 
 	// update jitter for perspective matrix
 	taaPass->AdvanceFrame();
+
+#if defined( USE_VK )
+	//GL_BlockingSwapBuffers();
+#endif
 }
 
 /*

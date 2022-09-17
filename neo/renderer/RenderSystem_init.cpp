@@ -67,7 +67,7 @@ idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDE
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
 #if defined( USE_NVRHI )
 	#if defined( _WIN32 )
-		idCVar r_graphicsAPI( "r_graphicsAPI", "dx12", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
 	#else
 		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (vulkan)" );
 	#endif
@@ -2225,7 +2225,10 @@ void idRenderSystemLocal::Init()
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
 	envprobeJobList = parallelJobManager->AllocJobList( JOBLIST_UTILITY, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL ); // RB
 
-	bInitialized = true;
+#if defined( USE_VK )
+	// avoid GL_BlockingSwapBuffers
+	omitSwapBuffers = true;
+#endif
 
 	// make sure the command buffers are ready to accept the first screen update
 	SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );

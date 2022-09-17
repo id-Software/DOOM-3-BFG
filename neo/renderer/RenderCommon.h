@@ -994,6 +994,11 @@ public:
 		bInitialized = true;
 	}
 
+	void					SetReadyToPresent()
+	{
+		omitSwapBuffers = false;
+	}
+
 public:
 	// internal functions
 	idRenderSystemLocal();
@@ -1095,6 +1100,7 @@ public:
 
 private:
 	bool					bInitialized;
+	bool					omitSwapBuffers;
 };
 
 extern idRenderSystemLocal	tr;
