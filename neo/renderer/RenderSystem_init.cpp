@@ -65,9 +65,13 @@ glconfig_t	glConfig;
 
 idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDERER, "Ask for a stereo GL pixel format on startup" );
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
-idCVar r_glDriver( "r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc." );
-#if defined(USE_NVRHI)
-	idCVar r_gapi( "r_gapi", "dx12", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+#if defined( USE_NVRHI )
+	#if defined( _WIN32 )
+		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+	#else
+		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (vulkan)" );
+	#endif
+
 	idCVar r_useValidationLayers( "r_useValidationLayers", "1", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
 #endif
 // SRS - Added workaround for AMD OSX driver bugs caused by GL_EXT_timer_query when shadow mapping enabled; Intel bugs not present on OSX
@@ -513,11 +517,11 @@ void R_SetNewMode( const bool fullInit )
 
 #if defined( USE_NVRHI )
 			nvrhi::GraphicsAPI api = nvrhi::GraphicsAPI::D3D12;
-			if( !idStr::Icmp( r_gapi.GetString(), "vulkan" ) )
+			if( !idStr::Icmp( r_graphicsAPI.GetString(), "vulkan" ) )
 			{
 				api = nvrhi::GraphicsAPI::VULKAN;
 			}
-			else if( !idStr::Icmp( r_gapi.GetString(), "dx12" ) )
+			else if( !idStr::Icmp( r_graphicsAPI.GetString(), "dx12" ) )
 			{
 				api = nvrhi::GraphicsAPI::D3D12;
 			}

@@ -1109,7 +1109,6 @@ extern idCVar r_windowWidth;
 extern idCVar r_windowHeight;
 
 extern idCVar r_debugContext;				// enable various levels of context debug
-extern idCVar r_glDriver;					// "opengl32", etc
 #if defined(USE_NVRHI)
 	extern idCVar r_useValidationLayers;
 #endif
