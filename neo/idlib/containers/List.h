@@ -223,13 +223,13 @@ public:
 
 	auto begin() const   // const version
 	{
-		return Iterator<_type_>{list};
+		return Iterator<_type_> {list};
 	};
 	auto end() const   // const version
 	{
-		return Iterator<_type_>{list + Num( )};
+		return Iterator<_type_> {list + Num()};
 	};
-	
+
 
 	/*
 	// Begin/End methods for range-based for loops.
