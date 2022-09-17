@@ -3,4 +3,4 @@
 	url = https://github.com/KhronosGroup/glslang.git
 [submodule "neo/extern/nvrhi"]
 	path = neo/extern/nvrhi
-	url = https://github.com/stephenap07/nvrhi.git
+	url = https://github.com/RobertBeckebans/nvrhi.git

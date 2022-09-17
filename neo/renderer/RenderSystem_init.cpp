@@ -67,7 +67,7 @@ idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDE
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
 #if defined( USE_NVRHI )
 	#if defined( _WIN32 )
-		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+		idCVar r_graphicsAPI( "r_graphicsAPI", "dx12", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
 	#else
 		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (vulkan)" );
 	#endif
