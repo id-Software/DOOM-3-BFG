@@ -48,7 +48,7 @@ should we try and snap values very close to 0.5, 0.25, 0.125, etc ?
 
 #endif
 
-			static	idFile*	procFile;
+			static int c_totalObjVerts = 0;
 
 #define	AREANUM_DIFFERENT	-2
 /*
@@ -295,7 +295,7 @@ WriteUTriangles
 Writes text verts and indexes to procfile
 ====================
 */
-static void WriteUTriangles( const srfTriangles_t* uTris, const idVec3& offsetOrigin = vec3_origin )
+static void WriteUTriangles( idFile* procFile, const srfTriangles_t* uTris, const idVec3& offsetOrigin = vec3_origin )
 {
 	int			col;
 	int			i;
@@ -357,6 +357,67 @@ static void WriteUTriangles( const srfTriangles_t* uTris, const idVec3& offsetOr
 	}
 }
 
+// RB begin
+static void WriteObjTriangles( idFile* objFile, const srfTriangles_t* uTris, const idVec3& offsetOrigin, const char* materialName )
+{
+	int			col;
+	int			i;
+
+	// emit this chain
+	//procFile->WriteFloatString( "/* numVerts = */ %i /* numIndexes = */ %i\n",
+	//							uTris->numVerts, uTris->numIndexes );
+
+	// verts
+	col = 0;
+	for( i = 0 ; i < uTris->numVerts ; i++ )
+	{
+		float	vec[8];
+		const idDrawVert* dv;
+
+		dv = &uTris->verts[i];
+
+		vec[0] = dv->xyz[0] - offsetOrigin.x;
+		vec[1] = dv->xyz[1] - offsetOrigin.y;
+		vec[2] = dv->xyz[2] - offsetOrigin.z;
+
+		idVec2 st = dv->GetTexCoord();
+		vec[3] = st.x;
+		vec[4] = st.y;
+
+		idVec3 normal = dv->GetNormal();
+		vec[5] = normal.x;
+		vec[6] = normal.y;
+		vec[7] = normal.z;
+
+		//Write1DMatrix( procFile, 8, vec );
+		objFile->Printf( "v %1.6f %1.6f %1.6f\n", vec[0], vec[1], vec[2] );
+	}
+
+	// indexes
+
+	// flip order for OBJ
+	for( int j = 0; j < uTris->numIndexes; j += 3 )
+	{
+		objFile->Printf( "f %i/%i/%i %i/%i/%i %i/%i/%i\n",
+						 uTris->indexes[j + 2] + 1 + c_totalObjVerts,
+						 uTris->indexes[j + 2] + 1 + c_totalObjVerts,
+						 uTris->indexes[j + 2] + 1 + c_totalObjVerts,
+
+						 uTris->indexes[j + 1] + 1 + c_totalObjVerts,
+						 uTris->indexes[j + 1] + 1 + c_totalObjVerts,
+						 uTris->indexes[j + 1] + 1 + c_totalObjVerts,
+
+						 uTris->indexes[j + 0] + 1 + c_totalObjVerts,
+						 uTris->indexes[j + 0] + 1 + c_totalObjVerts,
+						 uTris->indexes[j + 0] + 1 + c_totalObjVerts );
+	}
+
+	c_totalObjVerts += uTris->numVerts;
+
+	objFile->Printf( "\n\n" );
+}
+// RB end
+
 
 /*
 =======================
@@ -384,7 +445,7 @@ static bool GroupsAreSurfaceCompatible( const optimizeGroup_t* a, const optimize
 WriteOutputSurfaces
 ====================
 */
-static void WriteOutputSurfaces( int entityNum, int areaNum )
+static void WriteOutputSurfaces( int entityNum, int areaNum, idFile* procFile, idFile* objFile )
 {
 	mapTri_t*	ambient, *copy;
 	int			surfaceNum;
@@ -416,6 +477,11 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 	{
 		procFile->WriteFloatString( "model { /* name = */ \"_area%i\" /* numSurfaces = */ %i\n\n",
 									areaNum, numSurfaces );
+
+		if( objFile )
+		{
+			objFile->Printf( "g _area%i\n", areaNum );
+		}
 	}
 	else
 	{
@@ -427,8 +493,14 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 			fileSystem->CloseFile( procFile );
 			common->Error( "Entity %i has surfaces, but no name key", entityNum );
 		}
+
 		procFile->WriteFloatString( "model { /* name = */ \"%s\" /* numSurfaces = */ %i\n\n",
 									name, numSurfaces );
+
+		if( objFile )
+		{
+			objFile->Printf( "g model_%s\n", name );
+		}
 	}
 
 	surfaceNum = 0;
@@ -505,10 +577,18 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 		procFile->WriteFloatString( "\"%s\" ", ambient->material->GetName() );
 
 		uTri = ShareMapTriVerts( ambient );
-		FreeTriList( ambient );
 
 		CleanupUTriangles( uTri );
-		WriteUTriangles( uTri, entity->originOffset );
+		WriteUTriangles( procFile, uTri, entity->originOffset );
+
+		// RB
+		if( objFile )
+		{
+			WriteObjTriangles( objFile, uTri, entity->originOffset, ambient->material->GetName() );
+		}
+
+		FreeTriList( ambient );
+
 		R_FreeStaticTriSurf( uTri );
 
 		procFile->WriteFloatString( "}\n\n" );
@@ -523,7 +603,7 @@ WriteNode_r
 
 ===============
 */
-static void WriteNode_r( node_t* node )
+static void WriteNode_r( node_t* node, idFile* procFile )
 {
 	int		child[2];
 	int		i;
@@ -557,11 +637,11 @@ static void WriteNode_r( node_t* node )
 
 	if( child[0] > 0 )
 	{
-		WriteNode_r( node->children[0] );
+		WriteNode_r( node->children[0], procFile );
 	}
 	if( child[1] > 0 )
 	{
-		WriteNode_r( node->children[1] );
+		WriteNode_r( node->children[1], procFile );
 	}
 }
 
@@ -584,7 +664,7 @@ int NumberNodes_r( node_t* node, int nextNumber )
 WriteOutputNodes
 ====================
 */
-static void WriteOutputNodes( node_t* node )
+static void WriteOutputNodes( node_t* node, idFile* procFile )
 {
 	int		numNodes;
 
@@ -598,7 +678,7 @@ static void WriteOutputNodes( node_t* node )
 	procFile->WriteFloatString( "/* a child number of 0 is an opaque, solid area */\n" );
 	procFile->WriteFloatString( "/* negative child numbers are areas: (-1-child) */\n" );
 
-	WriteNode_r( node );
+	WriteNode_r( node, procFile );
 
 	procFile->WriteFloatString( "}\n\n" );
 }
@@ -608,7 +688,7 @@ static void WriteOutputNodes( node_t* node )
 WriteOutputPortals
 ====================
 */
-static void WriteOutputPortals( uEntity_t* e )
+static void WriteOutputPortals( uEntity_t* e, idFile* procFile )
 {
 	int			i, j;
 	interAreaPortal_t*	iap;
@@ -649,7 +729,7 @@ static void WriteOutputPortals( uEntity_t* e )
 WriteOutputEntity
 ====================
 */
-static void WriteOutputEntity( int entityNum )
+static void WriteOutputEntity( int entityNum, idFile* procFile, idFile* objFile )
 {
 	int		i;
 	uEntity_t* e;
@@ -667,17 +747,17 @@ static void WriteOutputEntity( int entityNum )
 
 	for( i = 0 ; i < e->numAreas ; i++ )
 	{
-		WriteOutputSurfaces( entityNum, i );
+		WriteOutputSurfaces( entityNum, i, procFile, objFile );
 	}
 
 	// we will completely skip the portals and nodes if it is a single area
 	if( entityNum == 0 && e->numAreas > 1 )
 	{
 		// output the area portals
-		WriteOutputPortals( e );
+		WriteOutputPortals( e, procFile );
 
 		// output the nodes
-		WriteOutputNodes( e->tree->headnode );
+		WriteOutputNodes( e->tree->headnode, procFile );
 	}
 }
 
@@ -691,19 +771,32 @@ void WriteOutputFile()
 {
 	int				i;
 	uEntity_t*		entity;
-	idStr			qpath;
 
 	// write the file
 	common->Printf( "----- WriteOutputFile -----\n" );
 
-	sprintf( qpath, "%s." PROC_FILE_EXT, dmapGlobals.mapFileBase );
-
+	idStrStatic< MAX_OSPATH > qpath;
+	qpath.Format( "%s." PROC_FILE_EXT, dmapGlobals.mapFileBase );
 	common->Printf( "writing %s\n", qpath.c_str() );
-	// _D3XP used fs_cdpath
-	procFile = fileSystem->OpenFileWrite( qpath, "fs_basepath" );
+	idFileLocal procFile = fileSystem->OpenFileWrite( qpath, "fs_basepath" );
 	if( !procFile )
 	{
 		common->Error( "Error opening %s", qpath.c_str() );
+	}
+
+	// RB: write area models as OBJ file
+	idFile* objFile = NULL;
+	if( dmapGlobals.glview )
+	{
+		idStrStatic< MAX_OSPATH > qpath;
+		qpath.Format( "%s.obj", dmapGlobals.mapFileBase );
+		objFile = fileSystem->OpenFileWrite( qpath, "fs_basepath" );
+		if( !objFile )
+		{
+			common->Error( "Error opening %s", qpath.c_str() );
+		}
+
+		c_totalObjVerts = 0;
 	}
 
 	procFile->WriteFloatString( "%s\n\n", PROC_FILE_ID );
@@ -718,8 +811,11 @@ void WriteOutputFile()
 			continue;
 		}
 
-		WriteOutputEntity( i );
+		WriteOutputEntity( i, procFile, objFile );
 	}
 
-	fileSystem->CloseFile( procFile );
+	if( objFile )
+	{
+		delete objFile;
+	}
 }

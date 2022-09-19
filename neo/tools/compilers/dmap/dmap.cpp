@@ -69,13 +69,6 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	// RB: use mapTri_t by MapPolygonMesh primitives in case we don't use brushes
 	FilterMeshesIntoTree( e );
 
-	// RB: dump BSP for debugging
-	//if( dmapGlobals.glview )
-	//{
-	//WriteGLView( e->tree, "unclipped", dmapGlobals.entityNum );
-	//}
-	// RB end
-
 	// see if the bsp is completely enclosed
 	if( floodFill && !dmapGlobals.noFlood )
 	{
@@ -105,13 +98,6 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	// determine areas before clipping tris into the
 	// tree, so tris will never cross area boundaries
 	FloodAreas( e );
-
-	// RB: dump BSP for debugging
-	if( dmapGlobals.glview )
-	{
-		WriteGLView( e->tree, "areas", dmapGlobals.entityNum );
-	}
-	// RB end
 
 	// we now have a BSP tree with solid and non-solid leafs marked with areas
 	// all primitives will now be clipped into this, throwing away
