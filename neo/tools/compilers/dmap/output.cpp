@@ -3,7 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2015 Robert Beckebans
+Copyright (C) 2013-2022 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -577,6 +577,8 @@ static void WriteOutputSurfaces( int entityNum, int areaNum, idFile* procFile, i
 		procFile->WriteFloatString( "\"%s\" ", ambient->material->GetName() );
 
 		uTri = ShareMapTriVerts( ambient );
+		idStrStatic<256> matName( ambient->material->GetName() );
+		FreeTriList( ambient );
 
 		CleanupUTriangles( uTri );
 		WriteUTriangles( procFile, uTri, entity->originOffset );
@@ -584,10 +586,10 @@ static void WriteOutputSurfaces( int entityNum, int areaNum, idFile* procFile, i
 		// RB
 		if( objFile )
 		{
-			WriteObjTriangles( objFile, uTri, entity->originOffset, ambient->material->GetName() );
+			WriteObjTriangles( objFile, uTri, entity->originOffset, matName.c_str() );
 		}
 
-		FreeTriList( ambient );
+
 
 		R_FreeStaticTriSurf( uTri );
 
@@ -659,6 +661,123 @@ int NumberNodes_r( node_t* node, int nextNumber )
 	return nextNumber;
 }
 
+// RB begin
+// https://stackoverflow.com/questions/801740/c-how-to-draw-a-binary-tree-to-the-console
+//
+static int WriteASCIIArtNode_r( node_t* node, bool is_left, int offset, int depth, char s[20][2048], idFile* procFile )
+{
+	char b[20];
+	int width = 5;
+
+	if( node->planenum == PLANENUM_LEAF )
+	{
+		int val = -1 - node->area;
+
+		if( val == 0 )
+		{
+			// is in solid / touches the outside void
+			idStr::snPrintf( b, 20, "(666)", val );
+		}
+		else
+		{
+			// leaf is area
+			idStr::snPrintf( b, 20, "(A%02d)", val );
+		}
+	}
+	else
+	{
+		int val = node->nodeNumber;
+		idStr::snPrintf( b, 20, "(%03d)", val );
+	}
+
+	int left = 0;
+	int right = 0;
+
+	if( node->planenum != PLANENUM_LEAF )
+	{
+		/*
+		int		child[2];
+
+		for( int i = 0 ; i < 2 ; i++ )
+		{
+			if( node->children[i]->planenum == PLANENUM_LEAF )
+			{
+				child[i] = -1 - node->children[i]->area;
+			}
+			else
+			{
+				child[i] = node->children[i]->nodeNumber;
+			}
+		}
+		*/
+
+		if( depth < 19 )
+		{
+			//if( child[0] > 0 )
+			{
+				left = WriteASCIIArtNode_r( node->children[0], true, offset, depth + 1, s, procFile );
+			}
+
+			//if( child[1] > 0 )
+			{
+				right = WriteASCIIArtNode_r( node->children[1], false, offset + left + width, depth + 1, s, procFile );
+			}
+		}
+	}
+
+	for( int i = 0; i < width; i++ )
+	{
+		s[depth][offset + left + i] = b[i];
+	}
+
+	if( depth && is_left )
+	{
+		for( int i = 0; i < width + right; i++ )
+		{
+			s[depth - 1][offset + left + width / 2 + i] = '-';
+		}
+
+		s[depth - 1][offset + left + width / 2] = '.';
+	}
+	else if( depth && !is_left )
+	{
+		for( int i = 0; i < left + width; i++ )
+		{
+			s[depth - 1][offset - width / 2 + i] = '-';
+		}
+
+		s[depth - 1][offset + left + width / 2] = '.';
+	}
+
+	return left + width + right;
+}
+
+static void WriteVisualBSPTree( node_t* node, idFile* procFile )
+{
+	// TODO calculuate depth instead of assuming 20
+
+	int s_len = 20;
+	char s[20][2048];
+
+	// output
+	procFile->WriteFloatString( "/* BSP tree visualization:\n\n" );
+
+	for( int i = 0; i < 20; i++ )
+	{
+		idStr::snPrintf( s[i], 2048, "%640s", " " );
+	}
+
+	WriteASCIIArtNode_r( node, 0, 0, 0, s, procFile );
+
+	for( int i = 0; i < 20; i++ )
+	{
+		procFile->WriteFloatString( "%s\n", s[i] );
+	}
+
+	procFile->WriteFloatString( "*/\n\n" );
+}
+// RB end
+
 /*
 ====================
 WriteOutputNodes
@@ -677,6 +796,13 @@ static void WriteOutputNodes( node_t* node, idFile* procFile )
 	procFile->WriteFloatString( "/* node format is: ( planeVector ) positiveChild negativeChild */\n" );
 	procFile->WriteFloatString( "/* a child number of 0 is an opaque, solid area */\n" );
 	procFile->WriteFloatString( "/* negative child numbers are areas: (-1-child) */\n" );
+
+	// RB: draw an extra ASCII BSP tree visualization for YouTube tutorial
+	if( dmapGlobals.glview )
+	{
+		WriteVisualBSPTree( node, procFile );
+	}
+	// RB end
 
 	WriteNode_r( node, procFile );
 
