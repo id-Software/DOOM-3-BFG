@@ -263,23 +263,23 @@ private:
 
 		if( flags & VK_DEBUG_REPORT_ERROR_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] ERROR location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] ERROR location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_WARNING_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] WARNING location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] WARNING location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] PERFORMANCE WARNING location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] PERFORMANCE WARNING location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] INFO location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] INFO location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] DEBUG location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] DEBUG location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 
 		return VK_FALSE;

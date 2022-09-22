@@ -39,6 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 	#include <sys/DeviceManager.h>
 	#include <nvrhi/utils.h>
 
+	extern DeviceManager* deviceManager;
+
 #elif defined(USE_VULKAN)
 
 	extern idUniformBuffer emptyUBO;
@@ -100,10 +102,20 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	uniformsChanged = false;
 
-	constantBuffer = device->createBuffer(
-						 nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(),
-								 "RenderParams",
-								 c_MaxRenderPassConstantBufferVersions ) );
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		// RB: FIXME this is ugly - DOUBLECHECK this
+		constantBuffer = device->createBuffer(
+							 nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(),
+									 "RenderParams", 128 ) );
+	}
+	else
+	{
+		constantBuffer = device->createBuffer(
+							 nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(),
+									 "RenderParams",
+									 c_MaxRenderPassConstantBufferVersions ) );
+	}
 
 	// === Main draw vertex layout ===
 	vertexLayoutDescs.SetNum( NUM_VERTEX_LAYOUTS, {} );
