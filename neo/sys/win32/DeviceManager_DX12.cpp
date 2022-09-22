@@ -93,6 +93,7 @@ protected:
 	uint32_t GetCurrentBackBufferIndex() override;
 	uint32_t GetBackBufferCount() override;
 	void BeginFrame() override;
+	void EndFrame() override;
 	void Present() override;
 
 private:
@@ -588,6 +589,11 @@ uint32_t DeviceManager_DX12::GetCurrentBackBufferIndex()
 uint32_t DeviceManager_DX12::GetBackBufferCount()
 {
 	return m_SwapChainDesc.BufferCount;
+}
+
+void DeviceManager_DX12::EndFrame()
+{
+
 }
 
 void DeviceManager_DX12::Present()

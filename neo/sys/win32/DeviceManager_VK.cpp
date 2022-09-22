@@ -88,6 +88,7 @@ protected:
 	}
 
 	void BeginFrame() override;
+	void EndFrame() override;
 	void Present() override;
 
 	const char* GetRendererString() const override
@@ -280,7 +281,6 @@ private:
 		{
 			idLib::Printf( "[Vulkan] DEBUG location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
 		}
-
 
 		return VK_FALSE;
 	}
@@ -1156,14 +1156,17 @@ void DeviceManager_VK::BeginFrame()
 	m_NvrhiDevice->queueWaitForSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 }
 
-void DeviceManager_VK::Present()
+void DeviceManager_VK::EndFrame()
 {
 	m_NvrhiDevice->queueSignalSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 
 	m_BarrierCommandList->open(); // umm...
 	m_BarrierCommandList->close();
 	m_NvrhiDevice->executeCommandList( m_BarrierCommandList );
+}
 
+void DeviceManager_VK::Present()
+{
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )

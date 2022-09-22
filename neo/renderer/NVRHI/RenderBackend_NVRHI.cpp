@@ -1434,9 +1434,10 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
-#if defined( USE_VK )
-	tr.SetReadyToPresent();
-#endif
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		tr.SetReadyToPresent();
+	}
 
 	renderLog.CloseMainBlock( MRB_GPU_TIME );
 
@@ -1444,12 +1445,11 @@ void idRenderBackend::GL_EndFrame()
 
 	deviceManager->GetDevice()->executeCommandList( commandList );
 
+	// required for Vulkan: transition our swap image to present
+	deviceManager->EndFrame();
+
 	// update jitter for perspective matrix
 	taaPass->AdvanceFrame();
-
-#if defined( USE_VK )
-	//GL_BlockingSwapBuffers();
-#endif
 }
 
 /*
@@ -1471,6 +1471,11 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 	deviceManager->Present();
 
 	renderLog.EndFrame();
+
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		tr.InvalidateSwapBuffers();
+	}
 }
 
 /*

@@ -2225,10 +2225,11 @@ void idRenderSystemLocal::Init()
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
 	envprobeJobList = parallelJobManager->AllocJobList( JOBLIST_UTILITY, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL ); // RB
 
-#if defined( USE_VK )
-	// avoid GL_BlockingSwapBuffers
-	omitSwapBuffers = true;
-#endif
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		// avoid GL_BlockingSwapBuffers
+		omitSwapBuffers = true;
+	}
 
 	// make sure the command buffers are ready to accept the first screen update
 	SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );

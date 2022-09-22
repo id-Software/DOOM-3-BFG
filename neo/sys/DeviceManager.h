@@ -157,6 +157,7 @@ protected:
 	virtual void DestroyDeviceAndSwapChain() = 0;
 	virtual void ResizeSwapChain() = 0;
 	virtual void BeginFrame() = 0;
+	virtual void EndFrame() = 0; // RB: added for BFG edition
 	virtual void Present() = 0;
 
 public:

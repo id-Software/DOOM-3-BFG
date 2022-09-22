@@ -6600,12 +6600,14 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 			delete hiZGenPass;
 		}
 
-#if defined( USE_VK )
-		// FIXME
-		hiZGenPass = NULL;
-#else
-		hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
-#endif
+		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+		{
+			hiZGenPass = NULL;
+		}
+		else
+		{
+			hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
+		}
 	}
 
 

@@ -994,6 +994,11 @@ public:
 		bInitialized = true;
 	}
 
+	void					InvalidateSwapBuffers()
+	{
+		omitSwapBuffers = true;
+	}
+
 	void					SetReadyToPresent()
 	{
 		omitSwapBuffers = false;
