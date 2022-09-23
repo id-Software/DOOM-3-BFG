@@ -42,7 +42,7 @@ Texture2D	 t_t1			: register( t0 );
 SamplerState LinearSampler	: register( s0 );
 
 struct PS_IN {
-	vec4 texcoord0	: TEXCOORD0_centroid;
+	float2 texcoord0	: TEXCOORD0_centroid;
 };
 
 struct PS_OUT {

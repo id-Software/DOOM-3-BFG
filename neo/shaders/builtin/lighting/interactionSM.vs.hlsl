@@ -34,10 +34,10 @@ If you have questions concerning this license or the applicable additional terms
 StructuredBuffer<float4> matrices: register(t11);
 #endif
 
-struct VS_IN 
+struct VS_IN
 {
-	float4 position : POSITION;
-	float2 texcoord : TEXCOORD0;
+	float4 position	: POSITION;
+	float2 texcoord	: TEXCOORD0;
 	float4 normal	: NORMAL;
 	float4 tangent	: TANGENT;
 	float4 color	: COLOR0;
