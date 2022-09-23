@@ -20,11 +20,11 @@
 
 
 // *INDENT-OFF*
-Texture2D<float3> t_ViewNormal	: register( t0 );
-Texture2D<float1> t_ViewDepth	: register( t1 );
-Texture2D<float1> t_ViewAo		: register( t2 );
+Texture2D<float3> t_ViewNormal	: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D<float1> t_ViewDepth	: register( t1 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D<float1> t_ViewAo		: register( t2 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState LinearSampler : register( s0 );
+SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 #define normal_buffer	t_ViewNormal
 #define cszBuffer		t_ViewDepth

@@ -93,11 +93,11 @@ static const float projScale = 500.0;
 
 #define VALUE_TYPE float
 
-Texture2D				t_NormalRoughness	: register( t0 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D				t_BlueNoise			: register( t2 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_NormalRoughness	: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D				t_BlueNoise			: register( t2 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState	blueNoiseSampler	: register( s0 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState	blueNoiseSampler	: register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 #define CS_Z_buffer		t_ViewDepth
 

@@ -19,9 +19,9 @@
 
 
 // *INDENT-OFF*
-Texture2D t_ViewDepth : register( t0 );
+Texture2D t_ViewDepth : register( t0 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState LinearSampler : register( s0 );
+SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 struct PS_IN
 {

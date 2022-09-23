@@ -22,9 +22,9 @@
 // *INDENT-OFF*
 #define VALUE_TYPE float
 
-Texture2D				t_NormalRoughness	: register( t0 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D				t_Ao				: register( t2 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_NormalRoughness	: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D				t_Ao				: register( t2 VK_DESCRIPTOR_SET( 1 ) );
 
 #define normal_buffer	t_NormalRoughness
 #define cszBuffer		t_ViewDepth

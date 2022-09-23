@@ -31,10 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_CurrentRender : register( t0 VK_DESCRIPTOR_SET( 1 ) );
-Texture2D t_NormalMap : register( t1 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_CurrentRender : register( t0 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_NormalMap : register( t1 VK_DESCRIPTOR_SET( 0 ) );
 
-SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 2 ) );
+SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 1 ) );
 
 struct PS_IN {
 	float4 position		: SV_Position;

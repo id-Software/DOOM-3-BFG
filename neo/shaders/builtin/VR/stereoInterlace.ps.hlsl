@@ -30,17 +30,19 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_t1 : register( t0 );
-Texture2D t_t2 : register( t1 );
+Texture2D t_t1 : register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_t2 : register( t1 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState LinearSampler : register( s0 );
+SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
-struct PS_IN {
+struct PS_IN 
+{
 	float4 position  : POSITION;
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
 
-struct PS_OUT {
+struct PS_OUT 
+{
 	float4 color : SV_Target0;
 };
 // *INDENT-ON*

@@ -107,7 +107,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		// RB: FIXME this is ugly - DOUBLECHECK this
 		constantBuffer = device->createBuffer(
 							 nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(),
-									 "RenderParams", 128 ) );
+									 "RenderParams", 1024 ) );
 	}
 	else
 	{
@@ -454,10 +454,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	} builtins[] =
 	{
 		{ BUILTIN_GUI, "builtin/gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_COLOR, "builtin/color", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_COLOR, "builtin/color", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
 		// RB begin
-		{ BUILTIN_COLOR_SKINNED, "builtin/color", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT_SKINNED },
-		{ BUILTIN_VERTEX_COLOR, "builtin/vertex_color", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_COLOR_SKINNED, "builtin/color", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED },
+		{ BUILTIN_VERTEX_COLOR, "builtin/vertex_color", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
 
 		{ BUILTIN_AMBIENT_LIGHTING_IBL, "builtin/lighting/ambient_lighting_IBL", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PBR", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_AMBIENT_LIGHTING_IBL },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED, "builtin/lighting/ambient_lighting_IBL", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PBR", "0" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_AMBIENT_LIGHTING_IBL_SKINNED },
@@ -550,8 +550,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_SHADOW, "builtin/lighting/shadow", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
 		{ BUILTIN_SHADOW_SKINNED, "builtin/lighting/shadow", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT_SKINNED, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED },
 
-		{ BUILTIN_SHADOW_DEBUG, "builtin/debug/shadowDebug", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "builtin/debug/shadowDebug", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT_SKINNED },
+		{ BUILTIN_SHADOW_DEBUG, "builtin/debug/shadowDebug", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
+		{ BUILTIN_SHADOW_DEBUG_SKINNED, "builtin/debug/shadowDebug", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED },
 
 		{ BUILTIN_BLENDLIGHT, "builtin/fog/blendlight", "",  { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLENDLIGHT },
 		{ BUILTIN_BLENDLIGHT_SKINNED, "builtin/fog/blendlight", "_skinned",  { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLENDLIGHT_SKINNED },

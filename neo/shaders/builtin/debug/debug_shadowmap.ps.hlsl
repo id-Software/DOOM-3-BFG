@@ -32,9 +32,9 @@ If you have questions concerning this license or the applicable additional terms
 
 // *INDENT-OFF*
 // TODO(Stephen): I think this should be an array?
-Texture2D t_t1 : register( t0 );
+Texture2D t_t1 : register( t0 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState LinearSampler : register( s0 );
+SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 struct PS_IN
 {
