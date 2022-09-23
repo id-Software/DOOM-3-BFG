@@ -33,6 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "Common_local.h"
 #include "../imgui/BFGimgui.h"
 
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
+#endif
+
 #define	CON_TEXTSIZE			0x30000
 #define	NUM_CON_TIMES			4
 #define CONSOLE_FIRSTREPEAT		200
@@ -346,7 +351,17 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::Begin( "Performance Stats" );
 
 #if defined( USE_NVRHI )
-		const char* API = "DX12";
+		static const int gfxNumValues = 3;
+
+		static const char* gfxValues[gfxNumValues] =
+		{
+			"DX11",
+			"DX12",
+			"Vulkan",
+		};
+
+		const char* API = gfxValues[ int( deviceManager->GetGraphicsAPI() ) ];
+
 #elif defined( USE_VULKAN )
 		const char* API = "Vulkan";
 #else
