@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "global_inc.hlsl"
 
 // *INDENT-OFF*
-Texture2D texGui : register( t0 VK_DESCRIPTOR_SET( 0 ) );
-SamplerState samp0 : register( s0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D texGui : register( t0 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState samp0 : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 struct PS_IN {
 	float4 position	 : SV_POSITION;

@@ -257,7 +257,8 @@ idRenderSystemLocal::idRenderSystemLocal() :
 	zeroOneCubeTriangles( NULL ),
 	zeroOneSphereTriangles( NULL ),
 	testImageTriangles( NULL ),
-	bInitialized( false )
+	bInitialized( false ),
+	omitSwapBuffers( false )
 {
 	Clear();
 }
@@ -676,10 +677,13 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 	// keep capturing envprobes completely in the background
 	// and only update the screen when we update the progress bar in the console
-#if !defined( USE_NVRHI )
+#if defined( USE_NVRHI )
+	if( !omitSwapBuffers )
+#else
 	if( !takingEnvprobe )
 #endif
 	{
+
 #if !IMGUI_BFGUI
 		ImGuiHook::Render();
 #endif

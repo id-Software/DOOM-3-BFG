@@ -38,14 +38,16 @@ the optics.
 */
 
 // *INDENT-OFF*
-Texture2D	 t_t1			: register( t0 );
-SamplerState LinearSampler	: register( s0 );
+Texture2D	 t_t1			: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState LinearSampler	: register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
-struct PS_IN {
-	vec4 texcoord0	: TEXCOORD0_centroid;
+struct PS_IN 
+{
+	float2 texcoord0	: TEXCOORD0_centroid;
 };
 
-struct PS_OUT {
+struct PS_OUT 
+{
 	float4 color : SV_Target;
 };
 // *INDENT-ON*

@@ -31,19 +31,21 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_Fog1	: register( t0 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D t_Fog2	: register( t1 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_Fog1	: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_Fog2	: register( t1 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState samp0	: register(s0 VK_DESCRIPTOR_SET( 1 ) );
-SamplerState samp1	: register(s1 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState samp0	: register(s0 VK_DESCRIPTOR_SET( 2 ) );
+SamplerState samp1	: register(s1 VK_DESCRIPTOR_SET( 2 ) );
 
-struct PS_IN {
+struct PS_IN 
+{
 	float4 position		: SV_Position;
 	float2 texcoord0	: TEXCOORD0_centroid;
 	float2 texcoord1	: TEXCOORD1_centroid;
 };
 
-struct PS_OUT {
+struct PS_OUT 
+{
 	float4 color : SV_Target0;
 };
 // *INDENT-ON*

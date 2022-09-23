@@ -77,11 +77,11 @@ static const float projScale = 500.0;
 // #endif
 
 // *INDENT-OFF*
-Texture2D t_ViewNormals : register( t0 );
-Texture2D t_ViewDepth	: register( t1 );
-Texture2D t_Colors		: register( t2 );
+Texture2D t_ViewNormals : register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_ViewDepth	: register( t1 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_Colors		: register( t2 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState LinearSampler : register( s0 );
+SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 #define normal_buffer	t_ViewNormals
 #define CS_Z_buffer		t_ViewDepth

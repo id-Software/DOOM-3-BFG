@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015-2020 Robert Beckebans
+Copyright (C) 2015-2022 Robert Beckebans
 Copyright (C) 2014 Timothy Lottes (AMD)
 Copyright (C) 2019 Justin Marshall (IcedTech)
 

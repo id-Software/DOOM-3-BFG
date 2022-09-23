@@ -36,12 +36,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "SMAA.inc.hlsl"
 
 // *INDENT-OFF*
-Texture2D t_CurrentColor	: register( t0 );
-Texture2D t_SmaaBlend		: register( t1 );
-//Texture2D t_Velocity		: register( t2 );
+Texture2D t_CurrentColor	: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_SmaaBlend		: register( t1 VK_DESCRIPTOR_SET( 1 ) );
+//Texture2D t_Velocity		: register( t2 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState LinearSampler	: register( s0 );
-SamplerState PointSampler	: register( s0 );
+SamplerState LinearSampler	: register( s0 VK_DESCRIPTOR_SET( 2 ) );
+SamplerState PointSampler	: register( s1 VK_DESCRIPTOR_SET( 2 ) );
 
 struct PS_IN
 {

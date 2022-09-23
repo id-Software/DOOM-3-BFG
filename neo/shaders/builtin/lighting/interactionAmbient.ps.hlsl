@@ -31,15 +31,15 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D				t_Normal			: register( t0 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D				t_Specular			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D				t_BaseColor			: register( t2 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_Normal			: register( t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D				t_Specular			: register( t1 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D				t_BaseColor			: register( t2 VK_DESCRIPTOR_SET( 1 ) );
 
-Texture2D				t_LightFalloff		: register( t3 VK_DESCRIPTOR_SET( 1 ) );
-Texture2D				t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D				t_LightFalloff		: register( t3 VK_DESCRIPTOR_SET( 2 ) );
+Texture2D				t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 2 ) );
 
-SamplerState			s_Material : register( s0 VK_DESCRIPTOR_SET( 2 ) ); // for the normal/specular/basecolor
-SamplerState 			s_Lighting : register( s1 VK_DESCRIPTOR_SET( 2 ) ); // for sampling the jitter
+SamplerState			s_Material : register( s0 VK_DESCRIPTOR_SET( 3 ) ); // for the normal/specular/basecolor
+SamplerState 			s_Lighting : register( s1 VK_DESCRIPTOR_SET( 3 ) ); // for sampling the jitter
 
 struct PS_IN
 {

@@ -67,9 +67,9 @@ idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDE
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
 #if defined( USE_NVRHI )
 	#if defined( _WIN32 )
-		idCVar r_graphicsAPI( "r_graphicsAPI", "dx12", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+		idCVar r_graphicsAPI( "r_graphicsAPI", "dx12", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE, "Specifies the graphics api to use (dx12, vulkan)" );
 	#else
-		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER, "Specifies the graphics api to use (vulkan)" );
+		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC, "Specifies the graphics api to use (vulkan)" );
 	#endif
 
 	idCVar r_useValidationLayers( "r_useValidationLayers", "1", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
@@ -2225,7 +2225,11 @@ void idRenderSystemLocal::Init()
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
 	envprobeJobList = parallelJobManager->AllocJobList( JOBLIST_UTILITY, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL ); // RB
 
-	bInitialized = true;
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		// avoid GL_BlockingSwapBuffers
+		omitSwapBuffers = true;
+	}
 
 	// make sure the command buffers are ready to accept the first screen update
 	SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );

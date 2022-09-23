@@ -6599,7 +6599,15 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		{
 			delete hiZGenPass;
 		}
-		hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
+
+		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+		{
+			hiZGenPass = NULL;
+		}
+		else
+		{
+			hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
+		}
 	}
 
 

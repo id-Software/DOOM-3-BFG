@@ -30,13 +30,15 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-SamplerState samp0 : register(s0 VK_DESCRIPTOR_SET( 0 ));
+//SamplerState samp0 : register(s0 VK_DESCRIPTOR_SET( 0 ) );
 
-struct VS_IN {
+struct VS_IN 
+{
     float4 position : SV_Position;
 };
 
-struct PS_OUT {
+struct PS_OUT 
+{
 	float4 color : SV_Target0;
 };
 // *INDENT-ON*

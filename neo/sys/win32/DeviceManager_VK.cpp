@@ -88,6 +88,7 @@ protected:
 	}
 
 	void BeginFrame() override;
+	void EndFrame() override;
 	void Present() override;
 
 	const char* GetRendererString() const override
@@ -163,7 +164,7 @@ private:
 		// device
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-			VK_KHR_MAINTENANCE1_EXTENSION_NAME
+			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 		},
 	};
 
@@ -262,25 +263,24 @@ private:
 
 		if( flags & VK_DEBUG_REPORT_ERROR_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] ERROR location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] ERROR location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_WARNING_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] WARNING location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] WARNING location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] PERFORMANCE WARNING location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] PERFORMANCE WARNING location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] INFO location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] INFO location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
 		else if( flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT )
 		{
-			idLib::Printf( "[Vulkan] DEBUG location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+			idLib::Printf( "[Vulkan] DEBUG location=0x%zx code=%d, layerPrefix='%s'] %s\n", location, code, layerPrefix, msg );
 		}
-
 
 		return VK_FALSE;
 	}
@@ -397,10 +397,10 @@ bool DeviceManager_VK::createInstance()
 		return false;
 	}
 
-	common->Printf( "Enabled Vulkan instance extensions:" );
+	common->Printf( "Enabled Vulkan instance extensions:\n" );
 	for( const auto& ext : enabledExtensions.instance )
 	{
-		common->Printf( "    %s", ext.c_str() );
+		common->Printf( "    %s\n", ext.c_str() );
 	}
 
 	std::unordered_set<std::string> requiredLayers = enabledExtensions.layers;
@@ -429,10 +429,10 @@ bool DeviceManager_VK::createInstance()
 		return false;
 	}
 
-	common->Printf( "Enabled Vulkan layers:" );
+	common->Printf( "Enabled Vulkan layers:\n" );
 	for( const auto& layer : enabledExtensions.layers )
 	{
-		common->Printf( "    %s", layer.c_str() );
+		common->Printf( "    %s\n", layer.c_str() );
 	}
 
 	auto instanceExtVec = stringSetToVector( enabledExtensions.instance );
@@ -705,7 +705,7 @@ bool DeviceManager_VK::createDevice()
 	common->Printf( "Enabled Vulkan device extensions:" );
 	for( const auto& ext : enabledExtensions.device )
 	{
-		common->Printf( "    %s", ext.c_str() );
+		common->Printf( "    %s\n", ext.c_str() );
 
 		if( ext == VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME )
 		{
@@ -713,6 +713,7 @@ bool DeviceManager_VK::createDevice()
 		}
 		else if( ext == VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME )
 		{
+			// RB: only makes problems at the moment
 			bufferAddressSupported = true;
 		}
 		else if( ext == VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME )
@@ -946,7 +947,7 @@ bool DeviceManager_VK::createSwapChain()
 	m_SwapChainFormat =
 	{
 		vk::Format( nvrhi::vulkan::convertFormat( deviceParms.swapChainFormat ) ),
-		vk::ColorSpaceKHR::eSrgbNonlinear // SP: Does this matter this is non-linear srgb?
+		vk::ColorSpaceKHR::eSrgbNonlinear
 	};
 
 	vk::Extent2D extent = vk::Extent2D( deviceParms.backBufferWidth, deviceParms.backBufferHeight );
@@ -1155,14 +1156,17 @@ void DeviceManager_VK::BeginFrame()
 	m_NvrhiDevice->queueWaitForSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 }
 
-void DeviceManager_VK::Present()
+void DeviceManager_VK::EndFrame()
 {
 	m_NvrhiDevice->queueSignalSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 
 	m_BarrierCommandList->open(); // umm...
 	m_BarrierCommandList->close();
 	m_NvrhiDevice->executeCommandList( m_BarrierCommandList );
+}
 
+void DeviceManager_VK::Present()
+{
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )

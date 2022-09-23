@@ -30,14 +30,19 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-struct VS_IN {
-	float4 position : POSITION;
-	float4 texcoord : TEXCOORD0;
+struct VS_IN
+{
+	float4 position	: POSITION;
+	float2 texcoord	: TEXCOORD0;
+	float4 normal	: NORMAL;
+	float4 tangent	: TANGENT;
+	float4 color	: COLOR0;
+	float4 color2	: COLOR1;
 };
 
 struct VS_OUT {
 	float4 position : POSITION;
-	float4 texcoord0: TEXCOORD0;        // 0 to 1 box
+	float2 texcoord0: TEXCOORD0;        // 0 to 1 box
 };
 // *INDENT-ON*
 
