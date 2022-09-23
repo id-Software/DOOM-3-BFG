@@ -428,17 +428,14 @@ Existing repositories can be updated manually:
 ---
 # Compiling on Windows <a name="compile_windows"></a>
 
-1. Download and install the Visual Studio 2017 Community Edition.
+1. Download and install the Visual Studio 2019 Community Edition.
 
-2. **Only for Windows 7 builds**: Download and install the DirectX SDK (June 2010)
-	http://www.microsoft.com/en-us/download/details.aspx?id=6812
+2. Download and install the latest CMake and make sure cmake.exe is added to your global or user PATH.
 
-3. Download and install the latest CMake.
+3. Generate the VS2019 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+Recommended in this case is `cmake-vs2019-64bit-windows10.bat`
 
-4. Generate the VS2017 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
-
-5. Use the VS2017 solution to compile what you need:
+4. Use the VS2019 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
 
