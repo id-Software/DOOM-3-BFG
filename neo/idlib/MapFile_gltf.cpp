@@ -128,7 +128,6 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 					// move into entity space
 					pos *= transform;
-					//pos *= blenderToDoomTransform;
 
 					mesh->verts[i].xyz.x = pos.x;
 					mesh->verts[i].xyz.y = pos.y;
@@ -302,13 +301,12 @@ static void ProcessSceneNode_r( idMapEntity* newEntity, gltfNode* node, const id
 
 	gltfData::ResolveNodeMatrix( node );
 	idMat4 nodeToWorldTransform = parentTransform * node->matrix;
-	//idMat4 nodeToWorldTransform = parentTransform * ( blenderToDoomTransform * node->matrix );
-
-	// bring mesh data into entity space
-	idMat4 nodeToEntityTransform = worldToEntityTransform * nodeToWorldTransform;
 
 	if( node->mesh != -1 )
 	{
+		// bring mesh data into entity space
+		idMat4 nodeToEntityTransform = worldToEntityTransform * nodeToWorldTransform;
+
 		for( auto* prim : data->MeshList()[node->mesh]->primitives )
 		{
 			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, nodeToEntityTransform ) );
@@ -321,10 +319,10 @@ static void ProcessSceneNode_r( idMapEntity* newEntity, gltfNode* node, const id
 	}
 }
 
-static void AddMeshesToWorldspawn_r( idMapEntity* entity, gltfNode* node, const idMat4& transform, gltfData* data )
+static void AddMeshesToWorldspawn_r( idMapEntity* entity, gltfNode* node, const idMat4& parentTransform, gltfData* data )
 {
 	gltfData::ResolveNodeMatrix( node );
-	idMat4 nodeToWorldTransform = transform * node->matrix;
+	idMat4 nodeToWorldTransform = parentTransform * node->matrix;
 
 	if( node->mesh != -1 )
 	{
@@ -398,6 +396,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 					idVec3 origin = blenderToDoomTransform * node->translation;
 					newEntity->epairs.SetVector( "origin", origin );
 
+					// TODO set rotation key to store rotation and scaling
 #if 0
 					if( idStr::Icmp( classname, "info_player_start" ) != 0 )
 						//if( !node->matrix.IsIdentity() )
