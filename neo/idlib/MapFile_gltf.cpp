@@ -32,7 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 // files import as y-up. Use this transform to change the model to z-up.
 static const idAngles blenderToDoomAngels = idAngles( 0.0f, 0.0f, 90 );
-static const idMat4 blenderToDoomTransform( blenderToDoomAngels.ToMat3(), vec3_origin );
+//static const idMat4 blenderToDoomTransform( blenderToDoomAngels.ToMat3(), vec3_origin );
+static const idMat4 blenderToDoomTransform = mat4_identity;
 
 MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data , const idMat4& transform )
 {
@@ -304,7 +305,7 @@ static void ProcessSceneNode_r( idMapEntity* newEntity, gltfNode* node, const id
 	//idMat4 nodeToWorldTransform = parentTransform * ( blenderToDoomTransform * node->matrix );
 
 	// bring mesh data into entity space
-	idMat4 nodeToEntityTransform = nodeToWorldTransform * worldToEntityTransform;
+	idMat4 nodeToEntityTransform = worldToEntityTransform * nodeToWorldTransform;
 
 	if( node->mesh != -1 )
 	{
@@ -406,7 +407,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 					}
 #endif
 
-#if 1
+#if 0
 					for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
 					{
 						const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
