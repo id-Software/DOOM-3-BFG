@@ -30,17 +30,17 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+// files import as y-up. Use this transform to change the model to z-up.
+static const idAngles blenderToDoomAngels = idAngles( 0.0f, 0.0f, 90 );
+//static const idMat4 blenderToDoomTransform( blenderToDoomAngels.ToMat3(), vec3_origin );
+static const idMat4 blenderToDoomTransform = mat4_identity;
 
-MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data , idMat4 trans )
+MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data , const idMat4& transform )
 {
 	MapPolygonMesh* mesh = new MapPolygonMesh();
 	gltfAccessor* accessor = _data->AccessorList()[prim->indices];
 	gltfBufferView* bv = _data->BufferViewList()[accessor->bufferView];
 	gltfData* data = bv->parent;
-
-	// files import as y-up. Use this transform to change the model to z-up.
-	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3();
-	idMat4 axisTransform( rotation, vec3_origin );
 
 	gltfMaterial* mat = NULL;
 	if( prim->material != -1 )
@@ -126,8 +126,8 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
 					bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
-					pos *= trans;
-					pos *= axisTransform;
+					// move into entity space
+					pos *= transform;
 
 					mesh->verts[i].xyz.x = pos.x;
 					mesh->verts[i].xyz.y = pos.y;
@@ -166,7 +166,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					normal.y = vec.y;
 					normal.z = vec.z;
 
-					normal *= axisTransform;
+					normal *= transform;
 					mesh->verts[i].SetNormal( normal );
 				}
 
@@ -210,7 +210,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					tangent.y = vec.y;
 					tangent.z = vec.z;
 
-					tangent *= axisTransform;
+					tangent *= transform;
 
 					mesh->verts[i].SetTangent( tangent );
 					mesh->verts[i].SetBiTangentSign( vec.w );
@@ -289,89 +289,59 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		}
 
 	}
+
 	mesh->SetContents();
+
 	return mesh;
 }
 
-void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, gltfData* data , bool staticMesh = false )
+static void ProcessSceneNode_r( idMapEntity* newEntity, gltfNode* node, const idMat4& parentTransform, const idMat4& worldToEntityTransform, gltfData* data )
 {
 	auto& nodeList = data->NodeList();
 
 	gltfData::ResolveNodeMatrix( node );
-	idMat4 curTrans = trans * node->matrix;
-
-	idDict newPairs = node->extras.strPairs;
-	newPairs.SetDefaults( &newEntity->epairs );
-	newEntity->epairs = newPairs;
-
-	const char* classname = newEntity->epairs.GetString( "classname" );
-	const char* model = newEntity->epairs.GetString( "model" );
-
-	bool isFuncStaticMesh = staticMesh || ( idStr::Icmp( classname, "func_static" ) == 0 ) && ( idStr::Icmp( model, node->name ) == 0 );
-
-	for( auto& child : node->children )
-	{
-		ProcessSceneNode( newEntity, nodeList[child], curTrans, data, isFuncStaticMesh );
-	}
+	idMat4 nodeToWorldTransform = parentTransform * node->matrix;
 
 	if( node->mesh != -1 )
 	{
+		// bring mesh data into entity space
+		idMat4 nodeToEntityTransform = worldToEntityTransform * nodeToWorldTransform;
+
 		for( auto* prim : data->MeshList()[node->mesh]->primitives )
 		{
-			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data , curTrans ) );
+			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, nodeToEntityTransform ) );
 		}
 	}
 
-	if( node->name.Length() )
+	for( auto& child : node->children )
 	{
-		newEntity->epairs.Set( "name", node->name );
+		ProcessSceneNode_r( newEntity, nodeList[child], nodeToWorldTransform, worldToEntityTransform, data );
 	}
-
-#if 0
-	for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
-	{
-		const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
-
-		idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
-	}
-#endif
-	idVec3 origin;
-
-	origin.x = node->translation.x;
-	origin.y = node->translation.y;
-	origin.z = node->translation.z;
-
-	// files import as y-up. Use this transform to change the model to z-up.
-	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3();
-	idMat4 axisTransform( rotation, vec3_origin );
-
-	origin *= axisTransform;
-
-	newEntity->epairs.Set( "origin", origin.ToString() );
 }
 
-void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfData* _Data )
+static void AddMeshesToWorldspawn_r( idMapEntity* entity, gltfNode* node, const idMat4& parentTransform, gltfData* data )
 {
-	gltfData::ResolveNodeMatrix( _Node );
-	idMat4 curTrans = _Trans * _Node->matrix;
+	gltfData::ResolveNodeMatrix( node );
+	idMat4 nodeToWorldTransform = parentTransform * node->matrix;
 
-	if( _Node->mesh != -1 )
+	if( node->mesh != -1 )
 	{
-		for( auto prim : _Data->MeshList()[_Node->mesh]->primitives )
+		for( auto prim : data->MeshList()[node->mesh]->primitives )
 		{
-			_Entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, _Data, curTrans ) );
+			entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, nodeToWorldTransform ) );
 		}
 	}
 
-	for( auto& child : _Node->children )
+	for( auto& child : node->children )
 	{
-		Map_AddMeshes( _Entity, _Data->NodeList()[child], curTrans, _Data );
+		AddMeshesToWorldspawn_r( entity, data->NodeList()[child], nodeToWorldTransform, data );
 	}
 };
 
 int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneID )
 {
 	idMapEntity* worldspawn = new( TAG_IDLIB_GLTF ) idMapEntity();
+	worldspawn->epairs.Set( "classname", "worldspawn" );
 	entities.Append( worldspawn );
 
 	bool wpSet = false;
@@ -394,16 +364,62 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			// account all meshes starting with "worldspawn." or "BSP" in the name
 			if( idStr::Icmpn( node->name, "BSP", 3 ) == 0 || idStr::Icmpn( node->name, "worldspawn.", 11 ) == 0 )
 			{
-				Map_AddMeshes( worldspawn, node, mat4_identity, data );
+				AddMeshesToWorldspawn_r( worldspawn, node, blenderToDoomTransform, data );
 			}
 			else
 			{
-				idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
-				entities.Append( newEntity );
+				idStr classname = node->extras.strPairs.GetString( "classname" );
 
-				ProcessSceneNode( newEntity, node, mat4_identity, data );
+				// skip everything that is not an entity
+				if( !classname.IsEmpty() )
+				{
+					idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
+					entities.Append( newEntity );
 
-				entityCount++;
+					if( node->name.Length() )
+					{
+						newEntity->epairs.Set( "name", node->name );
+					}
+
+					// copy custom properties filled in Blender
+					idDict newPairs = node->extras.strPairs;
+					newPairs.SetDefaults( &newEntity->epairs );
+					newEntity->epairs = newPairs;
+
+					// gather entity transform and bring it into id Tech 4 space
+					gltfData::ResolveNodeMatrix( node );
+
+					idMat4 entityToWorldTransform = blenderToDoomTransform * node->matrix;
+					idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
+
+					// set entity transform in a way the game and physics code understand it
+					idVec3 origin = blenderToDoomTransform * node->translation;
+					newEntity->epairs.SetVector( "origin", origin );
+
+					// TODO set rotation key to store rotation and scaling
+#if 0
+					if( idStr::Icmp( classname, "info_player_start" ) != 0 )
+						//if( !node->matrix.IsIdentity() )
+					{
+						idMat3 rotation = entityToWorldTransform.ToMat3();
+						newEntity->epairs.SetMatrix( "rotation", rotation );
+					}
+#endif
+
+#if 0
+					for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
+					{
+						const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
+
+						idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
+					}
+#endif
+
+					// add meshes from all subnodes
+					ProcessSceneNode_r( newEntity, node, mat4_identity, worldToEntityTransform, data );
+
+					entityCount++;
+				}
 			}
 		}
 	}

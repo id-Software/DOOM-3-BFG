@@ -111,11 +111,27 @@ bool idSoundShader::SetDefaultText()
 	if( 1 )    //fileSystem->ReadFile( wavname, NULL ) != -1 ) {
 	{
 		char generated[2048];
-		idStr::snPrintf( generated, sizeof( generated ),
-						 "sound %s // IMPLICITLY GENERATED\n"
-						 "{\n"
-						 "%s\n"
-						 "}\n", GetName(), wavname.c_str() );
+
+		// RB: make a looping track of it if the user has thrown some random music into base/music/
+		if( wavname.IcmpPrefix( "music/" ) == 0 )
+		{
+			idStr::snPrintf( generated, sizeof( generated ),
+							 "sound %s // IMPLICITLY GENERATED\n"
+							 "{\n"
+							 "global\n"
+							 "looping\n"
+							 "%s\n"
+							 "}\n", GetName(), wavname.c_str() );
+		}
+		else
+		{
+			idStr::snPrintf( generated, sizeof( generated ),
+							 "sound %s // IMPLICITLY GENERATED\n"
+							 "{\n"
+							 "%s\n"
+							 "}\n", GetName(), wavname.c_str() );
+		}
+
 		SetText( generated );
 		return true;
 	}
