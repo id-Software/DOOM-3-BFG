@@ -861,7 +861,8 @@ typedef enum
 
 	// internal use only.  not exposed to script or framecommands.
 	SND_CHANNEL_AMBIENT,
-	SND_CHANNEL_DAMAGE
+	SND_CHANNEL_DAMAGE,
+	SND_CHANNEL_MUSIC	// RB
 } gameSoundChannel_t;
 
 // content masks

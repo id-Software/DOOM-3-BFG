@@ -2870,11 +2870,13 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 		// when then we keep until the end of the function
 	}
 
-	//ret.syncNextGameFrame = skipCinematic; // this is form dhewm3 but it seems it's no longer useful
 	if( skipCinematic )
 	{
 		soundSystem->SetMute( false );
 		skipCinematic = false;
+
+		// RB: replay music again because it got shut down with all other sounds :(
+		gameLocal.world->Event_PlayBackgroundMusic();
 	}
 
 	// show any debug info for this frame

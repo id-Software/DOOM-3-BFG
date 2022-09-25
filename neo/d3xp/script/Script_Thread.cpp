@@ -1863,7 +1863,9 @@ idThread::Event_StartMusic
 */
 void idThread::Event_StartMusic( const char* text )
 {
-	gameSoundWorld->PlayShaderDirectly( text );
+	// RB: this should go into SND_CHANNEL_MUSIC and might conflict with the logic from worldspawn
+	// it would be better to have a music manager instance that fades into this track until done and then resumes the old track
+	gameSoundWorld->PlayShaderDirectly( text );//, SND_CHANNEL_MUSIC );
 }
 
 /*

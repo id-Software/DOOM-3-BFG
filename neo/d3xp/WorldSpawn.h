@@ -49,7 +49,13 @@ public:
 	void			Save( idSaveGame* savefile );
 	void			Restore( idRestoreGame* savefile );
 
+	void			Event_PlayBackgroundMusic();
+
 private:
+	void			SetMusicTrack();
+
+	idStr			musicTrack;
+
 	void			Event_Remove();
 };
 
