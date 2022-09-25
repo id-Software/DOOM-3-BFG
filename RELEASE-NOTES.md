@@ -18,6 +18,48 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - Sep 25, 2022
+
+This build based on the 635-nvrhi3 branch improves the glTF2 support for mapping with Blender and adds back OGG Vorbis support for custom soundtracks.
+
+Models are expected to be exported by Blender with the following settings:
+
+Format: glTF Binary (.glb)
+Transform: +Y Up Off <-- BIG CHANGE: it was On last time
+Materials: Export
+Images: None
+Compression: Off
+Data: Custom Properties On
+
+Similar to modern Quake sourceports users can now just throw their favorite soundtrack into base/music/ like base/music/aqm/*.ogg or into a modfolder/music/ path.
+The game will play automatically it in the background as a looping track until the end of the map.
+Each map will pick a different track but mappers can also define a "music" track in the worldspawn entity.
+You can also fine tune the volume of each track if you write a sound shader for your files.
+
+There is an example in mod_alternativequakemusic/sound/_rbdoom_aqm_tracks.sndshd for the Alternative Quake Music sound track.
+
+Changelog:
+
+* Improved Quake .map converter to get Makkon's samplemaps working
+
+* Tweaked dmap -glview option to dump an .obj next to the .proc file with similar content and to print an ASCII art BSP tree in the proc file
+
+* Bumped the required C++ standard to C++14
+
+* TrenchBroom's  glTF2 support was changed to properly display models that were exported from Blender with the +Y-Up option ticked OFF
+
+* Added ancient oggvorbis code from vanilla Doom 3
+
+* Merged Ogg Vorbis support from DNF id Tech 4 branch (thanks to Justin Marshall for making .ogg working with the BFG sound engine)
+
+* Scan for music/*.ogg files and play a different track for each map
+
+* You can start the Vulkan backend with +set r_graphicsAPI Vulkan
+
+* Fixed several Vulkan related bugs like the swapchain problem. It is not playable yet
+
+* The Icedhellfire mod contains AAS files for the ROE maps
+
 ## .plan - Sep 04, 2022
 
 This build based on the 635-nvrhi3 branch adds glTF2 support to RBDOOM-3-BFG and TrenchBroom.
@@ -33,6 +75,7 @@ Transform: +Y Up
 Materials: Export
 Images: None
 Compression: Off
+Data: Custom Properties On
 
 Changelog:
 
@@ -41,6 +84,15 @@ Changelog:
 * Changed dmap to support compiling maps from gtTF2 .glb models instead of .map files
 
 * Added support for MapPolygonMeshes to the AAS compiler
+
+* TrenchBroom uses Assimp for glTF2 support and is based on branch doom3-support9 using TB/master from Jul 06, 2022
+
+This build also gives a preview of the Iced Hellfire Mod by Justin Marshall (icecoldduke):
+It features native weapon and monster AI implementations in C++ and Quake 3 multiplayer bots.
+I added a couple of bugfixes and compiled the deathmatch maps with runAAS so you can try the multiplayer bots with the "fillbots" command.
+
+The directory "mod_icedhellfire" contains the necessary updated AAS files for the multiplayer maps.
+In order to play the mod you only need to start DoomIcedHellfire.exe without extra parameters.
 
 ## .plan - Jul 03, 2022
 
