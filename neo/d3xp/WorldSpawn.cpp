@@ -284,6 +284,7 @@ void idWorldspawn::Event_PlayBackgroundMusic()
 {
 	if( !musicTrack.IsEmpty() )
 	{
+		common->Printf( "Playing custom music sound track: %s\n", musicTrack.c_str() );
 		gameSoundWorld->PlayShaderDirectly( musicTrack, SND_CHANNEL_MUSIC );
 	}
 }
