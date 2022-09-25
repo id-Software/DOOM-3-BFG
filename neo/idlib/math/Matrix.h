@@ -976,14 +976,15 @@ ID_INLINE idMat3 idMat4::ToMat3() const
 {
 	idMat3 m;
 
+	// RB - NOTE: idMat3 is transposed because it is column-major
 	m[0][0] = mat[0][0];
-	m[0][1] = mat[0][1];
-	m[0][2] = mat[0][2];
-	m[1][0] = mat[1][0];
+	m[0][1] = mat[1][0];
+	m[0][2] = mat[2][0];
+	m[1][0] = mat[0][1];
 	m[1][1] = mat[1][1];
-	m[1][2] = mat[1][2];
-	m[2][0] = mat[2][0];
-	m[2][1] = mat[2][1];
+	m[1][2] = mat[2][1];
+	m[2][0] = mat[0][2];
+	m[2][1] = mat[1][2];
 	m[2][2] = mat[2][2];
 
 	return m;
