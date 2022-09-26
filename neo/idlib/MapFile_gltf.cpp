@@ -31,9 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 // files import as y-up. Use this transform to change the model to z-up.
-static const idAngles blenderToDoomAngels = idAngles( 0.0f, 0.0f, 90 );
-//static const idMat4 blenderToDoomTransform( blenderToDoomAngels.ToMat3(), vec3_origin );
-static const idMat4 blenderToDoomTransform = mat4_identity;
+static const idMat4 blenderToDoomTransform( idAngles( 0.0f, 0.0f, 90 ).ToMat3(), vec3_origin );
+//static const idMat4 blenderToDoomTransform = mat4_identity;
 
 MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data , const idMat4& transform )
 {
@@ -54,8 +53,6 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 	idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
 										  ( const char* )( ( data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset ) ), bv->byteLength );
-
-
 
 	for( int i = 0; i < accessor->count; i++ )
 	{
@@ -309,7 +306,7 @@ static void ProcessSceneNode_r( idMapEntity* newEntity, gltfNode* node, const id
 
 		for( auto* prim : data->MeshList()[node->mesh]->primitives )
 		{
-			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, nodeToEntityTransform ) );
+			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, blenderToDoomTransform * nodeToEntityTransform ) );
 		}
 	}
 
@@ -328,7 +325,7 @@ static void AddMeshesToWorldspawn_r( idMapEntity* entity, gltfNode* node, const 
 	{
 		for( auto prim : data->MeshList()[node->mesh]->primitives )
 		{
-			entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, nodeToWorldTransform ) );
+			entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data, blenderToDoomTransform * nodeToWorldTransform ) );
 		}
 	}
 
@@ -364,7 +361,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			// account all meshes starting with "worldspawn." or "BSP" in the name
 			if( idStr::Icmpn( node->name, "BSP", 3 ) == 0 || idStr::Icmpn( node->name, "worldspawn.", 11 ) == 0 )
 			{
-				AddMeshesToWorldspawn_r( worldspawn, node, blenderToDoomTransform, data );
+				AddMeshesToWorldspawn_r( worldspawn, node, mat4_identity, data );
 			}
 			else
 			{
@@ -389,7 +386,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 					// gather entity transform and bring it into id Tech 4 space
 					gltfData::ResolveNodeMatrix( node );
 
-					idMat4 entityToWorldTransform = blenderToDoomTransform * node->matrix;
+					idMat4 entityToWorldTransform = node->matrix;
 					idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
 
 					// set entity transform in a way the game and physics code understand it
