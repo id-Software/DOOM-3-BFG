@@ -822,11 +822,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 					q = blenderToDoomTransform.ToMat3().ToQuat() * animBones[i][b].rotation;
 
-					//if( animBones[i].Num() == 1 )
-					//{
-					// this is not hit
-					//	q = -animBones[i][b].rotation;
-					//}
+					if( animBones[i].Num() == 1 )
+					{
+						// this is only hit for single bone or boneless (root is generated!) animations
+						q =  blenderToDoomTransform.ToMat3().ToQuat() * -animBones[i][b].rotation;
+					}
 				}
 				else
 				{
