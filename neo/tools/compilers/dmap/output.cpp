@@ -847,7 +847,7 @@ static void WriteOutputNodes( node_t* node, idFile* procFile )
 	procFile->WriteFloatString( "/* negative child numbers are areas: (-1-child) */\n" );
 
 	// RB: draw an extra ASCII BSP tree visualization for YouTube tutorial
-	if( dmapGlobals.glview )
+	if( dmapGlobals.asciiTree )
 	{
 		WriteVisualBSPTree( node, procFile );
 	}

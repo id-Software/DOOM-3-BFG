@@ -202,6 +202,7 @@ void ResetDmapGlobals()
 	dmapGlobals.mapLights.Clear();
 	dmapGlobals.verbose = false;
 	dmapGlobals.glview = false;
+	dmapGlobals.asciiTree = false;
 	dmapGlobals.noOptimize = false;
 	dmapGlobals.verboseentities = false;
 	dmapGlobals.noCurves = false;
@@ -270,6 +271,10 @@ void Dmap( const idCmdArgs& args )
 		if( !idStr::Icmp( s, "glview" ) )
 		{
 			dmapGlobals.glview = true;
+		}
+		else if( !idStr::Icmp( s, "asciiTree" ) )
+		{
+			dmapGlobals.asciiTree = true;
 		}
 		else if( !idStr::Icmp( s, "v" ) )
 		{
