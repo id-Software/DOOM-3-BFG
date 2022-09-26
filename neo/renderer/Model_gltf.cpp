@@ -70,21 +70,10 @@ void idRenderModelGLTF::ProcessNode_r( gltfNode* modelNode, idMat4 parentTransfo
 	{
 		gltfMesh* targetMesh = meshList[modelNode->mesh];
 
-		idMat4 animTransform;
-
-		if( !animIds.Num() )
-		{
-			animTransform = nodeToWorldTransform;
-		}
-		else
-		{
-			animTransform = mat4_identity;
-		}
-
 		for( auto prim : targetMesh->primitives )
 		{
 			//ConvertFromMeshGltf should only be used for the map, ConvertGltfMeshToModelsurfaces should be used.
-			auto* mesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, animTransform * blenderToDoomTransform );
+			auto* mesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data,  blenderToDoomTransform * nodeToWorldTransform );
 			modelSurface_t	surf;
 
 			gltfMaterial* mat = NULL;
