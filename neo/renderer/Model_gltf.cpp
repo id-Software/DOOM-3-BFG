@@ -70,21 +70,10 @@ void idRenderModelGLTF::ProcessNode_r( gltfNode* modelNode, idMat4 parentTransfo
 	{
 		gltfMesh* targetMesh = meshList[modelNode->mesh];
 
-		idMat4 animTransform;
-
-		if( !animIds.Num() )
-		{
-			animTransform = nodeToWorldTransform;
-		}
-		else
-		{
-			animTransform = mat4_identity;
-		}
-
 		for( auto prim : targetMesh->primitives )
 		{
 			//ConvertFromMeshGltf should only be used for the map, ConvertGltfMeshToModelsurfaces should be used.
-			auto* mesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, animTransform * blenderToDoomTransform );
+			auto* mesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data,  blenderToDoomTransform * nodeToWorldTransform );
 			modelSurface_t	surf;
 
 			gltfMaterial* mat = NULL;
@@ -833,11 +822,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 					q = blenderToDoomTransform.ToMat3().ToQuat() * animBones[i][b].rotation;
 
-					//if( animBones[i].Num() == 1 )
-					//{
-					// this is not hit
-					//	q = -animBones[i][b].rotation;
-					//}
+					if( animBones[i].Num() == 1 )
+					{
+						// this is only hit for single bone or boneless (root is generated!) animations
+						q =  blenderToDoomTransform.ToMat3().ToQuat() * -animBones[i][b].rotation;
+					}
 				}
 				else
 				{

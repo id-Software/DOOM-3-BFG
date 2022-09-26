@@ -358,7 +358,7 @@ static void WriteUTriangles( idFile* procFile, const srfTriangles_t* uTris, cons
 }
 
 // RB begin
-static void WriteObjTriangles( idFile* objFile, const srfTriangles_t* uTris, const idVec3& offsetOrigin, const char* materialName )
+static void WriteObjTriangles( idFile* objFile, const srfTriangles_t* uTris, const idMat4& entityToWorldTransform, const char* materialName )
 {
 	int			col;
 	int			i;
@@ -376,9 +376,14 @@ static void WriteObjTriangles( idFile* objFile, const srfTriangles_t* uTris, con
 
 		dv = &uTris->verts[i];
 
-		vec[0] = dv->xyz[0] - offsetOrigin.x;
-		vec[1] = dv->xyz[1] - offsetOrigin.y;
-		vec[2] = dv->xyz[2] - offsetOrigin.z;
+		//vec[0] = dv->xyz[0] - offsetOrigin.x;
+		//vec[1] = dv->xyz[1] - offsetOrigin.y;
+		//vec[2] = dv->xyz[2] - offsetOrigin.z;
+
+		idVec3 pos = ( entityToWorldTransform * idVec4( dv->xyz[0], dv->xyz[1], dv->xyz[2], 1 ) ).ToVec3();
+		vec[0] = pos.x;
+		vec[1] = pos.y;
+		vec[2] = pos.z;
 
 		idVec2 st = dv->GetTexCoord();
 		vec[3] = st.x;
@@ -577,6 +582,8 @@ static void WriteOutputSurfaces( int entityNum, int areaNum, idFile* procFile, i
 		procFile->WriteFloatString( "\"%s\" ", ambient->material->GetName() );
 
 		uTri = ShareMapTriVerts( ambient );
+		idStrStatic<256> matName( ambient->material->GetName() );
+		FreeTriList( ambient );
 
 		CleanupUTriangles( uTri );
 		WriteUTriangles( procFile, uTri, entity->originOffset );
@@ -584,10 +591,54 @@ static void WriteOutputSurfaces( int entityNum, int areaNum, idFile* procFile, i
 		// RB
 		if( objFile )
 		{
-			WriteObjTriangles( objFile, uTri, entity->originOffset, ambient->material->GetName() );
-		}
+			idMat4 entityToWorldTransform( mat3_identity, entity->originOffset );
 
-		FreeTriList( ambient );
+			if( entityNum != 0 )
+			{
+				idVec3 origin;
+				origin.Zero();
+
+				idMat3 rot;
+				rot.Identity();
+
+				origin = entity->epairs.GetVector( "origin", "0 0 0" );
+
+				if( !entity->epairs.GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", rot ) )
+				{
+					idAngles angles;
+
+					if( entity->epairs.GetAngles( "angles", "0 0 0", angles ) )
+					{
+						if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
+						{
+							rot = angles.ToMat3();
+						}
+						else
+						{
+							rot.Identity();
+						}
+					}
+					else
+					{
+						float angle = entity->epairs.GetFloat( "angle" );
+						if( angle != 0.0f )
+						{
+							rot = idAngles( 0.0f, angle, 0.0f ).ToMat3();
+						}
+						else
+						{
+							rot.Identity();
+						}
+					}
+				}
+
+				idMat4 transform( rot, origin );
+				entityToWorldTransform = transform;
+			}
+
+			WriteObjTriangles( objFile, uTri, entityToWorldTransform, matName.c_str() );
+		}
+		// RB end
 
 		R_FreeStaticTriSurf( uTri );
 
@@ -796,7 +847,7 @@ static void WriteOutputNodes( node_t* node, idFile* procFile )
 	procFile->WriteFloatString( "/* negative child numbers are areas: (-1-child) */\n" );
 
 	// RB: draw an extra ASCII BSP tree visualization for YouTube tutorial
-	if( dmapGlobals.glview )
+	if( dmapGlobals.asciiTree )
 	{
 		WriteVisualBSPTree( node, procFile );
 	}

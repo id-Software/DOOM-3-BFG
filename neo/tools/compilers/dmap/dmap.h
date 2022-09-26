@@ -279,6 +279,7 @@ typedef struct
 	bool	verbose;
 
 	bool	glview;
+	bool	asciiTree;			// BSP tree visualization in the .proc file
 	bool	noOptimize;
 	bool	verboseentities;
 	bool	noCurves;
