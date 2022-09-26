@@ -164,6 +164,10 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					normal.z = vec.z;
 
 					normal *= transform;
+
+					// renormalize because previous transforms may contain scale operations
+					normal.Normalize();
+
 					mesh->verts[i].SetNormal( normal );
 				}
 
@@ -208,6 +212,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					tangent.z = vec.z;
 
 					tangent *= transform;
+					tangent.Normalize();
 
 					mesh->verts[i].SetTangent( tangent );
 					mesh->verts[i].SetBiTangentSign( vec.w );
