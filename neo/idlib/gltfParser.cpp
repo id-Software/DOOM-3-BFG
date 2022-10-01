@@ -2072,7 +2072,10 @@ bool GLTF_Parser::Parse()
 			parser.ExpectTokenString( "}" );
 		}
 	}
+
 	//parser should be at end.
+#if 0
+	// RB: this results into a random "Unknown punctuation" error sometimes
 	parser.ReadToken( &token );
 	if( parser.EndOfFile() )
 	{
@@ -2082,6 +2085,9 @@ bool GLTF_Parser::Parse()
 	{
 		common->FatalError( "%s not fully loaded.", currentFile.c_str() );
 	}
+#else
+	common->Printf( "%s ^2loaded\n", currentFile.c_str() );
+#endif
 
 	buffersDone = false;
 	bufferViewsDone = false;
