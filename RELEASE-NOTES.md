@@ -18,6 +18,53 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - Oct 1, 2022
+
+This build based on the 635-nvrhi3 branch repairs the loading of animated glTF2 models (thanks to Harrie van Ginneken) and an updated version of TrenchBroom.
+All models need to be reexported by Blender using the enabled +Y Up option.
+
+Models are expected to be exported by Blender with the following settings:
+
+```
+Format: glTF Binary (.glb)
+Transform: +Y Up On
+Materials: Export
+Images: None
+Compression: Off
+Data: Custom Properties On
+Animation: Animation On, Shape Keys On, Skinning On
+```
+
+Changelog:
+
+* Added new Imgui Aritulated Figure editor by Stephen Pridham (forgot to mention this in the last Changelog)
+
+* Fixed math problem and transposed idMat4::ToMat3()
+
+* Repaired glTF2 skeletal animations for the Y-Up case
+
+* Fixed glTF2 boneless TRS animations
+
+* Fixed dmap .glb world+entity geom for the Y-Up case
+
+* Renormalize normals & tangents from dmap .glb import
+
+* Fixed random Unknown punctuation error while loading a glTF2 model
+
+* Transform entity geometry for dmap -glview .obj output into world space
+
+* Moved BSP visualization into separate dmap -asciiTree option
+
+* Renamed custom TrenchBroom fork to TrenchBroomBFG
+
+* Change TrenchBroomBFG to only load Doom 3 related game profiles as it breaks compatibility to other Quake based games
+
+* TrenchBroomBFG was updated with the latest TrenchBroom/master code which involves a couple of bugfixes for linked groups (instancing)
+
+* If you turn off certain brushes like visportals in the View Options you won't accidently select by clicking to brushes behind them
+
+
+
 ## .plan - Sep 25, 2022
 
 This build based on the 635-nvrhi3 branch improves the glTF2 support for mapping with Blender and adds back OGG Vorbis support for custom soundtracks.
