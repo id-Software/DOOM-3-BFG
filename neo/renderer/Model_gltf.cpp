@@ -523,6 +523,7 @@ idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 		if( node->parent == nullptr )
 		{
 			node->matrix *= blenderToDoomTransform;
+			trans = node->matrix;
 		}
 
 		idJointQuat& pose = ret[i];
@@ -720,24 +721,6 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	baseFrame.SetGranularity( 1 );
 	baseFrame.SetNum( bones.Num() );
 
-	gltfSkin* skin = data->GetSkin( gltfAnim );;
-	gltfAccessor* acc = nullptr;
-	if( skin != nullptr )
-	{
-		acc = data->AccessorList()[skin->inverseBindMatrices];
-	}
-	else
-	{
-		skin = new gltfSkin;
-		skin->joints.AssureSize( 1, data->GetNodeIndex( root ) );
-		idMat4 trans = mat4_identity;
-		data->ResolveNodeMatrix( root, &trans );
-		trans *= blenderToDoomTransform.Inverse();
-		acc = new gltfAccessor();
-		acc->matView = new idList<idMat4>( 1 );
-		acc->matView->AssureSize( 1, trans.Inverse().Transpose() );
-	}
-
 	idJointMat* poseMat = ( idJointMat* ) _alloca16( bones.Num() * sizeof( poseMat[0] ) );
 	baseFrame = GetPose( animBones[0], poseMat );
 
@@ -818,15 +801,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 			{
 				if( node->parent == nullptr )
 				{
-					//q = blenderToDoomAngels.ToQuat() * animBones[i][b].rotation;
-
 					q = blenderToDoomTransform.ToMat3().ToQuat() * animBones[i][b].rotation;
-
-					if( animBones[i].Num() == 1 )
-					{
-						// this is only hit for single bone or boneless (root is generated!) animations
-						q =  blenderToDoomTransform.ToMat3().ToQuat() * -animBones[i][b].rotation;
-					}
 				}
 				else
 				{
