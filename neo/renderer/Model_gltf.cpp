@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "d3xp/Game_local.h"
 
 idCVar gltf_ForceBspMeshTexture( "gltf_ForceBspMeshTexture", "0", CVAR_SYSTEM | CVAR_BOOL, "all world geometry has the same forced texture" );
-idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scene to use when loading specific models" );
+idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "Scene", CVAR_SYSTEM , "Scene to use when loading specific models" );
 
 idCVar gltf_AnimSampleRate( "gltf_AnimSampleRate", "24", CVAR_SYSTEM | CVAR_INTEGER , "The frame rate of the converted md5anim" );
 
@@ -467,7 +467,7 @@ void idRenderModelGLTF::DrawJoints( const struct renderEntity_s* ent, const view
 	}
 }
 
-bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfNode*>& nodes , idList<int, TAG_MODEL>& bones, idList<jointAnimInfo_t, TAG_MD5_ANIM>& jointInfo )
+static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfNode*>& nodes , idList<int, TAG_MODEL>& bones, idList<jointAnimInfo_t, TAG_MD5_ANIM>& jointInfo )
 {
 	//Gather Bones;
 	bool boneLess = false;
@@ -508,7 +508,7 @@ bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfN
 	return boneLess;
 }
 
-idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
+static idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 {
 	idList<idJointQuat> ret;
 	ret.AssureSize( bones.Num() );
@@ -549,7 +549,7 @@ idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 	return ret;
 }
 
-int copyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>& out )
+static int CopyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>& out )
 {
 	out.Clear();
 
@@ -584,7 +584,7 @@ int copyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>& out )
 	return out.Num();
 }
 
-idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T sourceTimeStamp )
+idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName, const ID_TIME_T sourceTimeStamp )
 {
 	assert( lastMeshFromFile );
 	///keep in sync with game!
@@ -617,8 +617,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	idList<int, TAG_MODEL>					bones;
 	idList<jointAnimInfo_t, TAG_MD5_ANIM>	jointInfo;
 
-
-	bool boneLess = gatherBoneInfo( data, gltfAnim, nodes, bones, jointInfo );
+	bool boneLess = GatherBoneInfo( data, gltfAnim, nodes, bones, jointInfo );
 
 	idList<idList<gltfNode>>				animBones;
 	idList<float, TAG_MD5_ANIM>				componentFrames;
@@ -675,16 +674,20 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 		{
 			default:
 				break;
+
 			case gltfAnimation_Channel_Target::none:
 				break;
+
 			case gltfAnimation_Channel_Target::rotation:
 				newJoint->animBits |= ANIM_QX | ANIM_QY | ANIM_QZ;
 				numAnimatedComponents += 3;
 				break;
+
 			case gltfAnimation_Channel_Target::translation:
 				newJoint->animBits |= ANIM_TX | ANIM_TY | ANIM_TZ;
 				numAnimatedComponents += 3;
 				break;
+
 			case gltfAnimation_Channel_Target::scale: // this is not supported by engine, but it should be for gltf
 				break;
 		}
@@ -695,7 +698,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	animBones.SetNum( numFrames );
 	for( int i = 0; i < numFrames; i++ )
 	{
-		int totalCopied = copyBones( data, bones, animBones[i] );
+		int totalCopied = CopyBones( data, bones, animBones[i] );
 		assert( totalCopied );
 	}
 
@@ -748,8 +751,10 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 			{
 				default:
 					break;
+
 				case gltfAnimation_Channel_Target::none:
 					break;
+
 				case gltfAnimation_Channel_Target::rotation:
 				{
 					idList<idQuat*>& values = data->GetAccessorView<idQuat>( output );
@@ -757,8 +762,9 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 					{
 						animBones[i][boneIndex].rotation = *values[i];
 					}
+					break;
 				}
-				break;
+
 				case gltfAnimation_Channel_Target::translation:
 				{
 					idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
@@ -766,17 +772,21 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 					{
 						animBones[i][boneIndex].translation = *values[i];
 					}
+					break;
 				}
-				break;
+
 				case gltfAnimation_Channel_Target::scale:
+				{
 					idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
 					if( values.Num() > i )
 					{
 						animBones[i][boneIndex].scale = *values[i] ;
 					}
 					break;
+				}
 			}
 		}
+
 		for( int b = 0; b < bones.Num(); b++ )
 		{
 			auto* node = &animBones[i][b];
@@ -892,9 +902,6 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	file->WriteBig( animLength );
 	file->WriteBig( numJoints );
 	file->WriteBig( numAnimatedComponents );
-
-
-
 
 	file->WriteBig( bounds.Num() );
 	for( int i = 0; i < bounds.Num(); i++ )
@@ -1132,7 +1139,7 @@ void idRenderModelGLTF::LoadModel()
 
 	idJointMat* poseMat = ( idJointMat* ) _alloca16( bones.Num() * sizeof( poseMat[0] ) );
 	idList<gltfNode> animBones;
-	int totalCopied = copyBones( data, bones, animBones );
+	int totalCopied = CopyBones( data, bones, animBones );
 	defaultPose = GetPose( animBones, poseMat );
 
 	if( !currentSkin )
