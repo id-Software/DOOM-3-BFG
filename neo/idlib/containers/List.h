@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <new>
 #include <initializer_list>
+#include <algorithm>	// SRS - Needed for clang 14 so std::copy() is defined
 
 /*
 ===============================================================================
