@@ -692,8 +692,8 @@ ID_INLINE void idStr::operator=( idStr&& text ) noexcept
 	len = text.len;
 	allocedAndFlag = text.allocedAndFlag;
 	memcpy( baseBuffer, text.baseBuffer, sizeof( baseBuffer ) );
-	
-	if ( text.data == text.baseBuffer )
+
+	if( text.data == text.baseBuffer )
 	{
 		data = baseBuffer;
 	}
