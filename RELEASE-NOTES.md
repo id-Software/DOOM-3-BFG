@@ -18,6 +18,27 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - Oct 20, 2022
+
+This build based on the 635-nvrhi3 branch fixes several issues in the AAS builder with the dmap glTF2 workflow.
+
+Changelog:
+
+* Removal of backface generation in idAASBuild for polygon meshes
+
+* Fixed dmap crash while trying to merge leaf nodes
+
+* Add move semantics to idList and idStr (thanks Admer)
+	* idListArrayResize uses std::move
+	* idStr implements move constructor
+	* and move operator
+	* mpMap_t also implements a move operator
+
+* Fix snprintf() buffer length issues for Doom Classic on Linux with GCC 12 compiler
+
+
+
+
 ## .plan - Oct 1, 2022
 
 This build based on the 635-nvrhi3 branch repairs the loading of animated glTF2 models (thanks to Harrie van Ginneken) and an updated version of TrenchBroom.
