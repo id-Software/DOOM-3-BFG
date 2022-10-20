@@ -2258,7 +2258,12 @@ bool idBrushBSP::TryMergeLeafNodes( idBrushBSPPortal* portal, int side )
 	// replace every reference to node2 by a reference to node1
 	UpdateTreeAfterMerge_r( root, bounds, node2, node1 );
 
-	delete node2;
+	// HarrievG: fixed crash with polygon maps
+	if( node2->GetFlags() & NODE_DONE )
+	{
+		delete node2;
+	}
+	// HarrievG end
 
 	return true;
 }
