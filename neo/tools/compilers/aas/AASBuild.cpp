@@ -452,14 +452,7 @@ idBrushList idAASBuild::AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMe
 		const idList<idDrawVert>& verts = mapMesh->GetDrawVerts();
 		const idList<int>& indices = face.GetIndexes();
 
-		idVec3 triNormal;
-		int v1 = 0;
-		int v2 = 1;
-		int v3 = 2;
-
-		//create brush with 2 triangles
-		// 1 frontface from the mappoly verts
-		// 1 backface, offset in direction off frontface normal at unit distance
+		//create brush from triangle
 
 		//Front face
 		d1 = verts[indices[1]].xyz - verts[indices[0]].xyz;
@@ -473,35 +466,6 @@ idBrushList idAASBuild::AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMe
 			w += verts[indices[0]].xyz;
 			w += verts[indices[1]].xyz;
 			w += verts[indices[2]].xyz;
-
-			brush = new idBrush();
-			brush->SetContents( contents );
-			if( brush->FromWinding( w, plane ) )
-			{
-				brush->SetEntityNum( entityNum );
-				brush->SetPrimitiveNum( primitiveNum );
-				brush->SetFlag( BFL_PATCH );
-				brush->Transform( origin, axis );
-				brushList.AddToTail( brush );
-				validBrushes++;
-			}
-			else
-			{
-				delete brush;
-			}
-		}
-
-		//Back face
-		triNormal = plane.Normal();
-		plane.SetNormal( d2.Cross( d1 ) );
-		if( plane.Normalize() != 0.0f )
-		{
-			plane.FitThroughPoint( verts[indices[0]].xyz );
-
-			w.Clear();
-			w += verts[indices[2]].xyz + triNormal;
-			w += verts[indices[1]].xyz + triNormal;
-			w += verts[indices[0]].xyz + triNormal;
 
 			brush = new idBrush();
 			brush->SetContents( contents );
