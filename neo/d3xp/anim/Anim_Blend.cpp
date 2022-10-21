@@ -3266,6 +3266,10 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 	jointHandle_t		jointnum;
 	idList<jointHandle_t> jointList;
 	int					numDefaultAnims;
+	// RB: import options
+	idStr				defaultCommands;
+	idStr				temp;
+	idStr				parms;
 
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( DECL_LEXER_FLAGS );
@@ -3284,7 +3288,19 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 			break;
 		}
 
-		if( token == "inherit" )
+		// RB: add import options
+		if( token == "options" )
+		{
+			src.ParseRestOfLine( defaultCommands );
+		}
+		else if( token == "addoptions" )
+		{
+			src.ParseRestOfLine( temp );
+			defaultCommands += " ";
+			defaultCommands += temp;
+		}
+		// RB end
+		else if( token == "inherit" )
 		{
 			if( !src.ReadToken( &token2 ) )
 			{
@@ -3344,6 +3360,36 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 				MakeDefault();
 				return false;
 			}
+
+			// RB: parse import options right after filename
+			src.ParseRestOfLine( parms );
+
+			if( defaultCommands.Length() )
+			{
+				sprintf( temp, "%s %s", temp.c_str(), defaultCommands.c_str() );
+			}
+
+			if( parms.Length() )
+			{
+				sprintf( temp, "%s %s", temp.c_str(), parms.c_str() );
+			}
+
+			idImportOptions options;
+			if( isGltf )
+			{
+				try
+				{
+					options.Init( temp.c_str(), filename.c_str() );
+				}
+				catch( idException& ex )
+				{
+					src.Warning( "Model '%s': Failed to parse import options'%s'", filename.c_str(), ex.GetError() );
+					MakeDefault();
+					return false;
+				}
+			}
+			// RB end
+
 			modelHandle = renderModelManager->FindModel( filename );
 			if( !modelHandle )
 			{

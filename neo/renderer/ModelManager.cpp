@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -899,3 +900,483 @@ void idRenderModelManagerLocal::PrintMemInfo( MemInfo_t* mi )
 	f->Printf( "\nTotal model bytes allocated: %s\n", idStr::FormatNumber( totalMem ).c_str() );
 	fileSystem->CloseFile( f );
 }
+
+
+
+// RB: added Maya exporter options
+/*
+==============================================================================================
+
+	idTokenizer
+
+==============================================================================================
+*/
+
+/*
+=================
+MayaError
+=================
+*/
+void MayaError( const char* fmt, ... )
+{
+	va_list	argptr;
+	char	text[ 8192 ];
+
+	va_start( argptr, fmt );
+	idStr::vsnPrintf( text, sizeof( text ), fmt, argptr );
+	va_end( argptr );
+
+	throw idException( text );
+}
+
+
+class idTokenizer
+{
+private:
+	int					currentToken;
+	idStrList			tokens;
+
+public:
+	idTokenizer()
+	{
+		Clear();
+	};
+	void				Clear()
+	{
+		currentToken = 0;
+		tokens.Clear();
+	};
+
+	int					SetTokens( const char* buffer );
+	const char*			NextToken( const char* errorstring = NULL );
+
+	bool				TokenAvailable()
+	{
+		return currentToken < tokens.Num();
+	};
+	int					Num()
+	{
+		return tokens.Num();
+	};
+	void				UnGetToken()
+	{
+		if( currentToken > 0 )
+		{
+			currentToken--;
+		}
+	};
+	const char*			GetToken( int index )
+	{
+		if( ( index >= 0 ) && ( index < tokens.Num() ) )
+		{
+			return tokens[ index ];
+		}
+		else
+		{
+			return NULL;
+		}
+	};
+	const char*			CurrentToken()
+	{
+		return GetToken( currentToken );
+	};
+};
+
+/*
+====================
+idTokenizer::SetTokens
+====================
+*/
+int idTokenizer::SetTokens( const char* buffer )
+{
+	const char* cmd;
+
+	Clear();
+
+	// tokenize commandline
+	cmd = buffer;
+	while( *cmd )
+	{
+		// skip whitespace
+		while( *cmd && isspace( *cmd ) )
+		{
+			cmd++;
+		}
+
+		if( !*cmd )
+		{
+			break;
+		}
+
+		idStr& current = tokens.Alloc();
+		while( *cmd && !isspace( *cmd ) )
+		{
+			current += *cmd;
+			cmd++;
+		}
+	}
+
+	return tokens.Num();
+}
+
+/*
+====================
+idTokenizer::NextToken
+====================
+*/
+const char* idTokenizer::NextToken( const char* errorstring )
+{
+	if( currentToken < tokens.Num() )
+	{
+		return tokens[ currentToken++ ];
+	}
+
+	if( errorstring )
+	{
+		MayaError( "Error: %s", errorstring );
+	}
+
+	return NULL;
+}
+
+
+
+
+/*
+==============================================================================================
+
+	idImportOptions
+
+==============================================================================================
+*/
+
+#define DEFAULT_ANIM_EPSILON	0.125f
+#define DEFAULT_QUAT_EPSILON	( 1.0f / 8192.0f )
+
+void idImportOptions::Init( const char* commandline, const char* ospath )
+{
+	idStr		token;
+	idNamePair	joints;
+	int			i;
+	idAnimGroup*	group;
+	idStr		sourceDir;
+	idStr		destDir;
+
+	//Reset( commandline );
+	scale			= 1.0f;
+	//type			= WRITE_MESH;
+	startframe		= -1;
+	endframe		= -1;
+	ignoreMeshes	= false;
+	clearOrigin		= false;
+	clearOriginAxis	= false;
+	framerate		= 24;
+	align			= "";
+	rotate			= 0.0f;
+	commandLine		= commandline;
+	prefix			= "";
+	jointThreshold	= 0.05f;
+	ignoreScale		= false;
+	xyzPrecision	= DEFAULT_ANIM_EPSILON;
+	quatPrecision	= DEFAULT_QUAT_EPSILON;
+	cycleStart		= -1;
+
+	src.Clear();
+	dest.Clear();
+
+	idTokenizer tokens;
+	tokens.SetTokens( commandline );
+
+	keepjoints.Clear();
+	renamejoints.Clear();
+	remapjoints.Clear();
+	exportgroups.Clear();
+	skipmeshes.Clear();
+	keepmeshes.Clear();
+	groups.Clear();
+
+	/*
+	token = tokens.NextToken( "Missing export command" );
+	if( token == "mesh" )
+	{
+		type = WRITE_MESH;
+	}
+	else if( token == "anim" )
+	{
+		type = WRITE_ANIM;
+	}
+	else if( token == "camera" )
+	{
+		type = WRITE_CAMERA;
+	}
+	else
+	{
+		MayaError( "Unknown export command '%s'", token.c_str() );
+	}
+	*/
+
+	//src = tokens.NextToken( "Missing source filename" );
+	//dest = src;
+
+	for( token = tokens.NextToken(); token != ""; token = tokens.NextToken() )
+	{
+		if( token == "-" )
+		{
+			token = tokens.NextToken( "Missing import parameter" );
+
+			if( token == "force" )
+			{
+				// skip
+			}
+			else if( token == "game" )
+			{
+				// parse game name
+				game = tokens.NextToken( "Expecting game name after -game" );
+
+			}
+			else if( token == "rename" )
+			{
+				// parse joint to rename
+				joints.from = tokens.NextToken( "Missing joint name for -rename.  Usage: -rename [joint name] [new name]" );
+				joints.to	= tokens.NextToken( "Missing new name for -rename.  Usage: -rename [joint name] [new name]" );
+				renamejoints.Append( joints );
+
+			}
+			else if( token == "prefix" )
+			{
+				prefix = tokens.NextToken( "Missing name for -prefix.  Usage: -prefix [joint prefix]" );
+
+			}
+			else if( token == "parent" )
+			{
+				// parse joint to reparent
+				joints.from = tokens.NextToken( "Missing joint name for -parent.  Usage: -parent [joint name] [new parent]" );
+				joints.to	= tokens.NextToken( "Missing new parent for -parent.  Usage: -parent [joint name] [new parent]" );
+				remapjoints.Append( joints );
+
+			}
+			else if( !token.Icmp( "sourcedir" ) )
+			{
+				// parse source directory
+				sourceDir = tokens.NextToken( "Missing filename for -sourcedir.  Usage: -sourcedir [directory]" );
+
+			}
+			else if( !token.Icmp( "destdir" ) )
+			{
+				// parse destination directory
+				destDir = tokens.NextToken( "Missing filename for -destdir.  Usage: -destdir [directory]" );
+
+			}
+			else if( token == "dest" )
+			{
+				// parse destination filename
+				dest = tokens.NextToken( "Missing filename for -dest.  Usage: -dest [filename]" );
+
+			}
+			else if( token == "range" )
+			{
+				// parse frame range to export
+				token		= tokens.NextToken( "Missing start frame for -range.  Usage: -range [start frame] [end frame]" );
+				startframe	= atoi( token );
+				token		= tokens.NextToken( "Missing end frame for -range.  Usage: -range [start frame] [end frame]" );
+				endframe	= atoi( token );
+
+				if( startframe > endframe )
+				{
+					MayaError( "Start frame is greater than end frame." );
+				}
+
+			}
+			else if( !token.Icmp( "cycleStart" ) )
+			{
+				// parse start frame of cycle
+				token		= tokens.NextToken( "Missing cycle start frame for -cycleStart.  Usage: -cycleStart [first frame of cycle]" );
+				cycleStart	= atoi( token );
+
+			}
+			else if( token == "scale" )
+			{
+				// parse scale
+				token	= tokens.NextToken( "Missing scale amount for -scale.  Usage: -scale [scale amount]" );
+				scale	= atof( token );
+
+			}
+			else if( token == "align" )
+			{
+				// parse align joint
+				align = tokens.NextToken( "Missing joint name for -align.  Usage: -align [joint name]" );
+
+			}
+			else if( token == "rotate" )
+			{
+				// parse angle rotation
+				token	= tokens.NextToken( "Missing value for -rotate.  Usage: -rotate [yaw]" );
+				rotate	= -atof( token );
+
+			}
+			else if( token == "nomesh" )
+			{
+				ignoreMeshes = true;
+
+			}
+			else if( token == "clearorigin" )
+			{
+				clearOrigin = true;
+				clearOriginAxis = true;
+
+			}
+			else if( token == "clearoriginaxis" )
+			{
+				clearOriginAxis = true;
+
+			}
+			else if( token == "ignorescale" )
+			{
+				ignoreScale = true;
+
+			}
+			else if( token == "xyzprecision" )
+			{
+				// parse quaternion precision
+				token = tokens.NextToken( "Missing value for -xyzprecision.  Usage: -xyzprecision [precision]" );
+				xyzPrecision = atof( token );
+				if( xyzPrecision < 0.0f )
+				{
+					MayaError( "Invalid value for -xyzprecision.  Must be >= 0" );
+				}
+
+			}
+			else if( token == "quatprecision" )
+			{
+				// parse quaternion precision
+				token = tokens.NextToken( "Missing value for -quatprecision.  Usage: -quatprecision [precision]" );
+				quatPrecision = atof( token );
+				if( quatPrecision < 0.0f )
+				{
+					MayaError( "Invalid value for -quatprecision.  Must be >= 0" );
+				}
+
+			}
+			else if( token == "jointthreshold" )
+			{
+				// parse joint threshold
+				token			= tokens.NextToken( "Missing weight for -jointthreshold.  Usage: -jointthreshold [minimum joint weight]" );
+				jointThreshold	= atof( token );
+
+			}
+			else if( token == "skipmesh" )
+			{
+				token = tokens.NextToken( "Missing name for -skipmesh.  Usage: -skipmesh [name of mesh to skip]" );
+				skipmeshes.AddUnique( token );
+
+			}
+			else if( token == "keepmesh" )
+			{
+				token = tokens.NextToken( "Missing name for -keepmesh.  Usage: -keepmesh [name of mesh to keep]" );
+				keepmeshes.AddUnique( token );
+
+			}
+			else if( token == "jointgroup" )
+			{
+				token	= tokens.NextToken( "Missing name for -jointgroup.  Usage: -jointgroup [group name] [joint1] [joint2]...[joint n]" );
+				group = groups.Ptr();
+				for( i = 0; i < groups.Num(); i++, group++ )
+				{
+					if( group->name == token )
+					{
+						break;
+					}
+				}
+
+				if( i >= groups.Num() )
+				{
+					// create a new group
+					group = &groups.Alloc();
+					group->name = token;
+				}
+
+				while( tokens.TokenAvailable() )
+				{
+					token = tokens.NextToken();
+					if( token[ 0 ] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+
+					group->joints.AddUnique( token );
+				}
+			}
+			else if( token == "group" )
+			{
+				// add the list of groups to export (these don't affect the hierarchy)
+				while( tokens.TokenAvailable() )
+				{
+					token = tokens.NextToken();
+					if( token[ 0 ] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+
+					group = groups.Ptr();
+					for( i = 0; i < groups.Num(); i++, group++ )
+					{
+						if( group->name == token )
+						{
+							break;
+						}
+					}
+
+					if( i >= groups.Num() )
+					{
+						MayaError( "Unknown group '%s'", token.c_str() );
+					}
+
+					exportgroups.AddUnique( group );
+				}
+			}
+			else if( token == "keep" )
+			{
+				// add joints that are kept whether they're used by a mesh or not
+				while( tokens.TokenAvailable() )
+				{
+					token = tokens.NextToken();
+					if( token[ 0 ] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+					keepjoints.AddUnique( token );
+				}
+			}
+			else
+			{
+				MayaError( "Unknown option '%s'", token.c_str() );
+			}
+		}
+	}
+
+	token = src;
+	src = ospath;
+	src.BackSlashesToSlashes();
+	src.AppendPath( sourceDir );
+	src.AppendPath( token );
+
+	token = dest;
+	dest = ospath;
+	dest.BackSlashesToSlashes();
+	dest.AppendPath( destDir );
+	dest.AppendPath( token );
+
+	// Maya only accepts unix style path separators
+	src.BackSlashesToSlashes();
+	dest.BackSlashesToSlashes();
+
+	if( skipmeshes.Num() && keepmeshes.Num() )
+	{
+		MayaError( "Can't use -keepmesh and -skipmesh together." );
+	}
+}
+
+// RB end
