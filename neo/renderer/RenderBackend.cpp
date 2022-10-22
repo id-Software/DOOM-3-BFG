@@ -7011,8 +7011,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 #if !defined( USE_VULKAN )
 
-// SRS - For OSX OpenGL record the final portion of GPU time while no other elapsed time query is active (after final shader pass and before post processing)
-#if defined(__APPLE__)
+// SRS - For OSX OpenGL record the final portion of GPU time while no other elapsed time query is active (after final passes and before bloom & other post processing)
+#if defined(__APPLE__) && !defined( USE_NVRHI )
 	renderLog.OpenMainBlock( MRB_GPU_TIME );
 #endif
 
@@ -7054,6 +7054,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 #endif
 	}
 
+// SRS - This macOS OpenGL-specific CloseMainBlock() must occur before the next OpenMainBlock() is called
+#if defined(__APPLE__) && !defined( USE_NVRHI )
+	renderLog.CloseMainBlock();
+#endif
+
 	//-------------------------------------------------
 	// bloom post processing
 	//-------------------------------------------------
@@ -7065,10 +7070,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		Bloom( _viewDef );
 #endif
 	}
-
-#if defined(__APPLE__)
-	renderLog.CloseMainBlock();
-#endif
 
 #if defined( USE_NVRHI )
 	//TODO(Stephen): Move somewhere else?

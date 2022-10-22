@@ -528,7 +528,7 @@ void R_SetNewMode( const bool fullInit )
 			deviceManager = DeviceManager::Create( api );
 #endif
 
-#if defined( USE_VULKAN )
+#if defined( VULKAN_USE_PLATFORM_SDL )
 			if( VKimp_Init( parms ) )
 #else
 			if( GLimp_Init( parms ) )
@@ -542,7 +542,7 @@ void R_SetNewMode( const bool fullInit )
 		{
 			// just rebuild the window
 
-#if defined( USE_VULKAN )
+#if defined( VULKAN_USE_PLATFORM_SDL )
 			if( VKimp_SetScreenParms( parms ) )
 #else
 			if( GLimp_SetScreenParms( parms ) )

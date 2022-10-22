@@ -39,7 +39,7 @@ option(SPIRV_SHADERC
 		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
 
 option(USE_MoltenVK
-		"Use MoltenVK library directly instead of Vulkan loader on macOS" OFF)
+		"Link directly to MoltenVK library instead of Vulkan loader on macOS" OFF)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
@@ -69,7 +69,7 @@ option(USE_DX12
 				"Use DirectX 12" ON)
 
 option(USE_NVRHI_VULKAN
-				"Use Vulkan" ON)
+				"Use Vulkan" OFF)
 
 set(NVRHI_INSTALL OFF)
 
@@ -101,6 +101,7 @@ endif()
 
 if(UNIX)
 	set(OPENAL ON)
+	set(USE_DX12 OFF)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
     if((CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
@@ -110,12 +111,22 @@ if(UNIX)
     endif()
 
 	if(USE_VULKAN)
-		SET(SDL2 ON)
+		# SRS - handle legacy Vulkan backend first to support existing cmake scripts
+		set(USE_NVRHI OFF)
+		set(USE_NVRHI_VULKAN OFF)
+		set(SDL2 ON)
 		
 		# RB: disable precompiled headers on Linux with Vulkan because of error: POSIX thread support was disabled in PCH file but is currently enabled
 		if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
             set(USE_PRECOMPILED_HEADERS OFF)
         endif()
+	elseif(USE_NVRHI_VULKAN)
+		# SRS - for new NVRHI backend on linux/macOS
+		set(USE_NVRHI ON)
+		set(SDL2 ON)
+	else()
+		# SRS - for legacy OpenGL backend
+		set(USE_NVRHI OFF)
 	endif()
 endif()
 
@@ -154,15 +165,15 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	add_definitions(-Werror=format-security)
 	add_definitions(-Werror=format)
 
-	# Compiler check (needs -std=c++14 flag)
+	# Compiler check (needs -std=c++17 flag)
 	include(CheckCXXCompilerFlag)
-	CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-	if(COMPILER_SUPPORTS_CXX14)
-		set(CMAKE_CXX_STANDARD 14)
+	CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+	if(COMPILER_SUPPORTS_CXX17)
+		set(CMAKE_CXX_STANDARD 17)
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 		set(CMAKE_CXX_EXTENSIONS OFF)
 	else()
-		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 	endif()
 
 	if(CPU_TYPE)
@@ -190,8 +201,8 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		# add clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
-		# SRS - Add -Wno-deprecated-register and -Wno-expansion-to-defined to list of warning settings
-		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-deprecated-register -Wno-expansion-to-defined)
+		# SRS - Add -Wno-expansion-to-defined to list of warning settings
+		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-expansion-to-defined)
 	endif()
 	
 	if(NOT CMAKE_CROSSCOMPILING AND ONATIVE)
@@ -430,7 +441,7 @@ if(USE_VULKAN)
         if(APPLE)
             # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
             add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-            # SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
+            # SRS - Optionally link directly to MoltenVK headers/library for runtime config functions on OSX
             if(USE_MoltenVK)
                 add_definitions(-DUSE_MoltenVK)
                 include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
@@ -475,38 +486,7 @@ elseif(USE_NVRHI_VULKAN)
         if(APPLE)
             # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
             add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-            # SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
-            if(USE_MoltenVK)
-                add_definitions(-DUSE_MoltenVK)
-                include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
-                set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVK.dylib CACHE FILEPATH "Path to MoltenVK library." FORCE)
-            endif()
-		endif()
-		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
-	endif()
-	
-	# Eric: For use with SDL2/Vulkan
-	if(UNIX)
-        # SRS - For UNIX-like target OSs use the generic SDL Vulkan platform
-        add_definitions(-DUSE_NVRHI_SDL)
-	elseif(WIN32)
-		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
-	endif()
-	# Use FindVulkan module added with CMAKE 3.7
-	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
-		message( STATUS "Using module to find Vulkan" )
-		find_package(Vulkan)
-	endif()
-
-	if(NOT Vulkan_FOUND)
-		message(FATAL_ERROR "Could not find Vulkan library!")
-	else()
-        include_directories($ENV{VULKAN_SDK}/include)
-
-		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-            # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
-            add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-            # SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
+            # SRS - Optionally link directly to MoltenVK headers/library for runtime config functions on OSX
             if(USE_MoltenVK)
                 add_definitions(-DUSE_MoltenVK)
                 include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
@@ -572,6 +552,11 @@ if(USE_NVRHI)
     endif()
 
     include_directories(${NVRHI_DIR}/include)
+else()
+	# SRS - This may be needed for legacy backends since common code now uses nvrhi - TBD
+	#set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
+	#add_subdirectory(${NVRHI_DIR})
+    #include_directories(${NVRHI_DIR}/include)
 endif(USE_NVRHI)
 
 if(USE_SYSTEM_RAPIDJSON)
@@ -1209,12 +1194,20 @@ file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
 # Eric: Utilize either the Vulkan or GL implementation of SDL
 if(UNIX)
-    if(USE_VULKAN OR USE_NVRHI)
+    if(USE_VULKAN OR USE_NVRHI_VULKAN)
 		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
 		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
 	else()
 		get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
 		list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
+	endif()
+	if(NOT USE_NVRHI)
+		get_filename_component(devicemanager_h_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager.h ABSOLUTE)
+		list(REMOVE_ITEM SYS_INCLUDES "${devicemanager_h_full_path}")
+		get_filename_component(devicemanager_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager.cpp ABSOLUTE)
+		list(REMOVE_ITEM SYS_SOURCES "${devicemanager_cpp_full_path}")
+		get_filename_component(devicemanager_vk_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/DeviceManager_VK.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${devicemanager_vk_cpp_full_path}")
 	endif()
 endif()
 
@@ -1892,9 +1885,8 @@ else()
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
 
-            set(OpenGL_LIBRARIES
-                opengl32
-                glu32)
+            set(Vulkan_LIBRARIES
+            	${Vulkan_LIBRARY})
         else()
 			find_package(OpenGL REQUIRED)
 			include_directories(${OPENGL_INCLUDE_DIRS})
@@ -1909,7 +1901,7 @@ else()
 	
 	if(USE_PRECOMPILED_HEADERS) 	
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES})
+		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
@@ -2023,7 +2015,9 @@ if(USE_NVRHI_VULKAN)
 	target_link_libraries(RBDoom3BFG nvrhi_vk)
 endif()
 
-target_link_libraries(RBDoom3BFG nvrhi)
+if(USE_NVRHI)
+	target_link_libraries(RBDoom3BFG nvrhi)
 
-add_subdirectory(shaders)
-add_dependencies(RBDoom3BFG Shaders)
+	add_subdirectory(shaders)
+	add_dependencies(RBDoom3BFG Shaders)
+endif()

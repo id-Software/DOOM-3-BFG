@@ -84,7 +84,7 @@ public:
 #if defined( USE_VULKAN )
 	VkBuffer			GetAPIObject() const
 	{
-		return apiObject;
+		return bufferHandle;
 	}
 #elif defined( USE_NVRHI )
 	nvrhi::IBuffer*		GetAPIObject() const
@@ -94,7 +94,7 @@ public:
 #else
 	GLintptr			GetAPIObject() const
 	{
-		return apiObject;
+		return bufferHandle;
 	}
 #endif
 	int					GetOffset() const

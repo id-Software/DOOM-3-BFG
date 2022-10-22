@@ -255,14 +255,14 @@ jpeg_make_d_derived_tbl( j_decompress_ptr cinfo, JHUFF_TBL* htbl,
 
 GLOBAL boolean
 jpeg_fill_bit_buffer( bitread_working_state* state,
-					  register bit_buf_type get_buffer, register int bits_left,
+					  bit_buf_type get_buffer, int bits_left,
 					  int nbits )
 {
 	/* Load up the bit buffer to a depth of at least nbits */
 	/* Copy heavily used state fields into locals (hopefully registers) */
-	register const JOCTET* next_input_byte = state->next_input_byte;
-	register size_t bytes_in_buffer = state->bytes_in_buffer;
-	register int c;
+	const JOCTET* next_input_byte = state->next_input_byte;
+	size_t bytes_in_buffer = state->bytes_in_buffer;
+	int c;
 
 	/* Attempt to load at least MIN_GET_BITS bits into get_buffer. */
 	/* (It is assumed that no request will be for more than that many bits.) */
@@ -361,11 +361,11 @@ no_more_data:
 
 GLOBAL int
 jpeg_huff_decode( bitread_working_state* state,
-				  register bit_buf_type get_buffer, register int bits_left,
+				  bit_buf_type get_buffer, int bits_left,
 				  d_derived_tbl* htbl, int min_bits )
 {
-	register int l = min_bits;
-	register INT32 code;
+	int l = min_bits;
+	INT32 code;
 
 	/* HUFF_DECODE has determined that the code is at least min_bits */
 	/* bits long, so fetch that many bits in one swoop. */
@@ -490,7 +490,7 @@ METHODDEF boolean
 decode_mcu( j_decompress_ptr cinfo, JBLOCKROW* MCU_data )
 {
 	huff_entropy_ptr entropy = ( huff_entropy_ptr ) cinfo->entropy;
-	register int s, k, r;
+	int s, k, r;
 	int blkn, ci;
 	JBLOCKROW block;
 	BITREAD_STATE_VARS;
