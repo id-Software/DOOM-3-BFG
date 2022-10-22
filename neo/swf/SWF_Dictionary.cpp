@@ -90,6 +90,32 @@ idSWFDictionaryEntry& idSWFDictionaryEntry::operator=( idSWFDictionaryEntry& oth
 
 /*
 ========================
+idSWF::idSWFDictionaryEntry::operator= (move)
+========================
+*/
+idSWFDictionaryEntry& idSWFDictionaryEntry::operator=( idSWFDictionaryEntry&& other )
+{
+	type = other.type;
+	material = other.material;
+	shape = other.shape;
+	sprite = other.sprite;
+	font = other.font;
+	text = other.text;
+	edittext = other.edittext;
+	imageSize = other.imageSize;
+	imageAtlasOffset = other.imageAtlasOffset;
+	other.type = SWF_DICT_NULL;
+	other.material = NULL;
+	other.shape = NULL;
+	other.sprite = NULL;
+	other.font = NULL;
+	other.text = NULL;
+	other.edittext = NULL;
+	return *this;
+}
+
+/*
+========================
 idSWF::AddDictionaryEntry
 ========================
 */
