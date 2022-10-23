@@ -373,7 +373,7 @@ void idRenderModelLiquid::Reset()
 idRenderModelLiquid::InitFromFile
 ====================
 */
-void idRenderModelLiquid::InitFromFile( const char* fileName )
+void idRenderModelLiquid::InitFromFile( const char* fileName, idImportOptions* options )
 {
 	int				i, x, y;
 	idToken			token;

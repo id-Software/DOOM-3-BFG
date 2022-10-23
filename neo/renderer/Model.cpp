@@ -295,7 +295,7 @@ idRenderModelStatic::PartialInitFromFile
 void idRenderModelStatic::PartialInitFromFile( const char* fileName )
 {
 	fastLoad = true;
-	InitFromFile( fileName );
+	InitFromFile( fileName, nullptr );
 }
 
 /*
@@ -303,14 +303,12 @@ void idRenderModelStatic::PartialInitFromFile( const char* fileName )
 idRenderModelStatic::InitFromFile
 ================
 */
-void idRenderModelStatic::InitFromFile( const char* fileName )
+void idRenderModelStatic::InitFromFile( const char* fileName, idImportOptions* options )
 {
 	bool loaded;
 	idStr extension;
 
 	InitEmpty( fileName );
-
-	// FIXME: load new .proc map format
 
 	ID_TIME_T sourceTimeStamp;
 
@@ -872,7 +870,7 @@ idRenderModelStatic::LoadModel
 void idRenderModelStatic::LoadModel()
 {
 	PurgeModel();
-	InitFromFile( name );
+	InitFromFile( name, nullptr );
 }
 
 /*

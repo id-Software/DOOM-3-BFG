@@ -130,7 +130,7 @@ public:
 
 	// returns NULL if modelName is NULL or an empty string, otherwise
 	// it will create a default model if not loadable
-	virtual	idRenderModel* 	FindModel( const char* modelName ) = 0;
+	virtual	idRenderModel* 	FindModel( const char* modelName, idImportOptions* options = nullptr ) = 0;
 
 	// returns NULL if not loadable
 	virtual	idRenderModel* 	CheckModel( const char* modelName ) = 0;

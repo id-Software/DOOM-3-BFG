@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 class idRenderModelGLTF : public idRenderModelStatic
 {
 public:
-	virtual void				InitFromFile( const char* fileName ) override;
+	virtual void				InitFromFile( const char* fileName, idImportOptions* options ) override;
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) override;
 	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const override;
 	virtual dynamicModel_t		IsDynamicModel() const override;

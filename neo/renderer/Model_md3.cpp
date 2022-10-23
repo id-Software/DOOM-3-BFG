@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 idRenderModelMD3::InitFromFile
 =================
 */
-void idRenderModelMD3::InitFromFile( const char* fileName )
+void idRenderModelMD3::InitFromFile( const char* fileName, idImportOptions* options )
 {
 	int					i, j;
 	md3Header_t*			pinmodel;

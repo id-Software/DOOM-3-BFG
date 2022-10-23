@@ -135,7 +135,7 @@ void idRenderModelGLTF::ProcessNode_r( gltfNode* modelNode, idMat4 parentTransfo
 // warning : nodeName cannot have dots!
 //[fileName].[nodeName/nodeId].[gltf/glb]
 //If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
-void idRenderModelGLTF::InitFromFile( const char* fileName )
+void idRenderModelGLTF::InitFromFile( const char* fileName, idImportOptions* options )
 {
 	hasAnimations = false;
 	fileExclusive = false;

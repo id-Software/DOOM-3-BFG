@@ -50,7 +50,7 @@ public:
 	virtual void			Shutdown();
 	virtual idRenderModel* 	AllocModel();
 	virtual void			FreeModel( idRenderModel* model );
-	virtual idRenderModel* 	FindModel( const char* modelName );
+	virtual idRenderModel* 	FindModel( const char* modelName, idImportOptions* options = nullptr );
 	virtual idRenderModel* 	CheckModel( const char* modelName );
 	virtual idRenderModel* 	DefaultModel();
 	virtual void			AddModel( idRenderModel* model );
@@ -72,7 +72,7 @@ private:
 	idRenderModel* 			spriteModel;
 	bool					insideLevelLoad;		// don't actually load now
 
-	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound );
+	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound, idImportOptions* options );
 
 	static void				PrintModel_f( const idCmdArgs& args );
 	static void				ListModels_f( const idCmdArgs& args );
@@ -278,7 +278,7 @@ void idRenderModelManagerLocal::Shutdown()
 idRenderModelManagerLocal::GetModel
 =================
 */
-idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound )
+idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound, idImportOptions* options )
 {
 
 	if( !_modelName || !_modelName[0] )
@@ -342,10 +342,12 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	// determine which subclass of idRenderModel to initialize
 
 	idRenderModel* model = NULL;
+	bool isGLTF = false;
 	// HvG: GLTF 2 support
 	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
 	{
 		model = new( TAG_MODEL ) idRenderModelGLTF;
+		isGLTF = true;
 	}
 	// RB: Collada DAE and Wavefront OBJ
 	else if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 ) 	// RB: Collada DAE and Wavefront OBJ
@@ -380,19 +382,33 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 		generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
 
 		// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
-		ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+		ID_TIME_T sourceTimeStamp;
+
+		if( isGLTF )
+		{
+			idStr gltfFileName = idStr( canonical );
+			int gltfMeshId = -1;
+			idStr gltfMeshName;
+			gltfManager::ExtractIdentifier( gltfFileName, gltfMeshId, gltfMeshName );
+
+			sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );
+		}
+		else
+		{
+			sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+		}
 
 		idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 
 		if( !model->SupportsBinaryModel() || !binaryLoadRenderModels.GetBool() )
 		{
-			model->InitFromFile( canonical );
+			model->InitFromFile( canonical, options );
 		}
 		else
 		{
 			if( !model->LoadBinaryModel( file, sourceTimeStamp ) )
 			{
-				model->InitFromFile( canonical );
+				model->InitFromFile( canonical, options );
 
 				// RB: default models shouldn't be cached as binary models
 				if( !model->IsDefaultModel() )
@@ -538,9 +554,9 @@ void idRenderModelManagerLocal::FreeModel( idRenderModel* model )
 idRenderModelManagerLocal::FindModel
 =================
 */
-idRenderModel* idRenderModelManagerLocal::FindModel( const char* modelName )
+idRenderModel* idRenderModelManagerLocal::FindModel( const char* modelName, idImportOptions* options )
 {
-	return GetModel( modelName, true );
+	return GetModel( modelName, true, options );
 }
 
 /*
@@ -550,7 +566,7 @@ idRenderModelManagerLocal::CheckModel
 */
 idRenderModel* idRenderModelManagerLocal::CheckModel( const char* modelName )
 {
-	return GetModel( modelName, false );
+	return GetModel( modelName, false, nullptr );
 }
 
 /*
