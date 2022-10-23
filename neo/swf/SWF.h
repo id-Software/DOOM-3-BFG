@@ -50,6 +50,7 @@ public:
 	idSWFDictionaryEntry();
 	~idSWFDictionaryEntry();
 	idSWFDictionaryEntry& operator=( idSWFDictionaryEntry& other );
+	idSWFDictionaryEntry& operator=( idSWFDictionaryEntry&& other );
 
 	swfDictType_t		type;
 	const idMaterial* 	material;

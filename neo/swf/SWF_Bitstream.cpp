@@ -86,6 +86,33 @@ idSWFBitStream& idSWFBitStream::operator=( idSWFBitStream& other )
 
 /*
 ========================
+idSWFBitStream::operator=
+========================
+*/
+idSWFBitStream& idSWFBitStream::operator=( idSWFBitStream&& other )
+{
+	Free();
+	free = other.free;
+	startp = other.startp;
+	readp = other.readp;
+	endp = other.endp;
+	currentBit = other.currentBit;
+	currentByte = other.currentByte;
+	if( other.free )
+	{
+		// this is actually quite dangerous, but we need to do this
+		// because these things are copied around inside idList
+		other.free = false;
+	}
+	other.readp = NULL;
+	other.endp = NULL;
+	other.currentBit = 0;
+	other.currentByte = 0;
+	return *this;
+}
+
+/*
+========================
 idSWFBitStream::Free
 ========================
 */
