@@ -370,10 +370,11 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			}
 			else
 			{
-				idStr classname = node->extras.strPairs.GetString( "classname" );
+				idStr classnameStr = node->extras.strPairs.GetString( "classname" );
+				bool skipInline = !node->extras.strPairs.GetBool("inline",true);
 
 				// skip everything that is not an entity
-				if( !classname.IsEmpty() )
+				if( !classnameStr.IsEmpty())
 				{
 					idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
 					entities.Append( newEntity );
@@ -418,7 +419,10 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 #endif
 
 					// add meshes from all subnodes
-					ProcessSceneNode_r( newEntity, node, mat4_identity, worldToEntityTransform, data );
+					if (!skipInline)
+					{
+						ProcessSceneNode_r(newEntity, node, mat4_identity, worldToEntityTransform, data);
+					}
 
 					entityCount++;
 				}
