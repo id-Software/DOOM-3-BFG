@@ -35,8 +35,6 @@
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL | CVAR_INIT, "" );
-
 class DeviceManager_VK : public DeviceManager
 {
 public:
@@ -189,7 +187,6 @@ private:
 			VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
 #endif
 			VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME,
-			VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 		},
 		// layers
@@ -393,16 +390,6 @@ bool DeviceManager_VK::createInstance()
 	for( const auto& ext : enabledExtensions.instance )
 	{
 		common->Printf( "    %s\n", ext.c_str() );
-	}
-
-	// SRS - Enable validation layer at runtime based on cvar setting
-	if( r_vkEnableValidationLayers.GetBool() )
-	{
-		#if defined(__APPLE__) && defined(USE_MoltenVK)
-			enabledExtensions.layers.insert( "MoltenVK" );
-		#else
-			enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
-		#endif
 	}
 
 	std::unordered_set<std::string> requiredLayers = enabledExtensions.layers;
@@ -988,8 +975,12 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	if( deviceParms.enableDebugRuntime )
 	{
-		enabledExtensions.instance.insert( "VK_EXT_debug_report" );
+		enabledExtensions.instance.insert( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
+#if defined(__APPLE__) && defined(USE_MoltenVK)
+		enabledExtensions.layers.insert( "MoltenVK" );
+#else
 		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
+#endif
 	}
 
 	const vk::DynamicLoader dl;
