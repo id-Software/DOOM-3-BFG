@@ -49,7 +49,7 @@ idRenderModelPrt::idRenderModelPrt()
 idRenderModelPrt::InitFromFile
 ====================
 */
-void idRenderModelPrt::InitFromFile( const char* fileName )
+void idRenderModelPrt::InitFromFile( const char* fileName, idImportOptions* options )
 {
 	name = fileName;
 	particleSystem = static_cast<const idDeclParticle*>( declManager->FindType( DECL_PARTICLE, fileName ) );

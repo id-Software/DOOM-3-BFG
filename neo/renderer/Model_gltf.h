@@ -57,7 +57,7 @@ public:
 	static idFile_Memory* GetAnimBin( idStr animName, const ID_TIME_T sourceTimeStamp );
 	int rootID;
 private:
-	void ProcessNode_r( gltfNode* modelNode, idMat4 trans, gltfData* data );
+	void ProcessNode_r( gltfNode* modelNode, const idMat4& parentTransform, const idMat4& globalTransform, gltfData* data );
 	void UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf, const modelSurface_t& sourceSurf );
 	void UpdateMd5Joints();
 
@@ -78,6 +78,9 @@ private:
 	idList<idJointQuat, TAG_MODEL>	defaultPose;
 	idList<idJointMat, TAG_MODEL>	invertedDefaultPose;
 	gltfSkin* 						currentSkin;
+
+	// derived reimport options
+	idMat4							globalTransform; // Blender to Doom + exta scaling, rotation
 private:
 	void DrawJoints( const struct renderEntity_s* ent, const viewDef_t* view );
 };

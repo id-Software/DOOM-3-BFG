@@ -189,18 +189,16 @@ bool idMD5Anim::LoadAnim( const char* filename )
 	generatedFileName.AppendPath( filename );
 	generatedFileName.SetFileExtension( ".bMD5anim" );
 
-	idStr gltfFileName = idStr( filename );
-	int gltfAnimId = -1;
-	idStr gltfAnimName;
-
-
 	// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
 	ID_TIME_T sourceTimeStamp;
 
 	bool isGLTF = ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) ;
-
 	if( isGLTF )
 	{
+		idStr gltfFileName = idStr( filename );
+		int gltfAnimId = -1;
+		idStr gltfAnimName;
+
 		gltfManager::ExtractIdentifier( gltfFileName, gltfAnimId, gltfAnimName );
 
 		sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );

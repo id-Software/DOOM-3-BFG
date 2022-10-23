@@ -359,7 +359,7 @@ class idRenderModelPrt : public idRenderModelStatic
 public:
 	idRenderModelPrt();
 
-	virtual void				InitFromFile( const char* fileName );
+	virtual void				InitFromFile( const char* fileName, idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;

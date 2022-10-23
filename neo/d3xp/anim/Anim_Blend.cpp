@@ -3387,10 +3387,15 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 					MakeDefault();
 					return false;
 				}
+
+				modelHandle = renderModelManager->FindModel( filename, &options );
+			}
+			else
+			{
+				modelHandle = renderModelManager->FindModel( filename );
 			}
 			// RB end
 
-			modelHandle = renderModelManager->FindModel( filename );
 			if( !modelHandle )
 			{
 				src.Warning( "Model '%s' not found", filename.c_str() );
