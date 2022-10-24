@@ -89,17 +89,11 @@ std::vector<const char*> get_required_extensions()
 	sdlInstanceExtensions.resize( sdlCount );
 	SDL_Vulkan_GetInstanceExtensions( window, &sdlCount, sdlInstanceExtensions.data() );
 
-	// SRS - needed for MoltenVK portability implementation and optionally for MoltenVK configuration on OSX
-#if defined(__APPLE__)
-	sdlInstanceExtensions.push_back( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
-#if defined(USE_MoltenVK)
-	sdlInstanceExtensions.push_back( VK_MVK_MOLTENVK_EXTENSION_NAME );
-#endif
-#endif
 	return sdlInstanceExtensions;
 }
 
 #if defined( USE_NVRHI )
+// SRS - Helper function for creating SDL Vulkan surface within DeviceManager_VK() when NVRHI enabled
 bool CreateSDLWindowSurface( VkInstance instance, VkSurfaceKHR* surface )
 {
 	if( !SDL_Vulkan_CreateSurface( window, instance, surface ) )

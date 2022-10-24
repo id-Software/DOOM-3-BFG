@@ -157,11 +157,15 @@ private:
 	{
 		// instance
 		{
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+			// SRS - needed for using MoltenVK configuration on macOS (if USE_MoltenVK defined)
+			VK_MVK_MOLTENVK_EXTENSION_NAME,
+#endif
 			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 		},
 		// layers
 		{
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined( USE_MoltenVK )
 			//"VK_LAYER_KHRONOS_synchronization2"		// sync2 not supported natively on MoltenVK, use layer implementation instead
 #endif
 		},
@@ -173,7 +177,9 @@ private:
 			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
 			VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
 			VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+#if !defined( USE_MoltenVK )
 			//VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
+#endif
 #endif
 		},
 	};
@@ -184,6 +190,7 @@ private:
 		// instance
 		{
 #if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
+			// SRS - This is optional since it only became manadatory with Vulkan SDK 1.3.216.0 or later
 			VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
 #endif
 			VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME,
@@ -200,7 +207,7 @@ private:
 			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME
 		},
 	};
-	
+
 	std::unordered_set<std::string> m_RayTracingExtensions =
 	{
 		VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
@@ -324,12 +331,17 @@ static std::vector<T> setToVector( const std::unordered_set<T>& set )
 
 bool DeviceManager_VK::createInstance()
 {
+#if defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Populate enabledExtensions with required SDL instance extensions
 	auto sdl_instanceExtensions = get_required_extensions();
 	for( auto instanceExtension : sdl_instanceExtensions )
 	{
 		enabledExtensions.instance.insert( instanceExtension );
 	}
+#elif defined( VK_USE_PLATFORM_WIN32_KHR )
+	enabledExtensions.instance.insert( VK_KHR_SURFACE_EXTENSION_NAME );
+	enabledExtensions.instance.insert( VK_KHR_WIN32_SURFACE_EXTENSION_NAME );
+#endif
 
 	// add instance extensions requested by the user
 	for( const std::string& name : deviceParms.requiredVulkanInstanceExtensions )
@@ -354,7 +366,6 @@ bool DeviceManager_VK::createInstance()
 	std::unordered_set<std::string> requiredExtensions = enabledExtensions.instance;
 
 	// figure out which optional extensions are supported
-	vk::InstanceCreateFlags instanceCreateFlags;
 	for( const auto& instanceExt : vk::enumerateInstanceExtensionProperties() )
 	{
 		const std::string name = instanceExt.extensionName;
@@ -362,13 +373,6 @@ bool DeviceManager_VK::createInstance()
 		{
 			enabledExtensions.instance.insert( name );
 		}
-
-#if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
-		if( name == VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME )
-		{
-			instanceCreateFlags = vk::InstanceCreateFlags( VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR );
-		}
-#endif
 
 		requiredExtensions.erase( name );
 	}
@@ -404,7 +408,7 @@ bool DeviceManager_VK::createInstance()
 
 		requiredLayers.erase( name );
 	}
-	
+
 	if( !requiredLayers.empty() )
 	{
 		std::stringstream ss;
@@ -436,8 +440,14 @@ bool DeviceManager_VK::createInstance()
 								  .setPpEnabledLayerNames( layerVec.data() )
 								  .setEnabledExtensionCount( uint32_t( instanceExtVec.size() ) )
 								  .setPpEnabledExtensionNames( instanceExtVec.data() )
-								  .setPApplicationInfo( &applicationInfo )
-								  .setFlags( instanceCreateFlags );
+								  .setPApplicationInfo( &applicationInfo );
+
+#if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
+	if( enabledExtensions.instance.find( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME ) != enabledExtensions.instance.end() )
+	{
+		info.setFlags( vk::InstanceCreateFlagBits( VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR ) );
+	}
+#endif
 
 	const vk::Result res = vk::createInstance( &info, nullptr, &m_VulkanInstance );
 	if( res != vk::Result::eSuccess )
@@ -649,6 +659,7 @@ bool DeviceManager_VK::findQueueFamilies( vk::PhysicalDevice physicalDevice, vk:
 		if( m_PresentQueueFamily == -1 )
 		{
 			vk::Bool32 presentSupported;
+			// SRS - Use portable implmentation for detecting presentation support vs. Windows-specific Vulkan call
 			if( queueFamily.queueCount > 0 &&
 					vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice, i, surface, &presentSupported ) == VK_SUCCESS )
 			{
@@ -786,9 +797,7 @@ bool DeviceManager_VK::createDevice()
 						  .setSamplerAnisotropy( true )
 						  .setTessellationShader( true )
 						  .setTextureCompressionBC( true )
-#if defined(__APPLE__)
-						  .setGeometryShader( false )
-#else
+#if !defined(__APPLE__)
 						  .setGeometryShader( true )
 #endif
 						  .setImageCubeArray( true )
@@ -857,13 +866,13 @@ bool DeviceManager_VK::createWindowSurface()
 	VkResult err = VK_SUCCESS;
 
 	// Create the platform-specific surface
-#if defined(VULKAN_USE_PLATFORM_SDL)
+#if defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Support generic SDL platform for linux and macOS
 	if( !CreateSDLWindowSurface( m_VulkanInstance, ( VkSurfaceKHR* )&m_WindowSurface ) )
 	{
 		err = VK_ERROR_NATIVE_WINDOW_IN_USE_KHR;
 	}
-#elif defined(VK_USE_PLATFORM_WIN32_KHR)
+#elif defined( VK_USE_PLATFORM_WIN32_KHR )
 	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
 	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	surfaceCreateInfo.hinstance = ( HINSTANCE )windowInstance;
@@ -976,7 +985,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	if( deviceParms.enableDebugRuntime )
 	{
 		enabledExtensions.instance.insert( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
-#if defined(__APPLE__) && defined(USE_MoltenVK)
+#if defined(__APPLE__) && defined( USE_MoltenVK )
 		enabledExtensions.layers.insert( "MoltenVK" );
 #else
 		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
