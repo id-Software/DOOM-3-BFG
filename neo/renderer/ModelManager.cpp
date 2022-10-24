@@ -50,7 +50,7 @@ public:
 	virtual void			Shutdown();
 	virtual idRenderModel* 	AllocModel();
 	virtual void			FreeModel( idRenderModel* model );
-	virtual idRenderModel* 	FindModel( const char* modelName, idImportOptions* options = nullptr );
+	virtual idRenderModel* 	FindModel( const char* modelName, const idImportOptions* options = NULL );
 	virtual idRenderModel* 	CheckModel( const char* modelName );
 	virtual idRenderModel* 	DefaultModel();
 	virtual void			AddModel( idRenderModel* model );
@@ -72,7 +72,7 @@ private:
 	idRenderModel* 			spriteModel;
 	bool					insideLevelLoad;		// don't actually load now
 
-	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound, idImportOptions* options );
+	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound, const idImportOptions* options );
 
 	static void				PrintModel_f( const idCmdArgs& args );
 	static void				ListModels_f( const idCmdArgs& args );
@@ -278,7 +278,7 @@ void idRenderModelManagerLocal::Shutdown()
 idRenderModelManagerLocal::GetModel
 =================
 */
-idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound, idImportOptions* options )
+idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound, const idImportOptions* options )
 {
 
 	if( !_modelName || !_modelName[0] )
@@ -554,7 +554,7 @@ void idRenderModelManagerLocal::FreeModel( idRenderModel* model )
 idRenderModelManagerLocal::FindModel
 =================
 */
-idRenderModel* idRenderModelManagerLocal::FindModel( const char* modelName, idImportOptions* options )
+idRenderModel* idRenderModelManagerLocal::FindModel( const char* modelName, const idImportOptions* options )
 {
 	return GetModel( modelName, true, options );
 }

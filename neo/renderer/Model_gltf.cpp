@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "d3xp/Game_local.h"
 
 idCVar gltf_ForceBspMeshTexture( "gltf_ForceBspMeshTexture", "0", CVAR_SYSTEM | CVAR_BOOL, "all world geometry has the same forced texture" );
-idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "Scene", CVAR_SYSTEM , "Scene to use when loading specific models" );
+idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scene to use when loading specific models" );
 
 idCVar gltf_AnimSampleRate( "gltf_AnimSampleRate", "24", CVAR_SYSTEM | CVAR_INTEGER , "The frame rate of the converted md5anim" );
 
@@ -135,7 +135,7 @@ void idRenderModelGLTF::ProcessNode_r( gltfNode* modelNode, const idMat4& parent
 // warning : nodeName cannot have dots!
 //[fileName].[nodeName/nodeId].[gltf/glb]
 //If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
-void idRenderModelGLTF::InitFromFile( const char* fileName, idImportOptions* options )
+void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOptions* options )
 {
 	hasAnimations = false;
 	fileExclusive = false;
@@ -597,13 +597,15 @@ static int CopyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>
 	return out.Num();
 }
 
-idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName, const ID_TIME_T sourceTimeStamp )
+idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TIME_T sourceTimeStamp, const idImportOptions* options )
 {
 	assert( lastMeshFromFile );
 
 	//keep in sync with game!
 	static const byte B_ANIM_MD5_VERSION = 101;
 	static const unsigned int B_ANIM_MD5_MAGIC = ( 'B' << 24 ) | ( 'M' << 16 ) | ( 'D' << 8 ) | B_ANIM_MD5_VERSION;
+
+	// convert animName to original glTF2 filename and load it
 	GLTF_Parser gltf;
 	int id;
 	idStr gltfFileName = idStr( animName );

@@ -303,7 +303,7 @@ void idRenderModelStatic::PartialInitFromFile( const char* fileName )
 idRenderModelStatic::InitFromFile
 ================
 */
-void idRenderModelStatic::InitFromFile( const char* fileName, idImportOptions* options )
+void idRenderModelStatic::InitFromFile( const char* fileName, const idImportOptions* options )
 {
 	bool loaded;
 	idStr extension;

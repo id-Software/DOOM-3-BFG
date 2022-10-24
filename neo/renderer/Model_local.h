@@ -52,7 +52,7 @@ public:
 	idRenderModelStatic();
 	virtual						~idRenderModelStatic();
 
-	virtual void				InitFromFile( const char* fileName, idImportOptions* options );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
 	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
 	virtual bool				SupportsBinaryModel()
@@ -216,7 +216,7 @@ class idRenderModelMD5 : public idRenderModelStatic
 {
 	friend class				idRenderModelGLTF;
 public:
-	virtual void				InitFromFile( const char* fileName, idImportOptions* options );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
 	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
 	virtual dynamicModel_t		IsDynamicModel() const;
@@ -268,7 +268,7 @@ struct md3Surface_s;
 class idRenderModelMD3 : public idRenderModelStatic
 {
 public:
-	virtual void				InitFromFile( const char* fileName, idImportOptions* options );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;
@@ -299,7 +299,7 @@ class idRenderModelLiquid : public idRenderModelStatic
 public:
 	idRenderModelLiquid();
 
-	virtual void				InitFromFile( const char* fileName, idImportOptions* options );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;
@@ -359,7 +359,7 @@ class idRenderModelPrt : public idRenderModelStatic
 public:
 	idRenderModelPrt();
 
-	virtual void				InitFromFile( const char* fileName, idImportOptions* options );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;

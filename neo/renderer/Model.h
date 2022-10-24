@@ -169,7 +169,7 @@ public:
 	virtual						~idRenderModel() {};
 
 	// Loads static models only, dynamic models must be loaded by the modelManager
-	virtual void				InitFromFile( const char* fileName, idImportOptions* options ) = 0;
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options ) = 0;
 
 	// Supports reading/writing binary file formats
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) = 0;
