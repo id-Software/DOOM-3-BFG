@@ -193,6 +193,7 @@ void idRenderBackend::Init()
 	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
 		glConfig.timerQueryAvailable = false;
+		r_useSSAO.SetBool( false );
 	}
 }
 
@@ -1736,33 +1737,11 @@ void idRenderBackend::CheckCVars()
 	}
 #endif
 
-	/*
-	if( r_usePBR.IsModified() ||
-			r_useHDR.IsModified() ||
-			r_useHalfLambertLighting.IsModified() ||
-			r_pbrDebug.IsModified() )
+	// RB: FIXME but for now disable it to avoid validation errors
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
-		bool needShaderReload = false;
-
-		if( r_usePBR.GetBool() && r_useHalfLambertLighting.GetBool() )
-		{
-			r_useHalfLambertLighting.SetBool( false );
-
-			needShaderReload = true;
-		}
-
-		needShaderReload |= r_useHDR.IsModified();
-		needShaderReload |= r_pbrDebug.IsModified();
-
-		r_usePBR.ClearModified();
-		r_useHDR.ClearModified();
-		r_useHalfLambertLighting.ClearModified();
-		r_pbrDebug.ClearModified();
-
-		renderProgManager.KillAllShaders();
-		renderProgManager.LoadAllShaders();
+		r_useSSAO.SetBool( false );
 	}
-	*/
 }
 
 /*
