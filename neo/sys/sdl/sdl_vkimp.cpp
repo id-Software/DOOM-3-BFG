@@ -101,7 +101,7 @@ bool CreateSDLWindowSurface( VkInstance instance, VkSurfaceKHR* surface )
 		common->Warning( "Error while creating SDL Vulkan surface: %s", SDL_GetError() );
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -328,7 +328,7 @@ bool VKimp_Init( glimpParms_t parms )
 #if defined( USE_NVRHI )
 		glimpParms_t createParms = parms;
 		createParms.x = createParms.y = windowPos;
-		
+
 		if( !deviceManager->CreateWindowDeviceAndSwapChain( createParms, GAME_NAME ) )
 #else
 		window = SDL_CreateWindow( GAME_NAME,
@@ -537,7 +537,7 @@ void DeviceManager::Shutdown()
 
 	// destroy window
 	VKimp_Shutdown();
-	
+
 	// restore gamma
 	//VKimp_RestoreGamma();
 }

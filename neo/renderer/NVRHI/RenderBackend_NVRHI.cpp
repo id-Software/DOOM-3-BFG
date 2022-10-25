@@ -196,7 +196,7 @@ void idRenderBackend::Init()
 void idRenderBackend::Shutdown()
 {
 	delete ssaoPass;
-	
+
 #if defined( VULKAN_USE_PLATFORM_SDL )
 	VKimp_Shutdown();
 #else
@@ -347,7 +347,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	const uint64_t stateBits = glStateBits;
 
 	const int program = renderProgManager.CurrentProgram();
-	const PipelineKey key{ stateBits, program, static_cast<int>(depthBias), slopeScaleBias, currentFrameBuffer };
+	const PipelineKey key{ stateBits, program, static_cast<int>( depthBias ), slopeScaleBias, currentFrameBuffer };
 	const auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	if( currentPipeline != pipeline )

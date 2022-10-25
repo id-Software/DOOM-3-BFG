@@ -23,7 +23,7 @@ DeviceManager* DeviceManager::Create( nvrhi::GraphicsAPI api )
 			return CreateVK();
 #endif
 		default:
-			common->Error( "DeviceManager::Create: Unsupported Graphics API (%u)", (unsigned int)api );
+			common->Error( "DeviceManager::Create: Unsupported Graphics API (%u)", ( unsigned int )api );
 			return nullptr;
 	}
 }

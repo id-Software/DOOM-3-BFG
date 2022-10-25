@@ -340,7 +340,7 @@ idVec2 TemporalAntiAliasingPass::GetCurrentPixelOffset()
 	switch( r_taaJitter.GetInteger() )
 	{
 		default:
-		case (int)TemporalAntiAliasingJitter::MSAA:
+		case( int )TemporalAntiAliasingJitter::MSAA:
 		{
 			const idVec2 offsets[] =
 			{
@@ -350,22 +350,22 @@ idVec2 TemporalAntiAliasingPass::GetCurrentPixelOffset()
 
 			return offsets[m_FrameIndex % 8];
 		}
-		case (int)TemporalAntiAliasingJitter::Halton:
+		case( int )TemporalAntiAliasingJitter::Halton:
 		{
 			uint32_t index = ( m_FrameIndex % 16 ) + 1;
 			return idVec2{ VanDerCorput( 2, index ), VanDerCorput( 3, index ) } - idVec2( 0.5f, 0.5f );
 		}
-		case (int)TemporalAntiAliasingJitter::R2:
+		case( int )TemporalAntiAliasingJitter::R2:
 		{
 			return m_R2Jitter - idVec2( 0.5f, 0.5f );
 		}
-		case (int)TemporalAntiAliasingJitter::WhiteNoise:
+		case( int )TemporalAntiAliasingJitter::WhiteNoise:
 		{
 			std::mt19937 rng( m_FrameIndex );
 			std::uniform_real_distribution<float> dist( -0.5f, 0.5f );
 			return idVec2{ dist( rng ), dist( rng ) };
 		}
-		case (int)TemporalAntiAliasingJitter::None:
+		case( int )TemporalAntiAliasingJitter::None:
 		{
 			return idVec2( 0, 0 );
 		}

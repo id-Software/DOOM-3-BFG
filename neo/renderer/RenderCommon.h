@@ -1422,9 +1422,9 @@ struct glimpParms_t
 // Helper functions for using SDL2 and Vulkan on Linux.
 std::vector<const char*> get_required_extensions();
 #if defined( USE_NVRHI )
-bool CreateSDLWindowSurface( VkInstance instance, VkSurfaceKHR* surface );
+	bool CreateSDLWindowSurface( VkInstance instance, VkSurfaceKHR* surface );
 #else
-extern vulkanContext_t vkcontext;
+	extern vulkanContext_t vkcontext;
 #endif
 
 // DG: R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
