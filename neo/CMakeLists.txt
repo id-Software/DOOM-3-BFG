@@ -33,7 +33,7 @@ option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
 option(USE_VULKAN
-		"Use Vulkan instead of OpenGL" OFF)
+		"Use deprecated Vulkan backend instead of OpenGL" OFF)
 
 option(SPIRV_SHADERC
 		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
@@ -69,7 +69,7 @@ option(USE_DX12
 				"Use DirectX 12" ON)
 
 option(USE_NVRHI_VULKAN
-				"Use Vulkan" OFF)
+				"Use Vulkan" ON)
 
 set(NVRHI_INSTALL OFF)
 
