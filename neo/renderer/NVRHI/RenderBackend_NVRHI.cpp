@@ -189,8 +189,11 @@ void idRenderBackend::Init()
 	currentIndexOffset = 0;
 	currentJointOffset = 0;
 
-	// RB: prepare ImGui system
-	//ImGui_Init();
+	// RB: FIXME but for now disable it to avoid validation errors
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		glConfig.timerQueryAvailable = false;
+	}
 }
 
 void idRenderBackend::Shutdown()
