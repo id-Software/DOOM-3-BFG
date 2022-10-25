@@ -238,13 +238,13 @@ public:
 	const idJointQuat* 	GetDefaultPose() const override;
 	int					NearestJoint( int surfaceNum, int a, int b, int c ) const override;
 
-	virtual bool				SupportsBinaryModel()
+	bool				SupportsBinaryModel() override
 	{
 		return true;
 	}
 
 	// RB begin
-	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL );
+	void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL ) override;
 	// RB end
 
 private:

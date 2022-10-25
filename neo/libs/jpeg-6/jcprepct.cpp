@@ -109,7 +109,7 @@ LOCAL void
 expand_bottom_edge( JSAMPARRAY image_data, JDIMENSION num_cols,
 					int input_rows, int output_rows )
 {
-	register int row;
+	int row;
 
 	for( row = input_rows; row < output_rows; row++ )
 	{

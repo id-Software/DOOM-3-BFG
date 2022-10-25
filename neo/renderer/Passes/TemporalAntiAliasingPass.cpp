@@ -281,7 +281,8 @@ void TemporalAntiAliasingPass::TemporalResolve(
 	taaConstants.outputViewSize = idVec2( viewportOutput.width() + 1, viewportOutput.height() + 1 );
 	//taaConstants.inputPixelOffset.Set( 0, 0 ); // TODO = viewInput->GetPixelOffset();
 	taaConstants.inputPixelOffset = GetCurrentPixelOffset();
-	taaConstants.outputTextureSizeInv = 1.0f / idVec2( float( renderSystem->GetWidth() ), float( renderSystem->GetHeight() ) );
+	// SRS - FIXME: Is this correct?  Replaces 1.0f / idVec2 () which does not compile using Clang
+	taaConstants.outputTextureSizeInv = idVec2( 1.0f, 1.0f ) / idVec2( float( renderSystem->GetWidth() ), float( renderSystem->GetHeight() ) );
 	taaConstants.inputOverOutputViewSize = taaConstants.inputViewSize / taaConstants.outputViewSize;
 	taaConstants.outputOverInputViewSize = taaConstants.outputViewSize / taaConstants.inputViewSize;
 	taaConstants.clampingFactor = params.enableHistoryClamping ? params.clampingFactor : -1.f;
@@ -339,7 +340,7 @@ idVec2 TemporalAntiAliasingPass::GetCurrentPixelOffset()
 	switch( r_taaJitter.GetInteger() )
 	{
 		default:
-		case TemporalAntiAliasingJitter::MSAA:
+		case( int )TemporalAntiAliasingJitter::MSAA:
 		{
 			const idVec2 offsets[] =
 			{
@@ -349,22 +350,22 @@ idVec2 TemporalAntiAliasingPass::GetCurrentPixelOffset()
 
 			return offsets[m_FrameIndex % 8];
 		}
-		case TemporalAntiAliasingJitter::Halton:
+		case( int )TemporalAntiAliasingJitter::Halton:
 		{
 			uint32_t index = ( m_FrameIndex % 16 ) + 1;
 			return idVec2{ VanDerCorput( 2, index ), VanDerCorput( 3, index ) } - idVec2( 0.5f, 0.5f );
 		}
-		case TemporalAntiAliasingJitter::R2:
+		case( int )TemporalAntiAliasingJitter::R2:
 		{
 			return m_R2Jitter - idVec2( 0.5f, 0.5f );
 		}
-		case TemporalAntiAliasingJitter::WhiteNoise:
+		case( int )TemporalAntiAliasingJitter::WhiteNoise:
 		{
 			std::mt19937 rng( m_FrameIndex );
 			std::uniform_real_distribution<float> dist( -0.5f, 0.5f );
 			return idVec2{ dist( rng ), dist( rng ) };
 		}
-		case TemporalAntiAliasingJitter::None:
+		case( int )TemporalAntiAliasingJitter::None:
 		{
 			return idVec2( 0, 0 );
 		}

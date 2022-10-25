@@ -150,7 +150,7 @@ void fhImmediateMode::End()
 	uint64_t stateBits = tr.backend.glStateBits;
 
 	int program = renderProgManager.CurrentProgram();
-	PipelineKey key{ stateBits, program, tr.backend.depthBias, tr.backend.slopeScaleBias, tr.backend.currentFrameBuffer };
+	PipelineKey key{ stateBits, program, static_cast<int>( tr.backend.depthBias ), tr.backend.slopeScaleBias, tr.backend.currentFrameBuffer };
 	auto pipeline = tr.backend.pipelineCache.GetOrCreatePipeline( key );
 
 	{

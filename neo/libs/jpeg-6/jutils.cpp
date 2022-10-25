@@ -115,13 +115,13 @@ jcopy_sample_rows( JSAMPARRAY input_array, int source_row,
 	 * to output_array[dest_row++]; these areas may overlap for duplication.
 	 * The source and destination arrays must be at least as wide as num_cols.
 	 */
-	register JSAMPROW inptr, outptr;
+	JSAMPROW inptr, outptr;
 #ifdef FMEMCOPY
-	register size_t count = ( size_t )( num_cols * SIZEOF( JSAMPLE ) );
+	size_t count = ( size_t )( num_cols * SIZEOF( JSAMPLE ) );
 #else
-	register JDIMENSION count;
+	JDIMENSION count;
 #endif
-	register int row;
+	int row;
 
 	input_array += source_row;
 	output_array += dest_row;

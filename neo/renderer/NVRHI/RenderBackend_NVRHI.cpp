@@ -55,7 +55,8 @@ idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0"
 idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
 
-void GLimp_SwapBuffers();
+// SRS - What is GLimp_SwapBuffers() used for?  Disable for now
+//void GLimp_SwapBuffers();
 void RB_SetMVP( const idRenderMatrix& mvp );
 
 class NvrhiContext
@@ -110,7 +111,11 @@ void idRenderBackend::Init()
 	}
 
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
+#if defined( VULKAN_USE_PLATFORM_SDL )
+	VKimp_PreInit();
+#else
 	GLimp_PreInit();
+#endif
 	// DG end
 
 	R_SetNewMode( true );
@@ -184,14 +189,23 @@ void idRenderBackend::Init()
 	currentIndexOffset = 0;
 	currentJointOffset = 0;
 
-	// RB: prepare ImGui system
-	//ImGui_Init();
+	// RB: FIXME but for now disable it to avoid validation errors
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		glConfig.timerQueryAvailable = false;
+		r_useSSAO.SetBool( false );
+	}
 }
 
 void idRenderBackend::Shutdown()
 {
 	delete ssaoPass;
+
+#if defined( VULKAN_USE_PLATFORM_SDL )
+	VKimp_Shutdown();
+#else
 	GLimp_Shutdown();
+#endif
 }
 
 /*
@@ -337,7 +351,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	const uint64_t stateBits = glStateBits;
 
 	const int program = renderProgManager.CurrentProgram();
-	const PipelineKey key{ stateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
+	const PipelineKey key{ stateBits, program, static_cast<int>( depthBias ), slopeScaleBias, currentFrameBuffer };
 	const auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	if( currentPipeline != pipeline )
@@ -1690,27 +1704,6 @@ void idRenderBackend::CheckCVars()
 		}
 	}*/
 
-	// SRS - Enable SDL-driven vync changes without restart for UNIX-like OSs
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
-	extern idCVar r_swapInterval;
-	if( r_swapInterval.IsModified() )
-	{
-		r_swapInterval.ClearModified();
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-		if( SDL_GL_SetSwapInterval( r_swapInterval.GetInteger() ) < 0 )
-		{
-			common->Warning( "Vsync changes not supported without restart" );
-		}
-#else
-		if( SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL, r_swapInterval.GetInteger() ) < 0 )
-		{
-			common->Warning( "Vsync changes not supported without restart" );
-		}
-#endif
-	}
-#endif
-	// SRS end
-
 #if 0
 	if( r_antiAliasing.IsModified() )
 	{
@@ -1744,33 +1737,11 @@ void idRenderBackend::CheckCVars()
 	}
 #endif
 
-	/*
-	if( r_usePBR.IsModified() ||
-			r_useHDR.IsModified() ||
-			r_useHalfLambertLighting.IsModified() ||
-			r_pbrDebug.IsModified() )
+	// RB: FIXME but for now disable it to avoid validation errors
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
-		bool needShaderReload = false;
-
-		if( r_usePBR.GetBool() && r_useHalfLambertLighting.GetBool() )
-		{
-			r_useHalfLambertLighting.SetBool( false );
-
-			needShaderReload = true;
-		}
-
-		needShaderReload |= r_useHDR.IsModified();
-		needShaderReload |= r_pbrDebug.IsModified();
-
-		r_usePBR.ClearModified();
-		r_useHDR.ClearModified();
-		r_useHalfLambertLighting.ClearModified();
-		r_pbrDebug.ClearModified();
-
-		renderProgManager.KillAllShaders();
-		renderProgManager.LoadAllShaders();
+		r_useSSAO.SetBool( false );
 	}
-	*/
 }
 
 /*

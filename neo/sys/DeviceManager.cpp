@@ -23,7 +23,7 @@ DeviceManager* DeviceManager::Create( nvrhi::GraphicsAPI api )
 			return CreateVK();
 #endif
 		default:
-			common->Error( "DeviceManager::Create: Unsupported Graphics API (%d)", api );
+			common->Error( "DeviceManager::Create: Unsupported Graphics API (%u)", ( unsigned int )api );
 			return nullptr;
 	}
 }
@@ -101,10 +101,10 @@ void DefaultMessageCallback::message( nvrhi::MessageSeverity severity, const cha
 			common->Warning( messageText );
 			break;
 		case nvrhi::MessageSeverity::Error:
-			common->FatalError( messageText );
+			common->FatalError( "%s", messageText );
 			break;
 		case nvrhi::MessageSeverity::Fatal:
-			common->FatalError( messageText );
+			common->FatalError( "%s", messageText );
 			break;
 	}
 }

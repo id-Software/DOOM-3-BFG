@@ -299,7 +299,9 @@ bool idSoundSample_XAudio2::LoadOgg( const idStr& filename )
 	buffers[0].numSamples = playLength;
 	buffers[0].buffer = AllocBuffer( totalBufferSize, GetName() );
 
-	decoder.Read( buffers[0].buffer, buffers[0].bufferSize );
+	int val = decoder.Read( buffers[0].buffer, buffers[0].bufferSize );
+
+	return ( val != -1 );
 }
 
 /*

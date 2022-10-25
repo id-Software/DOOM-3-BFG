@@ -402,7 +402,7 @@ void idGuiModel::EmitImGui( ImDrawData* drawData )
 				mat = ( const idMaterial* )pcmd->TextureId;
 			}
 
-			idScreenRect clipRect = { pcmd->ClipRect.x, pcmd->ClipRect.y, pcmd->ClipRect.z, pcmd->ClipRect.w };
+			idScreenRect clipRect = { static_cast<short>( pcmd->ClipRect.x ), static_cast<short>( pcmd->ClipRect.y ), static_cast<short>( pcmd->ClipRect.z ), static_cast<short>( pcmd->ClipRect.w ) };
 
 			idDrawVert* verts = AllocTris( numVerts, indexBufferOffset, numIndexes, mat, tr.currentGLState, STEREO_DEPTH_TYPE_NONE, clipRect );
 			if( verts == NULL )
