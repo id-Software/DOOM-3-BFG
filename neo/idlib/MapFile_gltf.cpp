@@ -340,6 +340,137 @@ static void AddMeshesToWorldspawn_r( idMapEntity* entity, gltfNode* node, const 
 	}
 };
 
+void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
+{
+	assert( node && node->extensions.KHR_lights_punctual );
+
+	int lightID = node->extensions.KHR_lights_punctual->light;
+	gltfExt_KHR_lights_punctual* light = nullptr;
+	auto& ext = data->ExtensionsList();
+	for( auto& it : ext )
+	{
+		if( it->KHR_lights_punctual.Num() )
+		{
+			assert( lightID + 1 <= it->KHR_lights_punctual.Num() );
+			light = it->KHR_lights_punctual[lightID];
+		}
+	}
+
+	assert( light );
+
+	switch( gltfExt_KHR_lights_punctual::resolveType( light->type ) )
+	{
+		default:
+			break;
+		case gltfExt_KHR_lights_punctual::Directional:
+		{
+
+			break;
+		}
+		case gltfExt_KHR_lights_punctual::Point:
+		{
+
+			break;
+		}
+		case gltfExt_KHR_lights_punctual::Spot:
+		{
+			idMat4 entityToWorldTransform = mat4_identity;
+			gltfData::ResolveNodeMatrix( node, &entityToWorldTransform );
+			idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
+
+			float fov = tan( light->spot.outerConeAngle ) / idMath::HALF_PI ;
+			idMat3 axis = idAngles( 0.0f, 90.0f, 90.0f ).ToMat3() * entityToWorldTransform.ToMat3();
+
+
+			newEntity->epairs.SetMatrix( "rotation", mat3_default );
+			newEntity->epairs.SetVector( "_color", light->color );
+			newEntity->epairs.SetVector( "light_target", axis[0] );
+			newEntity->epairs.SetVector( "light_right", axis[1] * -fov );
+			newEntity->epairs.SetVector( "light_up", axis[2] * fov );
+			newEntity->epairs.SetVector( "light_start", axis[0] * 16 );
+			newEntity->epairs.SetVector( "light_end", axis[0] * ( light->range - 16 ) );
+			newEntity->epairs.Set( "texture", "lights/spot01" );
+			break;
+		}
+		case gltfExt_KHR_lights_punctual::count:
+			break;
+	}
+
+}
+
+void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
+{
+	const char* classname = node->extras.strPairs.GetString( "classname" );
+
+	if( node->name.Length() )
+	{
+		newEntity->epairs.Set( "name", node->name );
+	}
+
+	// copy custom properties filled in Blender
+	idDict newPairs = node->extras.strPairs;
+	newPairs.SetDefaults( &newEntity->epairs );
+	newEntity->epairs = newPairs;
+
+	// gather entity transform and bring it into id Tech 4 space
+	gltfData::ResolveNodeMatrix( node );
+
+
+	// set entity transform in a way the game and physics code understand it
+	idVec3 origin = blenderToDoomTransform * node->translation;
+	newEntity->epairs.SetVector( "origin", origin );
+
+	if( node->extensions.KHR_lights_punctual != nullptr )
+	{
+		ResolveLight( data, newEntity, node );
+	}
+
+	// TODO set rotation key to store rotation and scaling
+	//if (idStr::Icmp(classname, "info_player_start") == 0)
+	//	if( !node->matrix.IsIdentity() )
+	//{
+	//	newEntity->epairs.SetMatrix("rotation", axis );
+	//}
+
+#if 0
+	for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
+	{
+		const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
+
+		idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
+	}
+#endif
+}
+
+int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode* node )
+{
+	int entityCount = 0;
+
+	const char* classname = node->extras.strPairs.GetString( "classname" );
+
+	// skip all nodes with "worldspawn." or "BSP" in the name
+	if( idStr::Icmpn( node->name, "BSP", 3 ) != 0 && idStr::Icmpn( node->name, "worldspawn.", 11 ) != 0 )
+	{
+		idStr classnameStr = node->extras.strPairs.GetString( "classname" );
+
+		// skip everything that is not an entity
+		if( !classnameStr.IsEmpty() )
+		{
+			idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
+			entities.Append( newEntity );
+			ResolveEntity( data, newEntity, node );
+			entityCount++;
+		}
+	}
+
+	for( auto& child : node->children )
+	{
+		entityCount += FindEntities( data, entities, data->NodeList()[child] );
+	}
+
+	return entityCount;
+}
+
 int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneID )
 {
 	idMapEntity* worldspawn = new( TAG_IDLIB_GLTF ) idMapEntity();
@@ -371,60 +502,30 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			else
 			{
 				idStr classnameStr = node->extras.strPairs.GetString( "classname" );
-				bool skipInline = !node->extras.strPairs.GetBool("inline",true);
+				bool skipInline = !node->extras.strPairs.GetBool( "inline", true );
 
 				// skip everything that is not an entity
-				if( !classnameStr.IsEmpty())
+				if( !classnameStr.IsEmpty() )
 				{
 					idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
 					entities.Append( newEntity );
-
-					if( node->name.Length() )
-					{
-						newEntity->epairs.Set( "name", node->name );
-					}
-
-					// copy custom properties filled in Blender
-					idDict newPairs = node->extras.strPairs;
-					newPairs.SetDefaults( &newEntity->epairs );
-					newEntity->epairs = newPairs;
-
-					// gather entity transform and bring it into id Tech 4 space
-					gltfData::ResolveNodeMatrix( node );
-
-					idMat4 entityToWorldTransform = node->matrix;
-					idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
-
-					// set entity transform in a way the game and physics code understand it
-					idVec3 origin = blenderToDoomTransform * node->translation;
-					newEntity->epairs.SetVector( "origin", origin );
-
-					// TODO set rotation key to store rotation and scaling
-#if 0
-					if( idStr::Icmp( classname, "info_player_start" ) != 0 )
-						//if( !node->matrix.IsIdentity() )
-					{
-						idMat3 rotation = entityToWorldTransform.ToMat3();
-						newEntity->epairs.SetMatrix( "rotation", rotation );
-					}
-#endif
-
-#if 0
-					for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
-					{
-						const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
-
-						idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
-					}
-#endif
+					ResolveEntity( data, newEntity, node );
 
 					// add meshes from all subnodes
-					if (!skipInline)
+					if( !skipInline )
 					{
-						ProcessSceneNode_r(newEntity, node, mat4_identity, worldToEntityTransform, data);
+						gltfData::ResolveNodeMatrix( node );
+						idMat4 entityToWorldTransform = node->matrix;
+						idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
+						ProcessSceneNode_r( newEntity, node, mat4_identity, worldToEntityTransform, data );
 					}
 
 					entityCount++;
+				}
+				// add entities from all subnodes
+				for( auto& child : node->children )
+				{
+					entityCount += FindEntities( data, entities, data->NodeList()[child] );
 				}
 			}
 		}

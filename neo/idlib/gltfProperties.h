@@ -701,6 +701,13 @@ public:
 class gltfExt_KHR_lights_punctual
 {
 public:
+	enum Type
+	{
+		Directional,
+		Point,
+		Spot,
+		count
+	};
 	gltfExt_KHR_lights_punctual() : color( vec3_one ), intensity( 1.0f ), range( -1.0f ), intType( -1 ) { }
 	idVec3		color;
 	float		intensity;
@@ -713,21 +720,22 @@ public:
 
 	int intType;
 
-	static int resolveType( idStr type )
+
+	static Type resolveType( idStr type )
 	{
 		if( type == "directional" )
 		{
-			return 0;
+			return Type::Directional;
 		}
 		else if( type == "point" )
 		{
-			return 1;
+			return Type::Point;
 		}
 		else if( type == "spot" )
 		{
-			return 2;
+			return  Type::Spot;
 		}
-		return -1;
+		return  Type::count;
 	}
 };
 
