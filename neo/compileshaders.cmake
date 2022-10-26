@@ -116,11 +116,17 @@ function(compile_shaders)
             set(CFLAGS ${params_CFLAGS})
         endif()
 
+        # SRS - Parallel shader compilation sometimes fails, disable for now until issue is resolved
+        if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+            set(PARALLEL_SHADERS "")
+        else()
+            set(PARALLEL_SHADERS "--parallel")
+        endif()
+
         add_custom_command(TARGET ${params_TARGET} PRE_BUILD
                           COMMAND shaderCompiler
                                    --infile ${params_CONFIG}
-# SRS - Parallel shader compilation sometimes fails, disable for now until issue is resolved
-#                                   --parallel
+                                    ${PARALLEL_SHADERS}
                                    --out ${params_SPIRV_DXC}
                                    --platform spirv
                                    -I ${SHADER_INCLUDE_DIR}
