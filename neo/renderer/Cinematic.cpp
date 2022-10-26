@@ -2808,7 +2808,7 @@ fill_input_buffer( j_decompress_ptr cinfo )
  */
 
 #ifdef USE_NEWER_JPEG
-	METHODDEF(void)
+	METHODDEF( void )
 #else
 	METHODDEF void
 #endif
@@ -2836,7 +2836,7 @@ init_source( j_decompress_ptr cinfo )
  */
 
 #ifdef USE_NEWER_JPEG
-	METHODDEF(void)
+	METHODDEF( void )
 #else
 	METHODDEF void
 #endif
@@ -2876,7 +2876,7 @@ skip_input_data( j_decompress_ptr cinfo, long num_bytes )
  */
 
 #ifdef USE_NEWER_JPEG
-	METHODDEF(void)
+	METHODDEF( void )
 #else
 	METHODDEF void
 #endif
@@ -2887,7 +2887,7 @@ term_source( j_decompress_ptr cinfo )
 }
 
 #ifdef USE_NEWER_JPEG
-	GLOBAL(void)
+	GLOBAL( void )
 #else
 	GLOBAL void
 #endif
