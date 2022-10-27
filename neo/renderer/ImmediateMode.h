@@ -73,6 +73,7 @@ public:
 	static void AddTrianglesFromPolygon( fhImmediateMode& im, const idVec3* xyz, int num );
 
 	static void Init( nvrhi::ICommandList* commandList );
+	static void Shutdown();
 	static void ResetStats();
 	static int DrawCallCount();
 	static int DrawCallVertexSize();

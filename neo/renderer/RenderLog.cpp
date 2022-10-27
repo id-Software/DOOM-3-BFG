@@ -332,6 +332,21 @@ void idRenderLog::Init()
 #endif
 }
 
+void idRenderLog::Shutdown()
+{
+#if defined( USE_NVRHI )
+	if( commandList )
+	{
+		commandList.Reset();
+	}
+
+	for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )
+	{
+		timerQueries[i].Reset();
+	}
+#endif
+}
+
 void idRenderLog::StartFrame( nvrhi::ICommandList* _commandList )
 {
 #if defined( USE_NVRHI )

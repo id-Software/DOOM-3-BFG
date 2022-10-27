@@ -177,6 +177,40 @@ void CommonRenderPasses::Init( nvrhi::IDevice* device )
 	}
 }
 
+void CommonRenderPasses::Shutdown()
+{
+	// SRS - Delete the pipelines referenced by the blit cache
+	for( auto& [key, pipeline] : m_BlitPsoCache )
+	{
+		   pipeline.Reset();
+	}
+
+	// SRS - These assets have automatic resource management with overloaded = operator
+	m_RectVS = nullptr;
+	m_BlitPS = nullptr;
+	m_BlitArrayPS = nullptr;
+	m_SharpenPS = nullptr;
+	m_SharpenArrayPS = nullptr;
+
+	m_BlackTexture = nullptr;
+	m_GrayTexture = nullptr;
+	m_WhiteTexture = nullptr;
+	m_BlackTexture2DArray = nullptr;
+	m_WhiteTexture2DArray = nullptr;
+	m_BlackCubeMapArray = nullptr;
+
+	m_PointClampSampler = nullptr;
+	m_PointWrapSampler = nullptr;
+	m_LinearClampSampler = nullptr;
+	m_LinearBorderSampler = nullptr;
+	m_LinearClampCompareSampler = nullptr;
+	m_LinearWrapSampler = nullptr;
+	m_AnisotropicWrapSampler = nullptr;
+	m_AnisotropicClampEdgeSampler = nullptr;
+
+	m_BlitBindingLayout = nullptr;
+}
+
 void CommonRenderPasses::BlitTexture( nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache )
 {
 	assert( commandList );

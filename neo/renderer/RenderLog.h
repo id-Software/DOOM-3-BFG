@@ -90,6 +90,7 @@ public:
 	idRenderLog();
 
 	void		Init();
+	void		Shutdown();
 
 	void		StartFrame( nvrhi::ICommandList* _commandList );
 	void		EndFrame();
