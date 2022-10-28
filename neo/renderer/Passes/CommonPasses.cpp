@@ -209,6 +209,9 @@ void CommonRenderPasses::Shutdown()
 	m_AnisotropicClampEdgeSampler = nullptr;
 
 	m_BlitBindingLayout = nullptr;
+	
+	// SRS - Remove reference to nvrhi::IDevice, otherwise won't clean up properly on shutdown
+	m_Device = nullptr;
 }
 
 void CommonRenderPasses::BlitTexture( nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache )

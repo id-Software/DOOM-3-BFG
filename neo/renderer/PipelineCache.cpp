@@ -43,6 +43,12 @@ void PipelineCache::Init( nvrhi::DeviceHandle deviceHandle )
 	device = deviceHandle;
 }
 
+void PipelineCache::Shutdown()
+{
+	// SRS - Remove reference to nvrhi::IDevice, otherwise won't clean up properly on shutdown
+	device = nullptr;
+}
+
 void PipelineCache::Clear()
 {
 	pipelines.Clear();

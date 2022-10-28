@@ -69,6 +69,7 @@ public:
 	PipelineCache();
 
 	void Init( nvrhi::DeviceHandle deviceHandle );
+	void Shutdown();
 
 	void Clear();
 

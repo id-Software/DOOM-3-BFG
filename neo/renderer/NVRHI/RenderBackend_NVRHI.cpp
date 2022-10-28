@@ -203,6 +203,7 @@ void idRenderBackend::Shutdown()
 	
 	// Clear all cached pipeline data
 	tr.backend.ClearCaches();
+	pipelineCache.Shutdown();
 	
 	// Delete all renderpass resources
 	commonPasses.Shutdown();
