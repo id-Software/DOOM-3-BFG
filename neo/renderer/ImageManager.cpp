@@ -785,7 +785,7 @@ void idImageManager::Shutdown()
 	deferredImages.DeleteContents( true );
 	deferredImageHash.Clear();
 #if defined( USE_NVRHI )
-	commandList = nullptr;
+	commandList.Reset();
 #endif
 }
 

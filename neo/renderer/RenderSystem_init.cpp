@@ -2284,6 +2284,10 @@ void idRenderSystemLocal::Shutdown()
 
 	Clear();
 
+#if defined( USE_NVRHI )
+	commandList.Reset();
+#endif
+
 	ShutdownOpenGL();
 
 	bInitialized = false;

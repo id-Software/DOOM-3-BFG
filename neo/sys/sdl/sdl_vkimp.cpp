@@ -534,12 +534,6 @@ bool VKimp_SetScreenParms( glimpParms_t parms )
 void DeviceManager::Shutdown()
 {
 	DestroyDeviceAndSwapChain();
-
-	// destroy window
-	VKimp_Shutdown();
-
-	// restore gamma
-	//VKimp_RestoreGamma();
 }
 #endif
 
@@ -552,6 +546,13 @@ void VKimp_Shutdown()
 {
 	common->Printf( "Shutting down Vulkan subsystem\n" );
 
+#if defined( USE_NVRHI )
+	if( deviceManager )
+	{
+		deviceManager->Shutdown();
+	}
+#endif
+	
 	if( window )
 	{
 		SDL_DestroyWindow( window );

@@ -1083,6 +1083,20 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 
 	m_BarrierCommandList = nullptr;
 
+	while( m_FramesInFlight.size() > 0 )
+	{
+		auto query = m_FramesInFlight.front();
+		m_FramesInFlight.pop();
+		query = nullptr;
+	}
+
+	if( !m_QueryPool.empty() )
+	{
+		auto query = m_QueryPool.back();
+		m_QueryPool.pop_back();
+		query = nullptr;
+	}
+
 	m_NvrhiDevice = nullptr;
 	m_ValidationLayer = nullptr;
 	m_RendererString.clear();
