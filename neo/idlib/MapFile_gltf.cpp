@@ -353,7 +353,7 @@ void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 
 	assert( light );
 
-	newEntity->epairs.SetMatrix( "rotation", mat3_default );
+	//newEntity->epairs.SetMatrix( "rotation", mat3_default );
 	newEntity->epairs.SetVector( "_color", light->color );
 
 	switch( gltfExt_KHR_lights_punctual::resolveType( light->type ) )
@@ -361,17 +361,20 @@ void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 		default:
 			common->Warning( "Unsupported Light Type" );
 			break;
+
 		case gltfExt_KHR_lights_punctual::Directional:
 		{
 			common->Warning( "KHR_lights_punctual::Directional not implemented" );
 			break;
 		}
+
 		case gltfExt_KHR_lights_punctual::Point:
 		{
 			newEntity->epairs.SetVector( "light_radius", idVec3( light->range ) );
 			newEntity->epairs.Set( "texture", "lights/defaultpointlight" );
 			break;
 		}
+
 		case gltfExt_KHR_lights_punctual::Spot:
 		{
 			idMat4 entityToWorldTransform = mat4_identity;
@@ -389,6 +392,7 @@ void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 			newEntity->epairs.Set( "texture", "lights/spot01" );
 			break;
 		}
+
 		case gltfExt_KHR_lights_punctual::count:
 			break;
 	}
@@ -424,7 +428,6 @@ void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 
 	// gather entity transform and bring it into id Tech 4 space
 	gltfData::ResolveNodeMatrix( node );
-
 
 	// set entity transform in a way the game and physics code understand it
 	idVec3 origin = blenderToDoomTransform * node->translation;
