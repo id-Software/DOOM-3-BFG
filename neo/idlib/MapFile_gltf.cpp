@@ -227,7 +227,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					{
 						bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
 					}
-					
+
 					mesh->verts[i].SetColor2( PackColor( vec ) );
 
 				}
@@ -353,23 +353,23 @@ void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 
 	assert( light );
 
-	newEntity->epairs.SetMatrix("rotation", mat3_default);
-	newEntity->epairs.SetVector("_color", light->color);
+	newEntity->epairs.SetMatrix( "rotation", mat3_default );
+	newEntity->epairs.SetVector( "_color", light->color );
 
 	switch( gltfExt_KHR_lights_punctual::resolveType( light->type ) )
 	{
 		default:
-			common->Warning("Unsupported Light Type");
+			common->Warning( "Unsupported Light Type" );
 			break;
 		case gltfExt_KHR_lights_punctual::Directional:
 		{
-			common->Warning("KHR_lights_punctual::Directional not implemented");
+			common->Warning( "KHR_lights_punctual::Directional not implemented" );
 			break;
 		}
 		case gltfExt_KHR_lights_punctual::Point:
 		{
-			newEntity->epairs.SetVector("light_radius", idVec3(light->range) );
-			newEntity->epairs.Set("texture", "lights/defaultpointlight");
+			newEntity->epairs.SetVector( "light_radius", idVec3( light->range ) );
+			newEntity->epairs.Set( "texture", "lights/defaultpointlight" );
 			break;
 		}
 		case gltfExt_KHR_lights_punctual::Spot:
@@ -399,22 +399,22 @@ void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 {
 	const char* classname = node->extras.strPairs.GetString( "classname" );
 
-	if (node->name.Length())
+	if( node->name.Length() )
 	{
 		idStr name;
 		idStrList names;
 		gltfNode* parent = node->parent;
-		while (parent)
+		while( parent )
 		{
 			names.Alloc() = parent->name;
 			parent = parent->parent;
 		}
 
-		for (int i = names.Num () ; i >= 1 ; i--)
+		for( int i = names.Num() ; i >= 1 ; i-- )
 		{
-			name += names[i-1] + ".";
+			name += names[i - 1] + ".";
 		}
-		newEntity->epairs.Set( "name", name+node->name );
+		newEntity->epairs.Set( "name", name + node->name );
 	}
 
 	// copy custom properties filled in Blender
