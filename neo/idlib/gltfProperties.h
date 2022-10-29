@@ -194,7 +194,7 @@ public:
 		Color2,
 		Color3,
 		Weight,
-		Indices,
+		Joints, // joint indices
 		Count
 	};
 

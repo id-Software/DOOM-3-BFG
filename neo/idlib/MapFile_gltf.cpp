@@ -138,6 +138,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::Normal:
 			{
 				idVec3 vec;
@@ -168,6 +169,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::TexCoord0:
 			{
 				idVec2 vec;
@@ -186,6 +188,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::Tangent:
 			{
 				idVec4 vec;
@@ -214,6 +217,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				}
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::Weight:
 			{
 				idVec4 vec;
@@ -233,7 +237,84 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				}
 				break;
 			}
-			case gltfMesh_Primitive_Attribute::Type::Indices:
+
+			case gltfMesh_Primitive_Attribute::Type::Color0:
+				//case gltfMesh_Primitive_Attribute::Type::Color1:
+				//case gltfMesh_Primitive_Attribute::Type::Color2:
+				//case gltfMesh_Primitive_Attribute::Type::Color3:
+			{
+				if( attrAcc->typeSize == 4 )
+				{
+					idVec4 vec;
+
+					assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
+
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = idMath::Ftob( vec.x * 255.0f );
+						mesh->verts[i].color[1] = idMath::Ftob( vec.y * 255.0f );
+						mesh->verts[i].color[2] = idMath::Ftob( vec.z * 255.0f );
+						mesh->verts[i].color[3] = 255;
+					}
+				}
+				else if( attrAcc->typeSize == 2 )
+				{
+					uint16_t vec[4];
+
+					assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
+
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = idMath::Ftob( ( vec[0] * 1.0f / 65335 ) * 255.0f );
+						mesh->verts[i].color[1] = idMath::Ftob( ( vec[1] * 1.0f / 65335 ) * 255.0f );
+						mesh->verts[i].color[2] = idMath::Ftob( ( vec[2] * 1.0f / 65335 ) * 255.0f );
+						mesh->verts[i].color[3] = 255;
+					}
+				}
+				else
+				{
+					uint8_t vec[4];
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
+
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = vec[0];
+						mesh->verts[i].color[1] = vec[1];
+						mesh->verts[i].color[2] = vec[2];
+						mesh->verts[i].color[3] = vec[3];
+					}
+				}
+				break;
+			}
+
+			case gltfMesh_Primitive_Attribute::Type::Joints:
 			{
 				if( attrAcc->typeSize == 2 )
 				{
@@ -281,7 +362,6 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					}
 				}
 				break;
-
 			}
 		}
 
