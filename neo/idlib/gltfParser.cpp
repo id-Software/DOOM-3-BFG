@@ -97,7 +97,7 @@ gltf_mesh_attribute_map s_meshAttributeMap[] =
 	"COLOR_2",		gltfMesh_Primitive_Attribute::Type::Color2,		4,
 	"COLOR_3",		gltfMesh_Primitive_Attribute::Type::Color3,		4,
 	"WEIGHTS_0",	gltfMesh_Primitive_Attribute::Type::Weight,		4,
-	"JOINTS_0",		gltfMesh_Primitive_Attribute::Type::Indices,	4,
+	"JOINTS_0",		gltfMesh_Primitive_Attribute::Type::Joints,		4,
 	"",				gltfMesh_Primitive_Attribute::Type::Count
 };
 

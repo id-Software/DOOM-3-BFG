@@ -134,15 +134,11 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					{
 						bin.Seek( attrBv->byteStride - ( 3 * attrAcc->typeSize ), FS_SEEK_CUR );
 					}
-
-					idRandom rnd( i );
-					int r = rnd.RandomInt( 255 ), g = rnd.RandomInt( 255 ), b = rnd.RandomInt( 255 );
-
-					//vtxData[i].abgr = 0xff000000 + ( b << 16 ) + ( g << 8 ) + r;
 				}
 
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::Normal:
 			{
 				idVec3 vec;
@@ -173,6 +169,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::TexCoord0:
 			{
 				idVec2 vec;
@@ -191,6 +188,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::Tangent:
 			{
 				idVec4 vec;
@@ -219,6 +217,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				}
 				break;
 			}
+
 			case gltfMesh_Primitive_Attribute::Type::Weight:
 			{
 				idVec4 vec;
@@ -238,7 +237,84 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				}
 				break;
 			}
-			case gltfMesh_Primitive_Attribute::Type::Indices:
+
+			case gltfMesh_Primitive_Attribute::Type::Color0:
+				//case gltfMesh_Primitive_Attribute::Type::Color1:
+				//case gltfMesh_Primitive_Attribute::Type::Color2:
+				//case gltfMesh_Primitive_Attribute::Type::Color3:
+			{
+				if( attrAcc->typeSize == 4 )
+				{
+					idVec4 vec;
+
+					assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
+
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = idMath::Ftob( vec.x * 255.0f );
+						mesh->verts[i].color[1] = idMath::Ftob( vec.y * 255.0f );
+						mesh->verts[i].color[2] = idMath::Ftob( vec.z * 255.0f );
+						mesh->verts[i].color[3] = 255;
+					}
+				}
+				else if( attrAcc->typeSize == 2 )
+				{
+					uint16_t vec[4];
+
+					assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
+
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = idMath::Ftob( ( vec[0] * 1.0f / 65335 ) * 255.0f );
+						mesh->verts[i].color[1] = idMath::Ftob( ( vec[1] * 1.0f / 65335 ) * 255.0f );
+						mesh->verts[i].color[2] = idMath::Ftob( ( vec[2] * 1.0f / 65335 ) * 255.0f );
+						mesh->verts[i].color[3] = 255;
+					}
+				}
+				else
+				{
+					uint8_t vec[4];
+					for( int i = 0; i < attrAcc->count; i++ )
+					{
+						assert( sizeof( vec ) == ( attrAcc->typeSize * 4 ) );
+
+						bin.Read( ( void* )( &vec[0] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[1] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[2] ), attrAcc->typeSize );
+						bin.Read( ( void* )( &vec[3] ), attrAcc->typeSize );
+						if( attrBv->byteStride )
+						{
+							bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+						}
+
+						mesh->verts[i].color[0] = vec[0];
+						mesh->verts[i].color[1] = vec[1];
+						mesh->verts[i].color[2] = vec[2];
+						mesh->verts[i].color[3] = vec[3];
+					}
+				}
+				break;
+			}
+
+			case gltfMesh_Primitive_Attribute::Type::Joints:
 			{
 				if( attrAcc->typeSize == 2 )
 				{
@@ -286,7 +362,6 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					}
 				}
 				break;
-
 			}
 		}
 
@@ -340,6 +415,155 @@ static void AddMeshesToWorldspawn_r( idMapEntity* entity, gltfNode* node, const 
 	}
 };
 
+void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
+{
+	assert( node && node->extensions.KHR_lights_punctual );
+
+	int lightID = node->extensions.KHR_lights_punctual->light;
+	gltfExt_KHR_lights_punctual* light = nullptr;
+	auto& ext = data->ExtensionsList();
+	for( auto& it : ext )
+	{
+		if( it->KHR_lights_punctual.Num() )
+		{
+			assert( lightID + 1 <= it->KHR_lights_punctual.Num() );
+			light = it->KHR_lights_punctual[lightID];
+		}
+	}
+
+	assert( light );
+
+	//newEntity->epairs.SetMatrix( "rotation", mat3_default );
+	newEntity->epairs.SetVector( "_color", light->color );
+
+	switch( gltfExt_KHR_lights_punctual::resolveType( light->type ) )
+	{
+		default:
+			common->Warning( "Unsupported Light Type" );
+			break;
+
+		case gltfExt_KHR_lights_punctual::Directional:
+		{
+			common->Warning( "KHR_lights_punctual::Directional not implemented" );
+			break;
+		}
+
+		case gltfExt_KHR_lights_punctual::Point:
+		{
+			newEntity->epairs.SetVector( "light_radius", idVec3( light->range ) );
+			newEntity->epairs.Set( "texture", "lights/defaultpointlight" );
+			break;
+		}
+
+		case gltfExt_KHR_lights_punctual::Spot:
+		{
+			idMat4 entityToWorldTransform = mat4_identity;
+			gltfData::ResolveNodeMatrix( node, &entityToWorldTransform );
+			idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
+
+			float fov = tan( light->spot.outerConeAngle ) / 2 ;
+			idMat3 axis = idAngles( 0.0f, 90.0f, 90.0f ).ToMat3() * entityToWorldTransform.ToMat3();
+
+			newEntity->epairs.SetVector( "light_target", axis[0] );
+			newEntity->epairs.SetVector( "light_right", axis[1] * -fov );
+			newEntity->epairs.SetVector( "light_up", axis[2] * fov );
+			newEntity->epairs.SetVector( "light_start", axis[0] * 16 );
+			newEntity->epairs.SetVector( "light_end", axis[0] * ( light->range - 16 ) );
+			newEntity->epairs.Set( "texture", "lights/spot01" );
+			break;
+		}
+
+		case gltfExt_KHR_lights_punctual::count:
+			break;
+	}
+
+}
+
+void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
+{
+	const char* classname = node->extras.strPairs.GetString( "classname" );
+
+	if( node->name.Length() )
+	{
+		idStr name;
+		idStrList names;
+		gltfNode* parent = node->parent;
+		while( parent )
+		{
+			names.Alloc() = parent->name;
+			parent = parent->parent;
+		}
+
+		for( int i = names.Num() ; i >= 1 ; i-- )
+		{
+			name += names[i - 1] + ".";
+		}
+		newEntity->epairs.Set( "name", name + node->name );
+	}
+
+	// copy custom properties filled in Blender
+	idDict newPairs = node->extras.strPairs;
+	newPairs.SetDefaults( &newEntity->epairs );
+	newEntity->epairs = newPairs;
+
+	// gather entity transform and bring it into id Tech 4 space
+	gltfData::ResolveNodeMatrix( node );
+
+	// set entity transform in a way the game and physics code understand it
+	idVec3 origin = blenderToDoomTransform * node->translation;
+	newEntity->epairs.SetVector( "origin", origin );
+
+	if( node->extensions.KHR_lights_punctual != nullptr )
+	{
+		ResolveLight( data, newEntity, node );
+	}
+
+	// TODO set rotation key to store rotation and scaling
+	//if (idStr::Icmp(classname, "info_player_start") == 0)
+	//	if( !node->matrix.IsIdentity() )
+	//{
+	//	newEntity->epairs.SetMatrix("rotation", axis );
+	//}
+
+#if 0
+	for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
+	{
+		const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
+
+		idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
+	}
+#endif
+}
+
+int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode* node )
+{
+	int entityCount = 0;
+
+	const char* classname = node->extras.strPairs.GetString( "classname" );
+
+	// skip all nodes with "worldspawn." or "BSP" in the name
+	if( idStr::Icmpn( node->name, "BSP", 3 ) != 0 && idStr::Icmpn( node->name, "worldspawn.", 11 ) != 0 )
+	{
+		idStr classnameStr = node->extras.strPairs.GetString( "classname" );
+
+		// skip everything that is not an entity
+		if( !classnameStr.IsEmpty() )
+		{
+			idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
+			entities.Append( newEntity );
+			ResolveEntity( data, newEntity, node );
+			entityCount++;
+		}
+	}
+
+	for( auto& child : node->children )
+	{
+		entityCount += FindEntities( data, entities, data->NodeList()[child] );
+	}
+
+	return entityCount;
+}
+
 int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneID )
 {
 	idMapEntity* worldspawn = new( TAG_IDLIB_GLTF ) idMapEntity();
@@ -370,57 +594,31 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			}
 			else
 			{
-				idStr classname = node->extras.strPairs.GetString( "classname" );
+				idStr classnameStr = node->extras.strPairs.GetString( "classname" );
+				bool skipInline = !node->extras.strPairs.GetBool( "inline", true );
 
 				// skip everything that is not an entity
-				if( !classname.IsEmpty() )
+				if( !classnameStr.IsEmpty() )
 				{
 					idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
 					entities.Append( newEntity );
-
-					if( node->name.Length() )
-					{
-						newEntity->epairs.Set( "name", node->name );
-					}
-
-					// copy custom properties filled in Blender
-					idDict newPairs = node->extras.strPairs;
-					newPairs.SetDefaults( &newEntity->epairs );
-					newEntity->epairs = newPairs;
-
-					// gather entity transform and bring it into id Tech 4 space
-					gltfData::ResolveNodeMatrix( node );
-
-					idMat4 entityToWorldTransform = node->matrix;
-					idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
-
-					// set entity transform in a way the game and physics code understand it
-					idVec3 origin = blenderToDoomTransform * node->translation;
-					newEntity->epairs.SetVector( "origin", origin );
-
-					// TODO set rotation key to store rotation and scaling
-#if 0
-					if( idStr::Icmp( classname, "info_player_start" ) != 0 )
-						//if( !node->matrix.IsIdentity() )
-					{
-						idMat3 rotation = entityToWorldTransform.ToMat3();
-						newEntity->epairs.SetMatrix( "rotation", rotation );
-					}
-#endif
-
-#if 0
-					for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
-					{
-						const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
-
-						idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
-					}
-#endif
+					ResolveEntity( data, newEntity, node );
 
 					// add meshes from all subnodes
-					ProcessSceneNode_r( newEntity, node, mat4_identity, worldToEntityTransform, data );
+					if( !skipInline )
+					{
+						gltfData::ResolveNodeMatrix( node );
+						idMat4 entityToWorldTransform = node->matrix;
+						idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
+						ProcessSceneNode_r( newEntity, node, mat4_identity, worldToEntityTransform, data );
+					}
 
 					entityCount++;
+				}
+				// add entities from all subnodes
+				for( auto& child : node->children )
+				{
+					entityCount += FindEntities( data, entities, data->NodeList()[child] );
 				}
 			}
 		}
