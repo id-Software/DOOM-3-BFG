@@ -102,6 +102,76 @@
 [
 ]
 
+@PointClass base(item_team_default) model({ "path": "_tb/models/ctf/ctf_flag.obj" }) = team_ctf_blueflag : "CTF: the blue flag
+"
+[
+	model(string) : "" : "models/ctf/ctf_flag.ase"
+	team(string) : "" : "1"
+	spin(string) : "" : "0"
+	skin(string) : "" : "skins/ctf/blue_flag"
+	skin_carried(string) : "" : "skins/ctf/blue_flag_not_idle"
+	inv_name(string) : "" : "blueflag"
+	script_taken(string) : "" : "blue_flag_taken"
+	script_dropped(string) : "" : ""
+	script_returned(string) : "" : "blue_flag_returned"
+	script_captured(string) : "" : "blue_flag_captured"
+	bouncyness(string) : "" : "0"
+	friction(string) : "" : "0.8"
+	density(string) : "" : "500"
+	gravity(string) : "" : "-35"
+	pickupDelay(string) : "" : "500"
+	net_dynamic(string) : "" : "1"
+	noshadows(string) : "" : "1"
+]
+
+@PointClass base(moveable_item_default) model({ "path": "_tb/models/ctf/flagfx/blue_ember.obj" }) = team_ctf_blueflag_nugget : "No description"
+[
+	model(string) : "" : "models/ctf/flagfx/blue_ember.ase"
+	clipmodel(string) : "" : "models/ctf/flagfx/blue_ember.ase"
+	density(string) : "" : "0.5"
+	friction(string) : "" : "0.5"
+	bouncyness(string) : "" : "0.3"
+	smoke_trail(string) : "" : "blue_flag_smoke_fx.prt"
+	nopulse(string) : "" : "1"
+	repeatSmoke(string) : "" : "1"
+	networkSync(string) : "" : "1"
+]
+
+@PointClass base(item_team_default) model({ "path": "_tb/models/ctf/ctf_flag.obj" }) = team_ctf_redflag : "CTF: the red flag
+"
+[
+	model(string) : "" : "models/ctf/ctf_flag.ase"
+	team(string) : "" : "0"
+	spin(string) : "" : "0"
+	skin(string) : "" : "skins/ctf/red_flag"
+	skin_carried(string) : "" : "skins/ctf/red_flag_not_idle"
+	inv_name(string) : "" : "redflag"
+	script_taken(string) : "" : "red_flag_taken"
+	script_dropped(string) : "" : ""
+	script_returned(string) : "" : "red_flag_returned"
+	script_captured(string) : "" : "red_flag_captured"
+	bouncyness(string) : "" : "0"
+	friction(string) : "" : "0.8"
+	density(string) : "" : "500"
+	gravity(string) : "" : "-35"
+	pickupDelay(string) : "" : "500"
+	net_dynamic(string) : "" : "1"
+	noshadows(string) : "" : "1"
+]
+
+@PointClass base(moveable_item_default) model({ "path": "_tb/models/ctf/flagfx/red_ember.obj" }) = team_ctf_redflag_nugget : "No description"
+[
+	model(string) : "" : "models/ctf/flagfx/red_ember.ase"
+	clipmodel(string) : "" : "models/ctf/flagfx/red_ember.ase"
+	density(string) : "" : "0.5"
+	friction(string) : "" : "0.5"
+	bouncyness(string) : "" : "0.3"
+	smoke_trail(string) : "" : "red_flag_smoke_fx.prt"
+	nopulse(string) : "" : "1"
+	repeatSmoke(string) : "" : "1"
+	networkSync(string) : "" : "1"
+]
+
 @PointClass base(weapon_bfg) = weapon_bfg_mp : "No description"
 [
 ]

@@ -2455,7 +2455,7 @@ you func_remove it after it is shot if it's blocking an entrance.
 	damage(string) : "damage def to be used."
 ]
 
-@PointClass color(0 127 204) = func_door : "Door.
+@SolidClass color(0 127 204) = func_door : "Door.
 "
 [
 	spawnclass(string) : "" : "idDoor"
@@ -2485,7 +2485,7 @@ you func_remove it after it is shot if it's blocking an entrance.
 	gui_noninteractive(boolean) : "any gui attached will not be interactive"
 ]
 
-@PointClass base(func_door) model({{
+@PointClass base(func_door) size(-8 -8 0, 8 8 16) model({{
 	proxymodel -> { "path": proxymodel },
 	{ "path": model }
 }})= func_door_model : "Inherits from a func_door but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom.
@@ -2697,7 +2697,7 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 	snd_opened(string) : "looping sound for it's opened state."
 ]
 
-@PointClass base(func_plat) model({{
+@PointClass base(func_plat) size(-8 -8 0, 8 8 16) model({{
 	proxymodel -> { "path": proxymodel },
 	{ "path": model }
 }})= func_plat_model : "Inherits from a func_plat but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom.
@@ -2749,7 +2749,7 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 	start_on(boolean) : "set to 1 to rotate when spawned." : 1
 ]
 
-@PointClass base(func_rotating) model({{
+@PointClass base(func_rotating) size(-8 -8 0, 8 8 16) model({{
 	proxymodel -> { "path": proxymodel },
 	{ "path": model }
 }})= func_rotating_model : "Inherits from a func_rotating but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom.
@@ -3386,7 +3386,7 @@ PDA's contain vidoes, audio, e-mail, and security clearances.
 	proxymodel(string) : "A proxy model in OBJ file format automatically set by RBDoom so it can be displayed in TrenchBroom"
 ]
 
-@PointClass base(func_static) color(0 127 204) model({{
+@PointClass base(func_static) color(0 127 204) size(-8 -8 0, 8 8 16) model({{
 	proxymodel -> { "path": proxymodel },
 	{ "path": model }
 }})= misc_model : "Inherits from a func_static but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom.
@@ -9070,58 +9070,6 @@ Only add model, model_detonate or model_burn or health to override defaults
 	snd_berserkSpawn(string) : "" : "sound_powerup_berserk"
 ]
 
-@PointClass color(255 127 0) size(-16 -16 0, 16 16 64) model({ "path": "sprites/camera.png", "scale": 0.03125 }) = space_cam : "No description"
-[
-	spawnclass(string) : "" : "idCameraAnim"
-	anim.space1(string) : "" : "models/md5/cinematics/marscity/spacecam1.camera"
-	anim.space2(string) : "" : "models/md5/cinematics/marscity/spacecam2.camera"
-	anim.space3(string) : "" : "models/md5/cinematics/marscity/spacecam3.camera"
-	anim.mono(string) : "" : "models/md5/cinematics/marscity/spacemonocam.camera"
-]
-
-@PointClass base(cin_base) = space_planet : "No description"
-[
-	model(string) : "" : "space_planet"
-	anim(string) : "" : "space"
-	num_anims(string) : "" : "3"
-	anim1(string) : "" : "space_a"
-	anim2(string) : "" : "space_b"
-	anim3(string) : "" : "space_c"
-]
-
-@PointClass base(cin_base) = space_ship : "No description"
-[
-	model(string) : "" : "space_ship"
-	anim(string) : "" : "space"
-	num_anims(string) : "" : "3"
-	anim1(string) : "" : "space_a"
-	anim2(string) : "" : "space_b"
-	anim3(string) : "" : "space_c"
-	smokeParticleSystem1(string) : "" : "dropship_top1R"
-	smokeParticleSystem2(string) : "" : "dropship_top1L"
-	smokeParticleSystem3(string) : "" : "dropship_top2R"
-	smokeParticleSystem4(string) : "" : "dropship_top2L"
-	smokeParticleSystem5(string) : "" : "dropship1R"
-	smokeParticleSystem6(string) : "" : "dropship1L"
-	smokeParticleSystem7(string) : "" : "dropship2R"
-	smokeParticleSystem8(string) : "" : "dropship2L"
-	smokeParticleSystem9(string) : "" : "dropship3R"
-	smokeParticleSystem10(string) : "" : "dropship3L"
-	snd_flyby(string) : "" : "mc_ship_flyby"
-	snd_flyby2(string) : "" : "mc_ship_flyby2"
-	snd_entry(string) : "" : "mc_ship_reentry"
-]
-
-@PointClass base(cin_base) = space_stars : "No description"
-[
-	model(string) : "" : "space_stars"
-	anim(string) : "" : "space"
-	num_anims(string) : "" : "3"
-	anim1(string) : "" : "space_a"
-	anim2(string) : "" : "space_b"
-	anim3(string) : "" : "space_c"
-]
-
 @PointClass color(0 255 0) size(-8 -8 -8, 8 8 8) model({ "path": "sprites/speaker.png", "scale": 0.03125 }) = speaker : "
 "
 [
@@ -9140,24 +9088,6 @@ Only add model, model_detonate or model_burn or health to override defaults
 	random(string) : "wait variance."
 	s_shader(string) : "the sound shader or wavefile."
 	snd_demonic(string) : "demonic sound shader."
-]
-
-@PointClass base(cin_base) = static_hunter1 : "No description"
-[
-	anim(string) : "" : "zoo_idle"
-	model(string) : "" : "static_hunter1"
-]
-
-@PointClass base(cin_base) model({ "path": "_tb/models/md5/monsters/hunter_berzerk/idle.obj" }) = static_hunter2 : "No description"
-[
-	anim(string) : "" : "zoo_idle"
-	model(string) : "" : "static_hunter2"
-]
-
-@PointClass base(cin_base) model({ "path": "_tb/models/md5/monsters/d3xp_invul/d3xp_invul.obj" }) = static_hunter3 : "No description"
-[
-	anim(string) : "" : "zoo_idle"
-	model(string) : "" : "static_hunter3"
 ]
 
 @PointClass color(0 127 204) size(-12 -12 -12, 12 12 12) model({ "path": "sprites/gamepad.png", "scale": 0.03125 }) = target_achievement : "When triggered, this registers an achievement has been accomplished.
@@ -9476,76 +9406,6 @@ Use keyval, keyval1, keyval2, etc.. for multiples.
 	spawnclass(string) : "" : "idTarget_Tip"
 	text_title(string) : "" : "#str_02907"
 	text_tip(string) : "tip text"
-]
-
-@PointClass base(item_team_default) model({ "path": "_tb/models/ctf/ctf_flag.obj" }) = team_ctf_blueflag : "CTF: the blue flag
-"
-[
-	model(string) : "" : "models/ctf/ctf_flag.ase"
-	team(string) : "" : "1"
-	spin(string) : "" : "0"
-	skin(string) : "" : "skins/ctf/blue_flag"
-	skin_carried(string) : "" : "skins/ctf/blue_flag_not_idle"
-	inv_name(string) : "" : "blueflag"
-	script_taken(string) : "" : "blue_flag_taken"
-	script_dropped(string) : "" : ""
-	script_returned(string) : "" : "blue_flag_returned"
-	script_captured(string) : "" : "blue_flag_captured"
-	bouncyness(string) : "" : "0"
-	friction(string) : "" : "0.8"
-	density(string) : "" : "500"
-	gravity(string) : "" : "-35"
-	pickupDelay(string) : "" : "500"
-	net_dynamic(string) : "" : "1"
-	noshadows(string) : "" : "1"
-]
-
-@PointClass base(moveable_item_default) model({ "path": "_tb/models/ctf/flagfx/blue_ember.obj" }) = team_ctf_blueflag_nugget : "No description"
-[
-	model(string) : "" : "models/ctf/flagfx/blue_ember.ase"
-	clipmodel(string) : "" : "models/ctf/flagfx/blue_ember.ase"
-	density(string) : "" : "0.5"
-	friction(string) : "" : "0.5"
-	bouncyness(string) : "" : "0.3"
-	smoke_trail(string) : "" : "blue_flag_smoke_fx.prt"
-	nopulse(string) : "" : "1"
-	repeatSmoke(string) : "" : "1"
-	networkSync(string) : "" : "1"
-]
-
-@PointClass base(item_team_default) model({ "path": "_tb/models/ctf/ctf_flag.obj" }) = team_ctf_redflag : "CTF: the red flag
-"
-[
-	model(string) : "" : "models/ctf/ctf_flag.ase"
-	team(string) : "" : "0"
-	spin(string) : "" : "0"
-	skin(string) : "" : "skins/ctf/red_flag"
-	skin_carried(string) : "" : "skins/ctf/red_flag_not_idle"
-	inv_name(string) : "" : "redflag"
-	script_taken(string) : "" : "red_flag_taken"
-	script_dropped(string) : "" : ""
-	script_returned(string) : "" : "red_flag_returned"
-	script_captured(string) : "" : "red_flag_captured"
-	bouncyness(string) : "" : "0"
-	friction(string) : "" : "0.8"
-	density(string) : "" : "500"
-	gravity(string) : "" : "-35"
-	pickupDelay(string) : "" : "500"
-	net_dynamic(string) : "" : "1"
-	noshadows(string) : "" : "1"
-]
-
-@PointClass base(moveable_item_default) model({ "path": "_tb/models/ctf/flagfx/red_ember.obj" }) = team_ctf_redflag_nugget : "No description"
-[
-	model(string) : "" : "models/ctf/flagfx/red_ember.ase"
-	clipmodel(string) : "" : "models/ctf/flagfx/red_ember.ase"
-	density(string) : "" : "0.5"
-	friction(string) : "" : "0.5"
-	bouncyness(string) : "" : "0.3"
-	smoke_trail(string) : "" : "red_flag_smoke_fx.prt"
-	nopulse(string) : "" : "1"
-	repeatSmoke(string) : "" : "1"
-	networkSync(string) : "" : "1"
 ]
 
 @PointClass base(func_shockwave) = teleport_shockwave : "No description"
