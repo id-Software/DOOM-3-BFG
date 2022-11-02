@@ -2263,6 +2263,12 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 			}
 
+			// ignore genmodel definitions until they are properly displayed in TrenchBroom
+			if( idStr::Icmpn( decl->GetName(), "genmodel_", 9 ) == 0 )
+			{
+				continue;
+			}
+
 			// filter multiplayer entities
 			bool multiplayer = ( idStr::FindText( decl->GetName(), "_mp", false ) != -1 ||
 								 idStr::FindText( decl->GetName(), "_coop", false ) != -1 );
@@ -2583,7 +2589,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					 idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
 			{
 				// dynamic model that prefers a TB specific proxymodel
-				file->Printf( "model({{\n\tproxymodel != null -> { \"path\": proxymodel },\n\t{ \"path\": model }\n}})" );
+				file->Printf( "model({{\n\tproxymodel -> { \"path\": proxymodel },\n\t{ \"path\": model }\n}})" );
 			}
 			else if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
 			{
