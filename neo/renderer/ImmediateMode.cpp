@@ -67,6 +67,12 @@ void fhImmediateMode::Init( nvrhi::ICommandList* commandList )
 	InitBuffers( commandList );
 }
 
+void fhImmediateMode::Shutdown()
+{
+	vertexBuffer.FreeBufferObject();
+	indexBuffer.FreeBufferObject();
+}
+
 void fhImmediateMode::ResetStats()
 {
 	drawCallCount = 0;

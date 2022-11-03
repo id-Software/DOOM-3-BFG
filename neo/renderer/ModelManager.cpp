@@ -286,6 +286,9 @@ void idRenderModelManagerLocal::Shutdown()
 {
 	models.DeleteContents( true );
 	hash.Free();
+#if defined( USE_NVRHI )
+	commandList.Reset();
+#endif
 }
 
 /*

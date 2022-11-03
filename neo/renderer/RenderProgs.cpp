@@ -769,6 +769,29 @@ idRenderProgManager::Shutdown()
 void idRenderProgManager::Shutdown()
 {
 	KillAllShaders();
+
+#if defined( USE_NVRHI )
+	// SRS - Delete renderprogs builtin binding layouts
+	for( int i = 0; i < renderProgs.Num(); i++ )
+	{
+		for( int j = 0; j < renderProgs[i].bindingLayouts.Num(); j++ )
+		{
+			renderProgs[i].bindingLayouts[j].Reset();
+		}
+	}
+
+	// SRS - Delete binding layouts
+	for( int i = 0; i < bindingLayouts.Num(); i++ )
+	{
+		for( int j = 0; j < bindingLayouts[i].Num(); j++ )
+		{
+			bindingLayouts[i][j].Reset();
+		}
+	}
+
+	// SRS - Unmap buffer memory using overloaded = operator
+	constantBuffer = nullptr;
+#endif
 }
 
 /*

@@ -134,6 +134,7 @@ public:
 	CommonRenderPasses();
 
 	void	Init( nvrhi::IDevice* device );
+	void	Shutdown();
 
 	void	BlitTexture( nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache = nullptr );
 
