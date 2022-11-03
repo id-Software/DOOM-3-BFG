@@ -552,7 +552,7 @@ void VKimp_Shutdown()
 		deviceManager->Shutdown();
 	}
 #endif
-	
+
 	if( window )
 	{
 		SDL_DestroyWindow( window );

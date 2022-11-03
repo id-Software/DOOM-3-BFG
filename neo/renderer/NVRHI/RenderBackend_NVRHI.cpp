@@ -200,14 +200,14 @@ void idRenderBackend::Init()
 void idRenderBackend::Shutdown()
 {
 	// SRS - Clean up NVRHI resources before Sys_Quit(), otherwise non-zero exit code (destructors too late)
-	
+
 	// Clear all cached pipeline data
 	tr.backend.ClearCaches();
 	pipelineCache.Shutdown();
-	
+
 	// Delete all renderpass resources
 	commonPasses.Shutdown();
-	
+
 	// Delete current binding sets
 	for( int i = 0; i < currentBindingSets.Num(); i++ )
 	{
@@ -219,13 +219,13 @@ void idRenderBackend::Shutdown()
 
 	// Delete renderlog command buffer and timer query resources
 	renderLog.Shutdown();
-	
+
 	// Delete command list
 	commandList.Reset();
-	
+
 	// Delete immediate mode buffer objects
 	fhImmediateMode::Shutdown();
-	
+
 #if defined( VULKAN_USE_PLATFORM_SDL )
 	VKimp_Shutdown();
 #else

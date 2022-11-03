@@ -182,7 +182,7 @@ void CommonRenderPasses::Shutdown()
 	// SRS - Delete the pipelines referenced by the blit cache
 	for( auto& [key, pipeline] : m_BlitPsoCache )
 	{
-		   pipeline.Reset();
+		pipeline.Reset();
 	}
 
 	// SRS - These assets have automatic resource management with overloaded = operator
@@ -209,7 +209,7 @@ void CommonRenderPasses::Shutdown()
 	m_AnisotropicClampEdgeSampler = nullptr;
 
 	m_BlitBindingLayout = nullptr;
-	
+
 	// SRS - Remove reference to nvrhi::IDevice, otherwise won't clean up properly on shutdown
 	m_Device = nullptr;
 }
