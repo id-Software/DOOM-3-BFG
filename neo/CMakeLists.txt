@@ -852,6 +852,16 @@ file(GLOB RAPIDJSON_INCLUDES libs/rapidjson/include/rapidjson/*.h)
 file(GLOB SYS_INCLUDES sys/*.h)
 file(GLOB SYS_SOURCES sys/*.cpp)
 
+if(NOT USE_DX12)
+	get_filename_component(devicemanager_dx12_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_DX12.cpp ABSOLUTE)
+	list(REMOVE_ITEM SYS_SOURCES "${devicemanager_dx12_cpp_full_path}")
+endif()
+
+if(NOT USE_NVRHI_VULKAN)
+	get_filename_component(devicemanager_vk_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_VK.cpp ABSOLUTE)
+	list(REMOVE_ITEM SYS_SOURCES "${devicemanager_vk_cpp_full_path}")
+endif()
+
 file(GLOB UI_INCLUDES ui/*.h)
 file(GLOB UI_SOURCES ui/*.cpp)
 
@@ -1104,14 +1114,6 @@ set(WIN32_SOURCES
 	sys/win32/win_taskkeyhook.cpp
 	sys/win32/win_wndproc.cpp)
 
-if(USE_DX12)
-	list(APPEND WIN32_SOURCES sys/win32/DeviceManager_DX12.cpp)
-endif()
-
-if(USE_NVRHI_VULKAN)
-	list(APPEND WIN32_SOURCES sys/win32/DeviceManager_VK.cpp)
-endif()
-	
 if(MSVC)
 	list(APPEND WIN32_SOURCES sys/win32/win_cpu.cpp)
 endif()
@@ -1206,8 +1208,6 @@ if(UNIX)
 		list(REMOVE_ITEM SYS_INCLUDES "${devicemanager_h_full_path}")
 		get_filename_component(devicemanager_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager.cpp ABSOLUTE)
 		list(REMOVE_ITEM SYS_SOURCES "${devicemanager_cpp_full_path}")
-		get_filename_component(devicemanager_vk_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/DeviceManager_VK.cpp ABSOLUTE)
-		list(REMOVE_ITEM SDL_SOURCES "${devicemanager_vk_cpp_full_path}")
 	endif()
 endif()
 
@@ -1881,7 +1881,7 @@ else()
                     list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
                 endif()
             endif()
-        elseif(USE_NVRHI)
+        elseif(USE_NVRHI_VULKAN)
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
 
