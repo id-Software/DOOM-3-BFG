@@ -970,11 +970,19 @@ sysEvent_t Sys_GetEvent()
 					{
 						int w = ev.window.data1;
 						int h = ev.window.data2;
-						r_windowWidth.SetInteger( w );
-						r_windowHeight.SetInteger( h );
+
+						// SRS - Only save window resized events when in windowed modes
+						if( !renderSystem->IsFullScreen() )
+						{
+							r_windowWidth.SetInteger( w );
+							r_windowHeight.SetInteger( h );
+						}
 
 						glConfig.nativeScreenWidth = w;
 						glConfig.nativeScreenHeight = h;
+
+						// SRS - Make sure ImGui gets new window boundaries
+						ImGuiHook::NotifyDisplaySizeChanged( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 						break;
 					}
 
@@ -982,8 +990,13 @@ sysEvent_t Sys_GetEvent()
 					{
 						int x = ev.window.data1;
 						int y = ev.window.data2;
-						r_windowX.SetInteger( x );
-						r_windowY.SetInteger( y );
+
+						// SRS - Only save window moved events when in windowed modes
+						if( !renderSystem->IsFullScreen() )
+						{
+							r_windowX.SetInteger( x );
+							r_windowY.SetInteger( y );
+						}
 						break;
 					}
 				}

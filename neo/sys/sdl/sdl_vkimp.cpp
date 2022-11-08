@@ -137,19 +137,17 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 
 	glConfig.isFullscreen = parms.fullScreen;
 
-	UpdateWindowSize( parms );
-
 	return true;
 }
 
-void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
+void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
 {
 	windowVisible = true;
 
-	if( int( deviceParms.backBufferWidth ) != params.width ||
-			int( deviceParms.backBufferHeight ) != params.height ||
+	if( int( deviceParms.backBufferWidth ) != parms.width ||
+			int( deviceParms.backBufferHeight ) != parms.height ||
 #if ID_MSAA
-			int( deviceParms.backBufferSampleCount ) != params.multiSamples ||
+			int( deviceParms.backBufferSampleCount ) != parms.multiSamples ||
 #endif
 			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
 	{
@@ -157,16 +155,14 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
 
 		BackBufferResizing();
 
-		deviceParms.backBufferWidth = params.width;
-		deviceParms.backBufferHeight = params.height;
-		deviceParms.backBufferSampleCount = params.multiSamples;
+		deviceParms.backBufferWidth = parms.width;
+		deviceParms.backBufferHeight = parms.height;
+		deviceParms.backBufferSampleCount = parms.multiSamples;
 		deviceParms.vsyncEnabled = requestedVSync;
 
 		ResizeSwapChain();
 		BackBufferResized();
 	}
-
-	deviceParms.vsyncEnabled = requestedVSync;
 }
 #endif
 
@@ -362,7 +358,7 @@ bool VKimp_Init( glimpParms_t parms )
 #endif
 
 		// RB begin
-		glConfig.displayFrequency = 60;
+		glConfig.displayFrequency = 60;  // FIXME: should use parms.displayHz and set mode correctly from start
 		glConfig.isStereoPixelFormat = parms.stereo;
 		glConfig.multisamples = parms.multiSamples;
 
@@ -451,7 +447,7 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 
 	// change settings in that display mode according to parms
 	// FIXME: check if refreshrate, width and height are supported?
-	// m.refresh_rate = parms.displayHz;
+	m.refresh_rate = parms.displayHz;
 	m.w = parms.width;
 	m.h = parms.height;
 

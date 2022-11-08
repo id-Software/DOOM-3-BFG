@@ -324,7 +324,7 @@ idRenderLog::idRenderLog()
 void idRenderLog::Init()
 {
 #if defined( USE_NVRHI )
-	for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )
+	for( int i = 0; i < MRB_TOTAL * NUM_FRAME_DATA; i++ )
 	{
 		timerQueries.Append( deviceManager->GetDevice()->createTimerQuery() );
 		timerUsed.Append( false );
@@ -335,12 +335,7 @@ void idRenderLog::Init()
 void idRenderLog::Shutdown()
 {
 #if defined( USE_NVRHI )
-	if( commandList )
-	{
-		commandList.Reset();
-	}
-
-	for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )
+	for( int i = 0; i < MRB_TOTAL * NUM_FRAME_DATA; i++ )
 	{
 		timerQueries[i].Reset();
 	}
@@ -356,6 +351,9 @@ void idRenderLog::StartFrame( nvrhi::ICommandList* _commandList )
 
 void idRenderLog::EndFrame()
 {
+#if defined( USE_NVRHI )
+	commandList = nullptr;
+#endif
 }
 
 
@@ -376,8 +374,11 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 
 		int timerIndex = mainBlock + frameParity * MRB_TOTAL;
 
-		commandList->beginTimerQuery( timerQueries[ timerIndex ] );
-		timerUsed[ timerIndex ] = true;
+		// SRS - Only issue a new start timer query if timer slot unused
+		if( !timerUsed[ timerIndex ] )
+		{
+			commandList->beginTimerQuery( timerQueries[ timerIndex ] );
+		}
 
 #elif defined( USE_VULKAN )
 		if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
@@ -437,7 +438,12 @@ void idRenderLog::CloseMainBlock( int _block )
 
 		int timerIndex = block + frameParity * MRB_TOTAL;
 
-		commandList->endTimerQuery( timerQueries[ timerIndex ] );
+		// SRS - Only issue a new end timer query if timer slot unused
+		if( !timerUsed[ timerIndex ] )
+		{
+			commandList->endTimerQuery( timerQueries[ timerIndex ] );
+			timerUsed[ timerIndex ] = true;
+		}
 
 #elif defined( USE_VULKAN )
 		if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
@@ -448,7 +454,7 @@ void idRenderLog::CloseMainBlock( int _block )
 		VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
 		VkQueryPool queryPool = vkcontext.queryPools[ vkcontext.frameParity ];
 
-		uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
+		uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ block * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 		vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, queryIndex );
 
 #elif defined(__APPLE__)
@@ -457,12 +463,12 @@ void idRenderLog::CloseMainBlock( int _block )
 		if( !r_useShadowMapping.GetBool() || glConfig.vendor != VENDOR_AMD || r_skipAMDWorkarounds.GetBool() )
 		{
 			glEndQuery( GL_TIME_ELAPSED_EXT );
-			glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ mainBlock * 2 + 1 ]++;
+			glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ block * 2 + 1 ]++;
 		}
 
 #else
-		glQueryCounter( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ mainBlock * 2 + 1 ], GL_TIMESTAMP );
-		glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ mainBlock * 2 + 1 ]++;
+		glQueryCounter( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ block * 2 + 1 ], GL_TIMESTAMP );
+		glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ block * 2 + 1 ]++;
 #endif
 	}
 }
@@ -475,7 +481,7 @@ idRenderLog::FetchGPUTimers
 void idRenderLog::FetchGPUTimers( backEndCounters_t& pc )
 {
 	frameCounter++;
-	frameParity ^= 1;
+	frameParity = ( frameParity + 1 ) % NUM_FRAME_DATA;
 
 #if defined( USE_NVRHI )
 
