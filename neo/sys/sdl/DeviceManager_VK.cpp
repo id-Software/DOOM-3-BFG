@@ -164,22 +164,17 @@ private:
 			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 		},
 		// layers
-		{
-#if defined(__APPLE__) && !defined( USE_MoltenVK )
-			//"VK_LAYER_KHRONOS_synchronization2"		// sync2 not supported natively on MoltenVK, use layer implementation instead
-#endif
-		},
+		{ },
 		// device
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 #if defined(__APPLE__)
+#if defined( VK_KHR_portability_subset )
 			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
+#endif
 			VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
 			VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
-#if !defined( USE_MoltenVK )
-			//VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
-#endif
 #endif
 		},
 	};
@@ -197,14 +192,20 @@ private:
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 		},
 		// layers
-		{ },
+		{
+#if defined(__APPLE__)
+			// SRS - synchronization2 not supported natively on MoltenVK, use layer implementation instead
+			"VK_LAYER_KHRONOS_synchronization2"
+#endif
+		},
 		// device
 		{
 			VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
 			VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
 			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 			VK_NV_MESH_SHADER_EXTENSION_NAME,
-			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME
+			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
 	};
 
@@ -706,6 +707,7 @@ bool DeviceManager_VK::createDevice()
 	bool rayQuerySupported = false;
 	bool meshletsSupported = false;
 	bool vrsSupported = false;
+	bool sync2Supported = false;
 
 	common->Printf( "Enabled Vulkan device extensions:\n" );
 	for( const auto& ext : enabledExtensions.device )
@@ -736,6 +738,10 @@ bool DeviceManager_VK::createDevice()
 		else if( ext == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME )
 		{
 			vrsSupported = true;
+		}
+		else if( ext == VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME )
+		{
+			sync2Supported = true;
 		}
 	}
 
@@ -782,7 +788,17 @@ bool DeviceManager_VK::createDevice()
 					   .setPrimitiveFragmentShadingRate( true )
 					   .setAttachmentFragmentShadingRate( true );
 
+	auto sync2Features = vk::PhysicalDeviceSynchronization2Features()
+						 .setSynchronization2( true );
+
+#if defined(__APPLE__) && defined( VK_KHR_portability_subset )
+	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
+							   .setImageViewFormatSwizzle( true );
+
+	void* pNext = &portabilityFeatures;
+#else
 	void* pNext = nullptr;
+#endif
 #define APPEND_EXTENSION(condition, desc) if (condition) { (desc).pNext = pNext; pNext = &(desc); }  // NOLINT(cppcoreguidelines-macro-usage)
 	APPEND_EXTENSION( accelStructSupported, accelStructFeatures )
 	APPEND_EXTENSION( bufferAddressSupported, bufferAddressFeatures )
@@ -790,6 +806,7 @@ bool DeviceManager_VK::createDevice()
 	APPEND_EXTENSION( rayQuerySupported, rayQueryFeatures )
 	APPEND_EXTENSION( meshletsSupported, meshletFeatures )
 	APPEND_EXTENSION( vrsSupported, vrsFeatures )
+	APPEND_EXTENSION( sync2Supported, sync2Features )
 #undef APPEND_EXTENSION
 
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
@@ -800,6 +817,7 @@ bool DeviceManager_VK::createDevice()
 #if !defined(__APPLE__)
 						  .setGeometryShader( true )
 #endif
+						  .setFillModeNonSolid( true )
 						  .setImageCubeArray( true )
 						  .setDualSrcBlend( true );
 
@@ -896,19 +914,22 @@ void DeviceManager_VK::destroySwapChain()
 		m_VulkanDevice.waitIdle();
 	}
 
+	while( !m_SwapChainImages.empty() )
+	{
+		auto sci = m_SwapChainImages.back();
+		m_SwapChainImages.pop_back();
+		sci.rhiHandle = nullptr;
+	}
+
 	if( m_SwapChain )
 	{
 		m_VulkanDevice.destroySwapchainKHR( m_SwapChain );
 		m_SwapChain = nullptr;
 	}
-
-	m_SwapChainImages.clear();
 }
 
 bool DeviceManager_VK::createSwapChain()
 {
-	destroySwapChain();
-
 	m_SwapChainFormat =
 	{
 		vk::Format( nvrhi::vulkan::convertFormat( deviceParms.swapChainFormat ) ),
