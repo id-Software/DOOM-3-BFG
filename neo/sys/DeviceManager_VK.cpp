@@ -788,7 +788,7 @@ bool DeviceManager_VK::createDevice()
 					   .setPrimitiveFragmentShadingRate( true )
 					   .setAttachmentFragmentShadingRate( true );
 
-	auto sync2Features = vk::PhysicalDeviceSynchronization2Features()
+	auto sync2Features = vk::PhysicalDeviceSynchronization2FeaturesKHR()
 						 .setSynchronization2( true );
 
 #if defined(__APPLE__) && defined( VK_KHR_portability_subset )

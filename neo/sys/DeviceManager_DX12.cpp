@@ -24,7 +24,7 @@
 
 #include "renderer/RenderCommon.h"
 #include "renderer/RenderSystem.h"
-#include "../DeviceManager.h"
+#include <sys/DeviceManager.h>
 
 #include <Windows.h>
 #include <dxgi1_5.h>
