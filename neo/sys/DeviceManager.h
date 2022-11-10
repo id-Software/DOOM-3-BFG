@@ -96,6 +96,9 @@ struct DeviceCreationParameters
 	std::vector<std::string> optionalVulkanLayers;
 	std::vector<size_t> ignoredVulkanValidationMessageLocations;
 #endif
+
+	// SRS - Used by idImage::AllocImage() to determine if format D24S8 is supported by device (default = true)
+	bool enableImageFormatD24S8 = true;
 };
 
 struct DefaultMessageCallback : public nvrhi::IMessageCallback
@@ -131,6 +134,7 @@ public:
 
 protected:
 	friend class idRenderBackend;
+	friend class idImage;
 
 	void* windowInstance;
 	void* windowHandle;

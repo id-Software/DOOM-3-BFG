@@ -862,7 +862,17 @@ bool DeviceManager_VK::createDevice()
 	m_VulkanDevice.getQueue( m_PresentQueueFamily, 0, &m_PresentQueue );
 
 	VULKAN_HPP_DEFAULT_DISPATCHER.init( m_VulkanDevice );
-
+	
+	// SRS - Determine if preferred image depth/stencil format D24S8 is supported (issue with Vulkan on AMD GPUs)
+	vk::ImageFormatProperties imageFormatProperties;
+	const vk::Result ret = m_VulkanPhysicalDevice.getImageFormatProperties( vk::Format( VK_FORMAT_D24_UNORM_S8_UINT ),
+																			vk::ImageType( VK_IMAGE_TYPE_2D ),
+																			vk::ImageTiling( VK_IMAGE_TILING_OPTIMAL ),
+																			vk::ImageUsageFlags( VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ),
+																			vk::ImageCreateFlags( 0 ),
+																			&imageFormatProperties );
+	deviceParms.enableImageFormatD24S8 = ( ret == vk::Result::eSuccess );
+	
 	// stash the renderer string
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );
