@@ -539,6 +539,8 @@ void DeviceManager_DX12::ResizeSwapChain()
 
 void DeviceManager_DX12::BeginFrame()
 {
+/*	SRS - This code not needed: framebuffer/swapchain resizing & fullscreen are handled by idRenderBackend::ResizeImages() and DeviceManager::UpdateWindowSize()
+
 	DXGI_SWAP_CHAIN_DESC1 newSwapChainDesc;
 	DXGI_SWAP_CHAIN_FULLSCREEN_DESC newFullScreenDesc;
 	if( SUCCEEDED( m_SwapChain->GetDesc1( &newSwapChainDesc ) ) && SUCCEEDED( m_SwapChain->GetFullscreenDesc( &newFullScreenDesc ) ) )
@@ -561,7 +563,7 @@ void DeviceManager_DX12::BeginFrame()
 			BackBufferResized();
 		}
 	}
-
+*/
 	auto bufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
 	WaitForSingleObject( m_FrameFenceEvents[bufferIndex], INFINITE );

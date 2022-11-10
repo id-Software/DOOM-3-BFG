@@ -180,14 +180,13 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	{
 		case WM_WINDOWPOSCHANGED:
 			// RB: FIXME this messes with with the window size in a really bad way
-#if 0
-			if( renderSystem->IsInitialized() )//&& win32.hDC != NULL )
+			// SRS - Needed by ResizeImages() to resize before the start of a frame
+			// SRS - Aspect ratio constraints are controlled by WIN_Sizing() above
+			if( renderSystem->IsInitialized() && win32.hDC != NULL )
 			{
 				RECT rect;
 				if( ::GetClientRect( win32.hWnd, &rect ) )
 				{
-					auto originalWidth = glConfig.nativeScreenWidth;
-					auto originalHeight = glConfig.nativeScreenHeight;
 					if( rect.right > rect.left && rect.bottom > rect.top )
 					{
 						glConfig.nativeScreenWidth = rect.right - rect.left;
@@ -200,10 +199,12 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 							r_windowWidth.SetInteger( glConfig.nativeScreenWidth );
 							r_windowHeight.SetInteger( glConfig.nativeScreenHeight );
 						}
+
+						// SRS - Inform ImGui that the window size has changed
+						ImGuiHook::NotifyDisplaySizeChanged( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 					}
 				}
 			}
-#endif
 			break;
 		case WM_MOVE:
 		{

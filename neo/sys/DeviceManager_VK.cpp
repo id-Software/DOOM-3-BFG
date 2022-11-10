@@ -1165,7 +1165,7 @@ void DeviceManager_VK::BeginFrame()
 						   vk::Fence(),
 						   &m_SwapChainIndex );
 
-	assert( res == vk::Result::eSuccess );
+	assert( res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR );
 
 	m_NvrhiDevice->queueWaitForSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 }
@@ -1189,7 +1189,7 @@ void DeviceManager_VK::Present()
 							  .setPImageIndices( &m_SwapChainIndex );
 
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
-	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR );
+	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
 	if( deviceParms.enableDebugRuntime )
 	{

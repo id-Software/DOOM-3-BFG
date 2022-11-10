@@ -163,6 +163,10 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
 		ResizeSwapChain();
 		BackBufferResized();
 	}
+	else
+	{
+		deviceParms.vsyncEnabled = requestedVSync;
+	}
 }
 #endif
 
