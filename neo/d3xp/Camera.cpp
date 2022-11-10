@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Harrie van Ginneken
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,7 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Game_local.h"
+#include "gltfParser.h"
 
+
+static const idMat4 blenderToDoomTransform( idAngles( 0.0f, 0.0f, 90 ).ToMat3(), vec3_origin );
 /*
 ===============================================================================
 
@@ -363,6 +367,10 @@ void idCameraAnim::LoadAnim()
 	int			i;
 	idStr		filename;
 	const char*	key;
+	idStr		gltfFileName;
+	int			animID = -1;
+	idStr		animName;
+	bool		isGLTF = false;
 
 	key = spawnArgs.GetString( "anim" );
 	if( !key )
@@ -373,86 +381,102 @@ void idCameraAnim::LoadAnim()
 	filename = spawnArgs.GetString( va( "anim %s", key ) );
 	if( !filename.Length() )
 	{
-		// RB: TrenchBroom interop use anim.<name> instead so we can build this up using the FGD files
-		filename = spawnArgs.GetString( va( "anim.%s", key ) );
-		if( !filename.Length() )
+		gltfFileName = key;
+		gltfManager::ExtractIdentifier( gltfFileName, animID, animName );
+		if( animName.Length() )
 		{
-			gameLocal.Error( "Missing 'anim.%s' key on '%s'", key, name.c_str() );
+			isGLTF = true;
 		}
-		// RB end
-	}
-
-	filename.SetFileExtension( MD5_CAMERA_EXT );
-	if( !parser.LoadFile( filename ) )
-	{
-		gameLocal.Error( "Unable to load '%s' on '%s'", filename.c_str(), name.c_str() );
-	}
-
-	cameraCuts.Clear();
-	cameraCuts.SetGranularity( 1 );
-	camera.Clear();
-	camera.SetGranularity( 1 );
-
-	parser.ExpectTokenString( MD5_VERSION_STRING );
-	version = parser.ParseInt();
-	if( version != MD5_VERSION )
-	{
-		parser.Error( "Invalid version %d.  Should be version %d\n", version, MD5_VERSION );
-	}
-
-	// skip the commandline
-	parser.ExpectTokenString( "commandline" );
-	parser.ReadToken( &token );
-
-	// parse num frames
-	parser.ExpectTokenString( "numFrames" );
-	numFrames = parser.ParseInt();
-	if( numFrames <= 0 )
-	{
-		parser.Error( "Invalid number of frames: %d", numFrames );
-	}
-
-	// parse framerate
-	parser.ExpectTokenString( "frameRate" );
-	frameRate = parser.ParseInt();
-	if( frameRate <= 0 )
-	{
-		parser.Error( "Invalid framerate: %d", frameRate );
-	}
-
-	// parse num cuts
-	parser.ExpectTokenString( "numCuts" );
-	numCuts = parser.ParseInt();
-	if( ( numCuts < 0 ) || ( numCuts > numFrames ) )
-	{
-		parser.Error( "Invalid number of camera cuts: %d", numCuts );
-	}
-
-	// parse the camera cuts
-	parser.ExpectTokenString( "cuts" );
-	parser.ExpectTokenString( "{" );
-	cameraCuts.SetNum( numCuts );
-	for( i = 0; i < numCuts; i++ )
-	{
-		cameraCuts[ i ] = parser.ParseInt();
-		if( ( cameraCuts[ i ] < 1 ) || ( cameraCuts[ i ] >= numFrames ) )
+		else
 		{
-			parser.Error( "Invalid camera cut" );
+			// RB: TrenchBroom interop use anim.<name> instead so we can build this up using the FGD files
+			filename = spawnArgs.GetString( va( "anim.%s", key ) );
+			if( !filename.Length() )
+			{
+				gameLocal.Error( "Missing 'anim.%s' key on '%s'", key, name.c_str() );
+			}
+			// RB end
 		}
 	}
-	parser.ExpectTokenString( "}" );
 
-	// parse the camera frames
-	parser.ExpectTokenString( "camera" );
-	parser.ExpectTokenString( "{" );
-	camera.SetNum( numFrames );
-	for( i = 0; i < numFrames; i++ )
+	if( isGLTF )
 	{
-		parser.Parse1DMatrix( 3, camera[ i ].t.ToFloatPtr() );
-		parser.Parse1DMatrix( 3, camera[ i ].q.ToFloatPtr() );
-		camera[ i ].fov = parser.ParseFloat();
+		gltfLoadAnim( gltfFileName, animName );
 	}
-	parser.ExpectTokenString( "}" );
+	else
+	{
+		filename.SetFileExtension( MD5_CAMERA_EXT );
+		if( !parser.LoadFile( filename ) )
+		{
+			gameLocal.Error( "Unable to load '%s' on '%s'", filename.c_str(), name.c_str() );
+		}
+
+		cameraCuts.Clear();
+		cameraCuts.SetGranularity( 1 );
+		camera.Clear();
+		camera.SetGranularity( 1 );
+
+		parser.ExpectTokenString( MD5_VERSION_STRING );
+		version = parser.ParseInt();
+		if( version != MD5_VERSION )
+		{
+			parser.Error( "Invalid version %d.  Should be version %d\n", version, MD5_VERSION );
+		}
+
+		// skip the commandline
+		parser.ExpectTokenString( "commandline" );
+		parser.ReadToken( &token );
+
+		// parse num frames
+		parser.ExpectTokenString( "numFrames" );
+		numFrames = parser.ParseInt();
+		if( numFrames <= 0 )
+		{
+			parser.Error( "Invalid number of frames: %d", numFrames );
+		}
+
+		// parse framerate
+		parser.ExpectTokenString( "frameRate" );
+		frameRate = parser.ParseInt();
+		if( frameRate <= 0 )
+		{
+			parser.Error( "Invalid framerate: %d", frameRate );
+		}
+
+		// parse num cuts
+		parser.ExpectTokenString( "numCuts" );
+		numCuts = parser.ParseInt();
+		if( ( numCuts < 0 ) || ( numCuts > numFrames ) )
+		{
+			parser.Error( "Invalid number of camera cuts: %d", numCuts );
+		}
+
+		// parse the camera cuts
+		parser.ExpectTokenString( "cuts" );
+		parser.ExpectTokenString( "{" );
+		cameraCuts.SetNum( numCuts );
+		for( i = 0; i < numCuts; i++ )
+		{
+			cameraCuts[i] = parser.ParseInt();
+			if( ( cameraCuts[i] < 1 ) || ( cameraCuts[i] >= numFrames ) )
+			{
+				parser.Error( "Invalid camera cut" );
+			}
+		}
+		parser.ExpectTokenString( "}" );
+
+		// parse the camera frames
+		parser.ExpectTokenString( "camera" );
+		parser.ExpectTokenString( "{" );
+		camera.SetNum( numFrames );
+		for( i = 0; i < numFrames; i++ )
+		{
+			parser.Parse1DMatrix( 3, camera[i].t.ToFloatPtr() );
+			parser.Parse1DMatrix( 3, camera[i].q.ToFloatPtr() );
+			camera[i].fov = parser.ParseFloat();
+		}
+		parser.ExpectTokenString( "}" );
+	}
 }
 
 /*
@@ -690,6 +714,123 @@ void idCameraAnim::Event_Activate( idEntity* _activator )
 	{
 		Start();
 	}
+}
+
+void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
+{
+	//we dont wat to load the gltb all the time. write custom binary format !
+	GLTF_Parser gltf;
+	if( gltf.Load( gltfFileName ) )
+	{
+		ID_TIME_T timeStamp = fileSystem->GetTimestamp( gltfFileName );
+		gltfData* data = gltf.currentAsset;
+		auto& accessors = data->AccessorList();
+		auto& nodes = data->NodeList();
+
+		gltfNode* cameraNode = data->GetNode( name );
+		assert( cameraNode );
+
+		gltfAnimation* anim = data->GetAnimation( animName, data->GetNodeIndex( cameraNode ) );
+		assert( anim );
+
+		cameraCuts.Clear();
+		cameraCuts.SetGranularity( 1 );
+		camera.Clear();
+		camera.SetGranularity( 1 );
+		frameRate = 24;
+		for( auto channel : anim->channels )
+		{
+			auto* sampler = anim->samplers[channel->sampler];
+			auto* input = accessors[sampler->input];
+			auto* output = accessors[sampler->output];
+			auto* target = nodes[channel->target.node];
+
+			idList<float>& timeStamps = data->GetAccessorView( input );
+			int frames = timeStamps.Num();
+			if( !camera.Num() )
+			{
+				cameraFrame_t t;
+				t.fov = 90;
+				t.q = mat3_identity.ToCQuat();
+				t.t = vec3_origin;
+				for( int i = 0; i < frames; i++ )
+				{
+					camera.Alloc() = t;
+				}
+			}
+			//This has to be replaced for correct interpolation between frames
+			for( int i = 0; i < frames; i++ )
+			{
+				cameraFrame_t& cameraFrame = camera[i];
+
+				cameraFrame.fov = 90.0f;
+				switch( channel->target.TRS )
+				{
+					default:
+						break;
+					case gltfAnimation_Channel_Target::none:
+						break;
+					case gltfAnimation_Channel_Target::rotation:
+					{
+						idList<idQuat*>& values = data->GetAccessorView<idQuat>( output );
+						if( values.Num() > i )
+						{
+
+							idQuat q = ( *values[i] );
+							q = idAngles( 90.0f, 0.0, -90.0f ).ToQuat()
+								* q.Inverse()
+								* blenderToDoomTransform.ToMat3().ToQuat();
+							cameraFrame.q = q.ToCQuat();
+
+							//This has to be replaced with correct interpolation between frames.
+							if( ( ( i + 1 ) == frames ) && ( frames < camera.Num() ) )
+							{
+								while( i++ < camera.Num() - 1 )
+								{
+									camera[i].q = cameraFrame.q;
+								}
+							}
+						}
+
+					}
+					break;
+					case gltfAnimation_Channel_Target::translation:
+					{
+						idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
+						if( values.Num() > i )
+						{
+							idVec3 val = *values[i];
+							cameraFrame.t = blenderToDoomTransform * val;
+
+							//This has to be replaced with correct interpolation between frames.
+							if( ( ( i + 1 ) == frames ) && ( frames < camera.Num() ) )
+							{
+								while( i++ < camera.Num() - 1 )
+								{
+									camera[i].t = cameraFrame.t;
+								}
+							}
+						}
+					}
+					break;
+					case gltfAnimation_Channel_Target::scale:
+						idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
+						if( values.Num() > i )
+						{
+							gameLocal.Printf( "^5Frame: ^7%i ignored scale on /%s \n\n\n", i, anim->name.c_str() );
+						}
+						break;
+				}
+			}
+		}
+	}
+	else
+	{
+		gameLocal.Error( "Missing 'anim' key on '%s'", name.c_str() );
+	}
+
+
+
 }
 
 /*

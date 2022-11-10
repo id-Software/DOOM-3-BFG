@@ -459,11 +459,11 @@ void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 		{
 			idMat4 entityToWorldTransform = mat4_identity;
 			gltfData::ResolveNodeMatrix( node, &entityToWorldTransform );
-			idMat4 worldToEntityTransform = entityToWorldTransform.Inverse();
-
 			float fov = tan( light->spot.outerConeAngle ) / 2 ;
-			idMat3 axis = idAngles( 0.0f, 90.0f, 90.0f ).ToMat3() * entityToWorldTransform.ToMat3();
 
+			idQuat q = (entityToWorldTransform).ToMat3().ToQuat();
+			q = idAngles( 90.0f, 0.0, -90.0f ).ToQuat() * q * idAngles( 180.0f, 180.0f, -90.0f ).ToQuat();
+			idMat3 axis = q.ToMat3();
 			newEntity->epairs.SetVector( "light_target", axis[0] );
 			newEntity->epairs.SetVector( "light_right", axis[1] * -fov );
 			newEntity->epairs.SetVector( "light_up", axis[2] * fov );
@@ -506,8 +506,9 @@ void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 	newPairs.SetDefaults( &newEntity->epairs );
 	newEntity->epairs = newPairs;
 
+	idMat4 entityTransform = mat4_identity;
 	// gather entity transform and bring it into id Tech 4 space
-	gltfData::ResolveNodeMatrix( node );
+	gltfData::ResolveNodeMatrix( node, &entityTransform );
 
 	// set entity transform in a way the game and physics code understand it
 	idVec3 origin = blenderToDoomTransform * node->translation;
@@ -518,12 +519,29 @@ void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 		ResolveLight( data, newEntity, node );
 	}
 
-	// TODO set rotation key to store rotation and scaling
-	//if (idStr::Icmp(classname, "info_player_start") == 0)
-	//	if( !node->matrix.IsIdentity() )
-	//{
-	//	newEntity->epairs.SetMatrix("rotation", axis );
-	//}
+	if( node->camera >= 0 && !newEntity->epairs.FindKey( "rotation" ) )
+	{
+		idQuat q = entityTransform.ToMat3().ToQuat();
+		q = idAngles( 90.0f, 0.0, -90.0f ).ToQuat() * q * blenderToDoomTransform.ToMat3().ToQuat();
+		newEntity->epairs.SetMatrix( "rotation", q.ToMat3() );
+	}
+	else if( idStr::Icmp( classname, "info_player_start" ) == 0 && !newEntity->epairs.FindKey( "rotation" ) )
+	{
+		idQuat q = entityTransform.ToMat3().ToQuat();
+		q = idAngles( -90.0f, 0.0, -90.0f ).ToQuat() * q * blenderToDoomTransform.ToMat3().ToQuat();
+		newEntity->epairs.SetMatrix( "rotation",  q.ToMat3() );
+	}
+	else if( node->extras.strPairs.GetBool( "useNodeOrientation", false ) )
+	{
+		//Nodes that are an instance of an collection containing a mesh that is not inline, ea; a gltfModel; static _or_ dynamic,
+		//which has its transformations applied on vertex level so we do not apply it here.
+		origin = blenderToDoomTransform * ( node->translation * ( entityTransform * node->matrix.Inverse() ) );
+		newEntity->epairs.SetVector( "origin", origin );
+
+		idQuat q = ( entityTransform * node->matrix.Inverse() ).ToMat3().ToQuat();
+		q = blenderToDoomTransform.Inverse().ToMat3().ToQuat() * q * blenderToDoomTransform.ToMat3().ToQuat();
+		newEntity->epairs.SetMatrix( "rotation", q.ToMat3() );
+	}
 
 #if 0
 	for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
