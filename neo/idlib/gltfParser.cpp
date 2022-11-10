@@ -1150,7 +1150,7 @@ void GLTF_Parser::Shutdown()
 	bufferViewsDone = false;
 }
 GLTF_Parser::GLTF_Parser()
-	: parser( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES ) , buffersDone( false ), bufferViewsDone( false ) { }
+	: parser( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES ) , buffersDone( false ), bufferViewsDone( false ), currentAsset( nullptr ) { }
 
 void GLTF_Parser::Parse_ASSET( idToken& token )
 {

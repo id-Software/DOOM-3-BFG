@@ -291,6 +291,13 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	idStrStatic< MAX_OSPATH > extension;
 	canonical.ExtractFileExtension( extension );
 
+	bool isGLTF = false;
+	// HvG: GLTF 2 support
+	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
+	{
+		isGLTF = true;
+	}
+
 	// see if it is already present
 	int key = hash.GenerateKey( canonical, false );
 	for( int i = hash.First( key ); i != -1; i = hash.Next( i ) )
@@ -307,7 +314,22 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 				generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
 
 				// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
-				ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+
+				ID_TIME_T sourceTimeStamp;
+
+				if( isGLTF )
+				{
+					idStr gltfFileName = idStr( canonical );
+					int gltfMeshId = -1;
+					idStr gltfMeshName;
+					gltfManager::ExtractIdentifier( gltfFileName, gltfMeshId, gltfMeshName );
+
+					sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );
+				}
+				else
+				{
+					sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+				}
 
 				if( model->SupportsBinaryModel() && binaryLoadRenderModels.GetBool() )
 				{
@@ -315,7 +337,14 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 					model->PurgeModel();
 					if( !model->LoadBinaryModel( file, sourceTimeStamp ) )
 					{
-						model->LoadModel();
+						if( isGLTF )
+						{
+							model->InitFromFile( canonical );
+						}
+						else
+						{
+							model->LoadModel();
+						}
 					}
 				}
 				else
@@ -342,7 +371,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 
 	idRenderModel* model = NULL;
 	// HvG: GLTF 2 support
-	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
+	if( isGLTF )
 	{
 		model = new( TAG_MODEL ) idRenderModelGLTF;
 	}
@@ -615,22 +644,42 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 		{
 			continue;
 		}
-
+		bool isGltf = false;
+		idStr name = model->Name();
+		idStr extension;
+		idStr assetName = name;
+		assetName.ExtractFileExtension( extension );
+		isGltf = extension.Icmp( "glb" ) == 0 || extension.Icmp( "gltf" ) == 0;
 		if( !forceAll )
 		{
 			// check timestamp
 			ID_TIME_T current;
 
-			fileSystem->ReadFile( model->Name(), NULL, &current );
+			if( isGltf )
+			{
+				idStr meshName;
+				int meshID = -1;
+				gltfManager::ExtractIdentifier( name, meshID, meshName );
+			}
+
+			fileSystem->ReadFile( name, NULL, &current );
 			if( current <= model->Timestamp() )
 			{
 				continue;
 			}
 		}
 
-		common->DPrintf( "reloading %s.\n", model->Name() );
+		common->DPrintf( "^1Reloading %s.\n", model->Name() );
 
-		model->LoadModel();
+		if( isGltf )
+		{
+			model->InitFromFile( model->Name() );
+		}
+		else
+		{
+			model->LoadModel();
+		}
+
 	}
 
 	// we must force the world to regenerate, because models may
