@@ -461,7 +461,7 @@ void ResolveLight( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 			gltfData::ResolveNodeMatrix( node, &entityToWorldTransform );
 			float fov = tan( light->spot.outerConeAngle ) / 2 ;
 
-			idQuat q = (entityToWorldTransform).ToMat3().ToQuat();
+			idQuat q = ( entityToWorldTransform ).ToMat3().ToQuat();
 			q = idAngles( 90.0f, 0.0, -90.0f ).ToQuat() * q * idAngles( 180.0f, 180.0f, -90.0f ).ToQuat();
 			idMat3 axis = q.ToMat3();
 			newEntity->epairs.SetVector( "light_target", axis[0] );
