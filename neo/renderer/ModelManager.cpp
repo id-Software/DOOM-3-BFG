@@ -340,7 +340,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 					{
 						if( isGLTF )
 						{
-							model->InitFromFile( canonical );
+							model->InitFromFile( canonical, options );
 						}
 						else
 						{
@@ -371,7 +371,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	// determine which subclass of idRenderModel to initialize
 
 	idRenderModel* model = NULL;
-	bool isGLTF = false;
+	
 	// HvG: GLTF 2 support
 	if( isGLTF )
 	{
@@ -661,25 +661,26 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 		{
 			continue;
 		}
-		bool isGltf = false;
-		idStr name = model->Name();
+		
+		bool isGLTF = false;
+		idStr filename = model->Name();
 		idStr extension;
-		idStr assetName = name;
+		idStr assetName = filename;
 		assetName.ExtractFileExtension( extension );
-		isGltf = extension.Icmp( "glb" ) == 0 || extension.Icmp( "gltf" ) == 0;
+		isGLTF = extension.Icmp( "glb" ) == 0 || extension.Icmp( "gltf" ) == 0;
 		if( !forceAll )
 		{
 			// check timestamp
 			ID_TIME_T current;
 
-			if( isGltf )
+			if( isGLTF )
 			{
 				idStr meshName;
 				int meshID = -1;
-				gltfManager::ExtractIdentifier( name, meshID, meshName );
+				gltfManager::ExtractIdentifier( filename, meshID, meshName );
 			}
 
-			fileSystem->ReadFile( name, NULL, &current );
+			fileSystem->ReadFile( filename, NULL, &current );
 			if( current <= model->Timestamp() )
 			{
 				continue;
@@ -688,9 +689,10 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 
 		common->DPrintf( "^1Reloading %s.\n", model->Name() );
 
-		if( isGltf )
+		if( isGLTF )
 		{
-			model->InitFromFile( model->Name() );
+			// RB: we don't have the options here so make sure this only applies to static models
+			model->InitFromFile( model->Name(), NULL );
 		}
 		else
 		{

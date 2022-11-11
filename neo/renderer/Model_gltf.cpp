@@ -163,13 +163,13 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	bounds.Clear();
 
 	int sceneId = data->DefaultScene();
-	idassert( sceneId >= 0 );
+	assert( sceneId >= 0 );
 
 	auto scene = data->SceneList()[sceneId];
-	idassert( scene );
+	assert( scene );
 
 	auto nodes = data->NodeList();
-	idassert( nodes.Num() );
+	assert( nodes.Num() );
 
 	//determine root node
 	if( !meshName[0] )
@@ -213,7 +213,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		if( tmpNode->skin >= 0 )
 		{
 			currentSkin = data->SkinList()[tmpNode->skin];
-			idassert( currentSkin );
+			assert( currentSkin );
 			if( currentSkin->joints.Num() )
 			{
 				bones.Append( currentSkin->joints );
@@ -257,7 +257,6 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	// derive mikktspace tangents from normals
 	FinishSurfaces( true );
-
 
 	LoadModel();
 	UpdateMd5Joints();
@@ -373,7 +372,7 @@ const idMD5Joint* idRenderModelGLTF::FindMD5Joint( const idStr& name ) const
 			return &joint;
 		}
 	}
-	idassert( 0 );
+	assert( 0 );
 	static idMD5Joint staticJoint;
 	return &staticJoint;
 }
@@ -506,7 +505,7 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idLis
 		{
 			skin = data->GetSkin( targetNode );
 		}
-		idassert( skin );
+		assert( skin );
 		bones.Append( skin->joints );
 	}
 	else
@@ -604,7 +603,7 @@ static int CopyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>
 
 idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TIME_T sourceTimeStamp, const idImportOptions* options )
 {
-	idassert( lastMeshFromFile );
+	assert( lastMeshFromFile );
 
 	//keep in sync with game!
 	static const byte B_ANIM_MD5_VERSION = 101;
@@ -723,7 +722,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	for( int i = 0; i < numFrames; i++ )
 	{
 		int totalCopied = CopyBones( data, bones, animBones[i] );
-		idassert( totalCopied );
+		assert( totalCopied );
 	}
 
 	gameLocal.Printf( "Total bones %i \n", bones.Num() );
@@ -849,7 +848,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		}
 	}
 
-	idassert( componentFrames.Num() == ( componentFrameIndex + 1 ) );
+	assert( componentFrames.Num() == ( componentFrameIndex + 1 ) );
 
 	bounds.SetGranularity( 1 );
 	bounds.AssureSize( numFrames );
@@ -1101,7 +1100,7 @@ void idRenderModelGLTF::PurgeModel()
 
 void idRenderModelGLTF::LoadModel()
 {
-	idassert( data );
+	assert( data );
 
 	int			num;
 	auto& accessors = data->AccessorList();
@@ -1110,7 +1109,7 @@ void idRenderModelGLTF::LoadModel()
 	if( !fileExclusive )
 	{
 		meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
-		idassert( meshRoot );
+		assert( meshRoot );
 	}
 
 	gltfSkin* skin = nullptr;
@@ -1518,8 +1517,8 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	idRenderModelStatic* staticModel;
 	if( cachedModel != NULL )
 	{
-		idassert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
-		idassert( idStr::Icmp( cachedModel->Name(), GLTF_SnapshotName ) == 0 );
+		assert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
+		assert( idStr::Icmp( cachedModel->Name(), GLTF_SnapshotName ) == 0 );
 		staticModel = static_cast< idRenderModelStatic* >( cachedModel );
 	}
 	else
@@ -1557,7 +1556,7 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	}
 	else
 	{
-		idassert( staticModel->numInvertedJoints == numInvertedJoints );
+		assert( staticModel->numInvertedJoints == numInvertedJoints );
 	}
 
 	TransformJointsFast( staticModel->jointsInverted, md5joints.Num(), ent->joints, invertedDefaultPose.Ptr() );
@@ -1586,7 +1585,7 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 		}
 
 		UpdateSurface( ent, ent->joints, staticModel->jointsInverted, &surf, surfaces[surfIdx++] );
-		idassert( surf.geometry != NULL );
+		assert( surf.geometry != NULL );
 		surf.geometry->staticModelWithJoints = staticModel;
 		staticModel->bounds.AddBounds( surf.geometry->bounds );
 	}
