@@ -131,6 +131,8 @@ private:
 	void					Event_Stop();
 	void					Event_SetCallback();
 	void					Event_Activate( idEntity* activator );
+
+	void					gltfLoadAnim( idStr gltfFileName, idStr animName );
 };
 
 #endif /* !__GAME_CAMERA_H__ */

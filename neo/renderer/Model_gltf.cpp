@@ -150,7 +150,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	//FIXME FIXME FIXME
 	maxJointVertDist = 10;
-	idStr gltfFileName = idStr( fileName );
+	gltfFileName = idStr( fileName );
 	model_state = DM_STATIC;
 
 	gltfManager::ExtractIdentifier( gltfFileName, meshID, meshName );
@@ -163,13 +163,13 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	bounds.Clear();
 
 	int sceneId = data->DefaultScene();
-	assert( sceneId >= 0 );
+	idassert( sceneId >= 0 );
 
 	auto scene = data->SceneList()[sceneId];
-	assert( scene );
+	idassert( scene );
 
 	auto nodes = data->NodeList();
-	assert( nodes.Num() );
+	idassert( nodes.Num() );
 
 	//determine root node
 	if( !meshName[0] )
@@ -213,7 +213,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		if( tmpNode->skin >= 0 )
 		{
 			currentSkin = data->SkinList()[tmpNode->skin];
-			assert( currentSkin );
+			idassert( currentSkin );
 			if( currentSkin->joints.Num() )
 			{
 				bones.Append( currentSkin->joints );
@@ -250,12 +250,14 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	{
 		common->Warning( "Couldn't load model: '%s'", name.c_str() );
 		MakeDefaultModel();
+		data = nullptr;
 		return;
 	}
 
 
 	// derive mikktspace tangents from normals
 	FinishSurfaces( true );
+
 
 	LoadModel();
 	UpdateMd5Joints();
@@ -272,6 +274,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 
 	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
 	{
+		data = nullptr;
 		return false;
 	}
 
@@ -280,6 +283,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 
 	if( magic != GLMB_MAGIC )
 	{
+		data = nullptr;
 		return false;
 	}
 
@@ -356,6 +360,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	model_state = hasAnimations ? DM_CONTINUOUS : DM_STATIC;
 
 	lastMeshFromFile = this;
+	data = nullptr;
 	return true;
 }
 
@@ -368,7 +373,7 @@ const idMD5Joint* idRenderModelGLTF::FindMD5Joint( const idStr& name ) const
 			return &joint;
 		}
 	}
-	assert( 0 );
+	idassert( 0 );
 	static idMD5Joint staticJoint;
 	return &staticJoint;
 }
@@ -501,7 +506,7 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idLis
 		{
 			skin = data->GetSkin( targetNode );
 		}
-		assert( skin );
+		idassert( skin );
 		bones.Append( skin->joints );
 	}
 	else
@@ -599,7 +604,7 @@ static int CopyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>
 
 idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TIME_T sourceTimeStamp, const idImportOptions* options )
 {
-	assert( lastMeshFromFile );
+	idassert( lastMeshFromFile );
 
 	//keep in sync with game!
 	static const byte B_ANIM_MD5_VERSION = 101;
@@ -718,7 +723,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	for( int i = 0; i < numFrames; i++ )
 	{
 		int totalCopied = CopyBones( data, bones, animBones[i] );
-		assert( totalCopied );
+		idassert( totalCopied );
 	}
 
 	gameLocal.Printf( "Total bones %i \n", bones.Num() );
@@ -844,7 +849,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		}
 	}
 
-	assert( componentFrames.Num() == ( componentFrameIndex + 1 ) );
+	idassert( componentFrames.Num() == ( componentFrameIndex + 1 ) );
 
 	bounds.SetGranularity( 1 );
 	bounds.AssureSize( numFrames );
@@ -1075,6 +1080,7 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 
 void idRenderModelGLTF::PurgeModel()
 {
+	idRenderModelStatic::PurgeModel();
 	purged = true;
 	md5joints.Clear();
 	defaultPose.Clear();
@@ -1083,16 +1089,20 @@ void idRenderModelGLTF::PurgeModel()
 	animIds.Clear();
 	bones.Clear();
 	MeshNodeIds.Clear();
+	gltfFileName.Clear();
 
 	//if no root id was set, it is a generated one.
 	if( rootID == -1 && root )
 	{
 		delete root;
 	}
+	data = nullptr;
 }
 
 void idRenderModelGLTF::LoadModel()
 {
+	idassert( data );
+
 	int			num;
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
@@ -1100,6 +1110,7 @@ void idRenderModelGLTF::LoadModel()
 	if( !fileExclusive )
 	{
 		meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
+		idassert( meshRoot );
 	}
 
 	gltfSkin* skin = nullptr;
@@ -1488,9 +1499,6 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	if( purged )
 	{
 		common->DWarning( "model %s instantiated while purged", Name() );
-		GLTF_Parser gltf;
-		gltf.Load( name );
-		data = gltf.currentAsset;
 		LoadModel();
 	}
 
@@ -1510,8 +1518,8 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	idRenderModelStatic* staticModel;
 	if( cachedModel != NULL )
 	{
-		assert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
-		assert( idStr::Icmp( cachedModel->Name(), GLTF_SnapshotName ) == 0 );
+		idassert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
+		idassert( idStr::Icmp( cachedModel->Name(), GLTF_SnapshotName ) == 0 );
 		staticModel = static_cast< idRenderModelStatic* >( cachedModel );
 	}
 	else
@@ -1549,7 +1557,7 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	}
 	else
 	{
-		assert( staticModel->numInvertedJoints == numInvertedJoints );
+		idassert( staticModel->numInvertedJoints == numInvertedJoints );
 	}
 
 	TransformJointsFast( staticModel->jointsInverted, md5joints.Num(), ent->joints, invertedDefaultPose.Ptr() );
@@ -1578,7 +1586,7 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 		}
 
 		UpdateSurface( ent, ent->joints, staticModel->jointsInverted, &surf, surfaces[surfIdx++] );
-		assert( surf.geometry != NULL );
+		idassert( surf.geometry != NULL );
 		surf.geometry->staticModelWithJoints = staticModel;
 		staticModel->bounds.AddBounds( surf.geometry->bounds );
 	}

@@ -313,8 +313,12 @@ void idRenderModelStatic::InitFromFile( const char* fileName, const idImportOpti
 	ID_TIME_T sourceTimeStamp;
 
 	name.ExtractFileExtension( extension );
-
-	if( extension.Icmp( "ase" ) == 0 )
+	if( extension.Icmp( "glb" ) == 0 || extension.Icmp( "gltf" ) == 0 )
+	{
+		loaded = false;
+		reloadable = true;
+	}
+	else if( extension.Icmp( "ase" ) == 0 )
 	{
 		loaded		= LoadASE( name, &sourceTimeStamp );
 		reloadable	= true;

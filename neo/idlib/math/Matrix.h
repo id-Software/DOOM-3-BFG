@@ -963,6 +963,7 @@ public:
 // jmarshall
 	idMat3			ToMat3() const;
 // jmarshall end
+	idVec3			GetTranslation() const;
 private:
 	idVec4			mat[ 4 ];
 };
@@ -990,6 +991,19 @@ ID_INLINE idMat3 idMat4::ToMat3() const
 	return m;
 }
 // jmarshall end
+
+// RB begin
+ID_INLINE idVec3 idMat4::GetTranslation() const
+{
+	idVec3 pos;
+
+	pos.x = mat[ 0 ][ 3 ];
+	pos.y = mat[ 1 ][ 3 ];
+	pos.z = mat[ 2 ][ 3 ];
+
+	return pos;
+}
+// RB end
 
 ID_INLINE idMat4::idMat4()
 {
