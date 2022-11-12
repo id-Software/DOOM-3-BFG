@@ -1065,6 +1065,29 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	return true;
 }
 
+static bool GetCenteredWindowDimensions( int& x, int& y, int& w, int& h )
+{
+	// get position and size of default display for windowed mode (parms.fullScreen = 0)
+	int displayX, displayY, displayW, displayH, displayHz = 0;
+	if( !GetDisplayCoordinates( 0, displayX, displayY, displayW, displayH, displayHz ) )
+	{
+		return false;
+	}
+
+	// find the centered position not exceeding display bounds
+	const int centreX = displayX + displayW / 2;
+	const int centreY = displayY + displayH / 2;
+	const int left = centreX - w / 2;
+	const int right = left + w;
+	const int top = centreY - h / 2;
+	const int bottom = top + h;
+	x = std::max( left, displayX );
+	y = std::max( top, displayY );
+	w = std::min( right - left, displayW );
+	h = std::min( bottom - top, displayH );
+
+	return true;
+}
 
 bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, const char* windowTitle )
 {
@@ -1072,6 +1095,15 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 	if( !GLW_GetWindowDimensions( parms, x, y, w, h ) )
 	{
 		return false;
+	}
+
+	// SRS - if in windowed mode, start with centered windowed on default display, afterwards use r_windowX / r_windowY
+	if( parms.fullScreen == 0 )
+	{
+		if( !GetCenteredWindowDimensions( x, y, w, h ) )
+		{
+			return false;
+		}
 	}
 
 	int	stylebits;
@@ -1135,8 +1167,6 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 
 	SetForegroundWindow( win32.hWnd );
 	SetFocus( win32.hWnd );
-
-	glConfig.isFullscreen = parms.fullScreen;
 
 	return true;
 }

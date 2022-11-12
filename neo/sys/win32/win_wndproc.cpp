@@ -179,7 +179,6 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	switch( uMsg )
 	{
 		case WM_WINDOWPOSCHANGED:
-			// RB: FIXME this messes with with the window size in a really bad way
 			// SRS - Needed by ResizeImages() to resize before the start of a frame
 			// SRS - Aspect ratio constraints are controlled by WIN_Sizing() above
 			if( renderSystem->IsInitialized() && win32.hDC != NULL )
@@ -193,8 +192,9 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 						glConfig.nativeScreenHeight = rect.bottom - rect.top;
 
 						// save the window size in cvars if we aren't fullscreen
+						// SRS - also check renderSystem state to make sure WM doesn't fool us when exiting fullscreen
 						int style = GetWindowLong( hWnd, GWL_STYLE );
-						if( ( style & WS_POPUP ) == 0 )
+						if( ( style & WS_POPUP ) == 0 && !renderSystem->IsFullScreen() )
 						{
 							r_windowWidth.SetInteger( glConfig.nativeScreenWidth );
 							r_windowHeight.SetInteger( glConfig.nativeScreenHeight );
@@ -212,8 +212,9 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			RECT r;
 
 			// save the window origin in cvars if we aren't fullscreen
+			// SRS - also check renderSystem state to make sure WM doesn't fool us when exiting fullscreen
 			int style = GetWindowLong( hWnd, GWL_STYLE );
-			if( ( style & WS_POPUP ) == 0 )
+			if( ( style & WS_POPUP ) == 0 && !renderSystem->IsFullScreen() )
 			{
 				xPos = ( short ) LOWORD( lParam ); // horizontal position
 				yPos = ( short ) HIWORD( lParam ); // vertical position

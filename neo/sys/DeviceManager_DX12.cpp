@@ -204,15 +204,6 @@ void DeviceManager_DX12::ReportLiveObjects()
 
 bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 {
-	UINT windowStyle = deviceParms.startFullscreen
-					   ? ( WS_POPUP | WS_SYSMENU | WS_VISIBLE )
-					   : deviceParms.startMaximized
-					   ? ( WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE )
-					   : ( WS_OVERLAPPEDWINDOW | WS_VISIBLE );
-
-	RECT rect = { 0, 0, LONG( deviceParms.backBufferWidth ), LONG( deviceParms.backBufferHeight ) };
-	AdjustWindowRect( &rect, windowStyle, FALSE );
-
 	RefCountPtr<IDXGIAdapter> targetAdapter;
 
 	if( deviceParms.adapter )
@@ -248,12 +239,25 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 
 		isNvidia = IsNvDeviceID( aDesc.VendorId );
 	}
+/*
+	// SRS - Don't center window here for DX12 only, instead use portable initialization in CreateWindowDeviceAndSwapChain() within win_glimp.cpp
+	//     - Also, calling SetWindowPos() triggers a window mgr event that overwrites r_windowX / r_windowY, which may be undesirable to the user
+
+	UINT windowStyle = deviceParms.startFullscreen
+					   ? ( WS_POPUP | WS_SYSMENU | WS_VISIBLE )
+					   : deviceParms.startMaximized
+					   ? ( WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE )
+					   : ( WS_OVERLAPPEDWINDOW | WS_VISIBLE );
+
+	RECT rect = { 0, 0, LONG( deviceParms.backBufferWidth ), LONG( deviceParms.backBufferHeight ) };
+	AdjustWindowRect( &rect, windowStyle, FALSE );
 
 	if( MoveWindowOntoAdapter( targetAdapter, rect ) )
 	{
 		SetWindowPos( ( HWND )windowHandle, deviceParms.startFullscreen ? HWND_TOPMOST : HWND_NOTOPMOST,
 					  rect.left, rect.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE );
 	}
+*/
 	HRESULT hr = E_FAIL;
 
 	RECT clientRect;

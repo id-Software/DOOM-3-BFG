@@ -135,8 +135,6 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 		return false;
 	}
 
-	glConfig.isFullscreen = parms.fullScreen;
-
 	return true;
 }
 

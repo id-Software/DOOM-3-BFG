@@ -1062,7 +1062,7 @@ sysEvent_t Sys_GetEvent()
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
 				{
-					// DG: go to fullscreen on current display, instead of always first display
+					/* DG: go to fullscreen on current display, instead of always first display
 					int fullscreen = 0;
 					if( ! renderSystem->IsFullScreen() )
 					{
@@ -1071,7 +1071,10 @@ sysEvent_t Sys_GetEvent()
 						fullscreen = -2;
 					}
 					cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
-					// DG end
+					// DG end */
+					// SRS - Until Borderless Fullscreen is implemented properly, use same implementation as on Windows
+					cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
+					// SRS end
 					PushConsoleEvent( "vid_restart" );
 					continue; // handle next event
 				}
