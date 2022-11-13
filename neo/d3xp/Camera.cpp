@@ -416,66 +416,70 @@ void idCameraAnim::LoadAnim()
 		camera.Clear();
 		camera.SetGranularity( 1 );
 
-		parser.ExpectTokenString( MD5_VERSION_STRING );
-		version = parser.ParseInt();
-		if( version != MD5_VERSION )
-		{
-			parser.Error( "Invalid version %d.  Should be version %d\n", version, MD5_VERSION );
-		}
-
-		// skip the commandline
-		parser.ExpectTokenString( "commandline" );
-		parser.ReadToken( &token );
-
-		// parse num frames
-		parser.ExpectTokenString( "numFrames" );
-		numFrames = parser.ParseInt();
-		if( numFrames <= 0 )
-		{
-			parser.Error( "Invalid number of frames: %d", numFrames );
-		}
-
-		// parse framerate
-		parser.ExpectTokenString( "frameRate" );
-		frameRate = parser.ParseInt();
-		if( frameRate <= 0 )
-		{
-			parser.Error( "Invalid framerate: %d", frameRate );
-		}
-
-		// parse num cuts
-		parser.ExpectTokenString( "numCuts" );
-		numCuts = parser.ParseInt();
-		if( ( numCuts < 0 ) || ( numCuts > numFrames ) )
-		{
-			parser.Error( "Invalid number of camera cuts: %d", numCuts );
-		}
-
-		// parse the camera cuts
-		parser.ExpectTokenString( "cuts" );
-		parser.ExpectTokenString( "{" );
-		cameraCuts.SetNum( numCuts );
-		for( i = 0; i < numCuts; i++ )
-		{
-			cameraCuts[i] = parser.ParseInt();
-			if( ( cameraCuts[i] < 1 ) || ( cameraCuts[i] >= numFrames ) )
+			parser.ExpectTokenString(MD5_VERSION_STRING);
+			version = parser.ParseInt();
+			if (version != MD5_VERSION)
 			{
-				parser.Error( "Invalid camera cut" );
+				parser.Error("Invalid version %d.  Should be version %d\n", version, MD5_VERSION);
 			}
-		}
-		parser.ExpectTokenString( "}" );
 
-		// parse the camera frames
-		parser.ExpectTokenString( "camera" );
-		parser.ExpectTokenString( "{" );
-		camera.SetNum( numFrames );
-		for( i = 0; i < numFrames; i++ )
-		{
-			parser.Parse1DMatrix( 3, camera[i].t.ToFloatPtr() );
-			parser.Parse1DMatrix( 3, camera[i].q.ToFloatPtr() );
-			camera[i].fov = parser.ParseFloat();
+			// skip the commandline
+			parser.ExpectTokenString("commandline");
+			parser.ReadToken(&token);
+
+			// parse num frames
+			parser.ExpectTokenString("numFrames");
+			numFrames = parser.ParseInt();
+			if (numFrames <= 0)
+			{
+				parser.Error("Invalid number of frames: %d", numFrames);
+			}
+
+			// parse framerate
+			parser.ExpectTokenString("frameRate");
+			frameRate = parser.ParseInt();
+			if (frameRate <= 0)
+			{
+				parser.Error("Invalid framerate: %d", frameRate);
+			}
+
+			// parse num cuts
+			parser.ExpectTokenString("numCuts");
+			numCuts = parser.ParseInt();
+			if ((numCuts < 0) || (numCuts > numFrames))
+			{
+				parser.Error("Invalid number of camera cuts: %d", numCuts);
+			}
+
+			// parse the camera cuts
+			parser.ExpectTokenString("cuts");
+			parser.ExpectTokenString("{");
+			cameraCuts.SetNum(numCuts);
+			for (i = 0; i < numCuts; i++)
+			{
+				cameraCuts[i] = parser.ParseInt();
+				if ((cameraCuts[i] < 1) || (cameraCuts[i] >= numFrames))
+				{
+					parser.Error("Invalid camera cut");
+				}
+			}
+			parser.ExpectTokenString("}");
+
+			// parse the camera frames
+			parser.ExpectTokenString("camera");
+			parser.ExpectTokenString("{");
+			camera.SetNum(numFrames);
+			for (i = 0; i < numFrames; i++)
+			{
+				parser.Parse1DMatrix(3, camera[i].t.ToFloatPtr());
+				parser.Parse1DMatrix(3, camera[i].q.ToFloatPtr());
+				camera[i].fov = parser.ParseFloat();
+			}
+			parser.ExpectTokenString("}");
 		}
-		parser.ExpectTokenString( "}" );
+
+		idFileLocal file(fileSystem->OpenFileWrite(generatedFileName, "fs_basepath"));
+		WriteBinaryCamAnim(file);
 	}
 }
 
