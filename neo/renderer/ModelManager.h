@@ -69,6 +69,7 @@ public:
 	bool					ignoreMeshes;
 	bool					clearOrigin;
 	bool					clearOriginAxis;
+	bool					addOrigin;
 	bool					ignoreScale;
 	int						startframe;
 	int						endframe;

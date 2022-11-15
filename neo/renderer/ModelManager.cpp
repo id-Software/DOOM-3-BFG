@@ -1137,6 +1137,7 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 	ignoreMeshes	= false;
 	clearOrigin		= false;
 	clearOriginAxis	= false;
+	addOrigin		= false;
 	framerate		= 24;
 	align			= "";
 	rotate			= 0.0f;
@@ -1296,6 +1297,10 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 			{
 				clearOriginAxis = true;
 
+			}
+			else if (token == "addorigin")
+			{
+				addOrigin = true;
 			}
 			else if( token == "ignorescale" )
 			{
