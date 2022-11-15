@@ -371,7 +371,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	// determine which subclass of idRenderModel to initialize
 
 	idRenderModel* model = NULL;
-	
+
 	// HvG: GLTF 2 support
 	if( isGLTF )
 	{
@@ -661,7 +661,7 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 		{
 			continue;
 		}
-		
+
 		bool isGLTF = false;
 		idStr filename = model->Name();
 		idStr extension;
@@ -1298,7 +1298,7 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 				clearOriginAxis = true;
 
 			}
-			else if (token == "addorigin")
+			else if( token == "addorigin" )
 			{
 				addOrigin = true;
 			}
