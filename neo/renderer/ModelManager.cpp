@@ -1148,6 +1148,7 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 	xyzPrecision	= DEFAULT_ANIM_EPSILON;
 	quatPrecision	= DEFAULT_QUAT_EPSILON;
 	cycleStart		= -1;
+	reOrient		= ang_zero;
 
 	src.Clear();
 	dest.Clear();
@@ -1420,6 +1421,23 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 						break;
 					}
 					keepjoints.AddUnique( token );
+				}
+			}
+			else if( token == "reorient" )
+			{
+				while( tokens.TokenAvailable() )
+				{
+					idAngles angle;
+					float x = atof( tokens.NextToken() );
+					float y = atof( tokens.NextToken() );
+					float z = atof( tokens.NextToken() );
+					token = tokens.NextToken();
+					if( token[0] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+					reOrient = idAngles( x, y, z );
 				}
 			}
 			else

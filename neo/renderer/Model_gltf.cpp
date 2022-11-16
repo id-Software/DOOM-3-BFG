@@ -406,11 +406,17 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	if( options )
 	{
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
+		idMat3 reOrientationMat = blenderToDoomRotation;
+
+		if( options->reOrient != ang_zero )
+		{
+			reOrientationMat = options->reOrient.ToMat3();
+		}
 
 		float scale = options->scale;
 		idMat3 scaleMat( scale, 0, 0, 0, scale, 0, 0, 0, scale );
 
-		globalTransform = idMat4( scaleMat * blenderToDoomRotation, vec3_origin );
+		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
 	}
 
 	ProcessNode_r( root, mat4_identity, globalTransform, data );
@@ -854,12 +860,19 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	if( options )
 	{
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
+		idMat3 reOrientationMat = blenderToDoomRotation;
+
+		if( options->reOrient != ang_zero )
+		{
+			reOrientationMat = options->reOrient.ToMat3();
+		}
 
 		float scale = options->scale;
 		idMat3 scaleMat( scale, 0, 0, 0, scale, 0, 0, 0, scale );
 
-		globalTransform = idMat4( scaleMat * blenderToDoomRotation, vec3_origin );
+		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
 	}
+
 	gltfNode* root = nullptr;
 	int channelCount = 0;
 	for( auto channel : gltfAnim->channels )
@@ -894,7 +907,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		newJoint->nameIndex = animationLib.JointIndex( boneLess ? "origin" : target->name );
 		newJoint->parentNum = bones.FindIndex( parentIndex );
 
-		assert( newJoint->parentNum >= 0 );
+		//assert( newJoint->parentNum >= 0 );
 
 		if( newJoint->firstComponent == -1 )
 		{
@@ -1030,7 +1043,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 			{
 				if( node->parent == nullptr )
 				{
-					t = blenderToDoomTransform * t;
+					t = globalTransform * t;
 				}
 
 				componentFrames[componentFrameIndex++] = t.x;
@@ -1042,7 +1055,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 			{
 				if( node->parent == nullptr )
 				{
-					q = blenderToDoomTransform.ToMat3().ToQuat() * animBones[i][b].rotation;
+					q = globalTransform.ToMat3().ToQuat() * animBones[i][b].rotation;
 				}
 				else
 				{
@@ -1077,7 +1090,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		}
 
 		idList<idJointMat> joints;
-		GetPose( animBones[i], currJoints, blenderToDoomTransform );
+		GetPose( animBones[i], currJoints, globalTransform );
 		for( int b = 0; b < animBones[i].Num(); b++ )
 		{
 			idJointMat mat = poseMat[b];
