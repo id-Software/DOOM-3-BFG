@@ -1138,7 +1138,7 @@ void idMD5Anim::CheckModelHierarchy( const idRenderModel* model ) const
 		int jointNum = jointInfo[ i ].nameIndex;
 		if( modelJoints[ i ].name != animationLib.JointName( jointNum ) )
 		{
-			gameLocal.Error( "Model '%s''s joint names don't match anim '%s''s", model->Name(), name.c_str() );
+			gameLocal.Warning( "Model '%s''s joint names don't match anim '%s''s", model->Name(), name.c_str() );
 		}
 		int parent;
 		if( modelJoints[ i ].parent )
@@ -1151,7 +1151,7 @@ void idMD5Anim::CheckModelHierarchy( const idRenderModel* model ) const
 		}
 		if( parent != jointInfo[ i ].parentNum )
 		{
-			gameLocal.Error( "Model '%s' has different joint hierarchy than anim '%s'", model->Name(), name.c_str() );
+			gameLocal.Warning( "Model '%s' has different joint hierarchy than anim '%s'", model->Name(), name.c_str() );
 		}
 	}
 }
