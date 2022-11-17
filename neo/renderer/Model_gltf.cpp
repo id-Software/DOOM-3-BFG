@@ -45,7 +45,7 @@ idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scen
 idCVar gltf_AnimSampleRate( "gltf_AnimSampleRate", "24", CVAR_SYSTEM | CVAR_INTEGER , "The frame rate of the converted md5anim" );
 
 
-static const byte GLMB_VERSION = 101;
+static const byte GLMB_VERSION = 102;
 static const unsigned int GLMB_MAGIC = ( 'M' << 24 ) | ( 'L' << 16 ) | ( 'G' << 8 ) | GLMB_VERSION;
 static const char* GLTF_SnapshotName = "_GLTF_Snapshot_";
 static const idMat4 blenderToDoomTransform( idAngles( 0.0f, 0.0f, 90 ).ToMat3(), vec3_origin );
@@ -299,6 +299,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	int meshID = -1;
 	name = fileName;
 	currentSkin = nullptr;
+	idImportOptions* localOptions = nullptr;
 
 	PurgeModel();
 
@@ -306,6 +307,20 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	maxJointVertDist = 10;
 	gltfFileName = idStr( fileName );
 	model_state = DM_STATIC;
+
+	if( options )
+	{
+		commandLine = options->commandLine;
+		localOptions = const_cast<idImportOptions*>( options );
+	}
+	else
+	{
+		if( !commandLine.IsEmpty() )
+		{
+			localOptions = new idImportOptions();
+			localOptions->Init( commandLine, fileName );
+		}
+	}
 
 	gltfManager::ExtractIdentifier( gltfFileName, meshID, meshName );
 	GLTF_Parser gltf;
@@ -326,13 +341,17 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	assert( nodes.Num() );
 
 	//determine root node
-	if( !meshName[0] )
+	if( !meshName[0] && data->MeshList().Num() )
 	{
-		root = new gltfNode();
-		root->name = scene->name;
-		root->children.Append( scene->nodes );
-		rootID = -1;
+		gltfMesh* firstMesh = data->MeshList()[0];
+
 		fileExclusive = true;
+		root = data->GetNode( scene, firstMesh, &rootID );
+		if( root )
+		{
+			rootID = data->GetNodeIndex( root );
+			meshName = root->name;
+		}
 	}
 	else
 	{
@@ -347,6 +366,12 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	{
 		common->Warning( "Couldn't find model: '%s'", name.c_str() );
 		MakeDefaultModel();
+
+		if( localOptions && !options )
+		{
+			delete localOptions;
+		}
+
 		return;
 	}
 
@@ -373,19 +398,19 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 				bones.Append( currentSkin->joints );
 				animCount = data->GetAnimationIds( nodes[bones[0]] , animIds );
 			}
-			if( options )
+			if( localOptions )
 			{
-				if( options->keepjoints.Num() )
+				if( localOptions->keepjoints.Num() )
 				{
-					KeepNodes( data, options->keepjoints, bones );
+					KeepNodes( data, localOptions->keepjoints, bones );
 				}
-				if( options->addOrigin )
+				if( localOptions->addOrigin )
 				{
 					AddOriginBone( data, bones, nodes[bones[0]]->parent );
 				}
-				if( options->remapjoints.Num() )
+				if( localOptions->remapjoints.Num() )
 				{
-					RemapNodes( data, options->remapjoints, bones );
+					RemapNodes( data, localOptions->remapjoints, bones );
 				}
 			}
 		}
@@ -403,17 +428,17 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	model_state = hasAnimations ? DM_CACHED : DM_STATIC;
 	globalTransform = blenderToDoomTransform;
 
-	if( options )
+	if( localOptions )
 	{
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
 		idMat3 reOrientationMat = blenderToDoomRotation;
 
-		if( options->reOrient != ang_zero )
+		if( localOptions->reOrient != ang_zero )
 		{
-			reOrientationMat = options->reOrient.ToMat3();
+			reOrientationMat = localOptions->reOrient.ToMat3();
 		}
 
-		float scale = options->scale;
+		float scale = localOptions->scale;
 		idMat3 scaleMat( scale, 0, 0, 0, scale, 0, 0, 0, scale );
 
 		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
@@ -426,6 +451,10 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		common->Warning( "Couldn't load model: '%s'", name.c_str() );
 		MakeDefaultModel();
 		data = nullptr;
+		if( localOptions && !options )
+		{
+			delete localOptions;
+		}
 		return;
 	}
 
@@ -455,6 +484,10 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	// it is now available for use
 	lastMeshFromFile = this;
+	if( localOptions && !options )
+	{
+		delete localOptions;
+	}
 }
 
 bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
@@ -478,6 +511,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 		return false;
 	}
 
+	file->ReadString( commandLine );
 	file->ReadBig( model_state );
 	file->ReadBig( rootID );
 
@@ -1257,6 +1291,7 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 	}
 
 	file->WriteBig( GLMB_MAGIC );
+	file->WriteString( commandLine );
 	file->WriteBig( model_state );
 	file->WriteBig( rootID );
 	file->WriteString( file->GetName() );
@@ -1314,6 +1349,7 @@ void idRenderModelGLTF::PurgeModel()
 	bones.Clear();
 	MeshNodeIds.Clear();
 	gltfFileName.Clear();
+	meshName.Clear();
 
 	//if no root id was set, it is a generated one.
 	if( rootID == -1 && root )

@@ -74,6 +74,7 @@ private:
 	dynamicModel_t					model_state;
 	idStr							meshName;
 	idStr							gltfFileName;
+	idStr							commandLine;
 
 	idList<idMD5Joint, TAG_MODEL>	md5joints;
 	idList<idJointQuat, TAG_MODEL>	defaultPose;
