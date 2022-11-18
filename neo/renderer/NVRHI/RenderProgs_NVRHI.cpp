@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/DeviceManager.h>
 
 
-
 /*
 ========================
 idRenderProgManager::StartFrame
@@ -313,7 +312,15 @@ void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList
 	if( uniformsChanged )
 	{
 		commandList->writeBuffer( constantBuffer, uniforms.Ptr(), uniforms.Allocated() );
-
-		uniformsChanged = false;
+		//bindingParmUbo[BindingLayoutType()].Update( uniforms.Ptr(), ALIGN( sizeof(idVec4) * RENDERPARM_TOTAL, vertexCache.uniformBufferOffsetAlignment ), 0, false, commandList );
+		//CopyBuffer((byte*)mappedUniforms, (byte*)uniforms.Ptr(), RENDERPARM_TOTAL * sizeof(idVec4));
+		//int layout = BindingLayoutType();
+		//idVec4* parms = (idVec4*)bindingParmUbo[layout].MapBuffer(BM_WRITE);
+		//for (int i = 0; i < RENDERPARM_TOTAL; i++)
+		//{
+		//	parms[ i ] = uniforms[ i ];
+		//}
+		//bindingParmUbo[layout].UnmapBuffer();
+		//uniformsChanged = false;
 	}
 }

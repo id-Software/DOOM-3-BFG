@@ -1028,6 +1028,10 @@ public:
 	{
 		return constantBuffer;
 	}
+	ID_INLINE idUniformBuffer&				BindingParamUbo()
+	{
+		return bindingParmUbo[ BindingLayoutType() ];
+	}
 	ID_INLINE nvrhi::InputLayoutHandle		InputLayout()
 	{
 		return renderProgs[currentIndex].inputLayout;
@@ -1040,6 +1044,10 @@ public:
 	{
 		return &bindingLayouts[layoutType];
 	}
+
+	idUniformBuffer									renderParmUbo;
+	idArray<idUniformBuffer, NUM_BINDING_LAYOUTS>	bindingParmUbo;
+	idArray<idVec4*, NUM_BINDING_LAYOUTS>			mappedRenderParms;
 #elif defined(USE_VULKAN)
 	void		PrintPipelines();
 	void		ClearPipelines();
