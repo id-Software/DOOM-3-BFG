@@ -389,7 +389,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	// determine which subclass of idRenderModel to initialize
 
 	idRenderModel* model = NULL;
-	
+
 	// HvG: GLTF 2 support
 	if( isGLTF )
 	{
@@ -679,7 +679,7 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 		{
 			continue;
 		}
-		
+
 		bool isGLTF = false;
 		idStr filename = model->Name();
 		idStr extension;
