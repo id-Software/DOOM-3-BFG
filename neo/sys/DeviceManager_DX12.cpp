@@ -239,25 +239,25 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 
 		isNvidia = IsNvDeviceID( aDesc.VendorId );
 	}
-/*
-	// SRS - Don't center window here for DX12 only, instead use portable initialization in CreateWindowDeviceAndSwapChain() within win_glimp.cpp
-	//     - Also, calling SetWindowPos() triggers a window mgr event that overwrites r_windowX / r_windowY, which may be undesirable to the user
+	/*
+		// SRS - Don't center window here for DX12 only, instead use portable initialization in CreateWindowDeviceAndSwapChain() within win_glimp.cpp
+		//     - Also, calling SetWindowPos() triggers a window mgr event that overwrites r_windowX / r_windowY, which may be undesirable to the user
 
-	UINT windowStyle = deviceParms.startFullscreen
-					   ? ( WS_POPUP | WS_SYSMENU | WS_VISIBLE )
-					   : deviceParms.startMaximized
-					   ? ( WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE )
-					   : ( WS_OVERLAPPEDWINDOW | WS_VISIBLE );
+		UINT windowStyle = deviceParms.startFullscreen
+						   ? ( WS_POPUP | WS_SYSMENU | WS_VISIBLE )
+						   : deviceParms.startMaximized
+						   ? ( WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE )
+						   : ( WS_OVERLAPPEDWINDOW | WS_VISIBLE );
 
-	RECT rect = { 0, 0, LONG( deviceParms.backBufferWidth ), LONG( deviceParms.backBufferHeight ) };
-	AdjustWindowRect( &rect, windowStyle, FALSE );
+		RECT rect = { 0, 0, LONG( deviceParms.backBufferWidth ), LONG( deviceParms.backBufferHeight ) };
+		AdjustWindowRect( &rect, windowStyle, FALSE );
 
-	if( MoveWindowOntoAdapter( targetAdapter, rect ) )
-	{
-		SetWindowPos( ( HWND )windowHandle, deviceParms.startFullscreen ? HWND_TOPMOST : HWND_NOTOPMOST,
-					  rect.left, rect.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE );
-	}
-*/
+		if( MoveWindowOntoAdapter( targetAdapter, rect ) )
+		{
+			SetWindowPos( ( HWND )windowHandle, deviceParms.startFullscreen ? HWND_TOPMOST : HWND_NOTOPMOST,
+						  rect.left, rect.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE );
+		}
+	*/
 	HRESULT hr = E_FAIL;
 
 	RECT clientRect;
@@ -543,31 +543,31 @@ void DeviceManager_DX12::ResizeSwapChain()
 
 void DeviceManager_DX12::BeginFrame()
 {
-/*	SRS - This code not needed: framebuffer/swapchain resizing & fullscreen are handled by idRenderBackend::ResizeImages() and DeviceManager::UpdateWindowSize()
+	/*	SRS - This code not needed: framebuffer/swapchain resizing & fullscreen are handled by idRenderBackend::ResizeImages() and DeviceManager::UpdateWindowSize()
 
-	DXGI_SWAP_CHAIN_DESC1 newSwapChainDesc;
-	DXGI_SWAP_CHAIN_FULLSCREEN_DESC newFullScreenDesc;
-	if( SUCCEEDED( m_SwapChain->GetDesc1( &newSwapChainDesc ) ) && SUCCEEDED( m_SwapChain->GetFullscreenDesc( &newFullScreenDesc ) ) )
-	{
-		if( fullScreenDesc.Windowed != newFullScreenDesc.Windowed )
+		DXGI_SWAP_CHAIN_DESC1 newSwapChainDesc;
+		DXGI_SWAP_CHAIN_FULLSCREEN_DESC newFullScreenDesc;
+		if( SUCCEEDED( m_SwapChain->GetDesc1( &newSwapChainDesc ) ) && SUCCEEDED( m_SwapChain->GetFullscreenDesc( &newFullScreenDesc ) ) )
 		{
-			BackBufferResizing();
-
-			fullScreenDesc = newFullScreenDesc;
-			m_SwapChainDesc = newSwapChainDesc;
-			deviceParms.backBufferWidth = newSwapChainDesc.Width;
-			deviceParms.backBufferHeight = newSwapChainDesc.Height;
-
-			if( newFullScreenDesc.Windowed )
+			if( fullScreenDesc.Windowed != newFullScreenDesc.Windowed )
 			{
-				//glfwSetWindowMonitor( m_Window, nullptr, 50, 50, newSwapChainDesc.Width, newSwapChainDesc.Height, 0 );
-			}
+				BackBufferResizing();
 
-			ResizeSwapChain();
-			BackBufferResized();
+				fullScreenDesc = newFullScreenDesc;
+				m_SwapChainDesc = newSwapChainDesc;
+				deviceParms.backBufferWidth = newSwapChainDesc.Width;
+				deviceParms.backBufferHeight = newSwapChainDesc.Height;
+
+				if( newFullScreenDesc.Windowed )
+				{
+					//glfwSetWindowMonitor( m_Window, nullptr, 50, 50, newSwapChainDesc.Width, newSwapChainDesc.Height, 0 );
+				}
+
+				ResizeSwapChain();
+				BackBufferResized();
+			}
 		}
-	}
-*/
+	*/
 	auto bufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
 	WaitForSingleObject( m_FrameFenceEvents[bufferIndex], INFINITE );

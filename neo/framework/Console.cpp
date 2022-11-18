@@ -220,7 +220,7 @@ extern bool R_UseTemporalAA();
 #define FPS_FRAMES_HISTORY 90
 float idConsoleLocal::DrawFPS( float y )
 {
-    extern idCVar r_swapInterval;
+	extern idCVar r_swapInterval;
 
 	static float previousTimes[FPS_FRAMES];
 	static float previousTimesNormalized[FPS_FRAMES_HISTORY];
@@ -299,9 +299,9 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPU_TAATime = commonLocal.GetRendererGpuTAAMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
 
-    // SRS - Calculate max fps and max frame time based on glConfig.displayFrequency if vsync enabled and lower than engine Hz, otherwise use com_engineHz_latched
-    const int max_FPS = ( r_swapInterval.GetInteger() > 0 && glConfig.displayFrequency > 0 ? std::min( glConfig.displayFrequency, int( com_engineHz_latched ) ) : com_engineHz_latched );
-    const int maxTime = 1000.0 / max_FPS * 1000;
+	// SRS - Calculate max fps and max frame time based on glConfig.displayFrequency if vsync enabled and lower than engine Hz, otherwise use com_engineHz_latched
+	const int max_FPS = ( r_swapInterval.GetInteger() > 0 && glConfig.displayFrequency > 0 ? std::min( glConfig.displayFrequency, int( com_engineHz_latched ) ) : com_engineHz_latched );
+	const int maxTime = 1000.0 / max_FPS * 1000;
 
 	// SRS - Frame idle and busy time calculations are based on direct frame-over-frame measurement relative to finishSyncTime
 	const uint64 frameIdleTime = commonLocal.mainFrameTiming.startGameTime - commonLocal.mainFrameTiming.finishSyncTime;

@@ -519,9 +519,9 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 	// SRS - this logic prevents window position drift on linux when coming in and out of fullscreen
 #if !defined(__APPLE__)
 	SDL_bool borderState = SDL_GetWindowFlags( window ) & SDL_WINDOW_BORDERLESS ? SDL_FALSE : SDL_TRUE;
-    SDL_SetWindowBordered( window, SDL_FALSE );
+	SDL_SetWindowBordered( window, SDL_FALSE );
 	SDL_SetWindowPosition( window, parms.x, parms.y );
-    SDL_SetWindowBordered( window, borderState );
+	SDL_SetWindowBordered( window, borderState );
 #endif
 
 	return true;

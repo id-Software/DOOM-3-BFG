@@ -575,7 +575,7 @@ bool DeviceManager_VK::pickPhysicalDevice()
 		}
 
 		if( ( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eImmediate ) == surfacePModes.end() ) ||
-			( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifo ) == surfacePModes.end() ) )
+				( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifo ) == surfacePModes.end() ) )
 		{
 			// can't find the required surface present modes
 			errorStream << std::endl << "  - does not support the requested surface present modes";
@@ -873,21 +873,21 @@ bool DeviceManager_VK::createDevice()
 	m_VulkanDevice.getQueue( m_PresentQueueFamily, 0, &m_PresentQueue );
 
 	VULKAN_HPP_DEFAULT_DISPATCHER.init( m_VulkanDevice );
-	
+
 	// SRS - Determine if preferred image depth/stencil format D24S8 is supported (issue with Vulkan on AMD GPUs)
 	vk::ImageFormatProperties imageFormatProperties;
 	const vk::Result ret = m_VulkanPhysicalDevice.getImageFormatProperties( vk::Format::eD24UnormS8Uint,
-																			vk::ImageType::e2D,
-																			vk::ImageTiling::eOptimal,
-																			vk::ImageUsageFlags( vk::ImageUsageFlagBits::eDepthStencilAttachment ),
-																			vk::ImageCreateFlags( 0 ),
-																			&imageFormatProperties );
+						   vk::ImageType::e2D,
+						   vk::ImageTiling::eOptimal,
+						   vk::ImageUsageFlags( vk::ImageUsageFlagBits::eDepthStencilAttachment ),
+						   vk::ImageCreateFlags( 0 ),
+						   &imageFormatProperties );
 	deviceParms.enableImageFormatD24S8 = ( ret == vk::Result::eSuccess );
 
 	// SRS - Determine if "smart" (r_swapInterval = 1) vsync mode eFifoRelaxed is supported by device and surface
 	auto surfacePModes = m_VulkanPhysicalDevice.getSurfacePresentModesKHR( m_WindowSurface );
 	enablePModeFifoRelaxed = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifoRelaxed ) != surfacePModes.end();
-	
+
 	// stash the renderer string
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );

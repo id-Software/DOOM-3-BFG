@@ -733,24 +733,24 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 
 	if( verbose )
 	{
-		common->Printf("display device: %i\n", deviceNum);
-		common->Printf("  DeviceName  : %s\n", device.DeviceName);
-		common->Printf("  DeviceString: %s\n", device.DeviceString);
-		common->Printf("  StateFlags  : 0x%x\n", device.StateFlags);
-		common->Printf("  DeviceID    : %s\n", device.DeviceID);
-		common->Printf("  DeviceKey   : %s\n", device.DeviceKey);
-		common->Printf("      DeviceName  : %s\n", monitor.DeviceName);
-		common->Printf("      DeviceString: %s\n", monitor.DeviceString);
-		common->Printf("      StateFlags  : 0x%x\n", monitor.StateFlags);
-		common->Printf("      DeviceID    : %s\n", monitor.DeviceID);
-		common->Printf("      DeviceKey   : %s\n", monitor.DeviceKey);
-		common->Printf("          dmPosition.x      : %i\n", devmode.dmPosition.x);
-		common->Printf("          dmPosition.y      : %i\n", devmode.dmPosition.y);
-		common->Printf("          dmBitsPerPel      : %i\n", devmode.dmBitsPerPel);
-		common->Printf("          dmPelsWidth       : %i\n", devmode.dmPelsWidth);
-		common->Printf("          dmPelsHeight      : %i\n", devmode.dmPelsHeight);
-		common->Printf("          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags);
-		common->Printf("          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency);
+		common->Printf( "display device: %i\n", deviceNum );
+		common->Printf( "  DeviceName  : %s\n", device.DeviceName );
+		common->Printf( "  DeviceString: %s\n", device.DeviceString );
+		common->Printf( "  StateFlags  : 0x%x\n", device.StateFlags );
+		common->Printf( "  DeviceID    : %s\n", device.DeviceID );
+		common->Printf( "  DeviceKey   : %s\n", device.DeviceKey );
+		common->Printf( "      DeviceName  : %s\n", monitor.DeviceName );
+		common->Printf( "      DeviceString: %s\n", monitor.DeviceString );
+		common->Printf( "      StateFlags  : 0x%x\n", monitor.StateFlags );
+		common->Printf( "      DeviceID    : %s\n", monitor.DeviceID );
+		common->Printf( "      DeviceKey   : %s\n", monitor.DeviceKey );
+		common->Printf( "          dmPosition.x      : %i\n", devmode.dmPosition.x );
+		common->Printf( "          dmPosition.y      : %i\n", devmode.dmPosition.y );
+		common->Printf( "          dmBitsPerPel      : %i\n", devmode.dmBitsPerPel );
+		common->Printf( "          dmPelsWidth       : %i\n", devmode.dmPelsWidth );
+		common->Printf( "          dmPelsHeight      : %i\n", devmode.dmPelsHeight );
+		common->Printf( "          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags );
+		common->Printf( "          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency );
 	}
 
 	x = devmode.dmPosition.x;
