@@ -312,5 +312,6 @@ void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList
 	if( uniformsChanged )
 	{
 		commandList->writeBuffer( constantBuffer[BindingLayoutType()], uniforms.Ptr(), uniforms.Allocated() );
+		uniformsChanged = false;
 	}
 }
