@@ -76,10 +76,10 @@ public:
 NvrhiContext::operator=
 ==================
 */
-void NvrhiContext::operator=(NvrhiContext& other)
+void NvrhiContext::operator=( NvrhiContext& other )
 {
 	currentImageParm = other.currentImageParm;
-	for (int i = 0; i < imageParms.Num(); i++)
+	for( int i = 0; i < imageParms.Num(); i++ )
 	{
 		imageParms[i] = other.imageParms[i];
 	}

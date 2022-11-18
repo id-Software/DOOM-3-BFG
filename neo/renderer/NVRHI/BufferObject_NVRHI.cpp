@@ -223,7 +223,7 @@ void* idVertexBuffer::MapBuffer( bufferMapType_t mapType )
 		accessMode = nvrhi::CpuAccessMode::Read;
 	}
 
-	buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, accessMode );
+	buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, accessMode, { ( uint64 )GetOffset(), ( uint64 )GetAllocedSize() } );
 
 	SetMapped();
 
@@ -423,7 +423,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType )
 		accessMode = nvrhi::CpuAccessMode::Read;
 	}
 
-	buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, accessMode );
+	buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, accessMode, { ( uint64 )GetOffset(), ( uint64 )GetAllocedSize() } );
 
 	SetMapped();
 
