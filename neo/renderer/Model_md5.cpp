@@ -706,7 +706,7 @@ void idRenderModelMD5::ParseJoint( idLexer& parser, idMD5Joint* joint, idJointQu
 idRenderModelMD5::InitFromFile
 ====================
 */
-void idRenderModelMD5::InitFromFile( const char* fileName )
+void idRenderModelMD5::InitFromFile( const char* fileName, const idImportOptions* options )
 {
 	name = fileName;
 	LoadModel();

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,6 +29,68 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifndef __MODELMANAGER_H__
 #define __MODELMANAGER_H__
+
+/*
+==============================================================================================
+
+	idImportOptions
+
+==============================================================================================
+*/
+
+class idNamePair
+{
+public:
+	idStr	from;
+	idStr	to;
+};
+
+class idAnimGroup
+{
+public:
+	idStr		name;
+	idStrList	joints;
+};
+
+class idImportOptions
+{
+private:
+	//idTokenizer				tokens;
+	//void					Reset( const char* commandline );
+
+public:
+	idStr					commandLine;
+	idStr					src;
+	idStr					dest;
+	idStr					game;
+	idStr					prefix;
+	float					scale;
+	//exportType_t			type;
+	bool					ignoreMeshes;
+	bool					clearOrigin;
+	bool					clearOriginAxis;
+	bool					ignoreScale;
+	int						startframe;
+	int						endframe;
+	int						framerate;
+	float					xyzPrecision;
+	float					quatPrecision;
+	idStr					align;
+	idList<idNamePair>		renamejoints;
+	idList<idNamePair>		remapjoints;
+	idStrList				keepjoints;
+	idStrList				skipmeshes;
+	idStrList				keepmeshes;
+	idList<idAnimGroup*>	exportgroups;
+	idList<idAnimGroup>		groups;
+	float					rotate;
+	float					jointThreshold;
+	int						cycleStart;
+
+	void Init( const char* commandline, const char* ospath );
+
+	//bool					JointInExportGroup( const char* jointname );
+};
 
 /*
 ===============================================================================
@@ -67,7 +130,7 @@ public:
 
 	// returns NULL if modelName is NULL or an empty string, otherwise
 	// it will create a default model if not loadable
-	virtual	idRenderModel* 	FindModel( const char* modelName ) = 0;
+	virtual	idRenderModel* 	FindModel( const char* modelName, const idImportOptions* options = NULL ) = 0;
 
 	// returns NULL if not loadable
 	virtual	idRenderModel* 	CheckModel( const char* modelName ) = 0;

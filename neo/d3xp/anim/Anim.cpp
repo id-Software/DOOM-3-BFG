@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "../Game_local.h"
-//should go before release?
 #include "renderer/Model_gltf.h"
 
 idCVar binaryLoadAnim( "binaryLoadAnim", "1", 0, "enable binary load/write of idMD5Anim" );
@@ -158,7 +157,7 @@ bool idMD5Anim::Reload()
 	filename = name;
 	Free();
 
-	return LoadAnim( filename );
+	return LoadAnim( filename, &importOptions );
 }
 
 /*
@@ -177,7 +176,7 @@ size_t idMD5Anim::Allocated() const
 idMD5Anim::LoadAnim
 ====================
 */
-bool idMD5Anim::LoadAnim( const char* filename )
+bool idMD5Anim::LoadAnim( const char* filename, const idImportOptions* options )
 {
 	idLexer	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS | LEXFL_NOSTRINGCONCAT );
 	idToken	token;
@@ -189,38 +188,39 @@ bool idMD5Anim::LoadAnim( const char* filename )
 	generatedFileName.AppendPath( filename );
 	generatedFileName.SetFileExtension( ".bMD5anim" );
 
-	idStr gltfFileName = idStr( filename );
-	int gltfAnimId = -1;
-	idStr gltfAnimName;
-
-
 	// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
 	ID_TIME_T sourceTimeStamp;
 
-	bool isGLTF = ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) ;
-
+	bool isGLTF = ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 );
 	if( isGLTF )
 	{
+		idStr gltfFileName = idStr( filename );
+		int gltfAnimId = -1;
+		idStr gltfAnimName;
+
 		gltfManager::ExtractIdentifier( gltfFileName, gltfAnimId, gltfAnimName );
 
 		sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );
+
+		importOptions = *options;
 	}
 	else
 	{
 		sourceTimeStamp = fileSystem->GetTimestamp( filename );
 	}
 
+	// glTF2 animations will be saved straight to .bMD5anim files instead of the old ASCII format
 	idFile* fileptr = fileSystem->OpenFileReadMemory( generatedFileName );
 	bool doWrite = false;
 	if( fileptr == nullptr && isGLTF )
 	{
-		fileptr = idRenderModelGLTF::GetAnimBin( filenameStr , sourceTimeStamp );
+		fileptr = idRenderModelGLTF::GetAnimBin( filenameStr, sourceTimeStamp, options );
 		doWrite = fileptr != nullptr;
 	}
 
 	idFileLocal file( fileptr );
 
-	if( binaryLoadAnim.GetBool() && LoadBinary( file, sourceTimeStamp ) )
+	if( ( binaryLoadAnim.GetBool() || isGLTF ) && LoadBinary( file, sourceTimeStamp ) )
 	{
 		name = filename;
 		if( cvarSystem->GetCVarBool( "fs_buildresources" ) )
@@ -228,6 +228,7 @@ bool idMD5Anim::LoadAnim( const char* filename )
 			// for resource gathering write this anim to the preload file for this map
 			fileSystem->AddAnimPreload( name );
 		}
+
 		if( doWrite && binaryLoadAnim.GetBool() )
 		{
 			idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
@@ -1197,7 +1198,7 @@ void idAnimManager::Shutdown()
 idAnimManager::GetAnim
 ====================
 */
-idMD5Anim* idAnimManager::GetAnim( const char* name )
+idMD5Anim* idAnimManager::GetAnim( const char* name, const idImportOptions* options )
 {
 	idMD5Anim** animptrptr;
 	idMD5Anim* anim;
@@ -1220,7 +1221,7 @@ idMD5Anim* idAnimManager::GetAnim( const char* name )
 		}
 
 		anim = new( TAG_ANIM ) idMD5Anim();
-		if( !anim->LoadAnim( filename ) )
+		if( !anim->LoadAnim( filename, options ) )
 		{
 			gameLocal.Warning( "Couldn't load anim: '%s'", filename.c_str() );
 			delete anim;
@@ -1249,7 +1250,7 @@ void idAnimManager::Preload( const idPreloadManifest& manifest )
 			const preloadEntry_s& p = manifest.GetPreloadByIndex( i );
 			if( p.resType == PRELOAD_ANIM )
 			{
-				GetAnim( p.resourceName );
+				GetAnim( p.resourceName, NULL );
 				numLoaded++;
 			}
 		}

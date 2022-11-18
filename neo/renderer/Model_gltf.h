@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 class idRenderModelGLTF : public idRenderModelStatic
 {
 public:
-	virtual void				InitFromFile( const char* fileName ) override;
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options ) override;
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) override;
 	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const override;
 	virtual dynamicModel_t		IsDynamicModel() const override;
@@ -54,10 +54,10 @@ public:
 	{
 		return true;
 	}
-	static idFile_Memory* GetAnimBin( idStr animName, const ID_TIME_T sourceTimeStamp );
+	static idFile_Memory* GetAnimBin( const idStr& animName, const ID_TIME_T sourceTimeStamp, const idImportOptions* options );
 	int rootID;
 private:
-	void ProcessNode_r( gltfNode* modelNode, idMat4 trans, gltfData* data );
+	void ProcessNode_r( gltfNode* modelNode, const idMat4& parentTransform, const idMat4& globalTransform, gltfData* data );
 	void UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf, const modelSurface_t& sourceSurf );
 	void UpdateMd5Joints();
 
@@ -73,11 +73,15 @@ private:
 	idList<int, TAG_MODEL>			MeshNodeIds;
 	dynamicModel_t					model_state;
 	idStr							meshName;
+	idStr							gltfFileName;
 
 	idList<idMD5Joint, TAG_MODEL>	md5joints;
 	idList<idJointQuat, TAG_MODEL>	defaultPose;
 	idList<idJointMat, TAG_MODEL>	invertedDefaultPose;
 	gltfSkin* 						currentSkin;
+
+	// derived reimport options
+	idMat4							globalTransform; // Blender to Doom + exta scaling, rotation
 private:
 	void DrawJoints( const struct renderEntity_s* ent, const viewDef_t* view );
 };

@@ -373,7 +373,7 @@ void idRenderModelLiquid::Reset()
 idRenderModelLiquid::InitFromFile
 ====================
 */
-void idRenderModelLiquid::InitFromFile( const char* fileName, nvrhi::ICommandList* commandList )
+void idRenderModelLiquid::InitFromFile( const char* fileName, nvrhi::ICommandList* commandList, const idImportOptions* options )
 {
 	int				i, x, y;
 	idToken			token;

@@ -217,6 +217,8 @@ private:
 	idStr					name;
 	idVec3					totaldelta;
 	mutable int				ref_count;
+	// RB
+	idImportOptions			importOptions;
 
 public:
 	idMD5Anim();
@@ -229,7 +231,7 @@ public:
 	{
 		return sizeof( *this ) + Allocated();
 	};
-	bool					LoadAnim( const char* filename );
+	bool					LoadAnim( const char* filename, const idImportOptions* options );
 	bool					LoadBinary( idFile* file, ID_TIME_T sourceTimeStamp );
 	void					WriteBinary( idFile* file, ID_TIME_T sourceTimeStamp );
 
@@ -348,7 +350,7 @@ public:
 
 private:
 	void						CopyDecl( const idDeclModelDef* decl );
-	bool						ParseAnim( idLexer& src, int numDefaultAnims );
+	bool						ParseAnim( idLexer& src, int numDefaultAnims, const idStr& defaultCommands );
 
 private:
 	idVec3						offset;
@@ -602,7 +604,7 @@ public:
 	static bool					forceExport;
 
 	void						Shutdown();
-	idMD5Anim* 					GetAnim( const char* name );
+	idMD5Anim* 					GetAnim( const char* name, const idImportOptions* options ); // RB: added import options
 	void						Preload( const idPreloadManifest& manifest );
 	void						ReloadAnims();
 	void						ListAnims() const;

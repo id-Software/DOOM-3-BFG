@@ -3059,6 +3059,17 @@ bool idMapFile::ConvertToValve220Format()
 					ent->epairs.SetAngles( "angles", angles );
 				}
 
+				// TODO use angles instead of angle
+#if 0
+				if( ent->epairs.FindKey( "angle" ) )
+				{
+					ent->epairs.Delete( "angle" );
+
+					idAngles angles = rot.ToAngles();
+					ent->epairs.SetAngles( "angles", angles );
+				}
+#endif
+
 				const idKeyValue* kv = classTypeOverview.FindKey( classname );
 				if( kv && kv->GetValue().Length() )
 				{
