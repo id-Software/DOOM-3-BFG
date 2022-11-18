@@ -694,6 +694,8 @@ GetDisplayCoordinates
 */
 static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& width, int& height, int& displayHz )
 {
+	bool verbose = false;
+
 	idStr deviceName = GetDeviceName( deviceNum );
 	if( deviceName.Length() == 0 )
 	{
@@ -729,24 +731,27 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 		return false;
 	}
 
-	common->Printf( "display device: %i\n", deviceNum );
-	common->Printf( "  DeviceName  : %s\n", device.DeviceName );
-	common->Printf( "  DeviceString: %s\n", device.DeviceString );
-	common->Printf( "  StateFlags  : 0x%x\n", device.StateFlags );
-	common->Printf( "  DeviceID    : %s\n", device.DeviceID );
-	common->Printf( "  DeviceKey   : %s\n", device.DeviceKey );
-	common->Printf( "      DeviceName  : %s\n", monitor.DeviceName );
-	common->Printf( "      DeviceString: %s\n", monitor.DeviceString );
-	common->Printf( "      StateFlags  : 0x%x\n", monitor.StateFlags );
-	common->Printf( "      DeviceID    : %s\n", monitor.DeviceID );
-	common->Printf( "      DeviceKey   : %s\n", monitor.DeviceKey );
-	common->Printf( "          dmPosition.x      : %i\n", devmode.dmPosition.x );
-	common->Printf( "          dmPosition.y      : %i\n", devmode.dmPosition.y );
-	common->Printf( "          dmBitsPerPel      : %i\n", devmode.dmBitsPerPel );
-	common->Printf( "          dmPelsWidth       : %i\n", devmode.dmPelsWidth );
-	common->Printf( "          dmPelsHeight      : %i\n", devmode.dmPelsHeight );
-	common->Printf( "          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags );
-	common->Printf( "          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency );
+	if( verbose )
+	{
+		common->Printf("display device: %i\n", deviceNum);
+		common->Printf("  DeviceName  : %s\n", device.DeviceName);
+		common->Printf("  DeviceString: %s\n", device.DeviceString);
+		common->Printf("  StateFlags  : 0x%x\n", device.StateFlags);
+		common->Printf("  DeviceID    : %s\n", device.DeviceID);
+		common->Printf("  DeviceKey   : %s\n", device.DeviceKey);
+		common->Printf("      DeviceName  : %s\n", monitor.DeviceName);
+		common->Printf("      DeviceString: %s\n", monitor.DeviceString);
+		common->Printf("      StateFlags  : 0x%x\n", monitor.StateFlags);
+		common->Printf("      DeviceID    : %s\n", monitor.DeviceID);
+		common->Printf("      DeviceKey   : %s\n", monitor.DeviceKey);
+		common->Printf("          dmPosition.x      : %i\n", devmode.dmPosition.x);
+		common->Printf("          dmPosition.y      : %i\n", devmode.dmPosition.y);
+		common->Printf("          dmBitsPerPel      : %i\n", devmode.dmBitsPerPel);
+		common->Printf("          dmPelsWidth       : %i\n", devmode.dmPelsWidth);
+		common->Printf("          dmPelsHeight      : %i\n", devmode.dmPelsHeight);
+		common->Printf("          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags);
+		common->Printf("          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency);
+	}
 
 	x = devmode.dmPosition.x;
 	y = devmode.dmPosition.y;
@@ -1405,6 +1410,28 @@ void GLimp_PreInit()
 	// DG: not needed on this platform, so just do nothing
 }
 
+// SRS - Function to get display frequency of monitor hosting the current window
+static int GetDisplayFrequency( glimpParms_t parms )
+{
+	HMONITOR hMonitor = MonitorFromWindow( win32.hWnd, MONITOR_DEFAULTTOPRIMARY );
+
+	MONITORINFOEX minfo;
+	minfo.cbSize = sizeof( minfo );
+	if( !GetMonitorInfo( hMonitor, &minfo ) )
+	{
+		return parms.displayHz;
+	}
+
+	DEVMODE devmode;
+	devmode.dmSize = sizeof( devmode );
+	if( !EnumDisplaySettings( minfo.szDevice, ENUM_CURRENT_SETTINGS, &devmode ) )
+	{
+		return parms.displayHz;
+	}
+
+	return devmode.dmDisplayFrequency;
+}
+
 /*
 ===================
 GLimp_Init
@@ -1485,6 +1512,7 @@ bool GLimp_Init( glimpParms_t parms )
 	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
+	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
@@ -1571,7 +1599,7 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
-	glConfig.displayFrequency = parms.displayHz;
+	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
 	return true;

@@ -258,6 +258,9 @@ private:
 	std::queue<nvrhi::EventQueryHandle> m_FramesInFlight;
 	std::vector<nvrhi::EventQueryHandle> m_QueryPool;
 
+	// SRS - flag indicating support for eFifoRelaxed surface presentation (r_swapInterval = 1) mode
+	bool enablePModeFifoRelaxed = false;
+
 
 private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL vulkanDebugCallback(
@@ -571,6 +574,14 @@ bool DeviceManager_VK::pickPhysicalDevice()
 			deviceIsGood = false;
 		}
 
+		if( ( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eImmediate ) == surfacePModes.end() ) ||
+			( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifo ) == surfacePModes.end() ) )
+		{
+			// can't find the required surface present modes
+			errorStream << std::endl << "  - does not support the requested surface present modes";
+			deviceIsGood = false;
+		}
+
 		if( !findQueueFamilies( dev, m_WindowSurface ) )
 		{
 			// device doesn't have all the queue families we need
@@ -865,13 +876,17 @@ bool DeviceManager_VK::createDevice()
 	
 	// SRS - Determine if preferred image depth/stencil format D24S8 is supported (issue with Vulkan on AMD GPUs)
 	vk::ImageFormatProperties imageFormatProperties;
-	const vk::Result ret = m_VulkanPhysicalDevice.getImageFormatProperties( vk::Format( VK_FORMAT_D24_UNORM_S8_UINT ),
-																			vk::ImageType( VK_IMAGE_TYPE_2D ),
-																			vk::ImageTiling( VK_IMAGE_TILING_OPTIMAL ),
-																			vk::ImageUsageFlags( VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ),
+	const vk::Result ret = m_VulkanPhysicalDevice.getImageFormatProperties( vk::Format::eD24UnormS8Uint,
+																			vk::ImageType::e2D,
+																			vk::ImageTiling::eOptimal,
+																			vk::ImageUsageFlags( vk::ImageUsageFlagBits::eDepthStencilAttachment ),
 																			vk::ImageCreateFlags( 0 ),
 																			&imageFormatProperties );
 	deviceParms.enableImageFormatD24S8 = ( ret == vk::Result::eSuccess );
+
+	// SRS - Determine if "smart" (r_swapInterval = 1) vsync mode eFifoRelaxed is supported by device and surface
+	auto surfacePModes = m_VulkanPhysicalDevice.getSurfacePresentModesKHR( m_WindowSurface );
+	enablePModeFifoRelaxed = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifoRelaxed ) != surfacePModes.end();
 	
 	// stash the renderer string
 	auto prop = m_VulkanPhysicalDevice.getProperties();
@@ -971,7 +986,7 @@ bool DeviceManager_VK::createSwapChain()
 				.setPQueueFamilyIndices( enableSwapChainSharing ? queues.data() : nullptr )
 				.setPreTransform( vk::SurfaceTransformFlagBitsKHR::eIdentity )
 				.setCompositeAlpha( vk::CompositeAlphaFlagBitsKHR::eOpaque )
-				.setPresentMode( deviceParms.vsyncEnabled ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eImmediate )
+				.setPresentMode( deviceParms.vsyncEnabled ? ( r_swapInterval.GetInteger() == 2 || !enablePModeFifoRelaxed ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eFifoRelaxed ) : vk::PresentModeKHR::eImmediate )
 				.setClipped( true )
 				.setOldSwapchain( nullptr );
 

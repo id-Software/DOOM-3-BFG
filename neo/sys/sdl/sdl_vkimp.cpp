@@ -188,6 +188,18 @@ void VKimp_PreInit() // DG: added this function for SDL compatibility
 	}
 }
 
+// SRS - Function to get display frequency of monitor hosting the current window
+static int GetDisplayFrequency( glimpParms_t parms )
+{
+	SDL_DisplayMode m = {0};
+	if( SDL_GetWindowDisplayMode( window, &m ) < 0 )
+	{
+		common->Warning( "Couldn't get display refresh rate, reason: %s", SDL_GetError() );
+		return parms.displayHz;
+	}
+
+	return m.refresh_rate;
+}
 
 /* Eric: Is the majority of this function not needed since switching from GL to Vulkan?
 ===================
@@ -344,6 +356,19 @@ bool VKimp_Init( glimpParms_t parms )
 			continue;
 		}
 
+		// SRS - Make sure display is set to requested refresh rate from the start
+		if( parms.displayHz > 0 && parms.displayHz != GetDisplayFrequency( parms ) )
+		{
+			SDL_DisplayMode m = {0};
+			SDL_GetWindowDisplayMode( window, &m );
+
+			m.refresh_rate = parms.displayHz;
+			if( SDL_SetWindowDisplayMode( window, &m ) < 0 )
+			{
+				common->Warning( "Couldn't set display refresh rate to %i Hz", parms.displayHz );
+			}
+		}
+
 		// RB begin
 		SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
 		// RB end
@@ -360,7 +385,7 @@ bool VKimp_Init( glimpParms_t parms )
 #endif
 
 		// RB begin
-		glConfig.displayFrequency = 60;  // FIXME: should use parms.displayHz and set mode correctly from start
+		glConfig.displayFrequency = GetDisplayFrequency( parms );
 		glConfig.isStereoPixelFormat = parms.stereo;
 		glConfig.multisamples = parms.multiSamples;
 
@@ -474,8 +499,10 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 
 static bool SetScreenParmsWindowed( glimpParms_t parms )
 {
-	SDL_SetWindowSize( window, parms.width, parms.height );
+	// SRS - handle differences in WM behaviour: for macOS set position first, for linux set it last
+#if defined(__APPLE__)
 	SDL_SetWindowPosition( window, parms.x, parms.y );
+#endif
 
 	// if we're currently in fullscreen mode, we need to disable that
 	if( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN )
@@ -486,6 +513,17 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 			return false;
 		}
 	}
+
+	SDL_SetWindowSize( window, parms.width, parms.height );
+
+	// SRS - this logic prevents window position drift on linux when coming in and out of fullscreen
+#if defined(__linux__)
+	SDL_bool borderState = SDL_GetWindowFlags( window ) & SDL_WINDOW_BORDERLESS ? SDL_FALSE : SDL_TRUE;
+    SDL_SetWindowBordered( window, SDL_FALSE );
+	SDL_SetWindowPosition( window, parms.x, parms.y );
+    SDL_SetWindowBordered( window, borderState );
+#endif
+
 	return true;
 }
 
@@ -522,7 +560,7 @@ bool VKimp_SetScreenParms( glimpParms_t parms )
 	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
-	glConfig.displayFrequency = parms.displayHz;
+	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
 	return true;

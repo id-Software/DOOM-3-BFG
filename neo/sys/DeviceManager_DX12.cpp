@@ -613,21 +613,14 @@ void DeviceManager_DX12::Present()
 
 	UINT presentFlags = 0;
 
-	if( r_swapInterval.GetInteger() == 1 )
-	{
-		SetVsyncEnabled( false );
-	}
-	else if( r_swapInterval.GetInteger() == 2 )
-	{
-		SetVsyncEnabled( true );
-	}
-
-	if( !deviceParms.vsyncEnabled && !glConfig.isFullscreen && m_TearingSupported && r_swapInterval.GetInteger() == 0 )
+	// SRS - DXGI docs say fullscreen must be disabled for unlocked fps/tear, but this does not seem to be true
+	if( !deviceParms.vsyncEnabled && m_TearingSupported ) //&& !glConfig.isFullscreen )
 	{
 		presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
 	}
 
-	m_SwapChain->Present( deviceParms.vsyncEnabled ? 1 : 0, presentFlags );
+	// SRS - Don't change deviceParms.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval
+	m_SwapChain->Present( deviceParms.vsyncEnabled && r_swapInterval.GetInteger() == 2 ? 1 : 0, presentFlags );
 
 	m_FrameFence->SetEventOnCompletion( m_FrameCount, m_FrameFenceEvents[bufferIndex] );
 	m_GraphicsQueue->Signal( m_FrameFence, m_FrameCount );
