@@ -190,7 +190,7 @@ void SsaoPass::CreateBindingSet(
 	nvrhi::BindingSetDesc DeinterleaveBindings;
 	DeinterleaveBindings.bindings =
 	{
-		nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.GetConstantBuffer() ),
+		nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
 		nvrhi::BindingSetItem::ConstantBuffer( 1, m_ConstantBuffer ),
 		nvrhi::BindingSetItem::Texture_SRV( 0, gbufferDepth ),
 		nvrhi::BindingSetItem::Texture_UAV( 0, m_DeinterleavedDepth )
@@ -200,7 +200,7 @@ void SsaoPass::CreateBindingSet(
 	nvrhi::BindingSetDesc ComputeBindings;
 	ComputeBindings.bindings =
 	{
-		nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.GetConstantBuffer() ),
+		nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
 		nvrhi::BindingSetItem::ConstantBuffer( 1, m_ConstantBuffer ),
 		nvrhi::BindingSetItem::Texture_SRV( 0, m_DeinterleavedDepth ),
 		nvrhi::BindingSetItem::Texture_SRV( 1, gbufferNormals ),
@@ -211,7 +211,7 @@ void SsaoPass::CreateBindingSet(
 	nvrhi::BindingSetDesc BlurBindings;
 	BlurBindings.bindings =
 	{
-		nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.GetConstantBuffer() ),
+		nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
 		nvrhi::BindingSetItem::ConstantBuffer( 1, m_ConstantBuffer ),
 		nvrhi::BindingSetItem::Texture_SRV( 0, m_DeinterleavedDepth ),
 		nvrhi::BindingSetItem::Texture_SRV( 1, m_DeinterleavedOcclusion ),

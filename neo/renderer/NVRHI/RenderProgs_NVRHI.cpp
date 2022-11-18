@@ -311,7 +311,7 @@ void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList
 {
 	if( uniformsChanged )
 	{
-		commandList->writeBuffer( constantBuffer, uniforms.Ptr(), uniforms.Allocated() );
+		commandList->writeBuffer( constantBuffer[BindingLayoutType()], uniforms.Ptr(), uniforms.Allocated() );
 		//bindingParmUbo[BindingLayoutType()].Update( uniforms.Ptr(), ALIGN( sizeof(idVec4) * RENDERPARM_TOTAL, vertexCache.uniformBufferOffsetAlignment ), 0, false, commandList );
 		//CopyBuffer((byte*)mappedUniforms, (byte*)uniforms.Ptr(), RENDERPARM_TOTAL * sizeof(idVec4));
 		//int layout = BindingLayoutType();

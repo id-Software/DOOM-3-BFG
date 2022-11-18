@@ -554,6 +554,8 @@ private:
 	nvrhi::ShaderHandle             vertexShader;
 	nvrhi::ShaderHandle             pixelShader;
 
+	int								prevBindingLayoutType;
+
 public:
 
 	void				ResetPipelineCache();

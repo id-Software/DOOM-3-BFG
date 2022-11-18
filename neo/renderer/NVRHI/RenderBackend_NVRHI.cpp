@@ -62,17 +62,76 @@ void RB_SetMVP( const idRenderMatrix& mvp );
 class NvrhiContext
 {
 public:
-
 	int										currentImageParm = 0;
 	idArray< idImage*, MAX_IMAGE_PARMS >	imageParms;
 	idScreenRect							scissor;		// set by GL_Scissor
-	//nvrhi::GraphicsPipelineHandle			pipeline;
-	//bool									fullscreen = false;
+
+	void	operator=( NvrhiContext& other );
+	bool	operator==( NvrhiContext& other ) const;
+	bool	operator!=( NvrhiContext& other ) const;
 };
 
+/*
+==================
+NvrhiContext::operator=
+==================
+*/
+void NvrhiContext::operator=(NvrhiContext& other)
+{
+	currentImageParm = other.currentImageParm;
+	for (int i = 0; i < imageParms.Num(); i++)
+	{
+		imageParms[i] = other.imageParms[i];
+	}
+
+	scissor = other.scissor;
+}
+
+/*
+==================
+NvrhiContext::operator==
+==================
+*/
+bool NvrhiContext::operator==( NvrhiContext& other ) const
+{
+	if( this == &other )
+	{
+		return true;
+	}
+
+	if( currentImageParm != other.currentImageParm )
+	{
+		return false;
+	}
+
+	for( int i = 0; i < imageParms.Num(); i++ )
+	{
+		if( imageParms[i] != other.imageParms[i] )
+		{
+			return false;
+		}
+	}
+
+	if( scissor != other.scissor )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/*
+==================
+NvrhiContext::operator!=
+==================
+*/
+bool NvrhiContext::operator!=( NvrhiContext& other ) const
+{
+	return !( *this == other );
+}
+
 static NvrhiContext context;
-
-
+static NvrhiContext prevContext;
 
 /*
 ==================
@@ -188,6 +247,7 @@ void idRenderBackend::Init()
 	currentVertexOffset = 0;
 	currentIndexOffset = 0;
 	currentJointOffset = 0;
+	prevBindingLayoutType = -1;
 
 	// RB: FIXME but for now disable it to avoid validation errors
 	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
@@ -333,6 +393,8 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 #endif
 
+	bool changedJointBuffer = false;
+
 	if( jointHandle )
 	{
 		const idUniformBuffer* jointBuffer = nullptr;
@@ -352,8 +414,11 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 			jointBuffer = &vertexCache.frameData[vertexCache.drawListNum].jointBuffer;
 		}
 
+		uint offset = static_cast<uint>( jointHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		changedJointBuffer = ( currentJointBuffer != jointBuffer->GetAPIObject() ) || ( currentJointOffset != offset );
+
 		currentJointBuffer = jointBuffer->GetAPIObject();
-		currentJointOffset = static_cast<uint>( jointHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		currentJointOffset = offset;
 	}
 
 	//
@@ -364,14 +429,17 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
 		= renderProgManager.GetBindingLayout( bindingLayoutType );
 
-	GetCurrentBindingLayout( bindingLayoutType );
-
-	for( int i = 0; i < layouts->Num(); i++ )
+	if( changedJointBuffer || bindingLayoutType != prevBindingLayoutType || context != prevContext )
 	{
-		if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[bindingLayoutType][i] )
+		GetCurrentBindingLayout( bindingLayoutType );
+
+		for( int i = 0; i < layouts->Num(); i++ )
 		{
-			currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
-			changeState = true;
+			if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[bindingLayoutType][i] )
+			{
+				currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
+				changeState = true;
+			}
 		}
 	}
 
@@ -452,6 +520,10 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	args.vertexCount = surf->numIndexes;
 	commandList->drawIndexed( args );
 
+	// keep track of last context to avoid setting up the binding layout and binding set again.
+	prevContext = context;
+	prevBindingLayoutType = bindingLayoutType;
+
 	pc.c_drawElements++;
 	pc.c_drawIndexes += surf->numIndexes;
 }
@@ -466,8 +538,6 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		desc.SetNum( nvrhi::c_MaxBindingLayouts );
 	}
 
-	//idUniformBuffer& ubo = renderProgManager.BindingParamUbo();
-	//nvrhi::IBuffer* paramCb = ubo.GetAPIObject();
 	nvrhi::IBuffer* paramCb = renderProgManager.ConstantBuffer();
 	auto range = nvrhi::EntireBuffer;
 
@@ -574,7 +644,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		{
 			desc[0].bindings =
 			{
-				nvrhi::BindingSetItem::ConstantBuffer(0, paramCb, range),
+				nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range ),
 				nvrhi::BindingSetItem::StructuredBuffer_SRV( 11, currentJointBuffer, nvrhi::Format::UNKNOWN, nvrhi::BufferRange( currentJointOffset, sizeof( idVec4 ) * numBoneMatrices ) )
 			};
 		}
@@ -1145,7 +1215,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[0].bindings =
 			{
 				nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range ),
-			}; 
+			};
 		}
 		else
 		{
@@ -1425,7 +1495,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		{
 			desc[0].bindings =
 			{
-				nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range),
+				nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range ),
 				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
 				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() )
 			};

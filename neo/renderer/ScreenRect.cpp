@@ -41,6 +41,26 @@ idScreenRect
 
 /*
 ======================
+idScreenRect::operator==
+======================
+*/
+bool idScreenRect::operator==( idScreenRect& other ) const
+{
+	return x1 == other.x1 && y1 == other.y1 && x2 == other.x2 && y2 == other.y2 && zmin == other.zmin && zmax == other.zmax;
+}
+
+/*
+======================
+idScreenRect::operator==
+======================
+*/
+bool idScreenRect::operator!=( idScreenRect& other ) const
+{
+	return !( *this == other );
+}
+
+/*
+======================
 idScreenRect::Clear
 ======================
 */

@@ -107,7 +107,7 @@ public:
 		return ( size & MAPPED_FLAG ) != 0;
 	}
 
-	void				SetDebugName(idStr str)
+	void				SetDebugName( idStr str )
 	{
 		debugName = str;
 	}

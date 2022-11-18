@@ -448,11 +448,6 @@ public:
 #if defined( USE_NVRHI )
 	nvrhi::ShaderHandle GetShader( int index );
 
-	nvrhi::BufferHandle GetConstantBuffer()
-	{
-		return constantBuffer;
-	}
-
 	programInfo_t GetProgramInfo( int index );
 
 	int		CurrentProgram() const
@@ -1026,7 +1021,7 @@ public:
 
 	ID_INLINE nvrhi::IBuffer*				ConstantBuffer()
 	{
-		return constantBuffer;
+		return constantBuffer[BindingLayoutType()];
 	}
 	ID_INLINE idUniformBuffer&				BindingParamUbo()
 	{
@@ -1157,7 +1152,7 @@ private:
 
 	idStaticList< idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>, NUM_BINDING_LAYOUTS > bindingLayouts;
 
-	nvrhi::BufferHandle	constantBuffer;
+	idArray<nvrhi::BufferHandle, NUM_BINDING_LAYOUTS>	constantBuffer;
 
 #elif defined(USE_VULKAN)
 	struct shader_t

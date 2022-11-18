@@ -102,20 +102,11 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	uniformsChanged = false;
 
-	renderParmUbo.SetDebugName( "Mapped Render Parms" );
-	renderParmUbo.AllocBufferObject( NULL, ALIGN( NUM_BINDING_LAYOUTS * RENDERPARM_TOTAL * sizeof( idVec4 ), glConfig.uniformBufferOffsetAlignment ), BU_DYNAMIC, nullptr );
-
-	const int bytes = ALIGN( RENDERPARM_TOTAL * sizeof( idVec4 ), glConfig.uniformBufferOffsetAlignment );
-	int offset = 0;
 	for( int i = 0; i < NUM_BINDING_LAYOUTS; i++ )
 	{
-		bindingParmUbo[i].Reference( renderParmUbo, offset, bytes );
-		//mappedRenderParms[i] = ( idVec4* )bindingParmUbo[i].MapBuffer( bufferMapType_t::BM_WRITE );
-		offset += bytes;
+		auto constantBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(), va( "RenderParams_%d", i ), 16384 );
+		constantBuffer[i] = device->createBuffer( constantBufferDesc );
 	}
-
-	auto constantBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(), "RenderParams", 16384 );
-	constantBuffer = device->createBuffer(constantBufferDesc);
 
 	// === Main draw vertex layout ===
 	vertexLayoutDescs.SetNum( NUM_VERTEX_LAYOUTS, {} );
@@ -184,7 +175,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts.SetNum( NUM_BINDING_LAYOUTS );
 
-	auto renderParmLayoutItem = nvrhi::BindingLayoutItem::VolatileConstantBuffer(0);
+	auto renderParmLayoutItem = nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 );
 
 	auto uniformsLayoutDesc = nvrhi::BindingLayoutDesc()
 							  .setVisibility( nvrhi::ShaderType::All )
@@ -194,7 +185,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	auto skinningLayoutDesc = nvrhi::BindingLayoutDesc()
 							  .setVisibility( nvrhi::ShaderType::All )
-							  .addItem(renderParmLayoutItem)
+							  .addItem( renderParmLayoutItem )
 							  .addItem( nvrhi::BindingLayoutItem::StructuredBuffer_SRV( 11 ) ); // joint buffer;
 
 	auto skinningLayout = device->createBindingLayout( skinningLayoutDesc );
@@ -347,7 +338,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	auto pp3DBindingLayout = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::All )
-							 .addItem(renderParmLayoutItem)
+							 .addItem( renderParmLayoutItem )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// current render
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// normal map
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// mask
@@ -356,7 +347,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	auto ppFxBindingLayout = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::All )
-							 .addItem(renderParmLayoutItem)
+							 .addItem( renderParmLayoutItem )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );
 
@@ -380,7 +371,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	auto binkVideoBindingLayout = nvrhi::BindingLayoutDesc()
 								  .setVisibility( nvrhi::ShaderType::All )
-								  .addItem(renderParmLayoutItem)
+								  .addItem( renderParmLayoutItem )
 								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
 								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// cube map
 								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// normal map
@@ -389,7 +380,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	auto motionVectorsBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
-									  .addItem(renderParmLayoutItem)
+									  .addItem( renderParmLayoutItem )
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );	// normal map
 
@@ -778,7 +769,10 @@ void idRenderProgManager::Shutdown()
 	}
 
 	// SRS - Unmap buffer memory using overloaded = operator
-	constantBuffer = nullptr;
+	for( int i = 0; i < constantBuffer.Num(); i++ )
+	{
+		constantBuffer[i] = nullptr;
+	}
 #endif
 }
 

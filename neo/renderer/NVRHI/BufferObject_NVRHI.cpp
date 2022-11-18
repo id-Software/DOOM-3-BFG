@@ -484,7 +484,7 @@ idUniformBuffer::idUniformBuffer()
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
 	bufferHandle.Reset();
 	SetUnmapped();
-	SetDebugName("Uniform Buffer");
+	SetDebugName( "Uniform Buffer" );
 }
 
 /*
@@ -633,7 +633,7 @@ void* idUniformBuffer::MapBuffer( bufferMapType_t mapType )
 		accessMode = nvrhi::CpuAccessMode::Read;
 	}
 
-	buffer = deviceManager->GetDevice()->mapBuffer(bufferHandle, accessMode, { (uint64)GetOffset(), (uint64)GetSize() });
+	buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, accessMode, { ( uint64 )GetOffset(), ( uint64 )GetSize() } );
 
 	SetMapped();
 
