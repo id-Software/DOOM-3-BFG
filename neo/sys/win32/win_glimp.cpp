@@ -694,6 +694,8 @@ GetDisplayCoordinates
 */
 static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& width, int& height, int& displayHz )
 {
+	bool verbose = false;
+
 	idStr deviceName = GetDeviceName( deviceNum );
 	if( deviceName.Length() == 0 )
 	{
@@ -729,24 +731,27 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 		return false;
 	}
 
-	common->Printf( "display device: %i\n", deviceNum );
-	common->Printf( "  DeviceName  : %s\n", device.DeviceName );
-	common->Printf( "  DeviceString: %s\n", device.DeviceString );
-	common->Printf( "  StateFlags  : 0x%x\n", device.StateFlags );
-	common->Printf( "  DeviceID    : %s\n", device.DeviceID );
-	common->Printf( "  DeviceKey   : %s\n", device.DeviceKey );
-	common->Printf( "      DeviceName  : %s\n", monitor.DeviceName );
-	common->Printf( "      DeviceString: %s\n", monitor.DeviceString );
-	common->Printf( "      StateFlags  : 0x%x\n", monitor.StateFlags );
-	common->Printf( "      DeviceID    : %s\n", monitor.DeviceID );
-	common->Printf( "      DeviceKey   : %s\n", monitor.DeviceKey );
-	common->Printf( "          dmPosition.x      : %i\n", devmode.dmPosition.x );
-	common->Printf( "          dmPosition.y      : %i\n", devmode.dmPosition.y );
-	common->Printf( "          dmBitsPerPel      : %i\n", devmode.dmBitsPerPel );
-	common->Printf( "          dmPelsWidth       : %i\n", devmode.dmPelsWidth );
-	common->Printf( "          dmPelsHeight      : %i\n", devmode.dmPelsHeight );
-	common->Printf( "          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags );
-	common->Printf( "          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency );
+	if( verbose )
+	{
+		common->Printf("display device: %i\n", deviceNum);
+		common->Printf("  DeviceName  : %s\n", device.DeviceName);
+		common->Printf("  DeviceString: %s\n", device.DeviceString);
+		common->Printf("  StateFlags  : 0x%x\n", device.StateFlags);
+		common->Printf("  DeviceID    : %s\n", device.DeviceID);
+		common->Printf("  DeviceKey   : %s\n", device.DeviceKey);
+		common->Printf("      DeviceName  : %s\n", monitor.DeviceName);
+		common->Printf("      DeviceString: %s\n", monitor.DeviceString);
+		common->Printf("      StateFlags  : 0x%x\n", monitor.StateFlags);
+		common->Printf("      DeviceID    : %s\n", monitor.DeviceID);
+		common->Printf("      DeviceKey   : %s\n", monitor.DeviceKey);
+		common->Printf("          dmPosition.x      : %i\n", devmode.dmPosition.x);
+		common->Printf("          dmPosition.y      : %i\n", devmode.dmPosition.y);
+		common->Printf("          dmBitsPerPel      : %i\n", devmode.dmBitsPerPel);
+		common->Printf("          dmPelsWidth       : %i\n", devmode.dmPelsWidth);
+		common->Printf("          dmPelsHeight      : %i\n", devmode.dmPelsHeight);
+		common->Printf("          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags);
+		common->Printf("          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency);
+	}
 
 	x = devmode.dmPosition.x;
 	y = devmode.dmPosition.y;
@@ -1065,6 +1070,29 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	return true;
 }
 
+static bool GetCenteredWindowDimensions( int& x, int& y, int& w, int& h )
+{
+	// get position and size of default display for windowed mode (parms.fullScreen = 0)
+	int displayX, displayY, displayW, displayH, displayHz = 0;
+	if( !GetDisplayCoordinates( 0, displayX, displayY, displayW, displayH, displayHz ) )
+	{
+		return false;
+	}
+
+	// find the centered position not exceeding display bounds
+	const int centreX = displayX + displayW / 2;
+	const int centreY = displayY + displayH / 2;
+	const int left = centreX - w / 2;
+	const int right = left + w;
+	const int top = centreY - h / 2;
+	const int bottom = top + h;
+	x = std::max( left, displayX );
+	y = std::max( top, displayY );
+	w = std::min( right - left, displayW );
+	h = std::min( bottom - top, displayH );
+
+	return true;
+}
 
 bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, const char* windowTitle )
 {
@@ -1072,6 +1100,15 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 	if( !GLW_GetWindowDimensions( parms, x, y, w, h ) )
 	{
 		return false;
+	}
+
+	// SRS - if in windowed mode, start with centered windowed on default display, afterwards use r_windowX / r_windowY
+	if( parms.fullScreen == 0 )
+	{
+		if( !GetCenteredWindowDimensions( x, y, w, h ) )
+		{
+			return false;
+		}
 	}
 
 	int	stylebits;
@@ -1136,21 +1173,17 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 	SetForegroundWindow( win32.hWnd );
 	SetFocus( win32.hWnd );
 
-	glConfig.isFullscreen = parms.fullScreen;
-
-	UpdateWindowSize( parms );
-
 	return true;
 }
 
-void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
+void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
 {
 	windowVisible = true;
 
-	if( int( deviceParms.backBufferWidth ) != params.width ||
-			int( deviceParms.backBufferHeight ) != params.height ||
+	if( int( deviceParms.backBufferWidth ) != parms.width ||
+			int( deviceParms.backBufferHeight ) != parms.height ||
 #if ID_MSAA
-			int( deviceParms.backBufferSampleCount ) != params.multiSamples ||
+			int( deviceParms.backBufferSampleCount ) != parms.multiSamples ||
 #endif
 			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
 	{
@@ -1158,16 +1191,18 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
 
 		BackBufferResizing();
 
-		deviceParms.backBufferWidth = params.width;
-		deviceParms.backBufferHeight = params.height;
-		deviceParms.backBufferSampleCount = params.multiSamples;
+		deviceParms.backBufferWidth = parms.width;
+		deviceParms.backBufferHeight = parms.height;
+		deviceParms.backBufferSampleCount = parms.multiSamples;
 		deviceParms.vsyncEnabled = requestedVSync;
 
 		ResizeSwapChain();
 		BackBufferResized();
 	}
-
-	deviceParms.vsyncEnabled = requestedVSync;
+	else
+	{
+		deviceParms.vsyncEnabled = requestedVSync;
+	}
 }
 
 /*
@@ -1375,6 +1410,28 @@ void GLimp_PreInit()
 	// DG: not needed on this platform, so just do nothing
 }
 
+// SRS - Function to get display frequency of monitor hosting the current window
+static int GetDisplayFrequency( glimpParms_t parms )
+{
+	HMONITOR hMonitor = MonitorFromWindow( win32.hWnd, MONITOR_DEFAULTTOPRIMARY );
+
+	MONITORINFOEX minfo;
+	minfo.cbSize = sizeof( minfo );
+	if( !GetMonitorInfo( hMonitor, &minfo ) )
+	{
+		return parms.displayHz;
+	}
+
+	DEVMODE devmode;
+	devmode.dmSize = sizeof( devmode );
+	if( !EnumDisplaySettings( minfo.szDevice, ENUM_CURRENT_SETTINGS, &devmode ) )
+	{
+		return parms.displayHz;
+	}
+
+	return devmode.dmDisplayFrequency;
+}
+
 /*
 ===================
 GLimp_Init
@@ -1455,6 +1512,7 @@ bool GLimp_Init( glimpParms_t parms )
 	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
+	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
@@ -1538,11 +1596,11 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
 
-	glConfig.isFullscreen = parms.fullScreen;
+	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
-
-	deviceManager->UpdateWindowSize( parms );
+	glConfig.displayFrequency = GetDisplayFrequency( parms );
+	glConfig.multisamples = parms.multiSamples;
 
 	return true;
 }

@@ -107,7 +107,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		// RB: FIXME this is ugly - DOUBLECHECK this
 		constantBuffer = device->createBuffer(
 							 nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(),
-									 "RenderParams", 1024 ) );
+									 "RenderParams", 4096 ) );
 	}
 	else
 	{

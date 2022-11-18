@@ -6664,7 +6664,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 					// SRS - Restore timestamp capture state after overlay GUI rendering is finished
 					glConfig.timerQueryAvailable = timerQueryAvailable;
 					renderLog.CloseBlock();
-					renderLog.CloseMainBlock();
+					renderLog.CloseMainBlock( MRB_DRAW_GUI );
 				}
 				else
 				{

@@ -140,7 +140,7 @@ private:
 	bool createWindowSurface();
 	void installDebugCallback();
 	bool pickPhysicalDevice();
-	bool findQueueFamilies( vk::PhysicalDevice physicalDevice );
+	bool findQueueFamilies( vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface );
 	bool createDevice();
 	bool createSwapChain();
 	void destroySwapChain();
@@ -157,6 +157,10 @@ private:
 	{
 		// instance
 		{
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+			// SRS - needed for using MoltenVK configuration on macOS (if USE_MoltenVK defined)
+			VK_MVK_MOLTENVK_EXTENSION_NAME,
+#endif
 			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 		},
 		// layers
@@ -165,6 +169,13 @@ private:
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+#if defined(__APPLE__)
+#if defined( VK_KHR_portability_subset )
+			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
+#endif
+			VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
+			VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+#endif
 		},
 	};
 
@@ -173,18 +184,28 @@ private:
 	{
 		// instance
 		{
+#if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
+			// SRS - This is optional since it only became manadatory with Vulkan SDK 1.3.216.0 or later
+			VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+#endif
 			VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME,
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 		},
 		// layers
-		{ },
+		{
+#if defined(__APPLE__)
+			// SRS - synchronization2 not supported natively on MoltenVK, use layer implementation instead
+			"VK_LAYER_KHRONOS_synchronization2"
+#endif
+		},
 		// device
 		{
 			VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
 			VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
 			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 			VK_NV_MESH_SHADER_EXTENSION_NAME,
-			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME
+			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
 	};
 
@@ -236,6 +257,9 @@ private:
 
 	std::queue<nvrhi::EventQueryHandle> m_FramesInFlight;
 	std::vector<nvrhi::EventQueryHandle> m_QueryPool;
+
+	// SRS - flag indicating support for eFifoRelaxed surface presentation (r_swapInterval = 1) mode
+	bool enablePModeFifoRelaxed = false;
 
 
 private:
@@ -311,44 +335,17 @@ static std::vector<T> setToVector( const std::unordered_set<T>& set )
 
 bool DeviceManager_VK::createInstance()
 {
-	enabledExtensions.instance.insert( VK_KHR_SURFACE_EXTENSION_NAME );
-
-#if defined(_WIN32)
-	enabledExtensions.instance.insert( VK_KHR_WIN32_SURFACE_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-	enabledExtensions.instance.insert( VK_KHR_ANDROID_SURFACE_EXTENSION_NAME );
-#elif defined(_DIRECT2DISPLAY)
-	enabledExtensions.instance.insert( VK_KHR_DISPLAY_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-	enabledExtensions.instance.insert( VK_EXT_DIRECTFB_SURFACE_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-	enabledExtensions.instance.insert( VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-	enabledExtensions.instance.insert( VK_KHR_XCB_SURFACE_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
-	enabledExtensions.instance.insert( VK_MVK_IOS_SURFACE_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-	enabledExtensions.instance.insert( VK_MVK_MACOS_SURFACE_EXTENSION_NAME );
-#elif defined(VK_USE_PLATFORM_HEADLESS_EXT)
-	enabledExtensions.instance.insert( VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME );
-#endif
-
-	// Get extensions supported by the instance and store for later use
-	uint32_t extCount = 0;
-	vk::enumerateInstanceExtensionProperties( nullptr, &extCount, nullptr );
-	if( extCount > 0 )
+#if defined( VULKAN_USE_PLATFORM_SDL )
+	// SRS - Populate enabledExtensions with required SDL instance extensions
+	auto sdl_instanceExtensions = get_required_extensions();
+	for( auto instanceExtension : sdl_instanceExtensions )
 	{
-		idList<vk::ExtensionProperties> extensions;
-		extensions.SetNum( extCount );
-
-		if( vk::enumerateInstanceExtensionProperties( nullptr, &extCount, &extensions[0] ) == vk::Result::eSuccess )
-		{
-			for( VkExtensionProperties extension : extensions )
-			{
-				enabledExtensions.instance.insert( extension.extensionName );
-			}
-		}
+		enabledExtensions.instance.insert( instanceExtension );
 	}
+#elif defined( VK_USE_PLATFORM_WIN32_KHR )
+	enabledExtensions.instance.insert( VK_KHR_SURFACE_EXTENSION_NAME );
+	enabledExtensions.instance.insert( VK_KHR_WIN32_SURFACE_EXTENSION_NAME );
+#endif
 
 	// add instance extensions requested by the user
 	for( const std::string& name : deviceParms.requiredVulkanInstanceExtensions )
@@ -448,6 +445,13 @@ bool DeviceManager_VK::createInstance()
 								  .setEnabledExtensionCount( uint32_t( instanceExtVec.size() ) )
 								  .setPpEnabledExtensionNames( instanceExtVec.data() )
 								  .setPApplicationInfo( &applicationInfo );
+
+#if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
+	if( enabledExtensions.instance.find( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME ) != enabledExtensions.instance.end() )
+	{
+		info.setFlags( vk::InstanceCreateFlagBits( VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR ) );
+	}
+#endif
 
 	const vk::Result res = vk::createInstance( &info, nullptr, &m_VulkanInstance );
 	if( res != vk::Result::eSuccess )
@@ -570,7 +574,15 @@ bool DeviceManager_VK::pickPhysicalDevice()
 			deviceIsGood = false;
 		}
 
-		if( !findQueueFamilies( dev ) )
+		if( ( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eImmediate ) == surfacePModes.end() ) ||
+			( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifo ) == surfacePModes.end() ) )
+		{
+			// can't find the required surface present modes
+			errorStream << std::endl << "  - does not support the requested surface present modes";
+			deviceIsGood = false;
+		}
+
+		if( !findQueueFamilies( dev, m_WindowSurface ) )
 		{
 			// device doesn't have all the queue families we need
 			errorStream << std::endl << "  - does not support the necessary queue types";
@@ -618,7 +630,7 @@ bool DeviceManager_VK::pickPhysicalDevice()
 	return false;
 }
 
-bool DeviceManager_VK::findQueueFamilies( vk::PhysicalDevice physicalDevice )
+bool DeviceManager_VK::findQueueFamilies( vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface )
 {
 	auto props = physicalDevice.getQueueFamilyProperties();
 
@@ -658,10 +670,15 @@ bool DeviceManager_VK::findQueueFamilies( vk::PhysicalDevice physicalDevice )
 
 		if( m_PresentQueueFamily == -1 )
 		{
+			vk::Bool32 presentSupported;
+			// SRS - Use portable implmentation for detecting presentation support vs. Windows-specific Vulkan call
 			if( queueFamily.queueCount > 0 &&
-					vkGetPhysicalDeviceWin32PresentationSupportKHR( physicalDevice, i ) )
+					vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice, i, surface, &presentSupported ) == VK_SUCCESS )
 			{
-				m_PresentQueueFamily = i;
+				if( presentSupported )
+				{
+					m_PresentQueueFamily = i;
+				}
 			}
 		}
 	}
@@ -701,8 +718,9 @@ bool DeviceManager_VK::createDevice()
 	bool rayQuerySupported = false;
 	bool meshletsSupported = false;
 	bool vrsSupported = false;
+	bool sync2Supported = false;
 
-	common->Printf( "Enabled Vulkan device extensions:" );
+	common->Printf( "Enabled Vulkan device extensions:\n" );
 	for( const auto& ext : enabledExtensions.device )
 	{
 		common->Printf( "    %s\n", ext.c_str() );
@@ -731,6 +749,10 @@ bool DeviceManager_VK::createDevice()
 		else if( ext == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME )
 		{
 			vrsSupported = true;
+		}
+		else if( ext == VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME )
+		{
+			sync2Supported = true;
 		}
 	}
 
@@ -777,7 +799,17 @@ bool DeviceManager_VK::createDevice()
 					   .setPrimitiveFragmentShadingRate( true )
 					   .setAttachmentFragmentShadingRate( true );
 
+	auto sync2Features = vk::PhysicalDeviceSynchronization2FeaturesKHR()
+						 .setSynchronization2( true );
+
+#if defined(__APPLE__) && defined( VK_KHR_portability_subset )
+	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
+							   .setImageViewFormatSwizzle( true );
+
+	void* pNext = &portabilityFeatures;
+#else
 	void* pNext = nullptr;
+#endif
 #define APPEND_EXTENSION(condition, desc) if (condition) { (desc).pNext = pNext; pNext = &(desc); }  // NOLINT(cppcoreguidelines-macro-usage)
 	APPEND_EXTENSION( accelStructSupported, accelStructFeatures )
 	APPEND_EXTENSION( bufferAddressSupported, bufferAddressFeatures )
@@ -785,6 +817,7 @@ bool DeviceManager_VK::createDevice()
 	APPEND_EXTENSION( rayQuerySupported, rayQueryFeatures )
 	APPEND_EXTENSION( meshletsSupported, meshletFeatures )
 	APPEND_EXTENSION( vrsSupported, vrsFeatures )
+	APPEND_EXTENSION( sync2Supported, sync2Features )
 #undef APPEND_EXTENSION
 
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
@@ -792,7 +825,10 @@ bool DeviceManager_VK::createDevice()
 						  .setSamplerAnisotropy( true )
 						  .setTessellationShader( true )
 						  .setTextureCompressionBC( true )
+#if !defined(__APPLE__)
 						  .setGeometryShader( true )
+#endif
+						  .setFillModeNonSolid( true )
 						  .setImageCubeArray( true )
 						  .setDualSrcBlend( true );
 
@@ -837,12 +873,26 @@ bool DeviceManager_VK::createDevice()
 	m_VulkanDevice.getQueue( m_PresentQueueFamily, 0, &m_PresentQueue );
 
 	VULKAN_HPP_DEFAULT_DISPATCHER.init( m_VulkanDevice );
+	
+	// SRS - Determine if preferred image depth/stencil format D24S8 is supported (issue with Vulkan on AMD GPUs)
+	vk::ImageFormatProperties imageFormatProperties;
+	const vk::Result ret = m_VulkanPhysicalDevice.getImageFormatProperties( vk::Format::eD24UnormS8Uint,
+																			vk::ImageType::e2D,
+																			vk::ImageTiling::eOptimal,
+																			vk::ImageUsageFlags( vk::ImageUsageFlagBits::eDepthStencilAttachment ),
+																			vk::ImageCreateFlags( 0 ),
+																			&imageFormatProperties );
+	deviceParms.enableImageFormatD24S8 = ( ret == vk::Result::eSuccess );
 
+	// SRS - Determine if "smart" (r_swapInterval = 1) vsync mode eFifoRelaxed is supported by device and surface
+	auto surfacePModes = m_VulkanPhysicalDevice.getSurfacePresentModesKHR( m_WindowSurface );
+	enablePModeFifoRelaxed = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifoRelaxed ) != surfacePModes.end();
+	
 	// stash the renderer string
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );
 
-	common->Printf( "Created Vulkan device: %s", m_RendererString.c_str() );
+	common->Printf( "Created Vulkan device: %s\n", m_RendererString.c_str() );
 
 	return true;
 }
@@ -858,66 +908,24 @@ bool DeviceManager_VK::createWindowSurface()
 {
 	VkResult err = VK_SUCCESS;
 
-	// Create the os-specific surface
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+	// Create the platform-specific surface
+#if defined( VULKAN_USE_PLATFORM_SDL )
+	// SRS - Support generic SDL platform for linux and macOS
+	if( !CreateSDLWindowSurface( m_VulkanInstance, ( VkSurfaceKHR* )&m_WindowSurface ) )
+	{
+		err = VK_ERROR_NATIVE_WINDOW_IN_USE_KHR;
+	}
+#elif defined( VK_USE_PLATFORM_WIN32_KHR )
 	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
 	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	surfaceCreateInfo.hinstance = ( HINSTANCE )windowInstance;
 	surfaceCreateInfo.hwnd = ( HWND )windowHandle;
 	err = vkCreateWin32SurfaceKHR( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-	VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.window = window;
-	err = vkCreateAndroidSurfaceKHR( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
-	VkIOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK;
-	surfaceCreateInfo.pNext = NULL;
-	surfaceCreateInfo.flags = 0;
-	surfaceCreateInfo.pView = view;
-	err = vkCreateIOSSurfaceMVK( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-	VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
-	surfaceCreateInfo.pNext = NULL;
-	surfaceCreateInfo.flags = 0;
-	surfaceCreateInfo.pView = view;
-	err = vkCreateMacOSSurfaceMVK( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(_DIRECT2DISPLAY)
-	createDirect2DisplaySurface( width, height );
-#elif defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-	VkDirectFBSurfaceCreateInfoEXT surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT;
-	surfaceCreateInfo.dfb = dfb;
-	surfaceCreateInfo.surface = window;
-	err = vkCreateDirectFBSurfaceEXT( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-	VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.display = display;
-	surfaceCreateInfo.surface = window;
-	err = vkCreateWaylandSurfaceKHR( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-	VkXcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.connection = connection;
-	surfaceCreateInfo.window = window;
-	err = vkCreateXcbSurfaceKHR( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
-#elif defined(VK_USE_PLATFORM_HEADLESS_EXT)
-	VkHeadlessSurfaceCreateInfoEXT surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT;
-	PFN_vkCreateHeadlessSurfaceEXT fpCreateHeadlessSurfaceEXT = ( PFN_vkCreateHeadlessSurfaceEXT )vkGetInstanceProcAddr( instance, "vkCreateHeadlessSurfaceEXT" );
-	if( !fpCreateHeadlessSurfaceEXT )
-	{
-		vks::tools::exitFatal( "Could not fetch function pointer for the headless extension!", -1 );
-	}
-	err = fpCreateHeadlessSurfaceEXT( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
 #endif
 
 	if( err != VK_SUCCESS )
 	{
-		common->FatalError( "Failed to create a GLFW window surface, error code = %s", nvrhi::vulkan::resultToString( err ) );
+		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( err ) );
 		return false;
 	}
 
@@ -931,19 +939,22 @@ void DeviceManager_VK::destroySwapChain()
 		m_VulkanDevice.waitIdle();
 	}
 
+	while( !m_SwapChainImages.empty() )
+	{
+		auto sci = m_SwapChainImages.back();
+		m_SwapChainImages.pop_back();
+		sci.rhiHandle = nullptr;
+	}
+
 	if( m_SwapChain )
 	{
 		m_VulkanDevice.destroySwapchainKHR( m_SwapChain );
 		m_SwapChain = nullptr;
 	}
-
-	m_SwapChainImages.clear();
 }
 
 bool DeviceManager_VK::createSwapChain()
 {
-	destroySwapChain();
-
 	m_SwapChainFormat =
 	{
 		vk::Format( nvrhi::vulkan::convertFormat( deviceParms.swapChainFormat ) ),
@@ -975,7 +986,7 @@ bool DeviceManager_VK::createSwapChain()
 				.setPQueueFamilyIndices( enableSwapChainSharing ? queues.data() : nullptr )
 				.setPreTransform( vk::SurfaceTransformFlagBitsKHR::eIdentity )
 				.setCompositeAlpha( vk::CompositeAlphaFlagBitsKHR::eOpaque )
-				.setPresentMode( deviceParms.vsyncEnabled ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eImmediate )
+				.setPresentMode( deviceParms.vsyncEnabled ? ( r_swapInterval.GetInteger() == 2 || !enablePModeFifoRelaxed ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eFifoRelaxed ) : vk::PresentModeKHR::eImmediate )
 				.setClipped( true )
 				.setOldSwapchain( nullptr );
 
@@ -1019,8 +1030,12 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	if( deviceParms.enableDebugRuntime )
 	{
-		enabledExtensions.instance.insert( "VK_EXT_debug_report" );
+		enabledExtensions.instance.insert( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+		enabledExtensions.layers.insert( "MoltenVK" );
+#else
 		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
+#endif
 	}
 
 	const vk::DynamicLoader dl;
@@ -1058,7 +1073,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	CHECK( createWindowSurface() );
 	CHECK( pickPhysicalDevice() );
-	CHECK( findQueueFamilies( m_VulkanPhysicalDevice ) );
+	CHECK( findQueueFamilies( m_VulkanPhysicalDevice, m_WindowSurface ) );
 	CHECK( createDevice() );
 
 	auto vecInstanceExt = stringSetToVector( enabledExtensions.instance );
@@ -1114,6 +1129,20 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 
 	m_BarrierCommandList = nullptr;
 
+	while( m_FramesInFlight.size() > 0 )
+	{
+		auto query = m_FramesInFlight.front();
+		m_FramesInFlight.pop();
+		query = nullptr;
+	}
+
+	if( !m_QueryPool.empty() )
+	{
+		auto query = m_QueryPool.back();
+		m_QueryPool.pop_back();
+		query = nullptr;
+	}
+
 	m_NvrhiDevice = nullptr;
 	m_ValidationLayer = nullptr;
 	m_RendererString.clear();
@@ -1151,7 +1180,7 @@ void DeviceManager_VK::BeginFrame()
 						   vk::Fence(),
 						   &m_SwapChainIndex );
 
-	assert( res == vk::Result::eSuccess );
+	assert( res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR );
 
 	m_NvrhiDevice->queueWaitForSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 }
@@ -1175,7 +1204,7 @@ void DeviceManager_VK::Present()
 							  .setPImageIndices( &m_SwapChainIndex );
 
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
-	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR );
+	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
 	if( deviceParms.enableDebugRuntime )
 	{

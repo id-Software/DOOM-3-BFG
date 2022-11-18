@@ -24,7 +24,7 @@
 
 #include "renderer/RenderCommon.h"
 #include "renderer/RenderSystem.h"
-#include "../DeviceManager.h"
+#include <sys/DeviceManager.h>
 
 #include <Windows.h>
 #include <dxgi1_5.h>
@@ -204,15 +204,6 @@ void DeviceManager_DX12::ReportLiveObjects()
 
 bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 {
-	UINT windowStyle = deviceParms.startFullscreen
-					   ? ( WS_POPUP | WS_SYSMENU | WS_VISIBLE )
-					   : deviceParms.startMaximized
-					   ? ( WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE )
-					   : ( WS_OVERLAPPEDWINDOW | WS_VISIBLE );
-
-	RECT rect = { 0, 0, LONG( deviceParms.backBufferWidth ), LONG( deviceParms.backBufferHeight ) };
-	AdjustWindowRect( &rect, windowStyle, FALSE );
-
 	RefCountPtr<IDXGIAdapter> targetAdapter;
 
 	if( deviceParms.adapter )
@@ -248,12 +239,25 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 
 		isNvidia = IsNvDeviceID( aDesc.VendorId );
 	}
+/*
+	// SRS - Don't center window here for DX12 only, instead use portable initialization in CreateWindowDeviceAndSwapChain() within win_glimp.cpp
+	//     - Also, calling SetWindowPos() triggers a window mgr event that overwrites r_windowX / r_windowY, which may be undesirable to the user
+
+	UINT windowStyle = deviceParms.startFullscreen
+					   ? ( WS_POPUP | WS_SYSMENU | WS_VISIBLE )
+					   : deviceParms.startMaximized
+					   ? ( WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE )
+					   : ( WS_OVERLAPPEDWINDOW | WS_VISIBLE );
+
+	RECT rect = { 0, 0, LONG( deviceParms.backBufferWidth ), LONG( deviceParms.backBufferHeight ) };
+	AdjustWindowRect( &rect, windowStyle, FALSE );
 
 	if( MoveWindowOntoAdapter( targetAdapter, rect ) )
 	{
 		SetWindowPos( ( HWND )windowHandle, deviceParms.startFullscreen ? HWND_TOPMOST : HWND_NOTOPMOST,
 					  rect.left, rect.top, 0, 0, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSIZE );
 	}
+*/
 	HRESULT hr = E_FAIL;
 
 	RECT clientRect;
@@ -539,6 +543,8 @@ void DeviceManager_DX12::ResizeSwapChain()
 
 void DeviceManager_DX12::BeginFrame()
 {
+/*	SRS - This code not needed: framebuffer/swapchain resizing & fullscreen are handled by idRenderBackend::ResizeImages() and DeviceManager::UpdateWindowSize()
+
 	DXGI_SWAP_CHAIN_DESC1 newSwapChainDesc;
 	DXGI_SWAP_CHAIN_FULLSCREEN_DESC newFullScreenDesc;
 	if( SUCCEEDED( m_SwapChain->GetDesc1( &newSwapChainDesc ) ) && SUCCEEDED( m_SwapChain->GetFullscreenDesc( &newFullScreenDesc ) ) )
@@ -561,7 +567,7 @@ void DeviceManager_DX12::BeginFrame()
 			BackBufferResized();
 		}
 	}
-
+*/
 	auto bufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
 	WaitForSingleObject( m_FrameFenceEvents[bufferIndex], INFINITE );
@@ -607,21 +613,14 @@ void DeviceManager_DX12::Present()
 
 	UINT presentFlags = 0;
 
-	if( r_swapInterval.GetInteger() == 1 )
-	{
-		SetVsyncEnabled( false );
-	}
-	else if( r_swapInterval.GetInteger() == 2 )
-	{
-		SetVsyncEnabled( true );
-	}
-
-	if( !deviceParms.vsyncEnabled && !glConfig.isFullscreen && m_TearingSupported && r_swapInterval.GetInteger() == 0 )
+	// SRS - DXGI docs say fullscreen must be disabled for unlocked fps/tear, but this does not seem to be true
+	if( !deviceParms.vsyncEnabled && m_TearingSupported ) //&& !glConfig.isFullscreen )
 	{
 		presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
 	}
 
-	m_SwapChain->Present( deviceParms.vsyncEnabled ? 1 : 0, presentFlags );
+	// SRS - Don't change deviceParms.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval
+	m_SwapChain->Present( deviceParms.vsyncEnabled && r_swapInterval.GetInteger() == 2 ? 1 : 0, presentFlags );
 
 	m_FrameFence->SetEventOnCompletion( m_FrameCount, m_FrameFenceEvents[bufferIndex] );
 	m_GraphicsQueue->Signal( m_FrameFence, m_FrameCount );

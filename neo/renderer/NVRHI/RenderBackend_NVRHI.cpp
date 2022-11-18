@@ -192,7 +192,6 @@ void idRenderBackend::Init()
 	// RB: FIXME but for now disable it to avoid validation errors
 	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
-		glConfig.timerQueryAvailable = false;
 		r_useSSAO.SetBool( false );
 	}
 }
@@ -1711,6 +1710,13 @@ void idRenderBackend::CheckCVars()
 		R_SetColorMappings();
 	}
 
+	// SRS - support dynamic changes to vsync setting
+	if( r_swapInterval.IsModified() )
+	{
+		r_swapInterval.ClearModified();
+		deviceManager->SetVsyncEnabled( r_swapInterval.GetBool() );
+	}
+
 	// filtering
 	/*if( r_maxAnisotropicFiltering.IsModified() || r_useTrilinearFiltering.IsModified() || r_lodBias.IsModified() )
 	{
@@ -2145,6 +2151,13 @@ idRenderBackend::ResizeImages
 */
 void idRenderBackend::ResizeImages()
 {
+	glimpParms_t parms;
+
+	parms.width = glConfig.nativeScreenWidth;
+	parms.height = glConfig.nativeScreenHeight;
+	parms.multiSamples = glConfig.multisamples;
+
+	deviceManager->UpdateWindowSize( parms );
 }
 
 void idRenderBackend::SetCurrentImage( idImage* image )
