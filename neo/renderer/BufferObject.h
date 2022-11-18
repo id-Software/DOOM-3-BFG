@@ -107,6 +107,11 @@ public:
 		return ( size & MAPPED_FLAG ) != 0;
 	}
 
+	void				SetDebugName(idStr str)
+	{
+		debugName = str;
+	}
+
 protected:
 	void				SetMapped() const
 	{
@@ -140,6 +145,7 @@ protected:
 	nvrhi::InputLayoutHandle	inputLayout;
 	nvrhi::BufferHandle			bufferHandle;
 	void*						buffer;
+	idStr						debugName;
 #else
 	// GL
 	GLintptr					bufferHandle;

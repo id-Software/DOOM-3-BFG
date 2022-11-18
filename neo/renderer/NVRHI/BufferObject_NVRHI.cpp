@@ -484,6 +484,7 @@ idUniformBuffer::idUniformBuffer()
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
 	bufferHandle.Reset();
 	SetUnmapped();
+	SetDebugName("Uniform Buffer");
 }
 
 /*
@@ -509,22 +510,23 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	// This buffer is a shader resource as opposed to a constant buffer due to
 	// constant buffers not being able to be sub-ranged.
 	nvrhi::BufferDesc bufferDesc;
-	bufferDesc.initialState = nvrhi::ResourceStates::ShaderResource;
+	bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
 	bufferDesc.keepInitialState = true;
 	bufferDesc.canHaveTypedViews = true;
 	bufferDesc.canHaveRawViews = true;
 	bufferDesc.byteSize = numBytes;
 	bufferDesc.structStride = sizeof( idVec4 );
+	bufferDesc.isConstantBuffer = true;
 
 	if( usage == BU_DYNAMIC )
 	{
-		bufferDesc.debugName = "Mapped JointBuffer";
+		bufferDesc.debugName = debugName.c_str();
 		bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		bufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
 	}
 	else
 	{
-		bufferDesc.debugName = "Static JointBuffer";
+		bufferDesc.debugName = debugName.c_str();
 		bufferDesc.keepInitialState = true;
 	}
 
@@ -631,7 +633,7 @@ void* idUniformBuffer::MapBuffer( bufferMapType_t mapType )
 		accessMode = nvrhi::CpuAccessMode::Read;
 	}
 
-	buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, accessMode );
+	buffer = deviceManager->GetDevice()->mapBuffer(bufferHandle, accessMode, { (uint64)GetOffset(), (uint64)GetSize() });
 
 	SetMapped();
 
