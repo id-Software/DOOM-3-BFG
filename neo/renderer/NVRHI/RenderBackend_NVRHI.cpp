@@ -393,8 +393,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 #endif
 
-	bool changedJointBuffer = false;
-
 	if( jointHandle )
 	{
 		const idUniformBuffer* jointBuffer = nullptr;
@@ -415,7 +413,10 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		}
 
 		uint offset = static_cast<uint>( jointHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-		changedJointBuffer = ( currentJointBuffer != jointBuffer->GetAPIObject() ) || ( currentJointOffset != offset );
+		if( currentJointBuffer != jointBuffer->GetAPIObject() || currentJointOffset != offset )
+		{
+			changeState = true;
+		}
 
 		currentJointBuffer = jointBuffer->GetAPIObject();
 		currentJointOffset = offset;
@@ -429,7 +430,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
 		= renderProgManager.GetBindingLayout( bindingLayoutType );
 
-	if( changedJointBuffer || bindingLayoutType != prevBindingLayoutType || context != prevContext )
+	if( changeState || bindingLayoutType != prevBindingLayoutType || context != prevContext )
 	{
 		GetCurrentBindingLayout( bindingLayoutType );
 
@@ -443,10 +444,8 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		}
 	}
 
-	const uint64_t stateBits = glStateBits;
-
 	const int program = renderProgManager.CurrentProgram();
-	const PipelineKey key{ stateBits, program, static_cast<int>( depthBias ), slopeScaleBias, currentFrameBuffer };
+	const PipelineKey key{ glStateBits, program, static_cast<int>( depthBias ), slopeScaleBias, currentFrameBuffer };
 	const auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	if( currentPipeline != pipeline )
