@@ -307,11 +307,16 @@ void idRenderProgManager::ZeroUniforms()
 }
 
 // Only updates the constant buffer if it was updated at all
-void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList )
+bool idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList )
 {
 	if( uniformsChanged )
 	{
 		commandList->writeBuffer( constantBuffer[BindingLayoutType()], uniforms.Ptr(), uniforms.Allocated() );
+
 		uniformsChanged = false;
+
+		return true;
 	}
+
+	return false;
 }

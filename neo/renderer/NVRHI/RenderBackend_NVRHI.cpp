@@ -469,7 +469,13 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 #endif
 
-	renderProgManager.CommitConstantBuffer( commandList );
+	if( renderProgManager.CommitConstantBuffer( commandList ) )
+	{
+		// Reset the graphics state if the constant buffer is written to since
+		// the render pass is ended for vulkan. setGraphicsState will
+		// reinstate the render pass.
+		changeState = true;
+	}
 
 	//
 	// create new graphics state if necessary
