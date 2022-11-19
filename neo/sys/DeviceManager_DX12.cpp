@@ -178,10 +178,10 @@ static bool MoveWindowOntoAdapter( IDXGIAdapter* targetAdapter, RECT& rect )
 			const int right = left + winW;
 			const int top = centreY - winH / 2;
 			const int bottom = top + winH;
-			rect.left = std::max( left, ( int )desktop.left );
-			rect.right = std::min( right, ( int )desktop.right );
-			rect.bottom = std::min( bottom, ( int )desktop.bottom );
-			rect.top = std::max( top, ( int )desktop.top );
+			rect.left = Max( left, ( int )desktop.left );
+			rect.right = Min( right, ( int )desktop.right );
+			rect.bottom = Min( bottom, ( int )desktop.bottom );
+			rect.top = Max( top, ( int )desktop.top );
 
 			// If there is more than one output, go with the first found.  Multi-monitor support could go here.
 			return true;

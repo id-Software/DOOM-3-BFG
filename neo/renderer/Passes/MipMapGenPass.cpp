@@ -221,7 +221,7 @@ void MipMapGenPass::Dispatch( nvrhi::ICommandList* commandList, int maxLOD )
 		}
 
 		MipmmapGenConstants constants = {};
-		constants.numLODs = std::min( nmipLevels - i * NUM_LODS - 1, ( uint32_t )NUM_LODS );
+		constants.numLODs = Min( nmipLevels - i * NUM_LODS - 1, ( uint32_t )NUM_LODS );
 		constants.dispatch = i;
 		commandList->writeBuffer( m_ConstantBuffer, &constants, sizeof( constants ) );
 

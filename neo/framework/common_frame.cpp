@@ -840,7 +840,7 @@ void idCommonLocal::Frame()
 		// Store server game time - don't let time go past last SS time in case we are extrapolating
 		if( IsClient() )
 		{
-			newCmd.serverGameMilliseconds = std::min( Game()->GetServerGameTimeMs(), Game()->GetSSEndTime() );
+			newCmd.serverGameMilliseconds = Min( Game()->GetServerGameTimeMs(), Game()->GetSSEndTime() );
 		}
 		else
 		{

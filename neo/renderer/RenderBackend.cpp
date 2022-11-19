@@ -3749,7 +3749,7 @@ void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, viewLight_t
 	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
 	if( att.texture )
 	{
-		int slice = std::max( 0, side );
+		int slice = Max( 0, side );
 		commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
 	}
 #elif !defined( USE_VULKAN )

@@ -450,7 +450,7 @@ R_ResizeStaticTriSurfVerts
 void R_ResizeStaticTriSurfVerts( srfTriangles_t* tri, int numVerts )
 {
 	idDrawVert* newVerts = ( idDrawVert* )Mem_Alloc16( numVerts * sizeof( idDrawVert ), TAG_TRI_VERTS );
-	const int copy = std::min( numVerts, tri->numVerts );
+	const int copy = Min( numVerts, tri->numVerts );
 	memcpy( newVerts, tri->verts, copy * sizeof( idDrawVert ) );
 	Mem_Free( tri->verts );
 	tri->verts = newVerts;

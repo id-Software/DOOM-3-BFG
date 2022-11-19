@@ -371,7 +371,7 @@ void idImage::AllocImage()
 	uint maxTextureSize = 0;
 
 	if( maxTextureSize > 0 &&
-			int( std::max( originalWidth, originalHeight ) ) > maxTextureSize &&
+			int( Max( originalWidth, originalHeight ) ) > maxTextureSize &&
 			opts.isRenderTarget &&
 			opts.textureType == TT_2D )
 	{

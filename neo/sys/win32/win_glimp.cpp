@@ -1086,10 +1086,10 @@ static bool GetCenteredWindowDimensions( int& x, int& y, int& w, int& h )
 	const int right = left + w;
 	const int top = centreY - h / 2;
 	const int bottom = top + h;
-	x = std::max( left, displayX );
-	y = std::max( top, displayY );
-	w = std::min( right - left, displayW );
-	h = std::min( bottom - top, displayH );
+	x = Max( left, displayX );
+	y = Max( top, displayY );
+	w = Min( right - left, displayW );
+	h = Min( bottom - top, displayH );
 
 	return true;
 }

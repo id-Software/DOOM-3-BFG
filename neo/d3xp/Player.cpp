@@ -7109,8 +7109,8 @@ void idPlayer::UpdateViewAngles()
 		// don't let the player look up or down more than 90 degrees normally
 		const float restrict = 1.0f;
 
-		viewAngles.pitch = std::min( viewAngles.pitch, pm_maxviewpitch.GetFloat() * restrict );
-		viewAngles.pitch = std::max( viewAngles.pitch, pm_minviewpitch.GetFloat() * restrict );
+		viewAngles.pitch = Min( viewAngles.pitch, pm_maxviewpitch.GetFloat() * restrict );
+		viewAngles.pitch = Max( viewAngles.pitch, pm_minviewpitch.GetFloat() * restrict );
 	}
 
 	UpdateDeltaViewAngles( viewAngles );

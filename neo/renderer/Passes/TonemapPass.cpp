@@ -278,8 +278,8 @@ void TonemapPass::ComputeExposure( nvrhi::ICommandList* commandList, const ToneM
 	ToneMappingConstants toneMappingConstants = {};
 	toneMappingConstants.logLuminanceScale = maxLuminance - minLuminance;
 	toneMappingConstants.logLuminanceBias = minLuminance;
-	toneMappingConstants.histogramLowPercentile = std::min( 0.99f, std::max( 0.f, params.histogramLowPercentile ) );
-	toneMappingConstants.histogramHighPercentile = std::min( 1.f, std::max( toneMappingConstants.histogramLowPercentile, params.histogramHighPercentile ) );
+	toneMappingConstants.histogramLowPercentile = Min( 0.99f, Max( 0.f, params.histogramLowPercentile ) );
+	toneMappingConstants.histogramHighPercentile = Min( 1.f, Max( toneMappingConstants.histogramLowPercentile, params.histogramHighPercentile ) );
 	toneMappingConstants.eyeAdaptationSpeedUp = r_hdrAdaptionRate.GetFloat();
 	toneMappingConstants.eyeAdaptationSpeedDown = r_hdrAdaptionRate.GetFloat() / 2.f;
 	toneMappingConstants.minAdaptedLuminance = r_hdrMinLuminance.GetFloat();
