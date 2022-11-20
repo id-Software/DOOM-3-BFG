@@ -18,6 +18,101 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - Nov 20, 2022
+
+This build based on the 635-nvrhi5 allows to play the game with the NVRHI Vulkan backend.
+You can switch to Vulkan by starting the engine with +set r_graphicsAPI vulkan.
+
+Special thanks to Steven Pridham and Steve Saunders to get this running on Linux and macOS.
+
+For the overall NVRHI state see the task board: https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects/8
+
+Changelog:
+
+* Write constant buffers if changed or layout changed
+
+* Move nvrhi::Device->waitForIdle() back to GL_BlockingSwapBuffers()
+
+* Always write the constant buffer -> BAD but works
+
+* Update the render state whenever the constant buffer is written to
+
+* Invalid binding set cache if either vertex data or joint data changes
+
+* Update NVRHI submodule
+
+* Update map buffer calls
+
+* Update to make it easier to switch constant buffer usage
+
+* Allow buffer ranges for constant buffers
+
+* Fix VK descriptor set slot for motionBlur shader
+
+* Replaced std::min/max with Min/Max
+
+* Merge branch '721-gltf2-cameras' into 705-gltf2-import-options
+
+* Added idMat4::GetTranslation() and some comments
+
+* HarrievG: [glTF2] Corrected Spot light transforms
+
+* HarrievG: [glTF2] Fixed runtime reloading for gltf models
+
+* Passed idImportOptions along the animations loader code
+
+* Apply import options to glTF2 models (WIP)
+
+* Little cleanup of the glTF2 code
+
+* Use fixed size (-8 -8 0, 8 8 16) bounds for all model based entities for TB
+
+* Added TrenchBroom FGD files
+
+* exportFGD proxymodel fix
+
+
+
+## .plan - Oct 29, 2022
+
+This build based on the 635-nvrhi3 branch fixes several issues with the dmap glTF2 workflow and updates TrenchBroomBFG to the latest TrenchBroom 2022.2 RC2 candidate code.
+
+Changelog:
+
+* Inline support for gltf maps; Add "inline" "0" property to a func_static to not inlude it in the map BSP. Defaults to 1 if not set.
+
+* Recursive Entity/Collection support for glTF2 maps
+
+* KHR_lights_punctual point & spot light support
+
+TrenchBroomBFG Changelog:
+
+* Fixed missing support for the basecolormap shortcut in .mtr files
+
+Changelog (since TrenchBroom 2022.1)
+Features
+
+    #3449, #2628, #719: Add support for modern model formats via the assimp library (@EludeQ)
+
+Enhancements
+
+    #4078: Allow texture reset shortcut in 2D views
+    #4059: Allow texture nudging etc. on a shift-clicked face while in vertex, edge or face mode
+
+Bug fixes
+
+    #4045: Don't crash when showing a file dialog on Linux
+    #4038: Repair model expressions that reference a non-existing spawnflags property
+    #4051: Disallow adding entity property if it leads to inconsistent linked group updates
+    #4059: Don't crash if linked groups temporarily exceed world bounds during update
+    #4089: Fix shortcuts sometimes not working
+    #4113: Don't move unrelated objects when creating a point entity
+    #4125: Don't render hidden patches
+    #4100: Don't hang if a brush cannot be loaded
+
+
+
+
 ## .plan - Oct 20, 2022
 
 This build based on the 635-nvrhi3 branch fixes several issues in the AAS builder with the dmap glTF2 workflow.
