@@ -27,6 +27,9 @@ Special thanks to Steven Pridham and Steve Saunders to get this running on Linux
 
 For the overall NVRHI state see the task board: https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects/8
 
+Besides that TrenchBroomBFG comes with a few fixes. The icon size option also affects the entity inspector now which helps with high resolutions.
+Also the DOOM-3-all.fgd contains all generated static meshes so you can drag n drop meshes into your map without the models zoomap.
+
 Changelog:
 
 * Write constant buffers if changed or layout changed
@@ -70,6 +73,17 @@ Changelog:
 * Added TrenchBroom FGD files
 
 * exportFGD proxymodel fix
+
+
+TrenchBroomBFG Changelog:
+
+* Updated DOOM-3-all.fgd to contain all genmodel entities generated from static meshes
+
+* func_door FGD fix
+
+* Use Icon size preferences in entity browser
+
+* FGD proxymodel evaluation fix #4052
 
 
 
