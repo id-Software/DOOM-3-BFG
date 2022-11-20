@@ -1575,9 +1575,6 @@ void idRenderBackend::GL_EndFrame()
 
 	deviceManager->GetDevice()->executeCommandList( commandList );
 
-	// Make sure that all frames have finished rendering
-	deviceManager->GetDevice()->waitForIdle();
-
 	// required for Vulkan: transition our swap image to present
 	deviceManager->EndFrame();
 
@@ -1594,6 +1591,9 @@ We want to exit this with the GPU idle, right at vsync
 */
 void idRenderBackend::GL_BlockingSwapBuffers()
 {
+	// Make sure that all frames have finished rendering
+	deviceManager->GetDevice()->waitForIdle();
+
 	// Release all in-flight references to the render targets
 	deviceManager->GetDevice()->runGarbageCollection();
 
