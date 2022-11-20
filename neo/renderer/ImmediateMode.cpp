@@ -138,7 +138,7 @@ void fhImmediateMode::End()
 	vertexBuffer.Update( drawVerts, drawVertsUsed * sizeof( idDrawVert ), 0, false, commandList );
 	indexBuffer.Update( lineIndices, drawVertsUsed * sizeof( triIndex_t ), 0, false, commandList );
 
-	renderProgManager.CommitConstantBuffer( commandList );
+	renderProgManager.CommitConstantBuffer( commandList, true );
 
 	int bindingLayoutType = renderProgManager.BindingLayoutType();
 

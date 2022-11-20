@@ -1017,7 +1017,7 @@ public:
 	int			UniformSize();
 
 #if defined( USE_NVRHI )
-	bool									CommitConstantBuffer( nvrhi::ICommandList* commandList );
+	bool									CommitConstantBuffer( nvrhi::ICommandList* commandList, bool bindingLayoutTypeChanged );
 
 	ID_INLINE nvrhi::IBuffer*				ConstantBuffer()
 	{

@@ -469,12 +469,15 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 #endif
 
-	if( renderProgManager.CommitConstantBuffer( commandList ) )
+	if( renderProgManager.CommitConstantBuffer( commandList, bindingLayoutType != prevBindingLayoutType ) )
 	{
-		// Reset the graphics state if the constant buffer is written to since
-		// the render pass is ended for vulkan. setGraphicsState will
-		// reinstate the render pass.
-		changeState = true;
+		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+		{
+			// Reset the graphics state if the constant buffer is written to since
+			// the render pass is ended for vulkan. setGraphicsState will
+			// reinstate the render pass.
+			changeState = true;
+		}
 	}
 
 	//
@@ -1421,12 +1424,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 		else
 		{
-			desc[0].bindings[0].resourceHandle = paramCb;
-			desc[0].bindings[0].range = range;
 			auto& bindings = desc[0].bindings;
-			bindings[0].resourceHandle = paramCb;
-			bindings[0].range = range;
-
 			bindings[0].resourceHandle = paramCb;
 			bindings[0].range = range;
 

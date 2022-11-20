@@ -289,7 +289,7 @@ void BasicTriangle::Render( nvrhi::IFramebuffer* framebuffer )
 		renderProgManager.SetRenderParm( renderParm_t::RENDERPARM_PROJMATRIX_W, &projMat[12] );
 	}
 
-	renderProgManager.CommitConstantBuffer( commandList );
+	renderProgManager.CommitConstantBuffer( commandList, true );
 
 	idVertexBuffer* vertexBuffer;
 	uint vertOffset = 0;
