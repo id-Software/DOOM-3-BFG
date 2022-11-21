@@ -20,8 +20,10 @@ _______________________________
 
 ## .plan - Nov 20, 2022
 
-This build based on the 635-nvrhi5 allows to play the game with the NVRHI Vulkan backend.
+This build based on the 635-nvrhi5 branch allows to play the game with the NVRHI Vulkan backend.
 You can switch to Vulkan by starting the engine with +set r_graphicsAPI vulkan.
+
+Also this build is for testing Vulkan it seems that the current changes make RBDOOM-3-BFG the fastest version ever with DX12.
 
 Special thanks to Steven Pridham and Steve Saunders to get this running on Linux and macOS.
 
