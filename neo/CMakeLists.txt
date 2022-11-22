@@ -26,14 +26,8 @@ option(COMPILE_COMMANDS
 option(USE_PRECOMPILED_HEADERS
 		"Use precompiled headers during build" ON)
 		
-option(SDL2
-		"Use SDL2 instead of SDL1.2" ON)
-		
 option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
-
-option(USE_VULKAN
-		"Use deprecated Vulkan backend instead of OpenGL" OFF)
 
 option(SPIRV_SHADERC
 		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
@@ -61,9 +55,6 @@ option(USE_SYSTEM_LIBGLEW
 
 option(USE_SYSTEM_RAPIDJSON
                 "Use the system rapidjson instead of the bundled one" OFF)
-
-option(USE_NVRHI
-				"Use the NVRHI rendering library" ON)
 
 option(USE_DX12
 				"Use DirectX 12" ON)
@@ -102,6 +93,10 @@ endif()
 if(UNIX)
 	set(OPENAL ON)
 	set(USE_DX12 OFF)
+	set(USE_NVRHI_VULKAN ON)
+	set(USE_NVRHI ON)
+	#set(FFMPEG OFF)
+	#set(BINKDEC ON)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
     if((CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
@@ -109,25 +104,6 @@ if(UNIX)
 	  (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64") OR  (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x64")) 
         set(USE_PRECOMPILED_HEADERS OFF)
     endif()
-
-	if(USE_VULKAN)
-		# SRS - handle legacy Vulkan backend first to support existing cmake scripts
-		set(USE_NVRHI OFF)
-		set(USE_NVRHI_VULKAN OFF)
-		set(SDL2 ON)
-		
-		# RB: disable precompiled headers on Linux with Vulkan because of error: POSIX thread support was disabled in PCH file but is currently enabled
-		if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-            set(USE_PRECOMPILED_HEADERS OFF)
-        endif()
-	elseif(USE_NVRHI_VULKAN)
-		# SRS - for new NVRHI backend on linux/macOS
-		set(USE_NVRHI ON)
-		set(SDL2 ON)
-	else()
-		# SRS - for legacy OpenGL backend
-		set(USE_NVRHI OFF)
-	endif()
 endif()
 
 if(COMPILE_COMMANDS)
@@ -375,90 +351,7 @@ macro(SET_OPTION option value)
   set(${option} ${value} CACHE "" INTERNAL FORCE)
 endmacro()
 
-if(USE_VULKAN)
-
-	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
-	# which causes all kinds of weird segmentation faults because struct sizes don't match
- 
-    # SRS - Set default VULKAN_SDK location if environment variable not defined on OSX
-    if(APPLE AND NOT DEFINED ENV{VULKAN_SDK})
-        if(NOT USE_MoltenVK)
-            # SRS - Vulkan SDK installer copies standard vulkan headers and libs to /usr/local on OSX
-            set(ENV{VULKAN_SDK} /usr/local)
-        else()
-            message(FATAL_ERROR "Must define VULKAN_SDK location if USE_MoltenVK option enabled!")
-        endif()
-    endif()
-
-	if(SPIRV_SHADERC)
-		add_definitions(-DSPIRV_SHADERC)
-
-		# SRS - Add case for UNIX/OSX
-		if(CMAKE_CL_64 OR UNIX)
-			link_directories($ENV{VULKAN_SDK}/Lib)
-		else()
-			link_directories($ENV{VULKAN_SDK}/Lib32)
-		endif()
-
-	else()
-		# override Glslang build options
-		
-		# options required by November 2018 release
-		SET_OPTION(ENABLE_SPVREMAPPER ON)
-		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
-		SET_OPTION(ENABLE_HLSL OFF)
-		SET_OPTION(ENABLE_OPT ON)
-		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
-		
-		# options required by July 2020 release
-		SET_OPTION(ENABLE_PCH OFF)
-		SET_OPTION(ENABLE_CTEST OFF)
-		SET_OPTION(BUILD_EXTERNAL OFF)
-		SET_OPTION(SKIP_GLSLANG_INSTALL ON)
-
-		#add_definitions(-DGLSLANG_MINOR_VERSION=13)
-	
-		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
-		add_subdirectory(${GLSLANG_DIR})
-	
-		include_directories(${GLSLANG_DIR})
-		
-		#link_directories($ENV{VULKAN_SDK}/Lib)
-	endif()
-
-	# Use FindVulkan module added with CMAKE 3.7
-	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
-		message( STATUS "Using module to find Vulkan" )
-		find_package(Vulkan)
-	endif()
-
-	if(NOT Vulkan_FOUND)
-		message(FATAL_ERROR "Could not find Vulkan library!")
-	else()
-        add_definitions(-DUSE_VULKAN)
-        include_directories($ENV{VULKAN_SDK}/include)
-
-        if(APPLE)
-            # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
-            add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-            # SRS - Optionally link directly to MoltenVK headers/library for runtime config functions on OSX
-            if(USE_MoltenVK)
-                add_definitions(-DUSE_MoltenVK)
-                include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
-                set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVK.dylib CACHE FILEPATH "Path to MoltenVK library." FORCE)
-            endif()
-		endif()
-		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
-	endif()
-	
-	# Eric: For use with SDL2/Vulkan
-	if(UNIX)
-        # SRS - For UNIX-like target OSs use the generic SDL Vulkan platform
-        add_definitions(-DVULKAN_USE_PLATFORM_SDL)
-	elseif(WIN32)
-		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
-	endif()
-elseif(USE_NVRHI_VULKAN)
+if(USE_NVRHI_VULKAN)
 	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
 	# which causes all kinds of weird segmentation faults because struct sizes don't match
  
@@ -480,6 +373,11 @@ elseif(USE_NVRHI_VULKAN)
 
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
+		#find_library(Vulkan_LIBRARY NAMES vulkan-1 vulkan PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
+		#if(Vulkan_LIBRARY)
+		#	set(Vulkan_FOUND ON)
+		#	message("Using bundled Vulkan library version")
+		#endif()
 	else()
         include_directories($ENV{VULKAN_SDK}/include)
 
@@ -529,35 +427,29 @@ else()
 	endif()
 endif()
 
-if(USE_NVRHI)
-    set(NVRHI_WITH_DX11 "${USE_DX11}" CACHE BOOL "" FORCE)
-    set(NVRHI_WITH_DX12 "${USE_DX12}" CACHE BOOL "" FORCE)
-    set(NVRHI_WITH_VULKAN "${USE_NVRHI_VULKAN}" CACHE BOOL "" FORCE)
+set(NVRHI_WITH_DX11 "${USE_DX11}" CACHE BOOL "" FORCE)
+set(NVRHI_WITH_DX12 "${USE_DX12}" CACHE BOOL "" FORCE)
+set(NVRHI_WITH_VULKAN "${USE_NVRHI_VULKAN}" CACHE BOOL "" FORCE)
 
-	set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
-	add_subdirectory(${NVRHI_DIR})
-	add_definitions(-DUSE_NVRHI)
+set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
+add_subdirectory(${NVRHI_DIR})
+add_definitions(-DUSE_NVRHI)
 
-	if(USE_DX11)
-        find_package(FXC REQUIRED)
-    endif()
+if(USE_DX11)
+	find_package(FXC REQUIRED)
+endif()
 
-    if(USE_DX12)
-        find_package(DXCdxil REQUIRED)
-        set(USE_DXIL_ON_DX12 TRUE CACHE BOOL "Use DXC to compile DXIL shaders on DX12 - otherwise FXC and DXBC")
-    endif()
+if(USE_DX12)
+	find_package(DXCdxil REQUIRED)
+	set(USE_DXIL_ON_DX12 TRUE CACHE BOOL "Use DXC to compile DXIL shaders on DX12 - otherwise FXC and DXBC")
+endif()
 
-    if(USE_NVRHI_VULKAN)
-        find_package(DXCspirv REQUIRED)
-    endif()
+if(USE_NVRHI_VULKAN)
+	find_package(DXCspirv REQUIRED)
+endif()
 
-    include_directories(${NVRHI_DIR}/include)
-else()
-	# SRS - This may be needed for legacy backends since common code now uses nvrhi - TBD
-	#set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
-	#add_subdirectory(${NVRHI_DIR})
-    #include_directories(${NVRHI_DIR}/include)
-endif(USE_NVRHI)
+include_directories(${NVRHI_DIR}/include)
+
 
 if(USE_SYSTEM_RAPIDJSON)
 find_package(rapidjson REQUIRED)
@@ -1194,21 +1086,14 @@ file(GLOB COMMON_SOURCES sys/common/*.cpp)
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
-# Eric: Utilize either the Vulkan or GL implementation of SDL
 if(UNIX)
-    if(USE_VULKAN OR USE_NVRHI_VULKAN)
+    #if(USE_VULKAN OR USE_NVRHI_VULKAN)
 		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
 		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
-	else()
-		get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
-		list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
-	endif()
-	if(NOT USE_NVRHI)
-		get_filename_component(devicemanager_h_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager.h ABSOLUTE)
-		list(REMOVE_ITEM SYS_INCLUDES "${devicemanager_h_full_path}")
-		get_filename_component(devicemanager_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager.cpp ABSOLUTE)
-		list(REMOVE_ITEM SYS_SOURCES "${devicemanager_cpp_full_path}")
-	endif()
+	#else()
+	#	get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
+	#	list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
+	#endif()
 endif()
 
 source_group("aas" FILES ${AAS_INCLUDES})
@@ -1604,33 +1489,11 @@ if(MSVC)
 		include_directories(${DirectX_INCLUDE_DIR})
 	endif()
 	
-	if(USE_VULKAN)
-		list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
-		
-		set(Vulkan_LIBRARIES 
-			${Vulkan_LIBRARY})
-
-		if(SPIRV_SHADERC)
-			list(APPEND Vulkan_LIBRARIES shaderc_combined)
-		else()
-			list(APPEND Vulkan_LIBRARIES glslang SPIRV)
-
-			if(ENABLE_GLSLANG_BINARIES)
-				list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
-			endif()
-		endif()
-	elseif(USE_DX12)
+	if(USE_DX12)
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
 
-		set(OpenGL_LIBRARIES
-			opengl32
-			glu32)
-	else()
-		list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
-		
+		# RB: TODO REMOVE
 		set(OpenGL_LIBRARIES
 			opengl32
 			glu32)
@@ -1819,15 +1682,9 @@ else()
 			link_directories(${FFMPEG_LIBRARIES_DIRS})
 		endif()
 
-		if(SDL2)
-			find_package(SDL2 REQUIRED)
-			include_directories(${SDL2_INCLUDE_DIRS})
-			set(SDLx_LIBRARY ${SDL2_LIBRARIES})
-		else()
-			find_package(SDL REQUIRED)
-			include_directories(${SDL_INCLUDE_DIR})
-			set(SDLx_LIBRARY ${SDL_LIBRARY})
-		endif()
+		find_package(SDL2 REQUIRED)
+		include_directories(${SDL2_INCLUDE_DIRS})
+		set(SDLx_LIBRARY ${SDL2_LIBRARIES})
 
         if(APPLE)
 			list(REMOVE_ITEM POSIX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/platform_linux.cpp)
@@ -1864,35 +1721,11 @@ else()
 			endif()
 		endif()
 		
-		if(USE_VULKAN)
-            list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
-            list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
-            
-            set(Vulkan_LIBRARIES 
-            	${Vulkan_LIBRARY})
-
-			# SRS - Added UNIX/OSX support for shaderc
-			if(SPIRV_SHADERC)
-				list(APPEND Vulkan_LIBRARIES shaderc_combined)
-			else()
-				list(APPEND Vulkan_LIBRARIES glslang SPIRV)
-
-                if(ENABLE_GLSLANG_BINARIES)
-                    list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
-                endif()
-            endif()
-        elseif(USE_NVRHI_VULKAN)
+		if(USE_NVRHI_VULKAN)
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
 
-            set(Vulkan_LIBRARIES
-            	${Vulkan_LIBRARY})
-        else()
-			find_package(OpenGL REQUIRED)
-			include_directories(${OPENGL_INCLUDE_DIRS})
-
-            list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
-            list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
+            #set(Vulkan_LIBRARIES ${Vulkan_LIBRARY})
         endif()
 			
 	endif()
@@ -1985,8 +1818,8 @@ else()
 
 		target_link_libraries(RBDoom3BFG
 			idlib
-			${Vulkan_LIBRARIES}
-			${OPENGL_LIBRARIES}
+			${Vulkan_LIBRARY}
+			#${OPENGL_LIBRARIES}
 			pthread
 			${RT_LIBRARY}
 			${SDLx_LIBRARY}
@@ -2016,6 +1849,7 @@ if(USE_NVRHI_VULKAN)
 endif()
 
 if(USE_NVRHI)
+	# needs to come after nvrhi_d3d11 etc. for link order
 	target_link_libraries(RBDoom3BFG nvrhi)
 
 	add_subdirectory(shaders)
