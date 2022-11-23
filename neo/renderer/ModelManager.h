@@ -70,6 +70,7 @@ public:
 	bool					clearOrigin;
 	bool					clearOriginAxis;
 	bool					addOrigin;
+	idStr					transferRootMotion;
 	bool					ignoreScale;
 	int						startframe;
 	int						endframe;

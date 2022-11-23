@@ -1130,25 +1130,26 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 	idStr		destDir;
 
 	//Reset( commandline );
-	scale			= 1.0f;
-	//type			= WRITE_MESH;
-	startframe		= -1;
-	endframe		= -1;
-	ignoreMeshes	= false;
-	clearOrigin		= false;
-	clearOriginAxis	= false;
-	addOrigin		= false;
-	framerate		= 24;
-	align			= "";
-	rotate			= 0.0f;
-	commandLine		= commandline;
-	prefix			= "";
-	jointThreshold	= 0.05f;
-	ignoreScale		= false;
-	xyzPrecision	= DEFAULT_ANIM_EPSILON;
-	quatPrecision	= DEFAULT_QUAT_EPSILON;
-	cycleStart		= -1;
-	reOrient		= ang_zero;
+	scale				= 1.0f;
+	//type				= WRITE_MESH;
+	startframe			= -1;
+	endframe			= -1;
+	ignoreMeshes		= false;
+	clearOrigin			= false;
+	clearOriginAxis		= false;
+	addOrigin			= false;
+	transferRootMotion	= "";
+	framerate			= 24;
+	align				= "";
+	rotate				= 0.0f;
+	commandLine			= commandline;
+	prefix				= "";
+	jointThreshold		= 0.05f;
+	ignoreScale			= false;
+	xyzPrecision		= DEFAULT_ANIM_EPSILON;
+	quatPrecision		= DEFAULT_QUAT_EPSILON;
+	cycleStart			= -1;
+	reOrient			= ang_zero;
 
 	src.Clear();
 	dest.Clear();
@@ -1303,6 +1304,11 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 			{
 				addOrigin = true;
 			}
+			else if( token == "transfermotion" )
+			{
+				token = tokens.NextToken( "Missing value for -transfermotion.  Usage: -transfermotion [bonename]" );
+				transferRootMotion = token;
+			}
 			else if( token == "ignorescale" )
 			{
 				ignoreScale = true;
@@ -1431,13 +1437,13 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 					float x = atof( tokens.NextToken() );
 					float y = atof( tokens.NextToken() );
 					float z = atof( tokens.NextToken() );
+					reOrient = idAngles( x, y, z );
 					token = tokens.NextToken();
 					if( token[0] == '-' )
 					{
 						tokens.UnGetToken();
 						break;
 					}
-					reOrient = idAngles( x, y, z );
 				}
 			}
 			else
