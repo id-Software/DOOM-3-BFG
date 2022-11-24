@@ -262,7 +262,7 @@ static void RemapNodes( gltfData* data, const idList<idNamePair>& remapList, con
 	}
 }
 
-static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones, gltfNode* root, gltfNode* motionTarget )
+static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones, gltfNode* root )
 {
 	//we need to be _very_ careful with modifying the GLTF data since it is not saved or cached!!!
 	auto& nodeList = data->NodeList();
@@ -271,16 +271,6 @@ static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones, gltfNod
 	bones.Insert( newIdx );
 	newNode->name = "origin";
 
-	if( motionTarget )
-	{
-		newNode->translation = motionTarget->translation;
-		newNode->translation.y = 0;
-		motionTarget->translation.x = 0;
-		motionTarget->translation.z = 0;
-
-		newNode->rotation = motionTarget->rotation;
-		motionTarget->rotation = mat3_identity.ToQuat();
-	}
 
 	//patch children
 	for( int childId : root->children )
@@ -332,7 +322,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	name = fileName;
 	currentSkin = nullptr;
 	idImportOptions* localOptions = nullptr;
-	
+
 	PurgeModel();
 
 	//FIXME FIXME FIXME
@@ -438,13 +428,8 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 				}
 				if( localOptions->addOrigin )
 				{
-					gltfNode* motionTarget = nullptr;
-					if( !localOptions->transferRootMotion.IsEmpty() )
-					{
-						motionTarget = data->GetNode( localOptions->transferRootMotion );
-					}
 
-					AddOriginBone( data, bones, nodes[bones[0]]->parent, motionTarget );
+					AddOriginBone( data, bones, nodes[bones[0]]->parent );
 				}
 				if( localOptions->remapjoints.Num() )
 				{
@@ -780,13 +765,8 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idLis
 		}
 		if( options->addOrigin )
 		{
-			gltfNode* motionTarget = nullptr;
-			if( !options->transferRootMotion.IsEmpty() )
-			{
-				motionTarget = data->GetNode( options->transferRootMotion );
-			}
 
-			AddOriginBone( data, bones, data->NodeList()[bones[0]]->parent, motionTarget );
+			AddOriginBone( data, bones, data->NodeList()[bones[0]]->parent );
 		}
 		if( options->remapjoints.Num() )
 		{
@@ -1037,14 +1017,13 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 
 	if( options && !options->transferRootMotion.IsEmpty() )
 	{
-		rootMotionCopyTargetId = data->GetNodeIndex( data->GetNode( options->transferRootMotion ) );
 		jointAnimInfo_t* newJoint = &( jointInfo[0] );
-		newJoint->animBits = ANIM_TX | ANIM_TY | ANIM_TZ | ANIM_QX | ANIM_QY | ANIM_QZ;
-		numAnimatedComponents += 6;
-		newJoint->firstComponent = -6;
+		newJoint->animBits = ANIM_TX | ANIM_TY | ANIM_TZ;
+		numAnimatedComponents += 3;
+		newJoint->firstComponent = -3;
 		for( auto& joint : jointInfo )
 		{
-			joint.firstComponent += 6;
+			joint.firstComponent += 3;
 		}
 	}
 
