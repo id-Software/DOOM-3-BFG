@@ -59,7 +59,7 @@ option(USE_SYSTEM_RAPIDJSON
 option(USE_DX12
 				"Use DirectX 12" ON)
 
-option(USE_NVRHI_VULKAN
+option(USE_VULKAN
 				"Use Vulkan" ON)
 
 set(NVRHI_INSTALL OFF)
@@ -93,7 +93,7 @@ endif()
 if(UNIX)
 	set(OPENAL ON)
 	set(USE_DX12 OFF)
-	set(USE_NVRHI_VULKAN ON)
+	set(USE_VULKAN ON)
 	set(USE_NVRHI ON)
 	#set(FFMPEG OFF)
 	#set(BINKDEC ON)
@@ -351,7 +351,7 @@ macro(SET_OPTION option value)
   set(${option} ${value} CACHE "" INTERNAL FORCE)
 endmacro()
 
-if(USE_NVRHI_VULKAN)
+if(USE_VULKAN)
 	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
 	# which causes all kinds of weird segmentation faults because struct sizes don't match
  
@@ -429,7 +429,7 @@ endif()
 
 set(NVRHI_WITH_DX11 "${USE_DX11}" CACHE BOOL "" FORCE)
 set(NVRHI_WITH_DX12 "${USE_DX12}" CACHE BOOL "" FORCE)
-set(NVRHI_WITH_VULKAN "${USE_NVRHI_VULKAN}" CACHE BOOL "" FORCE)
+set(NVRHI_WITH_VULKAN "${USE_VULKAN}" CACHE BOOL "" FORCE)
 
 set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
 add_subdirectory(${NVRHI_DIR})
@@ -444,7 +444,7 @@ if(USE_DX12)
 	set(USE_DXIL_ON_DX12 TRUE CACHE BOOL "Use DXC to compile DXIL shaders on DX12 - otherwise FXC and DXBC")
 endif()
 
-if(USE_NVRHI_VULKAN)
+if(USE_VULKAN)
 	find_package(DXCspirv REQUIRED)
 endif()
 
@@ -749,7 +749,7 @@ if(NOT USE_DX12)
 	list(REMOVE_ITEM SYS_SOURCES "${devicemanager_dx12_cpp_full_path}")
 endif()
 
-if(NOT USE_NVRHI_VULKAN)
+if(NOT USE_VULKAN)
 	get_filename_component(devicemanager_vk_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_VK.cpp ABSOLUTE)
 	list(REMOVE_ITEM SYS_SOURCES "${devicemanager_vk_cpp_full_path}")
 endif()
@@ -1087,7 +1087,7 @@ file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
 if(UNIX)
-    #if(USE_VULKAN OR USE_NVRHI_VULKAN)
+    #if(USE_VULKAN OR USE_VULKAN)
 		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
 		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
 	#else()
@@ -1632,7 +1632,7 @@ if(MSVC)
 		add_dependencies(RBDoom3BFG nvrhi_d3d12)
 	endif()
 	
-	if(USE_NVRHI_VULKAN)
+	if(USE_VULKAN)
 		add_dependencies(RBDoom3BFG nvrhi_vk)
 	endif()
 	target_link_libraries(RBDoom3BFG
@@ -1721,7 +1721,7 @@ else()
 			endif()
 		endif()
 		
-		if(USE_NVRHI_VULKAN)
+		if(USE_VULKAN)
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
 
@@ -1800,7 +1800,7 @@ else()
 
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
 
-	if(USE_NVRHI_VULKAN)
+	if(USE_VULKAN)
         add_dependencies(RBDoom3BFG nvrhi_vk)
     endif()
 	if (USE_PRECOMPILED_HEADERS)
@@ -1843,15 +1843,15 @@ if(USE_DXIL_ON_DX12)
 	target_compile_definitions(RBDoom3BFG PRIVATE USE_DXIL_ON_DX12=1)
 endif()
 
-if(USE_NVRHI_VULKAN)
+if(USE_VULKAN)
 	target_compile_definitions(RBDoom3BFG PUBLIC USE_VK=1)
 	target_link_libraries(RBDoom3BFG nvrhi_vk)
 endif()
 
-if(USE_NVRHI)
-	# needs to come after nvrhi_d3d11 etc. for link order
-	target_link_libraries(RBDoom3BFG nvrhi)
 
-	add_subdirectory(shaders)
-	add_dependencies(RBDoom3BFG Shaders)
-endif()
+# needs to come after nvrhi_d3d11 etc. for link order
+target_link_libraries(RBDoom3BFG nvrhi)
+
+add_subdirectory(shaders)
+add_dependencies(RBDoom3BFG Shaders)
+
