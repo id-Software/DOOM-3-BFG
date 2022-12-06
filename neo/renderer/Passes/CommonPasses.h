@@ -78,7 +78,7 @@ protected:
 
 	struct PsoCacheKey
 	{
-		nvrhi::FramebufferInfo fbinfo;
+		nvrhi::FramebufferInfoEx fbinfo;
 		nvrhi::IShader* shader;
 		nvrhi::BlendState::RenderTarget blendState;
 
