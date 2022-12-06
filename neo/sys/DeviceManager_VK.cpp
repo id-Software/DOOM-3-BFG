@@ -839,6 +839,7 @@ bool DeviceManager_VK::createDevice()
 							.setDescriptorBindingVariableDescriptorCount( true )
 							.setTimelineSemaphore( true )
 							.setShaderSampledImageArrayNonUniformIndexing( true )
+							.setBufferDeviceAddress( bufferAddressSupported )
 							.setPNext( pNext );
 
 	auto layerVec = stringSetToVector( enabledExtensions.layers );
