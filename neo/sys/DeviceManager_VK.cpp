@@ -30,6 +30,10 @@
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
+// SRS - optionally needed for VK_MVK_MOLTENVK_EXTENSION_NAME and MoltenVK runtime config visibility
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+	#include <MoltenVK/vk_mvk_moltenvk.h>
+#endif
 #include <nvrhi/validation.h>
 
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
@@ -1034,12 +1038,16 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 		enabledExtensions.instance.insert( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 		enabledExtensions.layers.insert( "MoltenVK" );
+	}
+
+	// SRS - when USE_MoltenVK defined, load libMoltenVK vs. the default libvulkan
+	const vk::DynamicLoader dl( "libMoltenVK.dylib" );
 #else
 		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
-#endif
 	}
 
 	const vk::DynamicLoader dl;
+#endif
 	const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =   // NOLINT(misc-misplaced-const)
 		dl.getProcAddress<PFN_vkGetInstanceProcAddr>( "vkGetInstanceProcAddr" );
 	VULKAN_HPP_DEFAULT_DISPATCHER.init( vkGetInstanceProcAddr );
@@ -1075,6 +1083,36 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	CHECK( createWindowSurface() );
 	CHECK( pickPhysicalDevice() );
 	CHECK( findQueueFamilies( m_VulkanPhysicalDevice, m_WindowSurface ) );
+	
+	// SRS - when USE_MoltenVK defined, set MoltenVK runtime configuration parameters on macOS
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+	vk::PhysicalDeviceFeatures2 deviceFeatures2;
+	vk::PhysicalDevicePortabilitySubsetFeaturesKHR portabilityFeatures;
+	deviceFeatures2.setPNext( &portabilityFeatures );
+	m_VulkanPhysicalDevice.getFeatures2( &deviceFeatures2 );
+
+	MVKConfiguration    pConfig;
+	size_t              pConfigSize = sizeof( pConfig );
+
+	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+
+	// SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
+	if( portabilityFeatures.imageViewFormatSwizzle == VK_FALSE )
+	{
+		idLib::Printf( "Enabling MoltenVK's image view swizzle...\n" );
+		pConfig.fullImageViewSwizzle = VK_TRUE;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+	}
+
+	// SRS - Turn MoltenVK's Metal argument buffer feature on for descriptor indexing only
+	if( pConfig.useMetalArgumentBuffers == MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_NEVER )
+	{
+		idLib::Printf( "Enabling MoltenVK's Metal argument buffers for descriptor indexing...\n" );
+		pConfig.useMetalArgumentBuffers = MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_DESCRIPTOR_INDEXING;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+	}
+#endif
+
 	CHECK( createDevice() );
 
 	auto vecInstanceExt = stringSetToVector( enabledExtensions.instance );

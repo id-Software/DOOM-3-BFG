@@ -41,10 +41,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
-// SRS - optinally needed for VK_MVK_MOLTENVK_EXTENSION_NAME visibility
-#if defined(__APPLE__) && defined(USE_MoltenVK)
-	#include <MoltenVK/vk_mvk_moltenvk.h>
-#endif
 #include <vector>
 
 #include "renderer/RenderCommon.h"
