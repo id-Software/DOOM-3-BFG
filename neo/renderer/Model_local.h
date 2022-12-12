@@ -218,7 +218,7 @@ class idRenderModelMD5 : public idRenderModelStatic
 {
 	friend class				idRenderModelGLTF;
 public:
-	void				InitFromFile( const char* fileName, const idImportOptions* options );
+	void				InitFromFile( const char* fileName, const idImportOptions* options ) override;
 	bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) override;
 	void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const override;
 	dynamicModel_t		IsDynamicModel() const override;
