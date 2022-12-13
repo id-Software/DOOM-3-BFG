@@ -891,6 +891,16 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
 
+	idStr lastGltfFileName = idStr(lastMeshFromFile->name);
+	idStr lastName;
+	gltfManager::ExtractIdentifier(lastGltfFileName, id, lastName);
+
+	if (lastGltfFileName != gltfFileName)
+	{
+		common->Warning("Last loaded mesh was not the same file as the current animation");
+		return nullptr;
+	}
+
 	gltfNode* nodeRoot = nodes[lastMeshFromFile->rootID];
 	int boneRootNode = lastMeshFromFile->rootID;
 	if( nodeRoot->skin > -1 )
