@@ -890,27 +890,62 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	gltfData* data = gltf.currentAsset;
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
+	int rootID = -1;
 
-	idStr lastGltfFileName = idStr(lastMeshFromFile->name);
+	idStr lastGltfFileName = idStr( lastMeshFromFile->name );
 	idStr lastName;
-	gltfManager::ExtractIdentifier(lastGltfFileName, id, lastName);
+	gltfManager::ExtractIdentifier( lastGltfFileName, id, lastName );
 
-	if (lastGltfFileName != gltfFileName)
+	if( options != nullptr && !options->armature.IsEmpty() )
 	{
-		common->Warning("Last loaded mesh was not the same file as the current animation");
+		gameLocal.Printf( "Looking for armature %s\n", options->armature.c_str() );
+		gltfSkin* skin = data->GetSkin( options->armature );
+		if( skin && ( skin->skeleton > -1 && skin->skeleton < nodes.Num() ) )
+		{
+			rootID = nodes[skin->skeleton]->children[0];
+		}
+
+	}
+	else if( lastMeshFromFile == nullptr || lastGltfFileName != gltfFileName )
+	{
+		//treat the gltf file as one that only has 1 scene and 1 model, aka a fileExclusive model and
+		//try to use node from first model in first scene in gltf file
+		common->Warning( "Loading %s as if it was a gltf with only 1 mesh, 1 scene and 1 armature", gltfFileName.c_str() );
+		if( data->MeshList().Num() < 1 || data->SceneList().Num() < 1 )
+		{
+			common->Warning( "Could not determine root" );
+			return nullptr;
+		}
+		gltfMesh* firstMesh = data->MeshList()[0];
+		gltfScene* scenePtr = data->SceneList()[0];
+
+		gltfNode* root = data->GetNode( scenePtr, firstMesh, &rootID );
+		if( root )
+		{
+			rootID = data->GetNodeIndex( root );
+		}
+	}
+	else
+	{
+		rootID = lastMeshFromFile->rootID;
+	}
+
+	if( rootID == -1 )
+	{
+		common->Warning( "Could not determine root" );
 		return nullptr;
 	}
 
-	gltfNode* nodeRoot = nodes[lastMeshFromFile->rootID];
-	int boneRootNode = lastMeshFromFile->rootID;
-	if( nodeRoot->skin > -1 )
+	gltfNode* nodeRoot = nodes[rootID];
+	if( rootID == -1 && nodeRoot->skin > -1 )
 	{
-		boneRootNode = nodes[data->SkinList()[nodeRoot->skin]->skeleton]->children[0];
+		rootID = nodes[data->SkinList()[nodeRoot->skin]->skeleton]->children[0];
 	}
 
-	auto gltfAnim = data->GetAnimation( name, boneRootNode );
+	auto gltfAnim = data->GetAnimation( name, rootID );
 	if( !gltfAnim )
 	{
+		common->Warning( "Could not find action %s in %s !", name.c_str(), gltfFileName.c_str() );
 		return nullptr;
 	}
 

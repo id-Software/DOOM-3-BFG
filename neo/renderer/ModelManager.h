@@ -89,6 +89,7 @@ public:
 	float					jointThreshold;
 	int						cycleStart;
 	idAngles				reOrient;
+	idStr					armature;
 
 	void Init( const char* commandline, const char* ospath );
 

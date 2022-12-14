@@ -1150,6 +1150,7 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 	quatPrecision		= DEFAULT_QUAT_EPSILON;
 	cycleStart			= -1;
 	reOrient			= ang_zero;
+	armature			= "";
 
 	src.Clear();
 	dest.Clear();
@@ -1445,6 +1446,10 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 						break;
 					}
 				}
+			}
+			else if( token == "armature" )
+			{
+				armature = tokens.NextToken( "Missing skin name for -armature.  Usage: -armature [gltfSkin name]" );
 			}
 			else
 			{

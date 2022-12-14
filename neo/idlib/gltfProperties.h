@@ -1051,6 +1051,19 @@ public:
 		}
 	}
 
+	gltfSkin* GetSkin( idStr name )
+	{
+		for( auto skin : skins )
+		{
+			if( skin->name == name )
+			{
+				return skin;
+			}
+		}
+
+		return nullptr;
+	}
+
 	gltfSkin* GetSkin( int boneNodeId )
 	{
 		for( auto skin : skins )
