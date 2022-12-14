@@ -208,14 +208,33 @@ bool idMD5Anim::LoadAnim( const char* filename, const idImportOptions* options )
 	{
 		sourceTimeStamp = fileSystem->GetTimestamp( filename );
 	}
-
-	// glTF2 animations will be saved straight to .bMD5anim files instead of the old ASCII format
-	idFile* fileptr = fileSystem->OpenFileReadMemory( generatedFileName );
+	
+	idFile* fileptr = nullptr;
 	bool doWrite = false;
-	if( fileptr == nullptr && isGLTF )
+
+	// glTF2 animations will be saved straight to .bMD5anim files instead of the old ASCII format,
+	// so to correctly regenerate newly exported animations, we need to check here.
+	ID_TIME_T binTimeStamp = fileSystem->GetTimestamp( generatedFileName );
+	if( isGLTF )
 	{
-		fileptr = idRenderModelGLTF::GetAnimBin( filenameStr, sourceTimeStamp, options );
-		doWrite = fileptr != nullptr;
+		if (sourceTimeStamp < binTimeStamp)
+		{
+			fileptr = fileSystem->OpenFileReadMemory(generatedFileName);
+		}
+		else
+		{
+			idLib::Printf( "Regenerating %s\n", generatedFileName.c_str() );
+		}
+
+		if( fileptr == nullptr )
+		{
+			fileptr = idRenderModelGLTF::GetAnimBin( filenameStr, sourceTimeStamp, options );
+			doWrite = fileptr != nullptr;
+		}
+	}
+	else
+	{
+		fileptr = fileSystem->OpenFileReadMemory( generatedFileName );
 	}
 
 	idFileLocal file( fileptr );
@@ -1138,20 +1157,18 @@ void idMD5Anim::CheckModelHierarchy( const idRenderModel* model ) const
 		int jointNum = jointInfo[ i ].nameIndex;
 		if( modelJoints[ i ].name != animationLib.JointName( jointNum ) )
 		{
-			gameLocal.Warning( "Model '%s''s joint names don't match anim '%s''s", model->Name(), name.c_str() );
+			gameLocal.Error( "Model '%s''s joint names don't match anim '%s''s", model->Name(), name.c_str() );
 		}
-		int parent;
+
+		int parent = -1;
 		if( modelJoints[ i ].parent )
 		{
 			parent = modelJoints[ i ].parent - modelJoints;
 		}
-		else
+
+		if( i > 0 && parent != jointInfo[ i ].parentNum )
 		{
-			parent = -1;
-		}
-		if( parent != jointInfo[ i ].parentNum )
-		{
-			gameLocal.Warning( "Model '%s' has different joint hierarchy than anim '%s'", model->Name(), name.c_str() );
+			gameLocal.Error( "Model '%s' has different joint hierarchy than anim '%s'", model->Name(), name.c_str() );
 		}
 	}
 }
