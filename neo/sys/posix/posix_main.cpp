@@ -412,8 +412,8 @@ Sys_DefaultBasePath
 Get the default base path
 - binary image path
 - current directory
-- build directory path								// SRS - added build directory path
 - macOS app bundle resources directory path			// SRS - added macOS app bundle resources path
+- build directory path								// SRS - added build directory path
 - hardcoded
 Try to be intelligent: if there is no BASE_GAMEDIR, try the next path
 ================
@@ -456,19 +456,6 @@ const char* Sys_DefaultBasePath()
 	}
 	if( exepath.Length() )
 	{
-		// SRS - Check for linux/macOS build path (standard IDE structure with build dir and config suffixes)
-		basepath = exepath + "/../..";
-		testbase = basepath;
-		testbase += "/";
-		testbase += BASE_GAMEDIR;
-		if( stat( testbase.c_str(), &st ) != -1 && S_ISDIR( st.st_mode ) )
-		{
-			return basepath.c_str();
-		}
-		else
-		{
-			common->Printf( "no '%s' directory in build path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
-		}
 #if defined(__APPLE__)
 		// SRS - Check for macOS app bundle resources path
 		basepath = exepath + "/../Resources";
@@ -483,7 +470,22 @@ const char* Sys_DefaultBasePath()
 		{
 			common->Printf( "no '%s' directory in macOS app bundle resources path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
 		}
+		// SRS - Check for macOS/linux build path (directory structure with build dir and possible config suffix)
+		basepath = exepath + "/../..";		// for macOS Xcode builds with Debug/Release/etc config suffix
+#else
+		basepath = exepath + "/..";			// for linux IDE and command line builds
 #endif
+		testbase = basepath;
+		testbase += "/";
+		testbase += BASE_GAMEDIR;
+		if( stat( testbase.c_str(), &st ) != -1 && S_ISDIR( st.st_mode ) )
+		{
+			return basepath.c_str();
+		}
+		else
+		{
+			common->Printf( "no '%s' directory in build path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
+		}
 	}
 	common->Printf( "WARNING: using hardcoded default base path %s\n", DEFAULT_BASEPATH );
 	return DEFAULT_BASEPATH;
