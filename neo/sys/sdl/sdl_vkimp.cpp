@@ -90,15 +90,15 @@ std::vector<const char*> get_required_extensions()
 
 #if defined( USE_NVRHI )
 // SRS - Helper function for creating SDL Vulkan surface within DeviceManager_VK() when NVRHI enabled
-bool CreateSDLWindowSurface( VkInstance instance, VkSurfaceKHR* surface )
+vk::Result CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface )
 {
-	if( !SDL_Vulkan_CreateSurface( window, instance, surface ) )
+	if( !SDL_Vulkan_CreateSurface( window, ( VkInstance )instance, ( VkSurfaceKHR* )surface ) )
 	{
 		common->Warning( "Error while creating SDL Vulkan surface: %s", SDL_GetError() );
-		return false;
+		return vk::Result::eErrorSurfaceLostKHR;
 	}
 
-	return true;
+	return vk::Result::eSuccess;
 }
 
 bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, const char* windowTitle )

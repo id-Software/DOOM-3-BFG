@@ -479,7 +479,7 @@ void DeviceManager_VK::installDebugCallback()
 				.setPfnCallback( vulkanDebugCallback )
 				.setPUserData( this );
 
-	vk::Result res = m_VulkanInstance.createDebugReportCallbackEXT( &info, nullptr, &m_DebugReportCallback );
+	const vk::Result res = m_VulkanInstance.createDebugReportCallbackEXT( &info, nullptr, &m_DebugReportCallback );
 	assert( res == vk::Result::eSuccess );
 }
 
@@ -677,7 +677,7 @@ bool DeviceManager_VK::findQueueFamilies( vk::PhysicalDevice physicalDevice, vk:
 			vk::Bool32 presentSupported;
 			// SRS - Use portable implmentation for detecting presentation support vs. Windows-specific Vulkan call
 			if( queueFamily.queueCount > 0 &&
-					vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice, i, surface, &presentSupported ) == VK_SUCCESS )
+					physicalDevice.getSurfaceSupportKHR( i, surface, &presentSupported ) == vk::Result::eSuccess )
 			{
 				if( presentSupported )
 				{
@@ -911,26 +911,22 @@ bool DeviceManager_VK::createDevice()
 */
 bool DeviceManager_VK::createWindowSurface()
 {
-	VkResult err = VK_SUCCESS;
-
 	// Create the platform-specific surface
 #if defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Support generic SDL platform for linux and macOS
-	if( !CreateSDLWindowSurface( m_VulkanInstance, ( VkSurfaceKHR* )&m_WindowSurface ) )
-	{
-		err = VK_ERROR_NATIVE_WINDOW_IN_USE_KHR;
-	}
+	const vk::Result res = CreateSDLWindowSurface( m_VulkanInstance, &m_WindowSurface );
+
 #elif defined( VK_USE_PLATFORM_WIN32_KHR )
-	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.hinstance = ( HINSTANCE )windowInstance;
-	surfaceCreateInfo.hwnd = ( HWND )windowHandle;
-	err = vkCreateWin32SurfaceKHR( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
+	auto surfaceCreateInfo = vk::Win32SurfaceCreateInfoKHR()
+								.setHinstance( ( HINSTANCE )windowInstance )
+								.setHwnd( ( HWND )windowHandle );
+
+	const vk::Result res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
 #endif
 
-	if( err != VK_SUCCESS )
+	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( err ) );
+		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( res ) );
 		return false;
 	}
 
@@ -1041,12 +1037,13 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	}
 
 	// SRS - when USE_MoltenVK defined, load libMoltenVK vs. the default libvulkan
-	const vk::DynamicLoader dl( "libMoltenVK.dylib" );
+	static const vk::DynamicLoader dl( "libMoltenVK.dylib" );
 #else
 		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
 	}
 
-	const vk::DynamicLoader dl;
+	// SRS - make static so ~DynamicLoader() does not prematurely unload vulkan dynamic lib
+	static const vk::DynamicLoader dl;
 #endif
 	const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =   // NOLINT(misc-misplaced-const)
 		dl.getProcAddress<PFN_vkGetInstanceProcAddr>( "vkGetInstanceProcAddr" );
