@@ -928,6 +928,17 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	else
 	{
 		rootID = lastMeshFromFile->rootID;
+		gltfNode* nodeRoot = nullptr;
+
+		if (rootID != -1 )
+		{
+			nodeRoot = nodes[rootID];
+		}
+
+		if (nodeRoot != nullptr && nodeRoot->skin > -1)
+		{
+			rootID = nodes[data->SkinList()[nodeRoot->skin]->skeleton]->children[0];
+		}
 	}
 
 	if( rootID == -1 )
@@ -935,13 +946,6 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		common->Warning( "Could not determine root" );
 		return nullptr;
 	}
-
-	gltfNode* nodeRoot = nodes[rootID];
-	if( rootID == -1 && nodeRoot->skin > -1 )
-	{
-		rootID = nodes[data->SkinList()[nodeRoot->skin]->skeleton]->children[0];
-	}
-
 	auto gltfAnim = data->GetAnimation( name, rootID );
 	if( !gltfAnim )
 	{
