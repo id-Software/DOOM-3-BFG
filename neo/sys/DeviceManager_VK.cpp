@@ -918,8 +918,8 @@ bool DeviceManager_VK::createWindowSurface()
 
 #elif defined( VK_USE_PLATFORM_WIN32_KHR )
 	auto surfaceCreateInfo = vk::Win32SurfaceCreateInfoKHR()
-								.setHinstance( ( HINSTANCE )windowInstance )
-								.setHwnd( ( HWND )windowHandle );
+							 .setHinstance( ( HINSTANCE )windowInstance )
+							 .setHwnd( ( HWND )windowHandle );
 
 	const vk::Result res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
 #endif
@@ -1080,7 +1080,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	CHECK( createWindowSurface() );
 	CHECK( pickPhysicalDevice() );
 	CHECK( findQueueFamilies( m_VulkanPhysicalDevice, m_WindowSurface ) );
-	
+
 	// SRS - when USE_MoltenVK defined, set MoltenVK runtime configuration parameters on macOS
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	vk::PhysicalDeviceFeatures2 deviceFeatures2;

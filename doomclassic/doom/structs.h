@@ -220,7 +220,7 @@ struct default_t
 	union
 	{
 		int* 			location;
-		const char ** 	charLocation;
+		const char** 	charLocation;
 	};
 	union
 	{
