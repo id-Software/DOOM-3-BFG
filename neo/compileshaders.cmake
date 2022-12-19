@@ -100,7 +100,7 @@ function(compile_shaders)
                                    --compiler ${FXC_EXECUTABLE})
     endif()
 
-    if (params_SPIRV_DXC AND USE_NVRHI_VULKAN)
+    if (params_SPIRV_DXC AND USE_VULKAN)
         if (NOT DXC_SPIRV_EXECUTABLE)
             message(FATAL_ERROR "compile_shaders: DXC for SPIR-V not found --- please set DXC_SPIRV_EXECUTABLE to the full path to the DXC binary")
         endif()

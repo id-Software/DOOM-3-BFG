@@ -41,10 +41,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
-// SRS - optinally needed for VK_MVK_MOLTENVK_EXTENSION_NAME visibility
-#if defined(__APPLE__) && defined(USE_MoltenVK)
-	#include <MoltenVK/vk_mvk_moltenvk.h>
-#endif
 #include <vector>
 
 #include "renderer/RenderCommon.h"
@@ -94,15 +90,15 @@ std::vector<const char*> get_required_extensions()
 
 #if defined( USE_NVRHI )
 // SRS - Helper function for creating SDL Vulkan surface within DeviceManager_VK() when NVRHI enabled
-bool CreateSDLWindowSurface( VkInstance instance, VkSurfaceKHR* surface )
+vk::Result CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface )
 {
-	if( !SDL_Vulkan_CreateSurface( window, instance, surface ) )
+	if( !SDL_Vulkan_CreateSurface( window, ( VkInstance )instance, ( VkSurfaceKHR* )surface ) )
 	{
 		common->Warning( "Error while creating SDL Vulkan surface: %s", SDL_GetError() );
-		return false;
+		return vk::Result::eErrorSurfaceLostKHR;
 	}
 
-	return true;
+	return vk::Result::eSuccess;
 }
 
 bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, const char* windowTitle )

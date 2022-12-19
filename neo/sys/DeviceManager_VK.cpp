@@ -30,6 +30,10 @@
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
+// SRS - optionally needed for VK_MVK_MOLTENVK_EXTENSION_NAME and MoltenVK runtime config visibility
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+	#include <MoltenVK/vk_mvk_moltenvk.h>
+#endif
 #include <nvrhi/validation.h>
 
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
@@ -475,7 +479,7 @@ void DeviceManager_VK::installDebugCallback()
 				.setPfnCallback( vulkanDebugCallback )
 				.setPUserData( this );
 
-	vk::Result res = m_VulkanInstance.createDebugReportCallbackEXT( &info, nullptr, &m_DebugReportCallback );
+	const vk::Result res = m_VulkanInstance.createDebugReportCallbackEXT( &info, nullptr, &m_DebugReportCallback );
 	assert( res == vk::Result::eSuccess );
 }
 
@@ -673,7 +677,7 @@ bool DeviceManager_VK::findQueueFamilies( vk::PhysicalDevice physicalDevice, vk:
 			vk::Bool32 presentSupported;
 			// SRS - Use portable implmentation for detecting presentation support vs. Windows-specific Vulkan call
 			if( queueFamily.queueCount > 0 &&
-					vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice, i, surface, &presentSupported ) == VK_SUCCESS )
+					physicalDevice.getSurfaceSupportKHR( i, surface, &presentSupported ) == vk::Result::eSuccess )
 			{
 				if( presentSupported )
 				{
@@ -907,26 +911,22 @@ bool DeviceManager_VK::createDevice()
 */
 bool DeviceManager_VK::createWindowSurface()
 {
-	VkResult err = VK_SUCCESS;
-
 	// Create the platform-specific surface
 #if defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Support generic SDL platform for linux and macOS
-	if( !CreateSDLWindowSurface( m_VulkanInstance, ( VkSurfaceKHR* )&m_WindowSurface ) )
-	{
-		err = VK_ERROR_NATIVE_WINDOW_IN_USE_KHR;
-	}
+	const vk::Result res = CreateSDLWindowSurface( m_VulkanInstance, &m_WindowSurface );
+
 #elif defined( VK_USE_PLATFORM_WIN32_KHR )
-	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.hinstance = ( HINSTANCE )windowInstance;
-	surfaceCreateInfo.hwnd = ( HWND )windowHandle;
-	err = vkCreateWin32SurfaceKHR( m_VulkanInstance, &surfaceCreateInfo, nullptr, ( VkSurfaceKHR* )&m_WindowSurface );
+	auto surfaceCreateInfo = vk::Win32SurfaceCreateInfoKHR()
+								.setHinstance( ( HINSTANCE )windowInstance )
+								.setHwnd( ( HWND )windowHandle );
+
+	const vk::Result res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
 #endif
 
-	if( err != VK_SUCCESS )
+	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( err ) );
+		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( res ) );
 		return false;
 	}
 
@@ -1034,12 +1034,17 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 		enabledExtensions.instance.insert( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 		enabledExtensions.layers.insert( "MoltenVK" );
-#else
-		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
-#endif
 	}
 
-	const vk::DynamicLoader dl;
+	// SRS - when USE_MoltenVK defined, load libMoltenVK vs. the default libvulkan
+	static const vk::DynamicLoader dl( "libMoltenVK.dylib" );
+#else
+		enabledExtensions.layers.insert( "VK_LAYER_KHRONOS_validation" );
+	}
+
+	// SRS - make static so ~DynamicLoader() does not prematurely unload vulkan dynamic lib
+	static const vk::DynamicLoader dl;
+#endif
 	const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =   // NOLINT(misc-misplaced-const)
 		dl.getProcAddress<PFN_vkGetInstanceProcAddr>( "vkGetInstanceProcAddr" );
 	VULKAN_HPP_DEFAULT_DISPATCHER.init( vkGetInstanceProcAddr );
@@ -1075,6 +1080,36 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	CHECK( createWindowSurface() );
 	CHECK( pickPhysicalDevice() );
 	CHECK( findQueueFamilies( m_VulkanPhysicalDevice, m_WindowSurface ) );
+	
+	// SRS - when USE_MoltenVK defined, set MoltenVK runtime configuration parameters on macOS
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+	vk::PhysicalDeviceFeatures2 deviceFeatures2;
+	vk::PhysicalDevicePortabilitySubsetFeaturesKHR portabilityFeatures;
+	deviceFeatures2.setPNext( &portabilityFeatures );
+	m_VulkanPhysicalDevice.getFeatures2( &deviceFeatures2 );
+
+	MVKConfiguration    pConfig;
+	size_t              pConfigSize = sizeof( pConfig );
+
+	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+
+	// SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
+	if( portabilityFeatures.imageViewFormatSwizzle == VK_FALSE )
+	{
+		idLib::Printf( "Enabling MoltenVK's image view swizzle...\n" );
+		pConfig.fullImageViewSwizzle = VK_TRUE;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+	}
+
+	// SRS - Turn MoltenVK's Metal argument buffer feature on for descriptor indexing only
+	if( pConfig.useMetalArgumentBuffers == MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_NEVER )
+	{
+		idLib::Printf( "Enabling MoltenVK's Metal argument buffers for descriptor indexing...\n" );
+		pConfig.useMetalArgumentBuffers = MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_DESCRIPTOR_INDEXING;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+	}
+#endif
+
 	CHECK( createDevice() );
 
 	auto vecInstanceExt = stringSetToVector( enabledExtensions.instance );

@@ -29,6 +29,12 @@ option(USE_PRECOMPILED_HEADERS
 option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
+option(FFMPEG
+		"Use FMPEG to render Bink videos" ON)
+
+option(BINKDEC
+		"Use included libbinkdec to render Bink videos" OFF)
+
 option(SPIRV_SHADERC
 		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
 
@@ -72,18 +78,10 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)" OR CMAKE_OSX_AR
 endif()
 
 # SRS - Turn off MMX/SSE intrinsics when cross-compiling from Apple x86_64 to arm64
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)|(e2k)|(E2K)" AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "(arm64)|(x64)")
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)|(e2k)|(E2K)" AND NOT CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
 	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" ON)
-
-	option(FFMPEG "Use FMPEG to render Bink videos" ON)
-
-	option(BINKDEC "Use included libbinkdec to render Bink videos" OFF)
 else()
 	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" OFF)
-
-	option(FFMPEG "Use FMPEG to render Bink videos" OFF)
-
-	option(BINKDEC "Use included libbinkdec to render Bink videos" ON)
 endif()
 
 if(FFMPEG AND BINKDEC)
@@ -94,14 +92,10 @@ if(UNIX)
 	set(OPENAL ON)
 	set(USE_DX12 OFF)
 	set(USE_VULKAN ON)
-	set(USE_NVRHI ON)
-	#set(FFMPEG OFF)
-	#set(BINKDEC ON)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
-    if((CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
-      # (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
-	  (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64") OR  (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x64")) 
+    if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
+       (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64"))
         set(USE_PRECOMPILED_HEADERS OFF)
     endif()
 endif()
@@ -384,6 +378,8 @@ if(USE_VULKAN)
         if(APPLE)
             # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
             add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+            # SRS - Explicitly define dxc path so find_package(DXCspirv) uses the specified Vulkan SDK location on OSX
+            set(DXC_SPIRV_EXECUTABLE $ENV{VULKAN_SDK}/bin/dxc CACHE FILEPATH "Path to SPIR-V shader compiler." FORCE)
             # SRS - Optionally link directly to MoltenVK headers/library for runtime config functions on OSX
             if(USE_MoltenVK)
                 add_definitions(-DUSE_MoltenVK)
@@ -1087,7 +1083,7 @@ file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
 if(UNIX)
-    #if(USE_VULKAN OR USE_VULKAN)
+    #if(USE_VULKAN)
 		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
 		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
 	#else()
@@ -1679,7 +1675,6 @@ else()
 			add_definitions(-DUSE_FFMPEG)
 			
 			include_directories(${FFMPEG_INCLUDE_DIR})
-			link_directories(${FFMPEG_LIBRARIES_DIRS})
 		endif()
 
 		find_package(SDL2 REQUIRED)
