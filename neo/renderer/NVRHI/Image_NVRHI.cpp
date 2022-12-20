@@ -76,6 +76,9 @@ idImage::~idImage
 idImage::~idImage()
 {
 	PurgeImage();
+	
+	// SRS - if image found in deferred load list, remove it now to avoid problems later
+	DeferredPurgeImage();
 }
 
 /*

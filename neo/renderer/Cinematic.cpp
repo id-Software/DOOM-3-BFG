@@ -1246,6 +1246,20 @@ idCinematicLocal::ImageForTime
 */
 cinData_t idCinematicLocal::ImageForTime( int thisTime, nvrhi::ICommandList* commandList )
 {
+	cinData_t	cinData;
+
+	if( thisTime <= 0 )
+	{
+		thisTime = Sys_Milliseconds();
+	}
+
+	memset( &cinData, 0, sizeof( cinData ) );
+	// SRS - also return if commandList is null, typically when called from within InitFromFile()
+	if( r_skipDynamicTextures.GetBool() || status == FMV_EOF || status == FMV_IDLE || !commandList )
+	{
+		return cinData;
+	}
+
 #if defined(USE_FFMPEG)
 	// Carl: Handle BFG format BINK videos separately
 	if( !isRoQ )
@@ -1259,36 +1273,9 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime, nvrhi::ICommandList* com
 	}
 #endif
 
-	// Carl: Handle original Doom 3 RoQ video files
-	cinData_t	cinData;
-
-	// SRS - Changed from == 0 to <= 0 to match behaviour of FFMPEG and BinkDec decoders
-	if( thisTime <= 0 )
-	{
-		thisTime = Sys_Milliseconds();
-	}
-
-	//if( thisTime < 0 )
-	//{
-	//	thisTime = 0;
-	//}
-
-	memset( &cinData, 0, sizeof( cinData ) );
-
-//	if ( r_skipROQ.GetBool() ) {
-	if( r_skipDynamicTextures.GetBool() )
-	{
-		return cinData;
-	}
-
 	if( !iFile )
 	{
 		// RB: neither .bik or .roq found
-		return cinData;
-	}
-
-	if( status == FMV_EOF || status == FMV_IDLE )
-	{
 		return cinData;
 	}
 
@@ -1332,17 +1319,6 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime, nvrhi::ICommandList* com
 			RoQInterrupt();
 		}
 	}
-
-	// SRS - This is redundant code, virtually identical logic correctly handles looping below
-	//if( status == FMV_LOOPED )
-	//{
-	//	status = FMV_PLAY;
-	//	while( buf == NULL && status == FMV_PLAY )
-	//	{
-	//		RoQInterrupt();
-	//	}
-	//	startTime = thisTime;
-	//}
 
 	if( status == FMV_LOOPED || status == FMV_EOF )
 	{
@@ -1388,17 +1364,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime, nvrhi::ICommandLis
 	uint8_t*	audioBuffer = NULL;
 	int			num_bytes = 0;
 
-	if( thisTime <= 0 )
-	{
-		thisTime = Sys_Milliseconds();
-	}
-
 	memset( &cinData, 0, sizeof( cinData ) );
-	if( r_skipDynamicTextures.GetBool() || status == FMV_EOF || status == FMV_IDLE )
-	{
-		return cinData;
-	}
-
 	if( !fmt_ctx )
 	{
 		// RB: .bik requested but not found
@@ -1597,17 +1563,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime, nvrhi::ICommandLi
 	int16_t*	audioBuffer = NULL;
 	uint32_t	num_bytes = 0;
 
-	if( thisTime <= 0 )
-	{
-		thisTime = Sys_Milliseconds();
-	}
-
 	memset( &cinData, 0, sizeof( cinData ) );
-	if( r_skipDynamicTextures.GetBool() || status == FMV_EOF || status == FMV_IDLE )
-	{
-		return cinData;
-	}
-
 	if( !binkHandle.isValid )
 	{
 		// RB: .bik requested but not found

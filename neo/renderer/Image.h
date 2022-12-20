@@ -365,6 +365,9 @@ public:
 	// Adds the image to the list of images to load on the main thread to the gpu.
 	void		DeferredLoadImage();
 
+	// Removes the image from the list of images to load on the main thread to the gpu.
+	void		DeferredPurgeImage();
+
 	//---------------------------------------------
 	// Platform specific implementations
 	//---------------------------------------------
