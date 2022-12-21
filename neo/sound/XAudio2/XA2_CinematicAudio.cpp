@@ -108,7 +108,7 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 			return;
 		}
 	}
-	voiceFormatcine.nChannels = dec_ctx2->channels; //fixed
+	voiceFormatcine.nChannels = dec_ctx2->ch_layout.nb_channels; //fixed
 	voiceFormatcine.nSamplesPerSec = dec_ctx2->sample_rate; //fixed
 #elif defined(USE_BINKDEC)
 	AudioInfo* binkInfo = ( AudioInfo* )audioContext;

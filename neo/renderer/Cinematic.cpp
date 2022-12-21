@@ -738,8 +738,12 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping, n
 		if( dec_ctx2->sample_fmt >= AV_SAMPLE_FMT_U8P )											// SRS - Planar formats start at AV_SAMPLE_FMT_U8P
 		{
 			dst_smp = static_cast<AVSampleFormat>( dec_ctx2->sample_fmt - AV_SAMPLE_FMT_U8P );	// SRS - Setup context to convert from planar to packed
-			swr_ctx = swr_alloc_set_opts( NULL, dec_ctx2->channel_layout, dst_smp, dec_ctx2->sample_rate, dec_ctx2->channel_layout, dec_ctx2->sample_fmt, dec_ctx2->sample_rate, 0, NULL );
-			int res = swr_init( swr_ctx );
+			if( ( ret2 = swr_alloc_set_opts2( &swr_ctx, &dec_ctx2->ch_layout, dst_smp, dec_ctx2->sample_rate, &dec_ctx2->ch_layout, dec_ctx2->sample_fmt, dec_ctx2->sample_rate, 0, NULL ) ) < 0 )
+			{
+				av_strerror( ret2, error, sizeof( error ) );
+				common->Warning( "idCinematic: Failed to create audio resample context with error: %s\n", error );
+			}
+			ret2 = swr_init( swr_ctx );
 			hasplanar = true;
 		}
 		else
@@ -747,7 +751,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping, n
 			dst_smp = dec_ctx2->sample_fmt;														// SRS - Must always define the destination format
 			hasplanar = false;
 		}
-		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d, Format=%s, Planar=%d\n", dec_ctx2->sample_rate, dec_ctx2->channels, GetSampleFormat( dec_ctx2->sample_fmt ), hasplanar );
+		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d, Format=%s, Planar=%d\n", dec_ctx2->sample_rate, dec_ctx2->ch_layout.nb_channels, GetSampleFormat( dec_ctx2->sample_fmt ), hasplanar );
  #if defined(_MSC_VER) && !defined(USE_OPENAL)
 		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_XAudio2;
  #else
@@ -1480,7 +1484,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime, nvrhi::ICommandLis
 					else if( framePos + 1 == desiredFrame )
 					{
 						// SRS - Since destination sample format is packed (non-planar), returned bufflinesize equals num_bytes
-						res = av_samples_alloc( &audioBuffer, &num_bytes, frame3->channels, frame3->nb_samples, dst_smp, 0 );
+						res = av_samples_alloc( &audioBuffer, &num_bytes, frame3->ch_layout.nb_channels, frame3->nb_samples, dst_smp, 0 );
 						if( res < 0 || res != num_bytes )
 						{
 							common->Warning( "idCinematic: Failed to allocate audio buffer with result: %d\n", res );
