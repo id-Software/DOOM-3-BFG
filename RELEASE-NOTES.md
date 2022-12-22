@@ -18,6 +18,56 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+
+## .plan - Dec 22, 2022
+
+This build adds several glTF2 importer options so you can use typical rigs like for UE4/Mixamo or Unity.
+
+Special thanks to Harrie van Ginneken for the new options.
+
+Here is an example model definition:
+
+```
+model character_mcneil
+{
+	options -scale 39.37 -addorigin -transfermotion "pelvis"
+	
+	mesh models/characters/mcneil/mcneil.root.glb
+	
+	channel legs ( origin *pelvis *foot_l *foot_r)
+	
+	anim walk models/characters/mcneil/mcneil.Walk.glb
+	anim idle models/characters/mcneil/mcneil.Idle.glb
+}
+```
+
+Changelog:
+
+* Added -reorient <angles> option to gltf model import
+
+* Added -addorigin option to gltf model import
+
+* Added -transfermotion option to gltf model import
+
+* Added -armature <name> option to gltf model import for the case if your model is not directly parented to an armature
+
+* Fixed loading animations when the armatures option is not used
+
+* Fixes loading animations from different GLTF files
+
+* Fixes regenerating bMD5Anim from GLTF animation when source is newer than binary
+
+* Allowing binding of asset library instances in gltf scenes.
+
+* Don't crash when trying to load an animation from and GLB does not match last loaded model glb
+
+* Root motion transfer fixes.
+
+* Make missing joints on player model non-fatal in the game code
+
+* Make CheckModelHierachy non-fatal in the game code
+
+
 ## .plan - Nov 20, 2022
 
 This build based on the 635-nvrhi5 branch allows to play the game with the NVRHI Vulkan backend.
