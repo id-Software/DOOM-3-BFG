@@ -69,6 +69,8 @@ public:
 	bool					ignoreMeshes;
 	bool					clearOrigin;
 	bool					clearOriginAxis;
+	bool					addOrigin;
+	idStr					transferRootMotion;
 	bool					ignoreScale;
 	int						startframe;
 	int						endframe;
@@ -86,6 +88,8 @@ public:
 	float					rotate;
 	float					jointThreshold;
 	int						cycleStart;
+	idAngles				reOrient;
+	idStr					armature;
 
 	void Init( const char* commandline, const char* ospath );
 

@@ -34,6 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "gltfParser.h"
 
 
+static const byte BCANIM_VERSION = 100;
+static const unsigned int BCANIM_MAGIC = ( 'A' << 24 ) | ( 'C' << 16 ) | ( 'B' << 8 ) | BCANIM_VERSION;
+#define CAMERA_ANIM_BINARYFILE_EXT	"bcanim"
 static const idMat4 blenderToDoomTransform( idAngles( 0.0f, 0.0f, 90 ).ToMat3(), vec3_origin );
 /*
 ===============================================================================
@@ -399,83 +402,117 @@ void idCameraAnim::LoadAnim()
 		}
 	}
 
+
+	// check for generated file
+	idStrStatic< MAX_OSPATH > generatedFileName = key;
+	generatedFileName.Insert( "generated/", 0 );
+	generatedFileName.SetFileExtension( CAMERA_ANIM_BINARYFILE_EXT );
+
+	ID_TIME_T currentTimeStamp = FILE_NOT_FOUND_TIMESTAMP;
 	if( isGLTF )
 	{
-		gltfLoadAnim( gltfFileName, animName );
+		currentTimeStamp = fileSystem->GetTimestamp( gltfFileName );
 	}
 	else
 	{
-		filename.SetFileExtension( MD5_CAMERA_EXT );
-		if( !parser.LoadFile( filename ) )
+		currentTimeStamp = fileSystem->GetTimestamp( key );
+	}
+
+
+	// if we are reloading the same map, check the timestamp
+	// and try to skip all the work
+	ID_TIME_T generatedTimeStamp = fileSystem->GetTimestamp( generatedFileName );
+	ID_TIME_T sourceTimeStamp = currentTimeStamp;
+
+
+	if( ( generatedTimeStamp != FILE_NOT_FOUND_TIMESTAMP ) && ( sourceTimeStamp != 0 ) && ( sourceTimeStamp != generatedTimeStamp ) )
+	{
+		idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
+		LoadBinaryCamAnim( file, currentTimeStamp );
+	}
+	else
+	{
+		if( isGLTF )
 		{
-			gameLocal.Error( "Unable to load '%s' on '%s'", filename.c_str(), name.c_str() );
+			gltfLoadAnim( gltfFileName, animName );
 		}
-
-		cameraCuts.Clear();
-		cameraCuts.SetGranularity( 1 );
-		camera.Clear();
-		camera.SetGranularity( 1 );
-
-		parser.ExpectTokenString( MD5_VERSION_STRING );
-		version = parser.ParseInt();
-		if( version != MD5_VERSION )
+		else
 		{
-			parser.Error( "Invalid version %d.  Should be version %d\n", version, MD5_VERSION );
-		}
-
-		// skip the commandline
-		parser.ExpectTokenString( "commandline" );
-		parser.ReadToken( &token );
-
-		// parse num frames
-		parser.ExpectTokenString( "numFrames" );
-		numFrames = parser.ParseInt();
-		if( numFrames <= 0 )
-		{
-			parser.Error( "Invalid number of frames: %d", numFrames );
-		}
-
-		// parse framerate
-		parser.ExpectTokenString( "frameRate" );
-		frameRate = parser.ParseInt();
-		if( frameRate <= 0 )
-		{
-			parser.Error( "Invalid framerate: %d", frameRate );
-		}
-
-		// parse num cuts
-		parser.ExpectTokenString( "numCuts" );
-		numCuts = parser.ParseInt();
-		if( ( numCuts < 0 ) || ( numCuts > numFrames ) )
-		{
-			parser.Error( "Invalid number of camera cuts: %d", numCuts );
-		}
-
-		// parse the camera cuts
-		parser.ExpectTokenString( "cuts" );
-		parser.ExpectTokenString( "{" );
-		cameraCuts.SetNum( numCuts );
-		for( i = 0; i < numCuts; i++ )
-		{
-			cameraCuts[i] = parser.ParseInt();
-			if( ( cameraCuts[i] < 1 ) || ( cameraCuts[i] >= numFrames ) )
+			filename.SetFileExtension( MD5_CAMERA_EXT );
+			if( !parser.LoadFile( filename ) )
 			{
-				parser.Error( "Invalid camera cut" );
+				gameLocal.Error( "Unable to load '%s' on '%s'", filename.c_str(), name.c_str() );
 			}
-		}
-		parser.ExpectTokenString( "}" );
 
-		// parse the camera frames
-		parser.ExpectTokenString( "camera" );
-		parser.ExpectTokenString( "{" );
-		camera.SetNum( numFrames );
-		for( i = 0; i < numFrames; i++ )
-		{
-			parser.Parse1DMatrix( 3, camera[i].t.ToFloatPtr() );
-			parser.Parse1DMatrix( 3, camera[i].q.ToFloatPtr() );
-			camera[i].fov = parser.ParseFloat();
+			cameraCuts.Clear();
+			cameraCuts.SetGranularity( 1 );
+			camera.Clear();
+			camera.SetGranularity( 1 );
+
+			parser.ExpectTokenString( MD5_VERSION_STRING );
+			version = parser.ParseInt();
+			if( version != MD5_VERSION )
+			{
+				parser.Error( "Invalid version %d.  Should be version %d\n", version, MD5_VERSION );
+			}
+
+			// skip the commandline
+			parser.ExpectTokenString( "commandline" );
+			parser.ReadToken( &token );
+
+			// parse num frames
+			parser.ExpectTokenString( "numFrames" );
+			numFrames = parser.ParseInt();
+			if( numFrames <= 0 )
+			{
+				parser.Error( "Invalid number of frames: %d", numFrames );
+			}
+
+			// parse framerate
+			parser.ExpectTokenString( "frameRate" );
+			frameRate = parser.ParseInt();
+			if( frameRate <= 0 )
+			{
+				parser.Error( "Invalid framerate: %d", frameRate );
+			}
+
+			// parse num cuts
+			parser.ExpectTokenString( "numCuts" );
+			numCuts = parser.ParseInt();
+			if( ( numCuts < 0 ) || ( numCuts > numFrames ) )
+			{
+				parser.Error( "Invalid number of camera cuts: %d", numCuts );
+			}
+
+			// parse the camera cuts
+			parser.ExpectTokenString( "cuts" );
+			parser.ExpectTokenString( "{" );
+			cameraCuts.SetNum( numCuts );
+			for( i = 0; i < numCuts; i++ )
+			{
+				cameraCuts[i] = parser.ParseInt();
+				if( ( cameraCuts[i] < 1 ) || ( cameraCuts[i] >= numFrames ) )
+				{
+					parser.Error( "Invalid camera cut" );
+				}
+			}
+			parser.ExpectTokenString( "}" );
+
+			// parse the camera frames
+			parser.ExpectTokenString( "camera" );
+			parser.ExpectTokenString( "{" );
+			camera.SetNum( numFrames );
+			for( i = 0; i < numFrames; i++ )
+			{
+				parser.Parse1DMatrix( 3, camera[i].t.ToFloatPtr() );
+				parser.Parse1DMatrix( 3, camera[i].q.ToFloatPtr() );
+				camera[i].fov = parser.ParseFloat();
+			}
+			parser.ExpectTokenString( "}" );
 		}
-		parser.ExpectTokenString( "}" );
+
+		idFileLocal file( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
+		WriteBinaryCamAnim( file );
 	}
 }
 
@@ -718,7 +755,7 @@ void idCameraAnim::Event_Activate( idEntity* _activator )
 
 void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 {
-	//we dont wat to load the gltb all the time. write custom binary format !
+	// we dont want to load the gltb all the time. write custom binary format !
 	GLTF_Parser gltf;
 	if( gltf.Load( gltfFileName ) )
 	{
@@ -731,7 +768,11 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 		assert( cameraNode );
 
 		gltfAnimation* anim = data->GetAnimation( animName, data->GetNodeIndex( cameraNode ) );
-		assert( anim );
+
+		if( anim == nullptr )
+		{
+			gameLocal.Error( "Missing 'anim.%s' on '%s'", animName, gltfFileName.c_str() );
+		}
 
 		cameraCuts.Clear();
 		cameraCuts.SetGranularity( 1 );
@@ -828,9 +869,71 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 	{
 		gameLocal.Error( "Missing 'anim' key on '%s'", name.c_str() );
 	}
+}
 
+void idCameraAnim::WriteBinaryCamAnim( idFile* file, ID_TIME_T* _timeStamp /*= NULL*/ )
+{
+	if( file != NULL )
+	{
+		file->WriteBig( BCANIM_MAGIC );
+		file->WriteInt( frameRate );
+		file->WriteInt( cameraCuts.Num() );
 
+		for( auto cut : cameraCuts )
+		{
+			file->WriteInt( cut );
+		}
 
+		file->WriteInt( camera.Num() );
+
+		for( auto cam : camera )
+		{
+			file->WriteBig( cam.fov );
+			file->WriteBigArray( cam.q.ToFloatPtr(), 3 );
+			file->WriteVec3( cam.t );
+		}
+	}
+
+}
+
+bool idCameraAnim::LoadBinaryCamAnim( idFile* file, const ID_TIME_T sourceTimeStamp )
+{
+	if( file != NULL )
+	{
+		unsigned int magic = 0;
+		file->ReadBig( magic );
+		if( magic != BCANIM_MAGIC )
+		{
+			return false;
+		}
+
+		file->ReadInt( frameRate );
+
+		int count = 0;
+
+		file->ReadInt( count );
+
+		for( int i = 0; i < count; i++ )
+		{
+			file->ReadInt( cameraCuts.Alloc() );
+		}
+
+		count = 0;
+
+		file->ReadInt( count );
+		int i = 0;
+		for( i = 0; i < count; i++ )
+		{
+			cameraFrame_t& cam = camera.Alloc();
+			file->ReadBig( cam.fov );
+			file->ReadBigArray( cam.q.ToFloatPtr(), 3 );
+			file->ReadVec3( cam.t );
+		}
+
+		assert( i == count );
+		return true;
+	}
+	return false;
 }
 
 /*

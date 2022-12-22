@@ -560,7 +560,7 @@ void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 #endif
 }
 
-int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode* node )
+int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode* node , idDict epairs )
 {
 	int entityCount = 0;
 
@@ -574,16 +574,28 @@ int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode*
 		// skip everything that is not an entity
 		if( !classnameStr.IsEmpty() )
 		{
-			idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
+			auto* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
 			entities.Append( newEntity );
+			newEntity->epairs.Copy( epairs );
+			epairs.Clear();
 			ResolveEntity( data, newEntity, node );
 			entityCount++;
 		}
+		else
+		{
+			idStr bindTarget = node->extras.strPairs.GetString( "bind" );
+
+			if( !bindTarget.IsEmpty() )
+			{
+				epairs.Set( "bind", bindTarget );
+			}
+		}
+
 	}
 
 	for( auto& child : node->children )
 	{
-		entityCount += FindEntities( data, entities, data->NodeList()[child] );
+		entityCount += FindEntities( data, entities, data->NodeList()[child], epairs );
 	}
 
 	return entityCount;
@@ -621,7 +633,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			{
 				idStr classnameStr = node->extras.strPairs.GetString( "classname" );
 				bool skipInline = !node->extras.strPairs.GetBool( "inline", true );
-
+				idDict epairs;
 				// skip everything that is not an entity
 				if( !classnameStr.IsEmpty() )
 				{
@@ -640,10 +652,19 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 
 					entityCount++;
 				}
+				else
+				{
+					idStr bindTarget = node->extras.strPairs.GetString( "bind" );
+
+					if( !bindTarget.IsEmpty() )
+					{
+						epairs.Copy( node->extras.strPairs );
+					}
+				}
 				// add entities from all subnodes
 				for( auto& child : node->children )
 				{
-					entityCount += FindEntities( data, entities, data->NodeList()[child] );
+					entityCount += FindEntities( data, entities, data->NodeList()[child] , epairs );
 				}
 			}
 		}
