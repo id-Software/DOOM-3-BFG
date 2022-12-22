@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "d3xp/Game_local.h"
 
 idCVar gltf_ForceBspMeshTexture( "gltf_ForceBspMeshTexture", "0", CVAR_SYSTEM | CVAR_BOOL, "all world geometry has the same forced texture" );
-idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scene to use when loading specific models" );
+idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "Scene", CVAR_SYSTEM , "Scene to use when loading specific models" );
 
 idCVar gltf_AnimSampleRate( "gltf_AnimSampleRate", "24", CVAR_SYSTEM | CVAR_INTEGER , "The frame rate of the converted md5anim" );
 
@@ -420,21 +420,24 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 				bones.Append( currentSkin->joints );
 				animCount = data->GetAnimationIds( nodes[bones[0]] , animIds );
 			}
+
 			if( localOptions )
 			{
 				if( localOptions->keepjoints.Num() )
 				{
 					KeepNodes( data, localOptions->keepjoints, bones );
 				}
+
 				if( localOptions->addOrigin )
 				{
-
 					AddOriginBone( data, bones, nodes[bones[0]]->parent );
 				}
+
 				if( localOptions->remapjoints.Num() )
 				{
 					RemapNodes( data, localOptions->remapjoints, bones );
 				}
+
 				if( localOptions->renamejoints.Num() )
 				{
 					RenameNodes( data, localOptions->renamejoints, bones );
@@ -660,7 +663,7 @@ void idRenderModelGLTF::UpdateMd5Joints()
 	for( int i = 0 ; i < bones.Num(); i++ )
 	{
 		gltfNode* node = nodeList[bones[i]];
-		if( i && node->parent && node->parent != root )
+		if( i && node->parent && node->parent != root && ( currentSkin && ( node->parent->name != currentSkin->name ) ) )
 		{
 			md5joints[i].parent = FindMD5Joint( node->parent->name );
 		}
@@ -763,15 +766,17 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idLis
 		{
 			KeepNodes( data, options->keepjoints, bones );
 		}
+
 		if( options->addOrigin )
 		{
-
 			AddOriginBone( data, bones, data->NodeList()[bones[0]]->parent );
 		}
+
 		if( options->remapjoints.Num() )
 		{
 			RemapNodes( data, options->remapjoints, bones );
 		}
+
 		if( options->renamejoints.Num() )
 		{
 			RenameNodes( data, options->renamejoints, bones );
@@ -930,12 +935,12 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		rootID = lastMeshFromFile->rootID;
 		gltfNode* nodeRoot = nullptr;
 
-		if (rootID != -1 )
+		if( rootID != -1 )
 		{
 			nodeRoot = nodes[rootID];
 		}
 
-		if (nodeRoot != nullptr && nodeRoot->skin > -1)
+		if( nodeRoot != nullptr && nodeRoot->skin > -1 )
 		{
 			rootID = nodes[data->SkinList()[nodeRoot->skin]->skeleton]->children[0];
 		}
@@ -1396,7 +1401,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 
 void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*= NULL */ ) const
 {
-	idRenderModelStatic::WriteBinaryModel( file );
+	idRenderModelStatic::WriteBinaryModel( file , _timeStamp );
 
 	if( file == NULL )
 	{
@@ -1474,8 +1479,6 @@ void idRenderModelGLTF::PurgeModel()
 
 void idRenderModelGLTF::LoadModel()
 {
-	assert( data );
-
 	int			num;
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
@@ -1483,7 +1486,6 @@ void idRenderModelGLTF::LoadModel()
 	if( !fileExclusive )
 	{
 		meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
-		assert( meshRoot );
 	}
 
 	gltfSkin* skin = nullptr;
@@ -1535,7 +1537,7 @@ void idRenderModelGLTF::LoadModel()
 	{
 		auto* node = nodes[bones[i]];
 
-		if( i && node->parent && node->parent != root )
+		if( i && node->parent && node->parent != root && ( currentSkin && ( node->parent->name != currentSkin->name ) ) )
 		{
 			md5joints[i].parent = FindMD5Joint( node->parent->name );
 		}

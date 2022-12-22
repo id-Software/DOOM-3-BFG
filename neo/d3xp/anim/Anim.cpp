@@ -208,7 +208,7 @@ bool idMD5Anim::LoadAnim( const char* filename, const idImportOptions* options )
 	{
 		sourceTimeStamp = fileSystem->GetTimestamp( filename );
 	}
-	
+
 	idFile* fileptr = nullptr;
 	bool doWrite = false;
 
@@ -217,9 +217,9 @@ bool idMD5Anim::LoadAnim( const char* filename, const idImportOptions* options )
 	ID_TIME_T binTimeStamp = fileSystem->GetTimestamp( generatedFileName );
 	if( isGLTF )
 	{
-		if (sourceTimeStamp < binTimeStamp)
+		if( sourceTimeStamp < binTimeStamp )
 		{
-			fileptr = fileSystem->OpenFileReadMemory(generatedFileName);
+			fileptr = fileSystem->OpenFileReadMemory( generatedFileName );
 		}
 		else
 		{
