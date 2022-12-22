@@ -110,8 +110,9 @@ You can fork RBDOOM-3-BFG and create a new renamed binary that includes all requ
 If you want to see what is planned or in progress in a Trello/Kanban style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
 
 Short term goals:
-* DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi) by Stephen Pridham which will lead the path to advanced Ray Tracing techniques
+* Finish last remaining bugs of the DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi)
 * Optional RmlUI support as an alternative to Flash
+* Add Raytracing for accelerating the probe baking and optionally adding realtime global illumination
 
 ---
 # May or may not ".plan" <a name="plan2"></a>
@@ -119,7 +120,7 @@ Short term goals:
 * Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
 * Explore Screen Space Global Illumination with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
 * Update texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
-* Replace collision detection and physics with PhysX 4.1
+* Replace collision detection and physics with PhysX 5
 
 ---
 # Renderer Features Explained <a name="render"></a>
@@ -690,17 +691,17 @@ You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Gam
 ---
 # FAQ <a name="faq"></a>
 
-**Q**: Why bother with DOOM-3-BFG in 2021?
+**Q**: Why bother with DOOM-3-BFG in 2023?
 **A**: It is fun, period. Doom 3 is from 2004 but is still an impressive and entertaining game. In 2011 id Software added lot stuff from the development of Rage like its own Flash SWF and ActionScript 2 interpreter, proper support for gamepads and widescreens. It also combines the gamecode for Doom 3 and its missionpacks and runs it in a seperate thread and it has many multithreaded rendering optimizations. 
 DOOM-3 and DOOM-3-BFG are some of the most transparent games available where you can open all files and inspect how the game was built.
 Unlike Quake 1-3, DOOM-3-BFG shipped with all level .map sources for 47 single player maps.
 There is plenty of stuff you can learn from it like solid run & gun core gameplay, AI, animations, client/server multiplayer, level design or simple and elegant engine design.
 
-**Q**: Why bother with DOOM-3-BFG in 2022?
+**Q**: Why bother with DOOM-3-BFG in 2023?
 **A**: The engine compiles faster than opening a project in Unity.
 
 **Q**: Can I use this engine to make a commercial game?
-**A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4. I am a full time game developer and usually don't have time for any free support.
+**A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4/5. I am a full time game developer and usually don't have time for any free support. I recommend that you have moderate C++ skills even you are an artist. Technical designers (coders that became artists) might have the most use from this engine.
 
 However some people already work on total conversions and there is a community on the id Tech 4 Discord server where you can ask questions and get some support:
 https://discord.gg/Q3E9rUFnnP
