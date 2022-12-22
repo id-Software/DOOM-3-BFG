@@ -415,12 +415,10 @@ This project's GitHub.net Git repository can be checked out through Git with the
 
 	> git clone --recursive https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
 
-The parameter --recursive is only required if you want to build RBDOOM-3-BFG with Vulkan support.
-
 Existing repositories can be updated manually:
 
 	> git submodule init
-	> git submodule update
+	> git submodule update --recursive
 
 
 
@@ -433,7 +431,7 @@ Existing repositories can be updated manually:
 2. Download and install the latest CMake and make sure cmake.exe is added to your global or user PATH.
 
 3. Generate the VS2019 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2019-64bit-windows10.bat`
+Recommended in this case is `cmake-vs2019-64bit.bat` or `cmake-vs2019-64bit-no-ffmpeg.bat`
 
 4. Use the VS2019 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
@@ -449,7 +447,9 @@ Recommended in this case is `cmake-vs2019-64bit-windows10.bat`
 ---
 # Compiling on Linux <a name="compile_linux"></a>
 
-1. You need the following dependencies in order to compile RBDoom3BFG with all features:
+1. Go to https://github.com/microsoft/DirectXShaderCompiler and download the DXC binaries for Linux and put them into your local PATH.
+
+2. You need the following dependencies in order to compile RBDoom3BFG with all features:
 
 	On Debian or Ubuntu:
 
@@ -469,12 +469,12 @@ Recommended in this case is `cmake-vs2019-64bit-windows10.bat`
 
 	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. It is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.
 
-2. Generate the Makefiles using CMake:
+3. Generate the Makefiles using CMake:
 
 		> cd neo/
-		> ./cmake-eclipse-linux-profile.sh
+		> ./cmake-linux-release.sh
 	
-3. Compile RBDOOM-3-BFG targets with
+4. Compile RBDOOM-3-BFG targets with
 
 		> cd ../build
 		> make
