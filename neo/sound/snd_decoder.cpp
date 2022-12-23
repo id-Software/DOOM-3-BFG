@@ -330,7 +330,7 @@ bool idSoundDecoder_Vorbis::Open( const char* fileName )
 		return false;
 	}
 
-	this->sample = sample;
+	//this->sample = sample;		// SRS - self assignment not needed here
 
 	return true;
 }

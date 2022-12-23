@@ -66,19 +66,31 @@ void CinematicAudio_OpenAL::InitAudio( void* audioContext )
 		case AV_SAMPLE_FMT_U8:
 		case AV_SAMPLE_FMT_U8P:
 		{
+#if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
 			av_sample_cin = dec_ctx2->ch_layout.nb_channels == 2 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
+#else
+			av_sample_cin = dec_ctx2->channels == 2 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
+#endif
 			break;
 		}
 		case AV_SAMPLE_FMT_S16:
 		case AV_SAMPLE_FMT_S16P:
 		{
+#if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
 			av_sample_cin = dec_ctx2->ch_layout.nb_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+#else
+			av_sample_cin = dec_ctx2->channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+#endif
 			break;
 		}
 		case AV_SAMPLE_FMT_FLT:
 		case AV_SAMPLE_FMT_FLTP:
 		{
+#if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
 			av_sample_cin = dec_ctx2->ch_layout.nb_channels == 2 ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_MONO_FLOAT32;
+#else
+			av_sample_cin = dec_ctx2->channels == 2 ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_MONO_FLOAT32;
+#endif
 			break;
 		}
 		default:
