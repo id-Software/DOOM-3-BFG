@@ -30,7 +30,21 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef SYS_DEVICE_MANAGER_H_
 #define SYS_DEVICE_MANAGER_H_
 
-#include "renderer/RenderCommon.h"
+#if USE_DX11 || USE_DX12
+	#include <DXGI.h>
+#endif
+
+#if USE_DX11
+	#include <d3d11.h>
+#endif
+
+#if USE_DX12
+	#include <d3d12.h>
+#endif
+
+#if USE_VK
+	#include <nvrhi/vulkan.h>
+#endif
 
 struct DeviceCreationParameters
 {
@@ -117,6 +131,11 @@ class DeviceManager
 {
 public:
 	static DeviceManager* Create( nvrhi::GraphicsAPI api );
+
+#if defined( USE_VK ) && defined( VULKAN_USE_PLATFORM_SDL )
+	// SRS - Helper method for creating SDL Vulkan surface within DeviceManager_VK()
+    vk::Result CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface );
+#endif
 
 	bool CreateWindowDeviceAndSwapChain( const glimpParms_t& params, const char* windowTitle );
 

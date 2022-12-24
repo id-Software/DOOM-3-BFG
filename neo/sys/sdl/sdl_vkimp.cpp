@@ -89,8 +89,8 @@ std::vector<const char*> get_required_extensions()
 }
 
 #if defined( USE_NVRHI )
-// SRS - Helper function for creating SDL Vulkan surface within DeviceManager_VK() when NVRHI enabled
-vk::Result CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface )
+// SRS - Helper method for creating SDL Vulkan surface within DeviceManager_VK() when NVRHI enabled
+vk::Result DeviceManager::CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface )
 {
 	if( !SDL_Vulkan_CreateSurface( window, ( VkInstance )instance, ( VkSurfaceKHR* )surface ) )
 	{

@@ -771,7 +771,7 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 
 		if( anim == nullptr )
 		{
-			gameLocal.Error( "Missing 'anim.%s' on '%s'", animName, gltfFileName.c_str() );
+			gameLocal.Error( "Missing 'anim.%s' on '%s'", animName.c_str(), gltfFileName.c_str() );
 		}
 
 		cameraCuts.Clear();

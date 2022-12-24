@@ -99,7 +99,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 
 #if defined( USE_NVRHI )
 	#include "nvrhi/nvrhi.h"
-#elif defined(USE_VULKAN)
+#elif defined( USE_VULKAN )
 	#include "../renderer/Vulkan/qvk.h"
 #else
 	#include <GL/glew.h>
@@ -114,6 +114,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #include "../renderer/RenderSystem.h"
 #include "../renderer/RenderWorld.h"
 #include "../renderer/BindingCache.h"
+#include "../renderer/RenderCommon.h"
 
 // sound engine
 #include "../sound/sound.h"

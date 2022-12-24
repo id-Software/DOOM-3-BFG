@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#include "RenderCommon.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 #if defined( USE_NVRHI )
