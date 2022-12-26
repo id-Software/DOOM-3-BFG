@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,27 +45,27 @@ enum { VERSION =  111 };
 //  to handle IWAD dependend animations etc.
 typedef enum
 {
-  shareware,	// DOOM 1 shareware, E1, M9
-  registered,	// DOOM 1 registered, E3, M27
-  commercial,	// DOOM 2 retail, E1 M34
-  // DOOM 2 german edition not handled
-  retail,	// DOOM 1 retail, E4, M36
-  indetermined	// Well, no IWAD found.
-  
+	shareware,	// DOOM 1 shareware, E1, M9
+	registered,	// DOOM 1 registered, E3, M27
+	commercial,	// DOOM 2 retail, E1 M34
+	// DOOM 2 german edition not handled
+	retail,	// DOOM 1 retail, E4, M36
+	indetermined	// Well, no IWAD found.
+
 } GameMode_t;
 
 
 // Mission packs - might be useful for TC stuff?
 typedef enum
 {
-  doom,			// DOOM 1
-  doom2,		// DOOM 2
-  pack_tnt,		// TNT mission pack
-  pack_plut,	// Plutonia pack
-  pack_master,	// Master levels
-  pack_nerve,	// Nerve levels
- 
-  none
+	doom,			// DOOM 1
+	doom2,		// DOOM 2
+	pack_tnt,		// TNT mission pack
+	pack_plut,	// Plutonia pack
+	pack_master,	// Master levels
+	pack_nerve,	// Nerve levels
+
+	none
 
 } GameMission_t;
 
@@ -73,9 +73,9 @@ typedef enum
 // Identify language to use, software localization.
 typedef enum
 {
-  english,
-  german,
-  unknown
+	english,
+	german,
+	unknown
 
 } Language_t;
 
@@ -83,7 +83,7 @@ typedef enum
 // If rangecheck is undefined,
 // most parameter validation debugging code will not be compiled
 #ifdef _DEBUG
-#define RANGECHECK
+	#define RANGECHECK
 #endif
 
 // Do or do not use external soundserver.
@@ -92,7 +92,7 @@ typedef enum
 // The integrated sound support is experimental,
 //  and unfinished. Default is synchronous.
 // Experimental asynchronous timer based is
-//  handled by SNDINTR. 
+//  handled by SNDINTR.
 #define SNDSERV  1
 //#define SNDINTR  1
 
@@ -135,13 +135,13 @@ typedef enum
 
 // The current state of the game: whether we are
 // playing, gazing at the intermission screen,
-// the game final animation, or a demo. 
+// the game final animation, or a demo.
 typedef enum
 {
-    GS_LEVEL,
-    GS_INTERMISSION,
-    GS_FINALE,
-    GS_DEMOSCREEN
+	GS_LEVEL,
+	GS_INTERMISSION,
+	GS_FINALE,
+	GS_DEMOSCREEN
 } gamestate_t;
 
 //
@@ -158,11 +158,11 @@ typedef enum
 
 typedef enum
 {
-    sk_baby,
-    sk_easy,
-    sk_medium,
-    sk_hard,
-    sk_nightmare
+	sk_baby,
+	sk_easy,
+	sk_medium,
+	sk_hard,
+	sk_nightmare
 } skill_t;
 
 
@@ -173,15 +173,15 @@ typedef enum
 //
 typedef enum
 {
-    it_bluecard,
-    it_yellowcard,
-    it_redcard,
-    it_blueskull,
-    it_yellowskull,
-    it_redskull,
-    
-    NUMCARDS
-    
+	it_bluecard,
+	it_yellowcard,
+	it_redcard,
+	it_blueskull,
+	it_yellowskull,
+	it_redskull,
+
+	NUMCARDS
+
 } card_t;
 
 
@@ -191,20 +191,20 @@ typedef enum
 //  user has not changed weapon.
 typedef enum
 {
-    wp_fist,
-    wp_pistol,
-    wp_shotgun,
-    wp_chaingun,
-    wp_missile,
-    wp_plasma,
-    wp_bfg,
-    wp_chainsaw,
-    wp_supershotgun,
+	wp_fist,
+	wp_pistol,
+	wp_shotgun,
+	wp_chaingun,
+	wp_missile,
+	wp_plasma,
+	wp_bfg,
+	wp_chainsaw,
+	wp_supershotgun,
 
-    NUMWEAPONS,
-    
-    // No pending weapon change.
-    wp_nochange
+	NUMWEAPONS,
+
+	// No pending weapon change.
+	wp_nochange
 
 } weapontype_t;
 
@@ -212,12 +212,12 @@ typedef enum
 // Ammunition types defined.
 typedef enum
 {
-    am_clip,	// Pistol / chaingun ammo.
-    am_shell,	// Shotgun / double barreled shotgun.
-    am_cell,	// Plasma rifle, BFG.
-    am_misl,	// Missile launcher.
-    NUMAMMO,
-    am_noammo	// Unlimited for chainsaw / fist.	
+	am_clip,	// Pistol / chaingun ammo.
+	am_shell,	// Shotgun / double barreled shotgun.
+	am_cell,	// Plasma rifle, BFG.
+	am_misl,	// Missile launcher.
+	NUMAMMO,
+	am_noammo	// Unlimited for chainsaw / fist.
 
 } ammotype_t;
 
@@ -225,14 +225,14 @@ typedef enum
 // Power up artifacts.
 typedef enum
 {
-    pw_invulnerability,
-    pw_strength,
-    pw_invisibility,
-    pw_ironfeet,
-    pw_allmap,
-    pw_infrared,
-    NUMPOWERS
-    
+	pw_invulnerability,
+	pw_strength,
+	pw_invisibility,
+	pw_ironfeet,
+	pw_allmap,
+	pw_infrared,
+	NUMPOWERS
+
 } powertype_t;
 
 
@@ -244,11 +244,11 @@ typedef enum
 //
 typedef enum
 {
-    INVULNTICS	= (30*TICRATE),
-    INVISTICS	= (60*TICRATE),
-    INFRATICS	= (120*TICRATE),
-    IRONTICS	= (60*TICRATE)
-    
+	INVULNTICS	= ( 30 * TICRATE ),
+	INVISTICS	= ( 60 * TICRATE ),
+	INFRATICS	= ( 120 * TICRATE ),
+	IRONTICS	= ( 60 * TICRATE )
+
 } powerduration_t;
 
 
@@ -338,7 +338,7 @@ typedef enum
 
 
 #ifndef _WIN32
-#define MAX_PATH	260
+	#define MAX_PATH	260
 #endif
 
 

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,9 +52,9 @@ If you have questions concerning this license or the applicable additional terms
 //
 // P_InitThinkers
 //
-void P_InitThinkers (void)
+void P_InitThinkers( void )
 {
-    ::g->thinkercap.prev = ::g->thinkercap.next  = &::g->thinkercap;
+	::g->thinkercap.prev = ::g->thinkercap.next  = &::g->thinkercap;
 }
 
 
@@ -64,12 +64,12 @@ void P_InitThinkers (void)
 // P_AddThinker
 // Adds a new thinker at the end of the list.
 //
-void P_AddThinker (thinker_t* thinker)
+void P_AddThinker( thinker_t* thinker )
 {
-    ::g->thinkercap.prev->next = thinker;
-    thinker->next = &::g->thinkercap;
-    thinker->prev = ::g->thinkercap.prev;
-    ::g->thinkercap.prev = thinker;
+	::g->thinkercap.prev->next = thinker;
+	thinker->next = &::g->thinkercap;
+	thinker->prev = ::g->thinkercap.prev;
+	::g->thinkercap.prev = thinker;
 }
 
 
@@ -79,10 +79,10 @@ void P_AddThinker (thinker_t* thinker)
 // Deallocation is lazy -- it will not actually be freed
 // until its thinking turn comes up.
 //
-void P_RemoveThinker (thinker_t* thinker)
+void P_RemoveThinker( thinker_t* thinker )
 {
-  // FIXME: NOP.
-  thinker->function.acv = (actionf_v)(-1);
+	// FIXME: NOP.
+	thinker->function.acv = ( actionf_v )( -1 );
 }
 
 
@@ -91,7 +91,7 @@ void P_RemoveThinker (thinker_t* thinker)
 // P_AllocateThinker
 // Allocates memory and adds a new thinker at the end of the list.
 //
-void P_AllocateThinker (thinker_t*	thinker)
+void P_AllocateThinker( thinker_t*	thinker )
 {
 }
 
@@ -100,27 +100,29 @@ void P_AllocateThinker (thinker_t*	thinker)
 //
 // P_RunThinkers
 //
-void P_RunThinkers (void)
+void P_RunThinkers( void )
 {
-    thinker_t*	currentthinker;
+	thinker_t*	currentthinker;
 
-    currentthinker = ::g->thinkercap.next;
-    while (currentthinker != &::g->thinkercap)
-    {
-		 if ( currentthinker->function.acv == (actionf_v)(-1) )
-		 {
-			 // time to remove it
-			 currentthinker->next->prev = currentthinker->prev;
-			 currentthinker->prev->next = currentthinker->next;
-			 Z_Free(currentthinker);
-		 }
-		 else
-		 {
-			 if (currentthinker->function.acp1)
-				 currentthinker->function.acp1 ((mobj_t*)currentthinker);
-		 }
-	currentthinker = currentthinker->next;
-    }
+	currentthinker = ::g->thinkercap.next;
+	while( currentthinker != &::g->thinkercap )
+	{
+		if( currentthinker->function.acv == ( actionf_v )( -1 ) )
+		{
+			// time to remove it
+			currentthinker->next->prev = currentthinker->prev;
+			currentthinker->prev->next = currentthinker->next;
+			Z_Free( currentthinker );
+		}
+		else
+		{
+			if( currentthinker->function.acp1 )
+			{
+				currentthinker->function.acp1( ( mobj_t* )currentthinker );
+			}
+		}
+		currentthinker = currentthinker->next;
+	}
 }
 
 
@@ -130,40 +132,45 @@ void P_RunThinkers (void)
 //
 extern byte demoversion;
 
-void P_Ticker (void)
+void P_Ticker( void )
 {
-    int		i;
-    
-    // run the tic
-    if (::g->paused)
-		return;
+	int		i;
 
-	// don't think during wipe
-	if ( !::g->netgame && (!::g->demoplayback || demoversion == VERSION ) && ::g->wipe ) {
+	// run the tic
+	if( ::g->paused )
+	{
 		return;
 	}
 
-    // pause if in menu and at least one tic has been run
-    if ( !::g->netgame
-	 && ::g->menuactive
-	 && !::g->demoplayback
-	 && ::g->players[::g->consoleplayer].viewz != 1)
-    {
-	return;
-    }
+	// don't think during wipe
+	if( !::g->netgame && ( !::g->demoplayback || demoversion == VERSION ) && ::g->wipe )
+	{
+		return;
+	}
+
+	// pause if in menu and at least one tic has been run
+	if( !::g->netgame
+			&& ::g->menuactive
+			&& !::g->demoplayback
+			&& ::g->players[::g->consoleplayer].viewz != 1 )
+	{
+		return;
+	}
 
 
-	for (i=0 ; i<MAXPLAYERS ; i++) {
-		if (::g->playeringame[i]) {
-		    P_PlayerThink (&::g->players[i]);
+	for( i = 0 ; i < MAXPLAYERS ; i++ )
+	{
+		if( ::g->playeringame[i] )
+		{
+			P_PlayerThink( &::g->players[i] );
 		}
 	}
 
-    P_RunThinkers ();
-    P_UpdateSpecials ();
-    P_RespawnSpecials ();
+	P_RunThinkers();
+	P_UpdateSpecials();
+	P_RespawnSpecials();
 
-    // for par times
-    ::g->leveltime++;	
+	// for par times
+	::g->leveltime++;
 }
 

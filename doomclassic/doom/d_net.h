@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -56,8 +56,8 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef enum
 {
-    CMD_SEND	= 1,
-    CMD_GET	= 2
+	CMD_SEND	= 1,
+	CMD_GET	= 2
 
 } command_t;
 
@@ -67,17 +67,17 @@ typedef enum
 //
 typedef struct
 {
-    // High bit is retransmit request.
-    unsigned		checksum;
-    // Only valid if NCMD_RETRANSMIT.
-    byte		retransmitfrom;
-	
+	// High bit is retransmit request.
+	unsigned		checksum;
+	// Only valid if NCMD_RETRANSMIT.
+	byte		retransmitfrom;
+
 	byte		sourceDest;
-    
-    byte		starttic;
-    byte		player;
-    byte		numtics;
-    ticcmd_t		cmds[BACKUPTICS];
+
+	byte		starttic;
+	byte		player;
+	byte		numtics;
+	ticcmd_t		cmds[BACKUPTICS];
 
 } doomdata_t;
 
@@ -86,66 +86,66 @@ typedef struct
 
 struct doomcom_t
 {
-    // Supposed to be DOOMCOM_ID?
-    long		id;
-    
-    // DOOM executes an int to execute commands.
-    short		intnum;		
-    // Communication between DOOM and the driver.
-    // Is CMD_SEND or CMD_GET.
-    short		command;
-    // Is dest for send, set by get (-1 = no packet).
-    short		remotenode;
-    
-    // Number of bytes in doomdata to be sent
-    short		datalength;
+	// Supposed to be DOOMCOM_ID?
+	long		id;
 
-    // Info common to all nodes.
-    // Console is allways node 0.
-    short		numnodes;
-    // Flag: 1 = no duplication, 2-5 = dup for slow nets.
-    short		ticdup;
-    // Flag: 1 = send a backup tic in every packet.
-    short		extratics;
-    // Flag: 1 = deathmatch.
-    short		deathmatch;
-    // Flag: -1 = new game, 0-5 = load savegame
-    short		savegame;
-    short		episode;	// 1-3
-    short		map;		// 1-9
-    short		skill;		// 1-5
+	// DOOM executes an int to execute commands.
+	short		intnum;
+	// Communication between DOOM and the driver.
+	// Is CMD_SEND or CMD_GET.
+	short		command;
+	// Is dest for send, set by get (-1 = no packet).
+	short		remotenode;
 
-    // Info specific to this node.
-    short		consoleplayer;
-    short		numplayers;
-    
-    // These are related to the 3-display mode,
-    //  in which two drones looking left and right
-    //  were used to render two additional views
-    //  on two additional computers.
-    // Probably not operational anymore.
-    // 1 = left, 0 = center, -1 = right
-    short		angleoffset;
-    // 1 = drone
-    short		drone;		
+	// Number of bytes in doomdata to be sent
+	short		datalength;
 
-    // The packet data to be sent.
-    doomdata_t		data;
-    
+	// Info common to all nodes.
+	// Console is allways node 0.
+	short		numnodes;
+	// Flag: 1 = no duplication, 2-5 = dup for slow nets.
+	short		ticdup;
+	// Flag: 1 = send a backup tic in every packet.
+	short		extratics;
+	// Flag: 1 = deathmatch.
+	short		deathmatch;
+	// Flag: -1 = new game, 0-5 = load savegame
+	short		savegame;
+	short		episode;	// 1-3
+	short		map;		// 1-9
+	short		skill;		// 1-5
+
+	// Info specific to this node.
+	short		consoleplayer;
+	short		numplayers;
+
+	// These are related to the 3-display mode,
+	//  in which two drones looking left and right
+	//  were used to render two additional views
+	//  on two additional computers.
+	// Probably not operational anymore.
+	// 1 = left, 0 = center, -1 = right
+	short		angleoffset;
+	// 1 = drone
+	short		drone;
+
+	// The packet data to be sent.
+	doomdata_t		data;
+
 } ;
 
 
 class idUserCmdMgr;
 
 // Create any new ticcmds and broadcast to other players.
-void NetUpdate ( idUserCmdMgr * userCmdMgr );
+void NetUpdate( idUserCmdMgr* userCmdMgr );
 
 // Broadcasts special packets to other players
 //  to notify of game exit
-void D_QuitNetGame (void);
+void D_QuitNetGame( void );
 
 //? how many ticks to run?
-bool TryRunTics (void);
+bool TryRunTics( void );
 
 
 #endif

@@ -1919,21 +1919,21 @@ void idPlayer::Init()
 	hipJoint = animator.GetJointHandle( value );
 	if( hipJoint == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint '%s' not found for 'bone_hips' on '%s'", value, name.c_str() );
+		gameLocal.Warning( "Joint '%s' not found for 'bone_hips' on '%s'", value, name.c_str() );
 	}
 
 	value = spawnArgs.GetString( "bone_chest", "" );
 	chestJoint = animator.GetJointHandle( value );
 	if( chestJoint == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint '%s' not found for 'bone_chest' on '%s'", value, name.c_str() );
+		gameLocal.Warning( "Joint '%s' not found for 'bone_chest' on '%s'", value, name.c_str() );
 	}
 
 	value = spawnArgs.GetString( "bone_head", "" );
 	headJoint = animator.GetJointHandle( value );
 	if( headJoint == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint '%s' not found for 'bone_head' on '%s'", value, name.c_str() );
+		gameLocal.Warning( "Joint '%s' not found for 'bone_head' on '%s'", value, name.c_str() );
 	}
 
 	// initialize the script variables
@@ -7109,8 +7109,8 @@ void idPlayer::UpdateViewAngles()
 		// don't let the player look up or down more than 90 degrees normally
 		const float restrict = 1.0f;
 
-		viewAngles.pitch = std::min( viewAngles.pitch, pm_maxviewpitch.GetFloat() * restrict );
-		viewAngles.pitch = std::max( viewAngles.pitch, pm_minviewpitch.GetFloat() * restrict );
+		viewAngles.pitch = Min( viewAngles.pitch, pm_maxviewpitch.GetFloat() * restrict );
+		viewAngles.pitch = Max( viewAngles.pitch, pm_minviewpitch.GetFloat() * restrict );
 	}
 
 	UpdateDeltaViewAngles( viewAngles );

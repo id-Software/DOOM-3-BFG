@@ -167,6 +167,31 @@ void Framebuffer::Init()
 		globalFramebuffers.bloomRenderFBO[i]->Check();
 	}
 
+	// TODO(Stephen): change the name from glow to something else. Or make these dynamic.
+
+	//  General framebuffers
+	for( int i = 0; i < MAX_GLOW_BUFFERS; i++ )
+	{
+		globalFramebuffers.glowFBO[i] = new Framebuffer( va( "_glowImage%i", i ), screenWidth, screenHeight );
+		globalFramebuffers.glowFBO[i]->Bind();
+		globalFramebuffers.glowFBO[i]->AddColorBuffer( GL_RGBA8, 0 );
+		globalFramebuffers.glowFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->glowImage[i], 0 );
+		globalFramebuffers.glowFBO[i]->AddStencilBuffer( GL_STENCIL_INDEX ); // stencil buffer for gui masks
+		//globalFramebuffers.glowFBO[i]->AddDepthBuffer( GL_DEPTH24_STENCIL8 ); // probably don't need depth?
+		//globalFramebuffers.envprobeFBO->AttachImageDepth( GL_TEXTURE_2D, globalImages->glowDepthImage[i] );
+		globalFramebuffers.glowFBO[i]->Check();
+	}
+
+	// TRANSPARENCY OIT
+
+	globalFramebuffers.transparencyFBO = new Framebuffer( "_transparencyImage", screenWidth, screenHeight );
+	globalFramebuffers.transparencyFBO->Bind();
+	globalFramebuffers.transparencyFBO->AddColorBuffer( GL_RGBA16F, 0 );
+	globalFramebuffers.transparencyFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->accumTransparencyImage, 0 );
+	globalFramebuffers.transparencyFBO->AddColorBuffer( GL_R8, 1 );
+	globalFramebuffers.transparencyFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->revealTransparencyImage, 1 );
+	globalFramebuffers.transparencyFBO->Check();
+
 	// AMBIENT OCCLUSION
 
 	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
@@ -283,6 +308,16 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.bloomRenderFBO[i]->Bind();
 			globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRenderImage[i], 0 );
 			globalFramebuffers.bloomRenderFBO[i]->Check();
+		}
+
+		// GLOW
+
+		for( int i = 0; i < MAX_GLOW_BUFFERS; i++ )
+		{
+			globalFramebuffers.glowFBO[i]->Bind();
+			globalFramebuffers.glowFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->glowImage[i], 0 );
+			globalFramebuffers.glowFBO[i]->AttachImageDepth( GL_TEXTURE_2D, globalImages->glowDepthImage[i] );
+			globalFramebuffers.glowFBO[i]->Check();
 		}
 
 		// AMBIENT OCCLUSION

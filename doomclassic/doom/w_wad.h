@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -40,20 +40,20 @@ If you have questions concerning this license or the applicable additional terms
 //
 typedef struct
 {
-    // Should be "IWAD" or "PWAD".
-    char		identification[4];		
-    int			numlumps;
-    int			infotableofs;
-    
+	// Should be "IWAD" or "PWAD".
+	char		identification[4];
+	int			numlumps;
+	int			infotableofs;
+
 } wadinfo_t;
 
 
 typedef struct
 {
-    int			filepos;
-    int			size;
-    char		name[8];
-    
+	int			filepos;
+	int			size;
+	char		name[8];
+
 } filelump_t;
 
 //
@@ -61,10 +61,10 @@ typedef struct
 //
 typedef struct
 {
-    char	name[8];
-    idFile *	handle;
-    int		position;
-    int		size;
+	char	name[8];
+	idFile* 	handle;
+	int		position;
+	int		size;
 } lumpinfo_t;
 
 
@@ -72,19 +72,19 @@ extern	void**		lumpcache;
 extern	lumpinfo_t*	lumpinfo;
 extern	int		numlumps;
 
-void    W_InitMultipleFiles (const char** filenames);
-void    W_Reload (void);
+void    W_InitMultipleFiles( const char** filenames );
+void    W_Reload( void );
 void	W_FreeLumps();
 void	W_FreeWadFiles();
 
-int	W_CheckNumForName (const char* name);
-int	W_GetNumForName (const char* name);
+int	W_CheckNumForName( const char* name );
+int	W_GetNumForName( const char* name );
 
-int	W_LumpLength (int lump);
-void    W_ReadLump (int lump, void *dest);
+int	W_LumpLength( int lump );
+void    W_ReadLump( int lump, void* dest );
 
-void*	W_CacheLumpNum (int lump, int tag);
-void*	W_CacheLumpName (const char* name, int tag);
+void*	W_CacheLumpNum( int lump, int tag );
+void*	W_CacheLumpName( const char* name, int tag );
 
 void	W_Shutdown();
 

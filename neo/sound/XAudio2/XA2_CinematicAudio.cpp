@@ -59,9 +59,9 @@ public:
 	//Unused methods are stubs
 	void OnBufferStart( void* pBufferContext ) { }
 	void OnLoopEnd( void* pBufferContext ) { }
-	void OnStreamEnd( ) { }
+	void OnStreamEnd() { }
 	void OnVoiceError( void* pBufferContext, HRESULT Error ) { }
-	void OnVoiceProcessingPassEnd( ) { }
+	void OnVoiceProcessingPassEnd() { }
 	void OnVoiceProcessingPassStart( UINT32 BytesRequired ) { }
 };
 
@@ -116,6 +116,9 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 	bool use_ext = false;
 	voiceFormatcine.nChannels = binkInfo->nChannels; //fixed
 	voiceFormatcine.nSamplesPerSec = binkInfo->sampleRate; //fixed
+#else
+	int format_byte = 2;
+	bool use_ext = false;
 #endif
 
 	WAVEFORMATEXTENSIBLE exvoice = { 0 };

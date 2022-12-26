@@ -1,0 +1,214 @@
+/******************************************
+	Erebus4 Fan Npc
+******************************************/
+export cine_erebus4 {
+
+//FAN GUY BODY
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh marinebodymesh
+	addoptions -align ALL
+
+	anim	models/cinematics/erebus4/cine_fan_idle.mb -dest models/md5/cinematics/erebus4/cine_fan_idle -prefix SUIT_
+	anim	models/cinematics/erebus4/cine_fan_p1.mb -dest models/md5/cinematics/erebus4/cine_fan_p1 -prefix SUIT_
+	anim	models/cinematics/erebus4/cine_fan_p2.mb -dest models/md5/cinematics/erebus4/cine_fan_p2 -prefix SUIT_
+	anim	models/cinematics/erebus4/cine_fan_p3.mb -dest models/md5/cinematics/erebus4/cine_fan_p3 -prefix SUIT_
+
+}
+model erebus4_fan_npc_head {
+	inherit						head_bald
+
+	anim talk_primary				models/md5/heads/bald/marscity/hallway_maint_1_9.md5anim {
+		frame 1						sound_voice erebus4_welded_talk1
+	}
+	anim talk_secondary1				models/md5/heads/bald/marscity/hallway_maint_1_10.md5anim {
+		frame 1						sound_voice erebus4_welded_talk1
+	}
+	anim trigger_1					models/md5/heads/bald/marscity/hallway_maint_1_9.md5anim {
+		frame 1						sound_voice survivor_triggered1
+	}
+	anim trigger_2					models/md5/heads/bald/marscity/hallway_maint_1_9.md5anim {
+		frame 1						sound_voice survivor_primary
+	}
+	anim trigger_3					models/md5/heads/bald/marscity/hallway_maint_1_9.md5anim
+}
+
+model erebus4_fan_npc {
+	inherit							npc_jumpsuit
+//	anim talk_primary				models/md5/chars/ian_d2a/ian_talk_one.md5anim {
+//		frame 1					 		event enableEyeFocus
+//	}
+//	anim talk_secondary1			models/md5/chars/ian_d2a/ian_talk_two.md5anim {
+//		frame 1					 		event enableEyeFocus
+//	}
+	anim stand						models/md5/cinematics/erebus4/cine_fan_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim trigger_1						models/md5/cinematics/erebus4/cine_fan_p1.md5anim {
+		frame 1					 		event disableEyeFocus
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim trigger_2						models/md5/cinematics/erebus4/cine_fan_p2.md5anim {
+		frame 1					 		event disableEyeFocus
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim trigger_3						models/md5/cinematics/erebus4/cine_fan_p3.md5anim {
+		frame 1					 		event disableEyeFocus
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+
+}
+
+entityDef prop_lftflashlight_right {
+	"inherit"						"cin_base"
+	"model"							"prop_lftflashlight"
+	"joint"							"RHANDCONNECTOR"
+	"origin"						"0 -4 2"
+	"angles"						"0 0 0"
+	"remove"						"1"
+}
+
+entityDef erebus4_fan_npc {
+	"inherit"						"npc_base"
+	"model"							"erebus4_fan_npc"
+	"def_head"						"erebus4_fan_npc_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+
+	"head_focus_rate"				"0.1"
+
+	"def_attach"					"prop_lftflashlight_right"
+//	"def_dropDeathItem"				"moveable_item_flashlight"
+	"dropDeathItemJoint"			"RHANDCONNECTOR"
+	"dropDeathItemRotation"			"0 0 0"
+	"dropDeathItemOffset"			"0 0 0"
+
+	"look_joint Waist"				".2 .2 0"
+	"look_joint Chest"				".2 .2 0"
+	"look_joint Shoulders"			".1 .1 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+	"harvest_on_death"				"1"
+	"def_harvest_type"					"env_harvest_default"
+	"harvest_sound"					"snd_harvest_whisper"
+
+	"skin_harvest"					"skins/characters/npcs/harvest_maint1.skin"
+	"skin_harvest_head"				"skins/characters/npcs/head_bald_bloody_harvest.skin"
+	"skin_harvest_burn"				"skins/characters/npcs/harvest_maint1_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/head_bald_bloody_harvest_burn.skin"
+
+	"snd_harvest_whisper"			"harvest_whisper"
+}
+
+/******************************************
+	Erebus4 Trapped Guy
+******************************************/
+
+export cine_erebus4 {
+
+//TRAPPED HEAD
+//	options -prefix H2_ -keep headcontrol neckcontrol loneckcontrol Leyeaim Reyeaim -parent Head headcontrol -parent Reyeaim Head -parent Leyeaim Head -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent Neck neckcontrol -parent Jaw Head -parent mouth12 Head -parent mouth1 Head -parent mouth2 Head -parent mouth3 Head -parent mouth4 Jaw -parent mouth5 Jaw -parent mouth6 Jaw -parent mouth7 Jaw -parent mouth8 Jaw -parent mouth9 Head -parent mouth10 Head -parent mouth11 Head -parent tongue1 Jaw -parent Lcheek Head -parent Rcheek Head -parent Rnostril Head -parent Lnostril Head -parent Lsmile Head -parent Rsmile Head -parent Rcheek Head -parent Lcheek Head -parent Lsneer Head -parent Rsneer Head -parent Lbrow1 Head -parent Lbrow2 Head -parent Lbrow3 Head -parent Rbrow1 Head -parent Rbrow2 Head -parent Rbrow3 Head -parent Ruplid Head -parent Rlolid Head -parent Luplid Head -parent Llolid Head
+//
+//	anim models/characters/heads/head02_young/e4_trapped.mb -rotate 90 -dest models/md5/cinematics/erebus4/trapped_head
+
+
+//TRAPPED BODY
+	options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh marinebodymesh
+	addoptions -align ALL
+
+	anim	models/cinematics/erebus4/cine_trapped.mb -dest models/md5/cinematics/erebus4/trapped -prefix SUIT_
+	anim	models/cinematics/erebus4/cine_trapped_idle.mb -dest models/md5/cinematics/erebus4/trapped_idle -prefix SUIT_
+
+//VULGAR
+
+	options -prefix VUL_ -keep Lknee Rknee -keep r_fireball l_fireball ROT -align movement -parent r_fireball Rwrist -parent l_fireball Lwrist -parent spine_1 ROT -parent ROT root
+
+	anim	models/cinematics/erebus4/cine_trapped.mb -dest models/md5/monsters/vulgar/cine_trapped -prefix VUL_
+}
+
+model erebus4_trapped_npc_head {
+	inherit							headXP_1
+	anim triggered1					models/md5/characters/heads/old/erebus4/trapped_triggered1.md5anim {
+		frame 1							sound_voice trapped_triggered1
+	}
+	anim trapped					models/md5/characters/heads/old/erebus4/trapped_triggered2.md5anim {
+		frame 1							sound_voice trapped_triggered2
+	}
+}
+
+model erebus4_trapped_npc {
+	inherit							npc_jumpsuit
+	//anim trapped_idle				models/md5/cinematics/erebus4/trapped_idle.md5anim
+	anim stand						models/md5/cinematics/erebus4/trapped_idle.md5anim
+	anim trapped					models/md5/cinematics/erebus4/trapped.md5anim {
+		frame 1					 		event enableEyeFocus
+        frame 1                        	call map_erebus4::trapped_look_at_player
+        frame 96                      	call map_erebus4::trapped_stop_looking
+        frame 225					trigger e4_trapped_npc_squirt
+		//frame 1						sound_voice trapped_triggered2
+	}
+}
+
+entityDef erebus4_trapped_npc {
+	"inherit"						"npc_base"
+	"model"							"erebus4_trapped_npc"
+	"def_head"						"erebus4_trapped_npc_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+
+	"head_focus_rate"				"0.1"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".8 .8 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+//	"def_attach"					"pda_erebus4_ron_gibbons_pda"
+//	"def_dropDeathItem"				"pda_erebus4_ron_gibbons_pda"
+//	"dropDeathItemJoint"			"pda"
+//	"dropDeathItemRotation"			"0 0 0"
+
+	"harvest_on_death"				"1"
+	"def_harvest_type"					"env_harvest_default"
+	"harvest_sound"					"snd_harvest_whisper"
+
+
+	"skin_harvest"					"skins/characters/npcs/harvest_maint1.skin"
+	"skin_harvest_head"				"skins/characters/npcs/heads/e4_head_old_harvest.skin"
+	"skin_harvest_burn"				"skins/characters/npcs/harvest_maint1_burn.skin"
+	"skin_harvest_burn_head"		"skins/characters/npcs/heads/e4_head_old_burn.skin"
+
+	"snd_harvest_whisper"			"harvest_whisper"
+}
+

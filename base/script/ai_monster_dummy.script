@@ -1,0 +1,89 @@
+
+object monster_dummy : monster_base {
+	
+	
+	void		state_Begin();
+	void		state_Idle();
+	
+	// torso anim states
+	void		Torso_Idle();
+	
+	// legs anim states
+	void		Legs_Idle();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_dummy::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+}
+
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_dummy::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+}
+
+
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_dummy::init
+=====================
+*/
+void monster_dummy::init() {
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_dummy::state_Begin
+=====================
+*/
+void monster_dummy::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	
+	setMoveType( MOVETYPE_ANIM );
+	
+	monster_begin();
+
+	
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_dummy::state_Idle
+=====================
+*/
+void monster_dummy::state_Idle() {
+	wait_for_enemy();
+	
+	while(1) {
+		waitFrame();
+	}
+
+}
+

@@ -519,7 +519,7 @@ int main( int argc, const char** argv )
 	Sys_Printf( "memory consistency checking enabled\n" );
 #endif
 
-	Posix_EarlyInit( );
+	Posix_EarlyInit();
 
 	if( argc > 1 )
 	{
@@ -530,7 +530,7 @@ int main( int argc, const char** argv )
 		common->Init( 0, NULL, NULL );
 	}
 
-	Posix_LateInit( );
+	Posix_LateInit();
 
 
 	while( 1 )

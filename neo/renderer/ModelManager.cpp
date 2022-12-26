@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Stephen Pridham
+Copyright (C) 2022 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,9 +30,15 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "precompiled.h"
 #pragma hdrstop
-
+#include "Model_gltf.h"
 #include "Model_local.h"
 #include "RenderCommon.h"	// just for R_FreeWorldInteractions and R_CreateWorldInteractions
+
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+
+	extern DeviceManager* deviceManager;
+#endif
 
 idCVar binaryLoadRenderModels( "binaryLoadRenderModels", "1", 0, "enable binary load/write of render models" );
 idCVar preload_MapModels( "preload_MapModels", "1", CVAR_SYSTEM | CVAR_BOOL, "preload models during begin or end levelload" );
@@ -49,12 +57,13 @@ public:
 	virtual void			Shutdown();
 	virtual idRenderModel* 	AllocModel();
 	virtual void			FreeModel( idRenderModel* model );
-	virtual idRenderModel* 	FindModel( const char* modelName );
+	virtual idRenderModel* 	FindModel( const char* modelName, const idImportOptions* options = NULL );
 	virtual idRenderModel* 	CheckModel( const char* modelName );
 	virtual idRenderModel* 	DefaultModel();
 	virtual void			AddModel( idRenderModel* model );
 	virtual void			RemoveModel( idRenderModel* model );
 	virtual void			ReloadModels( bool forceAll = false );
+	virtual void			CreateMeshBuffers( nvrhi::ICommandList* commandList );
 	virtual void			FreeModelVertexCaches();
 	virtual void			WritePrecacheCommands( idFile* file );
 	virtual void			BeginLevelLoad();
@@ -65,13 +74,14 @@ public:
 
 private:
 	idList<idRenderModel*, TAG_MODEL>	models;
-	idHashIndex				hash;
-	idRenderModel* 			defaultModel;
-	idRenderModel* 			beamModel;
-	idRenderModel* 			spriteModel;
-	bool					insideLevelLoad;		// don't actually load now
+	idHashIndex							hash;
+	idRenderModel* 						defaultModel;
+	idRenderModel* 						beamModel;
+	idRenderModel* 						spriteModel;
+	bool								insideLevelLoad;		// don't actually load now
+	nvrhi::CommandListHandle			commandList;
 
-	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound );
+	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound, const idImportOptions* options );
 
 	static void				PrintModel_f( const idCmdArgs& args );
 	static void				ListModels_f( const idCmdArgs& args );
@@ -232,6 +242,13 @@ idRenderModelManagerLocal::Init
 */
 void idRenderModelManagerLocal::Init()
 {
+#if defined( USE_NVRHI )
+	if( !commandList )
+	{
+		commandList = deviceManager->GetDevice()->createCommandList();
+	}
+#endif
+
 	cmdSystem->AddCommand( "listModels", ListModels_f, CMD_FL_RENDERER, "lists all models" );
 	cmdSystem->AddCommand( "printModel", PrintModel_f, CMD_FL_RENDERER, "prints model info", idCmdSystem::ArgCompletion_ModelName );
 	cmdSystem->AddCommand( "reloadModels", ReloadModels_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "reloads models" );
@@ -270,6 +287,9 @@ void idRenderModelManagerLocal::Shutdown()
 {
 	models.DeleteContents( true );
 	hash.Free();
+#if defined( USE_NVRHI )
+	commandList.Reset();
+#endif
 }
 
 /*
@@ -277,9 +297,8 @@ void idRenderModelManagerLocal::Shutdown()
 idRenderModelManagerLocal::GetModel
 =================
 */
-idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound )
+idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound, const idImportOptions* options )
 {
-
 	if( !_modelName || !_modelName[0] )
 	{
 		return NULL;
@@ -290,6 +309,13 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 
 	idStrStatic< MAX_OSPATH > extension;
 	canonical.ExtractFileExtension( extension );
+
+	bool isGLTF = false;
+	// HvG: GLTF 2 support
+	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
+	{
+		isGLTF = true;
+	}
 
 	// see if it is already present
 	int key = hash.GenerateKey( canonical, false );
@@ -307,7 +333,22 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 				generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
 
 				// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
-				ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+
+				ID_TIME_T sourceTimeStamp;
+
+				if( isGLTF )
+				{
+					idStr gltfFileName = idStr( canonical );
+					int gltfMeshId = -1;
+					idStr gltfMeshName;
+					gltfManager::ExtractIdentifier( gltfFileName, gltfMeshId, gltfMeshName );
+
+					sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );
+				}
+				else
+				{
+					sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+				}
 
 				if( model->SupportsBinaryModel() && binaryLoadRenderModels.GetBool() )
 				{
@@ -315,7 +356,14 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 					model->PurgeModel();
 					if( !model->LoadBinaryModel( file, sourceTimeStamp ) )
 					{
-						model->LoadModel();
+						if( isGLTF )
+						{
+							model->InitFromFile( canonical, options );
+						}
+						else
+						{
+							model->LoadModel();
+						}
 					}
 				}
 				else
@@ -342,8 +390,16 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 
 	idRenderModel* model = NULL;
 
+	// HvG: GLTF 2 support
+	if( isGLTF )
+	{
+		model = new( TAG_MODEL ) idRenderModelGLTF;
+		isGLTF = true;
+	}
 	// RB: Collada DAE and Wavefront OBJ
-	if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 ) || ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 ) || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
+	else if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 )
+			 || ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 )
+			 || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 	{
 		model = new( TAG_MODEL ) idRenderModelStatic;
 	}
@@ -373,19 +429,33 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 		generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
 
 		// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
-		ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+		ID_TIME_T sourceTimeStamp;
+
+		if( isGLTF )
+		{
+			idStr gltfFileName = idStr( canonical );
+			int gltfMeshId = -1;
+			idStr gltfMeshName;
+			gltfManager::ExtractIdentifier( gltfFileName, gltfMeshId, gltfMeshName );
+
+			sourceTimeStamp = fileSystem->GetTimestamp( gltfFileName );
+		}
+		else
+		{
+			sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+		}
 
 		idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 
 		if( !model->SupportsBinaryModel() || !binaryLoadRenderModels.GetBool() )
 		{
-			model->InitFromFile( canonical );
+			model->InitFromFile( canonical, options );
 		}
 		else
 		{
 			if( !model->LoadBinaryModel( file, sourceTimeStamp ) )
 			{
-				model->InitFromFile( canonical );
+				model->InitFromFile( canonical, options );
 
 				// RB: default models shouldn't be cached as binary models
 				if( !model->IsDefaultModel() )
@@ -531,9 +601,9 @@ void idRenderModelManagerLocal::FreeModel( idRenderModel* model )
 idRenderModelManagerLocal::FindModel
 =================
 */
-idRenderModel* idRenderModelManagerLocal::FindModel( const char* modelName )
+idRenderModel* idRenderModelManagerLocal::FindModel( const char* modelName, const idImportOptions* options )
 {
-	return GetModel( modelName, true );
+	return GetModel( modelName, true, options );
 }
 
 /*
@@ -543,7 +613,7 @@ idRenderModelManagerLocal::CheckModel
 */
 idRenderModel* idRenderModelManagerLocal::CheckModel( const char* modelName )
 {
-	return GetModel( modelName, false );
+	return GetModel( modelName, false, nullptr );
 }
 
 /*
@@ -610,26 +680,59 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 			continue;
 		}
 
+		bool isGLTF = false;
+		idStr filename = model->Name();
+		idStr extension;
+		idStr assetName = filename;
+		assetName.ExtractFileExtension( extension );
+		isGLTF = extension.Icmp( "glb" ) == 0 || extension.Icmp( "gltf" ) == 0;
 		if( !forceAll )
 		{
 			// check timestamp
 			ID_TIME_T current;
 
-			fileSystem->ReadFile( model->Name(), NULL, &current );
+			if( isGLTF )
+			{
+				idStr meshName;
+				int meshID = -1;
+				gltfManager::ExtractIdentifier( filename, meshID, meshName );
+			}
+
+			fileSystem->ReadFile( filename, NULL, &current );
 			if( current <= model->Timestamp() )
 			{
 				continue;
 			}
 		}
 
-		common->DPrintf( "reloading %s.\n", model->Name() );
+		common->DPrintf( "^1Reloading %s.\n", model->Name() );
 
-		model->LoadModel();
+		if( isGLTF )
+		{
+			// RB: we don't have the options here so make sure this only applies to static models
+			model->InitFromFile( model->Name(), NULL );
+		}
+		else
+		{
+			model->LoadModel();
+		}
+
 	}
 
 	// we must force the world to regenerate, because models may
 	// have changed size, making their references invalid
 	R_ReCreateWorldReferences();
+}
+
+void idRenderModelManagerLocal::CreateMeshBuffers( nvrhi::ICommandList* commandList )
+{
+	for( int i = 0; i < models.Num(); i++ )
+	{
+		idRenderModel* model = models[i];
+
+		// Upload vertices and indices and shadow vertices into the vertex cache.
+		assert( false && "Stephen should implement me!" );
+	}
 }
 
 /*
@@ -744,8 +847,6 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest& manifest )
 	}
 }
 
-
-
 /*
 =================
 idRenderModelManagerLocal::EndLevelLoad
@@ -769,7 +870,6 @@ void idRenderModelManagerLocal::EndLevelLoad()
 
 		if( !model->IsLevelLoadReferenced() && model->IsLoaded() && model->IsReloadable() )
 		{
-
 //			common->Printf( "purging %s\n", model->Name() );
 
 			purgeCount++;
@@ -805,22 +905,29 @@ void idRenderModelManagerLocal::EndLevelLoad()
 		}
 	}
 
+	commandList->open();
+
+	for( int i = 0; i < models.Num(); i++ )
+	{
+		idRenderModel* model = models[i];
+		model->CreateBuffers( commandList );
+	}
+
 	// create static vertex/index buffers for all models
 	for( int i = 0; i < models.Num(); i++ )
 	{
-		common->UpdateLevelLoadPacifier();
-
-
 		idRenderModel* model = models[i];
 		if( model->IsLoaded() )
 		{
 			for( int j = 0; j < model->NumSurfaces(); j++ )
 			{
-				R_CreateStaticBuffersForTri( *( model->Surface( j )->geometry ) );
+				R_CreateStaticBuffersForTri( *( model->Surface( j )->geometry ), commandList );
 			}
 		}
 	}
 
+	commandList->close();
+	deviceManager->GetDevice()->executeCommandList( commandList );
 
 	// _D3XP added this
 	int	end = Sys_Milliseconds();
@@ -893,3 +1000,517 @@ void idRenderModelManagerLocal::PrintMemInfo( MemInfo_t* mi )
 	f->Printf( "\nTotal model bytes allocated: %s\n", idStr::FormatNumber( totalMem ).c_str() );
 	fileSystem->CloseFile( f );
 }
+
+
+
+// RB: added Maya exporter options
+/*
+==============================================================================================
+
+	idTokenizer
+
+==============================================================================================
+*/
+
+/*
+=================
+MayaError
+=================
+*/
+void MayaError( const char* fmt, ... )
+{
+	va_list	argptr;
+	char	text[ 8192 ];
+
+	va_start( argptr, fmt );
+	idStr::vsnPrintf( text, sizeof( text ), fmt, argptr );
+	va_end( argptr );
+
+	throw idException( text );
+}
+
+
+class idTokenizer
+{
+private:
+	int					currentToken;
+	idStrList			tokens;
+
+public:
+	idTokenizer()
+	{
+		Clear();
+	};
+	void				Clear()
+	{
+		currentToken = 0;
+		tokens.Clear();
+	};
+
+	int					SetTokens( const char* buffer );
+	const char*			NextToken( const char* errorstring = NULL );
+
+	bool				TokenAvailable()
+	{
+		return currentToken < tokens.Num();
+	};
+	int					Num()
+	{
+		return tokens.Num();
+	};
+	void				UnGetToken()
+	{
+		if( currentToken > 0 )
+		{
+			currentToken--;
+		}
+	};
+	const char*			GetToken( int index )
+	{
+		if( ( index >= 0 ) && ( index < tokens.Num() ) )
+		{
+			return tokens[ index ];
+		}
+		else
+		{
+			return NULL;
+		}
+	};
+	const char*			CurrentToken()
+	{
+		return GetToken( currentToken );
+	};
+};
+
+/*
+====================
+idTokenizer::SetTokens
+====================
+*/
+int idTokenizer::SetTokens( const char* buffer )
+{
+	const char* cmd;
+
+	Clear();
+
+	// tokenize commandline
+	cmd = buffer;
+	while( *cmd )
+	{
+		// skip whitespace
+		while( *cmd && isspace( *cmd ) )
+		{
+			cmd++;
+		}
+
+		if( !*cmd )
+		{
+			break;
+		}
+
+		idStr& current = tokens.Alloc();
+		while( *cmd && !isspace( *cmd ) )
+		{
+			current += *cmd;
+			cmd++;
+		}
+	}
+
+	return tokens.Num();
+}
+
+/*
+====================
+idTokenizer::NextToken
+====================
+*/
+const char* idTokenizer::NextToken( const char* errorstring )
+{
+	if( currentToken < tokens.Num() )
+	{
+		return tokens[ currentToken++ ];
+	}
+
+	if( errorstring )
+	{
+		MayaError( "Error: %s", errorstring );
+	}
+
+	return NULL;
+}
+
+
+
+
+/*
+==============================================================================================
+
+	idImportOptions
+
+==============================================================================================
+*/
+
+#define DEFAULT_ANIM_EPSILON	0.125f
+#define DEFAULT_QUAT_EPSILON	( 1.0f / 8192.0f )
+
+void idImportOptions::Init( const char* commandline, const char* ospath )
+{
+	idStr		token;
+	idNamePair	joints;
+	int			i;
+	idAnimGroup*	group;
+	idStr		sourceDir;
+	idStr		destDir;
+
+	//Reset( commandline );
+	scale				= 1.0f;
+	//type				= WRITE_MESH;
+	startframe			= -1;
+	endframe			= -1;
+	ignoreMeshes		= false;
+	clearOrigin			= false;
+	clearOriginAxis		= false;
+	addOrigin			= false;
+	transferRootMotion	= "";
+	framerate			= 24;
+	align				= "";
+	rotate				= 0.0f;
+	commandLine			= commandline;
+	prefix				= "";
+	jointThreshold		= 0.05f;
+	ignoreScale			= false;
+	xyzPrecision		= DEFAULT_ANIM_EPSILON;
+	quatPrecision		= DEFAULT_QUAT_EPSILON;
+	cycleStart			= -1;
+	reOrient			= ang_zero;
+	armature			= "";
+
+	src.Clear();
+	dest.Clear();
+
+	idTokenizer tokens;
+	tokens.SetTokens( commandline );
+
+	keepjoints.Clear();
+	renamejoints.Clear();
+	remapjoints.Clear();
+	exportgroups.Clear();
+	skipmeshes.Clear();
+	keepmeshes.Clear();
+	groups.Clear();
+
+	/*
+	token = tokens.NextToken( "Missing export command" );
+	if( token == "mesh" )
+	{
+		type = WRITE_MESH;
+	}
+	else if( token == "anim" )
+	{
+		type = WRITE_ANIM;
+	}
+	else if( token == "camera" )
+	{
+		type = WRITE_CAMERA;
+	}
+	else
+	{
+		MayaError( "Unknown export command '%s'", token.c_str() );
+	}
+	*/
+
+	//src = tokens.NextToken( "Missing source filename" );
+	//dest = src;
+
+	for( token = tokens.NextToken(); token != ""; token = tokens.NextToken() )
+	{
+		if( token == "-" )
+		{
+			token = tokens.NextToken( "Missing import parameter" );
+
+			if( token == "force" )
+			{
+				// skip
+			}
+			else if( token == "game" )
+			{
+				// parse game name
+				game = tokens.NextToken( "Expecting game name after -game" );
+
+			}
+			else if( token == "rename" )
+			{
+				// parse joint to rename
+				joints.from = tokens.NextToken( "Missing joint name for -rename.  Usage: -rename [joint name] [new name]" );
+				joints.to	= tokens.NextToken( "Missing new name for -rename.  Usage: -rename [joint name] [new name]" );
+				renamejoints.Append( joints );
+
+			}
+			else if( token == "prefix" )
+			{
+				prefix = tokens.NextToken( "Missing name for -prefix.  Usage: -prefix [joint prefix]" );
+
+			}
+			else if( token == "parent" )
+			{
+				// parse joint to reparent
+				joints.from = tokens.NextToken( "Missing joint name for -parent.  Usage: -parent [joint name] [new parent]" );
+				joints.to	= tokens.NextToken( "Missing new parent for -parent.  Usage: -parent [joint name] [new parent]" );
+				remapjoints.Append( joints );
+
+			}
+			else if( !token.Icmp( "sourcedir" ) )
+			{
+				// parse source directory
+				sourceDir = tokens.NextToken( "Missing filename for -sourcedir.  Usage: -sourcedir [directory]" );
+
+			}
+			else if( !token.Icmp( "destdir" ) )
+			{
+				// parse destination directory
+				destDir = tokens.NextToken( "Missing filename for -destdir.  Usage: -destdir [directory]" );
+
+			}
+			else if( token == "dest" )
+			{
+				// parse destination filename
+				dest = tokens.NextToken( "Missing filename for -dest.  Usage: -dest [filename]" );
+
+			}
+			else if( token == "range" )
+			{
+				// parse frame range to export
+				token		= tokens.NextToken( "Missing start frame for -range.  Usage: -range [start frame] [end frame]" );
+				startframe	= atoi( token );
+				token		= tokens.NextToken( "Missing end frame for -range.  Usage: -range [start frame] [end frame]" );
+				endframe	= atoi( token );
+
+				if( startframe > endframe )
+				{
+					MayaError( "Start frame is greater than end frame." );
+				}
+
+			}
+			else if( !token.Icmp( "cycleStart" ) )
+			{
+				// parse start frame of cycle
+				token		= tokens.NextToken( "Missing cycle start frame for -cycleStart.  Usage: -cycleStart [first frame of cycle]" );
+				cycleStart	= atoi( token );
+
+			}
+			else if( token == "scale" )
+			{
+				// parse scale
+				token	= tokens.NextToken( "Missing scale amount for -scale.  Usage: -scale [scale amount]" );
+				scale	= atof( token );
+
+			}
+			else if( token == "align" )
+			{
+				// parse align joint
+				align = tokens.NextToken( "Missing joint name for -align.  Usage: -align [joint name]" );
+
+			}
+			else if( token == "rotate" )
+			{
+				// parse angle rotation
+				token	= tokens.NextToken( "Missing value for -rotate.  Usage: -rotate [yaw]" );
+				rotate	= -atof( token );
+
+			}
+			else if( token == "nomesh" )
+			{
+				ignoreMeshes = true;
+
+			}
+			else if( token == "clearorigin" )
+			{
+				clearOrigin = true;
+				clearOriginAxis = true;
+
+			}
+			else if( token == "clearoriginaxis" )
+			{
+				clearOriginAxis = true;
+
+			}
+			else if( token == "addorigin" )
+			{
+				addOrigin = true;
+			}
+			else if( token == "transfermotion" )
+			{
+				token = tokens.NextToken( "Missing value for -transfermotion.  Usage: -transfermotion [bonename]" );
+				transferRootMotion = token;
+			}
+			else if( token == "ignorescale" )
+			{
+				ignoreScale = true;
+
+			}
+			else if( token == "xyzprecision" )
+			{
+				// parse quaternion precision
+				token = tokens.NextToken( "Missing value for -xyzprecision.  Usage: -xyzprecision [precision]" );
+				xyzPrecision = atof( token );
+				if( xyzPrecision < 0.0f )
+				{
+					MayaError( "Invalid value for -xyzprecision.  Must be >= 0" );
+				}
+
+			}
+			else if( token == "quatprecision" )
+			{
+				// parse quaternion precision
+				token = tokens.NextToken( "Missing value for -quatprecision.  Usage: -quatprecision [precision]" );
+				quatPrecision = atof( token );
+				if( quatPrecision < 0.0f )
+				{
+					MayaError( "Invalid value for -quatprecision.  Must be >= 0" );
+				}
+
+			}
+			else if( token == "jointthreshold" )
+			{
+				// parse joint threshold
+				token			= tokens.NextToken( "Missing weight for -jointthreshold.  Usage: -jointthreshold [minimum joint weight]" );
+				jointThreshold	= atof( token );
+
+			}
+			else if( token == "skipmesh" )
+			{
+				token = tokens.NextToken( "Missing name for -skipmesh.  Usage: -skipmesh [name of mesh to skip]" );
+				skipmeshes.AddUnique( token );
+
+			}
+			else if( token == "keepmesh" )
+			{
+				token = tokens.NextToken( "Missing name for -keepmesh.  Usage: -keepmesh [name of mesh to keep]" );
+				keepmeshes.AddUnique( token );
+
+			}
+			else if( token == "jointgroup" )
+			{
+				token	= tokens.NextToken( "Missing name for -jointgroup.  Usage: -jointgroup [group name] [joint1] [joint2]...[joint n]" );
+				group = groups.Ptr();
+				for( i = 0; i < groups.Num(); i++, group++ )
+				{
+					if( group->name == token )
+					{
+						break;
+					}
+				}
+
+				if( i >= groups.Num() )
+				{
+					// create a new group
+					group = &groups.Alloc();
+					group->name = token;
+				}
+
+				while( tokens.TokenAvailable() )
+				{
+					token = tokens.NextToken();
+					if( token[ 0 ] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+
+					group->joints.AddUnique( token );
+				}
+			}
+			else if( token == "group" )
+			{
+				// add the list of groups to export (these don't affect the hierarchy)
+				while( tokens.TokenAvailable() )
+				{
+					token = tokens.NextToken();
+					if( token[ 0 ] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+
+					group = groups.Ptr();
+					for( i = 0; i < groups.Num(); i++, group++ )
+					{
+						if( group->name == token )
+						{
+							break;
+						}
+					}
+
+					if( i >= groups.Num() )
+					{
+						MayaError( "Unknown group '%s'", token.c_str() );
+					}
+
+					exportgroups.AddUnique( group );
+				}
+			}
+			else if( token == "keep" )
+			{
+				// add joints that are kept whether they're used by a mesh or not
+				while( tokens.TokenAvailable() )
+				{
+					token = tokens.NextToken();
+					if( token[ 0 ] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+					keepjoints.AddUnique( token );
+				}
+			}
+			else if( token == "reorient" )
+			{
+				while( tokens.TokenAvailable() )
+				{
+					idAngles angle;
+					float x = atof( tokens.NextToken() );
+					float y = atof( tokens.NextToken() );
+					float z = atof( tokens.NextToken() );
+					reOrient = idAngles( x, y, z );
+					token = tokens.NextToken();
+					if( token[0] == '-' )
+					{
+						tokens.UnGetToken();
+						break;
+					}
+				}
+			}
+			else if( token == "armature" )
+			{
+				armature = tokens.NextToken( "Missing skin name for -armature.  Usage: -armature [gltfSkin name]" );
+			}
+			else
+			{
+				MayaError( "Unknown option '%s'", token.c_str() );
+			}
+		}
+	}
+
+	token = src;
+	src = ospath;
+	src.BackSlashesToSlashes();
+	src.AppendPath( sourceDir );
+	src.AppendPath( token );
+
+	token = dest;
+	dest = ospath;
+	dest.BackSlashesToSlashes();
+	dest.AppendPath( destDir );
+	dest.AppendPath( token );
+
+	// Maya only accepts unix style path separators
+	src.BackSlashesToSlashes();
+	dest.BackSlashesToSlashes();
+
+	if( skipmeshes.Num() && keepmeshes.Num() )
+	{
+		MayaError( "Can't use -keepmesh and -skipmesh together." );
+	}
+}
+
+// RB end

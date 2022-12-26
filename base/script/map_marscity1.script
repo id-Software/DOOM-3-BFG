@@ -1,0 +1,341 @@
+namespace map_marscity1 {
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("mc1_scanner_rot1s");
+		sys.cacheSoundShader ("mc1_scanner_3s_movement");
+		sys.cacheSoundShader ("entrance_scanner_loop");
+		sys.trigger ($speaker_mouse);			// Turn it off...
+	}
+	
+	void toggle_intro_sounds() {
+		sys.print ("Toggling speakers\n");
+		sys.trigger ($speaker_83);
+		sys.trigger ($speaker_84);
+		sys.trigger ($speaker_85);
+		sys.trigger ($speaker_86);
+		sys.trigger ($speaker_87);
+		sys.trigger ($speaker_88);
+		sys.trigger ($speaker_89);
+		sys.trigger ($speaker_90);
+		sys.trigger ($speaker_91);
+		sys.trigger ($speaker_92);
+	}
+
+	//turret gun movement
+	void turret_loop() {
+		while(1)
+		{
+			$security_cannon.time( 3 );
+			$security_cannon.accelTime( 0 );
+			$security_cannon.decelTime( .25 );
+			
+			$security_cannon.rotateOnce( '0 -30 0' );
+			sys.waitFor($security_cannon);
+			
+			sys.wait(.5);
+
+			$security_cannon.rotateOnce( '0 30 0' );
+			sys.waitFor($security_cannon);
+			
+			sys.wait(.5);
+		}
+	}
+
+	// mars city mice movers
+	void Startmouse1() {
+		while(1)
+		{
+			$mc_mouse1.time( 15 );
+			$mc_mouse1.accelTime( 0 );
+			$mc_mouse1.decelTime( 0 );
+			sys.trigger ($speaker_mouse);			// Turn it on...
+			$mc_mouse1.startSpline( $func_splinemover_3 );
+			
+			sys.waitFor($mc_mouse1);
+			
+			sys.trigger ($speaker_mouse);			// Turn it off...
+			
+			sys.wait(60);
+			$mc_mouse1.removeInitialSplineAngles();
+		}
+	}
+
+	// function for starting shutters1 sound
+	void sound_shutter1_start()
+	{
+		sys.trigger ($speaker_shutters);
+	}
+
+	// function for stopping shutters1 sound
+	void sound_shutter1_stop()
+	{
+		//sys.trigger ($speaker_shutters);	
+	}
+
+
+	void kitchenlightsoff()
+	{
+		sys.wait(1);
+		$kitchen_swinglight_1.fadeOutLight(2);
+		$kitchen_swinglight_2.fadeOutLight(2);
+		$kitchen_swinglight_3.fadeOutLight(2);
+		$kitchen_swinglight_4.fadeOutLight(2);
+		$kitchen_swinglight_5.fadeOutLight(2);
+		$kitchen_swinglight_6.fadeOutLight(2);
+
+	}
+	
+	void windshutter1_open()
+	{
+		//start the kitchen lights fading
+			thread kitchenlightsoff();
+
+		/// starting shutter sound
+		thread sound_shutter1_start();
+
+		//might need this later
+		//$windshutter1_gui.setGuiParm( "gui_parm1" , windstatus1);
+		
+		//fade in the bounce lightlight
+		$shutter_bounce_light.fadeInLight(1.5);
+
+		//times for shutters opening
+		$windshutter1_1.time(1.5);
+		$windshutter1_1.accelTime(1);
+		$windshutter1_1.decelTime(.5);
+
+		$windshutter1_2.time(1.5);
+		$windshutter1_2.accelTime(1);
+		$windshutter1_2.decelTime(.5);
+
+		// Going up
+		$windshutter1_1.rotateOnce( '180 0 0' ); 
+		sys.wait(0.5);
+		$windshutter1_2.rotateOnce( '180 0 0' ); 
+		sys.waitFor($windshutter1_2);
+		
+
+		// stopping shutter sound
+		thread sound_shutter1_stop();
+	}
+
+	void kitchenlightson()
+	{
+		sys.wait(3);
+		$kitchen_swinglight_1.fadeInLight(2);
+		$kitchen_swinglight_2.fadeInLight(2);
+		$kitchen_swinglight_3.fadeInLight(2);
+		$kitchen_swinglight_4.fadeInLight(2);
+		$kitchen_swinglight_5.fadeInLight(2);
+		$kitchen_swinglight_6.fadeInLight(2);
+
+	}
+
+	void windshutter1_close()
+	{
+
+		//start the kitchen lights fading
+			thread kitchenlightson();
+
+		// starting shutter sound
+		thread sound_shutter1_start();
+
+		// Fade bounce light
+		$shutter_bounce_light.fadeOutLight(3);
+		
+
+		//times for shutters closing
+		$windshutter1_1.time(3);
+		$windshutter1_1.accelTime(2);
+		$windshutter1_1.decelTime(1);
+
+		$windshutter1_2.time(3);
+		$windshutter1_2.accelTime(2);
+		$windshutter1_2.decelTime(1);
+			
+		// Going down
+		$windshutter1_1.rotateOnce( '-180 0 0' );
+		sys.wait(0.25);
+		$windshutter1_2.rotateOnce( '-180 0 0' );
+		sys.waitFor($windshutter1_2);
+			
+		// stopping shutter sound
+		thread sound_shutter1_stop();
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Mars City Bio Scanners
+	//
+	////////////////////////////////////////////////////
+	void bioscan_lockdoors () 
+	{
+		//close both doors
+		$func_door_1.close();
+		$func_door_9.close();
+
+		//lock both doors
+		$func_door_1.lock(2);
+		$func_door_9.lock(2);
+
+		//trigger the relay to remove things in the Hangar
+		sys.trigger ( $trigger_remove_floods );
+
+		//change gui and shader parms on doors
+		$func_static_4456.setShaderParm (7, 0);
+		$func_static_929.setShaderParm (7, 0);
+		$func_door_1.setGuiParm ( "gui_parm3" , 0);
+		$func_door_1.setShaderParm (7, 0);
+		$func_door_9.setGuiParm ( "gui_parm3" , 0);
+		$func_door_9.setShaderParm (7, 0);
+	}
+
+	void bioscan_opendoor () 
+	{
+		//trigger the lights to fade
+		sys.trigger($bioscan_fadein);
+
+		//slight delay to make sure the sentry is in motion
+		//before the doors open
+		sys.wait(.85);
+
+		//unlock door
+		$func_door_9.lock(0);
+
+		//open door
+		$func_door_9.open();
+		
+		//lock the little room door
+		$func_door_11.lock(2);
+
+		//change gui parms on doors
+		$func_door_9.setGuiParm ( "gui_parm3" , 1);
+		$func_door_9.setShaderParm (7, 1);
+		$func_static_4456.setShaderParm (7, 1);
+		
+		toggle_intro_sounds();				// Trigger the start sounds on when the player gets to this point
+		turret_loop();						// Start the turret looping here...
+	}
+
+	void bioscan_go () 
+	{
+		//trigger the particles
+		$scan_lazmodel_1.startSoundShader ("entrance_scanner_loop", SND_CHANNEL_VOICE );
+		$scan_lazmodel_2.startSoundShader ("entrance_scanner_loop", SND_CHANNEL_VOICE );
+		sys.trigger($scan_particle_1);
+		sys.trigger($scan_particle_2);
+
+		//change the gui on bioscanner
+		sys.trigger($bio_scanner);
+		
+		//trigger the lights to fade
+		sys.trigger($bioscan_fadeout);
+
+		sys.wait(.4);
+
+		//trigger the laser models to unhide them
+		
+		sys.trigger($scan_lazmodel_1);
+		sys.trigger($scan_lazmodel_2);
+
+		//set times 
+		//up 64 scan_anchor
+		
+		$scan_anchor.time (1);
+		$scan_anchor.startSoundShader ("mc1_scanner_3s_movement", SND_CHANNEL_VOICE);
+		
+		$scan_anchor.move ( UP, 64 );
+		sys.waitFor ($scan_anchor);
+
+		//rotate 90 scan_anchor
+		$scan_anchor.rotateOnce ( '0 0 -90' );
+		sys.waitFor ($scan_anchor);
+
+		//move 24 scan_anchor
+		$scan_anchor.move ( SOUTH, -24 );
+		sys.waitFor ($scan_anchor);
+
+		//rotate 720 scan_thing_1
+		$scan_thing_1.startSoundShader ("mc1_scanner_rot1s", SND_CHANNEL_VOICE);
+		$scan_thing_1.rotateOnce ( '360 0 0' );
+	
+
+		//rotate 720 scan_thing_2
+		$scan_thing_2.startSoundShader ("mc1_scanner_rot1s", SND_CHANNEL_VOICE);
+		$scan_thing_2.rotateOnce ( '360 0 0' );
+
+		//wait for rotating to stop and a bit extra
+		sys.waitFor ($scan_thing_1);
+		sys.wait (1);
+		
+		//move 24 scan_anchor
+		$scan_anchor.startSoundShader ("mc1_scanner_3s_movement", SND_CHANNEL_VOICE);
+		$scan_anchor.move ( SOUTH, 24 );
+		sys.waitFor ($scan_anchor);
+
+		//rotate 90 scan_anchor
+		$scan_anchor.rotateOnce ( '0 0 90' );
+		sys.waitFor ($scan_anchor);
+
+		//down 64 scan_anchor
+		$scan_anchor.move ( DOWN, 64 );
+		sys.waitFor ($scan_anchor);
+
+		//trigger the particles
+		
+		sys.trigger($scan_particle_1);
+		
+		sys.trigger($scan_particle_2);
+
+		sys.wait(2);
+
+		//trigger the laser models to hide them
+		$scan_lazmodel_1.stopSound (SND_CHANNEL_VOICE, false);
+		sys.trigger($scan_lazmodel_1);
+		$scan_lazmodel_2.stopSound (SND_CHANNEL_VOICE, false);
+		sys.trigger($scan_lazmodel_2);
+
+    }
+
+	void bioscan_noreturn () 
+	{
+		//close both doors
+		$func_door_9.close();
+
+		//lock both doors
+		$func_door_9.lock(2);
+
+		//change gui parms on doors
+		$func_door_9.setGuiParm ( "gui_parm3" , 0);
+		$func_door_9.setShaderParm (7, 0);
+		$func_static_4456.setShaderParm (7, 0);
+	}
+
+	void show_pda () 
+	{
+		$player_pda.show();
+	}
+
+	//move fog brush in the hanger
+	void move_hangar_fog () 
+	{
+		$hanger_fog_mover.time( 5 );
+		$hanger_fog_mover.move( UP, 320 );
+	}
+
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main () {
+		cache_sounds();
+		
+		//setup_objects ();
+		//init_world();
+		
+	}
+}

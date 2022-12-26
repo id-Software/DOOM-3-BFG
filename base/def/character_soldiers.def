@@ -1,0 +1,144 @@
+/***********************************************************************
+
+	character_soldiers.def
+
+***********************************************************************/
+
+model character_soldier_machinegun {
+	inherit							model_monster_zsec_machinegun
+
+	anim talk_primary				models/md5/monsters/zombies/zsec_machinegun/machinegun_sight.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/monsters/zombies/zsec_machinegun/machinegun_sight.md5anim { 
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/monsters/zombies/zsec_machinegun/machinegun_sight.md5anim { 
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim talk_excuseme				models/md5/monsters/zombies/zsec_machinegun/machinegun_sight.md5anim { 
+		frame 1						sound_voice snd_talk_excuseme
+	}
+}
+
+entityDef character_soldier_machinegun {
+	"inherit"					"monster_zsec_machinegun"
+	"model"						"character_soldier_machinegun"
+	"scriptobject"				"character_soldier_pistol"
+	"skin"						"skins/characters/npcs/security_helmet_p90"
+	"def_head"					"head_security_goggles"
+	"head_joint"				"Shoulders"
+	"def_projectile"			"projectile_bullet_char_soldier_machinegun"
+
+	"npc_name"					"Leroy"
+	
+	"projectile_spread"			"2"
+	"attack_accuracy"			"2"
+
+	"health"					"250"
+	"team"						"0"
+	"rank"						"0"
+	"on_activate"				""
+	
+	"no_idle_chatter"			"1"
+	
+	"talks"							"1"
+	"talkradius"					"256"					// when player exits this radius, go back to idle
+	"talktime"						"3"						// how long to pay attention to player after speaking
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"snd_talk_primary"				"marscity_marine4_hq_primary"
+	"snd_talk_secondary"			"marscity_marine4_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine4_hq_secondary2"
+	"snd_talk_excuseme"				"marine_excuseme"	
+}
+
+
+entityDef damage_bullet_char_soldier_machinegun {
+	"damage"						"5"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"1"
+	
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"mtr_wound_flesh"				"textures/decals/hurt02"
+	"mtr_splat_flesh"				"textures/decals/dsplat2"
+	"mtr_splat_flesh2"				"textures/decals/dsplat5"
+	"mtr_splat_flesh3"				"textures/decals/dsplat7"
+	"mtr_splat_flesh4"				"textures/decals/dsplat11"
+	"snd_flesh"						"bullet_impact_flesh"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef projectile_bullet_char_soldier_machinegun {
+	"spawnclass"					"idProjectile"
+	"mins"							"-1 -1 -1"
+	"maxs"							"1 1 1"
+	"cone"							"3"
+	"scale"							"0.1"
+	"noshadows"						"1"
+	"tracers"						"1"
+	"model_tracer"					"models/particles/tracer/tracer.lwo"
+
+	"snd_ricochet"					"bullet_ricochet"
+	"snd_tracer"					"bullet_flight"
+	"snd_impact"					"bullet_impact_metal"
+
+	"def_damage"					"damage_bullet_char_soldier_machinegun"
+
+	"launchFromBarrel"				"1"
+	"health"						"0"
+	"velocity"						"2000 0 0"	// slowed down for tracer effect
+	"angular_velocity"				"0 0 0"
+	"thrust"						"0"
+	"thrust_start"					"0"
+	"thrust_end"					"0"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0.6"
+	"mass"							"2"
+	"gravity"						"0"
+	"fuse"							"4"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"0"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"			"1"
+	"impact_gib"					"1"
+
+	"mtr_detonate"					"textures/decals/bulleth02"
+	"decal_size"					"10"
+
+	"smoke_fly"						""
+	"smoke_detonate"				"smokeandspark.smoke"
+	"smoke_bounce"					""	//particles/bullet_sparks.particle"
+	"smoke_fuse"					""
+									
+	"mtr_light_shader"				""
+	"light_color"					"0 0 0"
+	"light_radius"					"0"
+	"light_offset"					"0 0 0"
+
+	"mtr_explode_light_shader"		""
+	"explode_light_color"			"0 0 0"
+	"explode_light_radius"			"0"
+	"explode_light_fadetime"		"0"
+}

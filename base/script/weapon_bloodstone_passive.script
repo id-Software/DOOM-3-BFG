@@ -1,0 +1,193 @@
+/***********************************************************************
+
+weapon_bloodstone_passive.script
+
+***********************************************************************/
+
+
+// blend times
+#define BLOODSTONE_PASSIVE_IDLE_TO_LOWER		4
+#define BLOODSTONE_PASSIVE_IDLE_TO_FIRE			4
+#define BLOODSTONE_PASSIVE_RAISE_TO_IDLE		4
+#define BLOODSTONE_PASSIVE_FIRE_TO_IDLE			4
+
+object weapon_bloodstone_passive : weapon_base {
+
+	void		init();
+
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		Launch();
+	void		Charge();
+
+	void		ExitCinematic();
+
+	boolean		charged;
+	boolean		forcecharged;
+};
+
+void weapon_bloodstone_passive::init() {
+	float ammo;
+
+	ammo = ammoAvailable();
+	if(ammo >= 1) {
+		charged = true;
+	} else {
+		charged = false;
+	}
+
+	forcecharged = false;
+
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bloodstone_passive::Raise() {
+
+	entity weapon;
+	boolean isPetrified;
+
+	weapon =  $player1.getWeaponEntity();
+	isPetrified = true;
+
+	if($player1.weaponAvailable("weapon_bloodstone_active1") == 1) {
+		weapon.setShaderParm(9, 1);
+		isPetrified = false;
+	}
+	if($player1.weaponAvailable("weapon_bloodstone_active2") == 1) {
+		weapon.setShaderParm(10, 1);
+		isPetrified = false;
+	}
+	if($player1.weaponAvailable("weapon_bloodstone_active3") == 1) {
+		weapon.setShaderParm(11, 1);
+		isPetrified = false;
+	}
+
+	weaponRising();
+
+	if(isPetrified) {
+		playAnim( ANIMCHANNEL_ALL, "raise_petrified" );
+	} else {
+		playAnim( ANIMCHANNEL_ALL, "raise" );
+	}
+	waitUntil( animDone( ANIMCHANNEL_ALL, BLOODSTONE_PASSIVE_RAISE_TO_IDLE ) );
+	flashlight( true );
+	weaponState( "Idle", BLOODSTONE_PASSIVE_RAISE_TO_IDLE );
+}
+
+void weapon_bloodstone_passive::Lower() {
+	flashlight( false );
+	weaponLowering();
+
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_bloodstone_passive::Idle() {
+
+	string nextWeaponName;
+
+	float ammo;
+	ammo = ammoAvailable();
+	if(ammo >= 1 || forcecharged) {
+		charged = true;
+	} else {
+		charged = false;
+	}
+	forcecharged = false;
+
+	weaponReady();
+
+	if($player1.weaponAvailable("weapon_bloodstone_active1") == 1) {
+		if(charged) {
+			playCycle( ANIMCHANNEL_ALL, "idle_charged" );
+			startSound( "snd_chargewhisper", SND_CHANNEL_BODY2, false );
+		} else {
+			playCycle( ANIMCHANNEL_ALL, "idle" );
+		}
+		startSound( "snd_idleloop", SND_CHANNEL_BODY3, false );
+	} else {
+		playCycle( ANIMCHANNEL_ALL, "idle_petrified" );
+	}
+
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", BLOODSTONE_PASSIVE_IDLE_TO_LOWER );
+		}
+		if ( WEAPON_ATTACK ) {
+			weaponState( "Fire", BLOODSTONE_PASSIVE_IDLE_TO_FIRE );
+		}
+
+		entity weapon;
+		weapon = $player1.getWeaponEntity();
+
+		if($player1.weaponAvailable("weapon_bloodstone_active1") == 1) {
+			weapon.setShaderParm(9, 1);
+		}
+		if($player1.weaponAvailable("weapon_bloodstone_active2") == 1) {
+			weapon.setShaderParm(10, 1);
+		}
+		if($player1.weaponAvailable("weapon_bloodstone_active3") == 1) {
+			weapon.setShaderParm(11, 1);
+		}
+
+		waitFrame();
+	}
+}
+
+void weapon_bloodstone_passive::Fire() {
+
+	if($player1.weaponAvailable("weapon_bloodstone_active1") == 1 && !$player1.isPowerupActive(HELLTIME)) {
+		//If the player has the first power then allow the fire
+		WEAPON_START_FIRING = true;
+		playAnim( ANIMCHANNEL_ALL, "fire" );
+		while( !animDone( ANIMCHANNEL_ALL, BLOODSTONE_PASSIVE_FIRE_TO_IDLE ) ) {
+			waitFrame();
+		}
+		WEAPON_START_FIRING = false;
+
+		weaponState( "Idle", BLOODSTONE_PASSIVE_FIRE_TO_IDLE );
+	} else {
+		//Switch to the next best weapon
+		//nextWeapon();
+		$player1.selectWeapon($player1.getPreviousWeapon());
+		weaponState( "Idle", BLOODSTONE_PASSIVE_FIRE_TO_IDLE );
+	}
+}
+
+void weapon_bloodstone_passive::Launch() {
+
+	if($player1.weaponAvailable("weapon_bloodstone_active1") == 1) {
+		launchPowerup("helltime", 15, 1);
+	}
+	if($player1.weaponAvailable("weapon_bloodstone_active2") == 1) {
+		launchPowerup("berserk", 15, 0);
+	}
+	if($player1.weaponAvailable("weapon_bloodstone_active3") == 1) {
+		launchPowerup("invulnerability", 15, 0);
+	}
+	charged = false;
+}
+
+void weapon_bloodstone_passive::ExitCinematic() {
+	weaponState( "Idle", 0 );
+}
+
+void weapon_bloodstone_passive::Charge() {
+
+	weaponReloading();
+
+	playAnim( ANIMCHANNEL_ALL, "absorb" );
+	while( !animDone( ANIMCHANNEL_ALL, 0 ) ) {
+		waitFrame();
+	}
+
+	forcecharged = true;
+
+	weaponState( "Idle", 4 );
+}

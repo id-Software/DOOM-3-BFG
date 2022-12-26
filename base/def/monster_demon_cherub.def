@@ -1,0 +1,238 @@
+/***********************************************************************
+
+	monster_demon_cherub.def
+
+***********************************************************************/
+
+export fred {
+	options		-prefix CHERUB_ -sourcedir models/monsters/cherub/cycles -destdir models/md5/monsters/cherub
+
+	anim		crawl1.mb
+	anim		crawl_pain_chest.mb
+	anim		crawl_pain_left.mb
+	anim		crawl_pain_right.mb
+
+	addoptions  -align ALL
+
+	mesh		cherub_mesh.mb -dest cherub
+	anim		initial.mb
+	anim		alert_idle.mb
+	anim		sight1.mb
+	anim		sight2.mb
+	anim		walk1.mb
+	anim		run1.mb
+	anim		pain_head.mb
+	anim		pain_chest.mb
+	anim		pain_ruparm.mb
+	anim		pain_luparm.mb
+	anim		pain_tail.mb
+	anim		attack1.mb
+	anim		attack2.mb
+	anim		attack3.mb
+	anim		attack4.mb
+	anim		playdead.mb
+	anim		slowgetup.mb
+	anim		slowgetup2.mb
+	anim		crawl2.mb
+	anim		evade_left.mb
+	anim		evade_right.mb
+	anim		leap_attack.mb -range 1 7 -dest jump_start
+	anim		leap_attack.mb -range 8 22 -dest jump_loop
+	anim		leap_attack.mb -range 27 56 -dest jump_end
+}
+
+model monster_demon_cherub {
+	
+	mesh							models/md5/monsters/cherub/cherub.md5mesh
+	channel torso					( *origin )
+
+	anim af_pose					models/md5/monsters/cherub/initial.md5anim
+	anim initial					models/md5/monsters/cherub/initial.md5anim
+	anim idle						models/md5/monsters/cherub/playdead.md5anim
+	anim stand						models/md5/monsters/cherub/alert_idle.md5anim
+
+	anim sight1						models/md5/monsters/cherub/sight1.md5anim {
+		frame	1						sound_voice snd_sight
+		frame 23						sound_body2 snd_step
+
+	}
+
+	anim walk						models/md5/monsters/cherub/crawl1.md5anim {
+
+		frame 11						sound_body2 snd_step
+		frame 24						sound_body2 snd_step
+		frame 37						sound_body2 snd_step
+		frame 52						sound_body2 snd_step
+	
+	}
+		
+	anim run						models/md5/monsters/cherub/crawl2.md5anim {
+
+		frame 3							sound_body2 snd_step
+		frame 5							sound_body2 snd_step
+		frame 22						sound_body2 snd_step
+		frame 24						sound_body2 snd_step
+		frame 64						sound_body2 snd_step
+
+	}
+		
+	anim melee_attack1				models/md5/monsters/cherub/attack3.md5anim {
+		frame 1							call overrideLegs
+		frame 2							sound_item snd_attack
+		frame 7							sound_body2 snd_step
+		frame 8							sound_body2 snd_step
+		frame 15						sound_body2 snd_step
+		frame 28						melee melee_cherubLeftClaw
+		frame 33						melee melee_cherubRightClaw
+	}
+
+	anim evade_left					models/md5/monsters/cherub/evade_left.md5anim {
+		frame	1						sound_voice snd_chatter_combat
+	}
+	anim evade_right				models/md5/monsters/cherub/evade_right.md5anim {
+		frame	1						sound_voice snd_chatter_combat
+	}
+	
+	anim pain						models/md5/monsters/cherub/crawl_pain_chest.md5anim {
+		frame	1						sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/cherub/crawl_pain_chest.md5anim {
+		frame	1						sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/cherub/crawl_pain_chest.md5anim {
+		frame	1						sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/cherub/crawl_pain_left.md5anim {
+		frame	1						sound_voice snd_pain
+	}
+	anim pain_right_arm				models/md5/monsters/cherub/crawl_pain_right.md5anim {
+		frame	1						sound_voice snd_pain
+	}
+	anim pain_legs					models/md5/monsters/cherub/crawl_pain_left.md5anim {
+		frame	1						sound_voice snd_pain
+	}
+	
+	anim jump_start					models/md5/monsters/cherub/jump_start.md5anim {
+		frame	1						sound_voice2 snd_flutter
+		frame 2							sound_body snd_attack
+	
+	}
+	anim jump_loop					models/md5/monsters/cherub/jump_loop.md5anim {
+		frame	1						sound_voice snd_chatter_combat
+	}
+	anim jump_end					models/md5/monsters/cherub/jump_end.md5anim {
+		frame 1							sound_voice2 snd_flutter
+		frame 4							sound_body2 snd_step
+		frame 5							sound_body2 snd_step
+	}
+}
+
+/***********************************************************************
+
+monster_demon_cherub
+
+***********************************************************************/
+
+
+entityDef monster_demon_cherub {
+
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_cherub"
+	"size"							"48 48 48"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"50"
+	"melee_range"					"32"
+	"fly_offset"					"-40"
+	"evade_rate"					"5"
+	"model"							"monster_demon_cherub"	
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"			"burn_imp.prt-chest"
+	
+	"chatter_combat_min"			"1"
+	"chatter_combat_max"			"3"
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Neck"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"*Tail1 origin Body2"
+	"damage_scale head"				"1.25"
+	
+	"def_leapAttack"				"melee_cherubLeapAttack"
+
+	"group torso"					"*Waist"
+	"group legs"					"*Tail1 origin Body Body2"
+	"ragdoll"						"monster_demon_cherub"
+
+	"snd_sight"						"monster_demon_cherub_sight"
+	"snd_attack"					"monster_demon_cherub_attack"
+	"snd_pain"						"monster_demon_cherub_pain"
+	"snd_death"						"monster_demon_cherub_death"
+	"snd_chatter"					"monster_demon_cherub_chatter"
+	"snd_chatter_combat"			"monster_demon_cherub_chatter_combat"
+	"snd_step"						"monster_demon_cherub_step"
+	"snd_flutter"					"monster_demon_cherub_flutter" 
+	"snd_ambient"					"monster_demon_cherub_ambient"
+	"snd_burn"						"monster_demon_tick_burn"
+}
+
+entityDef melee_cherubLeftClaw {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 -1 0"
+
+	// damage parameters			
+	"damage"						"5"
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"40"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef melee_cherubRightClaw {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+	"damage"						"5"
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+	"knockback"						"30"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+}
+
+entityDef melee_cherubLeapAttack {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"12"
+
+	"mtr_blob"						"triteSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"80"
+
+	"kick_time"						"500"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"350"
+}

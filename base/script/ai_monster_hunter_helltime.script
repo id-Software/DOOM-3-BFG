@@ -1,0 +1,721 @@
+/***********************************************************************
+
+ai_monster_hunter_helltime.script
+
+monster_hunter_helltime
+
+***********************************************************************/
+
+#define HELLTIME_STATE_NORMAL			0
+#define HELLTIME_STATE_HELLTIME			1
+
+#define HELLTIME_ATTACK_RATE			2
+#define HELLTIME_HELLTIME_RATE			15
+#define HELLTIME_DODGE_RATE				2.5
+#define	HELLTIME_PAIN_DELAY				0.25
+
+// anim blend times
+#define	HELLTIME_PAIN_TO_IDLE			2
+#define HELLTIME_PAIN_TO_PAIN			0
+#define	HELLTIME_MELEE_TO_IDLE			4
+#define HELLTIME_RANGE_TO_IDLE			4
+#define HELLTIME_IDLE_TO_PAIN			0
+#define HELLTIME_IDLE_TO_RANGEATTACK	4
+#define HELLTIME_IDLE_TO_MELEE			4
+#define HELLTIME_IDLE_TO_DODGE_LEFT		4
+#define HELLTIME_IDLE_TO_DODGE_RIGHT	4
+#define HELLTIME_IDLE_TO_STARTHELLTIME	4
+
+object monster_hunter_helltime : monster_base {
+	float		nextDodge;
+	float		nextAttack;
+
+	float		nextHelltimeStateChange;
+	float		helltime_state;
+
+	string		range_attack_anim;
+
+	boolean		isAngry;
+	boolean		flipflop;
+
+	//
+	// Initialize
+	//
+	void		init();
+
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+	void		state_Combat();
+
+	void		state_EnterHelltime();
+	void		state_EndHelltime();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+	void		combat_range();
+
+	void		combat_helltime_teleport();
+	void		combat_helltime_melee();
+
+	vector		find_teleport_attack_destination();
+	void		teleport_to_position( vector pos, float teleport_time );
+
+	void		starting_teleport_effect( vector destination );
+	void		ending_teleport_effect();
+
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_RangeAttack();
+	void		Torso_MeleeAttack();
+	void		Torso_StartHelltime();
+	void		Torso_HelltimeRanged();
+	void		Torso_HelltimeTeleport();
+	void		Torso_HelltimeTeleportEnd();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_DodgeLeft();
+	void		Legs_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_hunter_helltime::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "idle" );
+}
+
+void monster_hunter_helltime::Torso_Pain() {
+	
+	playAnim( ANIMCHANNEL_TORSO, "pain_head" );
+	while( !animDone( ANIMCHANNEL_TORSO, HELLTIME_PAIN_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", HELLTIME_PAIN_TO_IDLE );
+}
+
+/*
+===========================
+Attacks
+===========================
+*/
+void monster_hunter_helltime::Torso_MeleeAttack() {
+
+	playAnim( ANIMCHANNEL_TORSO, "melee" );
+	while( !animDone( ANIMCHANNEL_TORSO, HELLTIME_MELEE_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	finishAction( "melee" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", HELLTIME_MELEE_TO_IDLE );
+}
+
+void monster_hunter_helltime::Torso_RangeAttack() {
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, range_attack_anim );
+	while( !animDone( ANIMCHANNEL_TORSO, HELLTIME_RANGE_TO_IDLE ) ) {
+		lookAt( getEnemy(), 1 );
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", HELLTIME_RANGE_TO_IDLE );
+}
+
+/*
+===========================
+Helltime Attack
+===========================
+*/
+void monster_hunter_helltime::Torso_StartHelltime() {
+
+	playAnim( ANIMCHANNEL_TORSO, "helltime_start" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "start_helltime" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", HELLTIME_IDLE_TO_STARTHELLTIME );
+}
+
+void monster_hunter_helltime::Torso_HelltimeRanged() {
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "helltime_rangeattack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		lookAt( getEnemy(), 1 );
+		waitFrame();
+	}
+
+	finishAction( "helltime_ranged" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", HELLTIME_IDLE_TO_STARTHELLTIME );
+}
+
+void monster_hunter_helltime::Torso_HelltimeTeleport() {
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "helltime_teleport" );
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "helltime_teleport" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_hunter_helltime::Torso_HelltimeTeleportEnd() {
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "helltime_teleport_end" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "helltime_teleport_end" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_hunter_helltime::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+
+	eachFrame {
+		if ( AI_SPECIAL_DAMAGE ) {
+			// Call level script to show damage
+			sys.trigger( $trigger_helltime_hunter_damaged );
+
+			if ( !isAngry ) {
+				isAngry = true;
+				nextHelltimeStateChange = DelayTime( 2 );
+			}
+		}
+	}
+}
+
+void monster_hunter_helltime::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	overrideAnim( ANIMCHANNEL_TORSO );
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+
+		if ( AI_SPECIAL_DAMAGE ) {
+			// Call level script to show damage
+			sys.trigger( $trigger_helltime_hunter_damaged );
+
+			if ( !isAngry ) {
+				isAngry = true;
+				nextHelltimeStateChange = DelayTime( 2 );
+			}
+		}
+
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_hunter_helltime::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	overrideAnim( ANIMCHANNEL_TORSO );
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+
+		if ( AI_SPECIAL_DAMAGE ) {
+			// Call level script to show damage
+			sys.trigger( $trigger_helltime_hunter_damaged );
+
+			if ( !isAngry ) {
+				isAngry = true;
+				nextHelltimeStateChange = DelayTime( 2 );
+			}
+		}
+
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_helltime::init
+=====================
+*/
+void monster_hunter_helltime::init() {
+
+	helltime_state = HELLTIME_STATE_NORMAL;
+	flipflop = true;
+	isAngry = false;
+
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_helltime::state_Begin
+=====================
+*/
+void monster_hunter_helltime::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	monster_begin();
+
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_hunter_helltime::state_Idle
+=====================
+*/
+void monster_hunter_helltime::state_Idle() {
+	wait_for_enemy();
+
+	nextAttack = 0;
+	nextHelltimeStateChange = 0;
+	nextDodge = DelayTime( HELLTIME_DODGE_RATE );
+
+	sys.wait( 0.25 );
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_hunter_helltime::state_Combat
+=====================
+*/
+void monster_hunter_helltime::state_Combat() {
+	float attack_flags;
+
+	eachFrame {
+		faceEnemy();
+		if ( AI_ENEMY_IN_FOV ) {
+			lookAtEnemy( 1 );
+		}
+
+		if ( sys.influenceActive() ) {
+			continue;
+		}
+
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+
+		// Check for start or end of Helltime!
+		if ( isAngry && sys.getTime() >= nextHelltimeStateChange ) {
+			if ( helltime_state == HELLTIME_STATE_NORMAL ) {
+				setState( "state_EnterHelltime" );
+			} else {
+				setState( "state_EndHelltime" );
+			}
+			return;
+		}
+
+		// Do attacks!
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			continue;
+		}
+	}
+}
+
+/*
+=====================
+monster_hunter_helltime::state_EnterHelltime
+=====================
+*/
+void monster_hunter_helltime::state_EnterHelltime() {
+
+	animState( ANIMCHANNEL_TORSO, "Torso_StartHelltime", HELLTIME_IDLE_TO_STARTHELLTIME );
+	waitAction( "start_helltime" );
+
+	nextHelltimeStateChange = sys.getTime() + 9999;
+	helltime_state = HELLTIME_STATE_HELLTIME;
+
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_hunter_helltime::state_EndHelltime
+=====================
+*/
+void monster_hunter_helltime::state_EndHelltime() {
+	vector pos;
+
+	// Return to the center platform
+	pos = $hell_spot_portal.getOrigin();
+	teleport_to_position( pos, 0.5 );
+
+	animState( ANIMCHANNEL_TORSO, "Torso_HelltimeTeleportEnd", 2 );
+	waitAction( "helltime_teleport_end" );
+
+	// Reset State Info
+	nextHelltimeStateChange = DelayTime( HELLTIME_HELLTIME_RATE );
+	helltime_state = HELLTIME_STATE_NORMAL;
+	nextDodge = DelayTime( HELLTIME_DODGE_RATE );
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_hunter_helltime::do_attack
+=====================
+*/
+void monster_hunter_helltime::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	} else if ( attack_flags & ATTACK_SPECIAL1 ) {
+		combat_helltime_teleport();
+	}
+}
+
+/*
+=====================
+monster_hunter_helltime::check_attacks
+=====================
+*/
+float monster_hunter_helltime::check_attacks() {
+	float	currentTime;
+	float	attack_flags;
+	vector	vel;
+	float	t;
+	vector	jumpTarget;
+	string	anim;
+	
+	attack_flags = 0;
+	currentTime = sys.getTime();
+
+	if ( helltime_state == HELLTIME_STATE_NORMAL ) {
+
+		// Normal Attacks!
+		if ( AI_ENEMY_IN_FOV && currentTime >= nextAttack ) {
+
+			anim = chooseAnim( ANIMCHANNEL_LEGS, "attack" );
+			if ( testAnimMove( anim ) ) {
+				if ( canHitEnemyFromAnim( anim ) ) {
+					range_attack_anim = anim;
+					attack_flags |= ATTACK_MISSILE;
+				}
+			}
+
+		} else if ( currentTime >= nextDodge ) {
+
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+	} else {
+
+		// Helltime Attack!
+		attack_flags |= ATTACK_SPECIAL1;
+	}
+
+	return attack_flags;
+}
+
+/*
+=====================
+monster_hunter_helltime::combat_range
+=====================
+*/
+void monster_hunter_helltime::combat_range() {
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", HELLTIME_IDLE_TO_RANGEATTACK );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( HELLTIME_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_hunter_helltime::combat_dodge_left
+=====================
+*/
+void monster_hunter_helltime::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", HELLTIME_IDLE_TO_DODGE_LEFT );
+	waitAction( "strafe" );
+
+	nextDodge = DelayTime( HELLTIME_DODGE_RATE );
+}
+
+/*
+=====================
+monster_hunter_helltime::combat_dodge_right
+=====================
+*/
+void monster_hunter_helltime::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", HELLTIME_IDLE_TO_DODGE_RIGHT );
+	waitAction( "strafe" );
+
+	nextDodge = DelayTime( HELLTIME_DODGE_RATE );
+}
+
+/*
+=====================
+monster_hunter_helltime::combat_helltime_teleport
+=====================
+*/
+void monster_hunter_helltime::combat_helltime_teleport() {
+	entity destination;
+	vector pos;
+	float i, number;
+	boolean canMelee;
+
+	if ( flipflop ) {
+		number = 1;
+	} else {
+		number = 4;
+	}
+	flipflop = !flipflop;
+
+	stopMove();
+
+	for ( i=number; i<number+4; i++ ) {
+		faceEnemy();
+
+		destination = sys.getEntity( "hell_spot_" + i );
+		pos = destination.getOrigin();
+
+		teleport_to_position( pos, 0.5 );
+        
+		animState( ANIMCHANNEL_TORSO, "Torso_HelltimeTeleportEnd", 2 );
+		waitAction( "helltime_teleport_end" );
+
+		canMelee = testMeleeAttack();
+		if ( canMelee ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 2 );
+			waitAction( "melee" );
+		} else {
+			animState( ANIMCHANNEL_TORSO, "Torso_HelltimeRanged", 2 );
+			waitAction( "helltime_ranged" );
+		}
+
+		sys.wait( 0.12 );
+	}
+
+	combat_helltime_melee();
+}
+
+/*
+=====================
+monster_hunter_helltime::combat_helltime_melee
+=====================
+*/
+void monster_hunter_helltime::combat_helltime_melee() {
+	vector pos;
+
+	// Find a valid position to smack the player
+	pos = find_teleport_attack_destination();
+
+	if ( pos_z != -666666 ) {
+		teleport_to_position( pos, 0.5 );
+
+		// Smack!
+		animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 2 );
+		waitAction( "melee" );
+	}
+
+	nextHelltimeStateChange = 0;
+}
+
+/*
+=====================
+monster_hunter_helltime::find_teleport_attack_destination
+=====================
+*/
+vector monster_hunter_helltime::find_teleport_attack_destination() {
+	float i;
+	vector player_org, dest, mins, maxs;
+	float contents;
+	float trace_fraction;
+	float distance_offset;
+
+	mins = getMins();
+	maxs = getMaxs();
+	contents = 273;
+	player_org = $player1.getOrigin();
+
+	distance_offset = 80;
+
+	for ( i=0; i<8; i++ ) {
+		// Find a valid spot next to player to teleport to
+		dest = player_org;
+		dest_z += 12;
+
+		if ( i == 0 ) {
+			dest_y += distance_offset;
+		} else if ( i == 1 ) {
+			dest_y += distance_offset;
+			dest_x += distance_offset;
+		} else if ( i == 2 ) {
+			dest_y += distance_offset;
+			dest_x -= distance_offset;
+		} else if ( i == 3 ) {
+			dest_x += distance_offset;
+		} else if ( i == 4 ) {
+			dest_x -= distance_offset;
+		} else if ( i == 5 ) {
+			dest_y -= distance_offset;
+			dest_x += distance_offset;
+		} else if ( i == 6 ) {
+			dest_y -= distance_offset;
+			dest_x -= distance_offset;
+		} else {
+			dest_y -= distance_offset;
+		}
+
+		trace_fraction = sys.trace( dest, dest, mins, maxs, contents, self );
+		if ( trace_fraction == 1.0 ) {
+			break;
+		}
+	}
+
+	if ( i == 8 ) {
+		dest_z = -666666;
+	}
+
+	return dest;
+}
+
+/*
+=====================
+monster_hunter_helltime::teleport_to_position
+=====================
+*/
+void monster_hunter_helltime::teleport_to_position( vector pos, float teleport_time ) {
+	float turnrate;
+
+	allowHiddenMovement( true );
+	turnrate = getTurnRate();
+	setTurnRate( 500 );
+
+	starting_teleport_effect( pos );
+
+	animState( ANIMCHANNEL_TORSO, "Torso_HelltimeTeleport", 2 );
+	waitAction( "helltime_teleport" );
+
+	hide();
+	waitFrame();
+
+	setOrigin( pos );
+	faceEnemy();
+	sys.wait( teleport_time );
+
+	show();
+
+	ending_teleport_effect();
+
+	setTurnRate( turnrate );
+	allowHiddenMovement( false );
+}
+
+/*
+=====================
+monster_hunter_helltime::starting_teleport_effect
+=====================
+*/
+void monster_hunter_helltime::starting_teleport_effect( vector destination ) {
+	entity ent;
+	vector pos, vec, ang;
+
+	sys.setSpawnArg( "fx", "fx/hunter/helltime/start_teleport" );
+	sys.setSpawnArg( "start", "1" );
+	ent = sys.spawn( "func_fx" );
+
+	pos = destination - getOrigin();
+	vec = sys.vecNormalize( pos );
+	ang = sys.VecToOrthoBasisAngles( vec );
+
+	vec = getOrigin();
+	vec_z += 64;
+	ent.setOrigin( vec );
+	ent.setAngles( ang );
+}
+
+/*
+=====================
+monster_hunter_helltime::ending_teleport_effect
+=====================
+*/
+void monster_hunter_helltime::ending_teleport_effect() {
+	entity ent;
+	vector org;
+
+	sys.setSpawnArg( "fx", "fx/hunter/helltime/end_teleport" );
+	sys.setSpawnArg( "start", "1" );
+	ent = sys.spawn( "func_fx" );
+
+	org = getOrigin();
+	org_z += 64;
+	ent.setOrigin( org );
+}
+

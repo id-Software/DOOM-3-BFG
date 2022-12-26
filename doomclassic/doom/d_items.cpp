@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 
 #ifdef __GNUG__
-#pragma implementation "d_items.h"
+	#pragma implementation "d_items.h"
 #endif
 #include "d_items.h"
 
@@ -53,87 +53,87 @@ If you have questions concerning this license or the applicable additional terms
 //
 const weaponinfo_t	weaponinfo[NUMWEAPONS] =
 {
-    {
-	// fist
-	am_noammo,
-	S_PUNCHUP,
-	S_PUNCHDOWN,
-	S_PUNCH,
-	S_PUNCH1,
-	S_NULL
-    },	
-    {
-	// pistol
-	am_clip,
-	S_PISTOLUP,
-	S_PISTOLDOWN,
-	S_PISTOL,
-	S_PISTOL1,
-	S_PISTOLFLASH
-    },	
-    {
-	// shotgun
-	am_shell,
-	S_SGUNUP,
-	S_SGUNDOWN,
-	S_SGUN,
-	S_SGUN1,
-	S_SGUNFLASH1
-    },
-    {
-	// chaingun
-	am_clip,
-	S_CHAINUP,
-	S_CHAINDOWN,
-	S_CHAIN,
-	S_CHAIN1,
-	S_CHAINFLASH1
-    },
-    {
-	// missile launcher
-	am_misl,
-	S_MISSILEUP,
-	S_MISSILEDOWN,
-	S_MISSILE,
-	S_MISSILE1,
-	S_MISSILEFLASH1
-    },
-    {
-	// plasma rifle
-	am_cell,
-	S_PLASMAUP,
-	S_PLASMADOWN,
-	S_PLASMA,
-	S_PLASMA1,
-	S_PLASMAFLASH1
-    },
-    {
-	// bfg 9000
-	am_cell,
-	S_BFGUP,
-	S_BFGDOWN,
-	S_BFG,
-	S_BFG1,
-	S_BFGFLASH1
-    },
-    {
-	// chainsaw
-	am_noammo,
-	S_SAWUP,
-	S_SAWDOWN,
-	S_SAW,
-	S_SAW1,
-	S_NULL
-    },
-    {
-	// super shotgun
-	am_shell,
-	S_DSGUNUP,
-	S_DSGUNDOWN,
-	S_DSGUN,
-	S_DSGUN1,
-	S_DSGUNFLASH1
-    },	
+	{
+		// fist
+		am_noammo,
+		S_PUNCHUP,
+		S_PUNCHDOWN,
+		S_PUNCH,
+		S_PUNCH1,
+		S_NULL
+	},
+	{
+		// pistol
+		am_clip,
+		S_PISTOLUP,
+		S_PISTOLDOWN,
+		S_PISTOL,
+		S_PISTOL1,
+		S_PISTOLFLASH
+	},
+	{
+		// shotgun
+		am_shell,
+		S_SGUNUP,
+		S_SGUNDOWN,
+		S_SGUN,
+		S_SGUN1,
+		S_SGUNFLASH1
+	},
+	{
+		// chaingun
+		am_clip,
+		S_CHAINUP,
+		S_CHAINDOWN,
+		S_CHAIN,
+		S_CHAIN1,
+		S_CHAINFLASH1
+	},
+	{
+		// missile launcher
+		am_misl,
+		S_MISSILEUP,
+		S_MISSILEDOWN,
+		S_MISSILE,
+		S_MISSILE1,
+		S_MISSILEFLASH1
+	},
+	{
+		// plasma rifle
+		am_cell,
+		S_PLASMAUP,
+		S_PLASMADOWN,
+		S_PLASMA,
+		S_PLASMA1,
+		S_PLASMAFLASH1
+	},
+	{
+		// bfg 9000
+		am_cell,
+		S_BFGUP,
+		S_BFGDOWN,
+		S_BFG,
+		S_BFG1,
+		S_BFGFLASH1
+	},
+	{
+		// chainsaw
+		am_noammo,
+		S_SAWUP,
+		S_SAWDOWN,
+		S_SAW,
+		S_SAW1,
+		S_NULL
+	},
+	{
+		// super shotgun
+		am_shell,
+		S_DSGUNUP,
+		S_DSGUNDOWN,
+		S_DSGUN,
+		S_DSGUN1,
+		S_DSGUNFLASH1
+	},
 };
 
 

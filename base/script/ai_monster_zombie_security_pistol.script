@@ -1,0 +1,736 @@
+/***********************************************************************
+
+ai_monster_zombie_security_pistol.script
+
+monster_zombie_sergeant
+monster_zsec_shotgun
+monster_zsec_p90_helmet
+monster_zsec_p90_zombie
+monster_zsec_pistol_shield
+
+***********************************************************************/
+
+#define ZSECP_RUNDISTANCE				192
+#define ZSECP_WALKTURN					65
+#define ZSECP_DODGE_RATE				3
+#define ZSECP_ATTACK_DELAY_MIN			0.5
+#define ZSECP_ATTACK_DELAY_MAX			2
+#define ZSECP_ATTACK_MAX_LENGTH			3
+#define ZSECP_ATTACK_MIN_LENGTH			1
+#define ZSECP_WAIT_MIN_LENGTH			0.3
+#define ZSECP_WAIT_MAX_LENGTH			1.5
+#define ZSECP_CROUCH_ATTACK_MAX_LENGTH	15
+#define ZSECP_CROUCH_ATTACK_MIN_LENGTH	3
+#define ZSECP_STAND_ATTACK_MAX_LENGTH	15
+#define ZSECP_STAND_ATTACK_MIN_LENGTH	3
+#define ZSECP_ATTACK_MIN_SHOOT_TIME		0.5
+#define ZSECP_NOFOVTIME					4
+
+#define ATTACK_ZSECP_CROUCHFIRE			ATTACK_SPECIAL1
+
+// start out with a 50/50 chance of stand vs. crouch attacks.
+float zsecp_num_stand_attacks = 1;
+float zsecp_num_crouch_attacks = 1;
+
+object monster_zombie_security_pistol : monster_zombie_base {
+	boolean		fire;
+	boolean		crouch_fire;
+	boolean		run_attack;
+	float		nextDodge;
+	float		nextAttack;
+	float		nextNoFOVAttack;
+	entity		combat_node;
+
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		crouch_attack();
+	void		stand_attack();
+	void		combat_dodge_left();
+	void		combat_dodge_right();
+
+	void		init();
+	
+	// torso anim states
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_RangeAttack();
+	void		Torso_TurretAttack();
+	void		Torso_CrouchAttack();
+	
+	// legs anim states
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_Run();
+	void		Legs_DodgeLeft();
+	void		Legs_DodgeRight();
+	void		Legs_StepLeft();
+	void		Legs_StepRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_zombie_security_pistol::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+	
+	eachFrame {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+			idleAnim( ANIMCHANNEL_TORSO, "stand" );
+		}
+		if ( fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+		}
+		if ( crouch_fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_CrouchAttack", 4 );
+		}
+	}
+}
+
+void monster_zombie_security_pistol::Torso_Pain() {
+	string animname;
+
+	animname = getPainAnim();
+	setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	// no pain for 1 second
+	preventPain( 1 );
+	
+	finishAction( "pain" );
+	setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+}
+
+void monster_zombie_security_pistol::Torso_RangeAttack() {
+	float endtime;
+	float mintime;
+	boolean first_shot;
+	
+	setAnimPrefix( "" );
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	first_shot = true;
+	while( ( fire || first_shot ) && !sys.influenceActive() ) {
+		mintime = sys.getTime() + ZSECP_ATTACK_MIN_SHOOT_TIME;
+		endtime = RandomDelay( ZSECP_ATTACK_MIN_LENGTH, ZSECP_ATTACK_MAX_LENGTH );
+		while( ( fire || ( sys.getTime() < mintime ) ) && ( sys.getTime() < endtime ) ) {
+			playAnim( ANIMCHANNEL_TORSO, "range_attack_loop" );
+			while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+				if ( sys.influenceActive() ) {
+					endtime = 0;
+					fire = false;
+					break;
+				}
+
+				if ( AI_FORWARD ) {
+					if ( !entityInAttackCone( getEnemy() ) ) {
+						endtime = 0;
+						fire = false;
+						break;
+					}
+				}
+
+				if ( AI_PAIN ) {
+					Torso_Pain();
+				}
+				waitFrame();
+			}
+		}
+
+		first_shot = false;
+		if ( !fire ) {
+			break;
+		}
+
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_aim" );
+		endtime = RandomDelay( ZSECP_WAIT_MIN_LENGTH, ZSECP_WAIT_MAX_LENGTH );
+		while( fire && ( sys.getTime() < endtime ) ) {
+			if ( sys.influenceActive() ) {
+				fire = false;
+				break;
+			}
+			if ( AI_FORWARD ) {
+				if ( !entityInAttackCone( getEnemy() ) ) {
+					break;
+				}
+			}
+			if ( AI_PAIN ) {
+				Torso_Pain();
+			}
+			waitFrame();
+		}
+	}
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_zombie_security_pistol::Torso_TurretAttack() {
+	float endtime;
+	float mintime;
+	boolean first_shot;
+	
+	if(getIntKey("turret_crouch")) {
+		setAnimPrefix( "crouch" );
+	} else {
+		setAnimPrefix( "" );
+	}
+	
+		
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	first_shot = true;
+	while( ( first_shot || canHitEnemyFromAnim( "range_attack_loop" ) ) && !sys.influenceActive() ) {
+		mintime = sys.getTime() + ZSECP_ATTACK_MIN_SHOOT_TIME;
+		endtime = RandomDelay( ZSECP_ATTACK_MIN_LENGTH, ZSECP_ATTACK_MAX_LENGTH );
+		while( ( sys.getTime() < mintime ) || ( ( sys.getTime() < endtime ) && canHitEnemyFromAnim( "range_attack_loop" ) ) ) {
+			playAnim( ANIMCHANNEL_TORSO, "range_attack_loop" );
+			while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+				if ( sys.influenceActive() ) {
+					endtime = 0;
+					break;
+				}
+				if ( AI_PAIN ) {
+					Torso_Pain();
+				}
+				waitFrame();
+			}
+		}
+		first_shot = false;
+
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_aim" );
+		endtime = RandomDelay( ZSECP_WAIT_MIN_LENGTH, ZSECP_WAIT_MAX_LENGTH );
+		while( fire && ( sys.getTime() < endtime ) ) {
+			if ( sys.influenceActive() ) {
+				break;
+			}
+			if ( AI_PAIN ) {
+				Torso_Pain();
+			}
+			waitFrame();
+		}
+	}
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	finishAction( "turret_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_zombie_security_pistol::Torso_CrouchAttack() {
+	float endtime;
+	float mintime;
+	boolean first_shot;
+	
+	overrideAnim( ANIMCHANNEL_LEGS );
+	
+	setAnimPrefix( "crouch" );
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+
+	first_shot = true;
+	while( ( crouch_fire || first_shot ) && !sys.influenceActive() ) {
+		mintime = sys.getTime() + ZSECP_ATTACK_MIN_SHOOT_TIME;
+		endtime = RandomDelay( ZSECP_ATTACK_MIN_LENGTH, ZSECP_ATTACK_MAX_LENGTH );
+		while( ( crouch_fire || ( sys.getTime() < mintime ) ) && ( sys.getTime() < endtime ) ) {
+			playAnim( ANIMCHANNEL_TORSO, "range_attack_loop" );
+			while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+				if ( sys.influenceActive() ) {
+					crouch_fire = false;
+					endtime = 0;
+					break;
+				}
+				if ( AI_PAIN ) {
+					Torso_Pain();
+				}
+				waitFrame();
+			}
+		}
+
+		first_shot = false;
+		if ( !crouch_fire ) {
+			break;
+		}
+
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_aim" );
+		endtime = RandomDelay( ZSECP_WAIT_MIN_LENGTH, ZSECP_WAIT_MAX_LENGTH );
+		while( crouch_fire && ( sys.getTime() < endtime ) ) {
+			if ( sys.influenceActive() ) {
+				crouch_fire = false;
+				endtime = 0;
+				break;
+			}
+			if ( AI_PAIN ) {
+				Torso_Pain();
+			}
+			waitFrame();
+		}
+	}
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 6 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	finishAction( "crouch_attack" );
+	setAnimPrefix( "" );
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 6 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_zombie_security_pistol::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( getEnemy() ) {
+			run = true;
+		}
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 ); }
+		if ( AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 ); }
+	}
+}
+
+void monster_zombie_security_pistol::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( getEnemy() ) {
+			run = true;
+		}
+		if ( run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+void monster_zombie_security_pistol::Legs_Run() {
+	playCycle( ANIMCHANNEL_LEGS, "run" );
+	
+	eachFrame {
+		if ( getEnemy() ) {
+			run = true;
+		}
+		if ( !run && AI_FORWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 ); }
+		if ( !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+void monster_zombie_security_pistol::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void monster_zombie_security_pistol::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void monster_zombie_security_pistol::Legs_StepLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "step_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "sidestep" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void monster_zombie_security_pistol::Legs_StepRight() {
+	playAnim( ANIMCHANNEL_LEGS, "step_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+
+	finishAction( "sidestep" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_security_pistol::init
+=====================
+*/
+void monster_zombie_security_pistol::init() {
+	run_distance	= ZSECP_RUNDISTANCE;
+	walk_turn		= ZSECP_WALKTURN;
+	run_attack		= getIntKey( "run_attack" );
+
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_security_pistol::state_Begin
+=====================
+*/
+void monster_zombie_security_pistol::state_Begin() {
+	fire = false;
+	crouch_fire = false;
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );	
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_zombie_security_pistol::state_Idle
+=====================
+*/
+void monster_zombie_security_pistol::state_Idle() {
+	wait_for_enemy();
+
+	nextAttack		= 0;
+	nextNoFOVAttack = 0;
+	nextDodge		= RandomTime( ZSECP_DODGE_RATE );
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_zombie_security_pistol::do_attack
+=====================
+*/
+void monster_zombie_security_pistol::do_attack( float attack_flags ) {
+	nextNoFOVAttack = sys.getTime() + ZSECP_NOFOVTIME;
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_ZSECP_CROUCHFIRE ) {
+		crouch_attack();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		stand_attack();
+	}
+}
+
+/*
+=====================
+monster_zombie_security_pistol::check_attacks
+=====================
+*/
+float monster_zombie_security_pistol::check_attacks() {
+	float currentTime;
+	float attack_flags;
+	boolean try_attack;
+	boolean reachable;
+	
+	attack_flags = 0;
+	
+	currentTime = sys.getTime();
+	if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+		if ( testAnimMove( "evade_left" ) ) {
+			attack_flags |= ATTACK_DODGE_LEFT;
+		}
+		if ( testAnimMove( "evade_right" ) ) {
+			attack_flags |= ATTACK_DODGE_RIGHT;
+			
+			// if we can dodge either direction, pick one
+			if ( attack_flags & ATTACK_DODGE_LEFT ) {
+				if ( sys.random( 100 ) < 50 ) {
+					attack_flags &= ~ATTACK_DODGE_RIGHT;
+				} else {
+					attack_flags &= ~ATTACK_DODGE_LEFT;
+				}
+			}
+		}
+	}
+
+	combat_node = getCombatNode();
+	if ( combat_node ) {
+		attack_flags |= ATTACK_COMBAT_NODE;
+	}
+
+	reachable = canReachEnemy();
+	if ( AI_ENEMY_IN_FOV && ( !reachable || ( currentTime >= nextAttack ) ) ) {
+		try_attack = true;
+	} else if ( ( sys.getTime() > nextNoFOVAttack ) && AI_ENEMY_VISIBLE && ( !reachable || ( currentTime >= nextAttack ) ) ) {
+		try_attack = true;
+	} else if ( touches( getEnemy() ) ) {
+		try_attack = true;
+	} else {
+		try_attack = false;
+	}
+
+	if ( try_attack ) {
+		// adjust the likelyhood of a crouch vs. stand attack based on the # of each.
+		if ( sys.random( zsecp_num_stand_attacks + zsecp_num_crouch_attacks ) < zsecp_num_stand_attacks ) {
+			if ( canHitEnemyFromAnim( "crouch_range_attack_loop" ) ) {
+				attack_flags |= ATTACK_ZSECP_CROUCHFIRE;
+			} else if ( canHitEnemyFromAnim( "range_attack_loop" ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+		} else if ( canHitEnemyFromAnim( "range_attack_loop" ) ) {
+			attack_flags |= ATTACK_MISSILE;
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_zombie_security_pistol::stand_attack
+=====================
+*/
+void monster_zombie_security_pistol::stand_attack() {
+	float attackTime;
+	float endtime;
+	float left;
+	float right;
+	float attack_flags;
+	boolean do_run_attack;
+
+	zsecp_num_stand_attacks++;
+
+	if ( sys.random( 10 ) < 6 ) {
+		do_run_attack = run_attack;
+	} else {
+		do_run_attack = false;
+	}
+
+	fire = true;
+	attackTime = RandomDelay( ZSECP_STAND_ATTACK_MIN_LENGTH, ZSECP_STAND_ATTACK_MAX_LENGTH );
+	while( AI_ENEMY_VISIBLE ) {
+		endtime = RandomDelay( 0.5, 1 );
+		while( sys.getTime() < endtime ) {
+			if ( sys.influenceActive() ) {
+				fire = false;
+				break;
+			}
+			lookAtEnemy( 1 );
+			if ( !do_run_attack || ( enemyRange() < 90 ) ) {
+				faceEnemy();
+			} else if ( !entityInAttackCone( getEnemy() ) ) {
+				attackTime = 0;
+				break;
+			} else {
+				moveToEnemy();
+			}
+			if ( !canHitEnemyFromAnim( "range_attack_loop" ) ) {
+				break;
+			}
+			if ( AI_PAIN ) {
+				attack_flags = check_attacks();
+				if ( attack_flags & ( ATTACK_DODGE_LEFT | ATTACK_DODGE_RIGHT ) ) {
+					fire = false;
+					do_attack( attack_flags );
+					return;
+				}
+			}
+			
+			waitFrame();
+		}
+
+		if ( sys.influenceActive() ) {
+			break;
+		}
+		
+		if ( sys.getTime() > attackTime ) {
+			break;
+		}
+
+		if ( !AI_ENEMY_VISIBLE || !canHitEnemyFromAnim( "range_attack_loop" ) ) {
+			break;
+		}
+		
+		left  = testAnimMove( "step_left" );
+		right =	testAnimMove( "step_right" );
+		if ( left && right ) {
+			if ( sys.random( 100 ) < 50 ) {
+				left = false;
+			} else {
+				right = false;
+			}
+		}
+		
+		if ( left ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_StepLeft", 4 );
+			while( inAnimState( ANIMCHANNEL_LEGS, "Legs_StepLeft" ) ) {
+				lookAtEnemy( 1 );
+				waitFrame();
+			}
+		} else if ( right ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_StepRight", 4 );
+			while( inAnimState( ANIMCHANNEL_LEGS, "Legs_StepRight" ) ) {
+				lookAtEnemy( 1 );
+				waitFrame();
+			}
+		}
+	}
+	
+	fire = false;
+	while( inAnimState( ANIMCHANNEL_TORSO, "Torso_RangeAttack" ) ) {
+		waitFrame();
+	}
+
+	// don't attack for a bit
+	nextAttack = RandomDelay( ZSECP_ATTACK_DELAY_MIN, ZSECP_ATTACK_DELAY_MAX );
+	nextNoFOVAttack = sys.getTime() + ZSECP_NOFOVTIME;
+}
+	
+/*
+=====================
+monster_zombie_security_pistol::crouch_attack
+=====================
+*/
+void monster_zombie_security_pistol::crouch_attack() {
+	float attackTime;
+	float attack_flags;
+
+	zsecp_num_crouch_attacks++;
+
+	faceEnemy();
+	crouch_fire = true;
+	
+	attackTime = RandomDelay( ZSECP_CROUCH_ATTACK_MIN_LENGTH, ZSECP_CROUCH_ATTACK_MAX_LENGTH );
+	while( AI_ENEMY_VISIBLE ) {
+		if ( sys.influenceActive() ) {
+			crouch_fire = false;
+			break;
+		}
+		if ( sys.getTime() > attackTime ) {
+			break;
+		}
+		
+		if ( AI_PAIN ) {
+			attack_flags = check_attacks();
+			if ( attack_flags & ( ATTACK_DODGE_LEFT | ATTACK_DODGE_RIGHT ) ) {
+				crouch_fire = false;
+				setAnimPrefix( "" );
+				do_attack( attack_flags );
+				return;
+			}
+		}
+		
+		lookAtEnemy( 1 );
+		if ( !canHitEnemyFromAnim( "range_attack_loop" ) ) {
+			break;
+		}
+		waitFrame();
+	}
+	
+	crouch_fire = false;
+	while( inAnimState( ANIMCHANNEL_TORSO, "Torso_CrouchAttack" ) ) {
+		waitFrame();
+	}
+
+	// don't attack for a bit
+	nextAttack = RandomDelay( ZSECP_ATTACK_DELAY_MIN, ZSECP_ATTACK_DELAY_MAX );
+	nextNoFOVAttack = sys.getTime() + ZSECP_NOFOVTIME;
+}
+
+/*
+=====================
+monster_zombie_security_pistol::combat_dodge_left
+=====================
+*/
+void monster_zombie_security_pistol::combat_dodge_left() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", 2 );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( ZSECP_DODGE_RATE );
+}
+
+/*
+=====================
+monster_zombie_security_pistol::combat_dodge_right
+=====================
+*/
+void monster_zombie_security_pistol::combat_dodge_right() {
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", 2 );	
+	waitAction( "strafe" );
+	nextDodge = DelayTime( ZSECP_DODGE_RATE );
+}

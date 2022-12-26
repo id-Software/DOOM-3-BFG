@@ -71,7 +71,7 @@ static char fatalError[ 1024 ];
 Posix_ClearSigs
 ================
 */
-void Posix_ClearSigs( )
+void Posix_ClearSigs()
 {
 	struct sigaction action;
 	int i;
@@ -129,7 +129,7 @@ static void sig_handler( int signum, siginfo_t* info, void* context )
 Posix_InitSigs
 ================
 */
-void Posix_InitSigs( )
+void Posix_InitSigs()
 {
 	struct sigaction action;
 	int i;

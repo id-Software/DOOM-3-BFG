@@ -1,0 +1,643 @@
+namespace map_erebus2_helltime
+{
+	#define LOST_SOUL_RATE_MIN 3
+	#define LOST_SOUL_RATE_MAX 6
+
+	float currentGrabBall;
+	float stopLostSoulBattle;
+	float stopPowerBallGeneration;
+	float turret1Lock;
+	float turret2Lock;
+	float cinematic_teleport_started;
+
+	entity sacrificeSoul;
+
+	void SetupHelltimeBattle()
+	{
+		turret1Lock = 0;
+		turret2Lock = 0;
+
+		currentGrabBall = 1;
+		stopLostSoulBattle = 0;
+		stopPowerBallGeneration = 0;
+
+		cinematic_teleport_started = 0;
+	}
+
+
+	/*entity SpawnPowerball(string name, vector origin) {
+		entity powerball;
+		vector pdir;
+		pdir_x = 1;
+
+		sys.setSpawnArg( "name", name );
+		powerball = sys.spawn( "projectile_helltime_killer" );
+		powerball.projectileCreateProjectile($turret_1, origin, pdir);
+		powerball.projectileLaunchProjectile(origin, pdir, '0 0 0');
+		return powerball;
+	}*/
+
+	entity SpawnPowerball(string name, vector origin, entity enemy) {
+
+		entity powerball;
+		vector pushvel;
+		vector dir;
+
+		dir = enemy.getOrigin() - origin;
+		dir = sys.vecNormalize( dir );
+
+		pushvel = dir;
+		pushvel *= 400;
+
+		powerball = sys.spawn( "projectile_helltime_killer" );
+		powerball.projectileCreateProjectile($turret_2, origin, dir);
+		powerball.projectileLaunchProjectile(origin, dir, pushvel);
+
+		return powerball;
+	}
+
+	float CheckForMovement(entity ball, vector startOrigin) {
+		vector testOrigin;
+		testOrigin = ball.getOrigin();
+
+		if(testOrigin != startOrigin) {
+			//sys.print("Powerball Moved\n");
+			ball.setGravity(100);
+			return 1;
+		}
+		return 0;
+	}
+
+	/*void PowerBallThread() {
+
+		entity testBall;
+		vector origin;
+
+		float ballMoved;
+		entity enemy;
+
+		while(1) {
+			if(stopPowerBallGeneration == 1) {
+				break;
+			}
+
+			testBall = sys.getEntity("powerball_projectile");
+			if(!testBall) {
+
+				ballMoved = 0;
+
+				//sys.print("Spawning Powerball " + currentGrabBall + "\n");
+
+				entity turret = sys.getEntity("turret_"+currentGrabBall);
+				enemy = sys.getEntity("enemy_"+currentGrabBall);
+
+				//The turret we want to spawn a ball on may be in the middle of an attack
+				//so lets wait until it is done before we try to spawn the ball
+				float locked = 1;
+				while(locked > 0) {
+					if(currentGrabBall == 1) {
+						locked = turret1Lock;
+					} else {
+						locked = turret2Lock;
+					}
+					//sys.print("waiting for attack to be completed\n");
+					sys.wait(.1);
+				}
+
+				if( currentGrabBall == 1 ) {
+					sys.trigger( $ancient_fireball_spawn_left );
+					sys.trigger( $ht_ballleft_spawn ); // BJ
+				} else {
+					sys.trigger( $ancient_fireball_spawn_right );
+					sys.trigger( $ht_ballright_spawn ); // BJ
+				}
+				sys.wait( .5 );
+
+
+				float jointNum = turret.getJointHandle("MISSILE");
+				origin = turret.getJointPos(jointNum);
+				testBall = SpawnPowerball("powerball_projectile", origin, enemy);
+			} else {
+				if(CheckForMovement(testBall, origin) == 1 && ballMoved == 0) {
+					ballMoved = 1;
+					//Toggle the grab ball
+					if(currentGrabBall == -1 || currentGrabBall == 2) {
+						currentGrabBall = 1;
+					} else {
+						currentGrabBall = 2;
+					}
+					//sys.print("Toggling the grab ball to " + currentGrabBall + "\n");
+				}
+			}
+			sys.wait(.1);
+		}
+	}*/
+
+	void PowerBallThread() {
+
+		entity testBall;
+		vector origin;
+
+		float ballMoved;
+		entity enemy;
+
+		while(1) {
+			if(stopPowerBallGeneration == 1) {
+				break;
+			}
+
+			testBall = sys.getEntity("powerball_projectile");
+			if(!testBall) {
+
+				ballMoved = 0;
+
+				//sys.print("Spawning Powerball " + currentGrabBall + "\n");
+
+				entity turret = sys.getEntity("turret_"+currentGrabBall);
+				enemy = sys.getEntity("enemy_"+currentGrabBall);
+
+				//The turret we want to spawn a ball on may be in the middle of an attack
+				//so lets wait until it is done before we try to spawn the ball
+				float locked = 1;
+				while(locked > 0) {
+					if(currentGrabBall == 1) {
+						locked = turret1Lock;
+					} else {
+						locked = turret2Lock;
+					}
+					//sys.print("waiting for attack to be completed\n");
+					sys.wait(.1);
+				}
+
+				if( currentGrabBall == 1 ) {
+					sys.trigger( $ancient_fireball_spawn_left );
+					sys.trigger( $ht_ballleft_spawn ); // BJ
+				} else {
+					sys.trigger( $ancient_fireball_spawn_right );
+					sys.trigger( $ht_ballright_spawn ); // BJ
+				}
+				sys.wait( 1 );
+
+
+				float jointNum = turret.getJointHandle("MISSILE");
+				origin = turret.getJointPos(jointNum);
+				testBall = SpawnPowerball("powerball_projectile", origin, enemy);
+				turret.callFunction("fire");
+
+				//Toggle the grab ball
+				if(currentGrabBall == -1 || currentGrabBall == 2) {
+					currentGrabBall = 1;
+				} else {
+					currentGrabBall = 2;
+				}
+
+				sys.wait(4);
+
+			} /*else {
+				if(CheckForMovement(testBall, origin) == 1 && ballMoved == 0) {
+					ballMoved = 1;
+					//Toggle the grab ball
+					if(currentGrabBall == -1 || currentGrabBall == 2) {
+						currentGrabBall = 1;
+					} else {
+						currentGrabBall = 2;
+					}
+					//sys.print("Toggling the grab ball to " + currentGrabBall + "\n");
+				}
+			}*/
+			sys.wait(.1);
+		}
+	}
+
+	/*void PowerBallThread() {
+
+		entity testBall;
+		vector origin;
+
+		entity turret;
+		float jointNum ;
+
+		while(1) {
+			if(stopPowerBallGeneration == 1) {
+				break;
+			}
+
+			testBall = sys.getEntity("powerball_projectile_left");
+			if(!testBall) {
+
+				turret = sys.getEntity("turret_1");
+
+				sys.trigger( $ancient_fireball_spawn_left );
+				sys.trigger( $ht_ballleft_spawn ); // BJ
+
+				sys.wait( .5 );
+
+				jointNum = turret.getJointHandle("MISSILE");
+				origin = turret.getJointPos(jointNum);
+				testBall = SpawnPowerball("powerball_projectile_left", origin);
+			}
+
+			testBall = sys.getEntity("powerball_projectile_right");
+			if(!testBall) {
+
+				turret = sys.getEntity("turret_2");
+
+				sys.trigger( $ancient_fireball_spawn_right );
+				sys.trigger( $ht_ballright_spawn ); // BJ
+
+				sys.wait( .5 );
+
+				jointNum = turret.getJointHandle("MISSILE");
+				origin = turret.getJointPos(jointNum);
+				testBall = SpawnPowerball("powerball_projectile_right", origin);
+			}
+
+			sys.wait(.1);
+		}
+	}*/
+
+
+	entity SpawnPowerballGuided(vector origin, entity enemy) {
+		entity powerball;
+		vector pushvel;
+		vector dir;
+
+		dir = enemy.getOrigin() - origin;
+		dir = sys.vecNormalize( dir );
+
+		pushvel = dir;
+		pushvel *= 150;
+
+		powerball = sys.spawn( "projectile_powerball_guided" );
+		powerball.projectileCreateProjectile($turret_2, origin, dir);
+		powerball.projectileLaunchProjectile(origin, dir, pushvel);
+		powerball.setEnemy(enemy);
+		return powerball;
+	}
+
+
+	void AttackLostSoul(entity soul, float delay) {
+
+		float guidedBall;
+		if(currentGrabBall == -1 || currentGrabBall == 1) {
+			guidedBall = 2;
+		} else {
+			guidedBall = 1;
+		}
+
+		//Force a 1.5 second delat before we start to track
+		//This may include time spent tracking and firing at another lostsoul
+
+		float startTime;
+		startTime = sys.getTime();
+
+		float locked = 1;
+		while(locked > 0) {
+			if(guidedBall == 1) {
+				locked = turret1Lock;
+			} else {
+				locked = turret2Lock;
+			}
+			//sys.print("waiting for attack to be completed\n");
+			sys.wait(.1);
+		}
+
+		float endWaitTime;
+		endWaitTime = sys.getTime();
+
+		if(endWaitTime-startTime < 1.5) {
+			sys.wait(1.5 - (endWaitTime-startTime));
+		}
+
+		//We need to lock the turret so the thread that spawns the grabber balls doesn't
+		//try to spawn the ball in an odd spot
+		if(guidedBall == 1) {
+			turret1Lock++;
+		} else {
+			turret2Lock++;
+		}
+
+		entity turret = sys.getEntity("turret_"+guidedBall);
+		turret.setEnemy(soul);
+		turret.callFunction("trackEnemy");
+
+		//If the time elapsed is less than 4 seconds then pause until 4 seconds has passed
+		float currentTime;
+		currentTime = sys.getTime();
+		if(currentTime - startTime < 4) {
+			sys.wait(4 - (currentTime - startTime));
+		}
+
+
+		vector origin;
+
+		float jointNum = turret.getJointHandle("MISSILE");
+		origin = turret.getJointPos(jointNum);
+
+		if( guidedBall == 1 ) {
+			sys.trigger( $ancient_fireball_spawn_left );
+			sys.trigger( $ht_ballleft_spawn ); // BJ
+		} else {
+			sys.trigger( $ancient_fireball_spawn_right );
+			sys.trigger( $ht_ballright_spawn ); // BJ
+		}
+		sys.wait( .5 );
+
+		SpawnPowerballGuided(origin, soul);
+		//sys.print("About to fire\n");
+		turret.callFunction("fire");
+
+		turret.callFunction("returnToIdle");
+
+		//Wait a few seconds to allow the turret to traverse back to idle
+		sys.wait(1);
+
+		//We are done so unlock the turret for other threads
+		if(guidedBall == 1) {
+			turret1Lock--;
+		} else {
+			turret2Lock--;
+		}
+	}
+
+
+	entity SpawnLostSoul(entity spawnLocation, string pathName) {
+
+		entity soul;
+		vector origin;
+		vector ang;
+
+		origin = spawnLocation.getOrigin();
+
+		sys.setSpawnArg("attack_path", "1");
+		sys.setSpawnArg("stay_on_attackpath", "1");
+		sys.setSpawnArg("target", pathName);
+		sys.setSpawnArg("trigger", "1");
+		sys.setSpawnArg("anim", "charge");
+		sys.setSpawnArg( "cinematic", "1" );
+
+		soul = sys.spawn("monster_flying_forgotten");
+
+		soul.setOrigin(origin);
+		sys.trigger(soul);
+		soul.clearEnemy();
+
+		return soul;
+	}
+
+
+	void LostSoulBattle() {
+
+		//Kill the lost soul in the map used to build the AAS
+		//thread( AttackLostSoul($monster_flying_lostsoul2_1, 1) );
+
+		float nextLostSoul;
+		float gameTime;
+		nextLostSoul = RandomDelay(LOST_SOUL_RATE_MIN, LOST_SOUL_RATE_MAX);
+
+		while(1) {
+
+			if(stopLostSoulBattle) {
+				break;
+			}
+
+			gameTime = sys.getTime();
+			if(gameTime >= nextLostSoul) {
+				entity soul;
+				soul = SpawnLostSoul($lostsoulspawn1, "lostsoulpath_1");
+				thread( AttackLostSoul(soul, 3) );
+				nextLostSoul = RandomDelay(LOST_SOUL_RATE_MIN, LOST_SOUL_RATE_MAX);
+			}
+			sys.wait(.1);
+		}
+	}
+
+	void StartLostSoulBattle() {
+//		sys.print("Start Lost Soul Battle\n");
+		//thread ( LostSoulBattle() );
+	}
+
+	void StopLostSoulBattle() {
+		//sys.print("Stopping Lost Soul Battle\n");
+		stopLostSoulBattle = 1;
+	}
+
+	void StartPortalRotation() {
+
+		$portal_rotate2.accelTime(2);
+		$portal_rotate2.time(4);
+		$portal_rotate2.rotate ('-60 0 0');
+
+		$portal_rotate.accelTime(2);
+		$portal_rotate.time(4);
+		$portal_rotate.rotate ('30 0 0');
+	}
+
+	void StopPortalRotation() {
+
+		//$portal_rotate2.stopRotating();
+		//$portal_rotate.stopRotating();
+	}
+
+	void StartPowerBallGeneration() {
+//		sys.print("Start Power Ball Generation\n");
+
+		
+		
+		$turret_1.setEnemy($enemy_1);
+		$turret_1.callFunction("trackEnemy");
+		$turret_2.setEnemy($enemy_2);
+		$turret_2.callFunction("trackEnemy");
+		
+		
+		thread ( PowerBallThread() );
+	}
+
+	void StopPowerBallGeneration() {
+		//stopPowerBallGeneration = 1; - BJ 011305
+	}
+
+	void IntroCinematicLostSouls() {
+//		sys.print("Spawning Sacrafice Lost Souls\n");
+		entity soul1;
+		entity soul2;
+		entity soul3;
+		entity soul4;
+
+		//Spawn 4 lost souls and send them on there merry way
+		soul1 = SpawnLostSoul($lostsoulspawn5, "sacrificepath1");
+		sys.wait(.5);
+		soul2 = SpawnLostSoul($lostsoulspawn3, "sacrificepath3");
+		sys.wait(.5);
+		soul3 = SpawnLostSoul($lostsoulspawn2, "sacrificepath4");
+		sys.wait(.5);
+		soul4 = SpawnLostSoul($lostsoulspawn4, "sacrificepath2");
+
+		//Let tehm live for a few seconds
+		sys.wait(2);
+
+		//Kill them all!!!!!
+		soul1.remove();
+		soul2.remove();
+		soul3.remove();
+		soul4.remove();
+
+	}
+
+
+	void introCinematicSpawnSacrificeLostSoul() {
+//		sys.print("Spawning Lost Soul...Prepare to die!!!!\n");
+//		sacrificeSoul = SpawnLostSoul($sacrificeSoulSpawn, "sacrificeSoulPath");
+//		sys.trigger($ht_sacrifice_new);
+	}
+
+	void introCinemationRightTurretAttackLostSoul() {
+//		sys.print("That's your ass!!!!\n");
+
+		sys.trigger($ht_sacrifice_bs_target);
+		sys.trigger($ht_sacrifice_target);
+
+		entity turret = sys.getEntity("turret_2");
+//		turret.setEnemy(sacrificeSoul);
+//		turret.setEnemy($ht_sacrifice_new);
+//		turret.callFunction("trackEnemy");
+
+//		sys.wait(1);
+
+		vector origin;
+		float jointNum = turret.getJointHandle("MISSILE");
+		origin = turret.getJointPos(jointNum);
+
+		sys.trigger( $ancient_fireball_spawn_right );
+		sys.trigger( $ht_ballright_spawn );
+		sys.wait( .9 );
+		SpawnPowerballGuided(origin, $ht_sacrifice_bs_target);
+
+		sys.wait( 1.8 );
+
+		SpawnPowerballGuided(origin, $ht_sacrifice_target);
+
+		//turret.callFunction("fire");
+
+		turret.callFunction("returnToIdle");
+
+		//Wait a few seconds to allow the turret to traverse back to idle
+		sys.wait(1);
+	}
+
+	/*
+	=====================
+	starting_teleport_effect
+	=====================
+	*/
+	void starting_teleport_effect( entity hunter, vector destination ) {
+		entity ent;
+		vector pos, vec, ang;
+
+		sys.setSpawnArg( "fx", "fx/hunter/helltime/start_teleport" );
+		sys.setSpawnArg( "start", "1" );
+		sys.setSpawnArg( "cinematic", "1" );
+		ent = sys.spawn( "func_fx" );
+
+		pos = destination - hunter.getOrigin();
+		vec = sys.vecNormalize( pos );
+		ang = sys.VecToOrthoBasisAngles( vec );
+
+		vec = hunter.getOrigin();
+		vec_z += 64;
+		ent.setOrigin( vec );
+		ent.setAngles( ang );
+	}
+
+	/*
+	=====================
+	ending_teleport_effect
+	=====================
+	*/
+	void ending_teleport_effect( entity hunter ) {
+		entity ent;
+		vector org;
+
+		sys.setSpawnArg( "fx", "fx/hunter/helltime/end_teleport" );
+		sys.setSpawnArg( "start", "1" );
+		sys.setSpawnArg( "cinematic", "1" );
+		ent = sys.spawn( "func_fx" );
+
+		org = hunter.getOrigin();
+		org_z += 64;
+		ent.setOrigin( org );
+	}
+
+	/*
+	=====================
+	teleport_to_position
+	=====================
+	*/
+	void teleport_to_position( entity hunter, vector pos, float teleport_time ) {
+
+		starting_teleport_effect( hunter, pos );
+
+		hunter.playAnim( ANIMCHANNEL_TORSO, "helltime_teleport" );
+		sys.wait( 0.875 );
+
+		hunter.hide();
+
+		sys.wait( 0.016 );
+		hunter.setOrigin( pos );
+		sys.wait( teleport_time );
+
+		hunter.show();
+
+		ending_teleport_effect( hunter );
+
+		hunter.playAnim( ANIMCHANNEL_TORSO, "helltime_teleport_end" );
+		sys.wait( 0.28 );
+
+		hunter.setBlendFrames( ANIMCHANNEL_LEGS, 4 );
+		hunter.setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+		hunter.playCycle( ANIMCHANNEL_TORSO, "idle" );
+	}
+
+	void StartCinematicTeleport() {
+
+		if ( !cinematic_teleport_started ) {
+			cinematic_teleport_started = 1;
+
+			$erebus2_cinematic_hunter1.allowHiddenMovement( true );
+			sys.wait( 0.5 );
+
+			teleport_to_position( $erebus2_cinematic_hunter1, $ht_helltime_teleport1.getOrigin(), 0.5 );
+			sys.wait( 0.5 );
+			teleport_to_position( $erebus2_cinematic_hunter1, $ht_helltime_teleport2.getOrigin(), 0.5 );
+			sys.wait( 0.5 );
+	//		teleport_to_position( $erebus2_cinematic_hunter1, $ht_helltime_teleport3.getOrigin(), 0.5 );
+	//		sys.wait( 0.5 );
+			teleport_to_position( $erebus2_cinematic_hunter1, $hell_spot_portal.getOrigin(), 0.5 );
+	//		sys.trigger( $ht_speaker_tp_end );
+			sys.wait( 4 );
+			$erebus2_cinematic_hunter1.remove();
+			sys.trigger( $monster_hunter_helltime );
+		}
+	}
+
+	void StartCinematic() {
+		$erebus2_cinematic_hunter1.show();
+
+		$erebus2_cinematic_hunter1.setBlendFrames( ANIMCHANNEL_LEGS, 8 );
+		$erebus2_cinematic_hunter1.setBlendFrames( ANIMCHANNEL_TORSO, 8 );
+		$erebus2_cinematic_hunter1.playAnim( ANIMCHANNEL_TORSO, "cinematic" );
+
+		sys.wait( 19.709 );
+		$erebus2_cinematic_hunter1.setBlendFrames( ANIMCHANNEL_LEGS, 8 );
+		$erebus2_cinematic_hunter1.setBlendFrames( ANIMCHANNEL_TORSO, 8 );
+		$erebus2_cinematic_hunter1.playAnim( ANIMCHANNEL_TORSO, "idle" );
+
+		StartCinematicTeleport();
+	}
+
+	void StartHelltimeDeathBurn() {
+		//sys.print("Starting Burnaway\n");
+		$erebus2_cinematic_hunterdeath.setShaderParm(7, sys.getTime());
+		$erebus2_cinematic_hunterdeath.setSkin("skins/monsters/hunter_helltime/burnaway");
+	}
+}

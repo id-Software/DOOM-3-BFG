@@ -6,6 +6,7 @@ Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -73,6 +74,8 @@ int BitsForFormat( textureFormat_t format )
 			return 32;
 		case FMT_RGBA16F:
 			return 64;
+		case FMT_RGBA16S:
+			return 64;
 		case FMT_RGBA32F:
 			return 128;
 		case FMT_R32F:
@@ -94,6 +97,41 @@ int BitsForFormat( textureFormat_t format )
 			assert( 0 );
 			return 0;
 	}
+}
+
+int BlockSizeForFormat( const textureFormat_t& format )
+{
+	switch( format )
+	{
+		case FMT_NONE:
+			return 0;
+		case FMT_DXT1:
+			return 8;
+		case FMT_DXT5:
+			return 16;
+		default:
+			return 1;
+	}
+}
+
+/*
+=========================
+GetRowBytes
+Returns the row bytes for the given image.
+=========================
+*/
+static int GetRowPitch( const textureFormat_t& format, int width )
+{
+	bool bc = ( format == FMT_DXT1 || format == FMT_DXT5 );
+
+	if( bc )
+	{
+		int blockSize = BlockSizeForFormat( format );
+		return std::max( 1, ( width + 3 ) / 4 ) * blockSize;
+	}
+
+	int bpe = BitsForFormat( format );
+	return width * ( bpe / 8 );
 }
 
 /*
@@ -134,6 +172,10 @@ ID_INLINE void idImage::DeriveOpts()
 
 			case TD_RGBA16F:
 				opts.format = FMT_RGBA16F;
+				break;
+
+			case TD_RGBA16S:
+				opts.format = FMT_RGBA16S;
 				break;
 
 			case TD_RGBA32F:
@@ -295,7 +337,7 @@ Absolutely every image goes through this path
 On exit, the idImage will have a valid OpenGL texture number that can be bound
 ===============
 */
-void idImage::ActuallyLoadImage( bool fromBackEnd )
+void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList )
 {
 	// if we don't have a rendering context yet, just return
 	//if( !tr.IsInitialized() )
@@ -306,7 +348,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	// this is the ONLY place generatorFunction will ever be called
 	if( generatorFunction )
 	{
-		generatorFunction( this );
+		generatorFunction( this, commandList );
 		return;
 	}
 
@@ -332,7 +374,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		{
 			opts.textureType = TT_2D_ARRAY;
 		}
-		else if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA || cubeFiles == CF_SINGLE )
+		else if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA || cubeFiles == CF_QUAKE1 || cubeFiles == CF_SINGLE )
 		{
 			opts.textureType = TT_CUBIC;
 			repeat = TR_CLAMP;
@@ -412,7 +454,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 
 	if( ( fileSystem->InProductionMode() && binaryFileTime != FILE_NOT_FOUND_TIMESTAMP ) || ( ( binaryFileTime != FILE_NOT_FOUND_TIMESTAMP )
 			&& ( header.colorFormat == opts.colorFormat )
-#if defined(__APPLE__) && defined(USE_VULKAN)
+#if ( defined( __APPLE__ ) && defined( USE_VULKAN ) ) || defined( USE_NVRHI )
 			// SRS - Handle case when image read is cached and RGB565 format conversion is already done
 			&& ( header.format == opts.format || ( header.format == FMT_RGB565 && opts.format == FMT_RGBA8 ) )
 #else
@@ -425,7 +467,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		opts.height = header.height;
 		opts.numLevels = header.numLevels;
 		opts.colorFormat = ( textureColor_t )header.colorFormat;
-#if defined(__APPLE__) && defined(USE_VULKAN)
+#if ( defined( __APPLE__ ) && defined( USE_VULKAN ) ) || defined( USE_NVRHI )
 		// SRS - Set in-memory format to FMT_RGBA8 for converted FMT_RGB565 image
 		if( header.format == FMT_RGB565 )
 		{
@@ -469,7 +511,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		//else if( toolUsage )
 		//	binarizeReason = va( "binarize: tool usage '%s'", generatedName.c_str() );
 
-		if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA || cubeFiles == CF_SINGLE )
+		if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA || cubeFiles == CF_QUAKE1 || cubeFiles == CF_SINGLE )
 		{
 			int size;
 			byte* pics[6];
@@ -478,6 +520,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			{
 				idLib::Warning( "Couldn't load cube image: %s", GetName() );
 				defaulted = true; // RB
+				isLoaded = true;
 				return;
 			}
 
@@ -532,17 +575,38 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 				opts.height = 8;
 				opts.numLevels = 1;
 				DeriveOpts();
+
+#if defined( USE_NVRHI )
+				if( !commandList )
+				{
+					return;
+				}
+#endif
+
 				AllocImage();
 
 				// clear the data so it's not left uninitialized
 				idTempArray<byte> clear( opts.width * opts.height * 4 );
 				memset( clear.Ptr(), 0, clear.Size() );
+
+#if defined( USE_NVRHI )
+				const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+
+				commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+				for( int level = 0; level < opts.numLevels; level++ )
+				{
+					commandList->writeTexture( texture, 0, level, clear.Ptr(), GetRowPitch( opts.format, opts.width ) );
+				}
+				commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+				commandList->commitBarriers();
+#else
 				for( int level = 0; level < opts.numLevels; level++ )
 				{
 					SubImageUpload( level, 0, 0, 0, opts.width >> level, opts.height >> level, clear.Ptr() );
 				}
-
+#endif
 				defaulted = true; // RB
+				isLoaded = true;
 				return;
 			}
 
@@ -600,14 +664,83 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		binaryFileTime = im.WriteGeneratedFile( sourceFileTime );
 	}
 
+#if defined( USE_NVRHI )
+	if( !commandList )
+	{
+		return;
+	}
+#endif
+
 	AllocImage();
 
+#if defined( USE_NVRHI )
+	const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+	const int bytesPerPixel = info.bytesPerBlock / info.blockSize;
+
+	commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+
+	for( int i = 0; i < im.NumImages(); i++ )
+	{
+		const bimageImage_t& img = im.GetImageHeader( i );
+		const byte* pic = im.GetImageData( i );
+
+#if 0
+		if( opts.format == FMT_RGB565 )
+		{
+			int bufferW = img.width;
+			int bufferH = img.height;
+
+			if( IsCompressed() )
+			{
+				bufferW = ( img.width + 3 ) & ~3;
+				bufferH = ( img.height + 3 ) & ~3;
+			}
+
+			int size = bufferW * bufferH * BitsForFormat( opts.format ) / 8;
+
+			byte* data = ( byte* )Mem_Alloc16( size, TAG_IMAGE );
+			memcpy( data, pic, size );
+
+			byte* imgData = ( byte* )pic;
+			for( int j = 0; j < size; j += 2 )
+			{
+				data[i] = imgData[i + 1];
+				data[i + 1] = imgData[i];
+			}
+
+			commandList->writeTexture( texture, img.destZ, img.level, data, GetRowPitch( opts.format, img.width ) );
+
+			Mem_Free16( data );
+		}
+		else
+#endif
+		{
+			int bufferW = img.width;
+			if( IsCompressed() )
+			{
+				bufferW = ( img.width + 3 ) & ~3;
+			}
+
+			commandList->writeTexture( texture, img.destZ, img.level, pic, GetRowPitch( opts.format, img.width ) );
+		}
+	}
+	commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+	commandList->commitBarriers();
+#else
 	for( int i = 0; i < im.NumImages(); i++ )
 	{
 		const bimageImage_t& img = im.GetImageHeader( i );
 		const byte* data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
 	}
+#endif
+
+	isLoaded = true;
+}
+
+void idImage::DeferredLoadImage()
+{
+	globalImages->imagesToLoad.AddUnique( this );
 }
 
 /*
@@ -617,20 +750,22 @@ StorageSize
 */
 int idImage::StorageSize() const
 {
-
 	if( !IsLoaded() )
 	{
 		return 0;
 	}
-	int baseSize = opts.width * opts.height;
-	if( opts.numLevels > 1 )
+
+	size_t baseSize = opts.width * opts.height;
+	if( opts.numLevels > 1 && !opts.isRenderTarget )
 	{
 		baseSize *= 4;
 		baseSize /= 3;
 	}
+
 	baseSize *= BitsForFormat( opts.format );
 	baseSize /= 8;
-	return baseSize;
+
+	return int( baseSize );
 }
 
 /*
@@ -693,11 +828,14 @@ void idImage::Print() const
 			NAME_FORMAT( RGBA16F );
 			NAME_FORMAT( RGBA32F );
 			NAME_FORMAT( R32F );
+			NAME_FORMAT( R8 );
 			NAME_FORMAT( R11G11B10F );
 			// RB end
 			NAME_FORMAT( DEPTH );
+			NAME_FORMAT( DEPTH_STENCIL );
 			NAME_FORMAT( X16 );
 			NAME_FORMAT( Y16_X16 );
+			NAME_FORMAT( SRGB8 );
 		default:
 			common->Printf( "<%3i>", opts.format );
 			break;
@@ -751,8 +889,18 @@ void idImage::Print() const
 idImage::Reload
 ===============
 */
-void idImage::Reload( bool force )
+void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 {
+#if defined( USE_NVRHI )
+
+	// always regenerate functional images
+	if( generatorFunction )
+	{
+		//common->DPrintf( "regenerating %s.\n", GetName() );
+		generatorFunction( this, commandList );
+		return;
+	}
+#else
 	// don't break render targets that have this image attached
 	if( opts.isRenderTarget )
 	{
@@ -765,16 +913,17 @@ void idImage::Reload( bool force )
 		if( force )
 		{
 			common->DPrintf( "regenerating %s.\n", GetName() );
-			generatorFunction( this );
+			generatorFunction( this, commandList );
 		}
 		return;
 	}
+#endif
 
 	// check file times
 	if( !force )
 	{
 		ID_TIME_T current;
-		if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA || cubeFiles == CF_SINGLE )
+		if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA || cubeFiles == CF_QUAKE1 || cubeFiles == CF_SINGLE )
 		{
 			R_LoadCubeImages( imgName, cubeFiles, NULL, NULL, &current );
 		}
@@ -793,8 +942,7 @@ void idImage::Reload( bool force )
 
 	PurgeImage();
 
-	// Load is from the front end, so the back end must be synced
-	ActuallyLoadImage( false );
+	DeferredLoadImage();
 }
 
 /*
@@ -802,7 +950,7 @@ void idImage::Reload( bool force )
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, textureSamples_t samples, cubeFiles_t _cubeFiles, bool isRenderTarget )
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, nvrhi::ICommandList* commandList, bool isRenderTarget, bool isUAV, uint sampleCount, cubeFiles_t _cubeFiles )
 {
 	PurgeImage();
 
@@ -811,12 +959,13 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	usage = usageParm;
 	cubeFiles = _cubeFiles;
 
-	opts.textureType = ( samples > SAMPLE_1 ) ? TT_2D_MULTISAMPLE : TT_2D;
+	opts.textureType = ( sampleCount > 1 ) ? TT_2D_MULTISAMPLE : TT_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
-	opts.samples = samples;
+	opts.samples = sampleCount;
 	opts.isRenderTarget = isRenderTarget;
+	opts.isUAV = isUAV;
 
 	// RB
 	if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
@@ -830,30 +979,7 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	if( pic == NULL || opts.textureType == TT_2D_MULTISAMPLE )
 	{
 		AllocImage();
-
-		// RB: shouldn't be needed as the Vulkan backend is not feature complete yet
-		// I just make sure r_useSSAO is 0
-#if 0 //defined(USE_VULKAN)
-		// SRS - update layout of Ambient Occlusion image otherwise get Vulkan validation layer errors with SSAO enabled
-		if( imgName == "_ao0" || imgName == "_ao1" )
-		{
-			VkImageSubresourceRange subresourceRange;
-			if( internalFormat == VK_FORMAT_D32_SFLOAT_S8_UINT || opts.format == FMT_DEPTH )
-			{
-				subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-			}
-			else
-			{
-				subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			}
-			subresourceRange.baseMipLevel = 0;
-			subresourceRange.levelCount = opts.numLevels;
-			subresourceRange.baseArrayLayer = 0;
-			subresourceRange.layerCount = 1;
-
-			SetImageLayout( image, subresourceRange, VK_IMAGE_LAYOUT_UNDEFINED, layout );
-		}
-#endif
+		isLoaded = true;
 	}
 	else
 	{
@@ -883,12 +1009,36 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 
 		AllocImage();
 
+#if defined( USE_NVRHI )
+		if( commandList )
+		{
+			const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+			const int bytesPerBlock = info.bytesPerBlock;
+
+			commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+
+			for( int i = 0; i < im.NumImages(); i++ )
+			{
+				const bimageImage_t& img = im.GetImageHeader( i );
+				const byte* data = im.GetImageData( i );
+
+				int rowPitch = GetRowPitch( opts.format, img.width );
+				commandList->writeTexture( texture, img.destZ, img.level, data, rowPitch );
+			}
+
+			commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+			commandList->commitBarriers();
+		}
+#else
 		for( int i = 0; i < im.NumImages(); i++ )
 		{
 			const bimageImage_t& img = im.GetImageHeader( i );
 			const byte* data = im.GetImageData( i );
 			SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
 		}
+#endif
+
+		isLoaded = true;
 	}
 	// RB end
 }
@@ -900,7 +1050,7 @@ GenerateCubeImage
 Non-square cube sides are not allowed
 ====================
 */
-void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t filterParm, textureUsage_t usageParm )
+void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t filterParm, textureUsage_t usageParm, nvrhi::ICommandList* commandList )
 {
 	PurgeImage();
 
@@ -943,16 +1093,44 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t f
 
 	AllocImage();
 
+#if defined( USE_NVRHI )
+	int numChannels = 4;
+	int bytesPerPixel = numChannels;
+	if( opts.format == FMT_ALPHA || opts.format == FMT_DXT1 || opts.format == FMT_INT8 || opts.format == FMT_R8 )
+	{
+		bytesPerPixel = 1;
+	}
+
+	const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+	bytesPerPixel = info.bytesPerBlock;
+
+	commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+
+	for( int i = 0; i < im.NumImages(); i++ )
+	{
+		const bimageImage_t& img = im.GetImageHeader( i );
+		const byte* data = im.GetImageData( i );
+
+		commandList->writeTexture( texture, 0, img.level, data, GetRowPitch( opts.format, img.width ) );
+	}
+
+	commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+	commandList->commitBarriers();
+#else
+
 	for( int i = 0; i < im.NumImages(); i++ )
 	{
 		const bimageImage_t& img = im.GetImageHeader( i );
 		const byte* data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
 	}
+#endif
+
+	isLoaded = true;
 }
 
 // RB begin
-void idImage::GenerateShadowArray( int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm )
+void idImage::GenerateShadowArray( int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, nvrhi::ICommandList* commandList )
 {
 	PurgeImage();
 
@@ -960,6 +1138,7 @@ void idImage::GenerateShadowArray( int width, int height, textureFilter_t filter
 	repeat = repeatParm;
 	usage = usageParm;
 	cubeFiles = CF_2D_ARRAY;
+	byte* pic = nullptr;
 
 	opts.textureType = TT_2D_ARRAY;
 	opts.width = width;
@@ -967,32 +1146,16 @@ void idImage::GenerateShadowArray( int width, int height, textureFilter_t filter
 	opts.numLevels = 0;
 	opts.isRenderTarget = true;
 
+
 	DeriveOpts();
 
-	// if we don't have a rendering context, just return after we
-	// have filled in the parms.  We must have the values set, or
-	// an image match from a shader before the render starts would miss
-	// the generated texture
-	if( !tr.IsInitialized() )
-	{
-		return;
-	}
-
-	//idBinaryImage im( GetName() );
-	//im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
-
+	// The image will be uploaded to the gpu on a deferred state.
 	AllocImage();
 
-	/*
-	for( int i = 0; i < im.NumImages(); i++ )
-	{
-		const bimageImage_t& img = im.GetImageHeader( i );
-		const byte* data = im.GetImageData( i );
-		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
-	}
-	*/
+	isLoaded = true;
 }
 // RB end
+
 /*
 =============
 RB_UploadScratchImage
@@ -1000,7 +1163,7 @@ RB_UploadScratchImage
 if rows = cols * 6, assume it is a cube map animation
 =============
 */
-void idImage::UploadScratch( const byte* data, int cols, int rows )
+void idImage::UploadScratch( const byte* data, int cols, int rows, nvrhi::ICommandList* commandList )
 {
 	// if rows = cols * 6, assume it is a cube map animation
 	if( rows == cols * 6 )
@@ -1015,7 +1178,7 @@ void idImage::UploadScratch( const byte* data, int cols, int rows )
 
 		if( opts.textureType != TT_CUBIC || usage != TD_LOOKUP_TABLE_RGBA )
 		{
-			GenerateCubeImage( pic, cols, TF_LINEAR, TD_LOOKUP_TABLE_RGBA );
+			GenerateCubeImage( pic, cols, TF_LINEAR, TD_LOOKUP_TABLE_RGBA, commandList );
 			return;
 		}
 
@@ -1026,19 +1189,54 @@ void idImage::UploadScratch( const byte* data, int cols, int rows )
 
 			AllocImage();
 		}
+
+#if defined( USE_NVRHI )
+		int numChannels = 4;
+		int bytesPerPixel = numChannels;
+		if( opts.format == FMT_ALPHA || opts.format == FMT_DXT1 || opts.format == FMT_INT8 || opts.format == FMT_R8 )
+		{
+			bytesPerPixel = 1;
+		}
+
+		const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+		bytesPerPixel = info.bytesPerBlock;
+
 		SetSamplerState( TF_LINEAR, TR_CLAMP );
+
+		commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+
+		int bufferW = opts.width;
+		if( IsCompressed() )
+		{
+			bufferW = ( opts.width + 3 ) & ~3;
+		}
+
+		for( int i = 0; i < 6; i++ )
+		{
+			commandList->writeTexture( texture, i, 0, pic[i], GetRowPitch( opts.format, opts.width ) );
+		}
+
+		commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+		commandList->commitBarriers();
+#else
 		for( int i = 0; i < 6; i++ )
 		{
 			SubImageUpload( 0, 0, 0, i, opts.width, opts.height, pic[i] );
 		}
+#endif
 	}
 	else
 	{
-		if( opts.textureType != TT_2D || usage != TD_LOOKUP_TABLE_RGBA )
+#if defined( USE_NVRHI )
+
+		/*
+		if( opts.textureType != TT_2D )//|| usage != TD_LOOKUP_TABLE_RGBA )
 		{
-			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA, commandList );
 			return;
 		}
+		*/
+
 		if( opts.width != cols || opts.height != rows )
 		{
 			opts.width = cols;
@@ -1046,7 +1244,53 @@ void idImage::UploadScratch( const byte* data, int cols, int rows )
 
 			AllocImage();
 		}
+
+		if( data != NULL && commandList != NULL )
+		{
+			int numChannels = 4;
+			int bytesPerPixel = numChannels;
+			if( opts.format == FMT_ALPHA || opts.format == FMT_DXT1 || opts.format == FMT_INT8 || opts.format == FMT_R8 || opts.format == FMT_LUM8 )
+			{
+				bytesPerPixel = 1;
+			}
+
+			const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+			bytesPerPixel = info.bytesPerBlock;
+
+			SetSamplerState( TF_LINEAR, TR_REPEAT );
+
+			int bufferW = opts.width;
+			if( IsCompressed() )
+			{
+				bufferW = ( opts.width + 3 ) & ~3;
+			}
+
+			commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+
+			commandList->writeTexture( texture, 0, 0, data, GetRowPitch( opts.format, opts.width ) );
+			//commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+
+			commandList->commitBarriers();
+		}
+#else
+		if( opts.textureType != TT_2D || usage != TD_LOOKUP_TABLE_RGBA )
+		{
+			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA, commandList );
+			return;
+		}
+
+		if( opts.width != cols || opts.height != rows )
+		{
+			opts.width = cols;
+			opts.height = rows;
+
+			AllocImage();
+		}
+
 		SetSamplerState( TF_LINEAR, TR_REPEAT );
 		SubImageUpload( 0, 0, 0, 0, opts.width, opts.height, data );
+#endif
 	}
+
+	isLoaded = true;
 }

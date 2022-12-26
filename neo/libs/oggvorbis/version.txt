@@ -1,0 +1,6 @@
+libogg     1.0.1   (libogg-1.1.zip)
+libvorbis  1.0.1   (libvorbis-1.0.1.zip)
+
+ogg/os_types.h has been modified to redirect memory allocations to the DOOM3 _decoder_ allocator.
+
+vorbis/vorbisfile.h has been modified to add a "int stream;" to the OggVorbis_File structure.

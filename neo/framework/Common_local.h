@@ -353,6 +353,11 @@ public:
 		return stats_backend.gpuAmbientPassMicroSec;
 	}
 
+	uint64		GetRendererGpuShadowAtlasPassMicroseconds() const
+	{
+		return stats_backend.gpuShadowAtlasPassMicroSec;
+	}
+
 	uint64		GetRendererGpuInteractionsMicroseconds() const
 	{
 		return stats_backend.gpuInteractionsMicroSec;
@@ -361,6 +366,11 @@ public:
 	uint64		GetRendererGpuShaderPassMicroseconds() const
 	{
 		return stats_backend.gpuShaderPassMicroSec;
+	}
+
+	uint64		GetRendererGpuTAAMicroseconds() const
+	{
+		return stats_backend.gpuTemporalAntiAliasingMicroSec;
 	}
 
 	uint64		GetRendererGpuPostProcessingMicroseconds() const

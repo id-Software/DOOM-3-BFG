@@ -1,0 +1,42 @@
+models/mapobjects/exis/cscopebase_tel
+{
+         noselfshadow
+
+	renderbump  -size 512 512 -aa 2  models/mapobjects/lab/cscope/cscopebase_local.tga models/mapobjects/lab/cscope/cscopebase_hi.lwo
+
+                diffusemap	models/mapobjects/exis/cscopebase_tel.tga
+		bumpmap		addnormals (models/mapobjects/lab/cscope/cscopebase_local.tga, heightmap (models/mapobjects/lab/cscope/cscopebase_bmp.tga, 3) )
+                specularmap	models/mapobjects/exis/cscopebase_tel_s.tga
+	{
+		blend 	add
+		map		models/mapobjects/lab/cscope/cscopebase_add.tga
+		colored
+	}
+}
+
+models/mapobjects/exis/bioscannereye_tel
+{
+         noselfshadow
+
+	renderbump  -size 256 256 -aa 2  models/mapobjects/mcity/bioscanner/bioscannereye_local.tga models/mapobjects/mcity/bioscanner/bioscannereye_hi.lwo
+
+                diffusemap	models/mapobjects/exis/bioscannereye_tel.tga
+		bumpmap		models/mapobjects/mcity/bioscanner/bioscannereye_local.tga
+                specularmap	models/mapobjects/mcity/bioscanner/bioscannereye_s.tga
+	{
+		blend 	add
+		map		models/mapobjects/mcity/bioscanner/bioscannereye_add.tga
+		colored
+	}
+}
+
+models/mapobjects/exis/trapbra_tel
+{
+         noselfshadow
+
+	renderbump  -size 32 32 -aa 0  models/mapobjects/utility/trapbra/trapbra_local.tga models/mapobjects/utility/trapbra/trapbra_hi.lwo
+
+                diffusemap	models/mapobjects/exis/trapbra_tel.tga
+		bumpmap		models/mapobjects/utility/trapbra/trapbra_local.tga
+                specularmap	models/mapobjects/utility/trapbra/trapbra_s.tga
+}

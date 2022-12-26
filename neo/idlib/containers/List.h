@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #define __LIST_H__
 
 #include <new>
+#include <initializer_list>
+#include <algorithm>	// SRS - Needed for clang 14 so std::copy() is defined
 
 /*
 ===============================================================================
@@ -96,7 +99,8 @@ ID_INLINE void* idListArrayResize( void* voldptr, int oldNum, int newNum, bool z
 		int overlap = Min( oldNum, newNum );
 		for( int i = 0; i < overlap; i++ )
 		{
-			newptr[i] = oldptr[i];
+			//newptr[i] = oldptr[i];
+			newptr[i] = std::move( oldptr[i] );
 		}
 	}
 	idListArrayDelete<_type_>( voldptr, oldNum );
@@ -123,7 +127,9 @@ public:
 	typedef _type_	new_t();
 
 	idList( int newgranularity = 16 );
+	idList( idList&& other );
 	idList( const idList& other );
+	idList( std::initializer_list<_type_> initializerList );
 	~idList();
 
 	void			Clear();											// clear the list
@@ -136,6 +142,7 @@ public:
 	size_t			Size() const;										// returns total size of allocated memory including size of list _type_
 	size_t			MemoryUsed() const;									// returns size of the used elements in the list
 
+	idList<_type_, _tag_>& 		operator=( idList<_type_, _tag_>&& other );
 	idList<_type_, _tag_>& 		operator=( const idList<_type_, _tag_>& other );
 	const _type_& 	operator[]( int index ) const;
 	_type_& 		operator[]( int index );
@@ -200,6 +207,82 @@ public:
 		memTag = ( byte )tag_;
 	};
 
+	template<typename T>
+	struct Iterator
+	{
+		T* p;
+		T& operator*()
+		{
+			return *p;
+		}
+		bool operator != ( const Iterator& rhs )
+		{
+			return p != rhs.p;
+		}
+		void operator ++()
+		{
+			++p;
+		}
+	};
+
+	auto begin() const   // const version
+	{
+		return Iterator<_type_> {list};
+	};
+	auto end() const   // const version
+	{
+		return Iterator<_type_> {list + Num()};
+	};
+
+
+	/*
+	// Begin/End methods for range-based for loops.
+	_type_* begin()
+	{
+		if( num > 0 )
+		{
+			return &list[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	_type_* end()
+	{
+		if( num > 0 )
+		{
+			return &list[num - 1];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+	const _type_* begin() const
+	{
+		if( num > 0 )
+		{
+			return &list[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	const _type_* end() const
+	{
+		if( num > 0 )
+		{
+			return &list[num - 1];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	*/
 private:
 	int				num;
 	int				size;
@@ -226,6 +309,18 @@ ID_INLINE idList<_type_, _tag_>::idList( int newgranularity )
 
 /*
 ================
+idList<_type_,_tag_>::idList( idList< _type_, _tag_ >&& other )
+================
+*/
+template< typename _type_, memTag_t _tag_ >
+ID_INLINE idList<_type_, _tag_>::idList( idList&& other )
+{
+	list = NULL;
+	*this = std::move( other );
+}
+
+/*
+================
 idList<_type_,_tag_>::idList( const idList< _type_, _tag_ > &other )
 ================
 */
@@ -234,6 +329,14 @@ ID_INLINE idList<_type_, _tag_>::idList( const idList& other )
 {
 	list = NULL;
 	*this = other;
+}
+
+template< typename _type_, memTag_t _tag_ >
+ID_INLINE idList<_type_, _tag_>::idList( std::initializer_list<_type_> initializerList )
+	: idList( 16 )
+{
+	SetNum( initializerList.size() );
+	std::copy( initializerList.begin(), initializerList.end(), list );
 }
 
 /*
@@ -286,7 +389,10 @@ ID_INLINE void idList<_type_, _tag_>::DeleteContents( bool clear )
 
 	for( i = 0; i < num; i++ )
 	{
-		delete list[ i ];
+		if( list[i] )
+		{
+			delete list[i];
+		}
 		list[ i ] = NULL;
 	}
 
@@ -522,7 +628,6 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( int newSize )
 
 	if( newSize > size )
 	{
-
 		if( granularity == 0 )  	// this is a hack to fix our memset classes
 		{
 			granularity = 16;
@@ -531,9 +636,9 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( int newSize )
 		newSize += granularity - 1;
 		newSize -= newSize % granularity;
 		Resize( newSize );
-	}
 
-	num = newNum;
+		num = newNum;
+	}
 }
 
 /*
@@ -605,6 +710,30 @@ ID_INLINE void idList<_type_, _tag_>::AssureSizeAlloc( int newSize, new_t* alloc
 	}
 
 	num = newNum;
+}
+
+/*
+================
+idList<_type_,_tag_>::operator=
+
+Moves the contents and size attributes of another list, effectively emptying the other list.
+================
+*/
+template< typename _type_, memTag_t _tag_ >
+ID_INLINE idList<_type_, _tag_>& idList<_type_, _tag_>::operator=( idList<_type_, _tag_>&& other )
+{
+	Clear();
+
+	num			= other.num;
+	size		= other.size;
+	granularity = other.granularity;
+	memTag		= other.memTag;
+	list		= other.list;
+
+	other.list = nullptr;
+	other.Clear();
+
+	return *this;
 }
 
 /*

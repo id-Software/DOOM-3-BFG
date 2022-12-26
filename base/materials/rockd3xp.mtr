@@ -1,0 +1,516 @@
+
+textures/rockd3xp/icesheet
+{
+	noShadows
+        noselfShadow
+	
+
+	qer_editorimage textures/rockd3xp/icesheet_d.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/rockd3xp/icesheet_d.tga
+		alphatest 	0.5
+
+	}
+	
+ 	bumpmap			textures/rockd3xp/icesheet_local.tga
+	specularmap		textures/rockd3xp/icesheet_s.tga
+}
+
+
+
+textures/rockd3xp/sharprock_d3xp
+{
+	noselfShadow
+	qer_editorimage		textures/rockd3xp/sharprock_dark
+	stone
+
+	bumpmap				addnormals (textures/rockd3xp/sharprock_local, heightmap (textures/rockd3xp/newdarkrock_bmp.tga, 10) ) 
+	diffusemap			textures/rockd3xp/sharprock_dark
+	specularmap			textures/rockd3xp/sharprock_dark_s
+}
+
+
+textures/rockd3xp/sharprock_bacteria_5
+{
+
+	noShadows
+        noselfShadow
+
+
+
+	{
+		blend 		bumpmap
+		map			addnormals (textures/rockd3xp/sharprock_local, heightmap (textures/rockd3xp/newdarkrock_bmp.tga, 10) ) 
+		scale 2,1
+	}
+	{
+		blend 		diffusemap
+		map			textures/rockd3xp/sharprock_dark
+		inversevertexColor
+		scale 2,1
+	}
+	{
+		blend		specularmap
+		map			textures/rockd3xp/sharprock_dark_s
+		inversevertexColor
+		scale 2,1
+	}
+	{
+		Blend		diffusemap	
+		map		textures/hell3xp/bacteria_5.tga
+		translate	time *.01, time*.05
+		vertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/hell3xp/bacteria_3_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/hell3xp/bacteria_3_s.tga
+		translate	time *.01, time*.05
+		vertexColor
+
+	}		    
+		
+}
+
+textures/rockd3xp/ice_a
+
+ {
+ qer_editorimage textures/rockd3xp/ice_a.tga
+
+ noSelfShadow
+ noShadows
+	
+
+	diffusemap	 	textures/rockd3xp/ice_a.tga
+	bumpmap			addnormals( textures/rockd3xp/ice_a_local.tga, heightmap (textures/rockd3xp/ice_a_h.tga, 10 ) )
+	specularmap	    	textures/rockd3xp/ice_a_s.tga
+	{
+	blend	add
+	map	 	textures/rockd3xp/ice_add.tga
+
+
+	}
+
+
+}
+
+
+textures/rockd3xp/lfwall15_lanrock1
+{
+	
+
+    noShadows
+    noselfShadow
+	{
+		blend		bumpmap	 
+		map		textures/base_wall/gotcgate_local
+	}
+	{
+		blend		diffusemap	 
+		map		textures/base_wall/gotcgate_d
+		vertexColor
+	}
+	{
+		blend		specularmap	 
+		map		textures/base_wall/gotcgate_s.tga
+		vertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/rockd3xp/lanrock1_local.tga
+	}
+	{
+		blend		diffusemap	 
+		map		textures/rockd3xp/lanrock1_d.tga
+		inversevertexColor
+
+	}
+	{
+		blend		specularmap	 
+		map		textures/rockd3xp/lanrock1_s.tga
+		inversevertexColor
+	}
+
+}
+textures/rockd3xp/output
+{
+	
+	bumpmap			addnormals( textures/rockd3xp/output_local.tga, heightmap (textures/rockd3xp/output_h.tga, 10 ) )
+	diffusemap		textures/rockd3xp/output_color
+	specularmap		textures/rockd3xp/output_s
+
+}
+
+textures/rockd3xp/ice_002
+{
+	qer_editorimage textures/rockd3xp/ice_002.tga
+
+	noSelfShadow
+
+	bumpmap			addnormals( textures/rockd3xp/ice_002_local.tga, heightmap (textures/rockd3xp/ice_002_h.tga, 10 ) )
+	diffusemap		textures/rockd3xp/ice_002_d
+	specularmap		textures/rockd3xp/ice_002_s
+
+}
+
+textures/rockd3xp/ice_003
+{
+ 	qer_editorimage textures/rockd3xp/ice_003.tga
+
+ 	noSelfShadow
+
+	
+	bumpmap			addnormals( textures/rockd3xp/ice_003_local.tga, heightmap (textures/rockd3xp/ice_003_h.tga, 10 ) )
+	diffusemap		textures/rockd3xp/ice_003_d
+	specularmap		textures/rockd3xp/ice_003_s
+
+}
+
+
+textures/rockd3xp/mountain
+{
+ 	qer_editorimage textures/rockd3xp/mountain_add.tga
+
+ 	noSelfShadow
+ 	noShadows
+
+
+	diffusemap		textures/rockd3xp/mountain
+	{
+	blend			add
+	map			textures/rockd3xp/mountain_add
+	}
+}
+
+textures/rockd3xp/rockwall
+{
+
+ qer_editorimage textures/rockd3xp/rockwall.tga
+
+ noSelfShadow
+ noShadows
+
+		qer_editorimage		textures/rockd3xp/rockwall.tga
+
+	    	diffusemap		textures/rockd3xp/rockwall.tga
+		bumpmap			addnormals( textures/rockd3xp/rockwall_local.tga, heightmap( textures/rockd3xp/rockwall_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/rockwall_s.tga
+
+
+}
+
+
+textures/rockd3xp/warprockc
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockc_c.tga
+
+	    	diffusemap		textures/rockd3xp/warprockc_d.tga
+		bumpmap			addnormals( textures/rockd3xp/warprockc_local.tga, heightmap( textures/rockd3xp/warprockc_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockc_s.tga
+	
+}
+
+textures/rockd3xp/warprockd
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockd_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprockd_d.tga
+		bumpmap			addnormals( textures/rockd3xp/warprockd_local.tga, heightmap( textures/rockd3xp/warprockd_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockd_s.tga
+	
+}
+
+textures/rockd3xp/warprocke
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprocke_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprocke_d.tga
+		bumpmap			addnormals( textures/rockd3xp/warprocke_local.tga, heightmap( textures/rockd3xp/warprocke_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprocke_s.tga
+	
+}
+
+textures/rockd3xp/warprockf
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockf_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprockf_d.tga
+		bumpmap	     		addnormals( textures/rockd3xp/warprockf_local.tga, heightmap( textures/rockd3xp/warprockf_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockf_s.tga
+	
+}
+
+textures/rockd3xp/warprockg
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockg_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprockg_d.tga
+		bumpmap	     		addnormals( textures/rockd3xp/warprockg_local.tga, heightmap( textures/rockd3xp/warprockg_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockg_s.tga
+	
+}
+
+textures/rockd3xp/warprockh
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockh_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprockh_d.tga
+		bumpmap	     		addnormals( textures/rockd3xp/warprockh_local.tga, heightmap( textures/rockd3xp/warprockh_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockh_s.tga
+	
+}
+
+textures/rockd3xp/warprocki
+{
+
+		qer_editorimage		textures/rockd3xp/warprocki_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprocki_d.tga
+		bumpmap	     		addnormals( textures/rockd3xp/warprocki_local.tga, heightmap( textures/rockd3xp/warprocki_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprocki_s.tga
+	
+}
+
+textures/rockd3xp/warprockj
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockj_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprockj_d.tga
+		bumpmap	     		addnormals( textures/rockd3xp/warprockj_local.tga, heightmap( textures/rockd3xp/warprockj_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockj_s.tga
+	
+}
+
+textures/rockd3xp/warprockj2
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/warprockj2_d.tga
+
+	    	diffusemap		textures/rockd3xp/warprockj_d.tga
+		bumpmap	     		addnormals( textures/rockd3xp/warprockj_local.tga, heightmap( textures/rockd3xp/warprockj_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/warprockj_s.tga
+	
+}
+
+textures/rockd3xp/rockbase
+{
+		noSelfShadow
+		noshadows
+
+		qer_editorimage		textures/rockd3xp/rockbase.tga
+
+	    	diffusemap		textures/rockd3xp/rockbase.tga
+		bumpmap	     		addnormals( textures/rockd3xp/rockbase_local.tga, heightmap( textures/rockd3xp/rockbase_h.tga, 10 ) )
+		specularmap	    	textures/rockd3xp/rockbase_s.tga
+	
+}
+
+textures/rockd3xp/frozenrock
+{
+	qer_editorimage textures/rockd3xp/frozenrock_d.tga
+
+	noSelfShadow
+
+	bumpmap			textures/rockd3xp/frozenrock_local.tga
+	diffusemap		textures/rockd3xp/frozenrock_d
+	specularmap		textures/rockd3xp/frozenrock_s
+
+}
+
+textures/rockd3xp/frozenrock2
+{
+	qer_editorimage textures/rockd3xp/frozenrock2_d.tga
+
+	noSelfShadow
+
+	bumpmap			textures/rockd3xp/frozenrock2_local.tga
+	diffusemap		textures/rockd3xp/frozenrock2_d
+	specularmap		textures/rockd3xp/frozenrock2_s
+
+}
+
+textures/rockd3xp/frozenrock3
+{
+	qer_editorimage textures/rockd3xp/frozenrock3_d.tga
+
+	noSelfShadow
+
+	bumpmap			textures/rockd3xp/frozenrock3_local.tga
+	diffusemap		textures/rockd3xp/frozenrock3_d
+	specularmap		textures/rockd3xp/frozenrock3_s
+
+}
+
+
+
+textures/rockd3xp/frozenrock2_icesheet_blend
+
+{
+	noSelfShadow
+	noshadows
+	
+
+	qer_editorimage textures/rockd3xp/icesheet_d.tga
+
+
+
+		
+	{
+		blend 		diffusemap
+		map		textures/rockd3xp/icesheet_d
+		VertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/rockd3xp/frozenrock2_local.tga
+		
+	}	
+	{
+		Blend		diffusemap	
+		map		textures/rockd3xp/frozenrock2_d.tga  	
+		inverseVertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/rockd3xp/frozenrock2_s.tga
+		inverseVertexColor
+
+	}
+
+		
+}
+
+
+textures/rockd3xp/frozenrock2_blend
+
+{
+	noSelfShadow
+	noshadows
+
+	qer_editorimage	textures/rockd3xp/frozenrock2_d.tga	
+
+
+	{
+		blend 		bumpmap
+		map			textures/hell/wrinklewall_tile_local
+		translate	.01*sintable[ time *.1 ],  	.02*sintable[ time *.1 ]
+
+	}
+	{
+		blend 		diffusemap
+		map			textures/hell/wrinklewall_tile
+		translate	.01*sintable[ time *.1 ], 	.02*sintable[ time *.1 ]
+		inverseVertexColor
+	}
+
+	{
+		blend		specularmap
+		map			textures/hell/wrinklewall_tile_s
+		translate 	.01*sintable[ time *.1 ],	.02*sintable[ time *.1 ]
+		inverseVertexColor
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/rockd3xp/frozenrock2_local.tga
+		
+	}	
+	{
+		Blend		diffusemap	
+		map		textures/rockd3xp/frozenrock2_d.tga  	
+		VertexColor
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/rockd3xp/frozenrock2_s.tga
+		VertexColor
+
+	}
+
+		
+}
+
+
+
+textures/rockd3xp/warprocke_warprockg
+{
+
+	noSelfShadow
+	noshadows	
+	
+	
+	qer_editorimage		textures/rockd3xp/warprocke_warprockf.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/rockd3xp/warprocke_local.tga, heightmap( textures/rockd3xp/warprocke_h.tga, 10 ) )	
+
+	}
+	{
+		blend 		diffusemap
+		map		textures/rockd3xp/warprocke_d
+		vertexColor
+
+	}
+	{
+		blend		specularmap
+		map		textures/rockd3xp/warprocke_s.tga
+		vertexColor
+
+	}
+	{
+
+		blend		bumpmap	 
+		map		addnormals( textures/rockd3xp/warprockh_local.tga, heightmap( textures/rockd3xp/warprockh_h.tga, 10 ) )	
+
+	}
+	{
+		blend		diffusemap	 
+		map		textures/rockd3xp/warprockh_d.tga
+		inversevertexColor
+
+	}
+	{
+		blend		specularmap	 
+		map		textures/rockd3xp/warprockh_s.tga
+		inversevertexColor
+	}
+}
+
+

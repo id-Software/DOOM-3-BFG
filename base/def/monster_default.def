@@ -1,0 +1,189 @@
+/***********************************************************************
+
+	monster_default.def
+
+***********************************************************************/
+
+entityDef monster_default {
+	"editor_color"								"1 .5 0"
+	"editor_mins"								"-24 -24 0"
+	"editor_maxs"								"24 24 64"
+	"editor_showangle"							"1"
+	"editor_copy"								"anim"
+
+	"editor_var noDamage"						"if set, monster won't take damage."
+	"editor_var ambush"							"if set, monster only wakes up if it sees the player."
+	"editor_var enemy"							"Set to name of character to attack when activated."
+	"editor_var teleport"						"if set, monster teleports in when triggered."	
+	"editor_var wakeup_target"					"list of entities to trigger when monster sees the player.  can be used like 'target' in that you can have several of these and the monster will activate each one."
+	"editor_var attack_path"					"When activated, either by sight or by trigger, follow a path of path_corners to the end and then attack.  Monster will not play sight or 'on_activate' animation.  Will exit path if enemy gets too close, unless 'stay_on_attackpath' is set."
+	"editor_var stay_on_attackpath"				"don't exit attack_path when close to enemy."
+	
+	"editor_var anim"							"Animation to cycle when spawned in."	
+	"editor_var num_cinematics"					"When set, character is in cinematic mode.  Remains hidden until triggered, then plays each anim in sequence, then triggers targets becomes hidden once more.  Anims are specified by setting 'anim1', 'anim2', 'anim3', etc."
+	"editor_var cinematic_no_hide"				"When set, character won't hide after playing cinematics."
+	"editor_var on_activate"					"Animation to play when monster sees player or is triggered.  Set to blank to make monster immediately start attacking the player without playing an animation."
+	"editor_var on_activate_blend"				"# of frames to blend out of 'on_activate' animation when it's done playing.  Default is 4 frames."
+	"editor_var trigger_anim"					"Monster remains hidden until triggered, plays anim specified and immediately goes after the player."
+	"editor_var wake_on_attackcone"				"Monster will wake up and attack when player enters it's attack cone.  Monster will also wake up when triggered or shot."
+	"editor_var walk_on_trigger"				"Monster begins following his path when triggered but doesn't get angry right away.  Do not set 'attack_path' or 'trigger' with 'walk_on_trigger'."
+	"editor_var ignore_flashlight"				"Prevents the monster being triggered by the flashlight."
+	"editor_var trigger"						"If set, monster will only become angry when triggered or damaged, and not on sight.  Monster will play 'anim' until triggered, or follow his path.  If 'attack_path' is set," \
+												"monster waits until triggered to follow it.  Do not set 'walk_on_trigger' when using 'trigger'."
+	"editor_var hide"							"Causes monster to be hidden and nonsolid until triggered.  Set to 2 for single trigger (entity wakes up when unhidden)."
+	"editor_var spawner"						"when set, spawns a monster whenever triggered.  # specifies the maximum monsters to have spawned at any one time (forexample, setting 'spawner' to '3' allows up to 3 monsters at once)."
+	"editor_var spawn_target"					"when 'spawner' is set, this specifies the target of the spawner.  usefull for having the spawned monster target the spawner."
+	"editor_var no_idle_chatter"				"When set, monster will not make idle sounds"
+	"editor_var walk_on_sight"					"Allows the monster to begin walking towards the player before his sight animation finishes."	
+	"editor_var no_sight"						"Monster will not wake up upon seeing player.  He'll still wake up to sounds or being triggered."
+	"editor_var target"							"set of path_* entities to visit."
+	"editor_var wander"							"if set to 1, visit path_* targets randomly, otherwise visit them in order."
+	"editor_var wait"							"How long to wait before following path.  Monster will be unresponsive until this time has passed."
+	"editor_var neverdormant"       			"If set to 1, monsters do not sleep outside your PVS"
+	"editor_var ignore_obstacles"				"If set, monster doesn't avoid obstacles.  Generally should only be used for cinematics when you need monster to exactly follow a path."
+	"editor_var ignore_lostcombat"				"If set, monster doesn't try to hide when it can no longer reach the player."
+	"editor_var alt_path1"						"alternate path for monster.  use target_aI_followalternatepath1 to cause character to follow."
+	"editor_var alt_path2"						"alternate path for monster.  use target_aI_followalternatepath2 to cause character to follow."
+	"editor_var alt_path3"						"alternate path for monster.  use target_aI_followalternatepath3 to cause character to follow."
+	
+	"editor_var noshadows"						"turns off shadows on character."
+	"editor_var animate_z"						"disables gravity on character until he wakes up.  used for on_activate anims where the bounding box needs to move up and down."
+	
+	"editor_var kick_force"						"how much force to apply to blocking obstacles to get them out of the way."
+
+	"editor_var team"							"Monsters do not actively attack players or monsters with the same team #."
+	"editor_var rank"							"Monsters only fight back when attacked by members of it's own team when its rank is greater than or equal to the attacker's rank.  A rank of 0 will never fight back."
+
+	"editor_var turn_rate"						"Maximum # of degrees monster can turn per second"
+
+	"editor_var mass"							"character's mass."
+	"editor_var ragdoll"            			"Specifies the .af file to use for a ragdoll when the creature dies"
+	"editor_var ragdoll_slomoStart"				"Start time of ragdoll slow motion relative to death time, defaults to -0.2"
+	"editor_var ragdoll_slomoEnd"				"End time of ragdoll slow motion relative to death time, defaults to 1.0"
+	"editor_var ragdoll_jointFrictionDent"		"Joint friction dent on ragdoll."
+	"editor_var ragdoll_jointFrictionStart" 	"Start time for joint friction dent"
+	"editor_var ragdoll_jointFrictionEnd"		"End time for joint friction dent"
+	"editor_var ragdoll_contactFrictionDent"	"Contact friction dent on ragdoll."
+	"editor_var ragdoll_contactFrictionStart"	"Start time for contact friction dent"
+	"editor_var ragdoll_contactFrictionEnd"		"End time for contact friction dent"
+	"editor_var af_push_moveables"				"whether the monster's articulated figure pushes obstacles while they're alive."
+	
+	"editor_var blink_min"						"Minimum time to wait between eye blinks."
+	"editor_var blink_max"						"Maximum time to wait between eye blinks."
+
+	"editor_var fly_offset"						"Prefered fly height relative to the player's view"
+	"editor_var fly_speed"						"Speed to fly at"
+	"editor_var fly_bob_strength"				"How far flying creatures should bob."
+	"editor_var fly_bob_vert"					"Rate at which flying creatures bob up and down."
+	"editor_var fly_bob_horz"					"Rate at which flying creatures bob left and right."
+
+	"editor_var def_projectile"					"name of entityDef to launch as projectile"
+	"editor_var num_projectiles"				"how many projectiles to launch at a time."
+	"editor_var projectile_spread"				"how much to spread out projectiles when they're fired.  Works in conjunction with attack_accuracy.  Good for things like shotgun blasts."
+	"editor_var attack_accuracy"				"Maximum angular offset to randomly offset the monster's aim when firing missiles"
+	"editor_var attack_cone"					"Monster can only throw projectile within this cone relative to his direction."
+	"editor_var attack_target"					"Entity to fire missile at when 'fireMissileAtTarget' is called from script or 'fire_missile_at_target' as a framecommand."
+
+	"editor_var melee_range"					"do melee attack when within this range"
+	"editor_var projectile_height_to_distance_ratio"	"calculates the maximum height a projectile can be thrown.  for example, a projectile thrown 100 units with a projectile_height_to_distance_ratio of 0.5 will only ever be up to 50 units above the target."
+	"editor_var talks"							"whether character can be engaged in conversation"
+	"editor_var	def_drops"						"entityDefs to drop when killed.  Multiple drop items are defined by adding suffixes: 'def_drops1', 'def_drops2', etc."
+
+	"editor_var smokeParticleSystem"			"particle system to attach to entity.  To attach to a specific joint, add - and the name of the joint.  For example 'fire-firejoint' attaches the 'fire' particle to the joint 'firejoint'."
+
+	"editor_var chatter_min"					"minimum amount of time to wait till playing chat sounds when idle"
+	"editor_var chatter_max"					"maximum amount of time to wait till playing chat sounds when idle"
+	"editor_var snd_chatter"					"chat sound to play when idle"
+
+	"editor_var chatter_combat_min"				"minimum amount of time to wait till playing chat sounds when in combat"
+	"editor_var chatter_combat_max"				"maximum amount of time to wait till playing chat sounds when in combat"
+	"editor_var snd_chatter_combat"				"chat sound to play when in combat"
+
+	"editor_var pain_delay"						"How long to wait between pain animations before triggering another pain animation."
+	"editor_var pain_threshold"					"How much damage monster has to recieve in one blow for it to play a pain animation."
+
+	"editor_var damage_zone X"					"List of bones that comprise damage zone 'X'.  Pain anims are based on the name of the zone, for example: 'pain_chest', 'pain_rightleg_forward', etc.  Directions are categorized as 'forward', 'left', 'right', or 'back'."
+	"editor_var damage_scale X"					"How much to scale damage recieved to zone 'X'.  For example 'damage_scale head' '10' would make head shots cause 10 times the normal amount of damage."
+	
+	"editor_var bone_leftEye"					"Which bone to modify to adjust the left eye"
+	"editor_var bone_rightEye"					"Which bone to modify to adjust the right eye"
+	"editor_var bone_focus"						"Where the character's eyes are in his head"
+	
+	"editor_var look_min"						"minimum angles for head looks"
+	"editor_var look_max"						"maximum angles for head looks"
+	"editor_var look_joint jointname"			"specifies the scale in 'pitch yaw roll' to modify the joint based on head looking.  you can specify any number of joints to be affected by the head look.  the scale of the joints that lead up to the head should always add up to 1 on yaw and pitch to ensure that the character looks directly at the player."
+
+	"editor_var eye_turn_min"					"min angular offset for eye joint before head has to turn."
+	"editor_var eye_turn_max"					"max angular offset for eye joint before head has to turn."
+	"editor_var eye_verticle_offset"			"verticle offset from the player's view that the character's eyes should focus on."
+	"editor_var eye_horizontal_offset"			"horizontal offset from the player's view that the character's eyes should focus on.  negative values bring eyes closer together."
+	"editor_var eye_focus_rate"					"how quickly the eyes focus on a target"
+	"editor_var head_focus_rate"				"how quickly the head focuses on a target"
+	"editor_var focus_align_time"				"how long character should glance at the player before turning his head."
+	
+	"editor_var mtr_flashShader"				"shader to use for muzzleflash"
+	"editor_var flashColor"						"color of muzzleflash"
+	"editor_var flashRadius"					"radius of muzzleflash"
+	"editor_var flashTime"						"how long muzzleflash lasts"
+	
+	"editor_var use_aas"						"extension of the aas file to use for navigation."
+	
+	"editor_var use_combat_bbox"				"Use a bounding box for damage and not per-poly hit detection."
+	"editor_var offsetModel"					"Vector to offset the visual model from the movement bounding box."
+	"editor_var def_attach"						"Name of entityDef to attach to model.  Set 'joint' in the attached entity def to the joint to attach to, and use 'origin' and 'angles' to offset it."
+	"editor_var head"							"Name of entityDef to attach as character's head.  Copies animation from certain bones into the head model."
+	
+	"editor_var eye_height"						"The height off the ground of the character's eyes.  All sight checks are done from this point.  When set, overrides determining the height from the position of the eye joint."
+	"editor_var fov"							"Character's field of view.  Characters initially become aware of the player when he enters this cone.  Also controls when the character sees the player as shootable.  Character's will not use fov for sight checks after their initial wake up."
+	
+	"editor_var mtr_splat_flesh"				"Material to use for blood splats."
+	"editor_var mtr_wound_flesh"				"Material to use for wounds."	
+	"editor_var smoke_wound_flesh"				"Smoke effect to emit from wounds."
+	
+	"editor_var gravityDir"						"Direction of gravity.  Defines the character's concept of 'down'."	
+	
+	"editor_var blockedRadius"					"if monsters doesn't move this distance within blockedMoveTime, then mark monster blocked."
+	"editor_var blockedMoveTime"				"# of milliseconds since last move before monster marked blocked"
+	"editor_var blockedAttackTime"				"# of milliseconds since last attack before monster marked blocked"
+	
+	"blockedRadius"								"10"
+	"blockedMoveTime"							"750"
+	"blockedAttackTime"							"750"
+	
+	"spawnclass"								"idAI"
+	
+	"ambush"									"0"
+	"wait"										"0"
+	"team"										"1"
+	"rank"										"0"
+	"anim"										"idle"
+	"on_activate"								"sight"
+	"walk_on_sight"								"0"
+	"def_projectile"							""
+	"attack_cone"								"70"
+	"attack_accuracy"							"0"
+	"melee_range"								"0"
+	"projectile_height_to_distance_ratio"		"0.9"
+	"chatter_min"								"5"
+	"chatter_max"								"10"
+	"chatter_combat_min"						"3"
+	"chatter_combat_max"						"7"
+	"turn_rate"									"360"
+	"bleed"										"1"
+	"pain_threshold"							"1"
+	"blink_min"									"2.5"
+	"blink_max"									"8.0"
+	"talks"										"0"
+	"look_min"									"-80 -75 0"
+	"look_max"									"80 75 0"
+	"eye_verticle_offset"						"5"
+	"eye_horizontal_offset"						"-8"
+	"eye_focus_rate"							"0.5"
+	"head_focus_rate"							"0.1"
+	"fov"										"170"
+	"kick_force"								"60"
+	"fx_teleport"								"fx/teleporter.fx"
+	"fx_teleport1"								"fx/teleporter1.fx"
+	"fx_teleport2"								"fx/teleporter2.fx"
+	"fx_teleport3"								"fx/teleporter3.fx"
+}

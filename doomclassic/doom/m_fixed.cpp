@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Precompiled.h"
 
 #ifdef __GNUG__
-#pragma implementation "m_fixed.h"
+	#pragma implementation "m_fixed.h"
 #endif
 #include "m_fixed.h"
 
@@ -48,7 +48,7 @@ FixedMul
 ( fixed_t	a,
   fixed_t	b )
 {
-    return fixed_t( ((long long) a * (long long) b) >> FRACBITS );
+	return fixed_t( ( ( long long ) a * ( long long ) b ) >> FRACBITS );
 }
 
 
@@ -62,9 +62,11 @@ FixedDiv
 ( fixed_t	a,
   fixed_t	b )
 {
-    if ( (abs(a)>>14) >= abs(b))
-	return (a^b)<0 ? MININT : MAXINT;
-    return FixedDiv2 (a,b);
+	if( ( abs( a ) >> 14 ) >= abs( b ) )
+	{
+		return ( a ^ b ) < 0 ? MININT : MAXINT;
+	}
+	return FixedDiv2( a, b );
 }
 
 
@@ -75,17 +77,19 @@ FixedDiv2
   fixed_t	b )
 {
 #if 0
-    long long c;
-    c = ((long long)a<<16) / ((long long)b);
-    return (fixed_t) c;
+	long long c;
+	c = ( ( long long )a << 16 ) / ( ( long long )b );
+	return ( fixed_t ) c;
 #endif
 
-    double c;
+	double c;
 
-    c = ((double)a) / ((double)b) * FRACUNIT;
+	c = ( ( double )a ) / ( ( double )b ) * FRACUNIT;
 
-    if (c >= 2147483648.0 || c < -2147483648.0)
-	I_Error("FixedDiv: divide by zero");
-    return (fixed_t) c;
+	if( c >= 2147483648.0 || c < -2147483648.0 )
+	{
+		I_Error( "FixedDiv: divide by zero" );
+	}
+	return ( fixed_t ) c;
 }
 

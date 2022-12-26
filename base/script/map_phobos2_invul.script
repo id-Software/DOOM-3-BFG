@@ -1,0 +1,183 @@
+namespace map_phobos2_invul {
+
+	// turn on the electricity to all four rods
+	void cinematic_electricityOn() {
+
+		$rod_nw_electricity.show();
+		$rod_nw_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_VOICE );		// -Xian
+		$rod_nw_beam.show();
+		$rod_nw_glow.On();
+
+
+		$rod_ne_electricity.show();
+		$rod_ne_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_VOICE );		// -Xian
+		$rod_ne_beam.show();
+		$rod_ne_glow.On();
+
+		$rod_sw_electricity.show();
+		$rod_sw_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_VOICE );		// -Xian
+		$rod_sw_beam.show();
+		$rod_sw_glow.On();
+
+		$rod_se_electricity.show();
+		$rod_se_electricity.startSoundShader ( "p2_electrical", SND_CHANNEL_VOICE );		// -Xian
+		$rod_se_beam.show();
+		$rod_se_glow.On();
+	}
+
+	// turn off the electricity to all four rods
+	void cinematic_electricityOff() {
+
+		$rod_nw_electricity.hide();
+		$rod_nw_electricity.stopSound ( SND_CHANNEL_VOICE, false );						// -Xian
+		$rod_nw_beam.hide();
+		$rod_nw_glow.Off();
+
+		$rod_ne_electricity.hide();
+		$rod_ne_electricity.stopSound ( SND_CHANNEL_VOICE, false );						// -Xian
+		$rod_ne_beam.hide();
+		$rod_ne_glow.Off();
+
+		$rod_sw_electricity.hide();
+		$rod_sw_electricity.stopSound ( SND_CHANNEL_VOICE, false );						// -Xian
+		$rod_sw_beam.hide();
+		$rod_sw_glow.Off();
+
+		$rod_se_electricity.hide();
+		$rod_se_electricity.stopSound ( SND_CHANNEL_VOICE, false );						// -Xian
+		$rod_se_beam.hide();
+		$rod_se_glow.Off();
+	}
+
+	// fade the level lights to blue and back over 3 seconds
+	void cinematic_blueLights() {
+
+		$ceiling_light1.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_light2.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_light3.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_light4.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_highlight.setKey ("color_demonic", "0.24 0.46 0.75");
+		$ceiling_biglight.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_01.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_02.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_03.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_04.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_05.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_06.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_07.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_08.setKey ("color_demonic", "0.24 0.46 0.75");
+		$lowerlight_big.setKey ("color_demonic", "0.24 0.46 0.75");
+		$console_light.setKey ("color_demonic", "0.24 0.46 0.75");
+
+		sys.trigger( $cinematicInvuln_lights );
+	}
+
+	// blow up the faulty rod
+	void cinematic_rodExplodes() {
+
+		// turn off the electricity fx
+		$rod_nw_damageable.hide();
+		$rod_nw_beam.hide();
+		$rod_nw_electricity.hide();
+		$rod_nw_glow.Off();
+
+		sys.trigger ( $speaker_rod_nw_fixed );		// turn it off	-Xian
+
+		sys.trigger( $nw_explosion_emitter );
+
+		// hide the blue rod
+		$rod_nw_blue.hide();
+		$rod_nw_blue_top_fx.hide();
+		$rod_nw_blue_bot_fx.hide();
+		$rod_nw_blue_top_light.Off();
+		$rod_nw_blue_bot_light.Off();
+
+		// show the red rod
+		$rod_nw_red.show();
+		$rod_nw_red_shimmer.show();
+		$rod_nw_red_smoke.show();
+		$rod_nw_red_fire.show();
+		$rod_nw_red_fire.startSoundShader ( "p2_flames", SND_CHANNEL_VOICE );		// -Xian
+		$rod_nw_red_light.On();
+		$rod_nw_red_top_fx.show();
+		$rod_nw_red_bot_fx.show();
+
+		$rod_nw_red_fire.startSoundShader ( "p2_core1_failure", SND_CHANNEL_BODY );	// -Xian
+	}
+
+	// close the remanining rod doors before the fight
+	void cinematic_closeRodDoors() {
+
+		$rod_door_ne.rotateOnce( '0 -180 0' );
+		$rod_door_ne.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+		$rod_door_sw.rotateOnce( '0 -180 0' );
+		$rod_door_sw.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+		$rod_door_se.rotateOnce( '0 180 0' );
+		$rod_door_se.startSoundShader ( "e4_fingers_1s_inout", SND_CHANNEL_VOICE );		// -Xian
+	}
+
+	// hunters shell goes into regular mode
+	void cinematic_hunterShellNormal() {
+
+		// hunter comes out of his shell
+		$hunter.setSkin("skins/monsters/hunter_invul/invuln_no_shell");
+		//setShaderTime( $hunter );
+	}
+
+	// hunters shell goes into full effect
+	void cinematic_hunterTransShellFull() {
+
+		// hunter summons his shell
+		$hunter.setSkin("skins/monsters/hunter_invul/invuln_summon_shell");
+		setShaderTime( $hunter );
+	}
+	// hunters shell goes into full effect
+	void cinematic_hunterShellFull() {
+
+		// hunter summons his shell
+		$hunter.setSkin("skins/monsters/hunter_invul/invuln_shell");
+		//setShaderTime( $hunter );
+	}
+	// hunters shell goes into static mode
+	void cinematic_hunterTransShellStatic() {
+
+		// hunter comes out of his shell
+		$hunter.setSkin("skins/monsters/hunter_invul/invuln_shutdown_shell");
+		setShaderTime( $hunter );
+	}
+
+	// hunters shell goes into static mode
+	void cinematic_hunterShellStatic() {
+
+		// hunter comes out of his shell
+		$hunter.setSkin("skins/monsters/hunter_invul/invuln_no_shell2");
+		//setShaderTime( $hunter );
+	}
+
+	// called before the hunters intro cinematic
+	// give the player unlimited stamina for the fight
+	void cinematic_setup() {
+
+		// give the player unlimited stamina
+		sys.setcvar( "pm_stamina", "0" );
+	}
+
+	void StartInvulDeathBurn() {
+		$inv_phobos2_cinematic_hunterdeath.setShaderParm(7, sys.getTime());
+		$inv_phobos2_cinematic_hunterdeath.setSkin("skins/monsters/hunter_invul/invuln_no_shell2_burn");
+	}
+
+	void TurnOnPlasma1() {
+		$phobos2_plasmajet1.show();
+	}
+	void TurnOnPlasma2() {
+		$phobos2_plasmajet2.show();
+	}
+	void TurnOffPlasma() {
+		$phobos2_plasmajet1.hide();
+		$phobos2_plasmajet2.hide();
+	}
+
+
+
+}// namespace

@@ -1,0 +1,170 @@
+
+textures/skies/marssky
+{
+		qer_editorimage	textures/skies/marssky_back.tga
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque				// so transparent windows can draw on top of it
+	{
+		blend		add		// so transparent windows can draw on top of it
+		cameraCubeMap	env/marssky
+		texgen		skybox
+		texgen			wobblesky .0 .0 .0
+	}
+}
+
+textures/skies/marscloud
+{
+		qer_editorimage	textures/skies/marscloud_back.tga
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque				// so transparent windows can draw on top of it
+	{
+		blend		add		// so transparent windows can draw on top of it
+		cameraCubeMap	env/marscloud
+		texgen		skybox
+		texgen			wobblesky .55 .125 .05
+	}
+}
+
+textures/skies/marssky_dust
+{
+		qer_editorimage	textures/skies/marssky_dust_back.tga
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque				// so transparent windows can draw on top of it
+	{
+		blend		add		// so transparent windows can draw on top of it
+		cameraCubeMap	env/marssky_dust
+		texgen		skybox
+		texgen			wobblesky .75 .25 .1
+	}
+}
+
+
+textures/skies/marssky_foreground
+{
+		qer_editorimage	textures/skies/marssky_foreground_back.tga
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque				// so transparent windows can draw on top of it
+	{
+		blend		add		// so transparent windows can draw on top of it
+		cameraCubeMap	env/marssky_foreground
+		texgen		skybox
+		texgen			wobblesky .0 .0 .0
+	}
+}
+
+textures/skies/hellsky
+{
+		qer_editorimage	textures/skies/hellsky.tga
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque				// so transparent windows can draw on top of it
+	{
+		blend		add		// so transparent windows can draw on top of it
+		cameraCubeMap	env/hellsky
+		texgen		skybox
+		texgen			wobblesky 1.5 .5 .2
+	}
+}
+
+textures/skies/hellsky2
+{
+		qer_editorimage	textures/skies/hellsky2.tga
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque				// so transparent windows can draw on top of it
+	{
+		blend		add		// so transparent windows can draw on top of it
+		cameraCubeMap	env/hellsky2
+		texgen		skybox
+		texgen			wobblesky .05 .05 .05
+	}
+}
+
+textures/skies/hellsky3
+{
+		qer_editorimage	textures/skies/hellsky3.tga
+
+        noFragment
+	noshadows
+	noimpact
+	nooverlays
+	{
+		
+		cameraCubeMap	env/hellsky3
+		texgen		skybox
+		texgen			wobblesky .05 .05 .05
+		
+	}
+}
+
+textures/skies/hellsky4
+{
+		qer_editorimage	textures/skies/hellsky4.tga
+
+	noFragment
+	noshadows
+	noimpact
+	nooverlays
+	{
+		
+		cameraCubeMap	env/hellsky4
+		texgen		skybox
+		texgen			wobblesky .05 .05 .05
+		
+	}
+}
+
+
+
+textures/skies/qc_sky
+{
+	qer_editorimage	textures/skies/qc_sky.tga
+	noshadows
+	nonsolid
+	noimpact
+	nooverlays
+	discrete	
+	{
+	                  blend    Add
+		map textures/skies/qc_sky.tga
+		scroll	time * 0.31 , time * -0.1
+		
+	}
+                 {
+	                  blend	add 
+		map textures/skies/qc_sky.tga
+		scroll	time * 0.21 , time * 0.14
+		
+	}
+	{
+		blend gl_dst_color,gl_zero
+		map lights/round.tga
+	}	
+	
+}	
+
+
+textures/skies/animatingSky
+{
+	discrete
+	nooverlays
+	forceOpaque					// so transparent windows can draw on top of it
+	{
+		blend			add		// so transparent windows can draw on top of it
+		texgen			skybox
+		videoMap		models\skies\e3outsideskyrender\render\skyroqCM.roq	// because this has a height = 6x width, it will be a cube map
+//		cameraCubeMap	test\skyroq
+//		cameraCubeMap	env/boxsky
+	}
+}
+

@@ -583,7 +583,7 @@ public:
 
 	int											NumFilenames()
 	{
-		return fileList.Num( );
+		return fileList.Num();
 	}
 };
 

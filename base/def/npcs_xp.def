@@ -1,0 +1,124 @@
+export jay0 {
+
+options -prefix SUIT2_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh jumpsuitmesh
+	addoptions -keepmesh textures_base_floor_grill_floor5
+	addoptions -keepmesh locker_textures_caves_cavgrate1dust
+	addoptions -keepmesh textures_object_a_offlocker1_d02
+	addoptions -keepmesh textures_object_offlocker1side
+	addoptions -align ALL
+
+// EREBUS 2
+	//spooked locker guy
+	anim	maps/eric/spooked3.mb -range 0 43		-dest	models/md5/chars/erebus2/spooked_triggered	-prefix SUIT2_
+	anim	maps/eric/spooked3.mb -range 25 40		-dest	models/md5/chars/erebus2/spooked_pain		-prefix SUIT2_
+	anim	maps/eric/spooked3.mb -range 44 394		-dest	models/md5/chars/erebus2/spooked_primary	-prefix SUIT2_
+	anim	maps/eric/spooked3.mb -range 395 441	-dest	models/md5/chars/erebus2/spooked_secondary1	-prefix SUIT2_
+	anim	maps/eric/spooked3.mb -range 442 495	-dest	models/md5/chars/erebus2/spooked_secondary2	-prefix SUIT2_
+	anim	maps/eric/spooked3.mb -range 496 497	-dest	models/md5/chars/erebus2/spooked_idle		-prefix SUIT2_
+	anim	maps/eric/spooked3.mb -range 500 550	-dest	models/md5/chars/erebus2/spooked_look		-prefix SUIT2_
+	mesh	maps/eric/spooked3.mb -range 498 498	-dest	models/md5/chars/erebus2/spooked			-prefix SUIT2_
+
+// EREBUS 6 CINEMATIC
+
+options -prefix SUIT_ -keep eyecontrol rshldrpad lshldrpad Lknee Rknee Body Body2 Lhand Lhand1 Rhand Rhand1 headcontrol neckcontrol loneckcontrol SPINNER Rball_r Rtoe_r Lball_r Ltoe_r Chest Shoulders Luparm_orbit Ruparm_orbit Belly Lrib Rrib chair RHANDCONNECTOR LHANDCONNECTOR -parent RHANDCONNECTOR Rhand1 -parent LHANDCONNECTOR Lhand1 -parent headcontrol neckcontrol -parent neckcontrol loneckcontrol -parent loneckcontrol Shoulders  -parent rshldrpad Shoulders -parent lshldrpad Shoulders -parent Body2 Body -parent Hips Body2 -parent SPINNER Body2 -parent Waist SPINNER
+
+	addoptions -keepmesh marinebodymesh
+	addoptions -align ALL
+
+	//bottech repair
+	anim	models/characters/male_npc/bottech_idle.mb		-dest	models/md5/chars/erubus6_bottech_idle	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_primary.mb		-dest	models/md5/chars/erubus6_bottech_primary	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_secondary1.mb	-dest	models/md5/chars/erubus6_bottech_secondary1	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_secondary2.mb	-dest	models/md5/chars/erubus6_bottech_secondary2	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_primary.mb		-dest	models/md5/chars/erubus6_bottech_primary	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_pain.mb	-dest	models/md5/chars/erubus6_bottech_pain	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_alive.mb	-dest	models/md5/chars/erubus6_bottech_alive	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_remember.mb	-dest	models/md5/chars/erubus6_bottech_remember	-prefix SUIT_
+	anim	models/characters/male_npc/bottech_trigger.mb	-dest	models/md5/chars/erubus6_bottech_trigger	-prefix SUIT_
+
+// EREBUS 5 CINEMATIC
+
+	//CLOUD
+	anim	models/cinematics/erebus5/cine_erebus5d.mb -dest models/md5/chars/erebus5_cinematic_cloud -prefix CLOUD_
+	anim	models/characters/male_npc/cycles/shotgun_idle.mb -dest models/md5/chars/shotgun_idle -prefix SUIT_ 				-rotate -270
+	anim	models/characters/male_npc/cycles/shotgun_stand.mb -dest models/md5/chars/shotgun_stand -prefix SUIT_ 				-rotate -270
+	anim	models/characters/male_npc/cycles/shotgun_cower.mb -dest models/md5/chars/shotgun_cower -prefix SUIT_ 				-rotate -270
+	anim	models/characters/male_npc/cycles/shotgun_talk_primary.mb -dest models/md5/chars/shotgun_talk_primary -prefix SUIT_	 	-rotate -270
+	anim	models/characters/male_npc/cycles/shotgun_walk.mb -dest models/md5/chars/shotgun_walk -prefix SUIT_ 				-rotate -270
+	anim	models/characters/male_npc/cycles/shotgun_run.mb -dest models/md5/chars/shotgun_run -prefix SUIT_ 				-rotate -270
+	anim	models/characters/male_npc/cycles/shotgun_turn_right.mb -dest models/md5/chars/shotgun_turn_right -prefix SUIT_ 		//-rotate 270
+	anim	models/characters/male_npc/cycles/shotgun_turn_left.mb -dest models/md5/chars/shotgun_turn_left -prefix SUIT_ 			//-rotate 270
+	anim	models/characters/male_npc/cycles/shotgun_turn_right_rotation180.mb -dest models/md5/chars/shotgun_turn_right_rotation180 -prefix SUIT_ //-rotate 270
+	anim	models/characters/male_npc/cycles/shotgun_turn_left_rotation180.mb -dest models/md5/chars/shotgun_turn_left_rotation180 -prefix SUIT_ 	//-rotate 270
+}
+
+model erebus6_technician {
+	inherit						npc_labcoat
+	anim erebus5_cinematic_freeman			models/md5/chars/erebus5_cinematic_freeman.md5anim
+
+}
+
+model erebus6_scientist {
+	inherit						npc_labcoat
+	anim erebus5_cinematic_freeman			models/md5/chars/erebus5_cinematic_freeman.md5anim
+
+}
+
+entityDef erebus6_scientist {
+	"inherit"					"npc_base"
+	"model"						"erebus6_scientist"
+	"skin"						"skins/characters/npcs/labcoat_cloud"
+	"copy_joint_world eyecontrol"			""
+
+	"def_head"					"erebus6_scientist_head"
+	"head_joint"					"Shoulders"
+
+	"def_attach"					"prop_shotgun"
+	//"def_dropDeathItem"				"moveable_item_flashlight"
+}
+
+entityDef erebus6_technician {
+	"inherit"					"npc_base"
+	"model"						"erebus6_technician"
+	"skin"						"skins/characters/npcs/labcoat_cloud"
+	"copy_joint_world eyecontrol"			""
+
+	"def_head"					"erebus6_technician_head"
+	"head_joint"					"Shoulders"
+
+	"def_attach"					"prop_lftflashlight"
+	"def_dropDeathItem"				"moveable_item_flashlight"
+}
+
+
+entityDef npc_harvest_test {
+	"inherit"					"npc_base"
+	"model"						"erebus6_scientist"
+	"skin"						"skins/characters/npcs/labcoat_cloud"
+	"copy_joint_world eyecontrol"			""
+	"gib"						"1"
+
+	"skin_dropDeath"				"skins/characters/npcs/labcoat_old.skin"
+	"skin_dropGib"				"skins/characters/npcs/labcoat_old.skin"
+
+	"def_head"					"erebus6_scientist_head"
+	"head_joint"					"Shoulders"
+
+	"harvest_on_death"			"1"
+	"def_harvest_type"				"env_harvest_default"
+	"harvest_sound"				"snd_harvest_whisper"
+
+
+	"skin_harvest"				"skins/characters/male_npc/labcoat/labcoat_cloud_harvest.skin"
+	"skin_harvest_head"			"skins/characters/npcs/heads/head_old_harvest.skin"
+	"skin_harvest_burn"			"skins/characters/male_npc/labcoat/labcoat_cloud_harvest_burn.skin"
+	"skin_harvest_burn_head"	"skins/characters/npcs/heads/head_old_harvest_burn.skin"
+
+
+	//"def_attach"					"prop_shotgun"
+	//"def_dropDeathItem"				"moveable_item_flashlight"
+
+	"snd_harvest_whisper"		"harvest_whisper"
+}

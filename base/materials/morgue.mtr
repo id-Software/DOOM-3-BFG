@@ -1,0 +1,104 @@
+table venttable { { .1, 1, .9, 8, .1, .0, .3, .0, .7, .8, .0, .9, .0, .1, .0, .9, .0, .8 } }
+
+
+textures/morgue/mtile_green
+{
+	qer_editorimage textures/morgue/mtile_green.tga
+
+	{
+
+	blend diffusemap	
+	map textures/morgue/mtileg_d.tga
+	scale	 4 , 4
+
+	}
+	{
+
+	blend specularmap	
+	map textures/morgue/mtile_s.tga
+	scale	 4 , 4
+
+	}
+	{
+
+       	blend bumpmap		
+	map heightmap(textures/morgue/mtile_h.tga, 3 ) 
+	scale	 4 , 4
+
+        }
+        
+}
+	
+textures/morgue/mgirder
+{
+	qer_editorimage textures/morgue/mgirder.tga
+	twosided
+	{       
+      	 blend	diffusemap
+	 map	textures/morgue/mgirder_d.tga
+	 alphaTest 0.5
+	}
+	
+	specularmap	textures/morgue/mgirder_s.tga
+       	bumpmap		textures/morgue/mgirder_local.tga
+	
+
+
+        
+}
+
+textures/morgue/mtile
+{
+	qer_editorimage textures/morgue/mtile.tga
+
+	{
+
+	blend diffusemap	
+	map textures/morgue/mtile_d.tga
+	scale	 4 , 4
+
+	}
+	{
+
+	blend specularmap	
+	map textures/morgue/mtile_s.tga
+	scale	 4 , 4
+
+	}
+	{
+
+       	blend bumpmap		
+	map heightmap(textures/morgue/mtile_h.tga, 4 ) 
+	scale	 4 , 4
+
+        }
+        
+}
+
+textures/morgue/mtrim
+{
+	qer_editorimage textures/morgue/mtrim.tga
+
+	diffusemap	textures/morgue/mtrim_d.tga
+	specularmap	textures/morgue/mtrim_s.tga
+       	bumpmap		textures/morgue/mtrim_local.tga
+        
+}
+
+textures/morgue/floorvent01
+{
+	qer_editorimage textures/morgue/floorvent01.tga
+
+	diffusemap	textures/morgue/floorvent01_d.tga
+	specularmap	textures/morgue/floorvent01_s.tga
+       	bumpmap		addnormals(  textures/morgue/floorvent01_local.tga, heightmap(  textures/morgue/floorvent01_h.tga, 3 ) )
+
+//	{
+//		blend add
+//		map textures/morgue/floorvent01_fx.tga
+//		rgb		venttable[ time * 1 ]
+//	}
+
+        
+}
+

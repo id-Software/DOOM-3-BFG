@@ -1,0 +1,203 @@
+namespace map_caves {
+	void toggle_light(entity ent, vector srcColor, vector dstColor) {
+		vector	tempVector;
+
+		tempVector = ent.getColor();
+
+		if ( ( tempVector_x == srcColor_x ) && ( tempVector_y == srcColor_y ) && (tempVector_z == srcColor_z) )
+		{
+			ent.setColor ( dstColor_x, dstColor_y, dstColor_z );
+			return;
+		}
+
+		if ( ( tempVector_x == dstColor_x ) && ( tempVector_y == dstColor_y ) && (tempVector_z == dstColor_z) )
+			ent.setColor ( srcColor_x, srcColor_y, srcColor_z );
+
+	}
+
+
+	void room1_toggle() {
+		vector	srcRGB;
+		vector	dstRGB;
+
+		srcRGB_x = 1;
+		srcRGB_y = 0.83;
+		srcRGB_z = 0.58;
+
+		dstRGB_x = 1;
+		dstRGB_y = 0;
+		dstRGB_z = 0;
+
+		toggle_light ($r1l1, srcRGB, dstRGB);
+		toggle_light ($r1l2, srcRGB, dstRGB);
+		toggle_light ($r1l3, srcRGB, dstRGB);
+		toggle_light ($r1l4, srcRGB, dstRGB);
+		toggle_light ($r1l5, srcRGB, dstRGB);
+		toggle_light ($r1l6, srcRGB, dstRGB);
+		toggle_light ($r1l7, srcRGB, dstRGB);
+		toggle_light ($r1l8, srcRGB, dstRGB);
+	}
+
+	void room2_toggle () {
+		vector	srcRGB;
+		vector	dstRGB;
+
+		srcRGB_x = 1;
+		srcRGB_y = 0.83;
+		srcRGB_z = 0.58;
+
+		dstRGB_x = 1;
+		dstRGB_y = 0;
+		dstRGB_z = 0;
+		toggle_light ($r2l1, srcRGB, dstRGB);
+		toggle_light ($r2l2, srcRGB, dstRGB);
+		toggle_light ($r2l3, srcRGB, dstRGB);
+		toggle_light ($r2l4, srcRGB, dstRGB);
+	}
+
+	void room3_toggle() {
+		vector	srcRGB;
+		vector	dstRGB;
+
+		srcRGB_x = 1;
+		srcRGB_y = 0.83;
+		srcRGB_z = 0.58;
+
+		dstRGB_x = 1;
+		dstRGB_y = 0;
+		dstRGB_z = 0;
+		
+		toggle_light ($r3l1, srcRGB, dstRGB);
+		toggle_light ($r3l2, srcRGB, dstRGB);
+		toggle_light ($r3l3, srcRGB, dstRGB);
+		toggle_light ($r3l4, srcRGB, dstRGB);
+		toggle_light ($r3l5, srcRGB, dstRGB);
+		toggle_light ($r3l6, srcRGB, dstRGB);
+	}
+
+	void room4_toggle () {
+		vector	srcRGB;
+		vector	dstRGB;
+
+		srcRGB_x = 1;
+		srcRGB_y = 0.83;
+		srcRGB_z = 0.58;
+
+		dstRGB_x = 1;
+		dstRGB_y = 0;
+		dstRGB_z = 0;
+		sys.print ("Processing room4_toggle\n");
+		toggle_light ($r4l1, srcRGB, dstRGB);
+		toggle_light ($r4l2, srcRGB, dstRGB);
+	}
+
+	void lifter1() {
+		$endlift1.time (5);
+		$endlift1.moveTo ($endlift_top);
+	}
+
+	void lifter2() {
+		$endlift1.time (5);
+		$endlift1.moveTo ($endlift_bottom);
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Light Group1 on - Group2 & Group3 off
+	//
+	////////////////////////////////////////////////////
+	void light_group_1()
+	{
+		float i;
+		float rate;
+
+		rate = GAME_FRAMETIME * 0.25;
+
+		// start generator
+		$gen_rot.rotate ('120 0 0');
+
+		// force all other group lights to 0,0,0 
+		sys.setShaderParm(1,0);
+		sys.setShaderParm(2,0);
+
+		for( i = 0; i <= 1; i += rate ) {
+			sys.setShaderParm(0,i);
+			sys.wait ( GAME_FRAMETIME );
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Light Group2 on - Group1 & Group3 off
+	//
+	////////////////////////////////////////////////////
+	void light_group_2()
+	{
+		float i;
+		float rate;
+
+		rate = GAME_FRAMETIME * 0.25;
+
+		// force all other group lights to 0,0,0 
+		sys.setShaderParm(0,0);
+		sys.setShaderParm(2,0);
+
+		for( i = 0; i <= 1; i += rate ) {
+			sys.setShaderParm(1,i);
+			sys.waitFrame();
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Light Group3 on - Group1 & Group2 off
+	//
+	////////////////////////////////////////////////////
+	void light_group_3()
+	{
+		float i;
+		float rate;
+
+		rate = GAME_FRAMETIME * 0.25;
+
+		// force all other group lights to 0,0,0 
+		sys.setShaderParm(0,0);
+		sys.setShaderParm(1,0);
+
+		for( i = 0; i <= 1; i += rate ) {
+			sys.setShaderParm(2,i);
+			sys.waitFrame();
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Generator Monitor comes out 
+	//
+	////////////////////////////////////////////////////
+	void gen_mon_out()
+	{
+		//rotate door up 60degs
+		$gen_mon_door.rotateOnce (' 60 0 0 ');
+		sys.wait(.2);
+		$gen_mon_light.On();
+		sys.waitFor ($gen_mon_door);
+
+		//move monitor up and out
+		$gen_mon.moveTo ($gen_mon_spot1);
+		sys.waitFor ($gen_mon);
+		$gen_mon.moveTo ($gen_mon_spot2);
+		sys.waitFor ($gen_mon);
+
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Caverns 1 Main
+	//
+	////////////////////////////////////////////////////
+	void main()
+	{
+		sys.setShaderParm(0,1);
+	}
+}

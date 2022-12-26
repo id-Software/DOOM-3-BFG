@@ -1,0 +1,422 @@
+/***********************************************************************
+
+	monster_demon_tick.def
+
+***********************************************************************/
+
+export fred {
+	options		-prefix TRITE_ -align ALL -keep Rknee1 Rknee2 Rknee3 Lknee1 Lknee2 Lknee3 -keep strand1 -parent strand1 Spine3 -sourcedir models/monsters/trite/cycles -destdir models/md5/monsters/tick
+
+	addoptions -keepmesh tickbodymesh
+	addoptions -keepmesh ticklegsmesh
+	addoptions  -keepmesh pPlane3
+	addoptions  -keepmesh pPlane4
+
+	mesh		trite_mesh.mb -dest tick
+	anim		initial.mb
+	anim		af_pose.mb
+	anim		idle.mb
+	anim		alert_idle.mb
+	anim		walk1.mb
+	anim		pain_head.mb
+	anim		pain_luparm1.mb
+	anim		pain_ruparm1.mb
+	anim		walk2.mb
+	anim		walk3.mbf
+	anim		spit1.mb
+	anim		sight1.mb
+	anim		leap1.mb -range 1 16 -dest leap1start
+	anim		leap1.mb -range 17 22 -dest leap1loop
+	anim		leap1.mb -range 27 40 -dest leap1end
+	anim		melee1.mb
+	anim		melee2.mb
+	anim		evade_right.mb
+	anim		evade_left.mb
+	anim		outofhole.mb
+	anim		crawl196.mb -dest drop196
+	anim		crawl256.mb -dest drop256
+	anim		crawl400.mb -dest drop400
+
+	addoptions -prefix TRITE1_ -sourcedir maps/fred/trites/ -destdir models/md5/monsters/tick
+
+	anim		trite_wakeups.mb -range 1 48 -dest downpipe
+
+	addoptions -prefix TRITE2_
+	anim		trite_wakeups.mb -range 1 24 -dest hole24
+	
+	addoptions -prefix TRITE3_
+	anim		trite_wakeups.mb -range 1 29 -dest hole16
+
+	addoptions -prefix TRITE4_
+	anim		trite_wakeups.mb -range 1 35 -dest doorcrack1
+
+	addoptions -prefix TRITE5_
+	anim		trite_wakeups.mb -range 1 30 -dest floorcrack
+
+
+	options		-prefix TRITE_ -keep Rknee1 Rknee2 Rknee3 Lknee1 Lknee2 Lknee3 -keep strand1 -parent strand1 Spine3
+	addoptions -keepmesh tickbodymesh
+	addoptions -keepmesh ticklegsmesh
+	addoptions  -keepmesh pPlane3
+	addoptions  -keepmesh pPlane4
+
+	anim		models/monsters/trite/cycles/getoffwall.mb -rotate 90 -dest models/md5/monsters/tick/getoffwall
+}
+
+model monster_demon_tick {
+	mesh							models/md5/monsters/tick/tick.md5mesh
+
+	channel torso					( *origin )
+
+	anim af_pose					models/md5/monsters/tick/initial.md5anim
+	anim ik_pose					models/md5/monsters/tick/af_pose.md5anim
+
+	anim idle						models/md5/monsters/tick/alert_idle.md5anim {
+		frame 21						sound_body snd_footstep
+		frame 29						sound_body snd_footstep
+		frame 40						sound_voice snd_chirp
+		frame 42						sound_body snd_footstep
+		frame 60						sound_voice snd_chirp
+		frame 65						sound_body snd_footstep
+		frame 78						sound_body snd_footstep
+		frame 85						sound_body snd_footstep
+		frame 88						sound_voice snd_chirp
+	}
+	
+	anim evade_right				models/md5/monsters/tick/evade_right.md5anim {
+		frame 4							sound_voice snd_evade
+		frame 9							sound_body snd_footstep
+		frame 10						sound_body snd_footstep
+		frame 18						sound_body snd_footstep
+		frame 20						sound_body snd_footstep
+		frame 22						sound_body snd_footstep
+
+	}
+
+	anim evade_left					models/md5/monsters/tick/evade_left.md5anim {
+		frame 4							sound_voice snd_evade
+		frame 9							sound_body snd_footstep
+		frame 10						sound_body snd_footstep
+		frame 18						sound_body snd_footstep
+		frame 20						sound_body snd_footstep
+		frame 22						sound_body snd_footstep
+
+	}
+
+	anim sight1						models/md5/monsters/tick/sight1.md5anim {
+		frame 1							call overrideLegs
+		frame 10						sound_body snd_sight
+
+	}
+	anim run						models/md5/monsters/tick/walk1.md5anim {
+		frame 5							sound_body snd_footstep
+		frame 6							sound_body snd_footstep
+		frame 11						sound_body snd_footstep
+		frame 13						sound_body snd_footstep
+		frame 16						sound_body snd_footstep
+		frame 20						sound_body snd_footstep
+		frame 21						sound_body snd_footstep
+		frame 26						sound_body snd_footstep
+		frame 29						sound_body snd_footstep
+		frame 31						sound_body snd_footstep		
+		frame 36						sound_body snd_footstep
+		frame 37						sound_body snd_footstep
+		frame 39						sound_body snd_footstep
+		frame 41						sound_body snd_footstep
+	}
+	anim walk1						models/md5/monsters/tick/walk2.md5anim {
+		frame 3							sound_body snd_footstep
+		frame 4							sound_body snd_footstep		
+		frame 7							sound_body snd_footstep
+		frame 8							sound_body snd_footstep
+		frame 11						sound_body snd_footstep		
+		frame 13						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+		frame 28						sound_body snd_footstep
+		frame 29						sound_body snd_footstep
+		frame 33						sound_body snd_footstep
+		frame 39						sound_body snd_footstep
+		frame 43						sound_body snd_footstep
+		frame 45						sound_body snd_footstep	
+		frame 50						sound_body snd_footstep		
+		frame 53						sound_body snd_footstep
+		frame 55						sound_body snd_footstep
+	}
+	anim walk2						models/md5/monsters/tick/walk3.md5anim {
+		frame 2							sound_voice snd_chirp
+		frame 3							sound_body snd_footstep
+		frame 4							sound_body snd_footstep		
+		frame 7							sound_body snd_footstep
+		frame 11						sound_body snd_footstep
+		frame 14						sound_body snd_footstep
+	
+		frame 28						sound_body snd_footstep
+		frame 29						sound_body snd_footstep
+		frame 34						sound_body snd_footstep
+		frame 39						sound_body snd_footstep
+		frame 41						sound_voice snd_chirp
+		frame 45						sound_body snd_footstep
+		frame 50						sound_body snd_footstep
+		frame 55						sound_body snd_footstep
+		frame 59						sound_body snd_footstep
+
+		frame 74						sound_body snd_footstep
+		frame 76						sound_body snd_footstep
+		frame 81						sound_voice snd_chirp
+		frame 84						sound_body snd_footstep
+		frame 85						sound_body snd_footstep
+		frame 86						sound_body snd_footstep
+		frame 93						sound_body snd_footstep
+		frame 94						sound_body snd_footstep
+		frame 96						sound_body snd_footstep
+		frame 99						sound_body snd_footstep
+		frame 100						sound_body snd_footstep
+	}
+
+	anim melee_attack1				models/md5/monsters/tick/melee1.md5anim {
+		frame 1							call overrideLegs
+		frame 3							attack_begin melee_tritebite1
+		frame 3							sound_body snd_footstep
+		frame 11						sound_body snd_footstep
+		frame 12						sound_body snd_footstep
+		frame 13						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 22						sound_body snd_footstep
+		frame 23						sound_body snd_footstep
+		frame 23						attack_end
+	}
+	anim melee_attack2				models/md5/monsters/tick/melee2.md5anim {
+		frame 1							call overrideLegs
+		frame 3							attack_begin melee_tritebite1		
+		frame 23						attack_end
+		frame 25						sound_body snd_footstep
+		frame 26						sound_body snd_footstep
+		frame 30						sound_body snd_footstep
+		frame 34						sound_body snd_footstep		
+	}
+
+	anim jump_start					models/md5/monsters/tick/leap1start.md5anim {
+		frame 8							sound_body snd_footstep
+	}
+	anim jump_loop1					models/md5/monsters/tick/leap1loop.md5anim
+	anim jump_end					models/md5/monsters/tick/leap1end.md5anim {
+		frame 1							sound_body snd_footstep	
+		frame 2							sound_body snd_footstep	
+		frame 3							sound_body snd_footstep	
+		frame 14						sound_body snd_footstep	
+
+	}
+
+	anim pain						models/md5/monsters/tick/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+		
+	}
+	anim pain_head					models/md5/monsters/tick/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/tick/pain_luparm1.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep	
+	}
+	anim pain_right_arm				models/md5/monsters/tick/pain_ruparm1.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 6							sound_body snd_footstep	
+	}
+	anim "196drop"					models/md5/monsters/tick/drop196.md5anim {
+		//ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 1							sound_voice snd_startdrop
+		frame 25						sound_body snd_footstep
+		frame 27						sound_body snd_footstep
+		frame 28						sound_voice snd_enddrop
+		frame 29						enableGravity		
+		frame 29						sound_body snd_footstep
+		frame 30						sound_body snd_footstep
+		frame 33						sound_body snd_sight
+		frame 48						enableWalkIK
+	}
+	anim "256drop"					models/md5/monsters/tick/drop256.md5anim {
+		//ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 1							sound_voice snd_startdrop
+		frame 25						sound_body snd_footstep
+		frame 27						sound_body snd_footstep
+		frame 28						sound_voice snd_enddrop
+		frame 29						enableGravity			
+		frame 29						sound_body snd_footstep
+		frame 30						sound_body snd_footstep
+		frame 33						sound_body snd_sight
+		frame 48						enableWalkIK
+	}
+	anim "400drop"					models/md5/monsters/tick/drop400.md5anim {
+		//ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 1							sound_voice snd_startdrop
+		frame 33						sound_body snd_footstep
+		frame 34						sound_body snd_footstep
+		frame 37						enableGravity
+		frame 28						sound_voice snd_enddrop		
+		frame 35						sound_body snd_footstep
+		frame 36						sound_body snd_footstep
+		frame 38						sound_body snd_footstep
+		frame 45						sound_voice snd_sight
+		frame 48						sound_body snd_footstep
+		frame 55						sound_body snd_footstep
+		frame 58						enableWalkIK
+	}
+	anim offwall					models/md5/monsters/tick/getoffwall.md5anim {
+		ai_no_turn		
+		frame 1							disableWalkIK
+		frame 63						enableWalkIK
+		
+	}
+	anim outofhole					models/md5/monsters/tick/outofhole.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							event ignoreDamage
+		frame 58						enableWalkIK
+		frame 58						event allowDamage
+
+	}
+	anim downpipe					models/md5/monsters/tick/downpipe.md5anim {
+		ai_no_turn		
+		frame 1							disableWalkIK
+		frame 6							sound_voice snd_sight
+		frame 46						enableWalkIK
+	}
+	anim "24hole"					models/md5/monsters/tick/hole24.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK		
+		frame 1							event ignoreDamage
+		frame 9							sound_voice snd_sight
+		frame 22						enableWalkIK
+		frame 22						event allowDamage
+	}
+	anim "16hole"					models/md5/monsters/tick/hole16.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							event ignoreDamage
+		frame 18						sound_voice snd_sight
+		frame 27						enableWalkIK
+		frame 27						event allowDamage
+	}
+	anim doorcrack1					models/md5/monsters/tick/doorcrack1.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							event ignoreDamage
+		frame 19						sound_voice snd_sight
+		frame 33						enableWalkIK
+		frame 33						event allowDamage
+	}
+	anim floorcrack					models/md5/monsters/tick/floorcrack.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							event ignoreDamage
+		frame 9							sound_body snd_footstep
+		frame 13						sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 18						sound_body snd_footstep
+		frame 19						sound_body snd_footstep
+		
+		frame 21						sound_voice snd_sight
+		frame 28						enableWalkIK
+		frame 28						event allowDamage
+	}
+}
+
+entityDef monster_demon_tick {
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_demon_trite"
+	"model"							"monster_demon_tick"
+	"ragdoll"						"monster_demon_tick"
+	
+	"size"							"48 48 40"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"20"
+	"melee_range"					"40"
+	"chatter_min"					"5"
+	"chatter_max"					"10"
+	"chatter_combat_min"			"3"
+	"chatter_combat_max"			"7"
+	"turn_rate"						"360"
+	"on_activate_blend"				"0"
+	
+	"blockedRadius"					"25"
+	"blockedMoveTime"				"750"
+	"blockedAttackTime"				"750"
+
+	"model_explode"					"trite_boomboom.prt"
+	"def_explode_damage"			"damage_tick_explode"
+
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp.prt-body2"
+	
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	"ik_waist"						"Body2"
+	"ik_hip1"						"Luparm1"
+	"ik_hip2"						"Ruparm1"
+	"ik_hip3"						"Luparm2"
+	"ik_hip4"						"Ruparm2"
+	"ik_hip5"						"Luparm3"
+	"ik_hip6"						"Ruparm3"
+	"ik_knee1"						"Lloarm1"
+	"ik_knee2"						"Rloarm1"
+	"ik_knee3"						"Lloarm2"
+	"ik_knee4"						"Rloarm2"
+	"ik_knee5"						"Lloarm3"
+	"ik_knee6"						"Rloarm3"
+	"ik_ankle1"						"Lwrist1"
+	"ik_ankle2"						"Rwrist1"
+	"ik_ankle3"						"Lwrist2"
+	"ik_ankle4"						"Rwrist2"
+	"ik_ankle5"						"Lwrist3"
+	"ik_ankle6"						"Rwrist3"
+	"ik_dir1"						"Lknee1"
+	"ik_dir2"						"Rknee1"
+	"ik_dir3"						"Lknee2"
+	"ik_dir4"						"Rknee2"
+	"ik_dir5"						"Lknee3"
+	"ik_dir6"						"Rknee3"
+	"ik_foot1"						"Ltip1"
+	"ik_foot2"						"Rtip1"
+	"ik_foot3"						"Ltip2"
+	"ik_foot4"						"Rtip2"
+	"ik_foot5"						"Ltip3"
+	"ik_foot6"						"Rtip3"
+
+	"damage_zone head"				"*Body2 -*Ruparm1 -*Ruparm2 -*Ruparm3 -*Luparm1 -*Luparm2 -*Luparm3"
+	"damage_zone left_arm"			"*Luparm1"
+	"damage_zone right_arm"			"*Ruparm1"
+	"damage_scale head"				"1"
+
+	"def_leapAttack"				"melee_triteLeapAttack"
+
+	"snd_chatter"					"monster_demon_tick_chatter"
+	"snd_chatter_combat"			"monster_demon_tick_chatter_combat"
+	"snd_chirp"						"monster_demon_tick_chirp"
+	"snd_evade"						"monster_demon_tick_evade"
+	"snd_footstep"					"monster_demon_tick_footstep"
+	"snd_sight"						"monster_demon_tick_sight"
+	"snd_melee"						"monster_demon_tick_melee"
+	"snd_pain"						"monster_demon_tick_pain"
+	"snd_death"						"monster_demon_tick_death"
+	"snd_chomp"						"monster_demon_tick_chomp"
+	"snd_burn"						"monster_demon_tick_burn"
+}
+
+entityDef damage_tick_explode {
+	"damage"			"50"
+	
+	// adjust in script if this value is changed
+	"radius"			"100"
+	
+	"knockback"			"80"
+	"push"				"1000"
+	"gib"				"0"
+}

@@ -1,0 +1,1519 @@
+namespace map_delta1 {
+	float power = 0 ;
+	float rgb_modifier = 0;
+
+	// number of security lights(sl) and doors(dl)
+	float sl_count = 5;
+	float dl_count = 8;
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Initial movements etc...
+	//
+	////////////////////////////////////////////////////
+	void init_world()
+	{
+		////////////////////////////////////////////////////
+		//SENECA's HOLOGRAM INITS
+		$hologram.hide();
+        $hologram.setColor  (.3, .35, .45);	//inital medium blue
+		$hologram.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram.setShaderParm(4,100);		//the bottom textures scale from the center of the faces out to the edges.
+		$hologram.setShaderParm(5,0);		//the delta 1 ring's RGB defaults to 0
+		$hologram.setShaderParm(6,100);		//the plane beneath the hologram starts infinitely small
+		$hologram.setShaderParm(7,0);		//rgb of tops of rooms
+		
+		//the important rooms
+		$hologram1.hide();
+		$hologram1.bind ($hologram1_1_anchor);
+		$hologram1.setColor  (.6, .7, .9);	//inital light blue
+		$hologram1.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram1.setShaderParm(4,100);		//the bottom textures scale from the center of the faces out to the edges.
+		$hologram1.setShaderParm(7,0);		//rgb of tops of rooms
+
+		$hologram2.hide();
+		$hologram2.bind ($hologram2_1_anchor);
+		$hologram2.setColor  (.6, .7, .9);	
+		$hologram2.setShaderParm(3,-0.6);	
+		$hologram2.setShaderParm(4,100);		
+		$hologram2.setShaderParm(7,0);		
+		
+		$hologram3.hide();
+		$hologram3.bind ($hologram3_1_anchor);
+		$hologram3.setColor  (.6, .7, .9);	
+		$hologram3.setShaderParm(3,-0.6);	
+		$hologram3.setShaderParm(4,100);		
+		$hologram3.setShaderParm(7,0);		
+		
+		$hologram4.hide();
+		$hologram4.bind ($hologram4_1_anchor);
+		$hologram4.setColor  (.6, .7, .9);	
+		$hologram4.setShaderParm(3,-0.6);	
+		$hologram4.setShaderParm(4,100);		
+		$hologram4.setShaderParm(7,0);		
+		
+		$hologram5.hide();
+		$hologram5.bind ($hologram5_1_anchor);
+		$hologram5.setColor  (.6, .7, .9);	
+		$hologram5.setShaderParm(3,-0.6);	
+		$hologram5.setShaderParm(4,100);		
+		$hologram5.setShaderParm(7,0);		
+		
+		//the important rooms' glows
+		$hologram1_1.hide();  
+		$hologram1_1.bind ($hologram1);
+		$hologram1_1.setShaderParm(3,0);		//RGB of the red boxes outside each hologram. starts at 100% transparent.
+		$hologram1_1.setShaderParm(4,10);		//height of the red boxes outside each hologram.  starts real small
+		$hologram1_1.setShaderParm(5,0);		//scale of the round disc
+		$hologram1_1.setShaderParm(6,0);		//RGB of the round plate that grows when you select an important area.
+		$hologram1_1.setShaderParm(7,0);		//RGB of the sprite round plate
+
+		$hologram2_1.hide();  
+		$hologram2_1.bind ($hologram2);
+		$hologram2_1.setColor (.6, .7, .9);	
+		$hologram2_1.setShaderParm(3,0);		
+		$hologram2_1.setShaderParm(4,10);		
+		$hologram2_1.setShaderParm(5,0);		
+		$hologram2_1.setShaderParm(6,0);		
+
+		$hologram3_1.hide();  
+		$hologram3_1.bind ($hologram3);
+		$hologram3_1.setColor (.6, .7, .9);	
+		$hologram3_1.setShaderParm(3,0);		
+		$hologram3_1.setShaderParm(4,10);		
+		$hologram3_1.setShaderParm(5,0);		
+		$hologram3_1.setShaderParm(6,0);		
+
+		$hologram4_1.hide();  
+		$hologram4_1.bind ($hologram4);
+		$hologram4_1.setColor (.6, .7, .9);	
+		$hologram4_1.setShaderParm(3,0);		
+		$hologram4_1.setShaderParm(4,10);		
+		$hologram4_1.setShaderParm(5,0);		
+		$hologram4_1.setShaderParm(6,0);		
+
+		$hologram5_1.hide();  
+		$hologram5_1.bind ($hologram5);
+		$hologram5_1.setColor (.6, .7, .9);	
+		$hologram5_1.setShaderParm(3,0);		
+		$hologram5_1.setShaderParm(4,10);		
+		$hologram5_1.setShaderParm(5,0);		
+		$hologram5_1.setShaderParm(6,0);		
+
+
+		//END SENECA's HOLOGRAM INITS
+		////////////////////////////////////////////////////
+
+		$lobby_spawn_trigger.disable();
+		$lobby_spawn_trigger2.disable();
+
+		// scipull stuff
+		$delta1_scipull_1.hide();
+		$scipull_panel_end.hide();
+
+		// sizzor lift binds
+		$siz_axle_low.bind ($siz_lowlegr);
+		$siz_axle_left.bind ($siz_lowlegr);
+		$siz_toplegl.bind ($siz_axle_left);
+		$siz_axle_top.bind ($siz_toplegl);
+		$siz_toplegr.bind ($siz_axle_top);
+		$siz_axle_right.bind ($siz_toplegr);
+		$siz_lowlegl.bind ($siz_axle_right);
+		
+		$siz_topcr.bindPosition ($siz_toplegl);
+		$siz_topcl.bindPosition ($siz_toplegr);
+
+		$siz_lowcl.bindPosition ($siz_lowlegl);
+
+		$siz_top.bind ($siz_topcr);
+		$siz_control.bind ($siz_top);
+
+		// sizzor accel and decel times
+		$siz_toplegl.time ( 1.5 );
+		$siz_toplegr.time ( 1.5 );
+		$siz_lowlegl.time ( 1.5 );
+		$siz_lowlegr.time ( 1.5 );
+
+		$siz_toplegl.accelTime ( .5 );
+		$siz_toplegl.decelTime ( .5 );
+		$siz_toplegr.accelTime ( .5 );
+		$siz_toplegr.decelTime ( .5 );
+
+		$siz_lowlegl.accelTime ( .5 );
+		$siz_lowlegl.decelTime ( .5 );
+		$siz_lowlegr.accelTime ( .5 );
+		$siz_lowlegr.decelTime ( .5 );
+
+		// reactor setup
+		$outerring_anchor.rotateOnce ('-45 0 0');
+		$innerring_anchor.rotateOnce ('-30 0 0');
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Global parm ramp up or down
+	//
+	////////////////////////////////////////////////////
+	void light_ramp( float rgb_start, float rgb_end, float time_val ) 
+	{
+		float i, t, v;
+
+		t = time_val * GAME_FPS;
+		for ( i = 0; i < t; i++ ) {
+			v = rgb_start + ( rgb_end - rgb_start ) * ( i / t );
+			sys.setShaderParm( 0, v );
+			sys.setShaderParm( 1, v );
+			sys.setShaderParm( 2, v );
+			sys.waitFrame();
+		}
+		sys.setShaderParm( 0, rgb_end );
+		sys.setShaderParm( 1, rgb_end );
+		sys.setShaderParm( 2, rgb_end );
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Power flux
+	//
+	////////////////////////////////////////////////////
+	void power_flux()
+	{
+		float i;
+		float ran_loop, ran_new, ran_time;
+		float old;
+
+		old = .2;
+		ran_loop = (sys.random(10) + 5);
+
+		for (i=1; i<=ran_loop; i++){
+			ran_new = sys.random(1.5);
+			ran_time = sys.random(1);
+			light_ramp( old, ran_new, ran_time );
+
+			old = ran_new;
+		}
+
+		light_ramp( old, .15, .3 );
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Low Power Loop
+	//  random power flucuations 
+	//
+	////////////////////////////////////////////////////
+	void low_power_loop()
+	{
+		//sys.print ("begin low_power_loop\n");
+		//sys.print ("power level =" + power + "\n");
+		float ran;
+		ran = sys.random (3);
+		sys.wait (ran);
+
+		while (power == 1){
+			ran = (sys.random(4) + 12);
+			//sys.print ("next power surge in " + ran + " seconds\n");
+			sys.wait (ran);
+			
+			power_flux(); 
+			}
+
+		//sys.print ("made it to the end of low power loop\n");
+		if (power==2){
+			float ii;
+			float rate;
+
+			rate = GAME_FRAMETIME * 0.25;
+			for( ii = rgb_modifier; ii <= 1; ii += rate ) {
+				sys.setShaderParm(0,(ii*.65));
+				sys.setShaderParm(1,(ii*.65));
+				sys.setShaderParm(2,(ii*.75));
+
+				sys.waitFrame();
+			}
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	security lights on
+	//
+	////////////////////////////////////////////////////
+	void seclights_on()
+	{
+		entity	sl_ent, ssl_ent1, bsl_ent1, ssl_ent2, bsl_ent2;
+		float	i;
+		
+		for (i=1; i<=sl_count; i++){
+			sl_ent=sys.getEntity ("sl_" + i);
+
+			ssl_ent1=sys.getEntity ("ssl_" + i + "_a");
+			ssl_ent2=sys.getEntity ("ssl_" + i + "_b");
+
+			bsl_ent1=sys.getEntity ("bsl_" + i + "_a");
+			bsl_ent2=sys.getEntity ("bsl_" + i + "_b");
+
+			sl_ent.setColor( .627, .1, 0 );
+			ssl_ent1.On();
+			ssl_ent2.On();
+			bsl_ent1.On();
+			bsl_ent2.On();
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	security lights off
+	//
+	////////////////////////////////////////////////////
+	void seclights_off()
+	{
+		entity	sl_ent, ssl_ent1, bsl_ent1, ssl_ent2, bsl_ent2;
+		float	i;
+		
+		for (i=1; i<=sl_count; i++){
+			sl_ent=sys.getEntity ("sl_" + i);
+
+			ssl_ent1=sys.getEntity ("ssl_" + i + "_a");
+			ssl_ent2=sys.getEntity ("ssl_" + i + "_b");
+
+			bsl_ent1=sys.getEntity ("bsl_" + i + "_a");
+			bsl_ent2=sys.getEntity ("bsl_" + i + "_b");
+
+			sl_ent.setColor( 0,0,0 );
+			ssl_ent1.Off();
+			ssl_ent2.Off();
+			bsl_ent1.Off();
+			bsl_ent2.Off();
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	hologram on
+	//
+	////////////////////////////////////////////////////
+	void hologram_on()
+	{
+		$hologram_light_big.setColor( .75, .8, .85 );
+
+		// trigger the initial power up sound in control room
+		// sys.trigger ($warning_speaker_initial);
+
+		// sci stuff
+		$delta1_scipull_1.show();
+		$scipull_panel_end.show();
+
+		$scidead.remove();
+		$scipull_panel_start.remove();
+
+		$lobby_spawn_trigger.enable();
+		$lobby_spawn_trigger2.enable();
+
+		// data linker show and move down
+		$datalinker.startSoundShader ("hologram_datalinker", SND_CHANNEL_VOICE );
+		$datalinker.time(.75);
+		$datalinker.show();
+		$datalinker.move ( DOWN, 8 );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	hologram off
+	//
+	////////////////////////////////////////////////////
+	void hologram_off()
+	{
+		$hologram_light_big.setColor( .75, .8, .85 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	door lights on
+	//
+	////////////////////////////////////////////////////
+	void doorlights_on()
+	{
+		entity	dl_ent1, dl_ent2, dl_ent3 ;
+		float	i;
+		
+		for (i=1; i<=dl_count; i++){
+			dl_ent1=sys.getEntity ("dl_" + i);
+			dl_ent2=sys.getEntity ("dl_" + i + "_a");
+			dl_ent3=sys.getEntity ("dl_" + i + "_b");
+
+			dl_ent1.setColor( .627, .1, 0 );
+			dl_ent2.setColor( .627, .1, 0 );
+			dl_ent3.setColor( .627, .1, 0 );
+		}
+	}
+
+
+	///////////////////////////////////////////////////
+	//
+	//	door lights off
+	//
+	////////////////////////////////////////////////////
+	void doorlights_off()
+	{
+		entity	dl_ent1, dl_ent2, dl_ent3 ;
+		float	i;
+		
+		for (i=1; i<=dl_count; i++){
+			dl_ent1=sys.getEntity ("dl_" + i);
+			dl_ent2=sys.getEntity ("dl_" + i + "_a");
+			dl_ent3=sys.getEntity ("dl_" + i + "_b");
+
+			dl_ent1.setColor( 1, 1, 1 );
+			dl_ent2.setColor( 1, 1, 1 );
+			dl_ent3.setColor( 1, 1, 1 );
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Power is offline
+	//	level 0
+	//
+	////////////////////////////////////////////////////
+	void power_level_0()
+	{
+		float i;
+		float rate;
+
+		rate = GAME_FRAMETIME * 0.25;
+		for( i = rgb_modifier; i >= 0; i -= rate ) {
+
+			sys.setShaderParm(0,i);
+			sys.setShaderParm(1,i);
+			sys.setShaderParm(2,i);
+
+			sys.waitFrame();
+		}
+
+		// force all to 0,0,0 just incase there is a fraction left over...
+		// to make sure the shadows are off
+		sys.setShaderParm(0,0);
+		sys.setShaderParm(1,0);
+		sys.setShaderParm(2,0);
+
+		// turn on the security lights
+		// turn on door lights to red
+		// turn the hologram light off
+		thread seclights_on();
+		thread doorlights_on();
+		thread hologram_off();
+
+		// set the rgb modifier tracking variable
+		rgb_modifier = 0;
+
+	//	sys.print ( "power offline\n" );
+		power = 0;
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Power to level 1
+	//
+	////////////////////////////////////////////////////
+	void power_level_1()
+	{
+		// turn security lights off
+		// doorlights back to white if red
+		thread seclights_off();
+		thread doorlights_off();
+		sys.wait (1);
+
+		float i;
+		float rate;
+
+		if ( power >= 1 ){
+			rate = GAME_FRAMETIME * 0.25;
+			for( i = rgb_modifier; i >= .25; i -= rate ) {
+
+				sys.setShaderParm(0,i);
+				sys.setShaderParm(1,i);
+				sys.setShaderParm(2,i);
+
+				sys.waitFrame();
+			}
+		} else {
+			rate = GAME_FRAMETIME * 0.25;
+			for( i = rgb_modifier; i <= .25; i += rate ) {
+
+				sys.setShaderParm(0,i);
+				sys.setShaderParm(1,i);
+				sys.setShaderParm(2,i);
+
+				sys.waitFrame();
+			}
+		}
+
+		// set the rgb modifier tracking variable
+		rgb_modifier = .25;
+
+	//	sys.print ( "power 10%\n" );
+		power = 1;
+
+		low_power_loop();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Power to level 2
+	//
+	////////////////////////////////////////////////////
+	void power_level_2()
+	{
+		// turn security lights off
+		// doorlights back to white if red
+		// turn the hologram on if off
+		power = 2;
+		seclights_off();
+		doorlights_off();
+		hologram_on();
+
+		float i;
+		float rate;
+
+		rate = GAME_FRAMETIME * 0.25;
+		for( i = rgb_modifier; i <= 1; i += rate ) {
+
+			sys.setShaderParm(0,(i*.65));
+			sys.setShaderParm(1,(i*.65));
+			sys.setShaderParm(2,(i*.75));
+
+			sys.waitFrame();
+		}
+
+		// set the rgb modifier tracking variable
+		rgb_modifier = 1;
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Computer Voice Loop
+	//
+	////////////////////////////////////////////////////
+	void computer_voice_loop()
+	{
+		sys.killthread ( "map_delta1::pre_computer_voice_loop" );
+	
+		sys.wait (35);
+
+		while (1){
+			sys.trigger($speaker_reactor_offline); // 3.110
+			sys.wait (3.4);
+			sys.trigger($speaker_follow_procedure_orage); // 3.165
+			sys.wait (3.165);
+
+			sys.wait (35);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Computer Voice Loop
+	//	This is the initial voice loop
+	//
+	////////////////////////////////////////////////////
+	void pre_computer_voice_loop()
+	{
+		while (power==0){
+			sys.trigger($speaker_emr_pwr_only); // 2.219 seconds
+			sys.wait (2.4);
+			sys.trigger($speaker_operations_suspended); // 2.816 seconds
+			sys.wait (2.816);
+
+			sys.wait (35);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Zombie falls out of panel and stuff
+	//
+	////////////////////////////////////////////////////
+	void zombie_fallout()
+	{
+		// make the panel bounce back down
+
+		sys.trigger ($zombie_fallout_speaker);
+
+		$rot_panel_1.time (.25);
+		$rot_panel_1.decelTime (.01);
+		$rot_panel_1.rotateOnce ( '-10 0 0' );
+		sys.waitFor ( $rot_panel_1 );
+
+		$rot_panel_1.time (.2);
+		$rot_panel_1.decelTime (.2);
+		$rot_panel_1.rotateOnce ( '10 0 0' );
+		sys.waitFor ( $rot_panel_1 );
+
+		$rot_panel_1.time (.2);
+		$rot_panel_1.decelTime (.01);
+		$rot_panel_1.rotateOnce ( '-5 0 0' );
+		sys.waitFor ( $rot_panel_1 );
+
+		$rot_panel_1.time (.15);
+		$rot_panel_1.decelTime (.15);
+		$rot_panel_1.rotateOnce ( '5 0 0' );
+		sys.waitFor ( $rot_panel_1 );
+
+		$rot_panel_1.time (.1);
+		$rot_panel_1.decelTime (.1);
+		$rot_panel_1.rotateOnce ( '-2 0 0' );
+		sys.waitFor ( $rot_panel_1 );
+
+		$rot_panel_1.time (.1);
+		$rot_panel_1.decelTime (.1);
+		$rot_panel_1.rotateOnce ( '1 0 0' );
+		sys.waitFor ( $rot_panel_1 );
+
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	reactor move
+	//
+	////////////////////////////////////////////////////
+	void reactor_move ()
+	{
+		float i,v,t,blendtime,velmult;
+		vector rotvector;
+
+		blendtime = 7;
+		velmult = .5;
+
+		t = blendtime * GAME_FPS;
+
+		for ( i = 10; i < t; i++ ) {
+			v = (i * velmult);
+
+			rotvector_x=v ;rotvector_y=0 ; rotvector_z=0;
+			$reactor_innerring.rotate ( rotvector );
+
+			rotvector_x=-v ;rotvector_y=0 ; rotvector_z=0;
+			$reactor_outerring.rotate ( rotvector );
+
+			sys.waitFrame();
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	reactor startup sequence
+	//
+	////////////////////////////////////////////////////
+	void reactor_startup ()
+	{
+		// this will eventually have things like:
+		// reactor ramping up
+		// lights doing something
+
+		sys.trigger ($reactor_speaker_startup);
+		sys.trigger ($speaker_driver);
+		
+		$end_control.setGuiParm( "gui_parm5" , 0 );
+		
+		//call reactor start function
+		thread reactor_move();
+		
+		sys.killthread ( "map_delta1::computer_voice_loop" );
+		sys.killthread ( "map_delta1::low_power_loop" );
+		sys.killthread ( "map_delta1::power_flux" );
+		thread power_level_2();
+
+		sys.wait(2);
+		sys.trigger ($reactor_comp_reactoronline);
+		//sys.print ( "trigger objective complete\n" );
+		sys.trigger($reactor_objective_complete_trigger);
+		sys.wait(4);
+		//sys.print ( "trigger last objective\n" );
+		sys.trigger($elevator_objective_trigger);
+
+
+		sys.wait(4);
+		sys.trigger ($reactor_speaker_loop);
+
+		// trigger the door sign guis and kiosk guis
+		sys.trigger($doorsigns_gui_relay);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Sound moving #1
+	//  Plays a sound on a moving speaker
+	//
+	////////////////////////////////////////////////////
+	void spooky_sound_1 ()
+	{
+		$ms1_speaker.bind ($ms1_mover);
+		$ms1_mover.time (7.2);
+		
+		sys.trigger ($ms1_speaker);
+		$ms1_mover.moveTo ($ms1_movepoint);
+
+		sys.waitFor ($ms1_mover);
+		$ms1_speaker.Off();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Random Spooky sounds #2
+	//
+	////////////////////////////////////////////////////
+	void spooky_sound_2 ()
+	{
+			sys.trigger ($ran_speaker_1_1);
+			sys.wait (1);
+			sys.trigger ($ran_speaker_1_2);
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Random Spooky sounds #3
+	//
+	////////////////////////////////////////////////////
+	void spooky_sound_3 ()
+	{
+		float	numran;
+		numran = sys.random(3);
+		
+		if (numran>=2){
+			sys.trigger ($ran_speaker_2_1);
+			sys.wait (.5);
+			sys.trigger ($ran_speaker_2_2);
+		} else if (numran>=1){
+			sys.trigger ($ran_speaker_2_2);
+			sys.wait (.5);
+			sys.trigger ($ran_speaker_2_3);
+		} else {
+			sys.trigger ($ran_speaker_2_3);
+			sys.wait (.5);
+			sys.trigger ($ran_speaker_2_2);
+			sys.trigger ($ran_speaker_2_1);
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Random Spooky sounds #4
+	//
+	////////////////////////////////////////////////////
+	void spooky_sound_4 ()
+	{
+		float	numran;
+		numran = sys.random(3);
+		
+		if (numran>=2){
+			sys.trigger ($ran_speaker_3_1);
+			sys.wait (.5);
+			sys.trigger ($ran_speaker_3_4);
+		} else if (numran>=1){
+			sys.trigger ($ran_speaker_3_2);
+			sys.wait (.5);
+			sys.trigger ($ran_speaker_3_3);
+		} else {
+			sys.trigger ($ran_speaker_3_3);
+			sys.wait (.5);
+			sys.trigger ($ran_speaker_3_2);
+			sys.trigger ($ran_speaker_3_1);
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Seneca's hologram initial activation (unhiding)
+	//
+	////////////////////////////////////////////////////
+
+	void hologram_start ()
+	{
+		//temp
+		$hologram1.setColor  (.6, .7, .9);	//inital light blue
+		$hologram1.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram1.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram1.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		//temp
+		$hologram2.setColor  (.6, .7, .9);	//inital light blue
+		$hologram2.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram2.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram2.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		//temp
+		$hologram3.setColor  (.6, .7, .9);	//inital light blue
+		$hologram3.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram3.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram3.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		//temp
+		$hologram4.setColor  (.6, .7, .9);	//inital light blue
+		$hologram4.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram4.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram4.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		//temp
+		$hologram5.setColor  (.6, .7, .9);	//inital light blue
+		$hologram5.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram5.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram5.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		//temp
+		$hologram.setColor  (.3, .45, .45);	//inital medium blue
+		$hologram.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram.setShaderParm(4,100);		//the bottom textures scale from the center of the faces out to the edges.
+		$hologram.setShaderParm(5,0);		//the delta 1 ring's RGB defaults to 0
+		$hologram.setShaderParm(6,100);		//the plane beneath the hologram starts infinitely small
+		$hologram.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		$hologram.show();
+		thread interpolateShaderParm( $hologram, 6, 100, 1, 1 );	//scale in bottom grid
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram, 4, 100, 5, .2 );	//bring in bottoms of rooms
+		sys.wait (0.2);
+		thread interpolateShaderParm( $hologram, 4, 5, 0.85, 1 );	//scale up bottoms of rooms
+		thread interpolateShaderParm( $hologram, 5, 0, 1, 5 );		//RGB in delta cylinder
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram, 3, -0.6, 0, 1 );	//bring up sides of rooms and cap off.
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram, 7, 0, 1, 0.05 );	//RGB of room tops
+	}
+
+	void hologram1_start ()
+	{
+		//temp
+		$hologram1.setColor  (.6, .7, .9);	//inital light blue
+		$hologram1.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram1.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram1.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		$hologram1.show();
+		thread interpolateShaderParm( $hologram1, 6, 100, 1, 1 );	//scale in bottom grid
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram1, 4, 100, 5, .2 );	//bring in bottoms of rooms
+		sys.wait (0.2);
+		thread interpolateShaderParm( $hologram1, 4, 5, 0.85, 1 );	//scale up bottoms of rooms
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram1, 3, -0.6, 0, 1 );	//bring up sides of rooms and cap off.
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram1, 7, 0, 1, 0.05 );	//RGB of room tops
+	}
+
+	void hologram2_start ()
+	{
+		//temp
+		$hologram2.setColor  (.6, .7, .9);	//inital light blue
+		$hologram2.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram2.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram2.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		$hologram2.show();
+		thread interpolateShaderParm( $hologram2, 6, 100, 1, 1 );	//scale in bottom grid
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram2, 4, 100, 5, .2 );	//bring in bottoms of rooms
+		sys.wait (0.2);
+		thread interpolateShaderParm( $hologram2, 4, 5, 0.85, 1 );	//scale up bottoms of rooms
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram2, 3, -0.6, 0, 1 );	//bring up sides of rooms and cap off.
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram2, 7, 0, 1, 0.05 );	//RGB of room tops
+	}
+
+	void hologram3_start ()
+	{
+		//temp
+		$hologram3.setColor  (.6, .7, .9);	//inital light blue
+		$hologram3.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram3.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram3.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		$hologram3.show();
+		thread interpolateShaderParm( $hologram3, 6, 100, 1, 1 );	//scale in bottom grid
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram3, 4, 100, 5, .2 );	//bring in bottoms of rooms
+		sys.wait (0.2);
+		thread interpolateShaderParm( $hologram3, 4, 5, 0.85, 1 );	//scale up bottoms of rooms
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram3, 3, -0.6, 0, 1 );	//bring up sides of rooms and cap off.
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram3, 7, 0, 1, 0.05 );	//RGB of room tops
+	}
+
+	void hologram4_start ()
+	{
+		//temp
+		$hologram4.setColor  (.6, .7, .9);	//inital light blue
+		$hologram4.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram4.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram4.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		$hologram4.show();
+		thread interpolateShaderParm( $hologram4, 6, 100, 1, 1 );	//scale in bottom grid
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram4, 4, 100, 5, .2 );	//bring in bottoms of rooms
+		sys.wait (0.2);
+		thread interpolateShaderParm( $hologram4, 4, 5, 0.85, 1 );	//scale up bottoms of rooms
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram4, 3, -0.6, 0, 1 );	//bring up sides of rooms and cap off.
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram4, 7, 0, 1, 0.05 );	//RGB of room tops
+	}
+
+	void hologram5_start ()
+	{
+		//temp
+		$hologram5.setColor  (.6, .7, .9);	//inital light blue
+		$hologram5.setShaderParm(3,-0.6);	//the side textures scroll from bottom to top.  
+		$hologram5.setShaderParm(4,100);	//the bottom textures scale from the center of the faces out to the edges.
+		$hologram5.setShaderParm(7,0);		//rgb of tops of rooms
+		//temp
+		$hologram5.show();
+		thread interpolateShaderParm( $hologram5, 6, 100, 1, 1 );	//scale in bottom grid
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram5, 4, 100, 5, .2 );	//bring in bottoms of rooms
+		sys.wait (0.2);
+		thread interpolateShaderParm( $hologram5, 4, 5, 0.85, 1 );	//scale up bottoms of rooms
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram5, 3, -0.6, 0, 1 );	//bring up sides of rooms and cap off.
+		sys.wait (1);
+		thread interpolateShaderParm( $hologram5, 7, 0, 1, 0.05 );	//RGB of room tops
+	}
+
+	void hologram1_1 () //this is the animation that gets played when player clicks on Control Center
+	{
+		if ($hologram1_1.getFloatKey ("state")==1){
+			
+			$hologram1_1.startSoundShader ("hologram_spawnout", SND_CHANNEL_VOICE );
+			
+			thread interpolateShaderParm( $hologram1_1, 7, 1, 0, .2 );	//fade out round spinny plane
+			thread crossFadeEnt( $hologram1, $hologram1.getColor(), '.15 .175 .22', 1);	//make the unselected room go back to default colors
+		
+			$hologram1_1_anchor.time(.15);
+			$hologram1_1_anchor.rotateOnce ( '0 0 -30');
+			$hologram1_1_anchor.move(WEST,30);
+			sys.waitFor( $hologram1_1_anchor );
+			$hologram1_1_anchor.move(NORTH,16);
+			sys.waitFor( $hologram1_1_anchor );
+			$hologram1_1_anchor.move(DOWN,40);
+			sys.waitFor( $hologram1_1_anchor );
+			$hologram1_1.hide();
+			$hologram1_1.setKey ("state", "0");
+		} else 	{
+			$hologram1_1.show();
+			$hologram1_1.setKey ("state", "1"); //sets it so that next time you run the script, it puts the objects back where it was.
+			$hologram1_1.setShaderParm(7,0);
+			$hologram1_1.setColor  (1, .1, 0);	//make little line red
+			thread crossFadeEnt( $hologram, $hologram.getColor(), '.1 .2 .2', .5);	//make the base hologram darken a little.
+			thread interpolateShaderParm( $hologram, 5, 1, .35, .5 ); //make the base hologram's matrix effect go darker.
+			thread crossFadeEnt( $hologram1, $hologram1.getColor(), '1 .1 0', .5);	//make selected room go red.
+			thread crossFadeEnt( $hologram2, $hologram2.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+			thread crossFadeEnt( $hologram3, $hologram3.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+			thread crossFadeEnt( $hologram4, $hologram4.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+			thread crossFadeEnt( $hologram5, $hologram5.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+			
+			$hologram1_1.startSoundShader ("hologram_spawn", SND_CHANNEL_VOICE );
+			
+			thread interpolateShaderParm( $hologram1_1, 3, 0, 100, .1 ); //RGB in red boxes
+			thread interpolateShaderParm( $hologram1_1, 4, 10, 1, 1 ); //scale up the sides of red boxes
+			thread interpolateShaderParm( $hologram1_1, 5, 10, 1, 1 ); //scale up round plane
+			sys.wait (.7);
+			thread interpolateShaderParm( $hologram1_1, 6, 1, 0, 2 ); //RGB out round spinny plane
+			thread interpolateShaderParm( $hologram1_1, 3, 1, 0, 1 );  //RGB out red boxes
+			sys.wait(1);
+
+			$hologram1_1_anchor.time(1);
+			$hologram1_1_anchor.accelTime(.4);
+			$hologram1_1_anchor.decelTime(.4);
+			
+			$hologram1_1_anchor.move(UP,40);
+			$hologram1_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+			
+			sys.waitFor( $hologram1_1_anchor );
+			
+			$hologram1_1_anchor.move(SOUTH,16);
+			$hologram1_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+			
+			sys.waitFor( $hologram1_1_anchor );
+			
+			$hologram1_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE2 );
+			
+			$hologram1_1_anchor.move(EAST,30);
+			thread crossFadeEnt( $hologram1, $hologram1.getColor(), '.5 .05 0', .5);
+			thread interpolateShaderParm( $hologram1_1, 7, 0, 1, 1 );  //RGB in the red sprite round plate
+			
+			$hologram1_1.startSoundShader ("hologram_loop", SND_CHANNEL_VOICE );
+			
+			$hologram1_1_anchor.rotateOnce ( '0 0 30');
+		}
+	}
+
+	void hologram2_1 () //this is the animation that gets played when player clicks on lobby/elevators
+	{
+		if ($hologram2_1.getFloatKey ("state")==1){
+		
+			$hologram2_1.startSoundShader ("hologram_spawnout", SND_CHANNEL_VOICE );
+		
+			thread interpolateShaderParm( $hologram2_1, 7, 1, 0, .2 );	//fade out round spinny plane
+			thread crossFadeEnt( $hologram2, $hologram2.getColor(), '.15 .175 .22', 1);	//make the unselected room go back to default colors
+		
+			$hologram2_1_anchor.time(.15);
+			$hologram2_1_anchor.rotateOnce ( '0 0 -30');
+			$hologram2_1_anchor.move(NORTH,64);
+			sys.wait(.15);
+			$hologram2_1_anchor.move(WEST,40);
+			sys.wait(.15);
+			$hologram2_1_anchor.move(DOWN,44);
+			sys.wait(.15);
+			$hologram2_1.hide();
+			$hologram2_1.setKey ("state", "0");
+		} else 	{
+		$hologram2_1.show();
+		$hologram2_1.setKey ("state", "1");
+		$hologram2_1.setShaderParm(7,0);
+		$hologram2_1.setColor  (1, .1, 0);	//make little line red
+		thread crossFadeEnt( $hologram, $hologram.getColor(), '.1 .2 .2', .5);	//make the base hologram darken a little.
+		thread interpolateShaderParm( $hologram, 5, 1, .35, .5 ); //make the base hologram's matrix effect go darker.
+		thread crossFadeEnt( $hologram1, $hologram1.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram2, $hologram2.getColor(), '1 .1 0', .5);	//make selected room go red.
+		thread crossFadeEnt( $hologram3, $hologram3.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram4, $hologram4.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram5, $hologram5.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		
+		$hologram2_1.startSoundShader ("hologram_spawn", SND_CHANNEL_VOICE );
+		
+		thread interpolateShaderParm( $hologram2_1, 3, 0, 100, .1 ); //RGB in red boxes
+		thread interpolateShaderParm( $hologram2_1, 4, 10, 1, 1 ); //scale up the sides of red boxes
+		thread interpolateShaderParm( $hologram2_1, 5, 10, 1, 1 ); //scale up round plane
+		sys.wait (.7);
+		thread interpolateShaderParm( $hologram2_1, 6, 1, 0, 2 ); //RGB out round spinny plane
+		thread interpolateShaderParm( $hologram2_1, 3, 1, 0, 1 );  //RGB out red boxes
+		sys.wait(1);
+
+		$hologram2_1_anchor.time(1);
+		$hologram2_1_anchor.accelTime(.4);
+		$hologram2_1_anchor.decelTime(.4);
+		$hologram2_1_anchor.move(UP,44);
+		$hologram2_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		
+		sys.wait(1);
+		$hologram2_1_anchor.move(EAST,40);
+		$hologram2_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		sys.wait(1);
+		$hologram2_1_anchor.move(SOUTH,64);
+		$hologram2_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE2 );
+		thread crossFadeEnt( $hologram2, $hologram2.getColor(), '.5 .05 0', .5);
+		thread interpolateShaderParm( $hologram2_1, 7, 0, 1, 1 );  //RGB in the red sprite round plate
+		
+		$hologram2_1.startSoundShader ("hologram_loop", SND_CHANNEL_VOICE );
+		$hologram2_1_anchor.rotateOnce ( '0 0 30');
+		}
+	}
+
+
+	void hologram3_1 () //this is the animation that gets played when player clicks on Control Center
+	{
+		if ($hologram3_1.getFloatKey ("state")==1){
+			
+			$hologram3_1.startSoundShader ("hologram_spawnout", SND_CHANNEL_VOICE );
+			
+			thread interpolateShaderParm( $hologram3_1, 7, 1, 0, .2 );	//fade out round spinny plane
+			thread crossFadeEnt( $hologram3, $hologram3.getColor(), '.15 .175 .22', 1);	//make the unselected room go back to default colors
+		
+			$hologram3_1_anchor.time(.15);
+			$hologram3_1_anchor.rotateOnce ( '0 0 -30');
+			$hologram3_1_anchor.move(NORTH,108);
+			sys.wait(.15);
+			$hologram3_1_anchor.move(WEST,36);
+			sys.wait(.15);
+			$hologram3_1_anchor.move(DOWN,36);
+			sys.wait(.15);
+			$hologram3_1.hide();
+			$hologram3_1.setKey ("state", "0");
+		} else 	{
+		$hologram3_1.show();
+		$hologram3_1.setKey ("state", "1");
+		$hologram3_1.setShaderParm(7,0);
+		$hologram3_1.setColor  (1, .1, 0);	//make little line red
+		thread crossFadeEnt( $hologram, $hologram.getColor(), '.1 .2 .2', .5);	//make the base hologram darken a little.
+		thread interpolateShaderParm( $hologram, 5, 1, .35, .5 ); //make the base hologram's matrix effect go darker.
+		thread crossFadeEnt( $hologram1, $hologram1.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram2, $hologram2.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram3, $hologram3.getColor(), '1 .1 0', .5);	//make selected room go red.
+		thread crossFadeEnt( $hologram4, $hologram4.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram5, $hologram5.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		
+		$hologram3_1.startSoundShader ("hologram_spawn", SND_CHANNEL_VOICE );
+		
+		thread interpolateShaderParm( $hologram3_1, 3, 0, 100, .1 ); //RGB in red boxes
+		thread interpolateShaderParm( $hologram3_1, 4, 10, 1, 1 ); //scale up the sides of red boxes
+		thread interpolateShaderParm( $hologram3_1, 5, 10, 1, 1 ); //scale up round plane
+		sys.wait (.7);
+		thread interpolateShaderParm( $hologram3_1, 6, 1, 0, 2 ); //RGB out round spinny plane
+		thread interpolateShaderParm( $hologram3_1, 3, 1, 0, 1 );  //RGB out red boxes
+		sys.wait(1);
+
+		$hologram3_1_anchor.time(1);
+		$hologram3_1_anchor.accelTime(.4);
+		$hologram3_1_anchor.decelTime(.4);
+		$hologram3_1_anchor.move(UP,36);
+		$hologram3_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		sys.wait(1);
+		$hologram3_1_anchor.move(EAST,36);
+		$hologram3_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		sys.wait(1);
+		$hologram3_1_anchor.move(SOUTH,108);
+		$hologram3_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE2 );
+		thread crossFadeEnt( $hologram3, $hologram3.getColor(), '.5 .05 0', .5);
+		thread interpolateShaderParm( $hologram3_1, 7, 0, 1, 1 );  //RGB in the red sprite round plate
+		$hologram3_1.startSoundShader ("hologram_loop", SND_CHANNEL_VOICE );
+		$hologram3_1_anchor.rotateOnce ( '0 0 30');
+		}
+	}
+
+		void hologram4_1 () //this is the animation that gets played when player clicks on Control Center
+	{
+		if ($hologram4_1.getFloatKey ("state")==1){
+			
+			$hologram4_1.startSoundShader ("hologram_spawnout", SND_CHANNEL_VOICE );
+			
+			thread interpolateShaderParm( $hologram4_1, 7, 1, 0, .2 );	//fade out round spinny plane
+			thread crossFadeEnt( $hologram4, $hologram4.getColor(), '.15 .175 .22', 1);	//make the unselected room go back to default colors
+		
+			$hologram4_1_anchor.time(.15);
+			$hologram4_1_anchor.rotateOnce ( '0 0 -30');
+			$hologram4_1_anchor.move(NORTH,200);
+			sys.wait(.15);
+			$hologram4_1_anchor.move(WEST,40);
+			sys.wait(.15);
+			$hologram4_1_anchor.move(DOWN,40);
+			sys.wait(.15);
+			$hologram4_1.hide();
+			$hologram4_1.setKey ("state", "0");
+		} else 	{
+		$hologram4_1.show();
+		$hologram4_1.setKey ("state", "1");
+		$hologram4_1.setShaderParm(7,0);
+		$hologram4_1.setColor  (1, .1, 0);	//make little line red
+		thread crossFadeEnt( $hologram, $hologram.getColor(), '.1 .2 .2', .5);	//make the base hologram darken a little.
+		thread interpolateShaderParm( $hologram, 5, 1, .35, .5 ); //make the base hologram's matrix effect go darker.
+		thread crossFadeEnt( $hologram1, $hologram1.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram2, $hologram2.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram3, $hologram3.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram4, $hologram4.getColor(), '1 .1 0', .5);	//make selected room go red.
+		thread crossFadeEnt( $hologram5, $hologram5.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		
+		$hologram4_1.startSoundShader ("hologram_spawn", SND_CHANNEL_VOICE );
+		
+		thread interpolateShaderParm( $hologram4_1, 3, 0, 100, .1 ); //RGB in red boxes
+		thread interpolateShaderParm( $hologram4_1, 4, 10, 1, 1 ); //scale up the sides of red boxes
+		thread interpolateShaderParm( $hologram4_1, 5, 10, 1, 1 ); //scale up round plane
+		sys.wait (.7);
+		thread interpolateShaderParm( $hologram4_1, 6, 1, 0, 2 ); //RGB out round spinny plane
+		thread interpolateShaderParm( $hologram4_1, 3, 1, 0, 1 );  //RGB out red boxes
+		
+		
+		sys.wait(1);
+
+		$hologram4_1_anchor.time(1);
+		$hologram4_1_anchor.accelTime(.4);
+		$hologram4_1_anchor.decelTime(.4);
+		$hologram4_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		$hologram4_1_anchor.move(UP,40);
+		sys.wait(1);
+		$hologram4_1_anchor.move(EAST,40);
+		$hologram4_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		sys.wait(1);
+		$hologram4_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE2 );
+		$hologram4_1_anchor.move(SOUTH,200);
+		thread crossFadeEnt( $hologram4, $hologram4.getColor(), '.5 .05 0', .5);
+		thread interpolateShaderParm( $hologram4_1, 7, 0, 1, 1 );  //RGB in the red sprite round plate
+		$hologram4_1.startSoundShader ("hologram_loop", SND_CHANNEL_VOICE );
+		$hologram4_1_anchor.rotateOnce ( '0 0 30');
+		}
+	}
+
+	void hologram5_1 () //this is the animation that gets played when player clicks on Control Center
+	{
+		if ($hologram5_1.getFloatKey ("state")==1){
+			$hologram5_1.startSoundShader ("hologram_spawnout", SND_CHANNEL_VOICE );
+			thread interpolateShaderParm( $hologram5_1, 7, 1, 0, .2 );	//fade out round spinny plane
+			thread crossFadeEnt( $hologram5, $hologram5.getColor(), '.15 .175 .22', 1);	//make the unselected room go back to default colors
+		
+			$hologram5_1_anchor.time(.15);
+			$hologram5_1_anchor.rotateOnce ( '0 0 -30');
+			$hologram5_1_anchor.move(NORTH,96);
+			sys.wait(.15);
+			$hologram5_1_anchor.move(EAST,88);
+			sys.wait(.15);
+			$hologram5_1_anchor.move(DOWN,36);
+			sys.wait(.15);
+			$hologram5_1.hide();
+			$hologram5_1.setKey ("state", "0");
+		} else 	{
+		$hologram5_1.show();
+		$hologram5_1.setKey ("state", "1");
+		$hologram5_1.setShaderParm(7,0);
+		$hologram5_1.setColor  (1, .1, 0);	//make little line red
+		thread crossFadeEnt( $hologram, $hologram.getColor(), '.1 .2 .2', .5);	//make the base hologram darken a little.
+		thread interpolateShaderParm( $hologram, 5, 1, .35, .5 ); //make the base hologram's matrix effect go darker.
+		thread crossFadeEnt( $hologram1, $hologram1.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram2, $hologram2.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram3, $hologram3.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram4, $hologram4.getColor(), '.15 .175 .22', .5);	//make unselected room darken.
+		thread crossFadeEnt( $hologram5, $hologram5.getColor(), '1 .1 0', .5);	//make selected room go red.
+		
+		$hologram5_1.startSoundShader ("hologram_spawn", SND_CHANNEL_VOICE );
+		
+		thread interpolateShaderParm( $hologram5_1, 3, 0, 100, .1 ); //RGB in red boxes
+		thread interpolateShaderParm( $hologram5_1, 4, 10, 1, 1 ); //scale up the sides of red boxes
+		thread interpolateShaderParm( $hologram5_1, 5, 10, 1, 1 ); //scale up round plane
+		sys.wait (.7);
+		thread interpolateShaderParm( $hologram5_1, 6, 1, 0, 2 ); //RGB out round spinny plane
+		thread interpolateShaderParm( $hologram5_1, 3, 1, 0, 1 );  //RGB out red boxes
+		sys.wait(1);
+
+		$hologram5_1_anchor.time(1);
+		$hologram5_1_anchor.accelTime(.4);
+		$hologram5_1_anchor.decelTime(.4);
+		$hologram4_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		$hologram5_1_anchor.move(UP,36);
+		sys.wait(1);
+		$hologram5_1_anchor.move(WEST,88);
+		$hologram4_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE );
+		sys.wait(1);
+		$hologram5_1_anchor.move(SOUTH,96);
+		$hologram4_1.startSoundShader ("hologram_movement", SND_CHANNEL_VOICE2 );
+		thread crossFadeEnt( $hologram5, $hologram5.getColor(), '.5 .05 0', .5);
+		thread interpolateShaderParm( $hologram5_1, 7, 0, 1, 1 );  //RGB in the red sprite round plate
+		$hologram5_1.startSoundShader ("hologram_loop", SND_CHANNEL_VOICE );
+		$hologram5_1_anchor.rotateOnce ( '0 0 30');
+		}
+	}
+
+	void hologram_turnon ()//this is what's called when the hologram projector's turned on, and brings all the rooms in.
+	{
+		thread hologram_start ();
+		sys.wait(1.5);
+		thread hologram1_start ();
+		sys.wait(.5);
+		thread hologram2_start ();
+		sys.wait(.5);
+		thread hologram3_start ();
+		thread hologram4_start ();
+		thread hologram5_start ();
+	}
+	
+	void hologram_selection_1()
+	{
+		if ($hologram1_1.getFloatKey ("state")==1){
+			thread hologram1_1();
+		}
+		if ($hologram2_1.getFloatKey ("state")==1){
+			thread hologram2_1();
+		}
+		if ($hologram3_1.getFloatKey ("state")==1){
+			thread hologram3_1();
+		}
+		if ($hologram4_1.getFloatKey ("state")==1){
+			thread hologram4_1();
+		}
+		if ($hologram5_1.getFloatKey ("state")==1){
+			thread hologram5_1();
+		}
+		{
+			thread hologram1_1();
+		}
+	}
+
+	void hologram_selection_2()
+	{
+		if ($hologram1_1.getFloatKey ("state")==1){
+			thread hologram1_1();
+		}
+		if ($hologram2_1.getFloatKey ("state")==1){
+			thread hologram2_1();
+		}
+		if ($hologram3_1.getFloatKey ("state")==1){
+			thread hologram3_1();
+		}
+		if ($hologram4_1.getFloatKey ("state")==1){
+			thread hologram4_1();
+		}
+		if ($hologram5_1.getFloatKey ("state")==1){
+			thread hologram5_1();
+		}
+		{
+			thread hologram2_1();
+		}
+	}
+
+	void hologram_selection_3()
+	{
+		if ($hologram1_1.getFloatKey ("state")==1){
+			thread hologram1_1();
+		}
+		if ($hologram2_1.getFloatKey ("state")==1){
+			thread hologram2_1();
+		}
+		if ($hologram3_1.getFloatKey ("state")==1){
+			thread hologram3_1();
+		}
+		if ($hologram4_1.getFloatKey ("state")==1){
+			thread hologram4_1();
+		}
+		if ($hologram5_1.getFloatKey ("state")==1){
+			thread hologram5_1();
+		}
+		{
+			thread hologram3_1();
+		}
+	}
+
+	void hologram_selection_4()
+	{
+		if ($hologram1_1.getFloatKey ("state")==1){
+			thread hologram1_1();
+		}
+		if ($hologram2_1.getFloatKey ("state")==1){
+			thread hologram2_1();
+		}
+		if ($hologram3_1.getFloatKey ("state")==1){
+			thread hologram3_1();
+		}
+		if ($hologram4_1.getFloatKey ("state")==1){
+			thread hologram4_1();
+		}
+		if ($hologram5_1.getFloatKey ("state")==1){
+			thread hologram5_1();
+		}
+		{
+			thread hologram4_1();
+		}
+	}
+
+	void hologram_selection_5()
+	{
+		if ($hologram1_1.getFloatKey ("state")==1){
+			thread hologram1_1();
+		}
+		if ($hologram2_1.getFloatKey ("state")==1){
+			thread hologram2_1();
+		}
+		if ($hologram3_1.getFloatKey ("state")==1){
+			thread hologram3_1();
+		}
+		if ($hologram4_1.getFloatKey ("state")==1){
+			thread hologram4_1();
+		}
+		if ($hologram5_1.getFloatKey ("state")==1){
+			thread hologram5_1();
+		}
+		{
+			thread hologram5_1();
+		}
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	break the platform leading to the reactor
+	//
+	////////////////////////////////////////////////////
+	void rplatform_break()
+	{
+		//first move down
+		$rplatform.time ( 2.5 );
+		$rplatform.accelTime ( .5 );
+		$rplatform.decelTime ( 0 );
+		sys.trigger ($lspeaker_1);
+		$rplatform.move ( DOWN, 126 );
+
+		sys.waitFor ($rplatform);
+
+		//bounce a bit or something
+		sys.trigger ($broke_spark);
+		$al3_platform_break.time ( .2 );
+		$al3_platform_break.accelTime ( .2 );
+		$al3_platform_break.decelTime ( 0 );
+		$al3_platform_break.move ( UP, 6 );
+
+		sys.waitFor ($rplatform);
+
+		$rplatform.time ( .2 );
+		$rplatform.accelTime ( 0 );
+		$rplatform.decelTime ( .2 );
+		$rplatform.move ( DOWN, 8 );
+
+		//rotate a about 24 degrees
+		$rplatform.time ( .5 );
+		$rplatform.accelTime ( .5 );
+		$rplatform.decelTime ( 0 );
+		$rplatform.rotateOnce ( '5 5 24' );
+		sys.trigger ($broke_spark);
+
+		sys.waitFor ($rplatform);
+
+		$rplatform.time ( .1 );
+		$rplatform.accelTime ( .1 );
+		$rplatform.decelTime ( 0 );
+		$rplatform.rotateOnce ( '1 0 0' );
+		sys.trigger ($broke_spark);
+
+		sys.waitFor ($rplatform);
+
+		$rplatform.rotateOnce ( '-1 0 0' );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Corpse Move - quick move of deadbody 
+	//
+	////////////////////////////////////////////////////
+	void corpse_move()
+	{
+		spooky_sound_3();
+
+		$corpse_mover2.time (.4);
+		$corpse_mover2.accelTime (0);
+		$corpse_mover2.decelTime (0);
+
+		$corpse_mover2.moveTo ( $corpse_mover2_movepoint );
+		$corpse_mover2.rotateOnce ( '0 45 0' );
+		sys.waitFor ($corpse_mover2);
+		$corpse2.unbind();
+
+		sys.trigger ( $breakglass );
+		sys.trigger ( $func_fracture_2 );
+
+		sys.wait (.5);
+		sys.trigger ( $speaker_glassbreak );
+
+		sys.wait (2);
+		sys.trigger ( $speaker_tilefall2 );
+		sys.trigger ($spooky_tilefall2);
+			
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	spectrum hallway
+	//
+	////////////////////////////////////////////////////
+	void spectrum_move() {
+		sys.trigger ( $spectrum_speaker1 );
+        $spectrumlight_mover.time( 3 );
+		$spectrumlight_mover.accelTime( 0 );
+		$spectrumlight_mover.decelTime( 0 );
+		$spectrumlight_mover.startSpline( $spectrum_spline );
+
+		sys.waitFor($spectrumlight_mover);
+		//sys.wait(3);
+		//$spectrumlight_mover.removeInitialSplineAngles();
+
+		$spectrumlight_mover.remove();
+		sys.trigger ( $spectrum_speaker1 );
+		$spectrum_speaker1.remove();
+		$speclight1.remove();
+		$speclight2.remove();
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	bang tile moves 
+	//
+	//	moves the two tiles when the big bang happens
+	//	in the crawlspace before datalinker
+	//
+	////////////////////////////////////////////////////
+	void bang_tiles()
+	{
+		//set moves times for the two tiles
+		$bang_tile1.time (.5);
+		$bang_tile1.accelTime (.5);
+		$bang_tile1.decelTime (0);
+
+		$bang_tile2.time (.5);
+		$bang_tile2.accelTime (.5);
+		$bang_tile2.decelTime (0);
+
+		$bang_tile1.rotateOnce ( '1 0 -2' );
+		$bang_tile2.rotateOnce ( '2 0 3' );
+	}
+
+
+	////////////////////////////////////////////////////
+	//
+	//	Corpse pullunder
+	//
+	////////////////////////////////////////////////////
+	void corpse_pullunder()
+	{
+		$corpse_mover3.time (1.25);
+		$corpse_mover3.accelTime (.5);
+		$corpse_mover3.decelTime (0);
+
+		$corpse_mover3.moveTo ( $corpse_mover3_movepoint );
+		sys.waitFor ($corpse_mover3);
+		
+		$corpse3.unbind();
+		$corpse_mover3.remove ();
+		$corpse3.remove ();
+	}
+
+
+	void fade_clop_sound ()
+	{
+		$clop_speaker.fadeSound ( SND_CHANNEL_ANY, -60, 30 );
+	}
+
+	
+	void cache_sounds() {
+		sys.cacheSoundShader ("hologram_datalinker");		
+		sys.cacheSoundShader ("hologram_spawnout");	
+		sys.cacheSoundShader ("hologram_spawn");
+		sys.cacheSoundShader ("hologram_movement");
+		sys.cacheSoundShader ("hologram_loop");
+	}
+		
+	////////////////////////////////////////////////////
+	//
+	//	Main
+	//
+	////////////////////////////////////////////////////
+	void main() 
+	{
+		thread cache_sounds();
+		init_world();
+		power_level_0();
+	}
+}

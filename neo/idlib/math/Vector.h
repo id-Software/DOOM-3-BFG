@@ -70,6 +70,7 @@ public:
 	float			operator*( const idVec2& a ) const;
 	idVec2			operator*( const float a ) const;
 	idVec2			operator/( const float a ) const;
+	idVec2			operator/( const idVec2& a ) const;
 	idVec2			operator+( const idVec2& a ) const;
 	idVec2			operator-( const idVec2& a ) const;
 	idVec2& 		operator+=( const idVec2& a );
@@ -108,6 +109,7 @@ public:
 
 extern idVec2 vec2_origin;
 #define vec2_zero vec2_origin
+extern idVec2 vec2_one;
 
 ID_INLINE idVec2::idVec2()
 {
@@ -286,6 +288,11 @@ ID_INLINE idVec2 idVec2::operator/( const float a ) const
 	return idVec2( x * inva, y * inva );
 }
 
+ID_INLINE idVec2 idVec2::operator/( const idVec2& a ) const
+{
+	return idVec2( x / a.x, y / a.y );
+}
+
 ID_INLINE idVec2 operator*( const float a, const idVec2 b )
 {
 	return idVec2( b.x * a, b.y * a );
@@ -357,6 +364,12 @@ ID_INLINE float* idVec2::ToFloatPtr()
 	return &x;
 }
 
+ID_INLINE idVec2& operator/( float lhs, idVec2& rhs )
+{
+	rhs.x = lhs / rhs.x;
+	rhs.y = lhs / rhs.y;
+	return rhs;
+}
 
 //===============================================================
 //
@@ -451,6 +464,7 @@ public:
 
 extern idVec3 vec3_origin;
 #define vec3_zero vec3_origin
+extern idVec3 vec3_one;
 
 ID_INLINE idVec3::idVec3()
 {
@@ -963,6 +977,14 @@ ID_INLINE bool idVec3::ProjectAlongPlane( const idVec3& normal, const float epsi
 	return true;
 }
 
+ID_INLINE idVec3& operator/( float lhs, idVec3& rhs )
+{
+	rhs.x = rhs.x / lhs;
+	rhs.y = rhs.y / lhs;
+	rhs.z = rhs.z / lhs;
+	return rhs;
+}
+
 //===============================================================
 //
 //	idTupleSize< idVec3 > - Specialization to get the size
@@ -1046,6 +1068,7 @@ public:
 
 extern idVec4 vec4_origin;
 #define vec4_zero vec4_origin
+extern idVec4 vec4_one;
 
 ID_INLINE void idVec4::Set( const float x, const float y, const float z, const float w )
 {
@@ -1757,6 +1780,14 @@ ID_INLINE idVec3 idPolar3::ToVec3() const
 	return idVec3( cp * radius * ct, cp * radius * st, radius * sp );
 }
 
+namespace VectorUtil
+{
+inline uint32_t Vec4ToColorInt( const idVec4& vec )
+{
+	idVec4 vecCopy = 255.0f * vec;
+	return ( ( uint32_t )vecCopy[0] << 28 ) | ( ( uint32_t )vecCopy[1] << 20 ) | ( ( uint32_t )vecCopy[2] << 12 ) | ( uint32_t )vecCopy[3];
+}
+}
 
 /*
 ===============================================================================

@@ -1,0 +1,17 @@
+textures/xskies/xsky
+
+ {
+	description "monotone sky color"
+	noFragment
+	noshadows
+	nooverlays
+	forceOpaque
+
+	qer_editorimage textures/xskies/xsky
+
+	
+	{
+		blend		add
+		map	textures/xskies/xsky
+	}
+}

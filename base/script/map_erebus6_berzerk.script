@@ -1,0 +1,69 @@
+namespace map_erebus6_berzerk
+{
+
+	void monogui_start() {
+		$ber_guistation.guiNamedEvent( 1, "start" );
+	}
+
+	void HideGuiModel()
+	{
+		$ber_guistation.hide();
+	}
+
+	void ShowGuiModel()
+	{
+		$ber_guistation.show();
+	}
+
+	void SetHunterEnemy()
+	{
+		$hunter_berzerk.setEnemy($player1);
+	}
+
+	void LightFlicker()
+	{
+//		sys.print("HEY SUCKAS!");
+		$ber_lightleft.Off();
+		$ber_lightright.Off();
+		$sys.wait(.2);
+		$ber_lightleft.On();
+		$ber_lightright.On();
+		$sys.wait(.1);
+		$ber_lightleft.Off();
+		$ber_lightright.Off();
+		$sys.wait(.1);
+		$ber_lightleft.On();
+		$ber_lightright.On();
+		$sys.wait(.2);
+		$ber_lightleft.Off();
+		$ber_lightright.Off();
+		$sys.wait(.4);
+		$ber_lightleft.On();
+		$ber_lightright.On();
+		$sys.wait(.2);
+		$ber_lightleft.Off();
+		$ber_lightright.Off();
+		$sys.wait(.1);
+		$ber_lightleft.On();
+		$ber_lightright.On();
+		$sys.wait(.2);
+		$ber_lightleft.Off();
+		$ber_lightright.Off();
+		$sys.wait(.2);
+		$ber_lightleft.On();
+		$ber_lightright.On();
+	}
+	void IntroInfluence()
+	{
+//		sys.print("HEY SUCKAS!");
+		sys.trigger( $ber_intro_influence );
+		sys.trigger( $bh_sound1 );
+		sys.wait( 3 );
+		sys.trigger( $bh_sound1 );
+	}
+
+	void StartBerserkDeathBurn() {
+		$ber_monster_hunter_berzerk_end.setShaderParm(7, sys.getTime());
+		$ber_monster_hunter_berzerk_end.setSkin("skins/monsters/hunter_berserk/burnaway");
+	}
+}

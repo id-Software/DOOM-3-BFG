@@ -33,6 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
+#endif
+
 /*
 ===================
 R_ListRenderLightDefs_f
@@ -1083,16 +1088,28 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 
 	int windowWidth = tr.GetWidth();
 	int windowHeight = tr.GetHeight();
-	tr.PerformResolutionScaling( windowWidth, windowHeight );
 
-	// screenFraction is just for quickly testing fill rate limitations
-	if( r_screenFraction.GetInteger() != 100 )
+	if( parms->renderView.rdflags & RDF_IRRADIANCE )
 	{
-		windowWidth = ( windowWidth * r_screenFraction.GetInteger() ) / 100;
-		windowHeight = ( windowHeight * r_screenFraction.GetInteger() ) / 100;
+		windowWidth = ENVPROBE_CAPTURE_SIZE;
+		windowHeight = ENVPROBE_CAPTURE_SIZE;
+
+		tr.CropRenderSize( 0, 0, windowWidth, windowHeight, true );
+		tr.GetCroppedViewport( &parms->viewport );
 	}
-	tr.CropRenderSize( windowWidth, windowHeight );
-	tr.GetCroppedViewport( &parms->viewport );
+	else
+	{
+		tr.PerformResolutionScaling( windowWidth, windowHeight );
+
+		// screenFraction is just for quickly testing fill rate limitations
+		if( r_screenFraction.GetInteger() != 100 )
+		{
+			windowWidth = ( windowWidth * r_screenFraction.GetInteger() ) / 100;
+			windowHeight = ( windowHeight * r_screenFraction.GetInteger() ) / 100;
+		}
+		tr.CropRenderSize( windowWidth, windowHeight );
+		tr.GetCroppedViewport( &parms->viewport );
+	}
 
 	// the scissor bounds may be shrunk in subviews even if
 	// the viewport stays the same
@@ -1966,6 +1983,10 @@ void idRenderWorldLocal::GenerateAllInteractions()
 	int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
 	interactionTable = ( idInteraction** )R_ClearedStaticAlloc( size );
 
+#if defined( USE_NVRHI )
+	tr.commandList->open();
+#endif
+
 	// iterate through all lights
 	int	count = 0;
 	for( int i = 0; i < this->lightDefs.Num(); i++ )
@@ -2012,12 +2033,17 @@ void idRenderWorldLocal::GenerateAllInteractions()
 				count++;
 
 				// the interaction may create geometry
-				inter->CreateStaticInteraction();
+				inter->CreateStaticInteraction( tr.commandList );
 			}
 		}
 
 		session->Pump();
 	}
+
+#if defined( USE_NVRHI )
+	tr.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.commandList );
+#endif
 
 	int end = Sys_Milliseconds();
 	int	msec = end - start;

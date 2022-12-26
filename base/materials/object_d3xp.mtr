@@ -1,0 +1,27 @@
+textures/object/offlocker1side_spooked
+{
+	ricochet
+	qer_editorimage		textures/object/offlocker1side.tga
+	bumpmap			textures/object/offlocker1side_local.tga
+	diffusemap		textures/object/offlocker1side_d.tga
+	specularmap		textures/object/offlocker1side_s.tga
+}
+
+
+textures/object/a_offlocker1_d02_spooked
+{
+	ricochet
+	qer_editorimage		textures/object/a_offlocker1_d02.tga
+	bumpmap			addnormals (textures/object/a_offlocker1_local2.tga, heightmap (textures/object/a_offlocker1_b02.tga, 2 ) ) 
+	diffusemap		      textures/object/a_offlocker1_d02.tga
+	specularmap		      textures/object/a_offlocker1_s02.tga
+}
+
+textures/base_floor/grill_floor5_spooked
+{
+	ricochet
+	qer_editorimage textures/base_floor/grill_floor5.tga
+	bumpmap		addnormals(  textures/base_floor/grill_floor3_local.tga, heightmap(  textures/base_floor/grill_floor5_b.tga, 5 ) )
+	diffusemap	textures/base_floor/grill_floor5_d.tga
+	specularmap	textures/base_floor/grill_floor5_s.tga
+}

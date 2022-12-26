@@ -15,6 +15,377 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
+TBD - RBDOOM-3-BFG 1.5.0
+_______________________________
+
+
+## .plan - Dec 22, 2022
+
+This build adds several glTF2 importer options so you can use typical rigs like for UE4/Mixamo or Unity.
+
+Special thanks to Harrie van Ginneken for the new options.
+
+Here is an example model definition:
+
+```
+model character_mcneil
+{
+	options -scale 39.37 -addorigin -transfermotion "pelvis"
+	
+	mesh models/characters/mcneil/mcneil.root.glb
+	
+	channel legs ( origin *pelvis *foot_l *foot_r)
+	
+	anim walk models/characters/mcneil/mcneil.Walk.glb
+	anim idle models/characters/mcneil/mcneil.Idle.glb
+}
+```
+
+Changelog:
+
+* Added -reorient <angles> option to gltf model import
+
+* Added -addorigin option to gltf model import
+
+* Added -transfermotion option to gltf model import
+
+* Added -armature <name> option to gltf model import for the case if your model is not directly parented to an armature
+
+* Fixed loading animations when the armatures option is not used
+
+* Fixes loading animations from different GLTF files
+
+* Fixes regenerating bMD5Anim from GLTF animation when source is newer than binary
+
+* Allowing binding of asset library instances in gltf scenes.
+
+* Don't crash when trying to load an animation from and GLB does not match last loaded model glb
+
+* Root motion transfer fixes.
+
+* Make missing joints on player model non-fatal in the game code
+
+* Make CheckModelHierachy non-fatal in the game code
+
+
+## .plan - Nov 20, 2022
+
+This build based on the 635-nvrhi5 branch allows to play the game with the NVRHI Vulkan backend.
+You can switch to Vulkan by starting the engine with +set r_graphicsAPI vulkan.
+
+Also this build is for testing Vulkan it seems that the current changes make RBDOOM-3-BFG the fastest version ever with DX12.
+
+Special thanks to Steven Pridham and Steve Saunders to get this running on Linux and macOS.
+
+For the overall NVRHI state see the task board: https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects/8
+
+Besides that TrenchBroomBFG comes with a few fixes. The icon size option also affects the entity inspector now which helps with high resolutions.
+Also the DOOM-3-all.fgd contains all generated static meshes so you can drag n drop meshes into your map without the models zoomap.
+
+Changelog:
+
+* Write constant buffers if changed or layout changed
+
+* Move nvrhi::Device->waitForIdle() back to GL_BlockingSwapBuffers()
+
+* Always write the constant buffer -> BAD but works
+
+* Update the render state whenever the constant buffer is written to
+
+* Invalid binding set cache if either vertex data or joint data changes
+
+* Update NVRHI submodule
+
+* Update map buffer calls
+
+* Update to make it easier to switch constant buffer usage
+
+* Allow buffer ranges for constant buffers
+
+* Fix VK descriptor set slot for motionBlur shader
+
+* Replaced std::min/max with Min/Max
+
+* Merge branch '721-gltf2-cameras' into 705-gltf2-import-options
+
+* Added idMat4::GetTranslation() and some comments
+
+* HarrievG: [glTF2] Corrected Spot light transforms
+
+* HarrievG: [glTF2] Fixed runtime reloading for gltf models
+
+* Passed idImportOptions along the animations loader code
+
+* Apply import options to glTF2 models (WIP)
+
+* Little cleanup of the glTF2 code
+
+* Use fixed size (-8 -8 0, 8 8 16) bounds for all model based entities for TB
+
+* Added TrenchBroom FGD files
+
+* exportFGD proxymodel fix
+
+
+TrenchBroomBFG Changelog:
+
+* Updated DOOM-3-all.fgd to contain all genmodel entities generated from static meshes
+
+* func_door FGD fix
+
+* Use Icon size preferences in entity browser
+
+* FGD proxymodel evaluation fix #4052
+
+
+
+## .plan - Oct 29, 2022
+
+This build based on the 635-nvrhi3 branch fixes several issues with the dmap glTF2 workflow and updates TrenchBroomBFG to the latest TrenchBroom 2022.2 RC2 candidate code.
+
+Changelog:
+
+* Inline support for gltf maps; Add "inline" "0" property to a func_static to not inlude it in the map BSP. Defaults to 1 if not set.
+
+* Recursive Entity/Collection support for glTF2 maps
+
+* KHR_lights_punctual point & spot light support
+
+TrenchBroomBFG Changelog:
+
+* Fixed missing support for the basecolormap shortcut in .mtr files
+
+Changelog (since TrenchBroom 2022.1)
+Features
+
+    #3449, #2628, #719: Add support for modern model formats via the assimp library (@EludeQ)
+
+Enhancements
+
+    #4078: Allow texture reset shortcut in 2D views
+    #4059: Allow texture nudging etc. on a shift-clicked face while in vertex, edge or face mode
+
+Bug fixes
+
+    #4045: Don't crash when showing a file dialog on Linux
+    #4038: Repair model expressions that reference a non-existing spawnflags property
+    #4051: Disallow adding entity property if it leads to inconsistent linked group updates
+    #4059: Don't crash if linked groups temporarily exceed world bounds during update
+    #4089: Fix shortcuts sometimes not working
+    #4113: Don't move unrelated objects when creating a point entity
+    #4125: Don't render hidden patches
+    #4100: Don't hang if a brush cannot be loaded
+
+
+
+
+## .plan - Oct 20, 2022
+
+This build based on the 635-nvrhi3 branch fixes several issues in the AAS builder with the dmap glTF2 workflow.
+
+Changelog:
+
+* Removal of backface generation in idAASBuild for polygon meshes
+
+* Fixed dmap crash while trying to merge leaf nodes
+
+* Add move semantics to idList and idStr (thanks Admer)
+	* idListArrayResize uses std::move
+	* idStr implements move constructor
+	* and move operator
+	* mpMap_t also implements a move operator
+
+* Fix snprintf() buffer length issues for Doom Classic on Linux with GCC 12 compiler
+
+
+
+
+## .plan - Oct 1, 2022
+
+This build based on the 635-nvrhi3 branch repairs the loading of animated glTF2 models (thanks to Harrie van Ginneken) and an updated version of TrenchBroom.
+All models need to be reexported by Blender using the enabled +Y Up option.
+
+Models are expected to be exported by Blender with the following settings:
+
+```
+Format: glTF Binary (.glb)
+Transform: +Y Up On
+Materials: Export
+Images: None
+Compression: Off
+Data: Custom Properties On
+Animation: Animation On, Shape Keys On, Skinning On
+```
+
+Changelog:
+
+* Added new Imgui Aritulated Figure editor by Stephen Pridham (forgot to mention this in the last Changelog)
+
+* Fixed math problem and transposed idMat4::ToMat3()
+
+* Repaired glTF2 skeletal animations for the Y-Up case
+
+* Fixed glTF2 boneless TRS animations
+
+* Fixed dmap .glb world+entity geom for the Y-Up case
+
+* Renormalize normals & tangents from dmap .glb import
+
+* Fixed random Unknown punctuation error while loading a glTF2 model
+
+* Transform entity geometry for dmap -glview .obj output into world space
+
+* Moved BSP visualization into separate dmap -asciiTree option
+
+* Renamed custom TrenchBroom fork to TrenchBroomBFG
+
+* Change TrenchBroomBFG to only load Doom 3 related game profiles as it breaks compatibility to other Quake based games
+
+* TrenchBroomBFG was updated with the latest TrenchBroom/master code which involves a couple of bugfixes for linked groups (instancing)
+
+* If you turn off certain brushes like visportals in the View Options you won't accidently select by clicking to brushes behind them
+
+
+
+## .plan - Sep 25, 2022
+
+This build based on the 635-nvrhi3 branch improves the glTF2 support for mapping with Blender and adds back OGG Vorbis support for custom soundtracks.
+
+Models are expected to be exported by Blender with the following settings:
+
+Format: glTF Binary (.glb)
+Transform: +Y Up Off <-- BIG CHANGE: it was On last time
+Materials: Export
+Images: None
+Compression: Off
+Data: Custom Properties On
+
+Similar to modern Quake sourceports users can now just throw their favorite soundtrack into base/music/ like base/music/aqm/*.ogg or into a modfolder/music/ path.
+The game will play automatically it in the background as a looping track until the end of the map.
+Each map will pick a different track but mappers can also define a "music" track in the worldspawn entity.
+You can also fine tune the volume of each track if you write a sound shader for your files.
+
+There is an example in mod_alternativequakemusic/sound/_rbdoom_aqm_tracks.sndshd for the Alternative Quake Music sound track.
+
+Changelog:
+
+* Improved Quake .map converter to get Makkon's samplemaps working
+
+* Tweaked dmap -glview option to dump an .obj next to the .proc file with similar content and to print an ASCII art BSP tree in the proc file
+
+* Bumped the required C++ standard to C++14
+
+* TrenchBroom's  glTF2 support was changed to properly display models that were exported from Blender with the +Y-Up option ticked OFF
+
+* Added ancient oggvorbis code from vanilla Doom 3
+
+* Merged Ogg Vorbis support from DNF id Tech 4 branch (thanks to Justin Marshall for making .ogg working with the BFG sound engine)
+
+* Scan for music/*.ogg files and play a different track for each map
+
+* You can start the Vulkan backend with +set r_graphicsAPI Vulkan
+
+* Fixed several Vulkan related bugs like the swapchain problem. It is not playable yet
+
+* The Icedhellfire mod contains AAS files for the ROE maps
+
+## .plan - Sep 04, 2022
+
+This build based on the 635-nvrhi3 branch adds glTF2 support to RBDOOM-3-BFG and TrenchBroom.
+Big thanks to Harrie van Ginneken (VrKnight) for contributing this major feature.
+The glTF2 support doesn't rely on thirdparty loaders and is a native id Tech 4x implementation.
+
+Material names in Blender need to be 1:1 the material names defined in the corresponding materials/*.mtr files.
+
+Models are expected to be exported by Blender with the following settings:
+
+Format: glTF Binary (.glb)
+Transform: +Y Up
+Materials: Export
+Images: None
+Compression: Off
+Data: Custom Properties On
+
+Changelog:
+
+* Added glTF2 model loader for static and animated models
+
+* Changed dmap to support compiling maps from gtTF2 .glb models instead of .map files
+
+* Added support for MapPolygonMeshes to the AAS compiler
+
+* TrenchBroom uses Assimp for glTF2 support and is based on branch doom3-support9 using TB/master from Jul 06, 2022
+
+This build also gives a preview of the Iced Hellfire Mod by Justin Marshall (icecoldduke):
+It features native weapon and monster AI implementations in C++ and Quake 3 multiplayer bots.
+I added a couple of bugfixes and compiled the deathmatch maps with runAAS so you can try the multiplayer bots with the "fillbots" command.
+
+The directory "mod_icedhellfire" contains the necessary updated AAS files for the multiplayer maps.
+In order to play the mod you only need to start DoomIcedHellfire.exe without extra parameters.
+
+## .plan - Jul 03, 2022
+
+This build targets several problems when using the bakeEnvironmentProbes and bakeLightGrid commands using the NVRHI/DX12 backend.
+So the commands are producing the same results as the OpenGL backend now.
+
+* Don't use TAA jitter when capturing env probes!
+
+* Always clear the envprobe FBO for lightgrid capturing
+
+* Print engine version when starting to write a qconsole.log
+
+* Fixed window icon by adding the missing doom.rc
+
+## .plan - Jun 27, 2022
+
+This build targets several problems when compiling maps with dmap and it adds GPU Skinning to the DX12 backend.
+
+* Merged GPU skinning code by SP and did additional refactoring
+
+* Don't generate collision models for every rendermodel in advance. Restored vanilla Doom 3 behaviour.
+
+* Dmap: always write a .cm file, especially when overwriting from a mod dir
+
+* Support the Valve 220 texture projection in MapPolygonMesh::ConvertFromBrush()
+
+* Automatically remove map collision .cm, .bcm files before running dmap
+
+* Crashfix: Don't refesh the screen using prints during engine shutdown
+
+## .plan - Jun 5, 2022
+
+This build targets the NVRHI/DX12 crash problems that have been reported since the last build.
+
+* Fixed rendering of FFmpeg, Binkdec videos and Doomclassic modes #648 677
+
+* Separate bind set for material textures in the light passes to avoid allocation problems #676
+
+* Fixed chromatic aberration on right/bottom screen corners
+
+## .plan - May 29, 2022
+
+This version replaces OpenGL with DX12 using the NVRHI API.
+
+NVRHI (NVIDIA Rendering Hardware Interface) is a library that implements a common abstraction layer over multiple graphics APIs (GAPIs): Direct3D 11, Direct3D 12, and Vulkan 1.2. It works on Windows (x64 only) and Linux (x64 and ARM64).
+
+The initial port to NVRHI and major work was done by Stephen Pridham. Big thanks for that!
+
+* Renderer uses DX12 instead of OpenGL. Vulkan isn't supported yet
+
+* SMAA has been replaced with a Temporal Anti Aliasing solution by Nvidia. This not only fixes geometric aliasing but also shader based aliasing like extreme specular highlights by the PBR shaders.
+
+* The MSAA option is gone for the moment
+
+* Shadow mapping uses a fat shadowmap atlas instead of switching between shadowmap buffers and the HDR render target for each light
+
+* Shaders are not compiled at runtime anymore. They are compiled in advance by CMake using the DXC shader compiler and distributed in binary form under base/renderprogs2/dxil/*.bin
+
+* All shaders have been rewritten to proper HLSL
+
+
+
+_______________________________________
+
 06 March 2022 - RBDOOM-3-BFG 1.4.0
 _______________________________
 

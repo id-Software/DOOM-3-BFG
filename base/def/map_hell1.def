@@ -1,0 +1,216 @@
+
+export james {
+
+	camera	models/monsters/guardian/cycles/guardian_intro.mb  -dest  models/md5/cinematics/hell1/guardianintro_camera
+	camera	models/monsters/guardian/cycles/death.mb  -dest  models/md5/cinematics/hell1/guardiandeath_camera
+	
+	options -prefix SC_ -keep guilight toplftnub toprtnub midnub botlftnub botrtnub
+	mesh			models/monsters/guardian/cycles/guardian_intro.mb	-dest models/md5/cinematics/hell1/guardianintro_soulcube
+	anim			models/monsters/guardian/cycles/guardian_intro.mb	-dest models/md5/cinematics/hell1/guardianintro_soulcube
+}
+
+// GUARDIAN INTRO
+
+entityDef hell1_guardianintro_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	"spawnclass"						"idCameraAnim"
+	"anim guardianintro_cam"			"models/md5/cinematics/hell1/guardianintro_camera.md5camera"
+	"cinematic"							"1"
+}
+
+entityDef hell1_guardiandeath_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	"spawnclass"						"idCameraAnim"
+	"anim guardiandeath_cam"			"models/md5/cinematics/hell1/guardiandeath_camera.md5camera"
+	"cinematic"							"1"
+}
+
+
+model hell1_cin_player {
+	mesh								models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin								skins/player/shotgun.skin
+	anim guardianintro_teleport			models/md5/cinematics/hell1/guardianintro_teleport_player.md5anim {
+		frame 324							fx fx/teleporter.fx
+	}
+}
+
+entityDef hell1_cin_player {
+	"inherit"							"cin_base"
+	"model"								"hell1_cin_player"
+	"anim"								"teleport"
+	"cinematic"							"1" 
+}
+
+
+model hell1_soulcube {
+	mesh								models/md5/cinematics/hell1/guardianintro_soulcube.md5mesh
+	anim guardianintro_soulcube			models/md5/cinematics/hell1/guardianintro_soulcube.md5anim
+}
+
+entityDef hell1_soulcube {
+	"inherit"							"cin_base"
+	"editor_mins"						"-32 -32 0"
+	"editor_maxs"						"32 32 64"
+	"model"								"hell1_soulcube"
+	"anim"								"guardianintro_soulcube"
+	"cinematic"							"1"
+}
+
+model hell1_monster_boss_guardian {
+	mesh							models/md5/monsters/guardian/guardian.md5mesh
+
+	channel legs					( *origin )
+	
+	anim death						models/md5/monsters/guardian/death.md5anim {
+		frame 1							sound_global snd_death
+		frame 61						sound_global snd_kablam
+		frame 106						sound_global hell_guardian_death_music
+		frame 110						sound_voice snd_footstep
+		frame 120						sound_voice snd_footstep
+	}
+	anim death_pose					models/md5/monsters/guardian/death_pose.md5anim
+	anim rise_from_lava				models/md5/monsters/guardian/guardian_intro.md5anim {
+		frame 50						sound_global guardian_sight2
+		frame 100						sound_body monster_demon_guardian_footstep
+		frame 125						sound_body monster_demon_guardian_footstep
+		frame 130						sound_global guardian_fire_flareup
+		frame 150						sound_body monster_demon_guardian_footstep
+		frame 175						sound_body monster_demon_guardian_footstep
+		frame 180						sound_body monster_demon_guardian_footstep
+		frame 230						sound_global guardian_sight
+		frame 297						sound_body monster_demon_guardian_rocksmash
+	}
+	anim idle						models/md5/monsters/guardian/death_pose.md5anim
+	anim lost_enemy					models/md5/monsters/guardian/death_pose.md5anim
+	anim run_right					models/md5/monsters/guardian/death_pose.md5anim	
+	anim run_attack_right			models/md5/monsters/guardian/death_pose.md5anim
+	anim run_left					models/md5/monsters/guardian/death_pose.md5anim
+	anim run_attack_left			models/md5/monsters/guardian/death_pose.md5anim
+	anim walk_right					models/md5/monsters/guardian/death_pose.md5anim
+	anim walk_left					models/md5/monsters/guardian/death_pose.md5anim
+	anim walk_attack_left			models/md5/monsters/guardian/death_pose.md5anim 
+	anim walk_attack_right			models/md5/monsters/guardian/death_pose.md5anim
+	anim range_attack1				models/md5/monsters/guardian/death_pose.md5anim
+	anim range_attack2				models/md5/monsters/guardian/death_pose.md5anim
+	anim melee_attack				models/md5/monsters/guardian/death_pose.md5anim
+	anim spawn_seeker				models/md5/monsters/guardian/death_pose.md5anim
+	anim pain 						models/md5/monsters/guardian/death_pose.md5anim
+	anim sight						models/md5/monsters/guardian/death_pose.md5anim
+	//anim af_pose					models/md5/monsters/guardian/death_pose.md5anim
+	anim ik_pose					models/md5/monsters/guardian/death_pose.md5anim
+
+}
+
+entityDef hell1_cin_guardian {
+	"scriptobject"					"monster_zombie"
+	
+	"anim"							"rise_from_lava"
+	"model"							"hell1_monster_boss_guardian"
+	"ik_numLegs"					"0"
+	"turn_rate"						"0"
+	"head_look"						"0"
+	"head_focus_rate"				"0"
+	"bone_focus"					"neck_2"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+	"look_joint spine_4"			"0 0 0"
+	"look_joint neck_2"				"0 0 0"
+
+	"editor_mins"					"-100 -100 0"
+	"editor_maxs"					"100 100 200"
+	"inherit"						"monster_default"
+	"size"							"200 200 200"
+	"use_aas"						"aas_guardian"
+	"no_idle_chatter"				"1"
+	"health"						"800"
+	"noDamage"						"1"
+	"team"							"0"
+	"rank"							"0"
+	"melee_range"					"150"
+	"def_projectile"				"projectile_guardian_smash"
+	
+	"mass"   						"1000000"
+
+	"mtr_light_shader"				"lights/lanternglow"
+	"light_radius"					"200"
+	"light_color"					"1 0.2 0"
+	"light_offset_right"			"0 32 32"
+	"light_offset_left"				"0 32 -32"
+
+	"smokeParticleSystem"			"GflameBack"
+	"smokeParticleSystem2"			"GflameRhand"
+	"smokeParticleSystem3"			"head"
+	"smokeParticleSystem4"			"GflameLHand"
+	"smokeParticleSystem5"			"tail_12"
+	"smokeParticleSystem6"			"GflameReye"
+	"smokeParticleSystem7"			"GflameLeye"
+	"smokeParticleSystem8"			"GflameNose"
+	"smokeParticleSystem9"			"tounge_2"
+
+	"ik_footSize"					"0"
+	"ik_footDownTrace"				"64"
+	"ik_waist"						"Body"
+	"ik_hip1"						"lupleg"
+	"ik_hip2"						"rupleg"
+	"ik_knee1"						"lloleg"
+	"ik_knee2"						"rloleg"
+	"ik_ankle1"						"lleg"
+	"ik_ankle2"						"rleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+	"ik_foot1"						"ik_foot1"
+	"ik_foot2"						"ik_foot2"
+
+	"snd_sight"						"monster_demon_guardian_sight"
+	"snd_chatter"					"monster_demon_guardian_chatter"
+	"snd_chatter_combat"			"monster_demon_guardian_chatter_combat"
+	"snd_pain"						"monster_demon_guardian_pain"
+	"snd_death"						"monster_demon_guardian_die"
+	"snd_footstep"					"monster_demon_guardian_footstep"
+	"snd_attack"					"monster_demon_guardian_attack"	
+	"snd_spawn_seeker"				"monster_demon_guardian_spawn"
+	"snd_kablam"					"monster_demon_guardian_death_impact"
+	
+	"def_poundgrounddamage"			"damage_guardianPoundGround"
+	"def_poundground"				"guardian_poundground_explosion"
+	"cinematic"						"1"
+}
+
+model hell_lstep {
+	mesh							models/md5/cinematics/hell1/lstep.md5mesh
+	anim open						models/md5/cinematics/hell1/lstep.md5anim {
+		frame 1						sound_voice2 gargoyle_01
+	}
+	anim bind						models/md5/cinematics/hell1/lstepbind.md5anim
+}
+
+entityDef hell_lstep {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"hell_lstep"
+	"anim"							"open"
+	"cinematic"						"1"
+}
+
+model hell_rstep {
+	mesh							models/md5/cinematics/hell1/rstep.md5mesh
+	anim open						models/md5/cinematics/hell1/rstep.md5anim {
+		frame 1						sound_voice2 gargoyle_02
+	}
+	anim bind						models/md5/cinematics/hell1/lstepbind.md5anim
+}
+
+entityDef hell_rstep {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"hell_rstep"
+	"anim"							"open"
+	"cinematic"						"1"
+}
+

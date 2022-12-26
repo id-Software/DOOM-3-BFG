@@ -1,0 +1,292 @@
+export jay8 {
+	// view model grabber
+	options -prefix PISTOL_ -keep sidelight grabber_root beam guilight light_upper light_lower particle_upper particle_lower smokeparticle -parent sidelight grabber_root -parent smokeparticle grabber_cylinder01 -parent particle_upper grabber_root -parent particle_lower grabber_root -parent light_upper grabber_root -parent light_lower grabber_root -parent guilight grabber_root -rename origin blah -sourcedir models/weapons/grabber/cycles -destdir models/md5/weapons/grabber_view
+
+	mesh	idleopen.ma
+	anim	idleopen.ma
+	anim	idleclosed.ma
+	anim	raise.ma
+	anim	open.ma
+	anim	close.ma
+	anim	fire.ma
+	anim	put_away.ma
+}
+
+export jaygrabworld {
+
+	// world model grabber
+	options -prefix PLAYER_GRABBER_ -keep ATTACHER particle_upper -parent particle_upper body -rename ATTACHER origin -clearorigin
+
+
+	mesh	models/characters/player_character/cycles/grabber_w_idle.mb -dest models/md5/weapons/grabber_world/worldgrabber
+	anim	models/characters/player_character/cycles/grabber_w_idle.mb -range 0 0 -dest models/md5/weapons/grabber_world/grabber_idle
+}
+
+model worldmodel_grabber {
+	mesh						models/md5/weapons/grabber_world/worldgrabber.md5mesh
+
+	anim raise					models/md5/weapons/grabber_world/grabber_idle.md5anim
+	anim idle 					models/md5/weapons/grabber_world/grabber_idle.md5anim
+	anim aim 					models/md5/weapons/grabber_world/grabber_idle.md5anim
+	anim fire1 					models/md5/weapons/grabber_world/grabber_idle.md5anim
+	anim reload_start 			models/md5/weapons/grabber_world/grabber_idle.md5anim
+	anim putaway				models/md5/weapons/grabber_world/grabber_idle.md5anim
+}
+
+model viewmodel_grabber {
+	mesh					models/md5/weapons/grabber_view/idleopen.md5mesh
+	offset					( -1 -1 0 )
+
+	anim raise 				models/md5/weapons/grabber_view/raise.md5anim {
+		frame 1					sound_weapon grabber_present
+	}
+	anim idleopen			models/md5/weapons/grabber_view/idleopen.md5anim
+	anim idleclosed			models/md5/weapons/grabber_view/idleclosed.md5anim
+	anim idle				models/md5/weapons/grabber_view/idleclosed.md5anim
+	anim open				models/md5/weapons/grabber_view/open.md5anim
+	anim close				models/md5/weapons/grabber_view/close.md5anim
+	anim fire				models/md5/weapons/grabber_view/fire.md5anim
+	anim putaway 			models/md5/weapons/grabber_view/put_away.md5anim
+}
+
+entityDef weapon_grabber {
+
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"		"1"
+	"editor_usage"			"Grabber"
+
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"model" 				"models/weapons/grabber/grabber_world.ase"
+	"model_view"			"viewmodel_grabber"
+	"model_world" 			"worldmodel_grabber"
+	"joint_attach"			"SHOTGUN_ATTACHER"
+
+	"inv_name"				"#str_00100207"
+	"inv_weapon"			"weapon_grabber"
+	"inv_item"				"5"
+	"icon"					"guis/assets/hud/wpn_10"
+	"inv_desc"				"#str_00100210"
+	"display_name"			"#str_00100207"
+	"hudIcon"				"guis/assets/hud/icons/grabberw.tga"	
+
+	"gui"					"guis/weapons/grabber.gui"
+
+	"smoke_muzzle"			"grabbersmoke.prt"
+	"smoke_joint"			"smokeparticle"
+
+	"weapon_scriptobject"	"weapon_grabber"
+	"def_melee"				"damage_flashlight"
+	"melee_distance"		"32"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"mtr_flashShader"		"lights/flashlight5"
+	"flashColor"			"1 1 1"
+	"flashTime"				"0.016"
+	"flashRadius"			"400"
+	"silent_fire"			"1"
+	"flashAngle"			"22.0"
+	"flashTarget"			"0 0 1280"
+	"flashUp"				"0 640 0"
+	"flashRight"			"-640 0 0"
+	"flashPointLight"		"0"
+
+	"snd_cangrab"			"player_grabber_cangrab"
+	"snd_acquire"			"guisounds_weapon"
+	"snd_warning" 			"player_grabber_warning"
+	"snd_hum"				"grabber_idle"
+	"snd_fireloop"			"grabber_fireloop"
+	"snd_stopfire"			"grabber_stopfire"
+	"snd_startfire"			"grabber_startfire"
+	"snd_release"			"grabber_release"			// -Xian
+	"snd_electroloop"		"grabber_electro"
+	"snd_mainfire"			"grabber_mainfire"
+	"snd_maindrop"			"grabber_maindrop"
+
+	"skin_flashon"			"skins/models/weapons/flashlight_on.skin"
+
+	"weapon_particle1"			"barrel_upper"
+	"barrel_upper_joint"		"particle_upper"
+	"barrel_upper_particle"		"grabber_upper.prt"
+	"barrel_upper_smoke"		"0"
+
+	"weapon_light1"				"light_barrel_upper"
+	"light_barrel_upper_joint"	"light_upper"
+	"light_barrel_upper_shader"	"lights/grabberLight"
+	"light_barrel_upper_radius"	"50"
+
+	"weapon_light2"				"light_barrel_lower"
+	"light_barrel_lower_joint"	"light_lower"
+	"light_barrel_lower_shader"	"lights/grabberLight"
+	"light_barrel_lower_radius"	"50"
+
+	"weapon_light3"				"light_side"
+	"light_side_joint"			"sidelight"
+	"light_side_shader"			"lights/grabberLight2"
+	"light_side_radius"			"50"
+
+	"weapon_light4"				"gLightBlue"
+	"gLightBlue_joint"			"guilight"
+	"gLightBlue_shader"			"lights/grabberguilightblue"
+	"gLightBlue_radius"			"3"
+
+	"weapon_light5"				"gLightYellow"
+	"gLightYellow_joint"		"guilight"
+	"gLightYellow_shader"		"lights/grabberguilightyellow"
+	"gLightYellow_radius"		"3"
+
+	"weapon_light6"				"gLightRed"
+	"gLightRed_joint"			"guilight"
+	"gLightRed_shader"			"lights/grabberguilightred"
+	"gLightRed_radius"			"3"
+
+	// Precache effects
+	"model_barrelburn"			"barrelfire.prt"
+	"model_precache1"			"grabber_upper.prt"
+	"mtr_precache2"				"lights/grabberLight"
+	"mtr_precache3"				"lights/grabberLight2"
+	"mtr_precache4"				"lights/grabberguilightblue"
+	"mtr_precache5"				"lights/grabberguilightyellow"
+	"mtr_precache6"				"lights/grabberguilightred"
+
+	"skin_invisible"			"skins/grabber_invis"
+}
+
+
+// ======================================================
+//
+//          Damage Defs for caught projectiles
+//
+// ======================================================
+entityDef damage_impfireball_catch {
+	"damage"						"150"
+	"kickDir"						"1 0 0"
+	"push"							"500"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef damage_fireball_hellknight_catch {
+	"damage"						"250"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef damage_RevRocket_catch {
+	"damage"						"250"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	//"smoke_wound_flesh"				"bloodwound.smoke"
+	"snd_flesh"						"bullet_impact_flesh"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef damage_vulgar_fireball_catch {
+	"damage"						"150"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef damage_mancubusblast_catch {
+	"damage"						"400"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"snd_flesh"						"bullet_impact_flesh"
+}
+
+entityDef damage_cacodemon_fireball_catch {
+	"damage"						"200"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef damage_fireball_invul_catch {
+	"damage"					"375"
+	"kickDir"					"1 0 0"
+
+	"mtr_blob"					"genericDamage"
+	"blob_time"					"300"
+	"blob_size"					"400"
+	"blob_offset_x"					"400"
+
+	"knockback"					"10"
+
+	"kick_time"					"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"					"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+

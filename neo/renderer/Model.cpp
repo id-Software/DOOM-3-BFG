@@ -178,7 +178,7 @@ void idRenderModelStatic::List() const
 		totalTris += surf->geometry->numIndexes / 3;
 		totalVerts += surf->geometry->numVerts;
 	}
-	common->Printf( "%c%4ik %3i %4i %4i %s", closed, totalBytes / 1024, NumSurfaces(), totalVerts, totalTris, Name() );
+	common->Printf( "%c%4ik %3i %4i %4i '%s'", closed, totalBytes / 1024, NumSurfaces(), totalVerts, totalTris, Name() );
 
 	if( IsDynamicModel() == DM_CACHED )
 	{
@@ -295,7 +295,7 @@ idRenderModelStatic::PartialInitFromFile
 void idRenderModelStatic::PartialInitFromFile( const char* fileName )
 {
 	fastLoad = true;
-	InitFromFile( fileName );
+	InitFromFile( fileName, nullptr );
 }
 
 /*
@@ -303,20 +303,22 @@ void idRenderModelStatic::PartialInitFromFile( const char* fileName )
 idRenderModelStatic::InitFromFile
 ================
 */
-void idRenderModelStatic::InitFromFile( const char* fileName )
+void idRenderModelStatic::InitFromFile( const char* fileName, const idImportOptions* options )
 {
 	bool loaded;
 	idStr extension;
 
 	InitEmpty( fileName );
 
-	// FIXME: load new .proc map format
-
 	ID_TIME_T sourceTimeStamp;
 
 	name.ExtractFileExtension( extension );
-
-	if( extension.Icmp( "ase" ) == 0 )
+	if( extension.Icmp( "glb" ) == 0 || extension.Icmp( "gltf" ) == 0 )
+	{
+		loaded = false;
+		reloadable = true;
+	}
+	else if( extension.Icmp( "ase" ) == 0 )
 	{
 		loaded		= LoadASE( name, &sourceTimeStamp );
 		reloadable	= true;
@@ -872,7 +874,7 @@ idRenderModelStatic::LoadModel
 void idRenderModelStatic::LoadModel()
 {
 	PurgeModel();
-	InitFromFile( name );
+	InitFromFile( name, nullptr );
 }
 
 /*
@@ -3853,6 +3855,15 @@ void idRenderModelStatic::TouchData()
 		// level keep list
 		declManager->FindMaterial( surf->shader->GetName() );
 	}
+}
+
+/*
+=================
+idRenderModelStatic::CreateBuffers
+=================
+*/
+void idRenderModelStatic::CreateBuffers( nvrhi::ICommandList* commandList )
+{
 }
 
 /*

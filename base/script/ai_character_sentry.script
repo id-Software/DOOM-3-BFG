@@ -1,0 +1,1299 @@
+/***********************************************************************
+
+ai_character_sentry.script
+
+***********************************************************************/
+
+#define SENTRY_WAIT_GETCLOSER		3
+#define	SENTRY_LEAD_TIMEOUT			1
+#define SENTRY_FIRERATE				0.1
+#define SENTRY_MIN_SHOTS			8
+#define SENTRY_MIN_LOOK_DELAY		4
+#define	SENTRY_MAX_LOOK_DELAY		8
+#define	SENTRY_LOOK_TIME			1.5
+#define SENTRY_LEAD_DIST			140
+#define SENTRY_LOST_DIST			280
+#define SENTRY_WALKTURN				65
+#define SENTRY_WALKTURN2			30
+#define SENTRY_ATTACK_MAX_LENGTH	4
+#define SENTRY_ATTACK_MIN_LENGTH	1.2
+#define SENTRY_WAIT_MAX_LENGTH		1
+#define SENTRY_WAIT_MIN_LENGTH		0.3
+#define SENTRY_MIN_TURN				10
+
+#define RETREATING					-1
+#define	NOT_MOVING					0
+#define	APPROACHING					1
+
+#define RETREATING_DEST				-1
+#define	APPROACHING_DEST			1
+
+#define PLAYER_LOST					0
+#define PLAYER_BEHIND_ME			1
+#define PLAYER_OK					2
+#define PLAYER_AHEAD_OF_ME			3
+
+object char_sentry : character {
+	boolean		lead_player;
+	float		hanging;
+	boolean		awake;
+	boolean		fire;
+	float		playerMoveState;
+	entity		light;
+	boolean		light_on;
+	float		nextPositionSearch;
+	entity		ignore_enemy;
+	float		ignore_enemy_time;
+	vector		lastValidPlayerPosition;
+	float		playerPositionThread;
+	
+	//
+	// States
+	//
+	void		state_WaitForTrigger();
+	void		state_Idle();
+	void		state_Killed();
+	void		state_FollowPath();
+	void		state_Wait();
+	void		state_GetCloser();
+	void		state_CantReachPlayer();
+	void		state_Lead();
+	void		state_FindPlayer();
+	void		state_Combat();
+	void		combat_chase();
+	boolean		find_attack_position();
+
+	// attack checks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+
+	void		state_Begin();
+	void		init();
+	void		destroy();
+
+	void		spawn_flashlight();
+	void		flashlight_off();
+	void		flashlight_on();
+	void		ignore( entity ignore_ent );
+	boolean		checkForEnemy( float use_fov );
+	
+	float		checkDestinationDistance();
+	void		updatePlayerPositionThread();
+
+	// path commands
+	void		path_sentry_light_on();
+	void		path_sentry_light_off();
+	void		path_sentry_shutdown();
+	void		path_sentry_unlock_door();
+	void		path_corner();
+	void		path_sentry_lead_player();
+	void		path_sentry_ignore_player();
+		
+	// torso anim states
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_RangeAttack();
+	
+	// legs anim states
+	void		Legs_Fold();
+	void		Legs_Folded();
+	void		Legs_Unfold();
+	void		Legs_Hanging();
+	void		Legs_Death();
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_TurnLeft();
+	void		Legs_TurnRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void char_sentry::Torso_Death() {
+	finishAction( "dead" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void char_sentry::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+	
+	eachFrame {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+			idleAnim( ANIMCHANNEL_TORSO, "stand" );
+		}
+		if ( fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+		}
+	}
+}
+
+void char_sentry::Torso_Pain() {
+	string animname;
+
+	animname = getPainAnim();
+	setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	// no pain for 2 seconds
+	preventPain( 2 );
+	
+	finishAction( "pain" );
+	setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+}
+
+void char_sentry::Torso_RangeAttack() {
+	float endtime;
+	float firetime;
+	float numshots;
+	
+	setAnimPrefix( "" );
+		
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	numshots = 0;
+	while( fire || ( numshots < SENTRY_MIN_SHOTS ) ) {
+		endtime = RandomDelay( SENTRY_ATTACK_MIN_LENGTH, SENTRY_ATTACK_MAX_LENGTH );
+		setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_loop" );
+		firetime = sys.getTime();
+		while( ( fire || ( numshots < SENTRY_MIN_SHOTS ) ) && ( sys.getTime() < endtime ) ) {
+			if ( sys.getTime() >= firetime ) {
+				startSound( "snd_fire", SND_CHANNEL_WEAPON, false );
+				attackMissile( "Barrel" );
+				numshots++;
+				firetime = sys.getTime() + SENTRY_FIRERATE;
+			}
+			if ( AI_PAIN ) {
+				Torso_Pain();
+				playCycle( ANIMCHANNEL_TORSO, "range_attack_loop" );
+			}
+			waitFrame();
+		}
+
+		if ( !fire && ( numshots >= SENTRY_MIN_SHOTS ) ) {
+			break;
+		}
+
+		setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_aim" );
+		endtime = RandomDelay( SENTRY_WAIT_MIN_LENGTH, SENTRY_WAIT_MAX_LENGTH );
+		while( ( fire || ( numshots < SENTRY_MIN_SHOTS ) ) && ( sys.getTime() < endtime ) ) {
+			if ( AI_PAIN ) {
+				Torso_Pain();
+			}
+			waitFrame();
+		}
+	}
+	
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+	
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void char_sentry::Legs_Death() {
+	while( AI_DEAD ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void char_sentry::Legs_Idle() {
+	float delta;
+	
+	if ( !AI_FORWARD && !facingIdeal() ) {
+		if ( getTurnDelta() > SENTRY_MIN_TURN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+		}
+
+		if ( getTurnDelta() < -SENTRY_MIN_TURN ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+		}
+	}
+	
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( !awake ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Fold", 4 );
+		}
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= SENTRY_WALKTURN ) && ( delta >= -SENTRY_WALKTURN ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		if ( !facingIdeal() ) {
+			if ( getTurnDelta() > SENTRY_MIN_TURN ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+			}
+			if ( getTurnDelta() < -SENTRY_MIN_TURN ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+			}
+		}
+	}
+}
+
+void char_sentry::Legs_Walk() {
+	float delta;
+	
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	while( AI_FORWARD )	{
+		delta = getTurnDelta();
+		if ( ( delta > SENTRY_WALKTURN ) || ( delta < -SENTRY_WALKTURN ) ) {
+			break;
+		}
+
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+}
+
+void char_sentry::Legs_Fold() {
+	startSound( "snd_shutdown", SND_CHANNEL_VOICE, false );
+	playAnim( ANIMCHANNEL_LEGS, "fold" );	
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		waitFrame();
+	}
+	flashlight_off();
+	finishAction( "fold" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Folded", 0 );
+}
+
+void char_sentry::Legs_Folded() {
+	playCycle( ANIMCHANNEL_LEGS, "folded" );	
+	while( !awake ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Unfold", 4 );
+}
+
+void char_sentry::Legs_Unfold() {
+	playAnim( ANIMCHANNEL_LEGS, "unfold" );	
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "unfold" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void char_sentry::Legs_Hanging() {
+	playCycle( ANIMCHANNEL_LEGS, "releaseidle" );	
+	while( hanging ) {
+		waitFrame();
+	}
+	
+	playAnim( ANIMCHANNEL_LEGS, "load" );	
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "unload" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void char_sentry::Legs_TurnLeft() {
+	float turnAmount;
+	float delta;
+	
+	turnAmount = getTurnDelta();
+	if ( turnAmount > 110 ) {
+		// do it in two turns
+		turnAmount *= 0.5;
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= SENTRY_WALKTURN2 ) && ( delta >= -SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		waitFrame();
+	}
+	
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= SENTRY_WALKTURN2 ) && ( delta >= -SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 );
+			}
+		}
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void char_sentry::Legs_TurnRight() {
+	float turnAmount;
+	float delta;
+	
+	turnAmount = getTurnDelta();
+	if ( turnAmount < -110 ) {
+		// do it in two turns
+		turnAmount *= 0.5;
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= SENTRY_WALKTURN2 ) && ( delta >= -SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		waitFrame();
+	}
+	
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= SENTRY_WALKTURN2 ) && ( delta >= -SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 );
+			}
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+char_sentry::state_Begin
+=====================
+*/
+void char_sentry::state_Begin() {
+	fire = false;
+	setBoneMod( true );
+
+	light_on = false;
+	if ( getIntKey( "flashlight" ) ) {
+		spawn_flashlight();
+	}
+
+	hanging = getIntKey( "hanging" );
+	awake = getIntKey( "unfolded" );
+
+	waitFrame();
+	if ( hanging ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Hanging", 0 );
+	} else if ( !awake ) {
+		animState( ANIMCHANNEL_LEGS, "Legs_Folded", 0 );
+	} else {
+		animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	}
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	setState( "state_WaitForTrigger" );
+}
+
+/*
+=====================
+char_sentry::init
+=====================
+*/
+void char_sentry::init() {
+	lead_player = getIntKey( "lead_player" );
+	can_talk = false;
+	no_cower_saved = true;
+	no_cower = true;
+}
+
+/*
+=====================
+char_sentry::destroy
+=====================
+*/
+void char_sentry::destroy() {
+	light.remove();
+	if ( playerPositionThread ) {
+		sys.terminate( playerPositionThread );
+		playerPositionThread = 0;
+	}
+}
+
+/*
+=====================
+char_sentry::spawn_flashlight
+=====================
+*/
+void char_sentry::spawn_flashlight() {
+	string texture;
+	float distance;
+
+	distance = getFloatKey( "flashlight_distance" );
+	if ( !distance ) {
+		distance = 640;
+	}
+	
+	// use ik_pose to bind light
+	playAnim( ANIMCHANNEL_TORSO, "ik_pose" );
+	if ( getIntKey( "flashlight" ) == 2 ) {
+		// spot light
+		sys.setSpawnArg( "light_target", "1 0 0" );
+		sys.setSpawnArg( "light_up", "0 0 .5" );
+		sys.setSpawnArg( "light_right", "0 -.5 0" );	
+		sys.setSpawnArg( "light_end", distance + " 0 0" );
+
+		texture = getKey( "mtr_flashlight" );
+		sys.setSpawnArg( "texture", texture );
+
+		sys.setSpawnArg( "name", getName() + "_light" );	
+		light = sys.spawn( "light" );
+		light.setAngles( getAngles() );
+		light.bindToJoint( self, "light", true );
+		light.setOrigin( '0 0 0' );
+	} else {
+		// radial light
+		sys.setSpawnArg( "name", getName() + "_light" );	
+		light = sys.spawn( "light" );
+		light.setRadius( 256 );	
+		light.setAngles( getAngles() + '0 90 0' );
+		light.bindToJoint( self, "light", true );
+		texture = getKey( "mtr_flashlight" );
+		light.setShader( texture );
+		light.setOrigin( '0 0 0' );
+	}
+	stopAnim( ANIMCHANNEL_TORSO, 0 );
+
+	flashlight_off();
+}
+
+/*
+=====================
+char_sentry::flashlight_off
+=====================
+*/
+void char_sentry::flashlight_off() {
+	string skin;
+
+	if ( light ) {
+		light.Off();
+		skin = getKey( "skin_flashlight_off" );
+		setSkin( skin );
+		light_on = false;
+	}
+}
+	
+/*
+=====================
+char_sentry::flashlight_on
+=====================
+*/
+void char_sentry::flashlight_on() {
+	string skin;
+
+	if ( light ) {
+		light.On();
+		skin = getKey( "skin_flashlight_on" );
+		setSkin( skin );
+		light_on = true;
+	}
+}
+	
+/*
+=====================
+char_sentry::ignore
+=====================
+*/
+void char_sentry::ignore( entity ignore_ent ) {
+	ignore_enemy = ignore_ent;
+	ignore_enemy_time = sys.getTime() + 2;
+}
+
+/*
+=====================
+char_sentry::checkForEnemy
+=====================
+*/
+boolean	char_sentry::checkForEnemy( float use_fov ) {
+	entity enemy;
+	entity ent;
+
+	enemy = $null_entity;
+	if ( lead_player && $player1.hasEnemies() ) {
+		enemy = closestReachableEnemyOfEntity( $player1 );
+		if ( ( ignore_enemy_time > sys.getTime() ) && ( ignore_enemy == enemy ) ) {
+			enemy = $null_entity;
+		}
+		if ( !enemy ) {
+			enemy = $player1.closestEnemyToPoint( getOrigin() );
+			if ( ( ignore_enemy_time > sys.getTime() ) && ( ignore_enemy == enemy ) ) {
+				enemy = $null_entity;
+			}
+		}
+	}
+	
+	if ( !enemy ) {
+		enemy = findEnemyAI( false );
+		if ( ( ignore_enemy_time > sys.getTime() ) && ( ignore_enemy == enemy ) ) {
+			enemy = $null_entity;
+		}
+	}
+
+	if ( enemy ) {
+		startSound( "snd_sight_enemy", SND_CHANNEL_VOICE, false );
+		setEnemy( enemy );
+        return true;
+	} else {
+		clearEnemy();
+	}
+
+	return false;
+}
+
+/*
+=====================
+char_sentry::checkDestinationDistance()
+=====================
+*/
+float char_sentry::checkDestinationDistance() {
+	float	playerDist;
+	float	currentDist;
+	float	leadDistance;
+	float	relativeMoveDir;
+	vector	delta;
+
+	// determine if the player is moving toward us
+	delta = getOrigin() - lastValidPlayerPosition;
+	relativeMoveDir = delta * $player1.getLinearVelocity();
+	if ( relativeMoveDir > 1 ) {
+		// Player is approaching
+		playerMoveState = APPROACHING;
+	} else if ( relativeMoveDir < -1 ) {
+		// Player is moving away from us
+		playerMoveState = RETREATING;
+	} else {
+		// Player is standing still
+		playerMoveState = NOT_MOVING;
+	}
+
+	if ( !current_path ) {
+		return PLAYER_OK;
+	}
+
+	playerDist = distanceToPoint( lastValidPlayerPosition );
+	if ( playerDist < SENTRY_LEAD_DIST ) {
+		return PLAYER_OK;
+	}
+
+	if ( !canSee( $player1 ) ) {
+		currentDist = travelDistanceToEntity( current_path );
+		leadDistance = travelDistanceBetweenPoints( lastValidPlayerPosition, current_path.getOrigin() );
+		if ( currentDist > leadDistance ) {
+			return PLAYER_AHEAD_OF_ME;
+		} else {
+			return PLAYER_LOST;
+		}
+	}
+
+	if ( playerDist > SENTRY_LOST_DIST ) {
+		currentDist = travelDistanceToEntity( current_path );
+		leadDistance = travelDistanceBetweenPoints( lastValidPlayerPosition, current_path.getOrigin() );
+		if ( currentDist > leadDistance ) {
+			return PLAYER_AHEAD_OF_ME;
+		} else {
+			return PLAYER_BEHIND_ME;
+		}
+	}
+
+	return PLAYER_OK;
+}
+
+/*
+=====================
+char_sentry::updatePlayerPositionThread()
+=====================
+*/
+void char_sentry::updatePlayerPositionThread() {
+	vector pos;
+
+	while( 1 ) {
+		if ( canReachEntity( $player1 ) ) {
+			lastValidPlayerPosition = getReachableEntityPosition( $player1 );
+		}
+		//sys.debugBounds( '1 0 0', lastValidPlayerPosition + $player1.getMins(), lastValidPlayerPosition + $player1.getMaxs(), 0 );
+		waitFrame();
+	}
+}
+
+/***********************************************************************
+
+	Path commands
+
+***********************************************************************/
+
+/*
+=====================
+char_sentry::path_sentry_light_on
+=====================
+*/
+void char_sentry::path_sentry_light_on() {
+	flashlight_on();
+}
+
+/*
+=====================
+char_sentry::path_sentry_light_off
+=====================
+*/
+void char_sentry::path_sentry_light_off() {
+	flashlight_off();
+}
+
+/*
+=====================
+char_sentry::path_sentry_shutdown
+=====================
+*/
+void char_sentry::path_sentry_shutdown() {
+	vector ang;
+	string triggername;
+	entity triggerent;
+
+	stopMove();
+
+	ang = current_path.getAngles();
+	turnTo( ang_y );
+	waitUntil( facingIdeal() );
+
+	awake = false;
+	AI_ACTIVATED = false;
+
+	if ( playerPositionThread ) {
+		sys.terminate( playerPositionThread );
+		playerPositionThread = 0;
+	}
+	waitAction( "fold" );
+	
+	// trigger any entities the path had targeted
+	triggername = current_path.getKey( "trigger" );
+	if ( triggername != "" ) {
+		triggerent = sys.getEntity( triggername );
+		if ( triggerent ) {
+			triggerent.activate( self );
+		}
+	}
+	
+	while( !AI_ACTIVATED ) {
+		waitFrame();
+	}
+
+	if ( getIntKey( "flashlight_on" ) ) {
+		flashlight_on();
+	}
+	awake = true;
+	waitAction( "unfold" );
+}
+
+/*
+=====================
+char_sentry::path_sentry_unlock_door
+=====================
+*/
+void char_sentry::path_sentry_unlock_door() {
+	vector ang;
+	string triggername;
+	entity triggerent;
+
+	if ( current_path.getKey( "trigger" ) == "" ) {
+		// already unlocked the door
+		return;
+	}
+
+	ang = current_path.getAngles();
+	turnTo( ang_y );
+	waitUntil( facingIdeal() );
+
+	startSound( "snd_open_door", SND_CHANNEL_VOICE, false );
+	playCustomAnim( "unlock_door", 4, 4 );
+	waitAction( "customAnim" );
+
+	// trigger any entities the path had targeted
+	triggername = current_path.getKey( "trigger" );
+	if ( triggername != "" ) {
+		triggerent = sys.getEntity( triggername );
+		if ( triggerent ) {
+			triggerent.activate( self );
+		}
+	}
+
+	current_path.setKey( "trigger", "" );
+}
+
+/*
+=====================
+char_sentry::path_corner
+=====================
+*/
+void char_sentry::path_corner() {
+	if ( !lead_player ) {
+		setState( "state_FollowPath" );
+	}
+
+	setNeverDormant( true );
+	if ( !canSee( $player1 ) ) {
+		setState( "state_FindPlayer" );
+	}
+
+	if ( checkDestinationDistance() == PLAYER_BEHIND_ME ) {
+		setState( "state_Wait" );
+	} else {
+		setState( "state_Lead" );
+	}
+}
+
+/*
+=====================
+char_sentry::path_sentry_lead_player
+=====================
+*/
+void char_sentry::path_sentry_lead_player() {
+	lead_player = true;
+	if ( !playerPositionThread ) {
+		playerPositionThread = thread updatePlayerPositionThread();
+	}
+}
+
+/*
+=====================
+char_sentry::path_sentry_ignore_player
+=====================
+*/
+void char_sentry::path_sentry_ignore_player() {
+	lead_player = false;
+	if ( playerPositionThread ) {
+		sys.terminate( playerPositionThread );
+		playerPositionThread = 0;
+	}
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+char_sentry::state_Killed
+=====================
+*/
+void char_sentry::state_Killed() {
+	stopMove();
+
+	if ( playerPositionThread ) {
+		sys.terminate( playerPositionThread );
+		playerPositionThread = 0;
+	}
+
+	flashlight_off();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+
+	waitAction( "dead" );
+
+	float burnDelay = getFloatKey( "burnaway" );
+	if ( burnDelay != 0 ) {
+		preBurn();
+		sys.wait( burnDelay );
+		burn();
+		startSound( "snd_burn", SND_CHANNEL_BODY, false );
+		sys.wait( 3 );
+		remove();
+	}
+
+	stopThinking();
+}
+
+/*
+=====================
+char_sentry::state_WaitForTrigger
+=====================
+*/
+void char_sentry::state_WaitForTrigger() {
+	if ( hanging != 2 ) {
+		AI_ACTIVATED = false;
+		while( !AI_ACTIVATED ) {
+			waitFrame();
+		}
+	}
+
+	if ( getIntKey( "flashlight_on" ) ) {
+		flashlight_on();
+	}
+	
+	if ( hanging ) {
+		hanging = false;
+		awake = true;
+		waitAction( "unload" );
+	} else if ( !awake ) {
+		awake = true;
+		waitAction( "unfold" );
+	}
+
+	// hanging guys turn off damage untill they're out.  make sure we get damage turned back on.
+	allowDamage();	
+	lookAt( $player1, 3 );
+
+	current_path = randomPath();
+	//next_path = current_path.randomPath();
+	lookAt( $player1, 3 );
+
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+char_sentry::state_Idle
+=====================
+*/
+void char_sentry::state_Idle() {
+	stopMove();
+
+	if ( lead_player && !playerPositionThread ) {
+		playerPositionThread = thread updatePlayerPositionThread();
+	}
+
+	if ( current_path ) {
+		executePathCommand( current_path );
+	}
+
+	while( 1 ) {
+		if ( lead_player ) {
+			if ( !canSee( $player1 ) ) {
+				setState( "state_FindPlayer" );
+			}
+		}
+
+		if ( checkForEnemy( true ) ) {
+			setState( "state_Combat" );
+		}
+		if ( AI_PUSHED ) {
+			getOutOfWay();
+		}
+		if ( current_path ) {
+			executePathCommand( current_path );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_FollowPath
+=====================
+*/
+void char_sentry::state_FollowPath() {
+	if ( !current_path ) {
+		setState( "state_Idle" );
+	}
+
+	moveToEntity( current_path );
+
+	while( 1 ) {
+		if ( checkForEnemy( true ) ) {
+			setState( "state_Combat" );
+		}
+
+		checkBlocked();
+
+		if ( AI_MOVE_DONE ) {
+			if ( AI_DEST_UNREACHABLE ) {
+				waitFrame();
+				setState( "state_FindPlayer" );
+			}
+			setNeverDormant( getFloatKey( "neverdormant" ) );
+			finishPathCommand();
+			setState( "state_Idle" );
+		}
+		
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_Wait
+=====================
+*/
+void char_sentry::state_Wait() {
+	float getCloserTime;
+
+	float result = checkDestinationDistance();
+	if ( result == PLAYER_LOST ) {
+		setState( "state_FindPlayer" );
+	} else if ( result == PLAYER_AHEAD_OF_ME ) {
+		setState( "state_Lead" );
+	} else if ( ( result == PLAYER_OK ) && ( playerMoveState == APPROACHING ) ) {
+		setState( "state_Lead" );
+	}
+
+	stopMove();
+	startSound( "snd_waiting_for_player", SND_CHANNEL_VOICE, false );
+
+	getCloserTime = sys.getTime() + SENTRY_WAIT_GETCLOSER;
+	while( 1 ) {
+		if ( checkForEnemy( true ) ) {
+			setState( "state_Combat" );
+		}
+
+		lookAt( $player1, 0.1 );
+
+		if ( AI_PUSHED ) {
+			getOutOfWay();
+		}
+
+		result = checkDestinationDistance();
+		if ( result == PLAYER_LOST ) {
+			setState( "state_FindPlayer" );
+		} else if ( result == PLAYER_AHEAD_OF_ME ) {
+			setState( "state_Lead" );
+		} else if ( ( result == PLAYER_OK ) && ( playerMoveState == APPROACHING ) ) {
+			setState( "state_Lead" );
+		} else  if ( ( sys.getTime() > getCloserTime ) && ( result == PLAYER_BEHIND_ME ) ) {
+			setState( "state_GetCloser" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_GetCloser
+=====================
+*/
+void char_sentry::state_GetCloser() {
+	while( 1 ) {
+		moveToPosition( lastValidPlayerPosition );
+		if ( AI_MOVE_DONE ) {
+			if ( !canReachEntity( $player1 ) ) {
+				setState( "state_CantReachPlayer" );
+			}
+		}
+
+		if ( checkForEnemy( true ) ) {
+			setState( "state_Combat" );
+		}
+
+		checkBlocked();
+
+		float result = checkDestinationDistance();
+		
+		if ( result == PLAYER_LOST ) {
+			setState( "state_FindPlayer" );
+		}
+        if ( result == PLAYER_OK ) {
+			setState( "state_Wait" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_CantReachPlayer
+=====================
+*/
+void char_sentry::state_CantReachPlayer() {
+	startSound( "snd_cant_reach_player", SND_CHANNEL_VOICE, false );
+	stopMove();
+	while( 1 ) {
+		if ( canReachEntity( $player1 ) ) {
+			setState( "state_Wait" );
+		}
+		if ( checkForEnemy( true ) ) {
+			setState( "state_Combat" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_Lead
+=====================
+*/
+void char_sentry::state_Lead() {
+	float	nextLookTime;
+	float	leadTimeOut;
+
+	if ( !current_path ) {
+		setState( "state_Idle" );
+	}
+
+	nextLookTime = RandomDelay( SENTRY_MIN_LOOK_DELAY, SENTRY_MAX_LOOK_DELAY );
+	moveToEntity( current_path );
+
+	leadTimeOut = sys.getTime() + SENTRY_LEAD_TIMEOUT;
+
+	while( 1 ) {
+		if ( checkForEnemy( true ) ) {
+			setState( "state_Combat" );
+		}
+
+		if ( !light_on && ( sys.getTime() > nextLookTime ) ) {
+			lookAt( $player1, SENTRY_LOOK_TIME );
+			nextLookTime = RandomDelay( SENTRY_MIN_LOOK_DELAY, SENTRY_MAX_LOOK_DELAY );
+		}
+
+		checkBlocked();
+		
+		float result = checkDestinationDistance();
+		if ( ( result != PLAYER_BEHIND_ME ) && ( result != PLAYER_LOST ) ) {
+			leadTimeOut = sys.getTime() + SENTRY_LEAD_TIMEOUT;
+		} else if ( sys.getTime() > leadTimeOut ) {
+			setState( "state_Wait" );
+		} else if ( !light_on ) {
+			// look back at player to see what he's up to
+			lookAt( $player1, 0.1 );
+			nextLookTime += 0.1;
+		}
+
+		if ( AI_MOVE_DONE ) {
+			if ( AI_DEST_UNREACHABLE ) {
+				waitFrame();
+				setState( "state_FindPlayer" );
+			}
+			setNeverDormant( getFloatKey( "neverdormant" ) );
+			finishPathCommand();
+			setState( "state_Idle" );
+		}
+		
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_FindPlayer
+=====================
+*/
+void char_sentry::state_FindPlayer() {
+	while( 1 ) {
+		moveToPosition( lastValidPlayerPosition );
+		if ( AI_MOVE_DONE || AI_DEST_UNREACHABLE ) {
+			if ( !canReachEntity( $player1 ) ) {
+				setState( "state_CantReachPlayer" );
+			}
+		}
+
+		if ( checkForEnemy( true ) ) {
+			waitFrame();
+			setState( "state_Combat" );
+		}
+
+		checkBlocked();
+		
+		float result = checkDestinationDistance();
+		if ( canSee( $player1 ) && ( ( result == PLAYER_BEHIND_ME ) || ( result == PLAYER_OK ) ) ) {
+			setState( "state_Wait" );
+		} else if ( result == PLAYER_AHEAD_OF_ME ) {
+			setState( "state_Lead" );
+		}
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::state_Combat
+=====================
+*/
+void char_sentry::state_Combat() {
+	float attack_flags;
+
+	eachFrame {
+		faceEnemy();
+		lookAtEnemy( 1 );
+		
+		if ( AI_ENEMY_DEAD || !getEnemy() ) {
+			startSound( "snd_target_lost", SND_CHANNEL_VOICE, false );
+			AI_ENEMY_DEAD = false;
+			clearEnemy();
+			setState( "state_Idle" );
+		}
+		
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			continue;
+		}
+		
+		if ( canReachEnemy() ) {
+			combat_chase();
+		} else if ( !find_attack_position() ) {
+			ignore( getEnemy() );
+			checkForEnemy( false );
+		}
+		
+		waitFrame();
+	}
+}
+
+/*
+=====================
+char_sentry::combat_chase
+=====================
+*/
+void char_sentry::combat_chase() {
+	float attack_flags;
+	
+	moveToEnemy();
+	while( !AI_DEST_UNREACHABLE ) {
+		if ( AI_ENEMY_DEAD ) {
+			startSound( "snd_target_lost", SND_CHANNEL_VOICE, false );
+			AI_ENEMY_DEAD = false;
+			clearEnemy();
+			setState( "state_Idle" );
+		}
+
+		if ( AI_MOVE_DONE ) {
+			if ( !enemyPositionValid() ) {
+				clearEnemy();
+				setState( "state_Idle" );
+			}
+			moveToEnemy();
+		}
+		
+		lookAtEnemy( 1 );
+
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			return;
+		}
+		
+		waitFrame();
+	}
+	stopMove();
+}
+
+/*
+=====================
+char_sentry::find_attack_position
+=====================
+*/
+boolean char_sentry::find_attack_position() {
+	float attack_flags;
+
+	if ( sys.getTime() < nextPositionSearch ) {
+		return false;
+	}
+	nextPositionSearch = sys.getTime() + 1;
+	locateEnemy();
+	moveToAttackPosition( getEnemy(), "range_attack_loop" );
+	if ( AI_DEST_UNREACHABLE ) {
+		return false;
+	}
+
+	while( !AI_MOVE_DONE ) {
+		if ( AI_ENEMY_DEAD ) {
+			startSound( "snd_target_lost", SND_CHANNEL_VOICE, false );
+			AI_ENEMY_DEAD = false;
+			clearEnemy();
+			setState( "state_Idle" );
+		}
+
+		lookAtEnemy( 1 );
+
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			return true;
+		}
+		
+		waitFrame();
+	}
+	stopMove();
+
+	return true;
+}
+
+
+/*
+=====================
+char_sentry::do_attack
+=====================
+*/
+void char_sentry::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+char_sentry::check_attacks
+=====================
+*/
+float char_sentry::check_attacks() {
+	float attack_flags = 0;
+	
+	if ( canHitEnemyFromAnim( "range_attack_loop" ) ) {
+		attack_flags |= ATTACK_MISSILE;
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+char_sentry::combat_range
+=====================
+*/
+void char_sentry::combat_range() {
+	faceEnemy();
+	fire = true;
+	while( canHitEnemyFromAnim( "range_attack_loop" ) ) {
+		waitFrame();
+	}
+	fire = false;
+	waitUntil( !inAnimState( ANIMCHANNEL_TORSO, "Torso_RangeAttack" ) );
+}

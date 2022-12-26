@@ -71,7 +71,7 @@ bool AssertFailed( const char* file, int line, const char* expression );
 
 	//====================== assert in release mode =======================
 
-	#define idassert( x )	{ (( void )0); }
+	#define idassert( x )	{ ( ( void )0 ); }
 
 	#undef assert
 

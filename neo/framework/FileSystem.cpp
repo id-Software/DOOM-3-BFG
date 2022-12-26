@@ -3537,7 +3537,7 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 		}
 	}
 
-	if( fs_debug.GetInteger( ) )
+	if( fs_debug.GetInteger() )
 	{
 		common->Printf( "Can't find %s\n", relativePath );
 	}
@@ -3820,8 +3820,8 @@ void idFileSystemLocal::FindDLL( const char* name, char _dllPath[ MAX_OSPATH ] )
 	sys->DLL_GetFileName( name, dllName, MAX_OSPATH );
 
 	// from executable directory first - this is handy for developement
-	idStr dllPath = Sys_EXEPath( );
-	dllPath.StripFilename( );
+	idStr dllPath = Sys_EXEPath();
+	dllPath.StripFilename();
 	dllPath.AppendPath( dllName );
 	idFile* dllFile = OpenExplicitFileRead( dllPath );
 

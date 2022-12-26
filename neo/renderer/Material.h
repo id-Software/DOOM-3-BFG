@@ -501,7 +501,7 @@ public:
 	// I'm not really sure why this needs to be virtual...
 	virtual const char*	ImageName() const;
 
-	void				ReloadImages( bool force ) const;
+	void				ReloadImages( bool force, nvrhi::ICommandList* commandList ) const;
 
 	// returns number of stages this material contains
 	const int			GetNumStages() const

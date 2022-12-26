@@ -1,0 +1,689 @@
+/***********************************************************************
+
+doom_player.script
+
+This script contains any player specific code.
+
+***********************************************************************/
+
+object player : player_base {
+	weapon_base weapon;
+	boolean		weapon_changed;
+	boolean		start_fire;
+	
+	void		init();
+
+				// called by player code
+	void		EnterCinematic();
+	void		ExitCinematic();
+	void		LowerWeapon();
+	void		RaiseWeapon();
+	void		ReloadWeapon();
+	void		NetCatchup();
+	
+				// torso anims
+	void		Torso_Teleport();
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Reload();
+	void		Torso_Fire_StartFire();
+	void		Torso_Fire();
+	void		Torso_Fire_Aim();
+	void		Torso_RaiseWeapon();
+	void		Torso_LowerWeapon();
+	
+				// leg anims
+	void		Legs_Death();
+	void		Legs_Idle();
+	void		Legs_Crouched();
+	void		Legs_Uncrouch();
+	void		Legs_Turn_Left();
+	void		Legs_Turn_Right();
+	void		Legs_Walk();
+	void		Legs_Walk_Forward();
+	void		Legs_Walk_Backward();
+	void		Legs_Walk_Left();
+	void		Legs_Walk_Right();
+	void		Legs_Run();
+	void		Legs_Run_Forward();
+	void		Legs_Run_Backward();
+	void		Legs_Run_Left();
+	void		Legs_Run_Right();
+	void		Legs_CrouchWalk();
+	void		Legs_CrouchWalk_Backward();
+	void		Legs_Jump();
+	void		Legs_Fall();
+	void		Legs_Land_Hard();
+	void		Legs_Land_Soft();
+};
+
+/*
+=====================
+player::init
+=====================
+*/
+void player::init() {
+	weapon_changed = false;
+	start_fire = false;
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+}
+
+/*
+=====================
+player::EnterCinematic
+
+Required by game code for cinematics
+=====================
+*/
+void player::EnterCinematic() {
+}
+
+/*
+=====================
+player::ExitCinematic
+
+Required by game code for cinematics
+=====================
+*/
+void player::ExitCinematic() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+}
+
+/*
+=====================
+player::LowerWeapon
+
+Required by game code for weapon switches
+=====================
+*/
+void player::LowerWeapon() {
+	animState( ANIMCHANNEL_TORSO, "Torso_LowerWeapon", 3 );
+}
+
+/*
+=====================
+player::RaiseWeapon
+
+Required by game code for weapon switches
+=====================
+*/
+void player::RaiseWeapon() {
+	weapon = getWeaponEntity();
+	animState( ANIMCHANNEL_TORSO, "Torso_RaiseWeapon", 2 );
+}
+
+/*
+=====================
+player::ReloadWeapon
+
+Required by game code for weapon reloading
+=====================
+*/
+void player::ReloadWeapon() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Reload", 4 );
+}
+
+/*
+=====================
+player::NetCatchup
+
+Required by game code for networking
+=====================
+*/
+void player::NetCatchup() {
+	weapon = getWeaponEntity();
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+}
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void player::Torso_Death() {
+	waitUntil( !AI_DEAD );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+}
+
+void player::Torso_Teleport() {
+	AI_TELEPORT = false;
+	overrideAnim( ANIMCHANNEL_LEGS );
+	playAnim( ANIMCHANNEL_TORSO, "teleport" );
+	waitUntil( animDone( ANIMCHANNEL_TORSO, 4 ) );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void player::Torso_Idle() {
+	playCycle( ANIMCHANNEL_TORSO, "idle" );
+
+	eachFrame {
+		if ( AI_TELEPORT ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Teleport", 0 );
+		}
+		if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Fire", 2 );
+		}
+		if ( AI_ATTACK_HELD && start_fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Fire_StartFire", 2 );
+		}
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+		}
+	}
+}
+
+void player::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+			}
+		}
+		waitFrame();
+	}
+	
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void player::Torso_Reload() {
+	if ( hasAnim( ANIMCHANNEL_TORSO, "reload_start" ) ) {
+		playAnim( ANIMCHANNEL_TORSO, "reload_start" );
+		while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+			if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Fire", 3 );
+			}
+			waitFrame();
+		}
+		
+		while( AI_RELOAD ) {
+			playAnim( ANIMCHANNEL_TORSO, "reload_loop" );
+			while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+				if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+					animState( ANIMCHANNEL_TORSO, "Torso_Fire", 3 );
+				}
+				waitFrame();
+			}
+		}
+
+		playAnim( ANIMCHANNEL_TORSO, "reload_end" );
+		while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+			if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Fire", 3 );
+			}
+			waitFrame();
+		}
+	} else {
+		playAnim( ANIMCHANNEL_TORSO, "reload" );
+		while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+			if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Fire", 3 );
+			}
+			waitFrame();
+		}
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 3 );
+}
+
+void player::Torso_Fire_StartFire() {
+	playAnim( ANIMCHANNEL_TORSO, "startfire" );
+
+	while( AI_ATTACK_HELD && !( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) ) {
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+		}
+		waitFrame();
+	}
+
+	boolean held = AI_ATTACK_HELD;
+
+	setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+
+	playAnim( ANIMCHANNEL_TORSO, weapon.GetFireAnim() );
+
+	weapon.WEAPON_START_FIRING = false;
+	AI_WEAPON_FIRED = false;
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		waitFrame();
+	}
+	
+	if ( !held && AI_ATTACK_HELD ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_Fire_StartFire", 2 );
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Fire_Aim", 3 );
+}
+
+void player::Torso_Fire() {
+	playAnim( ANIMCHANNEL_TORSO, weapon.GetFireAnim() );
+
+	weapon.WEAPON_START_FIRING = false;
+	AI_WEAPON_FIRED = false;
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Fire", 2 );
+		}
+		waitFrame();
+	}
+	
+	if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_Fire", 2 );
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Fire_Aim", 3 );
+}
+
+void player::Torso_Fire_Aim() {
+	playAnim( ANIMCHANNEL_TORSO, "aim" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 12 ) ) {
+		if ( AI_ATTACK_HELD && start_fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Fire_StartFire", 2 );
+		}
+		if ( AI_WEAPON_FIRED || weapon.WEAPON_START_FIRING ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Fire", 2 );
+		}
+		if ( AI_PAIN ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_Pain", 0 );
+		}
+		waitFrame();
+	}
+	
+	if ( AI_ATTACK_HELD && start_fire ) {
+		animState( ANIMCHANNEL_TORSO, "Torso_Fire_StartFire", 2 );
+	} else {
+		animState( ANIMCHANNEL_TORSO, "Torso_Idle", 12 );
+	}
+}
+
+void player::Torso_RaiseWeapon() {
+	playAnim( ANIMCHANNEL_TORSO, "raise" );
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		waitFrame();
+	}
+
+	start_fire = hasAnim( ANIMCHANNEL_TORSO, "startfire" );
+	weapon_changed = true;
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 3 );
+}
+
+void player::Torso_LowerWeapon() {
+	weapon_changed = true;
+	playAnim( ANIMCHANNEL_TORSO, "lower" );
+	while( !animDone( ANIMCHANNEL_TORSO, 3 ) ) {
+		waitFrame();
+	}
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void player::Legs_Death() {
+	waitUntil( !AI_DEAD );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+}
+
+void player::Legs_Idle() {
+	weapon_changed = false;
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+	
+	eachFrame {
+		if ( AI_JUMP ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 );
+		}
+		if ( !AI_ONGROUND )	{
+			animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 );
+		}
+		if ( AI_FORWARD || AI_BACKWARD || AI_STRAFE_LEFT || AI_STRAFE_RIGHT ) {
+			Legs_Walk();
+		}
+		if ( AI_TURN_LEFT ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Turn_Left", 4 );
+		}
+		if ( AI_TURN_RIGHT ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Turn_Right", 4 );
+		}
+		if ( AI_CROUCH ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Crouch", 4 );
+		}
+		if ( weapon_changed ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+		}
+	}
+}
+
+void player::Legs_Crouch() {
+	playAnim( ANIMCHANNEL_LEGS, "crouch_down" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		if ( !AI_CROUCH ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Uncrouch", 4 );
+		}
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Crouched", 4 );
+}
+
+void player::Legs_Crouched() {
+	weapon_changed = false;
+	playCycle( ANIMCHANNEL_LEGS, "crouch" );
+
+	eachFrame {
+		if ( !AI_CROUCH ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Uncrouch", 4 );
+		}
+		if ( AI_FORWARD ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 );
+		}
+		if ( AI_BACKWARD ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk_Backward", 4 );
+		}
+		if ( AI_STRAFE_LEFT ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 );
+		}
+		if ( AI_STRAFE_RIGHT ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 );
+		}
+		if ( AI_JUMP ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 );
+		}
+		if ( !AI_ONGROUND ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 );
+		}
+		if ( weapon_changed ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Crouched", 4 );
+		}
+	}
+}
+
+void player::Legs_Uncrouch() {
+	playAnim( ANIMCHANNEL_LEGS, "crouch_up" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void player::Legs_Turn_Left() {
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		if ( AI_FORWARD || AI_BACKWARD || AI_STRAFE_LEFT || AI_STRAFE_RIGHT ) {
+			Legs_Walk();
+		}
+		waitFrame();
+	}
+	
+	AI_TURN_LEFT = false;
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void player::Legs_Turn_Right() {
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		if ( AI_FORWARD || AI_BACKWARD || AI_STRAFE_LEFT || AI_STRAFE_RIGHT ) {
+			Legs_Walk();
+		}
+		waitFrame();
+	}
+	
+	AI_TURN_RIGHT = false;
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void player::Legs_Walk() {
+	weapon_changed = false;
+	if ( AI_JUMP )								{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }
+	if ( AI_RUN )								{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+	if ( !AI_ONGROUND )							{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+	if ( AI_FORWARD && !AI_BACKWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Forward", 4 ); }
+	if ( AI_BACKWARD && !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Backward", 4 ); }
+	if ( AI_STRAFE_LEFT && !AI_STRAFE_RIGHT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Left", 2 ); }
+	if ( AI_STRAFE_RIGHT && !AI_STRAFE_LEFT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Right", 2 ); }
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void player::Legs_Walk_Forward() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	eachFrame {
+		if ( AI_JUMP )						{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }
+		if ( !AI_ONGROUND )					{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+		if ( AI_RUN )						{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( AI_CROUCH )					{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }
+		if ( AI_BACKWARD || !AI_FORWARD || weapon_changed )	{ Legs_Walk(); }
+	}
+}
+
+void player::Legs_Walk_Backward() {
+	playCycle( ANIMCHANNEL_LEGS, "walk_backwards" );
+	
+	eachFrame {
+		if ( AI_JUMP )						{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }
+		if ( !AI_ONGROUND )					{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+		if ( AI_RUN )						{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( AI_CROUCH && AI_BACKWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk_Backward", 4 ); }
+		if ( AI_CROUCH )					{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }
+		if ( !AI_BACKWARD || AI_FORWARD || weapon_changed )	{ Legs_Walk(); }
+	}
+}
+
+void player::Legs_Walk_Left() {
+	playCycle( ANIMCHANNEL_LEGS, "walk_strafe_left" );
+	
+	eachFrame {
+		if ( AI_JUMP )								{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }
+		if ( !AI_ONGROUND )							{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+		if ( AI_RUN )								{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( AI_CROUCH )							{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }
+		if ( AI_FORWARD && !AI_BACKWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Forward", 4 ); }
+		if ( AI_BACKWARD && !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Backward", 4 ); }
+		if ( !AI_STRAFE_LEFT || AI_STRAFE_RIGHT || weapon_changed )	{ Legs_Walk(); }
+	}
+}
+
+void player::Legs_Walk_Right() {
+	playCycle( ANIMCHANNEL_LEGS, "walk_strafe_right" );
+	
+	eachFrame {
+		if ( AI_JUMP )								{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }
+		if ( !AI_ONGROUND )							{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+		if ( AI_RUN )								{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 4 ); }
+		if ( AI_CROUCH )							{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }
+		if ( AI_FORWARD && !AI_BACKWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Forward", 4 ); }
+		if ( AI_BACKWARD && !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Walk_Backward", 4 ); }
+		if ( AI_STRAFE_LEFT || !AI_STRAFE_RIGHT || weapon_changed )	{ Legs_Walk(); }
+	}
+}
+
+void player::Legs_Run() {
+	weapon_changed = false;
+	if ( AI_JUMP )								{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 8 ); }
+	if ( !AI_RUN )								{ Legs_Walk(); }
+	if ( !AI_ONGROUND )							{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 8 ); }
+	if ( AI_FORWARD && !AI_BACKWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Forward", 2 ); }
+	if ( AI_BACKWARD && !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Backward", 2 ); }
+	if ( AI_STRAFE_LEFT && !AI_STRAFE_RIGHT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Left", 2 ); }
+	if ( AI_STRAFE_RIGHT && !AI_STRAFE_LEFT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Right", 2 ); }
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void player::Legs_Run_Forward() {
+	playCycle( ANIMCHANNEL_LEGS, "run_forward" );
+	
+	eachFrame {
+		if ( AI_JUMP )						{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 8 ); }
+		if ( !AI_ONGROUND )					{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 8 ); }
+		if ( !AI_RUN )						{ Legs_Walk(); }
+		if ( AI_CROUCH )					{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 8 ); }
+		if ( AI_BACKWARD || !AI_FORWARD || weapon_changed )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 ); }
+	}
+}
+
+void player::Legs_Run_Backward() {
+	playCycle( ANIMCHANNEL_LEGS, "run_backwards" );
+	
+	eachFrame {
+		if ( AI_JUMP )						{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 8 ); }
+		if ( !AI_ONGROUND )					{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 8 ); }
+		if ( !AI_RUN )						{ Legs_Walk(); }
+		if ( AI_CROUCH && AI_BACKWARD )		{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk_Backward", 4 ); }
+		if ( AI_CROUCH )					{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 8 ); }
+		if ( !AI_BACKWARD || AI_FORWARD || weapon_changed )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run", 8 ); }
+	}
+}
+
+void player::Legs_Run_Left() {
+	playCycle( ANIMCHANNEL_LEGS, "run_strafe_left" );
+	
+	eachFrame {
+		if ( AI_JUMP )								{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 8 ); }
+		if ( !AI_ONGROUND )							{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 8 ); }
+		if ( !AI_RUN )								{ Legs_Walk(); }
+		if ( AI_CROUCH )							{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 8 ); }
+		if ( AI_FORWARD && !AI_BACKWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Forward", 8 ); }
+		if ( AI_BACKWARD && !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Backward", 8 ); }
+		if ( AI_STRAFE_RIGHT && !AI_STRAFE_LEFT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Right", 2 ); }
+		if ( !AI_STRAFE_LEFT || AI_STRAFE_RIGHT || weapon_changed )	{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+void player::Legs_Run_Right() {
+	playCycle( ANIMCHANNEL_LEGS, "run_strafe_right" );
+	
+	eachFrame {
+		if ( AI_JUMP )								{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 8 ); }
+		if ( !AI_ONGROUND )							{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 8 ); }
+		if ( !AI_RUN )								{ Legs_Walk(); }
+		if ( AI_CROUCH )							{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 8 ); }
+		if ( AI_FORWARD && !AI_BACKWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Forward", 8 ); }
+		if ( AI_BACKWARD && !AI_FORWARD )			{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Backward", 8 ); }
+		if ( AI_STRAFE_LEFT && !AI_STRAFE_RIGHT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Run_Left", 2 ); }
+		if ( !AI_STRAFE_RIGHT || AI_STRAFE_LEFT || weapon_changed )	{ animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 ); }
+	}
+}
+
+void player::Legs_CrouchWalk() {
+	weapon_changed = false;
+	playCycle( ANIMCHANNEL_LEGS, "crouch_walk" );
+	
+	eachFrame {
+		if ( AI_JUMP )		{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }	
+		if ( !AI_ONGROUND )	{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+		if ( !AI_CROUCH )	{ Legs_Walk(); }
+		if ( AI_BACKWARD && !AI_FORWARD ) { animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk_Backward", 4 ); }
+		if ( !AI_FORWARD && !AI_STRAFE_LEFT && !AI_STRAFE_RIGHT ) { animState( ANIMCHANNEL_LEGS, "Legs_Crouched", 4 ); }
+		if ( weapon_changed ) { animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }	
+	}
+}
+
+void player::Legs_CrouchWalk_Backward() {
+	weapon_changed = false;
+	playCycle( ANIMCHANNEL_LEGS, "crouch_walk_backwards" );
+	
+	eachFrame {
+		if ( AI_JUMP )		{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 ); }	
+		if ( !AI_ONGROUND )	{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 ); }
+		if ( !AI_CROUCH )	{ Legs_Walk(); }
+		if ( AI_FORWARD && !AI_BACKWARD )	{ animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }
+		if ( !AI_BACKWARD && !AI_STRAFE_LEFT && !AI_STRAFE_RIGHT )	{ animState( ANIMCHANNEL_LEGS, "Legs_Crouched", 4 ); }
+		if ( weapon_changed ) { animState( ANIMCHANNEL_LEGS, "Legs_CrouchWalk", 4 ); }	
+	}
+}
+
+void player::Legs_Jump() {
+	if ( AI_RUN ) {
+		playAnim( ANIMCHANNEL_LEGS, "run_jump" );
+	} else {
+		playAnim( ANIMCHANNEL_LEGS, "jump" );
+	}
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		if ( AI_JUMP ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Jump", 4 );
+		}
+		
+		if ( AI_ONGROUND ) {
+			if ( AI_HARDLANDING ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Land_Hard", 2 );
+			}
+			if ( AI_SOFTLANDING ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Land_Soft", 2 );
+			}
+			animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+		}
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Fall", 4 );
+}
+
+void player::Legs_Fall() {
+	playCycle( ANIMCHANNEL_LEGS, "fall" );
+
+	eachFrame {
+		if ( AI_JUMP ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_Jump", 2 );
+		}
+		
+		if ( AI_ONGROUND ) {
+			if ( AI_HARDLANDING ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Land_Hard", 2 );
+			}
+			if ( AI_SOFTLANDING ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Land_Soft", 2 );
+			}
+			animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+		}
+	}
+}
+
+void player::Legs_Land_Hard() {
+	playAnim( ANIMCHANNEL_LEGS, "hard_land" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		if ( AI_CROUCH )			{ animState( ANIMCHANNEL_LEGS, "Legs_Crouch", 2 ); }
+		if ( AI_JUMP )				{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 2 ); }
+		if ( !AI_ONGROUND )			{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 2 ); }
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+void player::Legs_Land_Soft() {
+	playAnim( ANIMCHANNEL_LEGS, "soft_land" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, 4 ) ) {
+		if ( AI_CROUCH )			{ animState( ANIMCHANNEL_LEGS, "Legs_Crouch", 2 ); }
+		if ( AI_JUMP )				{ animState( ANIMCHANNEL_LEGS, "Legs_Jump", 2 ); }
+		if ( !AI_ONGROUND )			{ animState( ANIMCHANNEL_LEGS, "Legs_Fall", 2 ); }
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}

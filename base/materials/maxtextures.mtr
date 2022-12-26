@@ -1,0 +1,220 @@
+//***************************************************************************
+//*  models/mapobjects/lights/3_bulb_lamp.ase
+//*  models/mapobjects/lights/3_bulb_broke.ase
+//***************************************************************************
+
+textures/decals/pressurepanel_ed
+
+//used on 3_bulb_light 1 of 4
+
+{
+ 	noShadows
+	//polygonOffset
+	nonsolid
+	noimpact
+	{       
+      	 blend	diffuseMap //GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+	 map	textures/decals/pressurepanel_d.tga
+	 alphaTest 0.5
+	}
+	specularmap	textures/decals/pressurepanel_s.tga
+ 	bumpmap		addnormals( textures/decals/pressurepanel_local.tga  , heightmap( textures/decals/pressurepanel_h.tga, 6 ) )
+       
+
+}
+
+textures/base_door/cold_door_ed
+{
+
+//used on 3_bulb_light 2 of 4
+
+	diffusemap	textures/base_door/cold_door_d.tga
+	specularmap	textures/base_door/cold_door_s.tga
+        bumpmap		addnormals( textures/base_door/cold_door_local.tga  , heightmap( textures/base_door/cold_door_h.tga, 3 ) )
+
+ }
+
+textures/base_light/bulb_ed
+{
+	noshadows
+	
+//used on 3_bulb_light 3 of 4
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/bulb_fx.tga
+		rgb		blamptable[ time * 5 ]
+	}
+
+}
+
+
+textures/sfx/bglass01_ed
+
+//used on broken version of 3_bulb_light 3 of 4
+{
+	translucent
+	nonsolid
+	noimpact
+	twosided
+	noshadows
+	//polygonOffset
+	qer_editorimage	textures/sfx/bglass01_ed.tga
+	
+	{
+		blend add
+		map textures/sfx/bglass01.tga
+	}
+
+}
+
+//***************************************************************************
+//*  models/mapobjects/lights/sq_light.ase
+//***************************************************************************
+
+textures/base_trim/strip1a_ed
+
+//used on sq_light 1 of 1
+
+{
+	bumpmap			models/seneca/textures/strip1a_local.tga
+	diffusemap			models/seneca/textures/strip1a_d.tga
+	specularmap			models/seneca/textures/strip1a_s.tga
+}
+
+
+//***************************************************************************
+//*  models/mapobjects/doors/delta_door01.ase
+//***************************************************************************
+
+
+textures/base_trim/rustrim_ed
+{
+	diffusemap	textures/base_trim/rustrim_d.tga
+	specularmap	textures/base_trim/rustrim_s.tga
+        bumpmap		addnormals( textures/base_trim/rustrim_local.tga  , heightmap( textures/base_trim/rustrim_b.tga, 4 ) )
+        
+}
+
+textures/base_trim/bluetex3k2_ed
+{
+	bumpmap		textures/base_trim/bluetex3k2_local.tga
+	diffusemap		textures/base_trim/bluetex3k2_d.tga
+	specularmap		textures/base_trim/bluetex3k2_s.tga
+}
+
+textures/base_light/trimlight_ed
+{
+
+	diffusemap	textures/base_light/trimlight_d.tga
+	specularmap	textures/base_light/trimlight_s.tga
+        bumpmap	        textures/base_light/trimlight_local.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/trimlight_fx.tga
+		rgb		blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/trimlightrim_d
+{
+
+	diffusemap	textures/base_light/trimlightrim_d.tga
+	specularmap	textures/base_light/trimlightrim_s.tga
+        bumpmap	        textures/base_light/trimlightrim_local.tga
+
+}
+
+textures/base_trim/yelhaz2_ed
+{
+	qer_editorimage	textures/base_trim/yelhaz2dif.tga
+	diffusemap 		textures/base_trim/yelhaz2dif.tga
+	bumpmap		heightmap (textures/base_trim/yelhaz2bmp, 6)
+}
+
+textures/base_floor/floorvent02_ed
+{
+	diffusemap	textures/base_floor/floorvent02_d.tga
+	specularmap	textures/morgue/floorvent01_s.tga
+       	bumpmap		addnormals(  textures/morgue/floorvent01_local.tga, heightmap(  textures/morgue/floorvent01_h.tga, 3 ) )
+}
+
+//***************************************************************************
+//*  models/mapobjects/doors/delta_door01.ase
+//***************************************************************************
+
+textures/decals/sprinklercap_ed
+
+{
+ 	noShadows
+	//polygonOffset
+	nonsolid
+	noimpact
+	{       
+      	 blend	diffusemap
+		 map	textures/decals/sprinklercap_d.tga
+	     alphaTest 0.5
+	}
+	specularmap	textures/decals/sprinklercap_s.tga
+	bumpmap 	textures/decals/sprinklercap_local.tga
+       
+
+}
+
+//***************************************************************************
+//*  models/mapobjects/base/lights/striplight_ceiling1
+//***************************************************************************
+
+textures/lab/labwall1d_ed
+{
+	
+	bumpmap 		models/seneca/labtex/labwall1d_local.tga
+	diffusemap		models/seneca/labtex/labwall1d_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1d_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+}	
+
+//***************************************************************************
+//*  models/mapobjects/doors/officedoor01
+//***************************************************************************
+
+
+textures/architecture/offtrim01_ed
+{
+	diffusemap		textures/architecture/offtrim01_d.tga
+	bumpmap heightmap (textures/architecture/offtrim01_b.tga, 4)
+	specularmap		textures/ktest/concretetest_s.tga
+}
+
+textures/seneca/shinymonitor1_ed
+{
+	bumpmap			models/seneca/textures/shinymonitor1_local.tga
+	diffusemap			models/seneca/textures/shinymonitor1_d.tga
+	specularmap			models/seneca/textures/shinymonitor1_s.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/textures/shinymonitor1_add.tga
+		rgb	flickertable [ time * 6 ]
+	}
+}
+
+//***************************************************************************
+//*  models/mapobjects/doors/
+//***************************************************************************
+
+textures/architecture/testdoor
+{
+	qer_editorimage	textures/architecture/testdoor.tga
+
+	bumpmap		addnormals( textures/architecture/timedoorbump_local.tga , heightmap( textures/architecture/doortest_b, 10 ) )
+	diffusemap		textures/architecture/offtrim01_d.tga
+	specularmap		textures/ktest/concretetest_s.tga
+	
+}

@@ -50,6 +50,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "CollisionModel_local.h"
+#include "renderer/Model_gltf.h"
 
 #define CMODEL_BINARYFILE_EXT	"bcmodel"
 
@@ -3863,7 +3864,7 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 	idStr( fileName ).ExtractFileExtension( extension );
 
 	// RB: DAE and OBJ support
-	if( ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) && ( extension.Icmp( "dae" ) != 0 ) && ( extension.Icmp( "obj" ) != 0 ) )
+	if( ( extension.Icmp( "glb" ) != 0 ) && ( extension.Icmp( "gltf" ) != 0 ) && ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) && ( extension.Icmp( "dae" ) != 0 ) && ( extension.Icmp( "obj" ) != 0 ) )
 	{
 		return NULL;
 	}
@@ -4563,7 +4564,23 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName, const
 	generatedFileName.AppendPath( modelName );
 	generatedFileName.SetFileExtension( CMODEL_BINARYFILE_EXT );
 
-	ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( modelName );
+	ID_TIME_T sourceTimeStamp;
+
+	idStr extension;
+	idStr( modelName ).ExtractFileExtension( extension );
+	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
+	{
+		int id;
+		idStr tmp;
+		idStr file = modelName;
+		gltfManager::ExtractIdentifier( file, id, tmp );
+
+		sourceTimeStamp = fileSystem->GetTimestamp( file );
+	}
+	else
+	{
+		sourceTimeStamp = fileSystem->GetTimestamp( modelName );
+	}
 
 	if( models == NULL )
 	{

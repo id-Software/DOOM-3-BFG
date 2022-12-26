@@ -1,0 +1,1040 @@
+table testblasttable { clamp { 1, 0 } }
+
+textures/base_door/doorlightdel
+{
+	qer_editorimage	textures/base_door/doorlightdel_local.tga
+	bumpmap		textures/base_door/doorlightdel_local.tga
+       	diffusemap	textures/base_door/doorlightdel_d.tga
+	 {
+		blend 	add
+		map		textures/base_door/doorlightdel_add.tga
+		colored
+	}
+}
+
+textures/base_door/doorlight
+{
+	//noShadows
+	qer_editorimage	textures/base_door/doorlight_red.tga
+	bumpmap		textures/base_door/doorlight_local.tga
+       	diffusemap	textures/base_door/doorlight_red.tga
+	{
+		if ( parm7 == 0 )
+		blend 	add
+		map		textures/base_door/doorlight_red.tga
+		colored
+	}
+	{
+		if ( parm7 == 1 )
+		blend 	add
+		map		textures/base_door/doorlight_grn.tga
+		colored
+	}
+}
+
+textures/base_door/doorlightcav
+{
+ 	//noShadows
+	qer_editorimage	textures/base_door/doorlightcav.tga
+	bumpmap		textures/base_door/doorlightcav_local.tga
+       	diffusemap	textures/base_door/doorlightcav_d.tga
+	specularmap	textures/base_door/doorlightcav_s.tga
+	{
+		blend 	add
+		map		textures/base_door/doorlightcav_yel_add.tga
+		rgb		5
+	}
+}
+
+textures/base_door/doorlight_red_to_green
+{
+	qer_editorimage	textures/base_door/doorlight_red.tga
+	bumpmap		textures/base_door/doorlight_local.tga
+       	diffusemap	textures/base_door/doorlight_red.tga
+		{
+		if ( parm7 == 1 )
+		blend 	add
+		map		textures/base_door/doorlight_red.tga
+		rgb		5
+	}
+	{
+		if ( parm7 == 0 )
+		blend 	add
+		map		textures/base_door/doorlight_grn.tga
+		rgb		5
+	}
+}
+
+
+
+textures/base_light/gottubelight2
+{
+        noShadows
+	qer_editorimage		textures/base_light/gottubelight.tga
+
+	diffusemap		textures/base_light/gottubelight_d.tga
+       {
+		blend 		add
+		map		textures/base_light/gottubelight2_add.tga
+		colored
+	}
+}
+
+
+
+textures/base_light/striplight3
+{
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map			textures/base_light/striplight3_add.tga
+		red			parm0
+		green		parm1
+		blue		parm2
+	}
+}
+
+textures/base_light/striplight3noshadow
+{
+	noShadows
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map			textures/base_light/striplight3_add.tga
+		red			parm0
+		green		parm1
+		blue		parm2
+	}
+}
+
+textures/base_light/striplight3_cave_group1
+{
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map			textures/base_light/striplight3_add.tga
+		red			parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/base_light/striplight3_cave_group2
+{
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map			textures/base_light/striplight3_add.tga
+		red			parm0 * global1
+		green		parm1 * global1
+		blue		parm2 * global1
+	}
+}
+
+textures/base_light/striplight3_cave_group3
+{
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map			textures/base_light/striplight3_add.tga
+		red			parm0 * global2
+		green		parm1 * global2
+		blue		parm2 * global2
+	}
+}
+
+textures/base_light/striplight3_delta1
+{
+	qer_editorimage	textures/base_light/striplight3_delta1.tga
+	bumpmap		textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map			textures/base_light/striplight3_add.tga
+		red			parm0 * global0
+		green		parm1 * global0
+		blue		parm2 * global0
+	}
+}
+
+textures/base_light/striplight3_delta1b
+{
+	qer_editorimage	textures/base_light/striplight3_delta1.tga
+	bumpmap		textures/base_light/striplight3_local.tga
+	diffusemap		textures/base_light/striplight3_d.tga
+	specularmap		textures/base_light/striplight3_s.tga
+	{
+		blend		add
+		map		textures/base_light/striplight3_add.tga
+		red		parm0 * global1
+		green		parm1 * global1
+		blue		parm2 * global1
+	}
+}
+
+textures/base_light/striplight3_break
+{
+	qer_editorimage	textures/base_light/striplight3_break.tga
+
+	{if ( parm7 == 0 )
+		blend		bumpmap
+		map		textures/base_light/striplight3_local.tga
+	}
+	{if ( parm7 == 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight3_d.tga
+	}
+	{if ( parm7 == 0 )
+		blend		specularmap
+		map		textures/base_light/striplight3_s.tga
+	}
+	{if ( parm7 == 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight3_add.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+
+	{if ( parm7 != 0 )
+		blend		bumpmap
+		map		addnormals (textures/base_light/striplight3_local.tga, heightmap (textures/base_light/striplight3break_bmp.tga, 4) )
+	}
+	{if ( parm7 != 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight3break_d.tga
+	}
+	{if ( parm7 != 0 )
+		blend		specularmap
+		map		textures/base_light/striplight3break_s.tga
+	}
+	{if ( parm7 != 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight3break_add.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+}
+
+textures/base_light/striplight3_broken
+{
+	qer_editorimage		textures/base_light/striplight3.tga
+	bumpmap			addnormals (textures/base_light/striplight3_local.tga, heightmap (textures/base_light/striplight6break_b.tga, 2))
+	diffusemap		textures/base_light/striplight3break_d.tga
+	specularmap		textures/base_light/striplight3break_s.tga
+
+}
+
+textures/base_light/lampgrill
+{
+	qer_editorimage 	textures/base_light/lampgrill.tga
+	noShadows
+	{
+		blend		diffuseMap //GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		 map		textures/base_light/lampgrill_d.tga
+		 alphaTest	0.5
+	}
+	specularmap		textures/base_light/lampgrill_s.tga
+        bumpmap			textures/base_light/lampgrill_local.tga
+ }
+
+
+
+textures/base_light/striplight_ed
+{
+	qer_editorimage	textures/base_light/striplight_ed.tga
+	bumpmap		textures/base_light/striplight_local.tga
+	diffusemap		textures/base_light/striplightdif.tga
+	specularmap		textures/base_light/striplightspec.tga
+	{
+		blend		gl_one,gl_one
+		map			textures/base_light/striplightadd.tga
+		red			parm0
+		green		parm1
+		blue		parm2
+	}
+}
+
+textures/base_light/striplight_ed_noflare
+{
+	qer_editorimage	textures/base_light/striplight_ed_noflare.tga
+	bumpmap		textures/base_light/striplight_local.tga
+	diffusemap		textures/base_light/striplightdif.tga
+	specularmap		textures/base_light/striplightspec.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/striplightadd.tga
+		red		Parm0
+		green		Parm1
+		blue		Parm2
+	}
+}
+
+textures/base_light/striplight2_ed
+{
+	qer_editorimage		textures/base_light/striplight2_ed.tga
+	bumpmap			textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2dif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/striplight2_break
+{
+	sort 2
+	qer_editorimage	textures/base_light/striplight2_break.tga
+
+	{if ( parm7 == 0 )
+		blend		bumpmap
+		map		textures/base_light/striplight2_local.tga
+	}
+	{if ( parm7 == 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight2break_d.tga
+	}
+	{if ( parm7 == 0 )
+		blend		specularmap
+		map		textures/base_light/striplight2spec.tga
+	}
+	{if ( parm7 == 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2break_add.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+
+	{if ( parm7 != 0 )
+		blend		bumpmap
+		map		addnormals (textures/base_light/striplight2_local.tga, heightmap (textures/base_light/striplight2_brokenbmp.tga, 4) )
+	}
+	{if ( parm7 != 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight2dif2.tga
+	}
+	{if ( parm7 != 0 )
+		blend		specularmap
+		map		textures/base_light/striplight2spec2.tga
+	}
+	{if ( parm7 != 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2break_add2.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+}
+
+textures/base_light/striplight2_ed_noshadow
+{
+	noshadows
+	qer_editorimage		textures/base_light/striplight2_ed_noshadow.tga
+	bumpmap			textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2dif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/striplight2a_ed_noshadow
+{
+	noshadows
+	qer_editorimage		textures/base_light/striplight2a2_ed_noshadow.tga
+	bumpmap			textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2adif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2a2add.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/striplight2a2_ed
+{
+	qer_editorimage		textures/base_light/striplight2a2_ed.tga
+	bumpmap			textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2adif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		blend 		gl_one, gl_one
+		map 		textures/base_light/striplight2a2add.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/striplight2a_ed
+{
+	qer_editorimage		textures/base_light/striplight2a_ed.tga
+	bumpmap			textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2adif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		blend 		gl_one, gl_one
+		map 		textures/base_light/striplight2aadd.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+
+textures/base_light/striplight2b_ed
+{
+	qer_editorimage		textures/base_light/striplight2b_ed.tga
+	bumpmap			textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2bdif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2badd.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+
+textures/base_light/striplight5a_ed
+{
+	qer_editorimage		textures/base_light/striplight5a_ed.tga
+	bumpmap			addnormals (textures/base_light/striplight2_local.tga, heightmap (textures/base_light/striplight5a_b.tga, 3))
+	diffusemap		textures/base_light/striplight5a_d.tga
+	specularmap		textures/base_light/striplight5a_s.tga
+	{
+		blend 		gl_one, gl_one
+		map 		textures/base_light/striplight5aadd.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/striplight6_ed
+{
+	qer_editorimage		textures/base_light/striplight6_ed.tga
+	bumpmap			addnormals (textures/base_light/striplight2_local.tga, heightmap (textures/base_light/striplight5a_b.tga, 2))
+	diffusemap		textures/base_light/striplight6_d.tga
+	specularmap		textures/base_light/striplight5a_s.tga
+	{
+		blend 		gl_one, gl_one
+		map 		textures/base_light/striplight6add.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/striplight6_break
+{
+
+	qer_editorimage	textures/base_light/striplight6_break.tga
+
+	{if ( parm7 == 0 )
+		blend		bumpmap
+		map		textures/base_light/striplight2_local.tga
+	}
+	{if ( parm7 == 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight6_d.tga
+	}
+	{if ( parm7 == 0 )
+		blend		specularmap
+		map		textures/base_light/striplight5a_s.tga
+	}
+	{if ( parm7 == 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight6add.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+
+	{if ( parm7 != 0 )
+		blend		bumpmap
+		map		addnormals (textures/base_light/striplight2_local.tga, heightmap (textures/base_light/striplight6break_b.tga, 2) )
+	}
+	{if ( parm7 != 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight6break_d.tga
+	}
+	{if ( parm7 != 0 )
+		blend		specularmap
+		map		textures/base_light/striplight6break_s.tga
+	}
+	{if ( parm7 != 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight6break_add.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+}
+
+textures/base_light/striplight6_broken
+{
+	qer_editorimage		textures/base_light/striplight6_break.tga
+	bumpmap			addnormals (textures/base_light/striplight2_local.tga, heightmap (textures/base_light/striplight6break_b.tga, 2))
+	diffusemap		textures/base_light/striplight6break_d.tga
+	specularmap		textures/base_light/striplight6break_s.tga
+
+}
+
+
+textures/base_light/bluetex4a_ed
+{
+	qer_editorimage	textures/base_light/bluetex4a_ed.tga
+	bumpmap		textures/base_light/bluetex4a_local.tga
+	diffusemap		textures/base_light/bluetex4adif.tga
+	{
+                                colored
+		blend gl_one,gl_one
+		map textures/base_light/bluetex4aadd.tga
+		red			parm0
+		green		parm1
+		blue		parm2
+	}
+	specularmap		textures/base_light/bluetex4aspec.tga
+}
+
+
+textures/base_light/bluetex4b_ed
+{
+	qer_editorimage	textures/base_light/bluetex4b_ed.tga
+	bumpmap		textures/base_light/bluetex4b_local.tga
+	diffusemap		textures/base_light/bluetex4bdif.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/bluetex4badd.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+	specularmap		textures/base_light/bluetex4bspec.tga
+}
+
+textures/base_light/bluetex4b_mb
+{
+	noshadows
+	qer_editorimage		textures/base_light/bluetex4b_ed.tga
+	bumpmap			textures/base_light/bluetex4b_local.tga
+	diffusemap		textures/base_light/bluetex4bdif.tga
+	{
+		blend 		gl_one,gl_one
+		map 		textures/base_light/bluetex4badd.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+	specularmap		textures/base_light/bluetex4bspec.tga
+}
+
+textures/base_light/smrdlt
+{
+	qer_editorimage		textures/base_light/smrdlt.tga
+	bumpmap			heightmap (textures/base_light/smrdltbmp.tga, 6)
+	diffusemap		textures/base_light/smrdltdif.tga
+	{
+		blend 		gl_one,gl_one
+		map 		textures/base_light/smrdltadd.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/red3
+{
+	qer_editorimage textures/base_light/red3.tga
+	twosided
+	translucent
+	noshadows
+	{
+		blend		GL_ONE,GL_ONE
+		map		textures/base_light/red2.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+}
+
+textures/base_light/senescroll2
+{
+	qer_editorimage textures/base_light/senescroll2.tga
+	noshadows
+	{
+		//slowpass
+		blend gl_one,gl_one
+		map	textures/base_light/senescroll2.tga
+		translate		( senescrollightable [Parm4 + (time * (0.1 * Parm3)) ]) , 0
+		red 		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm0
+		green		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm1
+		blue		( senescrollightableA [Parm4 + (time * (0.1 * Parm3)) ]) * Parm2
+		zeroclamp
+	}
+	{
+		//fastpass
+		blend gl_one,gl_one
+		map	textures/base_light/senescroll2.tga
+		translate		( senescrollightable [Parm4 + (time * (2 * Parm3)) ]) , 0
+		red 		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm0
+		green		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm1
+		blue		( senescrollightableA [Parm4 + (time * (2 * Parm3)) ]) * Parm2
+		zeroclamp
+	}
+}
+
+textures/base_light/testglow
+{
+	qer_editorimage textures/base_light/testglow.tga
+	twoSided
+	{
+		blend gl_one,gl_one
+		map textures/base_light/testglow.tga
+		rgb ((.3 * sintable [.15 + time * .5 ]) +.7) * 2
+	}
+}
+
+textures/base_light/bulb03
+{
+	noshadows
+	qer_editorimage textures/base_light/bulb03.tga
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/bulb_fx3.tga
+		rgb		blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/bulb02
+{
+	noshadows
+	qer_editorimage textures/base_light/bulb02.tga
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/bulb_fx.tga
+		rgb		neontable1[ time * 1 ]
+	}
+
+}
+
+textures/base_light/bulb02_static
+{
+	noshadows
+	qer_editorimage textures/base_light/bulb02.tga
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+
+}
+
+textures/base_light/bulb_on
+{
+	noshadows
+	qer_editorimage textures/base_light/bulb_on.tga
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+	{
+		blend 		gl_one,gl_one
+		map 		textures/base_light/bulb_fx2.tga
+		red		parm0 * 2
+		green		parm1 * 2
+		blue		parm2 * 2
+	}
+
+}
+
+
+textures/base_light/bulb
+{
+	noshadows
+	qer_editorimage textures/base_light/bulb.tga
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/bulb_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/trilight
+{
+	qer_editorimage textures/base_light/trilight.tga
+
+	diffusemap	textures/base_light/trilight_d.tga
+	specularmap	textures/base_light/trilight_s.tga
+        bumpmap	        textures/base_light/trilight_local.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trilight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+textures/base_light/trilight2
+{
+	qer_editorimage textures/base_light/trilight2.tga
+
+	diffusemap	textures/base_light/trilight_d.tga
+	specularmap	textures/base_light/trilight_s.tga
+        bumpmap	        textures/base_light/trilight_local.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trilight_fx2.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+
+
+
+textures/base_light/mallight
+{
+	qer_editorimage textures/base_light/mallight.tga
+
+	diffusemap	textures/base_light/mallight_d.tga
+	specularmap	textures/base_light/mallight_s.tga
+        bumpmap	        textures/base_light/mallight_local.tga
+	{
+                                colored
+		blend 	gl_one,gl_one
+		map 	textures/base_light/mallight_fx.tga
+		red	parm0 * 2
+		green	parm1 * 2
+		blue	parm2 * 2
+
+	}
+
+}
+
+textures/base_light/mallight02_d
+{
+	qer_editorimage textures/base_light/mallight02_d.tga
+
+	diffusemap	textures/base_light/mallight02_d.tga
+	specularmap	textures/base_light/mallight02_s.tga
+        bumpmap	        textures/base_light/mallight02_local.tga
+	{
+                                colored
+		blend 	gl_one,gl_one
+		map 	textures/base_light/mallight02_fx.tga
+		red	parm0 * 2
+		green	parm1 * 2
+		blue	parm2 * 2
+
+	}
+
+}
+
+
+
+textures/base_light/trimlight
+{
+	qer_editorimage textures/base_light/trimlight.tga
+
+	diffusemap	textures/base_light/trimlight_d.tga
+	specularmap	textures/base_light/trimlight_s.tga
+        bumpmap	        textures/base_light/trimlight_local.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/a_trimlight_01_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_01_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d01_fin.tga
+	specularmap	textures/base_light/a_trimlight_s01_fin.tga
+       bumpmap	        textures/base_light/a_trimlight_local.tga
+	   // bumpmap		addnormals( textures/base_light/a_trimlight_local.tga  , heightmap( textures/base_light/a_trimlight_b01_fin.tga, 2 ) )
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/a_trimlight_01b_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_01b_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d01b_fin.tga
+	specularmap	textures/base_light/a_trimlight_s01b_fin.tga
+     bumpmap		addnormals( textures/base_light/a_trimlight_local_b.tga  , heightmap( textures/base_light/a_trimlight_b01b_fin.tga, 2 ) )
+}
+
+
+textures/base_light/a_trimlight_02_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_02_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d02_fin.tga
+	specularmap	textures/base_light/a_trimlight_s02_fin.tga
+        bumpmap		addnormals( textures/base_light/a_trimlight_local.tga  , heightmap( textures/base_light/a_trimlight_b02_fin.tga, 2 ) )
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/a_trimlight_04_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_04_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d04_fin.tga
+	specularmap	textures/base_light/a_trimlight_s04_fin.tga
+     bumpmap		addnormals( textures/base_light/a_trimlight_local.tga  , heightmap( textures/base_light/a_trimlight_b04_fin.tga, 2 ) )
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/a_trimlight_04b_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_04b_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d04b_fin.tga
+	specularmap	textures/base_light/a_trimlight_s04b_fin.tga
+     bumpmap		addnormals( textures/base_light/a_trimlight_local_b.tga  , heightmap( textures/base_light/a_trimlight_b04b_fin.tga, 2 ) )
+}
+
+textures/base_light/a_trimlight_06_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_06_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d06_fin.tga
+	specularmap	textures/base_light/a_trimlight_s06_fin.tga
+     bumpmap		addnormals( textures/base_light/a_trimlight_local.tga  , heightmap( textures/base_light/a_trimlight_b06_fin.tga, 3 ) )
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/a_trimlight_07_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_07_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d07_fin.tga
+	specularmap	textures/base_light/a_trimlight_s07_fin.tga
+     bumpmap		addnormals( textures/base_light/a_trimlight_local.tga  , heightmap( textures/base_light/a_trimlight_b07_fin.tga, 4 ) )
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/a_trimlight_08_fin
+{
+	qer_editorimage textures/base_light/a_trimlight_08_fin.tga
+
+	diffusemap	textures/base_light/a_trimlight_d08_fin.tga
+	specularmap	textures/base_light/a_trimlight_s08_fin.tga
+     bumpmap		addnormals( textures/base_light/a_trimlight_local.tga  , heightmap( textures/base_light/a_trimlight_b08_fin.tga, 3 ) )
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb	blamptable[ time * 5 ]
+	}
+
+}
+
+textures/base_light/trimlightrim
+{
+	qer_editorimage textures/base_light/trimlightrim.tga
+	diffusemap	textures/base_light/trimlightrim_d.tga
+	specularmap	textures/base_light/trimlightrim_s.tga
+        bumpmap	        textures/base_light/trimlightrim_local.tga
+}
+
+
+textures/base_light/trimlightblink
+{
+	qer_editorimage textures/base_light/trimlightblink.tga
+
+	diffusemap	textures/base_light/trimlight_d.tga
+	specularmap	textures/base_light/trimlight_s.tga
+        bumpmap	        textures/base_light/trimlight_local.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx.tga
+		rgb 	(.3 * sintable [.2 + time ]) +.2
+	}
+
+}
+textures/base_light/trimlight2
+{
+	qer_editorimage textures/base_light/trimlight2.tga
+
+	diffusemap	textures/base_light/trimlight_d.tga
+	specularmap	textures/base_light/trimlight_s.tga
+        bumpmap	        textures/base_light/trimlight_local.tga
+	{
+		blend 	gl_one,gl_one
+		map	textures/base_light/trimlight_fx2.tga
+		red	parm0 * 2
+		green	parm1 * 2
+		blue	parm2 * 2
+	}
+
+}
+
+textures/base_light/trimlight2blink
+{
+	qer_editorimage textures/base_light/trimlight2blink.tga
+
+	diffusemap	textures/base_light/trimlight_d.tga
+	specularmap	textures/base_light/trimlight_s.tga
+        bumpmap	        textures/base_light/trimlight_local.tga
+	{
+		blend 	gl_one,gl_one
+		map 	textures/base_light/trimlight_fx2.tga
+		rgb	(.3 * sintable [.2 + time ]) +.2
+	}
+
+}
+
+
+textures/base_light/dlight01
+{
+	qer_editorimage textures/base_light/dlight01.tga
+
+	diffusemap	textures/base_light/dlight01_d.tga
+	specularmap	textures/base_light/dlight01_s.tga
+        bumpmap	        textures/base_light/dlight01.tga
+}
+
+textures/base_light/tlight01
+{
+	qer_editorimage textures/base_light/tlight01.tga
+	diffusemap	textures/base_light/tlight01_d.tga
+	specularmap	textures/base_light/tlight01_s.tga
+        bumpmap	       	textures/base_light/tlight01_h.tga
+	{
+		blend 	add
+		map 	textures/base_light/tlight01_add.tga
+		red	parm0 * 2
+		green	parm1 * 2
+		blue	parm2 * 2
+	}
+}
+
+textures/base_light/tlight01blue
+{
+	qer_editorimage textures/base_light/tlight01blue.tga
+	diffusemap	textures/base_light/tlight01blue_d.tga
+	specularmap	textures/base_light/tlight01blue_s.tga
+        bumpmap	       	textures/base_light/tlight01blue_h.tga
+	{
+		blend 	add
+		map 	textures/base_light/tlight01blue_add.tga
+		red	parm0 * 2
+		green	parm1 * 2
+		blue	parm2 * 2
+	}
+}
+
+textures/base_light/tltrim
+{
+	qer_editorimage textures/base_light/tltrim.tga
+
+	diffusemap	textures/base_light/tltrim_d.tga
+	specularmap	textures/base_light/trimlightrim_s.tga
+        bumpmap		addnormals( textures/base_light/trimlightrim_local.tga  , heightmap( textures/base_light/tltrim_b.tga, 3 ) )
+
+}
+
+textures/base_light/striplight_ed_global
+{
+	qer_editorimage	textures/base_light/striplight_ed_noflare.tga
+	bumpmap		textures/base_light/striplight_local.tga
+	diffusemap		textures/base_light/striplightdif.tga
+	specularmap		textures/base_light/striplightspec.tga
+	{
+		blend gl_one,gl_one
+		map textures/base_light/striplightadd.tga
+		red		Parm0 * global0
+		green		Parm1 * global1
+		blue		Parm2 * global2
+	}
+}
+
+textures/base_light/a_reactorlight1_d1c
+{
+	qer_editorimage	textures/base_light/a_reactorlight1_d1c.tga
+	
+	
+	diffusemap		textures/base_light/a_reactorlight1_d1c.tga
+	specularmap		textures/base_light/a_reactorlight1_s1c.tga	
+	bumpmap		textures/base_light/a_reactorlight1_local1c.tga
+	{
+		colored
+		blend gl_one,gl_one
+		map textures/base_light/a_reactorlight1_add1c.tga		
+	}
+}
+
+

@@ -1,0 +1,411 @@
+table blamptable { { .9, 1, .86, .95, .87, 1 } }
+table blighttable { { .9, 1, .86, .95, .87, 1, .9, .9, .9, .9, .9, 1, .9, 1, .9, .95, .4, 1 } }
+
+textures/washroom/rffloorgrate01
+{
+	twosided
+	noshadows
+	qer_editorimage 	textures/washroom/rffloorgrate01.tga
+
+	{       
+    	 	 blend	diffusemap
+			 map	textures/washroom/rffloorgrate01.tga
+			 alphaTest 0.5
+		}
+
+	specularmap		textures/washroom/rffloorgrate01_s.tga
+	bumpmap 		textures/washroom/rffloorgrate01_local.tga
+}	
+
+
+textures/washroom/rftrim01
+{
+	qer_editorimage 	textures/washroom/rftrim01.tga
+	bumpmap 		textures/washroom/rftrim01_local.tga
+	diffusemap		textures/washroom/rftrim01.tga
+	specularmap		textures/washroom/rftrim01_s.tga
+
+}
+
+textures/washroom/rfwallpanel04
+{
+	qer_editorimage 	textures/washroom/rfwallpanel04.tga
+	bumpmap 		addnormals(textures/washroom/rfwallpanel04_local.tga, heightmap(textures/washroom/rfwallpanel04_h.tga, 5 ) )
+	diffusemap		textures/washroom/rfwallpanel04.tga
+	specularmap		textures/washroom/rfwallpanel04_s.tga
+
+}
+
+
+
+textures/washroom/rfwallpanel03
+{
+	qer_editorimage 	textures/washroom/rfwallpanel03.tga
+	bumpmap 		addnormals(textures/washroom/rfwallpanel03_local.tga, heightmap(textures/washroom/rfwallpanel03_h.tga, 5 ) )
+	diffusemap		textures/washroom/rfwallpanel03.tga
+	specularmap		textures/washroom/rfwallpanel03_s.tga
+
+}
+
+
+textures/washroom/rfwallpanel02
+{
+	qer_editorimage 	textures/washroom/rfwallpanel02.tga
+	bumpmap 		addnormals(textures/washroom/rfwallpanel02_local.tga, heightmap(textures/washroom/rfwallpanel02_h.tga, 5 ) )
+	diffusemap		textures/washroom/rfwallpanel02.tga
+	specularmap		textures/washroom/rfwallpanel02_s.tga
+
+}
+
+
+textures/washroom/rfthinbeam01
+{
+	qer_editorimage 	textures/washroom/rfthinbeam01.tga
+	bumpmap 		textures/washroom/rfthinbeam01_local.tga
+	diffusemap		textures/washroom/rfthinbeam01.tga
+	specularmap		textures/washroom/rfthinbeam01_s.tga
+
+}
+
+
+textures/washroom/rfcorner01
+{
+	qer_editorimage 	textures/washroom/rfcorner01.tga
+	bumpmap 		addnormals(textures/washroom/rfcorner01_local.tga, heightmap(textures/washroom/rfcorner01_h.tga, 5 ) )
+	diffusemap		textures/washroom/rfcorner01.tga
+	specularmap		textures/washroom/rfcorner01_s.tga
+
+}
+
+textures/washroom/rfcorner01ns
+{
+	qer_editorimage 	textures/washroom/rfcorner01.tga
+	noshadows
+	noselfshadow
+	bumpmap 		addnormals(textures/washroom/rfcorner01_local.tga, heightmap(textures/washroom/rfcorner01_h.tga, 5 ) )
+	diffusemap		textures/washroom/rfcorner01.tga
+	specularmap		textures/washroom/rfcorner01_s.tga
+
+}
+
+textures/washroom/rfwallpanel01
+{
+	qer_editorimage 	textures/washroom/rfwallpanel01.tga
+	bumpmap 		addnormals(textures/washroom/rfwallpanel01_local.tga, heightmap(textures/washroom/rfwallpanel01_h.tga, 5 ) )
+	diffusemap		textures/washroom/rfwallpanel01.tga
+	specularmap		textures/washroom/rfwallpanel01_s.tga
+
+}
+
+
+textures/washroom/rfceilingtile01
+
+{
+		qer_editorimage	textures/washroom/rfceilingtile01.tga
+	{
+		blend diffusemap
+		map   textures/washroom/rfceilingtile01_d.tga
+		scale 2, -2
+	}
+	{
+		blend bumpmap
+		map   addnormals(textures/washroom/rfceilingtile01_local.tga, heightmap(textures/washroom/rfceilingtile01_h.tga, 10 ) )
+		scale 2, -2
+	}
+	{
+		blend specularmap
+		map   textures/washroom/rfceilingtile01_s.tga
+		scale 2, -2
+	}
+
+}
+
+
+textures/washroom/water01
+{
+	translucent
+	//nonsolid
+	//noimpact
+	twosided
+	//noshadows
+	//polygonOffset
+	qer_editorimage	textures/washroom/water01.tga
+	
+	{
+		blend add
+		map textures/washroom/water01.tga
+		scroll time * .1 , time * -1
+	}
+	{
+		blend add
+		map textures/washroom/water01.tga
+		scroll time * .16 , time * -1.4
+		scale	 0.9 , 1.1
+
+	}
+	//{
+	//	blend add
+	//	map textures/washroom/water01.tga
+	//	scroll time * .02 , time * -1.3
+	//}
+
+
+
+}
+
+
+textures/washroom/glass01
+{
+	translucent
+	//nonsolid
+	//noimpact
+	twosided
+	//noshadows
+	//polygonOffset
+	qer_editorimage	textures/washroom/glass01.tga
+	
+	{
+		blend add
+		map textures/washroom/glass01.tga
+		//scroll time * .01 , time * .0
+	}
+
+
+
+}
+
+textures/washroom/bpipe2
+{
+	qer_editorimage 	textures/washroom/bpipe2.tga
+	bumpmap 		textures/washroom/bpipe2_local.tga
+	diffusemap		textures/washroom/bpipe2_d.tga
+	specularmap		textures/washroom/bpipe2_s.tga
+
+}
+
+
+textures/washroom/bpipe
+{
+	qer_editorimage 	textures/washroom/bpipe.tga
+	bumpmap 		textures/washroom/bpipe_local.tga
+	diffusemap		textures/washroom/bpipe_d.tga
+	specularmap		textures/washroom/bpipe_s.tga
+
+}	
+
+textures/washroom/bvent01
+{
+	
+	//translucent
+	twosided
+	nonsolid
+	noimpact
+	noshadows
+	qer_editorimage 	textures/washroom/bvent01.tga
+
+	{       
+      	 blend	diffusemap
+	 map	textures/washroom/bvent_d.tga
+	 alphaTest 0.5
+	}
+	
+	specularmap		textures/washroom/bvent_s.tga
+	
+	bumpmap 		textures/washroom/bvent_local.tga
+}	
+
+
+textures/washroom/nosmoking01
+{
+	qer_editorimage textures/washroom/nosmoking01.tga
+
+	{       
+      	 blend	diffusemap
+	 map	textures/washroom/nosmoking.tga
+	 alphaTest 0.5
+	}
+	specularmap	textures/washroom/nosmoking_s.tga
+        bumpmap 	heightmap(textures/washroom/nosmoking_b.tga, 3 ) 
+
+}
+
+textures/washroom/blight_fx
+ {
+	//noSelfShadow
+	//polygonOffset
+        noshadows
+	translucent
+	qer_editorimage textures/washroom/blight_fx_ed.tga
+	{
+		blend	add
+		map	textures/washroom/blight_fx.tga
+		rgb		blighttable[ time * .2 ]
+	}
+}
+
+textures/washroom/blight
+
+{
+ 	noShadows
+	qer_editorimage textures/washroom/blight.tga
+	{
+		blend	specularmap
+		map	textures/washroom/blight_s.tga
+	}
+	{       
+		blend	diffusemap
+		map	textures/washroom/blight_d.tga
+		alphaTest 0.5
+	}
+	{
+		blend bumpmap 
+		map	textures/washroom/blight_local.tga
+	}
+}
+
+
+//textures/washroom/mirror
+//{
+//	discrete
+//	//translucent
+//	//twosided
+//	noshadows
+//	qer_editorimage	textures/washroom/mirror.tga
+//	{
+//		blend gl_dst_color,gl_zero
+//		map textures/washroom/mirror.tga
+//	}	
+//	mirror
+//	solid
+//}
+
+textures/washroom/mirror
+{
+	discrete
+	//translucent
+	//twosided
+	noshadows
+	qer_editorimage	textures/washroom/mirror.tga
+	{
+		blend gl_dst_color,gl_zero
+		map textures/washroom/mirror.tga
+	}
+	solid
+	mirror
+}
+
+textures/washroom/plaingreen
+{
+	qer_editorimage 	textures/washroom/plaingreen.tga
+	
+	{
+
+	blend bumpmap	
+	map 			heightmap	(textures/lab/green_plain_b.tga,3)
+	scale	 4 , 4
+	}		
+ 		
+	{
+	blend diffusemap	
+	map 			textures/washroom/plaingreen_d.tga
+	scale	 2 , 2
+
+	}	
+	{
+
+	blend specularmap	
+	map 			textures/lab/green_plain_s.tga
+	scale	 2 , 2
+
+	}		
+		
+}
+
+textures/washroom/lightburn01
+ {
+	noSelfShadow
+	polygonOffset
+    noshadows
+	translucent
+	qer_editorimage textures/washroom/lightburn01.tga
+	{
+		blend	add
+		map	textures/washroom/lightburn01.tga
+		rgb		blamptable[ time * 5 ]
+	}
+}
+
+
+textures/washroom/sign2
+{
+	qer_editorimage textures/washroom/sign2.tga
+
+	{       
+      	 blend	diffusemap
+	 map	textures/washroom/sign2_d.tga
+	 alphaTest 0.5
+	}
+	specularmap	textures/washroom/sign2_s.tga
+        bumpmap 	heightmap(textures/washroom/sign2_b.tga, 3 ) 
+
+}
+textures/washroom/btiletrim
+{
+	qer_editorimage 	textures/washroom/btiletrim.tga
+	bumpmap 		textures/washroom/btiletrim_local.tga
+	diffusemap		textures/washroom/btiletrim_d.tga
+	specularmap		textures/washroom/btiletrim_s.tga
+}	
+
+textures/washroom/blackbtile01
+{
+	qer_editorimage 	textures/washroom/blackbtile01.tga
+	bumpmap 		textures/washroom/btile_local.tga
+	diffusemap		textures/washroom/blackbtile_d.tga
+	//specularmap		textures/washroom/btile_s.tga
+	{
+
+	blend specularmap	
+	map 			textures/washroom/btile_s.tga
+	scale	 2, 2
+
+	}
+}	
+
+
+textures/washroom/greenbtile01
+{
+	qer_editorimage 	textures/washroom/greenbtile01.tga
+	bumpmap 		textures/washroom/btile_local.tga
+	diffusemap		textures/washroom/greenbtile_d.tga
+	{
+
+	blend specularmap	
+	map 			textures/washroom/btile_s.tga
+	scale	 2, 2
+
+	}
+}	
+
+
+textures/washroom/btile01
+{
+	qer_editorimage 	textures/washroom/btile01.tga
+	bumpmap 		textures/washroom/btile_local.tga
+	diffusemap		textures/washroom/btile_d.tga
+	{
+
+	blend specularmap	
+	map 			textures/washroom/btile_s.tga
+	scale	 2, 2
+
+	}
+}	
+
+textures/washroom/redge
+{
+	qer_editorimage 	textures/washroom/redge.tga
+	bumpmap 		textures/washroom/redge_local.tga
+	diffusemap		textures/washroom/redge_d.tga
+	specularmap		textures/washroom/redge_s.tga
+}	

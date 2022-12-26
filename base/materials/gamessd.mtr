@@ -1,0 +1,268 @@
+
+game/SSD/crosshair_standard
+{
+	{
+		blend blend
+		map ui/assets/crosshair.tga
+		maskDepth
+		colored
+		nopicmip
+		linear
+	}
+}
+
+game/SSD/crosshair_super
+{
+	{
+		blend blend
+		map ui/assets/crosshair.tga
+		maskDepth
+		colored
+		nopicmip
+		linear
+	}
+}
+
+
+game/SSD/asteroid
+{
+	{
+		blend blend
+		map guis/assets/arcade/asteroid.tga
+		maskDepth
+		colored
+		nopicmip
+		linear
+	}
+}
+
+table table2 { snap { 0, 1 } }
+
+game/SSD/astronaut
+{
+	qer_editorimage guis/assets/arcade/martianbuddy_strip.tga
+		
+	{
+		blend blend
+		map guis/assets/arcade/martianbuddy_strip.tga
+		red			1
+		green		1
+		blue		1
+		scale 1 / 2 , 1
+		scroll table2[ time * 2.5 ] , 0
+	}
+}
+
+game/SSD/gameover
+{
+	qer_editorimage guis/assets/arcade/martianbuddy_notmybuddy.tga
+
+	
+	{
+		blend blend
+		map guis/assets/arcade/martianbuddy_notmybuddy.tga
+		red			1
+		green		1
+		blue		1
+		scale 1 / 2 , 1
+		scroll table2[ time * 2.5 ] , 0
+	}
+}
+
+game/SSD/fball
+{
+	qer_editorimage textures/particles/flame2_strip.tga
+		
+	{
+		blend blend
+		map textures/particles/fball2_strip.tga
+		red			1
+		green		1
+		blue		1
+		scale 1 / 16 , 1
+		scroll table16[ time * 2.5 ] , 0
+	}
+
+
+}
+
+
+game/SSD/teleport
+{
+	qer_editorimage guis/assets/arcade/teleport.tga
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	//deform sprite
+	//sort		5
+	
+	{
+		blend blend
+		map guis/assets/arcade/teleport.tga
+		red			1
+		green		1
+		blue		1
+		//scale 1 / 16 , 1
+		//scroll table16[ time * 2.5 ] , 0
+		rotate	( time * -.2 )
+		//zeroclamp
+	}
+
+
+}
+
+
+game/SSD/powerupHealthClosed
+{
+	qer_editorimage guis/assets/arcade/powerupHealthClosed.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupHealthClosed.tga
+	}
+}
+
+game/SSD/powerupHealthOpen
+{
+	qer_editorimage guis/assets/arcade/powerupHealthOpen.tga
+	noSelfShadow
+	translucent
+	noShadows
+	{
+		blend blend
+		map guis/assets/arcade/powerupHealthOpen.tga
+	}
+}
+
+game/SSD/powerupSuperBlasterClosed
+{
+	qer_editorimage guis/assets/arcade/powerupSuperBlasterClosed.tga
+	noSelfShadow
+	translucent
+	noShadows
+	{
+		blend blend
+		map guis/assets/arcade/powerupSuperBlasterClosed.tga
+	}
+}
+
+game/SSD/powerupSuperBlasterOpen
+{
+	qer_editorimage guis/assets/arcade/powerupSuperBlasterOpen.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupSuperBlasterOpen.tga
+	}
+}
+
+game/SSD/powerupNukeClosed
+{
+	qer_editorimage guis/assets/arcade/powerupNukeClosed.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupNukeClosed.tga
+	}
+}
+
+game/SSD/powerupNukeOpen
+{
+	qer_editorimage guis/assets/arcade/powerupNukeOpen.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupNukeOpen.tga
+	}
+}
+
+game/SSD/powerupRescueClosed
+{
+	qer_editorimage guis/assets/arcade/powerupRescueClosed.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupRescueClosed.tga
+	}
+}
+
+game/SSD/powerupRescueOpen
+{
+	qer_editorimage guis/assets/arcade/powerupRescueOpen.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupRescueOpen.tga
+	}
+}
+
+game/SSD/powerupBonusPointsClosed
+{
+	qer_editorimage guis/assets/arcade/powerupBonusPointsClosed.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupBonusPointsClosed.tga
+	}
+}
+
+game/SSD/powerupBonusPointsOpen
+{
+	qer_editorimage guis/assets/arcade/powerupBonusPointsOpen.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupBonusPointsOpen.tga
+	}
+}
+
+game/SSD/powerupDamageClosed
+{
+	qer_editorimage guis/assets/arcade/powerupDamageClosed.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupDamageClosed.tga
+	}
+}
+
+game/SSD/powerupDamageOpen
+{
+	qer_editorimage guis/assets/arcade/powerupDamageOpen.tga
+	noSelfShadow
+	translucent
+	noShadows
+
+	{
+		blend blend
+		map guis/assets/arcade/powerupDamageOpen.tga
+	}
+}

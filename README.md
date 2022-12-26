@@ -109,16 +109,10 @@ You can fork RBDOOM-3-BFG and create a new renamed binary that includes all requ
 
 If you want to see what is planned or in progress in a Trello/Kanban style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
 
-Very certain short term goals are to port and extend some improvements from Justin Marshall's [Iced-Hellfire-Dev](https://github.com/jmarshall23/Doom3BFG) branch:
-* Assimp -> MD5 converter pipeline to generate .md5mesh/.md5anim files from any FBX, DAE, glTF2 files
-* Improve MD5 files with a new Version 11 that allows to store normals for better control of smoothing groups
-* Native C++ weapons code
-* Native C++ AI & monsters code
-* Quake 3 gladiator multiplayer bot
-
-Other short term goals:
-* DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi) by Stephen Pridham which will lead the path to advanced Ray Tracing techniques
+Short term goals:
+* Finish last remaining bugs of the DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi)
 * Optional RmlUI support as an alternative to Flash
+* Add Raytracing for accelerating the probe baking and optionally adding realtime global illumination
 
 ---
 # May or may not ".plan" <a name="plan2"></a>
@@ -126,7 +120,7 @@ Other short term goals:
 * Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
 * Explore Screen Space Global Illumination with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
 * Update texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
-* Replace collision detection and physics with PhysX 4.1
+* Replace collision detection and physics with PhysX 5
 
 ---
 # Renderer Features Explained <a name="render"></a>
@@ -422,12 +416,10 @@ This project's GitHub.net Git repository can be checked out through Git with the
 
 	> git clone --recursive https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
 
-The parameter --recursive is only required if you want to build RBDOOM-3-BFG with Vulkan support.
-
 Existing repositories can be updated manually:
 
 	> git submodule init
-	> git submodule update
+	> git submodule update --recursive
 
 
 
@@ -435,17 +427,14 @@ Existing repositories can be updated manually:
 ---
 # Compiling on Windows <a name="compile_windows"></a>
 
-1. Download and install the Visual Studio 2017 Community Edition.
+1. Download and install the Visual Studio 2019 Community Edition.
 
-2. **Only for Windows 7 builds**: Download and install the DirectX SDK (June 2010)
-	http://www.microsoft.com/en-us/download/details.aspx?id=6812
+2. Download and install the latest CMake and make sure cmake.exe is added to your global or user PATH.
 
-3. Download and install the latest CMake.
+3. Generate the VS2019 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+Recommended in this case is `cmake-vs2019-64bit.bat` or `cmake-vs2019-64bit-no-ffmpeg.bat`
 
-4. Generate the VS2017 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
-
-5. Use the VS2017 solution to compile what you need:
+4. Use the VS2019 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
 
@@ -459,7 +448,9 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 ---
 # Compiling on Linux <a name="compile_linux"></a>
 
-1. You need the following dependencies in order to compile RBDoom3BFG with all features:
+1. Go to https://github.com/microsoft/DirectXShaderCompiler and download the DXC binaries for Linux and put them into your local PATH.
+
+2. You need the following dependencies in order to compile RBDoom3BFG with all features:
 
 	On Debian or Ubuntu:
 
@@ -479,12 +470,12 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 
 	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. It is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.
 
-2. Generate the Makefiles using CMake:
+3. Generate the Makefiles using CMake:
 
 		> cd neo/
-		> ./cmake-eclipse-linux-profile.sh
+		> ./cmake-linux-release.sh
 	
-3. Compile RBDOOM-3-BFG targets with
+4. Compile RBDOOM-3-BFG targets with
 
 		> cd ../build
 		> make
@@ -678,11 +669,6 @@ convertMapToJSON mapfile               | Command: Convert .map file to new .json
 
 * Some lights cause shadow acne with shadow mapping
 * Some shadows might almost disappear due to the shadow filtering or look off ("Peter panning" problem)
-* [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA with r_antiAliasing 1
-* [Vulkan] **Vulkan backend is unfinished in general**
-* [Vulkan] Shadow Mapping is not supported yet
-* [Vulkan] HDR is not supported yet and GI looks bad because it requires HDR and linear RGB color space
-* [Vulkan] Post processing and SMAA is not supported yet
 
 ---
 # Bug Reports <a name="reports"></a>
@@ -705,17 +691,17 @@ You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Gam
 ---
 # FAQ <a name="faq"></a>
 
-**Q**: Why bother with DOOM-3-BFG in 2021?
+**Q**: Why bother with DOOM-3-BFG in 2023?
 **A**: It is fun, period. Doom 3 is from 2004 but is still an impressive and entertaining game. In 2011 id Software added lot stuff from the development of Rage like its own Flash SWF and ActionScript 2 interpreter, proper support for gamepads and widescreens. It also combines the gamecode for Doom 3 and its missionpacks and runs it in a seperate thread and it has many multithreaded rendering optimizations. 
 DOOM-3 and DOOM-3-BFG are some of the most transparent games available where you can open all files and inspect how the game was built.
 Unlike Quake 1-3, DOOM-3-BFG shipped with all level .map sources for 47 single player maps.
 There is plenty of stuff you can learn from it like solid run & gun core gameplay, AI, animations, client/server multiplayer, level design or simple and elegant engine design.
 
-**Q**: Why bother with DOOM-3-BFG in 2022?
+**Q**: Why bother with DOOM-3-BFG in 2023?
 **A**: The engine compiles faster than opening a project in Unity.
 
 **Q**: Can I use this engine to make a commercial game?
-**A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4. I am a full time game developer and usually don't have time for any free support.
+**A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4/5. I am a full time game developer and usually don't have time for any free support. I recommend that you have moderate C++ skills even you are an artist. Technical designers (coders that became artists) might have the most use from this engine.
 
 However some people already work on total conversions and there is a community on the id Tech 4 Discord server where you can ask questions and get some support:
 https://discord.gg/Q3E9rUFnnP

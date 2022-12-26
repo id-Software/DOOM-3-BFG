@@ -1,0 +1,575 @@
+table adam_strobetable1 { snap { .25, .15, .15, 1 } }
+table adam_strobetable2 { snap { .25, .25, .15, .5, .25, .25, .75, .5, .25, .15, .15, .75, .15, .75, 1, 1, .5 } }
+
+lights/adam_erebusgrate1
+{	
+	{
+
+		map	lights/adam_erebusgrate1.tga
+		colored
+		zeroClamp
+	}
+}
+
+lights/adam_erebusgrate1_blinky1
+{	
+	{
+
+		map	lights/adam_erebusgrate1.tga
+		colored
+		red 	((.1 * sintable [.15 + (time * 12) ]) +.9) * Parm0
+		green 	((.1 * sintable [.15 + (time * 12) ]) +.9) * Parm1
+		blue 	((.1 * sintable [.15 + (time * 12) ]) +.9) * Parm2
+		zeroClamp
+	}
+}
+
+lights/adam_erebusgrate1_blinky2
+{
+	{
+		map		lights/adam_erebusgrate1.tga
+		red 		( adam_strobetable1 [Parm4 + (time * (6 * Parm3)) ]) * Parm0
+		green 		( adam_strobetable1 [Parm4 + (time * (6 * Parm3)) ]) * Parm1
+		blue 		( adam_strobetable1 [Parm4 + (time * (6 * Parm3)) ]) * Parm2
+		zeroclamp
+	}
+}
+
+lights/adam_erebusgrate1_blinky3
+{
+	{
+		map		lights/adam_erebusgrate1.tga
+		red 		( adam_strobetable2 [Parm4 + (time * (6 * Parm3)) ]) * Parm0
+		green 		( adam_strobetable2 [Parm4 + (time * (6 * Parm3)) ]) * Parm1
+		blue 		( adam_strobetable2 [Parm4 + (time * (6 * Parm3)) ]) * Parm2
+		zeroclamp
+	}
+}
+
+textures/adam/icecaves_sky01
+{
+	qer_editorimage	env/adamice_left.tga
+	noFragment
+	noshadows
+	forceOpaque
+	{
+		blend add
+		cameraCubeMap env/adamice
+		texgen skybox
+	}
+}
+
+textures/researchoutpost/adam_icecaves01
+{
+	noShadows	
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_icecaves01.tga
+	{
+		blend	bumpmap
+		map	addnormals(textures/researchoutpost/adam_ice1a_local.tga,heightmap(textures/researchoutpost/adam_ice1a_h.tga,8))
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/adam_ice1a_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/adam_ice1a_s.tga
+	}
+	{
+		vertexColor
+		blend	add
+		cubeMap	env/adamshiny
+		texGen	reflect
+	}
+	{
+		blend	bumpmap
+		map	addnormals(textures/researchoutpost/adam_icerock1a_local.tga,heightmap(textures/researchoutpost/adam_icerock1a_h.tga,8))
+	}
+	{
+		inverseVertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/adam_icerock1a_d.tga
+	}
+	{
+		inverseVertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/adam_icerock1a_s.tga
+	}
+}
+
+textures/researchoutpost/adam_icecaves02
+{
+	forceOpaque
+	qer_editorimage	textures/researchoutpost/adam_icecaves02.tga
+	{
+		blend	bumpmap
+		map	addnormals(textures/researchoutpost/adam_ice1a_local.tga,heightmap(textures/researchoutpost/adam_ice1a_h.tga,1))
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/adam_ice1a_d.tga
+	}
+	{
+		blend	specularmap
+		map	textures/researchoutpost/adam_ice1a_s.tga
+	}
+	{
+		blend	add
+		cubeMap	env/adamshiny
+		texGen	reflect
+	}
+}
+
+textures/researchoutpost/adam_icecaves03
+{
+	noShadows	
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_icecaves01.tga
+	{
+		blend	bumpmap
+		map	addnormals(textures/researchoutpost/ice2_local.tga,heightmap(textures/researchoutpost/ice2_h.tga,8))
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice2_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice2_s.tga
+	}
+	{
+		vertexColor
+		blend	add
+		cubeMap	env/adamshiny
+		texGen	reflect
+	}
+	{
+		blend	bumpmap
+		map	addnormals(textures/researchoutpost/adam_icerock1a_local.tga,heightmap(textures/researchoutpost/adam_icerock1a_h.tga,8))
+	}
+	{
+		inverseVertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/adam_icerock1a_d.tga
+	}
+	{
+		inverseVertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/adam_icerock1a_s.tga
+	}
+}
+
+textures/researchoutpost/adam_coldwinds1
+{
+	qer_editorimage		textures/researchoutpost/adam_coldwinds1
+	translucent
+	noshadows
+	{
+		blend		add
+		map		textures/researchoutpost/adam_coldwinds1.tga
+		translate 	time * .17, 0
+	}
+	{
+		blend		add
+		map		textures/researchoutpost/adam_coldwinds1.tga
+		translate 	time * 0.07, 0.1
+	}
+}
+
+textures/researchoutpost/adam_frostedglass1
+{
+	twoSided
+	noShadows	
+	translucent	
+	qer_editorimage	textures/researchoutpost/adam_frostedglass1_d.tga
+	{
+		blend	add
+		cubeMap	env/darkashell
+		texGen	reflect
+		alpha	1
+	}
+	{
+		blend	add
+		map	textures/researchoutpost/adam_frostedglass1_d.tga
+	}
+}
+
+
+textures/researchoutpost/greyrock01
+{
+	qer_editorimage	textures/researchoutpost/greyrock01_d.tga
+	bumpmap		heightmap (textures/researchoutpost/greyrock01_h.tga,24)
+	diffusemap	textures/researchoutpost/greyrock01_d.tga
+	specularmap	textures/researchoutpost/greyrock01_s.tga
+}
+
+textures/researchoutpost/adam_iceterrain01
+{
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain03.tga
+	
+	//ADAM_ICE2A - Smooth Ice
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/ice2_h.tga,22)
+	}
+	{
+		vertexColor
+		blend	diffusemap
+		map	textures/researchoutpost/adam_ice2a_d.tga
+	}
+	{
+		vertexColor
+		blend	specularmap
+		map	textures/researchoutpost/adam_ice2a_s.tga
+	}
+	{
+		vertexColor
+		blend	add
+		cubeMap	env/adamshiny
+		texGen	reflect
+	}
+	
+	//ICE3A - Ribbed Ice
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/ice3a_h.tga,24)
+	}
+	{
+		inverseVertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice3a_d.tga
+	}
+	{
+		inverseVertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice3a_s.tga
+	}
+}
+
+textures/researchoutpost/adam_iceterrain02
+{
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain02.tga
+	
+	//ADAM_ICE2A - Smooth Ice
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/adam_ice2a_h.tga, 1)
+	}
+	{
+		vertexColor
+		blend	diffusemap
+		map	textures/researchoutpost/adam_ice2a_d.tga
+	}
+	{
+		vertexColor
+		blend	specularmap
+		map	textures/researchoutpost/adam_ice2a_s.tga
+	}
+	{
+		vertexColor
+		blend	add
+		cubeMap	env/adamshiny
+		texGen	reflect
+	}
+
+	//ICE5A - Pitted Ice
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/ice5a_h.tga, 4)
+	}
+	{
+		inverseVertexColor
+		blend	diffusemap
+		map	textures/researchoutpost/ice5a_d.tga
+	}
+	{
+		inverseVertexColor
+		blend	specularmap
+		map	textures/researchoutpost/ice5a_s.tga
+	}
+}
+
+textures/researchoutpost/adam_iceterrain03
+{
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain03.tga
+	
+	//ICE6A - Packed Snow
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/ice6a_h.tga,5)
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice6a_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice6a_s.tga
+	}
+
+	//ICE_ROAD - Icey Path
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/ice_road_h.tga,20)
+	}
+	{
+		inverseVertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice_road_d.tga
+	}
+	{
+		inverseVertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice_road_s.tga
+	}
+}
+
+textures/researchoutpost/adam_iceterrain04
+{
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain04.tga
+	
+	//ICE6A - Snowy Ice
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap(textures/researchoutpost/ice6a_h.tga,5)
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice6a_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice6a_s.tga
+	}
+
+	//ICE6B - Mars Dirt
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	textures/researchoutpost/adam_dirt1_local.tga
+	}
+	{
+		inverseVertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/adam_dirt1_d.tga
+	}
+}
+
+textures/researchoutpost/adam_iceterrain05
+{
+	//noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain05.tga
+	
+	//ICE6A - Snowy Ice
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap(textures/researchoutpost/ice6a_h.tga,5)
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice6a_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice6a_s.tga
+	}
+
+	//GREYROCK01 - Grey Doom3 Rock
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/greyrock01_h.tga,24)
+	}
+	{
+		inverseVertexColor
+		blend	diffusemap
+		map	textures/researchoutpost/greyrock01_d.tga
+	}
+	{
+		inverseVertexColor
+		blend	specularmap
+		map	textures/researchoutpost/greyrock01_s.tga
+	}
+}
+
+textures/researchoutpost/adam_iceterrain05_noshadow
+{
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain05_noshadow.tga
+	
+	//ICE6A - Snowy Ice
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap(textures/researchoutpost/greyrock01_h.tga,3)
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/ice6a_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/ice6a_s.tga
+	}
+
+	//GREYROCK01 - Grey Doom3 Rock
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/greyrock01_h.tga,24)
+	}
+	{
+		inverseVertexColor
+		blend	diffusemap
+		map	textures/researchoutpost/greyrock01_d.tga
+	}
+	{
+		inverseVertexColor
+		blend	specularmap
+		map	textures/researchoutpost/greyrock01_s.tga
+	}
+}
+
+textures/researchoutpost/adam_iceterrain06
+{
+	noSelfShadow	
+	qer_editorimage	textures/researchoutpost/adam_iceterrain06.tga
+	
+	//ADAM_ICE2A - Smooth Ice
+	{
+		vertexColor
+		blend	bumpmap
+		map	heightmap(textures/researchoutpost/greyrock01_h,8)
+	}
+	{
+		vertexColor	
+		blend	diffusemap
+		map	textures/researchoutpost/adam_ice2a_d.tga
+	}
+	{
+		vertexColor	
+		blend	specularmap
+		map	textures/researchoutpost/adam_ice2a_s.tga
+	}
+
+	//GREYROCK01 - Grey Doom3 Rock
+	{
+		inverseVertexColor
+		blend	bumpmap
+		map	heightmap (textures/researchoutpost/greyrock01_h.tga,24)
+	}
+	{
+		inverseVertexColor
+		blend	diffusemap
+		map	textures/researchoutpost/greyrock01_d.tga
+	}
+	{
+		inverseVertexColor
+		blend	specularmap
+		map	textures/researchoutpost/greyrock01_s.tga
+	}
+}
+
+textures/researchoutpost/adam_ice2a
+{
+	qer_editorimage	textures/researchoutpost/adam_ice2a_d.tga
+	bumpmap		heightmap (textures/researchoutpost/adam_ice2a_h.tga,1)
+	diffusemap	textures/researchoutpost/adam_ice2a_d.tga
+	specularmap	textures/researchoutpost/adam_ice2a_s.tga
+	{
+		blend	add
+		cubeMap	env/adamshiny
+		texGen	reflect
+	}
+}
+
+textures/researchoutpost/sd_rock_snow04
+{
+	qer_editorimage	textures/researchoutpost/sd_rock_snow04.tga
+	bumpmap		heightmap (textures/researchoutpost/sd_rock_plain01_h.tga,16)
+	diffusemap	textures/researchoutpost/sd_rock_snow04_d.tga
+	specularmap	textures/researchoutpost/sd_snow_plain01_s.tga
+}
+
+textures/adam/encyl3_opaque
+{
+	qer_editorimage		textures/enpro/encyl3
+	bumpmap			textures/enpro/encyl3_local
+	diffusemap		textures/enpro/encyl3
+	specularmap		textures/enpro/encyl3_s
+}
+
+textures/adam/outside_rods1
+{
+	nonsolid
+	qer_editorimage	textures/adam/outside_rods1.tga
+	noshadows
+	twoSided
+	{
+		blend bumpmap
+		map textures/adam/outside_rods1_local.tga
+	}
+	{
+		blend diffusemap
+		map textures/adam/outside_rods1_d.tga
+		alphaTest 0.5
+	}
+}
+
+textures/adam/outside_rods2
+{
+	nonsolid
+	qer_editorimage	textures/adam/outside_rods2.tga
+	noshadows
+	twoSided
+	{
+		blend bumpmap
+		map textures/adam/outside_rods2_local.tga
+	}
+	{
+		blend diffusemap
+		map textures/adam/outside_rods2_d.tga
+		alphaTest 0.5
+	}
+}
+
+textures/adam/danger_overhead
+{
+ 	noShadows
+	nonsolid
+	noimpact
+	qer_editorimage textures/adam/danger_overhead_d.tga
+	{       
+     		blend	diffusemap
+		map	textures/adam/danger_overhead_d.tga
+		alphaTest 0.5
+	}
+	specularmap	textures/adam/danger_overhead_s.tga
+	bumpmap 	heightmap(textures/adam/danger_overhead_b.tga, 1 ) 
+}

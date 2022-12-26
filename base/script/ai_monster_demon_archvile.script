@@ -1,0 +1,724 @@
+/***********************************************************************
+
+ai_monster_demon_archvile.script
+
+monster_demon_archvile
+
+***********************************************************************/
+
+#define ARCH_ATTACK_RATE				2
+#define ARCH_DODGE_RATE					4
+#define	ARCH_PAIN_DELAY					0.25
+#define	ARCH_TURRET_TO_IDLE				4
+#define	ARCH_FLAME_WALL_NUM				20
+#define	ARCH_FLAME_WALL_SEPERATION		48
+#define	ARCH_FLAME_WALL_RANGE			( ARCH_FLAME_WALL_NUM * ARCH_FLAME_WALL_SEPERATION )
+#define ARCH_NOFOVTIME					4
+
+// anim blend times
+#define	ARCH_PAIN_TO_IDLE				2
+#define ARCH_PAIN_TO_PAIN				0
+#define ARCH_SIGHT_TO_IDLE				4
+#define ARCH_RESURRECT_TO_IDLE			4
+#define ARCH_IDLE_TO_RESURRECT			4
+#define	ARCH_MELEE_TO_IDLE				4
+#define ARCH_INCINERATE_TO_IDLE			4
+#define ARCH_FLAMEWALL_TO_IDLE			4
+#define ARCH_DODGE_LEFT_TO_IDLE			4
+#define	ARCH_DODGE_RIGHT_TO_IDLE		4
+#define ARCH_WAIT_TO_OUT				4
+#define	ARCH_IN_TO_WAIT					4
+#define	ARCH_WALK_TO_WAIT				4
+#define ARCH_WALK_TO_ACTION				4
+#define ARCH_ACTION_TO_IDLE				4
+#define ARCH_WALK_TO_DODGE_LEFT			4
+#define ARCH_WALK_TO_DODGE_RIGHT		4
+#define ARCH_IDLE_TO_PAIN				0
+#define ARCH_IDLE_TO_WALK				4
+#define ARCH_IDLE_TO_SIGHT				4
+#define ARCH_WALK_TO_IDLE				4
+#define ARCH_WALK_TO_FLAMEWALLATTACK	4
+#define ARCH_IDLE_TO_FLAMEWALLATTACK	4
+#define ARCH_WALK_TO_INCINERATEATTACK	4
+#define ARCH_IDLE_TO_INCINERATEATTACK	4
+#define ARCH_WALK_TO_MELEE				4
+#define ARCH_IDLE_TO_TURRETATTACK		4
+#define ARCH_TURRETATTACK_TO_IDLE		4
+
+#define ATTACK_FLAMEWALL				ATTACK_SPECIAL1
+#define ATTACK_RESURRECT				ATTACK_SPECIAL2
+
+object monster_demon_archvile : monster_base {
+	float			nextDodge;
+	float			nextAttack;
+	float			nextNoFOVAttack;
+	entity			combat_node;
+	float			keep_alive;
+	float			num_start;
+	float			summon_delay;
+	float			summon_time;
+
+	//
+	// States
+	//
+	void			state_Begin();
+	void			state_Idle();
+
+	void			init();
+	
+	// attacks
+	float			check_attacks();
+	void			do_attack( float attack_flags );
+	void			combat_resurrect();
+	void			combat_flamewall();
+	void			combat_incinerate();
+	void			combat_melee();
+	void			combat_dodge_left();
+	void			combat_dodge_right();
+	
+	void 			spawn_flame_wall( vector org );
+	void 			spawn_incerate( vector org );
+	void 			flame_wall_loop();
+	void 			flame_wall();
+	void 			incinerate();
+	float			num_minions();
+	monster_base	choose_random_dead_minion();
+	void			resurrection();
+
+	// torso anim states
+	void			Torso_Idle();
+	void			Torso_Pain();
+	void			Torso_Resurrect();
+	void			Torso_MeleeAttack();
+	void			Torso_FlameWallAttack();
+	void			Torso_IncinerateAttack();
+	void			Torso_TurretAttack();
+	
+	// legs anim states
+	void			Legs_Idle();
+	void			Legs_Walk();
+	void			Legs_DodgeLeft();
+	void			Legs_DodgeRight();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_demon_archvile::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+	
+	while( !AI_PAIN ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_TORSO, "Torso_Pain", ARCH_IDLE_TO_PAIN );
+}
+
+void monster_demon_archvile::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + ARCH_PAIN_DELAY;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, ARCH_PAIN_TO_IDLE ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", ARCH_PAIN_TO_PAIN );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", ARCH_PAIN_TO_IDLE );
+}
+
+void monster_demon_archvile::Torso_Resurrect() {
+	setShaderParm( 4, -sys.getTime() );
+	setSmokeVisibility( ALL_PARTICLES, 1 );
+	playAnim( ANIMCHANNEL_TORSO, "resurrection" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, ARCH_RESURRECT_TO_IDLE ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "resurrection" );
+	setSmokeVisibility( ALL_PARTICLES, 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", ARCH_RESURRECT_TO_IDLE );
+}
+
+void monster_demon_archvile::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, ARCH_MELEE_TO_IDLE ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", ARCH_MELEE_TO_IDLE );
+}
+
+void monster_demon_archvile::Torso_FlameWallAttack() {
+	string anim;
+	
+	disablePain();
+
+	setShaderParm( 4, -sys.getTime() );
+	setSmokeVisibility( ALL_PARTICLES, 1 );
+	anim = chooseAnim( ANIMCHANNEL_TORSO, "flamewall_attack" );
+	if ( testAnimMoveTowardEnemy( anim ) ) {
+		playAnim( ANIMCHANNEL_TORSO, anim );
+	} else {
+		allowMovement( false );
+		playAnim( ANIMCHANNEL_TORSO, "turret_attack" );
+	}
+
+	while( !animDone( ANIMCHANNEL_TORSO, ARCH_FLAMEWALL_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "flamewall_attack" );
+	setSmokeVisibility( ALL_PARTICLES, 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", ARCH_FLAMEWALL_TO_IDLE );
+}
+
+void monster_demon_archvile::Torso_IncinerateAttack() {
+	disablePain();
+	setShaderParm( 4, -sys.getTime() );
+	setSmokeVisibility( ALL_PARTICLES, 1 );
+	playAnim( ANIMCHANNEL_TORSO, "incinerate_attack" );
+
+	while( !animDone( ANIMCHANNEL_TORSO, ARCH_INCINERATE_TO_IDLE ) ) {
+		waitFrame();
+	}
+
+	allowMovement( true );
+	finishAction( "incinerate_attack" );
+	setSmokeVisibility( ALL_PARTICLES, 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", ARCH_INCINERATE_TO_IDLE );
+}
+
+void monster_demon_archvile::Torso_TurretAttack() {
+	allowMovement( false );
+	if ( num_minions() < keep_alive ) {
+		// check if we can resurrect a minion
+		if ( choose_random_dead_minion() ) {
+			Torso_Resurrect();
+			return;
+		}
+	}
+	Torso_IncinerateAttack();
+}
+
+/***********************************************************************
+
+	Legs animation control
+
+***********************************************************************/
+
+void monster_demon_archvile::Legs_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	while( !AI_FORWARD ) {
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Walk", ARCH_IDLE_TO_WALK );
+}
+
+void monster_demon_archvile::Legs_Walk() {
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+	
+	while( AI_FORWARD )	{
+		waitFrame();
+	}
+	
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", ARCH_WALK_TO_IDLE );
+}
+
+void monster_demon_archvile::Legs_DodgeLeft() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_left" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, ARCH_DODGE_LEFT_TO_IDLE ) ) {
+		preventPain( GAME_FRAMETIME );
+		waitFrame();
+	}
+	
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", ARCH_DODGE_LEFT_TO_IDLE );
+}
+
+void monster_demon_archvile::Legs_DodgeRight() {
+	playAnim( ANIMCHANNEL_LEGS, "evade_right" );
+
+	while( !animDone( ANIMCHANNEL_LEGS, ARCH_DODGE_RIGHT_TO_IDLE ) ) {
+		preventPain( GAME_FRAMETIME );
+		waitFrame();
+	}
+
+	finishAction( "strafe" );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", ARCH_DODGE_RIGHT_TO_IDLE );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_archvile::init
+=====================
+*/
+void monster_demon_archvile::init() {
+	float i;
+	float num;
+	float total;
+	monster_base monster;
+
+	keep_alive = getIntKey( "keep_alive" );
+	num_start = getIntKey( "num_start" );
+	summon_delay = getFloatKey( "delay" );
+
+	summon_time = 0;
+
+	// wait for other monsters to start up
+	waitFrame();
+
+	// count how many resurrection targets there are
+	total = 0;
+	num = numTargets();
+	for( i = 0; i < num; i++ ) {
+		monster = getTarget( i );
+		if ( !monster ) {
+			continue;
+		}
+		total++;
+		monster.archvile_minion();
+	}
+	if ( !keep_alive ) {
+		keep_alive = total;
+	}
+
+	if ( keep_alive > total ) {
+		keep_alive = total;
+	}
+	if ( num_start > total ) {
+		num_start = total;
+	}
+
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_archvile::state_Begin
+=====================
+*/
+void monster_demon_archvile::state_Begin() {
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_archvile::state_Idle
+=====================
+*/
+void monster_demon_archvile::state_Idle() {
+	setSmokeVisibility( ALL_PARTICLES, 0 );
+	wait_for_enemy();
+
+	nextAttack		= 0;
+	nextNoFOVAttack = 0;
+	nextDodge		= RandomTime( ARCH_DODGE_RATE );
+
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_demon_archvile::do_attack
+=====================
+*/
+void monster_demon_archvile::do_attack( float attack_flags ) {
+	nextNoFOVAttack = sys.getTime() + ARCH_NOFOVTIME;
+	if ( attack_flags & ATTACK_DODGE_LEFT ) {
+		combat_dodge_left();
+	} else if ( attack_flags & ATTACK_DODGE_RIGHT ) {
+		combat_dodge_right();
+	} else if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_RESURRECT ) {
+		combat_resurrect();
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_FLAMEWALL ) {
+		combat_flamewall();
+	}
+}
+
+/*
+=====================
+monster_demon_archvile::check_attacks
+=====================
+*/
+float monster_demon_archvile::check_attacks() {
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		if ( AI_PAIN && ( currentTime >= nextDodge ) ) {
+			if ( testAnimMove( "evade_left" ) ) {
+				attack_flags |= ATTACK_DODGE_LEFT;
+			}
+			if ( testAnimMove( "evade_right" ) ) {
+				attack_flags |= ATTACK_DODGE_RIGHT;
+				
+				// if we can dodge either direction, pick one
+				if ( attack_flags & ATTACK_DODGE_LEFT ) {
+					if ( sys.random( 100 ) < 50 ) {
+						attack_flags &= ~ATTACK_DODGE_RIGHT;
+					} else {
+						attack_flags &= ~ATTACK_DODGE_LEFT;
+					}
+				}
+			}
+		}
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+	
+	if ( ( ( sys.getTime() > nextNoFOVAttack ) && AI_ENEMY_VISIBLE ) || AI_ENEMY_IN_FOV ) {
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			if ( enemyRange() < ARCH_FLAME_WALL_RANGE ) {
+				if ( testChargeAttack() ) {
+					attack_flags |= ATTACK_FLAMEWALL;
+				}
+			}
+		}
+	}
+
+	if ( num_minions() < keep_alive ) {
+		if ( summon_time < currentTime ) {
+			// check if we can resurrect a minion
+			if ( choose_random_dead_minion() ) {
+				attack_flags |= ATTACK_RESURRECT;
+			}
+		}
+	} else {
+		summon_time = currentTime + summon_delay;
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_archvile::combat_resurrect
+=====================
+*/
+void monster_demon_archvile::combat_resurrect() {
+	stopMove();
+	lookAtEnemy( 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Resurrect", ARCH_IDLE_TO_RESURRECT );
+	waitAction( "resurrection" );
+	summon_time = sys.getTime() + summon_delay;
+}
+
+/*
+=====================
+monster_demon_archvile::combat_flamewall
+=====================
+*/
+void monster_demon_archvile::combat_flamewall() {
+	faceEnemy();
+	stopMove();
+	lookAtEnemy( 0 );
+
+	animState( ANIMCHANNEL_TORSO, "Torso_FlameWallAttack", ARCH_IDLE_TO_FLAMEWALLATTACK );
+	waitAction( "flamewall_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( ARCH_ATTACK_RATE );
+	nextNoFOVAttack = sys.getTime() + ARCH_NOFOVTIME;
+}
+
+/*
+=====================
+monster_demon_archvile::combat_incinerate
+=====================
+*/
+void monster_demon_archvile::combat_incinerate() {
+	faceEnemy();
+	stopMove();
+	lookAtEnemy( 0 );
+
+	animState( ANIMCHANNEL_TORSO, "Torso_IncinerateAttack", ARCH_IDLE_TO_INCINERATEATTACK );
+	waitAction( "incinerate_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( ARCH_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_demon_archvile::combat_melee
+=====================
+*/
+void monster_demon_archvile::combat_melee() {
+	lookAtEnemy( 100 );
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", ARCH_WALK_TO_MELEE );
+	waitAction( "melee_attack" );
+	lookAtEnemy( 1 );
+}
+
+/*
+=====================
+monster_demon_archvile::combat_dodge_left
+=====================
+*/
+void monster_demon_archvile::combat_dodge_left() {
+	AI_PAIN = false;
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeLeft", ARCH_WALK_TO_DODGE_LEFT );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( ARCH_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_archvile::combat_dodge_right
+=====================
+*/
+void monster_demon_archvile::combat_dodge_right() {
+	AI_PAIN = false;
+	stopMove();
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Legs_DodgeRight", ARCH_WALK_TO_DODGE_RIGHT );
+	waitAction( "strafe" );
+	nextDodge = DelayTime( ARCH_DODGE_RATE );
+}
+
+/*
+=====================
+monster_demon_archvile::spawn_flame_wall
+=====================
+*/
+void monster_demon_archvile::spawn_flame_wall( vector org ) {
+	entity ent;
+	vector ang;
+
+	ang_y = sys.random( 360 );
+	ent = sys.spawn( "archvile_flamewall" );
+	ent.setKey( "cinematic_remove", "1" );	// make sure it gets removed in cinematics
+	ent.setShaderParm( 4, -sys.getTime() );
+	ent.setShaderParm( 5, sys.random( 1 ) );
+	ent.setOrigin( org );
+	ent.setAngles( ang );
+	ent.setOwner( self );
+	ent.disable();
+	sys.wait( 0.2 );
+	ent.enable();
+	sys.wait( 0.5 );
+	ent.disable();
+	sys.wait( 2.0 );
+	ent.remove();
+}
+
+/*
+=====================
+monster_demon_archvile::spawn_incerate
+=====================
+*/
+void monster_demon_archvile::spawn_incerate( vector org ) {
+	entity ent;
+	vector ang;
+
+	ang_y = sys.random( 360 );
+	ent = sys.spawn( "archvile_incinerate" );
+	ent.setKey( "cinematic_remove", "1" );	// make sure it gets removed in cinematics
+	ent.setShaderParm( 4, -sys.getTime() );
+	ent.setShaderParm( 5, sys.random( 1 ) );
+	ent.setOrigin( org );
+	ent.setAngles( ang );
+	ent.setOwner( self );
+	ent.disable();
+	sys.wait( 0.4 );
+	ent.enable();
+	sys.wait( 0.4 );
+	ent.disable();
+	sys.wait( 0.6 );
+	ent.remove();
+}
+
+/*
+=====================
+monster_demon_archvile::flame_wall_loop
+=====================
+*/
+void monster_demon_archvile::flame_wall_loop() {
+	float	i;
+	vector	dir;
+	vector	ang;
+	vector	pos;
+	float	frac;
+
+	ang = getAngles();
+	dir = sys.angToForward( ang ) * ARCH_FLAME_WALL_SEPERATION;
+	pos = getOrigin();
+	for( i = 0; i < ARCH_FLAME_WALL_NUM; i++ ) {
+		pos_z += 48;
+		if ( sys.trace( pos, pos + dir, '-8 -8 0', '8 8 16', MASK_SOLID, self ) < 1 ) {
+			break;
+		}
+		pos = pos + dir;
+		frac = sys.trace( pos, pos - '0 0 96', '-8 -8 0', '8 8 16', MASK_SOLID, self );
+		if ( frac == 1 ) {
+			break;
+		}
+		pos_z -= 96 * frac;
+		thread spawn_flame_wall( pos );
+		sys.wait( 0.075 );
+	}
+}
+
+/*
+=====================
+monster_demon_archvile::flame_wall
+=====================
+*/
+void monster_demon_archvile::flame_wall() {
+	thread flame_wall_loop();
+}
+
+/*
+=====================
+monster_demon_archvile::incinerate
+=====================
+*/
+void monster_demon_archvile::incinerate() {
+	thread spawn_incerate( predictEnemyPos( 0.4 ) );
+}
+
+/*
+=====================
+monster_demon_archvile::num_minions
+=====================
+*/
+float monster_demon_archvile::num_minions() {
+	float i;
+	float num;
+	monster_base monster;
+	float minions;
+
+	minions = 0;
+	num = numTargets();
+	for( i = 0; i < num; i++ ) {
+		monster = getTarget( i );
+		if ( !monster || monster.AI_DEAD ) {
+			continue;
+		}
+		minions++;
+	}
+
+	return minions;
+}
+
+/*
+=====================
+monster_demon_archvile::choose_random_dead_minion
+=====================
+*/
+monster_base monster_demon_archvile::choose_random_dead_minion() {
+	float i;
+	float num;
+	float startnum;
+	monster_base monster;
+
+	num = numTargets();
+	startnum = sys.random( num );
+	for( i = 0; i < num; i++ ) {
+		monster = getTarget( ( i + startnum ) % num );
+		if ( monster ) {
+			if ( monster.can_resurrect() ) {
+				return monster;
+			}
+		}
+	}
+	return $null_entity;
+}
+
+/*
+=====================
+monster_demon_archvile::resurrection
+=====================
+*/
+void monster_demon_archvile::resurrection() {
+	float i;
+	float num;
+	monster_base monster;
+	float alive;
+	entity enemy;
+	
+	alive = num_minions();
+
+	if ( !num_start ) {
+		num = keep_alive;
+	} else {
+		num = num_start;
+		num_start = 0;
+	}
+
+	enemy = getEnemy();
+	for( i = alive; i < num; i++ ) {
+		monster = choose_random_dead_minion();
+		if ( !monster ) {
+			break;
+		}
+		if ( monster == enemy ) {
+			clearEnemy();
+			checkForEnemy( false );
+			enemy = getEnemy();
+		}
+		monster.monster_resurrect( enemy );
+	}
+}

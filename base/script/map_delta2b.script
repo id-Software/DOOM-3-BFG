@@ -1,0 +1,785 @@
+namespace map_delta2b 
+{
+	float container2_position = 0;
+	void monster_container2_run( entity container2 );
+	void monster_conveyor_run( entity container );
+	
+	
+	//******************
+	// Telepad Rotating Doors         
+	//******************
+	void teleporter_exit_open()
+	{
+		$round_door_left.time( 1.5 );
+		$round_door_left.accelTime( .1 );
+		$round_door_left.decelTime( 1 );
+		$round_door_right.time( 1.5 );		
+		$round_door_right.accelTime( .1 );
+		$round_door_right.decelTime( 1 );
+		sys.trigger ($rot_left_door);
+		$round_door_left.rotateOnce( '0 90 0' );
+		sys.trigger ($rot_right_door);
+		$round_door_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $round_door_left );
+	}
+
+	void start_conveyor_loop() 
+	{
+		sys.trigger ($container_speaker_start);
+		sys.wait (1.8);
+		sys.trigger ($container_speaker_loop);
+	}
+	
+	void start_conveyor_loop2() 
+	{
+		sys.trigger ($container2_speaker_start);
+		sys.wait (1.8);
+		sys.trigger ($container2_speaker_loop);
+	}
+
+	void stop_conveyor_loop() 
+	{
+		sys.trigger ($container_speaker_stop);
+		sys.trigger ($container_speaker_loop);
+	}
+	
+	void stop_conveyor_loop2() 
+	{
+		sys.trigger ($container2_speaker_stop);
+		sys.trigger ($container2_speaker_loop);
+	}
+
+	//************************************
+	// Monster Conveyor System
+	//************************************
+	
+/*	void turn_beam_on_off()
+	{
+		sys.trigger( $top_flare_fx);
+		sys.trigger( $bottom_flare_fx);
+		sys.trigger( $top_beam_fxr );
+		sys.trigger( $top_beam_fxl );
+		sys.trigger( $bottom_beam_fxr );
+		sys.trigger( $bottom_beam_fxl );
+		sys.trigger( $beam_kill_trigger );
+	}
+	
+	void start_beam()
+	{
+		while ( 1 )
+		{
+			$top_beam_mover.move( DOWN, 92 );
+			$bottom_beam_mover.move ( UP, 92 );
+			sys.waitFor ($bottom_beam_mover);
+			$top_beam_mover.move( UP, 92 );
+			$bottom_beam_mover.move ( DOWN, 92 );
+			sys.waitFor ($bottom_beam_mover);
+		}
+	}
+*/	
+	void monster_container2_run( entity container2 )
+	{
+		$container_clamp2.bind( $container2_clamphandle1 );
+		$container2_clamphandle1.moveTo( $clamp_position_start );
+		sys.waitFor( $container2_clamphandle1);
+		
+		$container_clamp2.unbind();
+		$container_clamp2.bind($container_clamphandle1);
+		$container2_clamphandle1.restorePosition();
+		
+		$monster_container2_contactpoint.move( UP, 164 );
+		sys.waitFor( $monster_container2_contactpoint );
+		//container2_position = 1;
+		
+		$container_clamphandle1.speed( 65 );
+		$container_clamphandle2.speed( 65 );
+		$container_clamphandle3.speed( 65 );
+		$container_clamphandle_middle.speed( 65 );
+		
+		//small door operate open
+		sys.trigger ($smalldoor_open);
+		$monster_machinedoorsmall_left.move( WEST, 32 );
+		$monster_machinedoorsmall_right.move( EAST, 32 );
+		sys.waitFor( $monster_machinedoorsmall_right );
+		
+		//move container2 clamp into position while container moves up
+		$container_clamphandle1.moveTo( $clamp_position_stop1 );
+		
+		//move container up and arms down for pickup
+		container2.move( UP, 52 );
+		sys.trigger ($speaker_liftarms1_down);			// SOUND
+		$monster_container_liftarms1.move( DOWN, 152 );
+		sys.waitFor( $monster_container_liftarms1 );
+		sys.wait( .5 );
+		
+		//bind container to liftarms and move up
+		container2.bind( $monster_container_liftarms1 );
+		sys.trigger ($speaker_liftarms1_up);				// SOUND
+		$monster_container_liftarms1.move( UP, 120 );
+		sys.waitFor( $container_clamphandle1 );
+		sys.waitFor( $monster_container_liftarms1 );
+		
+		//small door operate close
+		sys.trigger ($smalldoor_close);
+		$monster_machinedoorsmall_left.move( EAST, 32 );
+		$monster_machinedoorsmall_right.move( WEST, 32 );
+		
+		//bind container to the clamp
+		sys.wait( 1 ); //temp wait for clamp to engage
+		container2.bind( $container_clamp2 );
+		sys.trigger ($speaker_liftarms1_up);				// SOUND
+		$monster_container_liftarms1.move( UP, 32 );
+		sys.waitFor( $monster_container_liftarms1 );
+		
+		//move container along path
+		thread start_conveyor_loop2();						// SOUND
+		
+		$container_clamphandle1.moveTo( $clamp_position_rotateright1 );
+		sys.waitFor( $container_clamphandle1 );
+		
+		$container_clamphandle1.time( 2.5 );//set to time var for corner
+		$container_clamphandle1.rotateOnce( '0 -90 0' );
+		sys.waitFor( $container_clamphandle1 );
+		
+		$container_clamp2.unbind();
+		$container_clamp2.bind( $container_clamphandle2 );
+		$container_clamphandle1.restorePosition();//reset handle1 to starting position
+		
+		$container_clamphandle2.speed( 65 );//reset to speed var
+		$container_clamphandle2.moveTo( $clamp_position_rotateleft1 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.time( 2.5 );
+		$container_clamphandle2.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.speed( 65 );//reset to speed var
+		$container_clamphandle2.moveTo( $clamp_position_rotateleft2 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.time( 2.5 );
+		$container_clamphandle2.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.speed( 65 );//reset to speed var
+		$container_clamphandle2.moveTo( $clamp_position_stop2 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		thread stop_conveyor_loop2();						// SOUND
+		
+		sys.trigger ($speaker_machinedoor1);
+		$monster_machinedoor1_left.rotateOnce( '0 90 0' );
+		$monster_machinedoor1_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $monster_machinedoor1_left );
+		
+		sys.wait( 1 );//container wait to move into position
+		
+		thread start_conveyor_loop2();						// SOUND
+		
+		$container_clamphandle2.moveTo( $clamp_position_stop3 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamp2.unbind();
+		$container_clamp2.bind( $container_clamphandle_middle );
+		$container_clamphandle2.restorePosition();//reset handle2 to starting position
+		
+		thread stop_conveyor_loop2();						// SOUND
+		
+		sys.trigger ($speaker_machinedoor1);
+		$monster_machinedoor1_left.rotateOnce( '0 -90 0' );
+		$monster_machinedoor1_right.rotateOnce( '0 90 0' );
+		sys.waitFor( $monster_machinedoor1_left );
+		
+		//fade container 2 lights OUT, red lights IN
+		thread crossFadeEnt ($container2_light1, '0.756863 0.976471 1', '0 0 0', 1.0);
+		thread crossFadeEnt ($container2_light2, '0.756863 0.976471 1', '0 0 0', 1.0);
+		thread crossFadeEnt ($chamber_redlight1, '0 0 0', '.4 0 0', 1.0);
+		thread crossFadeEnt ($chamber_redlight2, '0 0 0', '.4 0 0', 1.0);
+		
+		sys.trigger ($chamber_fx1);
+		sys.trigger ($chamber_fx2);
+		sys.trigger ($chamber_fx_sound);
+		sys.wait( 4 );//container wait inside chamber
+		sys.trigger ($chamber_fx1);
+		sys.trigger ($chamber_fx2);
+		
+		//fade container 2 lights IN, red lights OUT
+		thread crossFadeEnt ($container2_light1, '0 0 0', '0.756863 0.976471 1', 1.0);
+		thread crossFadeEnt ($container2_light2, '0 0 0', '0.756863 0.976471 1', 1.0);
+		thread crossFadeEnt ($chamber_redlight1, '.4 0 0', '0 0 0', 1.0);
+		thread crossFadeEnt ($chamber_redlight2, '.4 0 0', '0 0 0', 1.0);
+		
+		thread monster_conveyor_run( $monster_container1_contactpoint );
+		
+		thread start_conveyor_loop2();						// SOUND
+		
+		$container_clamphandle_middle.moveTo( $clamp_position_stop4 );
+		sys.waitFor( $container_clamphandle_middle );
+		
+		thread stop_conveyor_loop2();						// SOUND
+		
+		sys.trigger ($speaker_machinedoor2);
+		$monster_machinedoor2_left.rotateOnce( '0 90 0' );
+		$monster_machinedoor2_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $monster_machinedoor2_left );
+		sys.wait( 1 );//container wait outside chamber
+		
+		thread start_conveyor_loop2();						// SOUND
+		
+		$container_clamphandle_middle.moveTo( $clamp_position_rotateleft3 );
+		sys.wait( 1.75 );
+		sys.trigger ($speaker_machinedoor2);
+		$monster_machinedoor2_left.rotateOnce( '0 -90 0' );
+		$monster_machinedoor2_right.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle_middle );
+		$container_clamphandle_middle.time( 2.5 );
+		$container_clamphandle_middle.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle_middle );
+		
+		$container_clamphandle_middle.speed( 65 );//reset to speed var
+		
+		$container_clamphandle_middle.moveTo( $clamp_position_rotateright2 );
+		sys.waitFor( $container_clamphandle_middle );
+		$container_clamp2.unbind();
+		$container_clamp2.bind( $container_clamphandle3 );
+		$container_clamphandle_middle.restorePosition();//reset handle_middle to starting position
+		
+		$container_clamphandle3.time( 2.5 );
+		$container_clamphandle3.rotateOnce( '0 -90 0' );
+		sys.waitFor( $container_clamphandle3 );
+		
+		$container_clamphandle3.speed( 65 );//reset to speed var
+		
+		$container_clamphandle3.moveTo( $clamp_position_end );
+		sys.waitFor( $container_clamphandle3 );
+		
+		thread stop_conveyor_loop2();						// SOUND
+		
+		sys.trigger ($speaker_machinedoor3);
+		
+		$monster_machinedoor3_left.rotateOnce( '0 90 0' );
+		$monster_machinedoor3_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $monster_machinedoor3_right );
+		sys.wait( .25 );
+		container2.unbind();
+		$container_clamp2.unbind();
+		$container_clamp2.restorePosition();
+		$container_clamphandle3.restorePosition();
+		
+		$monster_container2.hide();//Bug - hide container before restorePos to avoid contact with player
+		sys.wait(.25);
+		container2.restorePosition();
+		sys.wait(.25);
+		$monster_container2.show();
+		
+		sys.wait( 1.5 );
+		$monster_machinedoor3_left.rotateOnce( '0 -90 0' );
+		$monster_machinedoor3_right.rotateOnce( '0 90 0' );
+		sys.waitFor( $monster_machinedoor3_right );
+		sys.wait( .25 );
+	}
+		
+	void monster_conveyor_run( entity container )
+	{
+		$container_clamphandle1.speed( 65 );
+		$container_clamphandle2.speed( 65 );
+		$container_clamphandle3.speed( 65 );
+		$container_clamphandle_middle.speed( 65 );
+		
+		//small door operate open
+		sys.trigger ($smalldoor_open);
+		$monster_machinedoorsmall_left.move( WEST, 32 );
+		$monster_machinedoorsmall_right.move( EAST, 32 );
+		sys.waitFor( $monster_machinedoorsmall_right );
+		
+		//move container clamp into position while container moves up
+		$container_clamphandle1.moveTo( $clamp_position_stop1 );
+		
+		//move container up and arms down for pickup
+		container.move( UP, 52 );
+		sys.trigger ($speaker_liftarms1_down);				// SOUND
+		$monster_container_liftarms1.move( DOWN, 152 );
+		sys.waitFor( $monster_container_liftarms1 );
+		sys.wait( .5 );
+		//bind container to liftarms and move up
+		container.bind( $monster_container_liftarms1 );
+		sys.trigger ($speaker_liftarms1_up);				// SOUND
+		$monster_container_liftarms1.move( UP, 120 );
+		sys.waitFor( $container_clamphandle1 );
+		sys.waitFor( $monster_container_liftarms1 );
+		
+		//small door close
+		sys.trigger ($smalldoor_close);
+		$monster_machinedoorsmall_left.move( EAST, 32 );
+		$monster_machinedoorsmall_right.move( WEST, 32 );
+		
+		//bind container to the clamp
+		sys.wait( 1 ); //temp wait for clamp to engage
+		container.bind( $container_clamp1 );
+		sys.trigger ($speaker_liftarms1_up);				// SOUND
+		$monster_container_liftarms1.move( UP, 32 );
+		sys.waitFor( $monster_container_liftarms1 );
+		
+		//move container along path
+		thread start_conveyor_loop();						// SOUND
+		
+		$container_clamphandle1.moveTo( $clamp_position_rotateright1 );
+		sys.waitFor( $container_clamphandle1 );
+		
+		$container_clamphandle1.time( 2.5 );//set to time var for corner
+		$container_clamphandle1.rotateOnce( '0 -90 0' );
+		sys.waitFor( $container_clamphandle1 );
+		
+		$container_clamp1.unbind();
+		$container_clamp1.bind( $container_clamphandle2 );
+		$container_clamphandle1.restorePosition();//reset handle1 to starting position
+		
+		$container_clamphandle2.speed( 65 );//reset to speed var
+		$container_clamphandle2.moveTo( $clamp_position_rotateleft1 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.time( 2.5 );
+		$container_clamphandle2.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.speed( 65 );//reset to speed var
+		$container_clamphandle2.moveTo( $clamp_position_rotateleft2 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.time( 2.5 );
+		$container_clamphandle2.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamphandle2.speed( 65 );//reset to speed var
+		$container_clamphandle2.moveTo( $clamp_position_stop2 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		stop_conveyor_loop();									// SOUND
+		
+		sys.trigger ($speaker_machinedoor1);
+		$monster_machinedoor1_left.rotateOnce( '0 90 0' );
+		$monster_machinedoor1_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $monster_machinedoor1_left );
+		
+		sys.wait( 1 );//container wait to move into position
+		
+		thread start_conveyor_loop();						// SOUND
+		
+		$container_clamphandle2.moveTo( $clamp_position_stop3 );
+		sys.waitFor( $container_clamphandle2 );
+		
+		$container_clamp1.unbind();
+		$container_clamp1.bind( $container_clamphandle_middle );
+		$container_clamphandle2.restorePosition();//reset handle2 to starting position
+		
+		stop_conveyor_loop();									// SOUND
+		
+		sys.trigger ($speaker_machinedoor1);
+		$monster_machinedoor1_left.rotateOnce( '0 -90 0' );
+		$monster_machinedoor1_right.rotateOnce( '0 90 0' );
+		sys.waitFor( $monster_machinedoor1_left );
+		
+		//fade container 1 lights OUT, red lights IN
+		thread crossFadeEnt ($container1_light1, '0.756863 0.976471 1', '0 0 0', 1.0);
+		thread crossFadeEnt ($container1_light2, '0.756863 0.976471 1', '0 0 0', 1.0);
+		thread crossFadeEnt ($chamber_redlight1, '0 0 0', '1 0 0', 1.0);
+		thread crossFadeEnt ($chamber_redlight2, '0 0 0', '1 0 0', 1.0);
+		
+		sys.trigger ($chamber_fx1);
+		sys.trigger ($chamber_fx2);
+		sys.trigger ($chamber_fx_sound);
+		sys.wait( 4 );//container wait inside chamber
+		sys.trigger ($chamber_fx1);
+		sys.trigger ($chamber_fx2);
+		
+		//fade container 1 lights IN, red lights OUT
+		thread crossFadeEnt ($container1_light1, '0 0 0', '0.756863 0.976471 1', 1.0);
+		thread crossFadeEnt ($container1_light2, '0 0 0', '0.756863 0.976471 1', 1.0);
+		thread crossFadeEnt ($chamber_redlight1, '1 0 0', '0 0 0', 1.0);
+		thread crossFadeEnt ($chamber_redlight2, '1 0 0', '0 0 0', 1.0);
+		
+		//*********************************
+		//start second container
+		// ********************************
+		thread monster_container2_run( $monster_container2_contactpoint );
+		thread start_conveyor_loop();						// SOUND
+		
+		$container_clamphandle_middle.moveTo( $clamp_position_stop4 );
+		sys.waitFor( $container_clamphandle_middle );
+		thread stop_conveyor_loop();						// SOUND
+		sys.trigger ($speaker_machinedoor2);
+		$monster_machinedoor2_left.rotateOnce( '0 90 0' );
+		$monster_machinedoor2_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $monster_machinedoor2_left );
+		
+		sys.wait( 1 );//container wait outside chamber
+		thread start_conveyor_loop();						// SOUND
+		$container_clamphandle_middle.moveTo( $clamp_position_rotateleft3 );
+		sys.wait( 1.75 );
+		
+		sys.trigger ($speaker_machinedoor2);
+		$monster_machinedoor2_left.rotateOnce( '0 -90 0' );
+		$monster_machinedoor2_right.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle_middle );
+		
+		$container_clamphandle_middle.time( 2.5 );
+		$container_clamphandle_middle.rotateOnce( '0 90 0' );
+		sys.waitFor( $container_clamphandle_middle );
+		
+		$container_clamphandle_middle.speed( 65 );//reset to speed var
+		
+		$container_clamphandle_middle.moveTo( $clamp_position_rotateright2 );
+		sys.waitFor( $container_clamphandle_middle );
+		$container_clamp1.unbind();
+		$container_clamp1.bind( $container_clamphandle3 );
+		$container_clamphandle_middle.restorePosition();//reset handle_middle to starting position
+		
+		$container_clamphandle3.time( 2.5 );
+		$container_clamphandle3.rotateOnce( '0 -90 0' );
+		sys.waitFor( $container_clamphandle3 );
+		
+		$container_clamphandle3.speed( 65 );//reset to speed var
+		
+		$container_clamphandle3.moveTo( $clamp_position_end );
+		sys.waitFor( $container_clamphandle3 );
+		stop_conveyor_loop();									// SOUND
+		
+		sys.trigger ($speaker_machinedoor3);
+		
+		$monster_machinedoor3_left.rotateOnce( '0 90 0' );
+		$monster_machinedoor3_right.rotateOnce( '0 -90 0' );
+		sys.waitFor( $monster_machinedoor3_right );
+		sys.wait( .25 );
+		container.unbind();
+		$container_clamp1.unbind();
+		$container_clamphandle3.restorePosition();
+		$container_clamp1.restorePosition();
+		
+		$monster_container1.hide();//Bug - hide container before restorePos to avoid contact with player
+		sys.wait(.25);
+		container.restorePosition();
+		sys.wait(.25);
+		$monster_container1.show();
+		
+		sys.wait( 1.5 );
+		$monster_machinedoor3_left.rotateOnce( '0 -90 0' );
+		$monster_machinedoor3_right.rotateOnce( '0 90 0' );
+		sys.waitFor( $monster_machinedoor3_right );
+		$container_clamp1.bind( $container_clamphandle1 );
+		sys.wait( .25 );
+	}
+
+	void monster_conveyor_start()
+	{
+		thread monster_conveyor_run( $monster_container1_contactpoint );
+		//turn_beam_on_off();
+		//start_beam();
+	}
+
+// ----------------------------
+// Analyzer machine starts here
+// ----------------------------
+	
+	void analyzer_fwdarms_operate()
+	{
+		$speaker_sc_piston_leftfront.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE2 );
+		
+		$sc_piston_leftfront.move( DOWN, 84 );
+		
+		$speaker_sc_piston_rightfront.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE2 );
+		
+		$sc_piston_rightfront.move( DOWN, 84 );
+		sys.waitFor( $sc_piston_rightfront );
+		
+		$speaker_sc_rotater_leftfront.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );
+		
+		$sc_rotater_leftfront.rotateOnce( '0 -45 0' );
+		
+		$speaker_sc_rotater_rightfront.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );
+		
+		$sc_rotater_rightfront.rotateOnce( '0 45 0' );
+		sys.wait( .25 );
+		
+		$speaker_sc_largearm_leftfront.startSoundShader ("mach_1s", SND_CHANNEL_VOICE2 );
+		$sc_largearm_leftfront.rotateOnce( '-80 0 0' );
+
+		$speaker_sc_largearm_rightfront.startSoundShader ("mach_1s", SND_CHANNEL_VOICE2 );		
+		$sc_largearm_rightfront.rotateOnce( '-80 0 0' );
+		sys.wait( .25 );
+		
+		$speaker_sc_smallarm_leftfront.startSoundShader ("mach_1_5s", SND_CHANNEL_VOICE2 );
+		$sc_smallarm_leftfront.rotateOnce( '-31.5 0 0' );
+		$speaker_sc_rightarm_leftfront.startSoundShader ("mach_1_5s", SND_CHANNEL_VOICE2 );
+		$sc_smallarm_rightfront.rotateOnce( '-31.5 0 0' );
+		sys.wait( .5 );
+		
+		$sc_4head_leftfront.rotateOnce( '-12 0 0' );
+		$sc_4head_rightfront.rotateOnce( '-12 0 0' );
+		sys.waitFor( $sc_4head_rightfront );
+		
+		//start analyzer fx
+		$anal_main_fx.startSoundShader ("u1mach_on", SND_CHANNEL_VOICE );
+		sys.trigger( $anal_head_fx1 );
+		sys.trigger( $anal_head_fx2 );
+		sys.trigger( $anal_head_fx3 );
+		sys.trigger( $anal_head_fx4 );
+		sys.trigger( $anal_head_fx5 );
+		sys.trigger( $anal_head_fx6 );
+		sys.wait( 1.4 );
+		$anal_main_fx.startSoundShader ("u1mach_loop", SND_CHANNEL_VOICE2 );
+		sys.trigger( $anal_main_fx );
+		//turn on kill brush
+		sys.trigger( $analyzeToDeath );
+		
+		sys.trigger( $analyzer_controlpanel);
+	}
+	
+	void analyzer_operate()
+	{
+		$speaker_sc_piston_leftrear.startSoundShader ("mach_1_5s", SND_CHANNEL_VOICE2 );
+		$sc_piston_leftrear.move( DOWN, 80 );
+		$speaker_sc_piston_rightrear.startSoundShader ("mach_1_5s", SND_CHANNEL_VOICE2 );
+		$sc_piston_rightrear.move( DOWN, 80 );
+		
+		sys.waitFor( $sc_piston_rightrear );
+		thread analyzer_fwdarms_operate();
+		
+		$speaker_sc_rotater_leftrear.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );	
+		$sc_rotater_leftrear.rotateOnce( '0 30 0' );
+		$speaker_sc_rotater_rightrear.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );	
+		$sc_rotater_rightrear.rotateOnce( '0 -30 0' );
+		sys.wait( .25 );
+		
+		$speaker_sc_largearm_leftrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		
+		$sc_largearm_leftrear.rotateOnce( '-90 0 0' );
+		
+		$speaker_sc_largearm_righttrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_largearm_rightrear.rotateOnce( '-90 0 0' );
+		sys.wait( .325 );
+		
+		$speaker_sc_smallarm_leftrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_smallarm_leftrear.rotateOnce( '-50 0 0' );
+		$speaker_sc_smallarm_rightrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_smallarm_rightrear.rotateOnce( '-50 0 0' );
+		sys.wait( 1.25 );	
+		
+		$sc_3head_leftrear.rotateOnce( '-21.5 0 0' );
+		$sc_3head_rightrear.rotateOnce( '-21.5 0 0' );
+	}
+	
+	void analyzer_reararms_operate_off()
+	{
+		$sc_3head_leftrear.rotateOnce( '21.5 0 0' );
+		$sc_3head_rightrear.rotateOnce( '21.5 0 0' );
+		sys.wait( 1.25 );
+		
+		$speaker_sc_smallarm_leftrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_smallarm_leftrear.rotateOnce( '50 0 0' );
+		$speaker_sc_smallarm_rightrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_smallarm_rightrear.rotateOnce( '50 0 0' );
+		//sys.wait( .325 );
+		
+		$speaker_sc_largearm_leftrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_largearm_leftrear.rotateOnce( '90 0 0' );
+		$speaker_sc_largearm_rightrear.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_largearm_rightrear.rotateOnce( '90 0 0' );
+		sys.wait( 1.25 );
+			
+		$speaker_sc_rotater_leftrear.startSoundShader ("mach_1s", SND_CHANNEL_VOICE2 );	
+		$sc_rotater_leftrear.rotateOnce( '0 -30 0' );
+		$speaker_sc_rotater_rightrear.startSoundShader ("mach_1s", SND_CHANNEL_VOICE2 );	
+		$sc_rotater_rightrear.rotateOnce( '0 30 0' );
+		sys.waitFor( $sc_rotater_rightrear );
+		
+		$speaker_sc_piston_leftrear.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE2 );
+		$sc_piston_leftrear.move( UP, 80 );
+		
+		$speaker_sc_piston_rightrear.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE2 );
+		$sc_piston_rightrear.move( UP, 80 );
+		sys.waitFor( $sc_piston_rightrear );
+		
+		sys.trigger( $analyzer_controlpanel);
+	}
+	
+	void analyzer_operate_off()
+	{
+		
+		//stop analyzer fx
+		$anal_main_fx.startSoundShader ("u1mach_off", SND_CHANNEL_VOICE2 );
+		sys.trigger( $anal_main_fx );
+		sys.wait( .5 );
+		sys.trigger( $anal_head_fx1 );
+		sys.trigger( $anal_head_fx2 );
+		sys.trigger( $anal_head_fx3 );
+		sys.trigger( $anal_head_fx4 );
+		sys.trigger( $anal_head_fx5 );
+		sys.trigger( $anal_head_fx6 );
+		//turn off kill brush
+		sys.trigger( $analyzeToDeath );
+		sys.wait( .5 );
+		
+		
+		$speaker_sc4head_leftfront.startSoundShader ("al4_conveyor_1_point5s", SND_CHANNEL_VOICE2 );
+		$sc_4head_leftfront.rotateOnce( '12 0 0' );
+		$speaker_sc4head_rightfront.startSoundShader ("al4_conveyor_1_point5s", SND_CHANNEL_VOICE2 );
+		$sc_4head_rightfront.rotateOnce( '12 0 0' );
+		sys.wait( .15 );
+		
+		$speaker_sc_largearm_leftfront.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_largearm_leftfront.rotateOnce( '80 0 0' );
+		$speaker_sc_largearm_rightfront.startSoundShader ("mcu_support_2s", SND_CHANNEL_VOICE2 );
+		$sc_largearm_rightfront.rotateOnce( '80 0 0' );
+		
+		$sc_smallarm_leftfront.rotateOnce( '31.5 0 0' );
+		$sc_smallarm_rightfront.rotateOnce( '31.5 0 0' );
+		sys.wait( .5 );
+		
+		thread analyzer_reararms_operate_off();
+
+		$speaker_sc_rotater_leftfront.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );				
+		
+		$sc_rotater_leftfront.rotateOnce( '0 45 0' );
+		
+		$speaker_sc_rotater_rightfront.startSoundShader ("dc3_gui_panel_1", SND_CHANNEL_VOICE2 );				
+		
+		$sc_rotater_rightfront.rotateOnce( '0 -45 0' );
+		
+		sys.waitFor( $sc_rotater_rightfront );
+		
+		$speaker_sc_piston_leftfront.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE2 );
+		$sc_piston_leftfront.move( UP, 84 );
+		$speaker_sc_piston_rightfront.startSoundShader ("rec2_pump_1s_01", SND_CHANNEL_VOICE2 );
+		$sc_piston_rightfront.move( UP, 84 );
+	}
+	
+	void cache_sounds() 
+	{
+		sys.cacheSoundShader ("rec2_pump_1s_01");
+		sys.cacheSoundShader ("dc3_gui_panel_1");
+		sys.cacheSoundShader ("mach_1s");
+		sys.cacheSoundShader ("mach_1_5s");
+		sys.cacheSoundShader ("mcu_support_2s");
+		sys.cacheSoundShader ("al4_conveyor_1_point5s");
+		sys.cacheSoundShader ("u1mach_on");
+		sys.cacheSoundShader ("u1mach_off");
+		sys.cacheSoundShader ("u1mach_loop");
+	}
+	
+	void falling_floor_secret()
+	{
+		$drop_floor.time( 1 );
+		$drop_floor.accelTime( .25 );
+		$drop_floor.decelTime( .25 );
+		$drop_floor.move( DOWN, 128 );
+	}
+	
+	void main()
+	{
+		cache_sounds();
+		//init
+		$top_beam_mover.hide();
+		$bottom_beam_mover.hide();
+		
+		$monster_container_liftarms1.time( 2 );
+		$monster_container_liftarms1.accelTime( 0 );
+		$monster_container_liftarms1.decelTime( 1 );
+				
+		$monster_machinedoorsmall_left.time( 1.5 );
+		$monster_machinedoorsmall_left.accelTime( .5 );
+		$monster_machinedoorsmall_left.decelTime( 1 );
+		$monster_machinedoorsmall_right.time( 1.5 );
+		$monster_machinedoorsmall_right.accelTime( .5 );
+		$monster_machinedoorsmall_right.decelTime( 1 );
+		
+		$monster_container1_contactpoint.time( 1.5 );
+		$monster_container1_contactpoint.accelTime( .5 );
+		$monster_container1_contactpoint.decelTime( 1 );
+		$monster_container2_contactpoint.time( 1.5 );
+		$monster_container2_contactpoint.accelTime( .5 );
+		$monster_container2_contactpoint.decelTime( 1 );
+				
+		$monster_machinedoor1_left.time( 2 );
+		$monster_machinedoor1_left.accelTime( .5 );
+		$monster_machinedoor1_left.decelTime( 1 );
+		$monster_machinedoor1_right.time( 2 );
+		$monster_machinedoor1_right.accelTime( .5 );
+		$monster_machinedoor1_right.decelTime( 1 );
+		$monster_machinedoor2_left.time( 2 );
+		$monster_machinedoor2_left.accelTime( .5 );
+		$monster_machinedoor2_left.decelTime( 1 );
+		$monster_machinedoor2_right.time( 2 );
+		$monster_machinedoor2_right.accelTime( .5 );
+		$monster_machinedoor2_right.decelTime( 1 );
+		
+		$sc_piston_leftrear.time( 1.5 );
+		$sc_piston_leftrear.accelTime( .5 );
+		$sc_piston_leftrear.decelTime( 1 );
+		$sc_piston_rightrear.time( 1.5 );
+		$sc_piston_rightrear.accelTime( .5 );
+		$sc_piston_rightrear.decelTime( 1 );
+		
+		$sc_rotater_leftrear.time( 1 );
+		$sc_rotater_leftrear.accelTime( .25 );
+		$sc_rotater_leftrear.decelTime( .75 );
+		$sc_rotater_rightrear.time( 1 );
+		$sc_rotater_rightrear.accelTime( .25 );
+		$sc_rotater_rightrear.decelTime( .75 );
+		
+		$sc_largearm_leftrear.time( 2 );
+		$sc_largearm_leftrear.accelTime( .75 );
+		$sc_largearm_leftrear.decelTime( 1 );
+		$sc_largearm_rightrear.time( 2 );
+		$sc_largearm_rightrear.accelTime( .75 );
+		$sc_largearm_rightrear.decelTime( 1 );
+		
+		$sc_smallarm_leftrear.time( 2 );
+		$sc_smallarm_leftrear.accelTime( .5 );
+		$sc_smallarm_leftrear.decelTime( 1.25 );
+		$sc_smallarm_rightrear.time( 2 );
+		$sc_smallarm_rightrear.accelTime( .5 );
+		$sc_smallarm_rightrear.decelTime( 1.25 );
+		
+		$sc_3head_leftrear.time( 1.5 );
+		$sc_3head_leftrear.accelTime( .5 );
+		$sc_3head_leftrear.decelTime( 1 );
+		$sc_3head_rightrear.time( 1.5 );
+		$sc_3head_rightrear.accelTime( .5 );
+		$sc_3head_rightrear.decelTime( 1 );
+		
+		$sc_piston_leftfront.time( 1.5 );
+		$sc_piston_leftfront.accelTime( .5 );
+		$sc_piston_leftfront.decelTime( 1 );
+		$sc_piston_rightfront.time( 1.5 );
+		$sc_piston_rightfront.accelTime( .5 );
+		$sc_piston_rightfront.decelTime( 1 );
+		
+		$sc_rotater_leftfront.time( 1 );
+		$sc_rotater_leftfront.accelTime( .25 );
+		$sc_rotater_leftfront.decelTime( .75 );
+		$sc_rotater_rightfront.time( 1 );
+		$sc_rotater_rightfront.accelTime( .25 );
+		$sc_rotater_rightfront.decelTime( .75 );
+		
+		$sc_largearm_leftfront.time( 2 );
+		$sc_largearm_leftfront.accelTime( .75 );
+		$sc_largearm_leftfront.decelTime( 1 );
+		$sc_largearm_rightfront.time( 2 );
+		$sc_largearm_rightfront.accelTime( .75 );
+		$sc_largearm_rightfront.decelTime( 1 );
+		
+		$sc_smallarm_leftfront.time( 1.5 );
+		$sc_smallarm_leftfront.accelTime( .5 );
+		$sc_smallarm_leftfront.decelTime( 1 );
+		$sc_smallarm_rightfront.time( 1.5 );
+		$sc_smallarm_rightfront.accelTime( .5 );
+		$sc_smallarm_rightfront.decelTime( 1 );
+		
+		$sc_4head_leftfront.time( 1.25 );
+		$sc_4head_leftfront.accelTime( .5 );
+		$sc_4head_leftfront.decelTime( .75 );
+		$sc_4head_rightfront.time( 1.25 );
+		$sc_4head_rightfront.accelTime( .5 );
+		$sc_4head_rightfront.decelTime( .75 );
+	}
+}

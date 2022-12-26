@@ -1,0 +1,154 @@
+/***********************************************************************
+
+weapon_rocketlauncher.script
+
+***********************************************************************/
+
+#define ROCKETLAUNCHER_LOWAMMO			1
+#define ROCKETLAUNCHER_NUMPROJECTILES	1
+#define ROCKETLAUNCHER_FIREDELAY		1		// was .75 changed again by Tim to 1
+
+// blend times
+#define ROCKETLAUNCHER_IDLE_TO_LOWER	4
+#define ROCKETLAUNCHER_IDLE_TO_FIRE		0
+#define	ROCKETLAUNCHER_IDLE_TO_RELOAD	4
+#define ROCKETLAUNCHER_RAISE_TO_IDLE	4
+#define ROCKETLAUNCHER_FIRE_TO_IDLE		0
+#define ROCKETLAUNCHER_RELOAD_TO_IDLE	4
+#define ROCKETLAUNCHER_RELOAD_FRAME		34		// how many frames from the end of "reload" to fill the clip
+
+object weapon_rocketlauncher : weapon_base {
+	float		next_attack;
+	float		spread;
+	
+	string		skin_invisible;
+	
+	void		init();
+	void		UpdateSkin();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		Reload();
+	void		ExitCinematic();
+};
+
+void weapon_rocketlauncher::init() {
+	next_attack		= 0;
+	spread			= getFloatKey( "spread" );
+	skin_invisible	= getKey( "skin_invisible" );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_rocketlauncher::UpdateSkin() {
+	string skinname;
+	float ammoClip;
+
+	if ( isInvisible() ) {
+		skinname = skin_invisible;
+	} else {	
+		ammoClip = ammoInClip();
+		if ( ammoClip > 5 ) {
+			// can happen in MP - weapon Raising with slightly out-of-sync ammoClip
+			ammoClip = 5;
+		}
+		if ( ammoClip < 0 ) {
+			ammoClip = 0;
+		}
+		skinname = "skins/models/weapons/" + ammoClip + "rox.skin";
+	}
+	setSkin( skinname );
+}
+
+void weapon_rocketlauncher::Raise() {
+	UpdateSkin();
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, ROCKETLAUNCHER_RAISE_TO_IDLE ) );
+	weaponState( "Idle", ROCKETLAUNCHER_RAISE_TO_IDLE );
+}
+
+void weapon_rocketlauncher::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_rocketlauncher::Idle() {
+	float ammoClip;
+	float avail;
+	float clip_size;
+	float currentTime;
+	
+	clip_size = clipSize();	
+	
+	if ( !ammoInClip() ) {
+		weaponOutOfAmmo();
+	} else {
+		weaponReady();
+	}
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", ROCKETLAUNCHER_IDLE_TO_LOWER );
+		}
+		ammoClip = ammoInClip();
+		currentTime = sys.getTime();
+		if ( ( currentTime >= next_attack ) && WEAPON_ATTACK ) {
+			if ( ammoClip > 0 ) {
+				weaponState( "Fire", ROCKETLAUNCHER_IDLE_TO_FIRE );
+			} else if ( ammoAvailable() > 0 ) {
+				if ( autoReload() ) {
+					netReload();
+					weaponState( "Reload", ROCKETLAUNCHER_IDLE_TO_RELOAD );
+				}
+			}
+		}
+		if ( WEAPON_RELOAD && ( ammoAvailable() > ammoClip ) && ( ammoClip < clip_size ) ) {
+			netReload();
+			weaponState( "Reload", ROCKETLAUNCHER_IDLE_TO_RELOAD );
+		}
+		if ( WEAPON_NETRELOAD ) {
+			WEAPON_NETRELOAD = false;
+			weaponState( "Reload", ROCKETLAUNCHER_IDLE_TO_RELOAD );		
+		}
+		waitFrame();
+	}
+}
+
+void weapon_rocketlauncher::Fire() {
+	float ammoClip;
+	
+	next_attack = sys.getTime() + ROCKETLAUNCHER_FIREDELAY;
+	
+	ammoClip = ammoInClip();
+	if ( ammoClip == ROCKETLAUNCHER_LOWAMMO ) {
+		startSound( "snd_lowammo", SND_CHANNEL_ITEM, true );
+	}
+	
+	launchProjectiles( ROCKETLAUNCHER_NUMPROJECTILES, spread, 0, 1.0, 1.0 );
+	playAnim( ANIMCHANNEL_ALL, "fire" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, ROCKETLAUNCHER_FIRE_TO_IDLE ) );
+	UpdateSkin();
+	weaponState( "Idle", ROCKETLAUNCHER_FIRE_TO_IDLE );
+}
+
+void weapon_rocketlauncher::Reload() {
+	weaponReloading();
+	playAnim( ANIMCHANNEL_ALL, "reload" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, ROCKETLAUNCHER_RELOAD_FRAME ) );
+	addToClip( clipSize() );
+	UpdateSkin();
+	waitUntil( animDone( ANIMCHANNEL_ALL, ROCKETLAUNCHER_RELOAD_TO_IDLE ) );
+	weaponState( "Idle", ROCKETLAUNCHER_RELOAD_TO_IDLE );
+}
+
+void weapon_rocketlauncher::ExitCinematic() {
+	next_attack = 0;
+	UpdateSkin();
+	weaponState( "Idle", 0 );
+}

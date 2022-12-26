@@ -527,17 +527,25 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		}
 		case SYSTEM_FIELD_ANTIALIASING:
 		{
-			// RB: disabled 16x MSAA
+#if ID_MSAA
 			static const int numValues = 5;
 			static const int values[numValues] =
 			{
 				ANTI_ALIASING_NONE,
-				ANTI_ALIASING_SMAA_1X,
+				ANTI_ALIASING_TAA,
+				ANTI_ALIASING_TAA_SMAA_1X,
 				ANTI_ALIASING_MSAA_2X,
 				ANTI_ALIASING_MSAA_4X,
-				ANTI_ALIASING_MSAA_8X
 			};
-			// RB end
+#else
+			static const int numValues = 2;
+			static const int values[numValues] =
+			{
+				ANTI_ALIASING_NONE,
+				ANTI_ALIASING_TAA,
+			};
+#endif
+
 			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
@@ -658,17 +666,28 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 				return "#str_swf_disabled";
 			}
 
+#if ID_MSAA
 			static const int numValues = 5;
 			static const char* values[numValues] =
 			{
 				"None",
-				"SMAA 1X",
+				"TAA",
+				"TAA + SMAA 1X",
 				"MSAA 2X",
 				"MSAA 4X",
-				"MSAA 8X"
 			};
 
-			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
+#else
+			static const int numValues = 2;
+			static const char* values[numValues] =
+			{
+				"None",
+				"TAA"
+			};
+
+			compile_time_assert( numValues == ( ANTI_ALIASING_TAA + 1 ) );
+#endif
 
 			return values[ r_antiAliasing.GetInteger() ];
 		}

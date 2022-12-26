@@ -144,6 +144,10 @@ static void ASE_ParseBracedBlock( void ( *parser )( const char* token ) )
 				common->Error( "Unexpected '}'" );
 			}
 		}
+		else if( indent == 0 )
+		{
+			// ignore
+		}
 		else
 		{
 			if( parser )
@@ -206,7 +210,10 @@ static void ASE_KeyMAP_DIFFUSE( const char* token )
 		// convert the 3DSMax material pathname to a qpath
 		matname.BackSlashesToSlashes();
 		qpath = fileSystem->OSPathToRelativePath( matname );
-		idStr::Copynz( ase.currentMaterial->name, qpath, sizeof( ase.currentMaterial->name ) );
+		if( qpath.Icmp( "None" ) || ase.currentMaterial->name[0] == '\0' )
+		{
+			idStr::Copynz( ase.currentMaterial->name, qpath, sizeof( ase.currentMaterial->name ) );
+		}
 	}
 	else if( !strcmp( token, "*UVW_U_OFFSET" ) )
 	{
@@ -248,6 +255,29 @@ static void ASE_KeyMATERIAL( const char* token )
 	if( !strcmp( token, "*MAP_DIFFUSE" ) )
 	{
 		ASE_ParseBracedBlock( ASE_KeyMAP_DIFFUSE );
+	}
+	else if( !strcmp( token, "*MATERIAL_NAME" ) )
+	{
+		idStr	qpath;
+		idStr	matname;
+
+		ASE_GetToken( false );
+
+		// remove the quotes
+		char* s = strstr( ase.token + 1, "\"" );
+		if( s )
+		{
+			*s = 0;
+		}
+		matname = ase.token + 1;
+
+		// convert the 3DSMax material pathname to a qpath
+		matname.BackSlashesToSlashes();
+		qpath = fileSystem->OSPathToRelativePath( matname );
+		if( !qpath.IsEmpty() )
+		{
+			idStr::Copynz( ase.currentMaterial->name, qpath, sizeof( ase.currentMaterial->name ) );
+		}
 	}
 	else
 	{

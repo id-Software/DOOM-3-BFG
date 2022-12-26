@@ -430,16 +430,16 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 		shaderType = EShLangFragment;
 	}
 
-	glslang::TShader shader( shaderType );
-	shader.setStrings( &inputCString, 1 );
+	glslang::TShader* shader = new glslang::TShader( shaderType );
+	shader->setStrings( &inputCString, 1 );
 
 	int clientInputSemanticsVersion = 100; // maps to, say, #define VULKAN 100
 	glslang::EShTargetClientVersion vulkanClientVersion = glslang::EShTargetVulkan_1_0;
 	glslang::EShTargetLanguageVersion targetVersion = glslang::EShTargetSpv_1_0;
 
-	shader.setEnvInput( glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, clientInputSemanticsVersion );
-	shader.setEnvClient( glslang::EShClientVulkan, vulkanClientVersion );
-	shader.setEnvTarget( glslang::EShTargetSpv, targetVersion );
+	shader->setEnvInput( glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, clientInputSemanticsVersion );
+	shader->setEnvClient( glslang::EShClientVulkan, vulkanClientVersion );
+	shader->setEnvTarget( glslang::EShTargetSpv, targetVersion );
 
 	// RB: see RBDOOM-3-BFG\neo\extern\glslang\StandAlone\ResourceLimits.cpp
 	static TBuiltInResource resources;
@@ -550,24 +550,24 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 
 	const int defaultVersion = 100;
 
-	if( !shader.parse( &resources, 100, false, messages ) )
+	if( !shader->parse( &resources, 100, false, messages ) )
 	{
 		idLib::Printf( "GLSL parsing failed for: %s\n", filename );
-		idLib::Printf( "%s\n", shader.getInfoLog() );
-		idLib::Printf( "%s\n", shader.getInfoDebugLog() );
+		idLib::Printf( "%s\n", shader->getInfoLog() );
+		idLib::Printf( "%s\n", shader->getInfoDebugLog() );
 
 		//*spirvBuffer = NULL;
 		//return 0;
 	}
 
-	glslang::TProgram program;
-	program.addShader( &shader );
+	glslang::TProgram* program = new glslang::TProgram();
+	program->addShader( shader );
 
-	if( !program.link( messages ) )
+	if( !program->link( messages ) )
 	{
 		idLib::Printf( "GLSL linking failed for: %s\n", filename );
-		idLib::Printf( "%s\n", shader.getInfoLog() );
-		idLib::Printf( "%s\n", shader.getInfoDebugLog() );
+		idLib::Printf( "%s\n", shader->getInfoLog() );
+		idLib::Printf( "%s\n", shader->getInfoDebugLog() );
 	}
 
 	// All that's left to do now is to convert the program's intermediate representation into SpirV:
@@ -575,7 +575,7 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 	spv::SpvBuildLogger			logger;
 	glslang::SpvOptions			spvOptions;
 
-	glslang::GlslangToSpv( *program.getIntermediate( shaderType ), spirV, &logger, &spvOptions );
+	glslang::GlslangToSpv( *program->getIntermediate( shaderType ), spirV, &logger, &spvOptions );
 
 	int32 spirvLen = spirV.size() * sizeof( unsigned int );
 
@@ -583,9 +583,9 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 	memcpy( buffer, spirV.data(), spirvLen );
 
 	*spirvBuffer = ( uint32* ) buffer;
+	delete program;
+	delete shader;
 	return spirvLen;
-
-
 }
 
 #endif

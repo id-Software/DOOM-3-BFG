@@ -1,0 +1,40 @@
+entityDef ammo_bloodstone_normal {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Artifact Charge"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/bullet_ammo/bullet_large.lwo"
+	"mp_model"				"models/items/bullet_ammo/mp_bullet_large.lwo"
+	"snd_acquire"			"sound/items/clip_pickup_large.wav"
+	"size"					"32 32 32"
+	"inv_ammo_bloodstone"	"1000"
+	"inv_icon"				"guis/assets/hud/items/pistol_ammo.tga"
+	"inv_item"				"4"
+	"inv_name"				"#str_00100960"
+	"snd_respawn"			"sound_item_respawn"
+}
+
+
+entityDef ammo_bloodstone_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Artifact Charge"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/bullet_ammo/bullet_small.lwo"
+	"mp_model"				"models/items/bullet_ammo/mp_bullet_small.lwo"
+	"snd_acquire"			"sound/items/clip_pickup_small.wav"
+	"size"					"32 32 32"
+	"inv_ammo_bloodstone"	"100"
+	"inv_icon"				"guis/assets/hud/items/pistol_ammo.tga"
+	"inv_item"				"4"
+	"inv_name"				"#str_00100960"
+	"snd_respawn"			"sound_item_respawn"
+}

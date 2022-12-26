@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -81,7 +81,7 @@ extern	int		startmap;
 
 extern  qboolean		autostart;
 
-// Selected by user. 
+// Selected by user.
 extern  skill_t         gameskill;
 extern  int		gameepisode;
 extern  int		gamemap;
@@ -94,8 +94,8 @@ extern  qboolean	netgame;
 
 // Flag: true only if started as net deathmatch.
 // An enum might handle altdeath/cooperative better.
-extern  qboolean	deathmatch;	
-	
+extern  qboolean	deathmatch;
+
 // -------------------------
 // Internal parameters for sound rendering.
 // These have been taken from the DOS version,
@@ -149,7 +149,7 @@ extern	int		scaledviewwidth;
 extern  int	viewangleoffset;
 
 // Player taking events, and displaying.
-extern  int	consoleplayer;	
+extern  int	consoleplayer;
 extern  int	displayplayer;
 
 
@@ -177,7 +177,7 @@ extern  qboolean	usergame;
 extern  qboolean	demoplayback;
 
 // Quit after playing a demo from cmdline.
-extern  qboolean		singledemo;	
+extern  qboolean		singledemo;
 
 
 
@@ -218,7 +218,7 @@ extern  mapthing_t      playerstarts[MAXPLAYERS];
 
 // Intermission stats.
 // Parameters for world map / intermission.
-extern  wbstartstruct_t		wminfo;	
+extern  wbstartstruct_t		wminfo;
 
 
 // LUT of ammunition limits for each kind.
@@ -248,7 +248,7 @@ extern  gamestate_t     wipegamestate;
 extern  int             mouseSensitivity;
 //?
 // debug flag to cancel adaptiveness
-extern  qboolean         singletics;	
+extern  qboolean         singletics;
 
 extern  int             bodyqueslot;
 
@@ -267,7 +267,7 @@ extern int		skyflatnum;
 extern  doomcom_t	doomcom;
 
 // This points inside doomcom.
-extern  doomdata_t*	netbuffer;	
+extern  doomdata_t*	netbuffer;
 
 
 extern  ticcmd_t	localcmds[BACKUPTICS];

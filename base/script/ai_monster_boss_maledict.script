@@ -1,0 +1,814 @@
+/***********************************************************************
+
+ai_monster_boss_maledict.script
+
+monster_boss_maledict
+
+***********************************************************************/
+
+#define MALEDICT_ATTACK_RATE			2.5
+
+#define	MALEDICT_FLAME_WALL_NUM			24
+#define	MALEDICT_FLAME_WALL_SEPERATION	64
+
+#define MALEDICT_SWOOP_HORIZ			0
+#define MALEDICT_SWOOP_VERT				1
+
+// anim blend times
+#define MALEDICT_BLEND_FRAMES			0
+
+#define MALEDICT_COMBAT_STAGE1			0
+#define MALEDICT_COMBAT_STAGE2			1
+
+object monster_boss_maledict : monster_base {
+	float		nextAttack;
+	float		attackCount;
+
+	float		currentPt;
+	float		swoopDir;
+
+	boolean		damageSkin;
+	float		damageHealth;
+
+	float		combatStage;
+	float		stageCounter;
+	float		currentDamageCap;
+
+	float		numForgottens;
+	boolean		previousAttackForgottens;
+
+	//
+	// Initialize
+	//
+	void		init();
+	//
+	// States
+	//
+	void		state_Begin();
+	void		state_Idle();
+
+	void		state_Intro();
+	void		state_Down();
+	void		state_Swoop();
+	void		state_Combat();
+	void		state_Perch();
+	void		state_FakeDeath();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+
+	void		combat_range();
+	void		combat_forgotten();
+
+	void		forgotten_spawn();
+	void		forgotten_killed();
+
+	void		move_to_position( float newPt );
+
+	void 		spawn_flame_wall( vector org );
+	vector		flame_wall_start_pos( float dir );
+	void		flame_wall_sound_end( entity sEnt );
+	void 		flame_wall_loop();
+	void 		flame_wall();
+
+	void		asteroid_loop();
+	void		asteroid_attack();
+
+	// torso anim states
+	void		Torso_Idle();
+
+	void		Torso_RangeAttack();
+	void		Torso_ForgottenAttack();
+	void		Torso_SwoopAttack();
+	void		Torso_PerchAttack();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_boss_maledict::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_LEGS, "idle" );
+}
+
+/*
+===========================
+Attacks
+===========================
+*/
+
+void monster_boss_maledict::Torso_RangeAttack() {
+
+	playAnim( ANIMCHANNEL_LEGS, "attack_a" );
+	while( !animDone( ANIMCHANNEL_LEGS, MALEDICT_BLEND_FRAMES ) ) {
+		// Check for transition to damaged skin
+		if ( !damageSkin && getHealth() < damageHealth ) {
+			setSkin( "skins/models/monsters/maledict_burning_nohead" );
+			damageSkin = true;
+		}
+
+		lookAt( getEnemy(), 1 );
+		waitFrame();
+	}
+
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+}
+
+void monster_boss_maledict::Torso_ForgottenAttack() {
+	vector clearAngles;
+
+	lookAt( self, 0 );
+
+	clearAngles_x = 0;
+	clearAngles_y = 0;
+	clearAngles_z = 0;
+	setAngles( clearAngles );
+
+	playAnim( ANIMCHANNEL_LEGS, "forgotten" );
+	while( !animDone( ANIMCHANNEL_LEGS, MALEDICT_BLEND_FRAMES ) ) {
+		// Check for transition to damaged skin
+		if ( !damageSkin && getHealth() < damageHealth ) {
+			setSkin( "skins/models/monsters/maledict_burning_nohead" );
+			damageSkin = true;
+		}
+
+		waitFrame();
+	}
+
+	finishAction( "forgotten_attack" );
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+}
+
+void monster_boss_maledict::Torso_SwoopAttack() {
+	vector clearAngles;
+	vector spot;
+	vector playerOrg;
+	vector newPos;
+	float startTime;
+
+	lookAt( self, 0 );
+
+	clearAngles_x = 0;
+	clearAngles_y = 0;
+	clearAngles_z = 0;
+	setAngles( clearAngles );
+
+	playerOrg = $player1.getOrigin();
+
+	if ( swoopDir == MALEDICT_SWOOP_HORIZ ) {
+		spot = $spot_A.getOrigin();
+		newPos = spot;
+		newPos_y = playerOrg_y;
+
+		playAnim( ANIMCHANNEL_LEGS, "swoop_horiz" );
+	} else if ( swoopDir == MALEDICT_SWOOP_VERT ) {
+		spot = $spot_C.getOrigin();
+		newPos = spot;
+		newPos_x = playerOrg_x;
+
+		playAnim( ANIMCHANNEL_LEGS, "swoop_vert" );
+	} else {
+		spot = $spot_C.getOrigin();
+		newPos = spot;
+		playAnim( ANIMCHANNEL_LEGS, "charge" );
+	}
+
+	setOrigin( newPos );
+
+	startTime = sys.getTime();
+
+	while( !animDone( ANIMCHANNEL_LEGS, MALEDICT_BLEND_FRAMES ) ) {
+		// Check for transition to damaged skin
+		if ( !damageSkin && getHealth() < damageHealth ) {
+			setSkin( "skins/models/monsters/maledict_burning_nohead" );
+			damageSkin = true;
+		}
+
+		// Update maledict position
+		if ( sys.getTime() < ( startTime + 1.7 ) ) {
+			playerOrg = $player1.getOrigin();
+
+			if ( swoopDir == MALEDICT_SWOOP_HORIZ ) {
+				newPos_y = playerOrg_y;
+			} else if ( swoopDir == MALEDICT_SWOOP_VERT ) {
+				newPos_x = playerOrg_x;
+			}
+			setOrigin( newPos );
+		}
+
+		waitFrame();
+	}
+
+	finishAction( "swoop_attack" );
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+}
+
+
+void monster_boss_maledict::Torso_PerchAttack() {
+	vector clearAngles;
+
+	lookAt( self, 0 );
+
+	clearAngles_x = 0;
+	clearAngles_y = 0;
+	clearAngles_z = 0;
+	setAngles( clearAngles );
+
+	playAnim( ANIMCHANNEL_LEGS, "perch" );
+	while( !animDone( ANIMCHANNEL_LEGS, MALEDICT_BLEND_FRAMES ) ) {
+		waitFrame();
+	}
+
+	finishAction( "perch_attack" );
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_maledict::init
+=====================
+*/
+void monster_boss_maledict::init() {
+
+	attackCount = 0;
+	currentPt = 0;
+	swoopDir = MALEDICT_SWOOP_HORIZ;
+
+	damageSkin = false;
+	damageHealth = getHealth() / 4;
+
+	combatStage = MALEDICT_COMBAT_STAGE1;
+
+	currentDamageCap = damageHealth + 100;
+	setDamageCap( currentDamageCap );
+
+	stageCounter = 0;
+	numForgottens = 0;
+	previousAttackForgottens = false;
+
+	setState( "state_Begin" );
+}
+
+/***********************************************************************
+
+	States
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_maledict::state_Begin
+=====================
+*/
+void monster_boss_maledict::state_Begin() {
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+	monster_begin();
+
+	setMoveType( MOVETYPE_ANIM );
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_boss_maledict::state_Idle
+=====================
+*/
+void monster_boss_maledict::state_Idle() {
+	wait_for_enemy();
+
+	nextAttack = DelayTime( MALEDICT_ATTACK_RATE );
+
+	setState( "state_Intro" );
+}
+
+/*
+=====================
+monster_boss_maledict::state_Intro
+=====================
+*/
+void monster_boss_maledict::state_Intro() {
+
+	move_to_position( 0 );
+	swoopDir = -1;
+
+	animState( ANIMCHANNEL_LEGS, "Torso_SwoopAttack", MALEDICT_BLEND_FRAMES );
+	waitAction( "swoop_attack" );
+
+	swoopDir = 0;
+	setState( "state_Down" );
+}
+
+/*
+=====================
+monster_boss_maledict::state_Down
+=====================
+*/
+void monster_boss_maledict::state_Down() {
+
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+
+	hide();
+
+	// Check for Death
+	if ( combatStage == MALEDICT_COMBAT_STAGE2 && getHealth() <= 2 ) {
+		setState( "state_FakeDeath" );
+	}
+
+	// Update Battle stage
+	if ( damageSkin && combatStage == MALEDICT_COMBAT_STAGE1 ) {
+		combatStage = MALEDICT_COMBAT_STAGE2;
+
+		stageCounter = 0;
+		currentDamageCap = 100;
+		setDamageCap( currentDamageCap );
+		setHealth( 3000 );
+	}
+
+	// Update Damage Cap
+	if ( currentDamageCap > 1 ) {
+
+		if ( stageCounter > 2 ) {
+
+			if ( combatStage == MALEDICT_COMBAT_STAGE1 ) {
+				currentDamageCap = 1;
+			} else {
+				currentDamageCap = 1;
+			}
+			setDamageCap( currentDamageCap );
+		}
+	}
+	stageCounter++;
+
+	if ( combatStage == MALEDICT_COMBAT_STAGE2 ) {
+		// Choose attack type
+		if ( attackCount > 0 ) {
+
+			attackCount = 0;
+			sys.wait( 1 );
+			setState( "state_Swoop" );
+		} else {
+			sys.wait( 1 );
+			setState( "state_Perch" );
+		}
+	} else {
+		// Choose attack type
+		if ( attackCount >= 2 ) {
+
+			attackCount = 0;
+			sys.wait( 1.5 );
+			setState( "state_Swoop" );
+		} else {
+			sys.wait( 1.5 );
+			setState( "state_Combat" );
+		}
+	}
+}
+
+/*
+=====================
+monster_boss_maledict::state_Combat
+=====================
+*/
+void monster_boss_maledict::state_Combat() {
+	float attack_flags;
+	float bestPt;
+
+	// Choose best attack position
+	bestPt = sys.randomInt(5) + 1;
+	move_to_position( bestPt );
+
+	show();
+
+	eachFrame {
+		faceEnemy();
+
+		if ( AI_ENEMY_IN_FOV ) {
+			lookAtEnemy( 1 );
+		}
+
+		if ( sys.influenceActive() ) {
+			continue;
+		}
+
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+
+		// Do attacks!
+		attack_flags = check_attacks();
+		if ( attack_flags ) {
+			do_attack( attack_flags );
+			setState( "state_Down" );
+		}
+	}
+}
+
+/*
+=====================
+monster_boss_maledict::state_Swoop
+=====================
+*/
+void monster_boss_maledict::state_Swoop() {
+	float bestPt;
+
+	previousAttackForgottens = false;
+	show();
+
+	eachFrame {
+		if ( sys.influenceActive() ) {
+			continue;
+		}
+
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+
+		animState( ANIMCHANNEL_LEGS, "Torso_SwoopAttack", MALEDICT_BLEND_FRAMES );
+		waitAction( "swoop_attack" );
+
+		if ( swoopDir == MALEDICT_SWOOP_HORIZ ) {
+			swoopDir = MALEDICT_SWOOP_VERT;
+		} else {
+			swoopDir = MALEDICT_SWOOP_HORIZ;
+		}
+
+		setState( "state_Down" );
+	}
+}
+
+/*
+=====================
+monster_boss_maledict::state_Perch
+=====================
+*/
+void monster_boss_maledict::state_Perch() {
+	float bestPt;
+
+	show();
+
+	eachFrame {
+		if ( sys.influenceActive() ) {
+			continue;
+		}
+
+		if ( AI_ENEMY_DEAD ) {
+			enemy_dead();
+		}
+
+		// The perch always starts from spot C
+		move_to_position( 0 );
+
+		animState( ANIMCHANNEL_LEGS, "Torso_PerchAttack", MALEDICT_BLEND_FRAMES );
+		waitAction( "perch_attack" );
+
+		attackCount++;
+
+		setState( "state_Down" );
+	}
+}
+
+/*
+=====================
+monster_boss_maledict::state_FakeDeath
+=====================
+*/
+void monster_boss_maledict::state_FakeDeath() {
+	animState( ANIMCHANNEL_LEGS, "Torso_Idle", MALEDICT_BLEND_FRAMES );
+
+	kill();
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_boss_maledict::do_attack
+=====================
+*/
+void monster_boss_maledict::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_SPECIAL1 ) {
+		combat_forgotten();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_boss_maledict::check_attacks
+=====================
+*/
+float monster_boss_maledict::check_attacks() {
+	float	currentTime;
+	float	attack_flags;
+
+	attack_flags = 0;
+	currentTime = sys.getTime();
+
+	// Attack!
+	if ( !previousAttackForgottens && numForgottens <= 0 ) {
+		attack_flags |= ATTACK_SPECIAL1;
+
+	} else if ( currentTime >= nextAttack ) {
+		attack_flags |= ATTACK_MISSILE;
+	}
+
+	return attack_flags;
+}
+
+/*
+=====================
+monster_boss_maledict::combat_range
+=====================
+*/
+void monster_boss_maledict::combat_range() {
+
+	previousAttackForgottens = false;
+
+	faceEnemy();
+	animState( ANIMCHANNEL_LEGS, "Torso_RangeAttack", MALEDICT_BLEND_FRAMES );
+	waitAction( "range_attack" );
+
+	attackCount++;
+
+	// don't attack for a bit
+	nextAttack = DelayTime( MALEDICT_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_boss_maledict::combat_forgotten
+=====================
+*/
+void monster_boss_maledict::combat_forgotten() {
+
+	previousAttackForgottens = true;
+	move_to_position( 0 );
+
+	animState( ANIMCHANNEL_LEGS, "Torso_ForgottenAttack", MALEDICT_BLEND_FRAMES );
+	waitAction( "forgotten_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( MALEDICT_ATTACK_RATE );
+}
+
+/*
+=====================
+monster_boss_maledict::forgotten_spawn
+=====================
+*/
+void monster_boss_maledict::forgotten_spawn() {
+	entity	ent;
+	entity	spot;
+
+	sys.setSpawnArg( "teleport", "1" );
+	sys.setSpawnArg( "target", "forgotten_dead" );
+	ent = sys.spawn( "monster_flying_forgotten" );
+	ent.setKey( "cinematic_remove", "1" );	// make sure it gets removed in cinematics
+
+	if ( numForgottens < 2 ) {
+		spot = $spot_forgotten1;
+	} else {
+		spot = $spot_forgotten2;
+	}
+
+	ent.setOrigin( spot.getOrigin() );
+	ent.setAngles( spot.getAngles() );
+
+	sys.trigger( ent );
+
+	numForgottens++;
+}
+
+/*
+=====================
+monster_boss_maledict::forgotten_killed
+=====================
+*/
+void monster_boss_maledict::forgotten_killed() {
+	numForgottens--;
+}
+
+/*
+=====================
+monster_boss_maledict::move_to_position
+=====================
+*/
+void monster_boss_maledict::move_to_position( float newPt ) {
+	entity spot;
+
+	if ( newPt == 0 ) {
+		spot = $spot_C;
+	} else if ( newPt == 1 ) {
+		spot = $spot_A;
+	} else if ( newPt == 2 ) {
+		spot = $spot_B;
+	} else if ( newPt == 3 ) {
+		spot = $spot_D;
+	} else if ( newPt == 4 ) {
+		spot = $spot_E;
+	} else if ( newPt == 5 ) {
+		spot = $spot_F;
+	}
+
+	currentPt = newPt;
+
+	setOrigin( spot.getOrigin() );
+	setAngles( spot.getAngles() );
+}
+
+/*
+=====================
+monster_boss_maledict::spawn_flame_wall
+=====================
+*/
+void monster_boss_maledict::spawn_flame_wall( vector org ) {
+	entity	ent;
+	vector	ang;
+	float	flameNum;
+	string	flameEntName;
+
+	flameNum = sys.randomInt(3) + 1;
+	flameEntName = "maledict_flamewall" + flameNum;
+
+	ang_y = sys.random( 360 );
+	ent = sys.spawn( flameEntName );
+	ent.setKey( "cinematic_remove", "1" );	// make sure it gets removed in cinematics
+	ent.setShaderParm( 4, -sys.getTime() );
+	ent.setShaderParm( 5, sys.random( 1 ) );
+	ent.setOrigin( org );
+	ent.setAngles( ang );
+	ent.setOwner( self );
+	ent.disable();
+	sys.wait( 0.2 );
+	ent.enable();
+	sys.wait( 0.8 );
+	ent.disable();
+	sys.wait( 1.8 );
+	ent.remove();
+}
+
+/*
+=====================
+monster_boss_maledict::flame_wall_start_pos
+=====================
+*/
+vector monster_boss_maledict::flame_wall_start_pos( float dir ) {
+	float	i;
+	float	frac;
+	vector	finalPos;
+	vector	startPos;
+	vector	pos;
+	vector	offset;
+
+	if ( swoopDir == MALEDICT_SWOOP_HORIZ ) {
+		offset = '-64 0 0';
+	} else {
+		offset = '0 64 0';
+	}
+
+	startPos = $player1.getOrigin();
+	pos = startPos + offset;
+
+	finalPos = pos;
+
+	for( i = 0; i < MALEDICT_FLAME_WALL_NUM; i++ ) {
+		pos_z += 128;
+		if ( sys.trace( pos, pos + offset, '-8 -8 0', '8 8 16', MASK_SOLID, self ) < 1 ) {
+			break;
+		}
+		pos = pos + offset;
+		frac = sys.trace( pos, pos - '0 0 256', '-8 -8 0', '8 8 16', MASK_SOLID, self );
+		if ( frac == 1 ) {
+			break;
+		}
+		pos_z -= 256 * frac;
+
+		finalPos = pos;
+	}
+
+	return finalPos;
+}
+
+/*
+=====================
+monster_boss_maledict::flame_wall_sound_end
+=====================
+*/
+void monster_boss_maledict::flame_wall_sound_end( entity sEnt ) {
+
+	sys.wait( 1 );
+	sEnt.fadeSound( SND_CHANNEL_ANY, -60, 2 );
+	sys.wait( 2 );
+	sEnt.Off();
+	sEnt.remove();
+}
+
+/*
+=====================
+monster_boss_maledict::flame_wall_loop
+=====================
+*/
+void monster_boss_maledict::flame_wall_loop() {
+	float	i;
+	vector	dir;
+	vector	ang;
+	vector	pos;
+	float	frac;
+	entity	soundEnt;
+
+	if ( swoopDir == MALEDICT_SWOOP_HORIZ ) {
+		pos = flame_wall_start_pos( swoopDir );
+		ang = '0 0 0';
+	} else if ( swoopDir == MALEDICT_SWOOP_VERT ) {
+		pos = flame_wall_start_pos( swoopDir );
+		ang = '0 270 0';
+	} else {
+		pos = $flamewall_intro.getOrigin();
+		ang = $flamewall_intro.getAngles();
+	}
+
+	dir = sys.angToForward( ang ) * MALEDICT_FLAME_WALL_SEPERATION;
+
+	sys.wait( 0.5 );
+
+	soundEnt = sys.spawn( "maledict_flamewall_sound" );
+	soundEnt.On();
+
+	for( i = 0; i < MALEDICT_FLAME_WALL_NUM; i++ ) {
+		pos_z += 256;
+		if ( sys.trace( pos, pos + dir, '-8 -8 0', '8 8 16', MASK_SOLID, self ) < 1 ) {
+			break;
+		}
+		pos = pos + dir;
+		frac = sys.trace( pos, pos - '0 0 512', '-8 -8 0', '8 8 16', MASK_SOLID, self );
+		if ( frac == 1 ) {
+			break;
+		}
+		pos_z -= 512 * frac;
+		pos_z += 2;
+
+		soundEnt.setOrigin( pos );
+
+		thread spawn_flame_wall( pos );
+		sys.wait( 0.075 );
+	}
+
+	thread flame_wall_sound_end( soundEnt );
+}
+
+/*
+=====================
+monster_boss_maledict::flame_wall
+=====================
+*/
+void monster_boss_maledict::flame_wall() {
+	thread flame_wall_loop();
+}
+
+/*
+=====================
+monster_boss_maledict::asteroid_loop
+=====================
+*/
+void monster_boss_maledict::asteroid_loop() {
+	float	i;
+	float	delay;
+	string	fxName;
+	entity	fxEnt;
+
+	for( i = 1; i < 15; i++ ) {
+		fxName = "nrv_func_fx_" + i;
+		fxEnt = sys.getEntity( fxName );
+
+		sys.trigger( fxEnt );
+
+		delay = 0.5 + sys.random( 0.3 );
+		//delay = 0.10 + sys.random( 0.3 );
+		sys.wait( delay );
+	}
+}
+
+/*
+=====================
+monster_boss_maledict::asteroid_attack
+=====================
+*/
+void monster_boss_maledict::asteroid_attack() {
+	thread asteroid_loop();
+}
+

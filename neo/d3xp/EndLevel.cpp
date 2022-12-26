@@ -50,7 +50,7 @@ END_CLASS
 idTarget_EndLevel::Spawn
 ================
 */
-void idTarget_EndLevel::Spawn( void )
+void idTarget_EndLevel::Spawn()
 {
 	idStr		guiName;
 

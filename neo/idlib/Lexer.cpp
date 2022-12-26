@@ -1507,11 +1507,19 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-int idLexer::SkipBracedSection( bool parseFirstBrace )
+int idLexer::SkipBracedSection( bool parseFirstBrace, braceSkipMode_t skipMode/* = BRSKIP_BRACE */, int* skipped /*= nullptr*/ )
 {
 	idToken token;
 	int depth;
+	idStr openTokens[2] = { "{" , "["   };
+	idStr closeTokens[2] = { "}" , "]" };
 
+	if( skipped != nullptr )
+	{
+		*skipped = 0;
+	}
+
+	int scopeCount = 0;
 	depth = parseFirstBrace ? 0 : 1;
 	do
 	{
@@ -1521,11 +1529,15 @@ int idLexer::SkipBracedSection( bool parseFirstBrace )
 		}
 		if( token.type == TT_PUNCTUATION )
 		{
-			if( token == "{" )
+			if( token == openTokens[skipMode] )
 			{
 				depth++;
+				if( skipped != nullptr )
+				{
+					( *skipped )++;
+				}
 			}
-			else if( token == "}" )
+			else if( token == closeTokens[skipMode] )
 			{
 				depth--;
 			}
@@ -1838,7 +1850,7 @@ const char* idLexer::ParseBracedSectionExact( idStr& out, int tabs )
 
 	if( !idLexer::ExpectTokenString( "{" ) )
 	{
-		return out.c_str( );
+		return out.c_str();
 	}
 
 	out = "{";
@@ -2083,8 +2095,9 @@ void idLexer::Reset()
 	// set if there's a token available in idLexer::token
 	idLexer::tokenavailable = 0;
 
-	idLexer::line = 1;
-	idLexer::lastline = 1;
+	idLexer::line = intialLine;
+	idLexer::lastline = intialLine;
+
 	// clear the saved token
 	idLexer::token = "";
 }
@@ -2166,6 +2179,7 @@ int idLexer::LoadFile( const char* filename, bool OSPath )
 
 	idLexer::tokenavailable = 0;
 	idLexer::line = 1;
+	idLexer::line = 1;
 	idLexer::lastline = 1;
 	idLexer::allocated = true;
 	idLexer::loaded = true;
@@ -2199,6 +2213,7 @@ int idLexer::LoadMemory( const char* ptr, int length, const char* name, int star
 	idLexer::tokenavailable = 0;
 	idLexer::line = startLine;
 	idLexer::lastline = startLine;
+	idLexer::intialLine = startLine;
 	idLexer::allocated = false;
 	idLexer::loaded = true;
 

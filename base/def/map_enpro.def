@@ -1,0 +1,1293 @@
+
+export fred {
+
+	camera	maps/fred/enpro/monitor.mb -range 1 200 -dest models/md5/cinematics/enpro/monitorcam
+	camera	maps/fred/enpro/monitor2.mb -range 1 32 -dest models/md5/cinematics/enpro/monitorcam2
+	
+	camera	maps/fred/enpro/escape_shot1.mb -range 1 90 -dest models/md5/cinematics/enpro/escapecam1
+	camera	maps/fred/enpro/escape_shot2.mb -range 91 236 -dest models/md5/cinematics/enpro/escapecam2
+	camera	maps/fred/enpro/swann_campbell.mb -range 237 315 -dest models/md5/cinematics/enpro/escapecam3
+	camera	maps/fred/enpro/escape_shot3.mb -range 316 456 -dest models/md5/cinematics/enpro/escapecam4
+	
+	camera	maps/fred/enpro/marine_battle_shot1.mb -range 1 170 -dest models/md5/cinematics/enpro/exitcam_shot1
+	camera	maps/fred/enpro/marine_battle_shot2.mb -range 171 259 -dest models/md5/cinematics/enpro/exitcam_shot2
+	camera	maps/fred/enpro/marine_battle_shot3.mb -range 260 321 -dest models/md5/cinematics/enpro/exitcam_shot3
+	camera	maps/fred/enpro/marine_battle_shot4.mb -range 350 420 -dest models/md5/cinematics/enpro/exitcam_shot4
+	camera	maps/fred/enpro/marine_battle_shot5.mb -range 452 510 -dest models/md5/cinematics/enpro/exitcam_shot5
+	camera	maps/fred/enpro/enpro_exit2.mb -range 511 698 -dest models/md5/cinematics/enpro/exitcam_shot6
+	camera	maps/fred/enpro/enpro_exit2.mb -range 699 740 -dest models/md5/cinematics/enpro/exitcam_shot7
+	camera	maps/fred/enpro/enpro_exit2.mb -range 741 979 -dest models/md5/cinematics/enpro/exitcam_shot8
+
+	camera	maps/fred/enpro/glassexplosion.mb -dest models/md5/cinematics/enpro/glassexplosioncam
+
+	camera	maps/fred/enpro/tuberide.mb -dest models/md5/cinematics/enpro/tuberidecam
+
+	camera	maps/fred/enpro/lostsoulintro.mb  -range 1 219 -dest models/md5/cinematics/enpro/lostcam1
+	camera	maps/fred/enpro/lostsoulintro_poppy.mb  -range 187 269 -dest models/md5/cinematics/enpro/lostcam2
+	camera	maps/fred/enpro/lostsoulintro.mb  -range 284 320 -dest models/md5/cinematics/enpro/lostcam3
+
+
+	camera	maps/eric/enpro/wounded_marine.mb -range 1 92 -dest models/md5/cinematics/enpro/marine_cam1
+	camera	maps/eric/enpro/wounded_marine.mb -range 93 194 -dest models/md5/cinematics/enpro/marine_cam2
+	camera	maps/eric/enpro/wounded_marine.mb -range 195 340 -dest models/md5/cinematics/enpro/marine_cam3
+	camera	maps/eric/enpro/wounded_marine.mb -range 341 476 -dest models/md5/cinematics/enpro/marine_cam4
+	camera	maps/eric/enpro/wounded_marine.mb -range 477 571 -dest models/md5/cinematics/enpro/marine_cam5
+	camera	maps/eric/enpro/wounded_marine.mb -range 572 598 -dest models/md5/cinematics/enpro/marine_cam6
+
+	
+	addoptions -prefix ENV_
+	mesh	maps/fred/enpro/enpro_exit2.mb -range 1 1 -dest models/md5/cinematics/enpro/exithelmet
+	anim	maps/fred/enpro/enpro_exit2.mb -range 511 979 -dest models/md5/cinematics/enpro/exithelmet
+	
+	mesh	maps/fred/enpro/lostsoulintro_poppy.mb -dest models/md5/cinematics/enpro/lostintro_spine
+	anim	maps/fred/enpro/lostsoulintro_poppy.mb -range 187 269 -dest models/md5/cinematics/enpro/lostintro_spine
+
+	addoptions -prefix CHAIR_
+	mesh	maps/fred/enpro/lostsoulintro.mb -dest models/md5/cinematics/enpro/chair_lostintro
+	anim	maps/fred/enpro/lostsoulintro.mb -dest models/md5/cinematics/enpro/chair_lostintro
+
+	addoptions -prefix LOST_ -keep lost_flame1 -parent lost_flame1 Head
+	mesh	maps/fred/enpro/lostsoulintro.mb -dest models/md5/cinematics/enpro/lostsoul_mesh
+	anim	maps/fred/enpro/lostsoulintro_poppy.mb -range 187 269 -dest models/md5/cinematics/enpro/lostsoul_lostintro1
+	anim	maps/fred/enpro/lostsoulintro.mb -range 284 320 -dest models/md5/cinematics/enpro/lostsoul_lostintro2
+}
+
+export fred {
+ 	options -prefix w_ -keep Lknee Rknee -keep fireball ROT  -parent fireball head_FK -parent spine_1 ROT -parent ROT root 
+	anim	maps/eric/enpro/wounded_marine.mb -range 1 595 -dest models/md5/cinematics/enpro/marine_wraith
+
+}
+
+export fred {
+ 	options -prefix W_ -keep Lknee Rknee -keep fireball ROT  -parent fireball head_FK -parent spine_1 ROT -parent ROT root 
+	anim	maps/fred/enpro/marine_battle_shot3.mb -range 260 321 -dest models/md5/cinematics/enpro/exit_wraith
+
+}
+
+export fred {
+ 	options -prefix KEY_ 
+	mesh 	maps/eric/enpro/wounded_marine.mb -dest models/md5/cinematics/enpro/wounded_keycard
+	anim	maps/eric/enpro/wounded_marine.mb -range 1 92 -dest models/md5/cinematics/enpro/wounded_keycard_a
+	anim	maps/eric/enpro/wounded_marine.mb -range 93 194 -dest models/md5/cinematics/enpro/wounded_keycard_b
+	anim	maps/eric/enpro/wounded_marine.mb -range 195 340 -dest models/md5/cinematics/enpro/wounded_keycard_c
+	anim	maps/eric/enpro/wounded_marine.mb -range 341 476 -dest models/md5/cinematics/enpro/wounded_keycard_d
+	anim	maps/eric/enpro/wounded_marine.mb -range 477 571 -dest models/md5/cinematics/enpro/wounded_keycard_e
+	anim	maps/eric/enpro/wounded_marine.mb -range 572 598 -dest models/md5/cinematics/enpro/wounded_keycard_f
+}
+
+
+entityDef enpro_exit_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	
+	"spawnclass"						"idCameraAnim"
+	"cinematic"							"1"
+
+	"anim exitshot_a"						"models/md5/cinematics/enpro/exitcam_shot1.md5camera"
+	"anim exitshot_c"						"models/md5/cinematics/enpro/exitcam_shot2.md5camera"
+	"anim exitshot_b"						"models/md5/cinematics/enpro/exitcam_shot3.md5camera"
+	"anim exitshot_d"						"models/md5/cinematics/enpro/exitcam_shot4.md5camera"
+	"anim exitshot_e"						"models/md5/cinematics/enpro/exitcam_shot5.md5camera"
+	"anim exitshot_f"						"models/md5/cinematics/enpro/exitcam_shot6.md5camera"
+	"anim exitshot_g"						"models/md5/cinematics/enpro/exitcam_shot7.md5camera"
+	"anim exitshot_h"						"models/md5/cinematics/enpro/exitcam_shot8.md5camera"
+	"anim exitshot_j"						"models/md5/cinematics/le_enpro1/wraith_legs_pull_cam.camera"
+	
+
+
+}
+
+model enpro_soldier1 {
+	inherit								npc_marine_w_mgun
+
+	anim shot_a							models/md5/cinematics/enpro/exitsoldier2_shot1.md5anim {
+		frame 1							event ignoreDamage
+		//frame 1							sound_global enpro_intro_imps
+		//frame 1							sound_global enpro_intro_guns
+		frame 6							sound_body player_sounds_footstep		
+	
+		frame 25						sound_global enpro_intro
+		frame 17						sound_body player_sounds_footstep
+		frame 31						sound_body player_sounds_footstep
+		frame 45						sound_body player_sounds_footstep
+		frame 59						sound_body player_sounds_footstep
+		frame 71						sound_body player_sounds_footstep
+		frame 85						sound_body player_sounds_footstep
+		frame 96						sound_body player_sounds_footstep
+		frame 112						sound_body player_sounds_footstep
+		frame 124						sound_body player_sounds_footstep
+		frame 136						sound_body player_sounds_footstep
+		frame 145						sound_body player_sounds_footstep
+		
+	}
+
+	anim shot_b							models/md5/cinematics/enpro/exitsoldier2_shot2.md5anim {
+		frame 1							event ignoreDamage
+		
+		frame 58						sound_body player_sounds_footstep
+		frame 66						sound_body player_sounds_footstep
+		frame 74						sound_voice snd_hallway
+		frame 75						sound_body player_sounds_footstep
+	}
+	anim shot_c							models/md5/cinematics/enpro/exitsoldier2_shot3.md5anim {
+		frame 1							event ignoreDamage
+		frame 5							sound_body player_sounds_footstep
+		frame 16						sound_body player_sounds_footstep
+		frame 30						sound_body player_sounds_footstep
+		frame 43						sound_body player_sounds_footstep
+		frame 57						sound_body player_sounds_footstep
+		
+	}	
+
+	anim shot_d							models/md5/cinematics/enpro/exitsoldier1_shot4.md5anim {
+		frame 30						sound_global enpro_sfx_imps
+		frame 68						sound_voice snd_what
+
+	}
+	anim shot_e							models/md5/cinematics/enpro/exitsoldier2_shot5.md5anim {
+		frame 1							event ignoreDamage
+		frame 9							sound_body player_sounds_footstep
+		frame 23						sound_body player_sounds_footstep
+		frame 35						sound_body player_sounds_footstep
+		frame 50						sound_body player_sounds_footstep
+	}
+
+	anim shot_f							models/md5/cinematics/enpro/exitsoldier2_shot6.md5anim {
+		frame 1							event ignoreDamage
+		frame 4							sound_body player_sounds_footstep
+		frame 9							sound_body player_sounds_footstep
+		frame 32						sound_body player_sounds_footstep
+		frame 41						sound_body player_sounds_footstep
+		frame 52						sound_body player_sounds_footstep
+		frame 116						sound_body player_sounds_footstep
+		frame 155						sound_voice snd_what
+
+	}
+
+	anim shot_g							models/md5/cinematics/enpro/exitsoldier2_shot7.md5anim {
+		frame 1							event ignoreDamage
+		frame 16						launch_missile RHANDCONNECTOR
+		frame 16						sound_global enpro_intro_guns
+		frame 18						launch_missile RHANDCONNECTOR
+		frame 20						launch_missile RHANDCONNECTOR
+		frame 22						launch_missile RHANDCONNECTOR
+		frame 24						launch_missile RHANDCONNECTOR
+		frame 26						launch_missile RHANDCONNECTOR
+		frame 28						launch_missile RHANDCONNECTOR
+		frame 32						launch_missile RHANDCONNECTOR
+		frame 36						launch_missile RHANDCONNECTOR
+		frame 40						launch_missile RHANDCONNECTOR
+
+	}
+
+	anim shot_h							models/md5/cinematics/enpro/exitsoldier2_shot8.md5anim {
+		frame 1							event ignoreDamage
+		frame 3							launch_missile RHANDCONNECTOR
+		frame 7							launch_missile RHANDCONNECTOR
+		frame 10						launch_missile RHANDCONNECTOR
+		frame 14						launch_missile RHANDCONNECTOR
+		frame 18						launch_missile RHANDCONNECTOR
+		frame 22						launch_missile RHANDCONNECTOR
+		frame 25						launch_missile RHANDCONNECTOR
+		frame 28						launch_missile RHANDCONNECTOR
+		frame 32						launch_missile RHANDCONNECTOR
+		frame 33						launch_missile RHANDCONNECTOR
+		frame 36						launch_missile RHANDCONNECTOR
+		frame 39						launch_missile RHANDCONNECTOR
+		frame 41						launch_missile RHANDCONNECTOR
+		frame 43						launch_missile RHANDCONNECTOR
+		frame 61						sound_body player_sounds_footstep
+		frame 66						sound_body player_sounds_footstep
+		frame 71						sound_body player_sounds_footstep
+
+		//test	
+		frame 63						launch_missile RHANDCONNECTOR
+		frame 65						launch_missile RHANDCONNECTOR
+		frame 68						launch_missile RHANDCONNECTOR
+		frame 70						launch_missile RHANDCONNECTOR
+		frame 73						launch_missile RHANDCONNECTOR
+		frame 75						launch_missile RHANDCONNECTOR
+		frame 78						launch_missile RHANDCONNECTOR
+		frame 80						launch_missile RHANDCONNECTOR
+		frame 82						launch_missile RHANDCONNECTOR
+		frame 84						launch_missile RHANDCONNECTOR
+		frame 86						launch_missile RHANDCONNECTOR
+		frame 89						launch_missile RHANDCONNECTOR
+		frame 91						launch_missile RHANDCONNECTOR
+		frame 93						launch_missile RHANDCONNECTOR
+		frame 95						launch_missile RHANDCONNECTOR
+		frame 97						launch_missile RHANDCONNECTOR
+		frame 100						launch_missile RHANDCONNECTOR
+		frame 102						launch_missile RHANDCONNECTOR
+		frame 105						launch_missile RHANDCONNECTOR
+		frame 107						launch_missile RHANDCONNECTOR
+		frame 109						launch_missile RHANDCONNECTOR
+		frame 112						launch_missile RHANDCONNECTOR
+		frame 114						launch_missile RHANDCONNECTOR
+		frame 116						launch_missile RHANDCONNECTOR
+		frame 119						launch_missile RHANDCONNECTOR
+		frame 121						launch_missile RHANDCONNECTOR
+		frame 123						launch_missile RHANDCONNECTOR
+		frame 125						launch_missile RHANDCONNECTOR
+
+	}
+
+
+
+}
+
+entityDef enpro_soldier1 {
+	"inherit"						"npc_base"
+	"model"							"enpro_soldier1"
+	"sound_bone"					"Chest"	
+	"def_projectile"				"projectile_bullet_zsec_machinegun"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+	"cinematic"						"1"
+	"gib"							"0"
+	"model_gib" 					"models/md5/chars/skeleton_w_mgun.md5mesh"
+	"mass"							"5000"
+	"ik_numlegs"					"0"
+	"ragdoll"						""
+
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+	"copy_joint_world eyecontrol"	""
+
+	"num_cinematics"				"6"
+	"anim1"							"shot_a"
+	"anim2"							"shot_c"
+	"anim3"							"shot_b"
+	"anim4"							"shot_d"
+	"anim5"							"shot_g"
+	"anim6"							"shot_h"
+
+
+
+	"snd_hallway"					"enpro_hallway_clear"
+	"snd_what"						"enpro_what_the_hell"
+
+
+	
+}
+
+model enpro_soldier2 {
+	inherit								npc_marine_w_mgun
+
+	anim shot_a							models/md5/cinematics/enpro/exitsoldier1_shot1.md5anim {
+		frame 1							event ignoreDamage
+		frame 16						sound_body player_sounds_footstep
+		frame 29						sound_body player_sounds_footstep
+		frame 41						sound_body player_sounds_footstep
+		frame 49						sound_body player_sounds_footstep
+		frame 54						sound_body player_sounds_footstep
+		frame 60						sound_body player_sounds_footstep
+		frame 67						sound_body player_sounds_footstep
+		frame 99						sound_body player_sounds_footstep
+		frame 104						sound_body player_sounds_footstep
+		frame 119						sound_body player_sounds_footstep
+		frame 128						sound_body player_sounds_footstep
+		frame 133						sound_body player_sounds_footstep
+		frame 140						sound_body player_sounds_footstep
+
+		frame 50						sound_voice snd_move_in
+	}
+	anim shot_b							models/md5/cinematics/enpro/exitsoldier1_shot2.md5anim {
+		frame 1							event ignoreDamage
+		frame 3							sound_body player_sounds_footstep
+		frame 11						sound_body player_sounds_footstep
+	}
+
+	anim shot_c							models/md5/cinematics/enpro/exitsoldier1_shot3.md5anim {
+		frame 1							event ignoreDamage
+		frame 7							sound_body player_sounds_footstep
+		frame 16						sound_body player_sounds_footstep
+		frame 30						sound_body player_sounds_footstep
+		frame 44						sound_body player_sounds_footstep
+		frame 58						sound_body player_sounds_footstep
+		frame 30						sound_voice snd_quiet
+	}
+	anim shot_d							models/md5/cinematics/enpro/exitsoldier2_shot4.md5anim {
+		frame 1							event ignoreDamage
+		frame 12						sound_body player_sounds_footstep
+		frame 24						sound_body player_sounds_footstep
+		frame 36						sound_body player_sounds_footstep
+		frame 48						sound_body player_sounds_footstep
+		frame 60						sound_body player_sounds_footstep
+	}
+
+	anim shot_e							models/md5/cinematics/enpro/exitsoldier1_shot5.md5anim {
+		frame 1							event ignoreDamage
+		frame 1							sound_voice snd_man_down
+		frame 4							sound_body player_sounds_footstep
+		frame 14						sound_body player_sounds_footstep
+		frame 28						sound_body player_sounds_footstep
+		frame 41						sound_body player_sounds_footstep
+		frame 55						sound_body player_sounds_footstep
+	}
+	anim shot5b							models/md5/cinematics/enpro/exitsoldier1_shot5.md5anim {
+		frame 1							event ignoreDamage
+		frame 4							sound_body player_sounds_footstep
+		frame 14						sound_body player_sounds_footstep
+		frame 28						sound_body player_sounds_footstep
+		frame 41						sound_body player_sounds_footstep
+		frame 55						sound_body player_sounds_footstep
+	}
+
+	anim shot_f					models/md5/cinematics/enpro/exitsoldier1_shot6.md5anim {
+		frame 1							event ignoreDamage
+		frame 54						sound_voice snd_moving_right
+		frame 59						sound_body player_sounds_footstep
+		frame 68						sound_body player_sounds_footstep
+		frame 77						sound_body player_sounds_footstep
+		frame 82						sound_body player_sounds_footstep
+		
+	}
+
+	anim shot_g					models/md5/cinematics/enpro/exitsoldier1_shot7.md5anim {
+		frame 1							event ignoreDamage
+	}
+	
+	anim shot_h					models/md5/cinematics/enpro/exitsoldier1_shot8.md5anim {
+		frame 1							event ignoreDamage
+		frame 9							launch_missile RHANDCONNECTOR
+		frame 11						launch_missile RHANDCONNECTOR
+		frame 14						launch_missile RHANDCONNECTOR
+		frame 16						launch_missile RHANDCONNECTOR
+		frame 18						launch_missile RHANDCONNECTOR
+		frame 21						launch_missile RHANDCONNECTOR
+		frame 24						launch_missile RHANDCONNECTOR
+		frame 28						launch_missile RHANDCONNECTOR
+		frame 31						launch_missile RHANDCONNECTOR
+		frame 34						sound_body player_sounds_footstep
+		frame 34						sound_voice snd_son
+		frame 41						launch_missile RHANDCONNECTOR
+		frame 43						launch_missile RHANDCONNECTOR
+		frame 46						launch_missile RHANDCONNECTOR
+		frame 48						launch_missile RHANDCONNECTOR
+		frame 51						launch_missile RHANDCONNECTOR
+		frame 53						launch_missile RHANDCONNECTOR
+		frame 56						launch_missile RHANDCONNECTOR
+		frame 59						launch_missile RHANDCONNECTOR
+		frame 61						launch_missile RHANDCONNECTOR
+		frame 64						sound_body player_sounds_footstep
+
+		//test	
+		frame 63						launch_missile RHANDCONNECTOR
+		frame 65						launch_missile RHANDCONNECTOR
+		frame 68						launch_missile RHANDCONNECTOR
+		frame 70						launch_missile RHANDCONNECTOR
+		frame 73						launch_missile RHANDCONNECTOR
+		frame 75						launch_missile RHANDCONNECTOR
+		frame 78						launch_missile RHANDCONNECTOR
+		frame 80						launch_missile RHANDCONNECTOR
+		frame 82						launch_missile RHANDCONNECTOR
+		frame 84						launch_missile RHANDCONNECTOR
+		frame 86						launch_missile RHANDCONNECTOR
+		frame 89						launch_missile RHANDCONNECTOR
+		frame 91						launch_missile RHANDCONNECTOR
+		frame 93						launch_missile RHANDCONNECTOR
+		frame 95						launch_missile RHANDCONNECTOR
+		frame 97						launch_missile RHANDCONNECTOR
+		frame 100						launch_missile RHANDCONNECTOR
+		frame 102						launch_missile RHANDCONNECTOR
+		frame 105						launch_missile RHANDCONNECTOR
+		frame 107						launch_missile RHANDCONNECTOR
+		frame 109						launch_missile RHANDCONNECTOR
+		frame 112						launch_missile RHANDCONNECTOR
+		frame 114						launch_missile RHANDCONNECTOR
+		frame 116						launch_missile RHANDCONNECTOR
+		frame 119						launch_missile RHANDCONNECTOR
+		frame 121						launch_missile RHANDCONNECTOR
+		frame 123						launch_missile RHANDCONNECTOR
+		frame 125						launch_missile RHANDCONNECTOR
+
+
+	}
+
+
+}
+
+entityDef enpro_soldier2 {
+	"inherit"						"npc_base"
+	"model"							"enpro_soldier2"
+	"sound_bone"					"Chest"
+	"def_projectile"				"projectile_bullet_zsec_machinegun"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"	
+	"cinematic"						"1"
+	"gib"							"0"
+	"mass"							"5000"
+	"model_gib" 					"models/md5/chars/skeleton_w_mgun.md5mesh"
+
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+	"ik_numlegs"					"0"
+	"ragdoll"						""
+
+	"copy_joint_world eyecontrol"	""
+
+
+	//"num_cinematics"				"8"
+	//"anim1"						"shot_a"
+	//"anim2"						"shot_c"
+	//"anim3"						"shot_b"
+	//"anim4"						"shot_d"
+	//"anim5"						"shot_e"
+	//"anim6"						"shot_f"
+	//"anim7"						"shot_g"
+	//"anim8"						"shot_h"
+
+	"num_cinematics"				"6"
+	"anim1"							"shot_a"
+	"anim2"							"shot_c"
+	"anim3"							"shot_b"
+	"anim4"							"shot_d"
+	"anim5"							"shot_g"
+	"anim6"							"shot_h"
+
+
+
+	"snd_move_in"					"enpro_move_in"	
+	"snd_quiet"						"enpro_quiet"
+	"snd_moving_in"					"enpro_moving_in"
+	"snd_man_down"					"enpro_man_down"
+	"snd_moving_right"				"enpro_moving_right"
+	"snd_son"						"enpro_son_of_a"
+
+}
+
+model enpro_soldier3 {
+	inherit								npc_marine_w_mgun
+
+	anim shot_a							models/md5/cinematics/enpro/exitsoldier3_shot1.md5anim {
+		frame 1							event ignoreDamage
+		frame 91						sound_body player_sounds_footstep
+		frame 103						sound_body player_sounds_footstep
+		frame 117						sound_body player_sounds_footstep
+		frame 129						sound_body player_sounds_footstep
+		frame 144						sound_body player_sounds_footstep
+		frame 156						sound_body player_sounds_footstep
+		frame 169						sound_body player_sounds_footstep
+	}
+	anim shot_b							models/md5/cinematics/enpro/exitsoldier3_shot2.md5anim {
+		frame 1							event ignoreDamage
+		frame 6							sound_body player_sounds_footstep
+		frame 14						sound_body player_sounds_footstep
+		frame 20						sound_body player_sounds_footstep
+		frame 28						sound_body player_sounds_footstep
+		frame 14						sound_voice snd_status
+	}
+	anim shot_c							models/md5/cinematics/enpro/exitsoldier3_shot3.md5anim {
+		frame 1							event ignoreDamage
+		frame 5							sound_body player_sounds_footstep
+		frame 10						sound_body player_sounds_footstep
+		frame 18						sound_body player_sounds_footstep
+		frame 28						sound_body player_sounds_footstep
+		frame 36						sound_body player_sounds_footstep
+		frame 45						sound_body player_sounds_footstep
+		frame 53						sound_body player_sounds_footstep
+		frame 62						sound_body player_sounds_footstep
+	}
+	anim shot_d							models/md5/cinematics/enpro/exitsoldier3_shot4.md5anim {
+		frame 1							event ignoreDamage
+		frame 21						sound_body player_sounds_footstep
+		frame 33						sound_body player_sounds_footstep
+		frame 42						sound_body player_sounds_footstep
+		frame 52						sound_body player_sounds_footstep
+		frame 61						sound_body player_sounds_footstep
+
+		frame 15							sound_voice snd_nothing_here
+		//frame 55							sound_body monster_demon_imp_sight
+		frame 55							sound_voice snd_pain
+	}
+	anim shot_e							models/md5/cinematics/enpro/exitsoldier3_shot5.md5anim {
+		frame 1							event ignoreDamage
+	}
+	anim shot_f							models/md5/cinematics/enpro/exitsoldier3_shot6.md5anim {
+		frame 1							event ignoreDamage
+	}
+	anim shot_g							models/md5/cinematics/enpro/exitsoldier3_shot7.md5anim {
+		frame 1							event ignoreDamage
+	}
+	anim shot_h							models/md5/cinematics/enpro/exitsoldier3_shot8.md5anim {
+		frame 1							event ignoreDamage
+	}
+
+}
+
+entityDef enpro_soldier3 {
+	"inherit"						"npc_base"
+	"model"							"enpro_soldier3"
+	"sound_bone"					"Chest"
+	"def_projectile"				"projectile_bullet_zsec_machinegun"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+	"cinematic"						"1"
+	"gib"							"0"
+	"model_gib" 					"models/md5/chars/skeleton_w_mgun.md5mesh"
+	"mass"							"5000"
+	"ik_numlegs"					"0"
+	"ragdoll"						""
+
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+
+	//"num_cinematics"				"8"
+	//"anim1"						"shot_a"
+	//"anim2"						"shot_c"
+	//"anim3"						"shot_b"
+	//"anim4"						"shot_d"
+	//"anim5"						"shot_e"
+	//"anim6"						"shot_f"
+	//"anim7"						"shot_g"
+	//"anim8"						"shot_h"
+
+	"num_cinematics"				"6"
+	"anim1"							"shot_a"
+	"anim2"							"shot_c"
+	"anim3"							"shot_b"
+	"anim4"							"shot_d"
+	"anim5"							"shot_g"
+	"anim6"							"shot_h"
+
+
+
+	"snd_status"					"enpro_give_status"
+	"snd_nothing_here"				"enpro_nothing_here"
+	"snd_pain"						"enpro_pain"
+
+}
+
+model enpro_soldier4 {
+	inherit								npc_marine_w_mgun
+
+	anim shot_a							models/md5/cinematics/enpro/exitsoldier4_shot6.md5anim {
+		frame 1							event ignoreDamage
+		frame 4							sound_voice snd_johnny
+		frame 6							sound_body player_sounds_footstep
+		frame 13						sound_body player_sounds_footstep
+		frame 21						sound_body player_sounds_footstep
+		frame 89						sound_voice snd_watch
+		frame 179						sound_voice snd_fire
+	}
+	
+	anim shot_b							models/md5/cinematics/enpro/exitsoldier4_shot7.md5anim {
+		frame 1							event ignoreDamage
+		frame 19						launch_missile RHANDCONNECTOR
+		frame 23						launch_missile RHANDCONNECTOR		
+		frame 25						launch_missile RHANDCONNECTOR
+		frame 27						launch_missile RHANDCONNECTOR		
+		frame 30						launch_missile RHANDCONNECTOR
+		frame 32						launch_missile RHANDCONNECTOR		
+		frame 35						launch_missile RHANDCONNECTOR
+		frame 38						launch_missile RHANDCONNECTOR		
+		frame 41						launch_missile RHANDCONNECTOR
+	}
+
+	anim shot_c							models/md5/cinematics/enpro/exitsoldier4_shot8.md5anim {
+		frame 1							event ignoreDamage
+		
+		frame 73						sound_body player_sounds_footstep
+		frame 92						sound_body player_sounds_footstep
+		frame 102						sound_body player_sounds_footstep
+		frame 115						sound_body player_sounds_footstep
+		frame 128						sound_body player_sounds_footstep
+
+		frame 2							launch_missile RHANDCONNECTOR		
+		frame 5							launch_missile RHANDCONNECTOR
+		frame 8							launch_missile RHANDCONNECTOR		
+		frame 11						launch_missile RHANDCONNECTOR
+		frame 14						launch_missile RHANDCONNECTOR		
+		frame 16						launch_missile RHANDCONNECTOR
+		frame 20						launch_missile RHANDCONNECTOR
+
+		frame 72						sound_voice snd_swing
+		frame 119						sound_voice snd_down
+
+		frame 139						launch_missile RHANDCONNECTOR
+		frame 141						launch_missile RHANDCONNECTOR
+		frame 143						launch_missile RHANDCONNECTOR
+		frame 146						launch_missile RHANDCONNECTOR
+		frame 148						launch_missile RHANDCONNECTOR
+		
+		frame 150						launch_missile RHANDCONNECTOR
+		frame 152						launch_missile RHANDCONNECTOR		
+		frame 154						launch_missile RHANDCONNECTOR
+		frame 156						launch_missile RHANDCONNECTOR
+		frame 158						launch_missile RHANDCONNECTOR
+		frame 160						launch_missile RHANDCONNECTOR
+		frame 164						launch_missile RHANDCONNECTOR
+		frame 168						launch_missile RHANDCONNECTOR
+		frame 170						launch_missile RHANDCONNECTOR
+		frame 172						launch_missile RHANDCONNECTOR
+		frame 173						launch_missile RHANDCONNECTOR
+
+		frame 155						trigger bulett_sparks_1
+		frame 157						trigger bulett_sparks_2		
+		frame 159						trigger bulett_sparks_3
+		frame 161						trigger bulett_sparks_4
+		frame 163						trigger bulett_sparks_5
+		frame 165						trigger bulett_sparks_6
+		frame 167						trigger bulett_sparks_7
+//		frame 168						trigger bulett_sparks_8		
+//		frame 169						trigger bulett_sparks_9
+//		frame 170						trigger bulett_sparks_10
+//		frame 171						trigger bulett_sparks_11
+//		frame 172						trigger bulett_sparks_12
+		
+
+		frame 173						trigger pipe_explode1
+		frame 174						trigger pipe_explode1
+		frame 174						trigger fredminiexplode1
+		frame 176						trigger pipe_explode1
+		frame 178						trigger pipe_explode1
+		frame 210						trigger pipe_explode2
+		frame 211						trigger fredminiexplode2
+		frame 211						trigger pipe_explode2
+		frame 226						trigger pipe_explode3
+		frame 227						trigger fredminiexplode3
+		frame 228						trigger pipe_explode3
+
+
+	}
+
+}
+
+entityDef enpro_soldier4 {
+	"inherit"						"npc_base"
+	"model"							"enpro_soldier4"
+	"sound_bone"					"Chest"
+	"def_projectile"				"projectile_bullet_zsec_machinegun"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+	"cinematic"						"1"
+	"gib"							"0"
+	"model_gib" 					"models/md5/chars/skeleton_w_mgun.md5mesh"
+	"mass"							"5000"
+	"ik_numlegs"					"0"
+	"ragdoll"						""
+
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+
+	//"num_cinematics"				"3"
+	//"anim1"						"shot_a"
+	//"anim2"						"shot_b"
+	//"anim3"						"shot_c"
+
+	"num_cinematics"				"2"
+	"anim1"							"shot_b"
+	"anim2"							"shot_c"
+	
+
+	"snd_johnny"					"enpro_johnny"
+	"snd_watch"						"enpro_watch_yourself"
+	"snd_swing"						"enpro_swinging_left"
+	"snd_down"						"enpro_im_down"
+	"snd_fire"						"enpro_fire_fire"
+
+}
+
+
+model enpro_exit_imp1 {
+	mesh								models/md5/monsters/imp/imp.md5mesh
+	anim exit1							models/md5/cinematics/enpro/exitimp1.md5anim {
+		frame 13							trigger implight1
+	}
+}
+
+entityDef enpro_exit_imp1 {
+	"inherit"							"cin_base"
+	"model"								"enpro_exit_imp1"
+	"anim"								"exit1"
+	"cinematic"							"1"
+}
+
+model enpro_exit_imp2 {	
+	mesh								models/md5/monsters/imp/imp.md5mesh
+	anim exitstart_a					models/md5/cinematics/enpro/exitimp2a.md5anim
+	anim exitstart_b					models/md5/cinematics/enpro/exitimp2b.md5anim
+	anim exitstart_c					models/md5/cinematics/enpro/exitimp2c.md5anim
+
+	anim exit							models/md5/cinematics/enpro/exitimp2.md5anim
+
+}
+
+entityDef enpro_exit_imp2 {	
+	"inherit"							"cin_base"
+	"model"								"enpro_exit_imp2"
+	"anim"								"exit"
+	"cinematic"							"1"
+}
+
+entityDef enpro_exit_imp3 {	
+	"inherit"							"cin_base"
+	"model"								"enpro_exit_imp2"
+	"anim"								"exitstart_a"
+	"cinematic"							"1"
+	"auto_advance"						"1"
+	"num_anims"							"3"
+	"anim1"								"exitstart_a"
+	"anim2"								"exitstart_b"
+	"anim3"								"exitstart_c"
+}
+
+model enpro_exit_helmet {	
+	mesh								models/md5/cinematics/enpro/exithelmet.md5mesh
+	anim exit							models/md5/cinematics/enpro/exithelmet.md5anim {
+		frame 147 						trigger helmetsplat
+	}
+}
+
+entityDef enpro_exit_helmet {	
+	"inherit"							"cin_base"
+	"model"								"enpro_exit_helmet"
+	"cinematic"							"1"
+	"anim"								"exit"
+}
+
+
+entityDef enpro_monitor_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	
+	"spawnclass"						"idCameraAnim"
+	"cinematic"							"1"
+
+	"anim monitor"						"models/md5/cinematics/enpro/monitorcam.md5camera"
+	"anim endmonitor"					"models/md5/cinematics/enpro/monitorcam2.md5camera"
+}
+entityDef enpro_glass_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	
+	"spawnclass"						"idCameraAnim"
+	"cinematic"							"1"
+
+	"anim glassexplosion"				"models/md5/cinematics/enpro/glassexplosioncam.md5camera"
+}
+entityDef enpro_escape_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	
+	"spawnclass"						"idCameraAnim"
+	"cinematic"							"1"
+
+	"anim escape1"						"models/md5/cinematics/enpro/escapecam1.md5camera"
+	"anim escape2"						"models/md5/cinematics/enpro/escapecam2.md5camera"
+	"anim escape3"						"models/md5/cinematics/enpro/escapecam3.md5camera"
+	"anim escape4"						"models/md5/cinematics/enpro/escapecam4.md5camera"
+}
+
+entityDef enpro_tuberide_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	"cinematic"							"1"
+	
+	"spawnclass"						"idCameraAnim"
+
+	"anim tuberide"						"models/md5/cinematics/enpro/tuberidecam.md5camera"
+}
+
+entityDef enpro_lostintro_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	
+	"spawnclass"						"idCameraAnim"
+	"cinematic"							"1"
+
+	"anim lostintro1"					"models/md5/cinematics/enpro/lostcam1.md5camera"
+	"anim lostintro2"					"models/md5/cinematics/enpro/lostcam2.md5camera"
+	"anim lostintro3"					"models/md5/cinematics/enpro/lostcam3.md5camera"
+}
+
+model enpro_lost_spine {	
+	mesh								models/md5/cinematics/enpro/lostintro_spine.md5mesh
+	anim pop							models/md5/cinematics/enpro/lostintro_spine.md5anim
+}
+
+entityDef enpro_lost_spine {	
+	"inherit"							"cin_base"
+	"model"								"enpro_lost_spine"
+	"cinematic"							"1"
+	"anim"								"pop"
+}
+
+
+model enpro_lost_chair {	
+	mesh								models/md5/cinematics/enpro/chair_lostintro.md5mesh
+	anim exit							models/md5/cinematics/enpro/chair_lostintro.md5anim
+
+}
+
+entityDef enpro_lost_chair {	
+	"inherit"							"cin_base"
+	"model"								"enpro_lost_chair"
+	"cinematic"							"1"
+	"anim"								"exit"
+}
+
+
+model enpro_cin_female {
+	skin 							skins/poppy.skin
+	mesh							models/md5/characters/poppy/poppy.md5mesh
+	anim af_pose					models/md5/characters/poppy/initial.md5anim
+	anim lostintrostart				models/md5/cinematics/enpro/fem_lostintrostart.md5anim
+	anim lostintro1					models/md5/cinematics/enpro/fem_lostintro1.md5anim {
+		frame 1						skin skins/poppy.skin
+		frame 1						sound_global enpro_lostsoul
+		frame 30					sound_voice2 enpro_chair
+		frame 65					sound_voice snd_help
+		frame 120					sound_body2 enpro_slow_whoosh
+		frame 165					skin skins/poppyfx1
+		frame 165					call setShaderTime
+		frame 167					sound_voice2 snd_leatherface
+
+	}
+	anim lostintro2					models/md5/cinematics/enpro/fem_lostintro2.md5anim {
+		frame 1						skin skins/poppyfx2
+		frame 1						sound_voice snd_scream
+		frame 15					trigger popemit
+		frame 43					trigger lostspurt1
+		frame 45					sound_voice2 snd_spinerip
+		frame 45					trigger func_smoke_1
+		frame 46					trigger lostspurt2
+		frame 46					sound_global monster_demon_lostsoul_sight
+		frame 47					event startRagdoll
+	}
+
+}
+
+entityDef enpro_cin_female {
+	"inherit"						"cin_base"
+	"bleed"							"1"
+	"model"							"enpro_cin_female"
+	"anim"							"lostintro"
+	"sound_bone"					"Chest"
+	"ragdoll"						"monster_zombie_zfem"
+	"velocityTime"					"200"
+	"combatModel"					"1"
+	"takeDamage"					"1"
+	"cinematic"						"1"
+	"skin"							"skins/poppy.skin"
+	"health"						"10"
+
+	"gib"							"1"
+	"skin_dropGib"					"skins/poppy_gib.skin"
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"HEAD_headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+
+	"snd_help"						"enpro_help_me"
+	"snd_scream"					"enpro_scream"
+	"snd_spinerip"					"enpro_spinerip"
+	"snd_leatherface"				"enpro_leatherface"
+	"snd_chair"						"enpro_chair"
+	"snd_gibbed"					"sound_giblets"
+	"snd_bounce"					"ragdoll_impact"
+}
+
+model enpro_cin_lostsoul {
+	mesh							models/md5/cinematics/enpro/lostsoul_mesh.md5mesh
+	anim lostintro1					models/md5/cinematics/enpro/lostsoul_lostintro1.md5anim
+	anim lostintro2					models/md5/cinematics/enpro/lostsoul_lostintro2.md5anim {
+		frame 1						sound_voice2 enpro_cin_lsflight 
+	}
+}
+
+entityDef enpro_cin_lostsoul {
+	"inherit"						"cin_base"
+	"model"							"enpro_cin_lostsoul"
+	"anim"							"lostintro1"
+	"sound_bone"					"Head"
+	"auto_advance"					"1"
+	"num_anims"						"2"
+	"anim1"							"lostintro1"
+	"anim2"							"lostintro2"
+	"cinematic"						"1"
+}
+
+
+model enpro_cin_player {
+	mesh							models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin							skins/player/shotgun.skin
+	
+	anim monitor					models/md5/cinematics/enpro/monitor_player.md5anim {
+		frame 1						sound_global enpro_coolantrod
+		frame 1						sound_global enpro_coolantrod_music
+	}
+	anim endmonitor					models/md5/cinematics/enpro/monitor_player2.md5anim
+	anim lostintro1					models/md5/cinematics/enpro/player_lostintro1.md5anim
+	anim lostintro2					models/md5/cinematics/enpro/player_lostintro2.md5anim
+	//anim wounded1					models/md5/cinematics/enpro/marine_player1.md5anim	{
+	//	frame 463					trigger wsplat
+	//}
+			
+}
+
+entityDef enpro_cin_player {
+	"inherit"						"cin_base"
+	"model"							"enpro_cin_player"
+	"anim"							"monitor"
+	"sound_bone"					"Chest"
+	"spawnclass"			    	"idAnimated"
+	"cinematic"						"1"
+
+}
+
+
+model enpro_wounded_player {
+
+	skin							skins/player/noweapon.skin
+
+	mesh							models/md5/characters/player/mocap/player.md5mesh
+
+
+	channel torso     				()
+	channel legs					( *origin )
+
+
+	anim idle						models/md5/cinematics/enpro/marine_player1.md5anim
+	anim stand						models/md5/cinematics/enpro/marine_player1.md5anim
+
+	anim wounded_a					models/md5/cinematics/enpro/marine_player1.md5anim {
+		frame 1						sound_global enpro_wounded_music
+		}
+	anim wounded_b					models/md5/cinematics/enpro/marine_player2.md5anim		
+	anim wounded_c					models/md5/cinematics/enpro/marine_player3.md5anim		
+	anim wounded_d					models/md5/cinematics/enpro/marine_player4.md5anim		
+	anim wounded_e					models/md5/cinematics/enpro/marine_player5.md5anim		
+	anim wounded_f					models/md5/cinematics/enpro/marine_player6.md5anim		
+
+}
+
+entityDef enpro_wounded_player {
+	"inherit"						"character_default"
+	"model"							"enpro_wounded_player"
+	"anim"							"wounded1"
+	"sound_bone"					"Chest"
+	"size"							""
+	"cinematic"						"1"
+
+	"auto_advance"					"1"
+	"num_cinematics"				"6"
+	"anim1"							"wounded_a"
+	"anim2"							"wounded_b"
+	"anim3"							"wounded_c"
+	"anim4"							"wounded_d"
+	"anim5"							"wounded_e"
+	"anim6"							"wounded_f"
+
+	"def_attach"					"enpro_cin_machinegun"
+	//"def_attach"					"underground_cin_pistol"
+
+}
+
+model enpro_cin_machinegun {
+	mesh 						models/md5/weapons/machinegun_world/worldmachinegun.md5mesh
+	anim idle 					models/md5/weapons/machinegun_world/machinegun_idle.md5anim
+
+}
+
+entityDef enpro_cin_machinegun {
+	"inherit"						"cin_base"
+	"model"							"enpro_cin_machinegun"
+	"anim"							"idle"
+	"joint"							"Lhand"
+	"origin"						"0 4 0"
+	"angles"						"270 160 0"
+	"cinematic"						"1"
+}
+
+model enpro_campbellhead {
+
+	inherit 						head_campbell
+
+	anim escape_a					models/md5/heads/campbell/enpro/escape_campheadshot1.md5anim
+	anim escape_b					models/md5/heads/campbell/enpro/escape_campheadshot2.md5anim
+}
+
+
+model enpro_campbell {
+	inherit							char_campbell_bfg
+
+	anim escape_a					models/md5/chars/campbell/enpro/campbell_escape1.md5anim 
+	anim escape_b					models/md5/chars/campbell/enpro/campbell_escape2.md5anim {
+		frame 10					sound_voice snd_convo1
+		frame 140					sound_voice snd_convo2
+	}
+}
+
+entityDef enpro_campbell {
+	"inherit"						"char_campbell_bfg"
+	"model"							"enpro_campbell"
+	"def_head"						"enpro_campbellhead"
+	"head_joint"					"Shoulders"	
+	"cinematic"						"1"
+	"ik_numLegs"					"0"
+
+	"snd_convo1"					"enpro_no_sir"
+	"snd_convo2"					"enpro_yes_sir"
+
+	"num_cinematics"				"2"
+	"anim1"							"escape_a"
+	"anim2"							"escape_b"
+
+
+}
+
+model enpro_swannhead {
+
+	inherit 						head_swann
+
+	anim escape_a					models/md5/heads/swann/enpro/escape_swannheadshot1.md5anim
+	anim escape_b					models/md5/heads/swann/enpro/escape_swannheadshot2.md5anim
+}
+
+
+model enpro_swann {
+	inherit						char_swann
+
+	anim escape_a					models/md5/cinematics/enpro/swann_escape1.md5anim {
+		frame 60					sound_voice enpro_do_u_see
+	}
+	anim escape_b					models/md5/cinematics/enpro/swann_escape2.md5anim {
+		frame 40					sound_voice enpro_ok_lets_get_to
+	}
+}
+
+entityDef enpro_swann {
+	"inherit"						"char_swann"
+	"model"							"enpro_swann"
+	"def_head"						"enpro_swannhead"
+	"head_joint"					"Shoulders"	
+	"ik_numLegs"					"0"
+	"cinematic"						"1"
+
+	"num_cinematics"				"2"
+	"anim1"							"escape_a"
+	"anim2"							"escape_b"
+
+	"snd_convo1"					"enpro_do_u_see"
+	"snd_convo2"					"enpro_ok_lets_get_to"
+}
+
+model enpro_wounded_head {
+	skin							skins/characters/npcs/head_asian_young.skin
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+}
+
+
+model enpro_wounded_marine {
+	inherit						npc_marine
+
+	anim escape					models/md5/cinematics/enpro/marine_escape.md5anim
+}
+
+entityDef enpro_wounded_marine {
+	"inherit"						"npc_base"
+	"model"							"enpro_wounded_marine"
+	"def_head"						"enpro_wounded_head"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"Chest"
+	"skin"							"skins/characters/npcs/body_marine_bloody.skin"
+	"cinematic"						"1"
+	"copy_joint_world eyecontrol"	""
+}
+
+
+model enpro_wounded_head2 {
+	skin							skins/characters/npcs/head_asian_young.skin
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim wounded_a					models/md5/heads/asian_young/enpro/woundedmarine1.md5anim
+	anim wounded_b					models/md5/heads/asian_young/enpro/woundedmarine2.md5anim
+	anim wounded_c					models/md5/heads/asian_young/enpro/woundedmarine3.md5anim
+	anim wounded_d					models/md5/heads/asian_young/enpro/woundedmarine4.md5anim
+	anim wounded_e					models/md5/heads/asian_young/enpro/woundedmarine5.md5anim
+	anim wounded_f					models/md5/heads/asian_young/enpro/woundedmarine6.md5anim
+
+}
+
+
+model enpro_wounded_marine2 {
+	inherit						npc_marine
+
+	anim wounded_a				models/md5/chars/enpro_wounded_marine/marine_wounded1.md5anim {
+		frame 53					sound_voice snd_wounded1
+	}
+	anim wounded_b				models/md5/chars/enpro_wounded_marine/marine_wounded2.md5anim
+	anim wounded_c				models/md5/chars/enpro_wounded_marine/marine_wounded3.md5anim {
+		frame 90					sound_voice snd_wounded2
+	}
+	anim wounded_d				models/md5/chars/enpro_wounded_marine/marine_wounded4.md5anim {
+		frame 29					sound_voice snd_wounded3
+		
+	}
+	anim wounded_e				models/md5/chars/enpro_wounded_marine/marine_wounded5.md5anim {
+		frame 1					sound_voice2 enpro_cin_wraithnoise
+		frame 40					trigger wsplat
+	} 
+	anim wounded_f				models/md5/chars/enpro_wounded_marine/marine_wounded6.md5anim 
+
+}
+
+entityDef enpro_wounded_marine2 {
+	"inherit"						"npc_base"
+	"model"							"enpro_wounded_marine2"
+	"def_head"						"enpro_wounded_head2"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"Chest"
+	"skin"							"skins/characters/npcs/body_marine_bloody.skin"
+	"size"							""
+	"cinematic"						"1"
+	"ik_numLegs"					"0"
+
+
+	"health"						"500"
+	"num_cinematics"				"6"
+	"anim1"							"wounded_a"	
+	"anim2"							"wounded_b"	
+	"anim3"							"wounded_c"	
+	"anim4"							"wounded_d"	
+	"anim5"							"wounded_e"	
+	"anim6"							"wounded_f"	
+
+	"snd_wounded1"					"enpro_wounded_marine1"
+	"snd_wounded2"					"enpro_wounded_marine2"
+	"snd_wounded3"					"enpro_wounded_marine3"
+
+	"copy_joint_world eyecontrol"	""
+}
+
+
+
+entityDef enpro_wounded_cam {
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	
+	"spawnclass"						"idCameraAnim"
+	"cinematic"							"1"
+
+	"anim wounded1"					 	"models/md5/cinematics/enpro/marine_cam1.md5camera"
+	"anim wounded2"					 	"models/md5/cinematics/enpro/marine_cam2.md5camera"
+	"anim wounded3"					 	"models/md5/cinematics/enpro/marine_cam3.md5camera"
+	"anim wounded4"					 	"models/md5/cinematics/enpro/marine_cam4.md5camera"
+	"anim wounded5"					 	"models/md5/cinematics/enpro/marine_cam5.md5camera"
+	"anim wounded6"					 	"models/md5/cinematics/enpro/marine_cam6.md5camera"
+}
+
+model enpro_cin_wraith {	
+	mesh								models/md5/monsters/wraith/wraith.md5mesh
+	anim marine							models/md5/cinematics/enpro/marine_wraith.md5anim
+	anim exit							models/md5/cinematics/enpro/exit_wraith.md5anim {
+		frame 5								sound_body snd_footstep
+		frame 10							sound_body snd_footstep
+		frame 15							sound_body snd_footstep
+		frame 20							sound_body snd_footstep
+	}
+
+
+}
+
+entityDef enpro_cin_wraith {	
+	"inherit"							"cin_base"
+	"model"								"enpro_cin_wraith"
+	"anim"								"marine"
+	"cinematic"							"1"
+	"snd_footstep"						"monster_demon_wraith_footstep"
+
+}
+
+
+model enpro_keycard {
+	mesh								models/md5/cinematics/enpro/wounded_keycard.md5mesh
+	anim marine_to_player_a				models/md5/cinematics/enpro/wounded_keycard_a.md5anim
+	anim marine_to_player_b				models/md5/cinematics/enpro/wounded_keycard_b.md5anim
+	anim marine_to_player_c				models/md5/cinematics/enpro/wounded_keycard_c.md5anim
+	anim marine_to_player_d				models/md5/cinematics/enpro/wounded_keycard_d.md5anim
+	anim marine_to_player_e				models/md5/cinematics/enpro/wounded_keycard_e.md5anim
+	anim marine_to_player_f				models/md5/cinematics/enpro/wounded_keycard_f.md5anim
+
+}
+
+entityDef enpro_keycard {
+	"model"								"enpro_keycard"
+	"editor_color"						"1 .5 0"
+	"editor_mins"						"-16 -16 0"
+	"editor_maxs"						"16 16 64"
+	"size"								""
+	"cinematic"							"1"
+	
+	"auto_advance"						"1"
+	"num_anims"							"6"
+	"anim1"								"marine_to_player_a"	
+	"anim2"								"marine_to_player_b"	
+	"anim3"								"marine_to_player_c"	
+	"anim4"								"marine_to_player_d"	
+	"anim5"								"marine_to_player_e"	
+	"anim6"								"marine_to_player_f"	
+
+	"spawnclass"						"idAnimated"
+
+}

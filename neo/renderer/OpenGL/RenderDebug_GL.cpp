@@ -3343,8 +3343,10 @@ void idRenderBackend::DBG_TestImage()
 	{
 		GL_SelectTexture( 0 );
 		image->Bind();
+
 		GL_SelectTexture( 1 );
 		imageCr->Bind();
+
 		GL_SelectTexture( 2 );
 		imageCb->Bind();
 		// SRS - Use Bink shader without sRGB to linear conversion, otherwise cinematic colours may be wrong
@@ -3355,13 +3357,12 @@ void idRenderBackend::DBG_TestImage()
 	{
 		GL_SelectTexture( 0 );
 		image->Bind();
-		// Set Shader
+
 		renderProgManager.BindShader_Texture();
 	}
 
 	// Draw!
 	DrawElementsWithCounters( &testImageSurface );
-	//DrawElementsWithCounters( &unitSquareSurface );
 }
 
 // RB begin
@@ -3645,7 +3646,6 @@ void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawS
 
 	renderLog.OpenMainBlock( MRB_DRAW_DEBUG_TOOLS );
 	renderLog.OpenBlock( "Render_DebugTools", colorGreen );
-	RENDERLOG_PRINTF( "---------- RB_RenderDebugTools ----------\n" );
 
 	GL_State( GLS_DEFAULT );
 

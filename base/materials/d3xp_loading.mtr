@@ -1,0 +1,191 @@
+gui/loading/erebus1
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/erebus1.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/erebus2
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/erebus2.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/erebus3
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/erebus3.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/erebus4
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/erebus4.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/erebus5
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/erebus5.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/erebus6
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/erebus6.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/phobos1
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/phobos1.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/phobos2
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/phobos2.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/phobos3
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/phobos3.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/phobos4
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/phobos4.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/deltax
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/deltax.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/hell
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/hell.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/d3xpdm1
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3xpdm1.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/d3xpdm2
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3xpdm2.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/d3xpdm3
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3xpdm3.tga
+		colored
+		
+		
+	}
+}
+
+gui/loading/d3xpdm4
+{
+	{
+		forceHighQuality
+		blend blend
+		map guis/assets/splash/d3xpdm4.tga
+		colored
+		
+		
+	}
+}

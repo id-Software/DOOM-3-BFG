@@ -41,14 +41,15 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
-// SRS - optinally needed for VK_MVK_MOLTENVK_EXTENSION_NAME visibility
-#if defined(__APPLE__) && defined(USE_MoltenVK)
-	#include <MoltenVK/vk_mvk_moltenvk.h>
-#endif
 #include <vector>
 
 #include "renderer/RenderCommon.h"
 #include "sdl_local.h"
+
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
+#endif
 
 idCVar in_nograb( "in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input grabbing" );
 
@@ -80,49 +81,88 @@ std::vector<const char*> get_required_extensions()
 	uint32_t                 sdlCount = 0;
 	std::vector<const char*> sdlInstanceExtensions = {};
 
-	SDL_Vulkan_GetInstanceExtensions( nullptr, &sdlCount, nullptr );
+	SDL_Vulkan_GetInstanceExtensions( window, &sdlCount, nullptr );
 	sdlInstanceExtensions.resize( sdlCount );
-	SDL_Vulkan_GetInstanceExtensions( nullptr, &sdlCount, sdlInstanceExtensions.data() );
-
-	// SRS - Report enabled instance extensions in CreateVulkanInstance() vs. doing it here
-	/*
-	if( enableValidationLayers )
-	{
-		idLib::Printf( "\nNumber of availiable instance extensions\t%i\n", sdlCount );
-		idLib::Printf( "Available Extension List: \n" );
-		for( auto ext : sdlInstanceExtensions )
-		{
-			idLib::Printf( "\t%s\n", ext );
-		}
-	}
-	*/
-
-	// SRS - needed for MoltenVK portability implementation and optionally for MoltenVK configuration on OSX
-#if defined(__APPLE__)
-	sdlInstanceExtensions.push_back( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
-#if defined(USE_MoltenVK)
-	sdlInstanceExtensions.push_back( VK_MVK_MOLTENVK_EXTENSION_NAME );
-#endif
-#endif
-
-	// SRS - Add debug instance extensions in CreateVulkanInstance() vs. hardcoding them here
-	/*
-	if( enableValidationLayers )
-	{
-		sdlInstanceExtensions.push_back( "VK_EXT_debug_report" );
-		sdlInstanceExtensions.push_back( "VK_EXT_debug_utils" );
-
-		idLib::Printf( "Number of active instance extensions\t%zu\n", sdlInstanceExtensions.size() );
-		idLib::Printf( "Active Extension List: \n" );
-		for( auto const& ext : sdlInstanceExtensions )
-		{
-			idLib::Printf( "\t%s\n", ext );
-		}
-	}
-	*/
+	SDL_Vulkan_GetInstanceExtensions( window, &sdlCount, sdlInstanceExtensions.data() );
 
 	return sdlInstanceExtensions;
 }
+
+#if defined( USE_NVRHI )
+// SRS - Helper function for creating SDL Vulkan surface within DeviceManager_VK() when NVRHI enabled
+vk::Result CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface )
+{
+	if( !SDL_Vulkan_CreateSurface( window, ( VkInstance )instance, ( VkSurfaceKHR* )surface ) )
+	{
+		common->Warning( "Error while creating SDL Vulkan surface: %s", SDL_GetError() );
+		return vk::Result::eErrorSurfaceLostKHR;
+	}
+
+	return vk::Result::eSuccess;
+}
+
+bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, const char* windowTitle )
+{
+	Uint32 flags = SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE;
+	if( parms.fullScreen )
+	{
+		flags |= SDL_WINDOW_FULLSCREEN;
+	}
+
+	window = SDL_CreateWindow( GAME_NAME,
+							   parms.x,
+							   parms.y,
+							   parms.width, parms.height, flags );
+
+	if( !window )
+	{
+		common->Printf( "^3SDL_CreateWindow() - Couldn't create window^0\n" );
+		return false;
+	}
+
+	// RB
+	deviceParms.backBufferWidth = parms.width;
+	deviceParms.backBufferHeight = parms.height;
+	deviceParms.backBufferSampleCount = parms.multiSamples;
+	deviceParms.vsyncEnabled = requestedVSync;
+
+	if( !CreateDeviceAndSwapChain() )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
+{
+	windowVisible = true;
+
+	if( int( deviceParms.backBufferWidth ) != parms.width ||
+			int( deviceParms.backBufferHeight ) != parms.height ||
+#if ID_MSAA
+			int( deviceParms.backBufferSampleCount ) != parms.multiSamples ||
+#endif
+			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
+	{
+		// window is not minimized, and the size has changed
+
+		BackBufferResizing();
+
+		deviceParms.backBufferWidth = parms.width;
+		deviceParms.backBufferHeight = parms.height;
+		deviceParms.backBufferSampleCount = parms.multiSamples;
+		deviceParms.vsyncEnabled = requestedVSync;
+
+		ResizeSwapChain();
+		BackBufferResized();
+	}
+	else
+	{
+		deviceParms.vsyncEnabled = requestedVSync;
+	}
+}
+#endif
 
 /*
 ===================
@@ -144,6 +184,18 @@ void VKimp_PreInit() // DG: added this function for SDL compatibility
 	}
 }
 
+// SRS - Function to get display frequency of monitor hosting the current window
+static int GetDisplayFrequency( glimpParms_t parms )
+{
+	SDL_DisplayMode m = {0};
+	if( SDL_GetWindowDisplayMode( window, &m ) < 0 )
+	{
+		common->Warning( "Couldn't get display refresh rate, reason: %s", SDL_GetError() );
+		return parms.displayHz;
+	}
+
+	return m.refresh_rate;
+}
 
 /* Eric: Is the majority of this function not needed since switching from GL to Vulkan?
 ===================
@@ -279,34 +331,57 @@ bool VKimp_Init( glimpParms_t parms )
 		 * the mouse cursor.
 		 */
 
+#if defined( USE_NVRHI )
+		glimpParms_t createParms = parms;
+		createParms.x = createParms.y = windowPos;
+
+		if( !deviceManager->CreateWindowDeviceAndSwapChain( createParms, GAME_NAME ) )
+#else
 		window = SDL_CreateWindow( GAME_NAME,
 								   windowPos,
 								   windowPos,
 								   parms.width, parms.height, flags );
-		// DG end
+
+		vkcontext.sdlWindow = window;
 
 		if( !window )
+#endif
 		{
 			common->DPrintf( "Couldn't set Vulkan mode %d/%d/%d: %s",
 							 channelcolorbits, tdepthbits, tstencilbits, SDL_GetError() );
 			continue;
 		}
-		vkcontext.sdlWindow = window;
+
+		// SRS - Make sure display is set to requested refresh rate from the start
+		if( parms.displayHz > 0 && parms.displayHz != GetDisplayFrequency( parms ) )
+		{
+			SDL_DisplayMode m = {0};
+			SDL_GetWindowDisplayMode( window, &m );
+
+			m.refresh_rate = parms.displayHz;
+			if( SDL_SetWindowDisplayMode( window, &m ) < 0 )
+			{
+				common->Warning( "Couldn't set display refresh rate to %i Hz", parms.displayHz );
+			}
+		}
+
 		// RB begin
 		SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
 		// RB end
 
 		glConfig.isFullscreen = ( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
 
+#if !defined( USE_NVRHI )
 		common->Printf( "Using %d color bits, %d depth, %d stencil display\n",
 						channelcolorbits, tdepthbits, tstencilbits );
 
 		glConfig.colorBits = tcolorbits;
 		glConfig.depthBits = tdepthbits;
 		glConfig.stencilBits = tstencilbits;
+#endif
 
 		// RB begin
-		glConfig.displayFrequency = 60;
+		glConfig.displayFrequency = GetDisplayFrequency( parms );
 		glConfig.isStereoPixelFormat = parms.stereo;
 		glConfig.multisamples = parms.multiSamples;
 
@@ -395,7 +470,7 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 
 	// change settings in that display mode according to parms
 	// FIXME: check if refreshrate, width and height are supported?
-	// m.refresh_rate = parms.displayHz;
+	m.refresh_rate = parms.displayHz;
 	m.w = parms.width;
 	m.h = parms.height;
 
@@ -420,8 +495,10 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 
 static bool SetScreenParmsWindowed( glimpParms_t parms )
 {
-	SDL_SetWindowSize( window, parms.width, parms.height );
+	// SRS - handle differences in WM behaviour: for macOS set position first, for linux set it last
+#if defined(__APPLE__)
 	SDL_SetWindowPosition( window, parms.x, parms.y );
+#endif
 
 	// if we're currently in fullscreen mode, we need to disable that
 	if( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN )
@@ -432,6 +509,17 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 			return false;
 		}
 	}
+
+	SDL_SetWindowSize( window, parms.width, parms.height );
+
+	// SRS - this logic prevents window position drift on linux when coming in and out of fullscreen
+#if !defined(__APPLE__)
+	SDL_bool borderState = SDL_GetWindowFlags( window ) & SDL_WINDOW_BORDERLESS ? SDL_FALSE : SDL_TRUE;
+	SDL_SetWindowBordered( window, SDL_FALSE );
+	SDL_SetWindowPosition( window, parms.x, parms.y );
+	SDL_SetWindowBordered( window, borderState );
+#endif
+
 	return true;
 }
 
@@ -468,11 +556,18 @@ bool VKimp_SetScreenParms( glimpParms_t parms )
 	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
-	glConfig.displayFrequency = parms.displayHz;
+	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
 	return true;
 }
+
+#if defined( USE_NVRHI )
+void DeviceManager::Shutdown()
+{
+	DestroyDeviceAndSwapChain();
+}
+#endif
 
 /*
 ===================
@@ -482,6 +577,13 @@ VKimp_Shutdown
 void VKimp_Shutdown()
 {
 	common->Printf( "Shutting down Vulkan subsystem\n" );
+
+#if defined( USE_NVRHI )
+	if( deviceManager )
+	{
+		deviceManager->Shutdown();
+	}
+#endif
 
 	if( window )
 	{

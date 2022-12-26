@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,11 +32,14 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "RenderCommon.h"
+#include <sys/DeviceManager.h>
 
 // do this with a pointer, in case we want to make the actual manager
 // a private virtual subclass
 idImageManager	imageManager;
 idImageManager* globalImages = &imageManager;
+
+extern DeviceManager* deviceManager;
 
 idCVar preLoad_Images( "preLoad_Images", "1", CVAR_SYSTEM | CVAR_BOOL, "preload images during beginlevelload" );
 
@@ -68,7 +72,17 @@ void R_ReloadImages_f( const idCmdArgs& args )
 		}
 	}
 
+#if defined( USE_NVRHI )
+	tr.commandList->open();
+	globalImages->ReloadImages( all, tr.commandList );
+	tr.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.commandList );
+
+	// Images (including the framebuffer images) were reloaded, reinitialize the framebuffers.
+	Framebuffer::ResizeFramebuffers();
+#else
 	globalImages->ReloadImages( all );
+#endif
 }
 
 typedef struct
@@ -314,6 +328,24 @@ idImage* idImageManager::AllocStandaloneImage( const char* name )
 }
 
 /*
+==============
+AllocDeferredImage
+
+Allocates an idDeferredImage to load images from memory, adds it to the hash chain
+
+==============
+*/
+idDeferredImage* idImageManager::AllocDeferredImage( const char* name )
+{
+	idDeferredImage* image = new( TAG_IMAGE ) idDeferredImage( name );
+
+	int hash = idStr( name ).FileNameHash();
+	deferredImageHash.Add( hash, deferredImages.Append( image ) );
+
+	return image;
+}
+
+/*
 ==================
 ImageFromFunction
 
@@ -322,7 +354,7 @@ with a callback which must work at any time, allowing the OpenGL
 system to be completely regenerated if needed.
 ==================
 */
-idImage* idImageManager::ImageFromFunction( const char* _name, void ( *generatorFunction )( idImage* image ) )
+idImage* idImageManager::ImageFromFunction( const char* _name, ImageGeneratorFunction generatorFunction )
 {
 
 	// strip any .tga file extensions from anywhere in the _name
@@ -352,7 +384,6 @@ idImage* idImageManager::ImageFromFunction( const char* _name, void ( *generator
 
 	// check for precompressed, load is from the front end
 	image->referencedOutsideLevelLoad = true;
-	image->ActuallyLoadImage( false );
 
 	return image;
 }
@@ -426,7 +457,9 @@ idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filte
 			if( ( !insideLevelLoad  || preloadingMapImages ) && !image->IsLoaded() )
 			{
 				image->referencedOutsideLevelLoad = ( !insideLevelLoad && !preloadingMapImages );
-				image->ActuallyLoadImage( false );	// load is from front end
+
+				image->FinalizeImage( false, nullptr );
+
 				declManager->MediaPrint( "%ix%i %s (reload for mixed referneces)\n", image->GetUploadWidth(), image->GetUploadHeight(), image->GetName() );
 			}
 			return image;
@@ -436,8 +469,9 @@ idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filte
 	//
 	// create a new image
 	//
-	idImage*	 image = AllocImage( name );
+	idImage* image = AllocImage( name );
 	image->cubeFiles = cubeMap;
+	image->cubeMapSize = cubeMapSize;
 	image->usage = usage;
 	image->filter = filter;
 	image->repeat = repeat;
@@ -445,10 +479,15 @@ idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filte
 	image->levelLoadReferenced = true;
 
 	// load it if we aren't in a level preload
+#if defined( USE_NVRHI )
+	if( !insideLevelLoad || preloadingMapImages )
+#else
 	if( ( !insideLevelLoad || preloadingMapImages ) && idLib::IsMainThread() )
+#endif
 	{
 		image->referencedOutsideLevelLoad = ( !insideLevelLoad && !preloadingMapImages );
-		image->ActuallyLoadImage( false );	// load is from front end
+		image->FinalizeImage( false, nullptr );
+
 		declManager->MediaPrint( "%ix%i %s\n", image->GetUploadWidth(), image->GetUploadHeight(), image->GetName() );
 	}
 	else
@@ -613,12 +652,14 @@ void idImageManager::PurgeAllImages()
 ReloadImages
 ===============
 */
-void idImageManager::ReloadImages( bool all )
+void idImageManager::ReloadImages( bool all, nvrhi::ICommandList* commandList )
 {
 	for( int i = 0 ; i < images.Num() ; i++ )
 	{
-		images[ i ]->Reload( all );
+		images[ i ]->Reload( all, commandList );
 	}
+
+	LoadDeferredImages( commandList );
 }
 
 /*
@@ -729,6 +770,7 @@ void idImageManager::Init()
 	cmdSystem->AddCommand( "combineCubeImages", R_CombineCubeImages_f, CMD_FL_RENDERER, "combines six images for roq compression" );
 
 	// should forceLoadImages be here?
+	LoadDeferredImages();
 }
 
 /*
@@ -740,7 +782,11 @@ void idImageManager::Shutdown()
 {
 	images.DeleteContents( true );
 	imageHash.Clear();
-
+	deferredImages.DeleteContents( true );
+	deferredImageHash.Clear();
+#if defined( USE_NVRHI )
+	commandList.Reset();
+#endif
 }
 
 /*
@@ -842,15 +888,29 @@ idImageManager::LoadLevelImages
 */
 int idImageManager::LoadLevelImages( bool pacifier )
 {
+#if defined( USE_NVRHI )
+	if( !commandList )
+	{
+		commandList = deviceManager->GetDevice()->createCommandList();
+	}
+
+	common->UpdateLevelLoadPacifier();
+
+	commandList->open();
+#endif
+
 	int	loadCount = 0;
 	for( int i = 0 ; i < images.Num() ; i++ )
 	{
 		idImage* image = images[ i ];
 
+#if !defined( USE_NVRHI )
 		if( pacifier )
 		{
+			// SP: Cannot update the pacifier because then two command lists would be open at once.
 			common->UpdateLevelLoadPacifier();
 		}
+#endif
 
 		if( image->generatorFunction )
 		{
@@ -860,9 +920,20 @@ int idImageManager::LoadLevelImages( bool pacifier )
 		if( image->levelLoadReferenced && !image->IsLoaded() )
 		{
 			loadCount++;
-			image->ActuallyLoadImage( false );
+			image->FinalizeImage( false, commandList );
 		}
 	}
+
+#if defined( USE_NVRHI )
+	globalImages->LoadDeferredImages( commandList );
+
+	commandList->close();
+
+	deviceManager->GetDevice()->executeCommandList( commandList );
+
+	common->UpdateLevelLoadPacifier();
+#endif
+
 	return loadCount;
 }
 
@@ -940,4 +1011,33 @@ void idImageManager::PrintMemInfo( MemInfo_t* mi )
 
 	f->Printf( "\nTotal image bytes allocated: %s\n", idStr::FormatNumber( total ).c_str() );
 	fileSystem->CloseFile( f );
+}
+
+void idImageManager::LoadDeferredImages( nvrhi::ICommandList* _commandList )
+{
+	if( !commandList )
+	{
+		commandList = deviceManager->GetDevice()->createCommandList();
+	}
+
+	nvrhi::ICommandList* thisCmdList = _commandList;
+	if( !_commandList )
+	{
+		thisCmdList = commandList;
+		thisCmdList->open();
+	}
+
+	for( int i = 0; i < globalImages->imagesToLoad.Num(); i++ )
+	{
+		// This is a "deferred" load of textures to the gpu.
+		globalImages->imagesToLoad[i]->FinalizeImage( false, thisCmdList );
+	}
+
+	if( !_commandList )
+	{
+		thisCmdList->close();
+		deviceManager->GetDevice()->executeCommandList( thisCmdList );
+	}
+
+	globalImages->imagesToLoad.Clear();
 }

@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../renderer/RenderCommon.h"
 
 #include <windowsx.h>
+#include <sys/DeviceManager.h>
 
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -163,6 +164,8 @@ void WIN_Sizing( WORD side, RECT* rect )
 	}
 }
 
+extern DeviceManager* deviceManager;
+
 /*
 ====================
 MainWndProc
@@ -176,26 +179,28 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	switch( uMsg )
 	{
 		case WM_WINDOWPOSCHANGED:
-			if( renderSystem->IsInitialized() )
+			// SRS - Needed by ResizeImages() to resize before the start of a frame
+			// SRS - Aspect ratio constraints are controlled by WIN_Sizing() above
+			if( renderSystem->IsInitialized() && win32.hDC != NULL )
 			{
 				RECT rect;
 				if( ::GetClientRect( win32.hWnd, &rect ) )
 				{
-
 					if( rect.right > rect.left && rect.bottom > rect.top )
 					{
 						glConfig.nativeScreenWidth = rect.right - rect.left;
 						glConfig.nativeScreenHeight = rect.bottom - rect.top;
 
 						// save the window size in cvars if we aren't fullscreen
+						// SRS - also check renderSystem state to make sure WM doesn't fool us when exiting fullscreen
 						int style = GetWindowLong( hWnd, GWL_STYLE );
-						if( ( style & WS_POPUP ) == 0 )
+						if( ( style & WS_POPUP ) == 0 && !renderSystem->IsFullScreen() )
 						{
 							r_windowWidth.SetInteger( glConfig.nativeScreenWidth );
 							r_windowHeight.SetInteger( glConfig.nativeScreenHeight );
 						}
 
-						// DG: ImGui must know about the changed window size
+						// SRS - Inform ImGui that the window size has changed
 						ImGuiHook::NotifyDisplaySizeChanged( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 					}
 				}
@@ -207,8 +212,9 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			RECT r;
 
 			// save the window origin in cvars if we aren't fullscreen
+			// SRS - also check renderSystem state to make sure WM doesn't fool us when exiting fullscreen
 			int style = GetWindowLong( hWnd, GWL_STYLE );
-			if( ( style & WS_POPUP ) == 0 )
+			if( ( style & WS_POPUP ) == 0 && !renderSystem->IsFullScreen() )
 			{
 				xPos = ( short ) LOWORD( lParam ); // horizontal position
 				yPos = ( short ) HIWORD( lParam ); // vertical position

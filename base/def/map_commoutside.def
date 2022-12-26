@@ -1,0 +1,201 @@
+
+export fred {
+	camera  maps/eric/commoutside/zombiecam_09.mb -dest models/md5/cinematics/commoutside/zombie_with_camera
+	camera  maps/fred/commoutside/shot1.mb -dest models/md5/cinematics/commoutside/sawintro_cam1
+	camera  maps/fred/commoutside/shot2.mb -dest models/md5/cinematics/commoutside/sawintro_cam2
+	camera  maps/fred/commoutside/shot3.mb -dest models/md5/cinematics/commoutside/sawintro_cam3
+	camera  maps/fred/commoutside/shot4.mb -dest models/md5/cinematics/commoutside/sawintro_cam4
+
+	options -prefix ROV_
+
+	mesh	maps/fred/commoutside/sighting1.mb -range 1 1 -dest models/md5/cinematics/commoutside/rover
+	anim	maps/fred/commoutside/sighting1.mb -range 38 90 -dest models/md5/cinematics/commoutside/roversighting1
+	anim	maps/fred/commoutside/sighting1.mb -range 100 170 -dest models/md5/cinematics/commoutside/roversighting2
+	anim	maps/fred/commoutside/sighting1.mb -range 173 245 -dest models/md5/cinematics/commoutside/roversighting3
+}
+
+model commoutside_player {
+	mesh						models/md5/characters/player/mocap/player.md5mesh
+	skin						skins/player/weapons.skin
+	anim teleport				models/md5/cinematics/delta2a/teleporterplayer.md5anim
+	anim sawshot1				models/md5/cinematics/commoutside/sawintro_player1.md5anim
+	anim sawshot2				models/md5/cinematics/commoutside/sawintro_player2.md5anim
+	anim sawshot4				models/md5/cinematics/commoutside/sawintro_player4.md5anim
+	
+}
+
+entityDef commoutside_player {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+
+	"anim"						"sawshot1"
+	"model"						"commoutside_player"
+}
+
+model commoutside_cin_sawyer {
+	mesh						models/md5/monsters/zombies/sawyer/sawyer.md5mesh
+	anim sawshot2				models/md5/cinematics/commoutside/sawintro_sawyer2.md5anim
+	anim sawshot3				models/md5/cinematics/commoutside/sawintro_sawyer3.md5anim
+	anim sawshot4				models/md5/cinematics/commoutside/sawintro_sawyer4.md5anim
+	
+}
+
+entityDef commoutside_cin_sawyer {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"spawnclass"				"idAnimated"
+
+	"anim"						"sawshot2"
+	"model"						"commoutside_cin_sawyer"
+}
+
+
+entityDef commoutside_sawintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim sawshot1"					"models/md5/cinematics/commoutside/sawintro_cam1.md5camera"
+	"anim sawshot2"					"models/md5/cinematics/commoutside/sawintro_cam2.md5camera"
+	"anim sawshot3"					"models/md5/cinematics/commoutside/sawintro_cam3.md5camera"
+	"anim sawshot4"					"models/md5/cinematics/commoutside/sawintro_cam4.md5camera"
+}
+
+
+model commoutside_vehicle {
+	mesh						models/md5/cinematics/commoutside/rover.md5mesh
+	anim sighting1				models/md5/cinematics/commoutside/roversighting1.md5anim {
+	frame 1						trigger	func_door_1688
+	frame 38					trigger	func_door_1688
+	}
+	
+	anim sighting2				models/md5/cinematics/commoutside/roversighting2.md5anim {
+	frame 1						trigger	cov_door2
+	frame 1						trigger	cov_door2_gui
+	frame 65					trigger	cov_door2
+	frame 65					trigger	cov_door2_gui
+	}
+	anim sighting3				models/md5/cinematics/commoutside/roversighting3.md5anim {
+	frame 1						trigger commoutside_vehicle_3_door
+	frame 60					trigger commoutside_vehicle_3_door
+	}
+}
+
+entityDef commoutside_vehicle {
+	"inherit"					"cin_base"
+	"anim"						"sighting1"
+	"model"						"commoutside_vehicle"
+}
+
+entityDef commoutside_camzombie_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim camzombie"				"models/md5/cinematics/commoutside/zombie_with_camera.md5camera"
+}
+
+entityDef commoutside_camzombie_zomb {
+	"inherit"						"zombie_default"
+	"scriptobject"					"character"
+	"size"							"0 0 0"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"30"
+	"melee_range"					"32"
+	"turn_rate"						"360"
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Waist"				"0.1333 0.1333 0"
+	"look_joint Chest"				"0.1333 0.1333 0"
+	"look_joint Shoulders"			"0.1333 0.1333 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+
+	"ragdoll"						"monster_zombie_misc.af"
+
+	"model"							"model_monster_zombie_camzombie"
+
+	"damage_zone head"				"*Neck"
+	"damage_zone chest"				"*Waist -*Rshldr -*Lshldr -*Neck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips"
+
+	"damage_scale head"				"1.25"
+		
+	"def_head"						"head_zombie3"
+	"head_joint"					"Shoulders"
+}
+
+model commoutside_fatty  {
+	mesh							models/md5/monsters/zfat/zfat.md5mesh
+	anim office3					models/md5/cinematics/delta2a/zoffice3.md5anim
+	}
+	
+entityDef commoutside_fatty {
+	"inherit"						"cin_base"
+	"model"							"commoutside_fatty"
+	"anim"							"office3"
+}
+
+model commoutside_swann {
+	inherit							char_swann
+	anim idle						models/md5/chars/stand.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim stand						models/md5/chars/stand.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+}			
+
+
+entityDef commoutside_swann {
+	"inherit"						"char_swann"
+	"model"							"commoutside_swann"
+	"health"						"800"
+	"mass"							"1000"
+}
+
+model commoutside_campbell {
+	inherit					char_campbell_bfg
+
+	anim bfgfire					models/md5/chars/campbell/bfg_fire.md5anim {
+		frame 1							event ignoreDamage		
+		frame 2							trigger comm1_dimlights
+		frame 28						trigger bfglight
+		frame 29						trigger bfglight
+		frame 30						launch_missile BFG
+		frame 31						trigger bfglight
+		frame 33						trigger bfglight
+		frame 35						trigger bfglight
+		frame 36						trigger bfglight
+	}
+}
+
+entityDef commoutside_campbell {
+	"inherit"						"char_campbell_bfg"
+	"health"						"800"
+	"mass"							"1000"
+	"ignore_obstacles"				"1"
+	"model"							"commoutside_campbell"
+
+}

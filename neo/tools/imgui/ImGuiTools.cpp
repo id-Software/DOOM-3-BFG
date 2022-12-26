@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 2016 Daniel Gibson
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../imgui/BFGimgui.h"
 #include "../idlib/CmdArgs.h"
 
+#include "afeditor/AfEditor.h"
 #include "lighteditor/LightEditor.h"
 
 
@@ -62,7 +64,7 @@ void SetReleaseToolMouse( bool doRelease )
 bool AreEditorsActive()
 {
 	// FIXME: this is not exactly clean and must be changed if we ever support game dlls
-	return g_editEntityMode.GetInteger() > 0;
+	return g_editEntityMode.GetInteger() > 0 || com_editors != 0;
 }
 
 bool ReleaseMouseForTools()
@@ -85,6 +87,10 @@ void DrawToolWindows()
 		LightEditor::Draw();
 	}
 
+	if( AfEditor::Instance().IsShown() )
+	{
+		AfEditor::Instance().Draw();
+	}
 	// TODO: other editor windows..
 	//ImGui::End();
 }
@@ -106,6 +112,12 @@ void LightEditorInit( const idDict* dict, idEntity* ent )
 	impl::SetReleaseToolMouse( true );
 
 	LightEditor::ReInit( dict, ent );
+}
+
+void AfEditorInit()
+{
+	AfEditor::Instance().ShowIt( true );
+	impl::SetReleaseToolMouse( true );
 }
 
 } //namespace ImGuiTools

@@ -33,6 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "Common_local.h"
 #include "../imgui/BFGimgui.h"
 
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
+#endif
+
 #define	CON_TEXTSIZE			0x30000
 #define	NUM_CON_TIMES			4
 #define CONSOLE_FIRSTREPEAT		200
@@ -209,11 +214,13 @@ void idConsoleLocal::DrawTextRightAlign( float x, float& y, const char* text, ..
 idConsoleLocal::DrawFPS
 ==================
 */
+extern bool R_UseTemporalAA();
+
 #define	FPS_FRAMES	6
 #define FPS_FRAMES_HISTORY 90
 float idConsoleLocal::DrawFPS( float y )
 {
-	extern idCVar com_smp;
+	extern idCVar r_swapInterval;
 
 	static float previousTimes[FPS_FRAMES];
 	static float previousTimesNormalized[FPS_FRAMES_HISTORY];
@@ -281,25 +288,30 @@ float idConsoleLocal::DrawFPS( float y )
 
 	const uint64 rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
 	const uint64 rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
-	// SRS - GPU idle time calculation depends on whether game is operating in smp mode or not
-	const uint64 rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds() - ( com_smp.GetInteger() > 0 && com_editors == 0 ? 0 : gameThreadTotalTime );
 	const uint64 rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
 	const uint64 rendererGPUEarlyZTime = commonLocal.GetRendererGpuEarlyZMicroseconds();
 	const uint64 rendererGPU_SSAOTime = commonLocal.GetRendererGpuSSAOMicroseconds();
 	const uint64 rendererGPU_SSRTime = commonLocal.GetRendererGpuSSRMicroseconds();
 	const uint64 rendererGPUAmbientPassTime = commonLocal.GetRendererGpuAmbientPassMicroseconds();
+	const uint64 rendererGPUShadowAtlasTime = commonLocal.GetRendererGpuShadowAtlasPassMicroseconds();
 	const uint64 rendererGPUInteractionsTime = commonLocal.GetRendererGpuInteractionsMicroseconds();
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
+	const uint64 rendererGPU_TAATime = commonLocal.GetRendererGpuTAAMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
-	const int maxTime = int( 1000 / com_engineHz_latched ) * 1000;
 
-	// SRS - Get GPU sync time at the start of a frame (com_smp = 1 or 0) and at the end of a frame (com_smp = -1)
-	const uint64 rendererStartFrameSyncTime = commonLocal.GetRendererStartFrameSyncMicroseconds();
-	const uint64 rendererEndFrameSyncTime = commonLocal.GetRendererEndFrameSyncMicroseconds();
+	// SRS - Calculate max fps and max frame time based on glConfig.displayFrequency if vsync enabled and lower than engine Hz, otherwise use com_engineHz_latched
+	const int max_FPS = ( r_swapInterval.GetInteger() > 0 && glConfig.displayFrequency > 0 ? std::min( glConfig.displayFrequency, int( com_engineHz_latched ) ) : com_engineHz_latched );
+	const int maxTime = 1000.0 / max_FPS * 1000;
 
-	// SRS - Total CPU and Frame time calculations depend on whether game is operating in smp mode or not
-	const uint64 totalCPUTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererBackEndTime ) : gameThreadTotalTime + rendererBackEndTime );
-	const uint64 totalFrameTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererEndFrameSyncTime ) : gameThreadTotalTime + rendererEndFrameSyncTime ) + rendererStartFrameSyncTime;
+	// SRS - Frame idle and busy time calculations are based on direct frame-over-frame measurement relative to finishSyncTime
+	const uint64 frameIdleTime = commonLocal.mainFrameTiming.startGameTime - commonLocal.mainFrameTiming.finishSyncTime;
+	const uint64 frameBusyTime = commonLocal.frameTiming.finishSyncTime - commonLocal.mainFrameTiming.startGameTime;
+
+	// SRS - Frame sync time represents swap buffer synchronization + game thread wait + other time spent outside of rendering
+	const uint64 frameSyncTime = commonLocal.frameTiming.finishSyncTime - commonLocal.mainFrameTiming.finishRenderTime;
+
+	// SRS - GPU idle time is simply the difference between measured frame-over-frame time and GPU busy time (directly from GPU timers)
+	const uint64 rendererGPUIdleTime = frameBusyTime + frameIdleTime - rendererGPUTime;
 
 #if 1
 
@@ -308,12 +320,12 @@ float idConsoleLocal::DrawFPS( float y )
 	{
 		// start smaller
 		int32 statsWindowWidth = 320;
-		int32 statsWindowHeight = 260;
+		int32 statsWindowHeight = 295;
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
-			statsWindowWidth = 550;
-			statsWindowHeight = 370;
+			statsWindowWidth += 230;
+			statsWindowHeight += 110;
 		}
 
 		ImVec2 pos;
@@ -341,26 +353,75 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::Begin( "Performance Stats" );
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+		static const int gfxNumValues = 3;
+
+		static const char* gfxValues[gfxNumValues] =
+		{
+			"DX11",
+			"DX12",
+			"Vulkan",
+		};
+
+		const char* API = gfxValues[ int( deviceManager->GetGraphicsAPI() ) ];
+
+#elif defined( USE_VULKAN )
 		const char* API = "Vulkan";
 #else
 		const char* API = "OpenGL";
 #endif
 
 		extern idCVar r_antiAliasing;
+
+#if ID_MSAA
 		static const int aaNumValues = 5;
+
 		static const char* aaValues[aaNumValues] =
 		{
+			"None",
 			"None",
 			"SMAA 1X",
 			"MSAA 2X",
 			"MSAA 4X",
-			"MSAA 8X"
 		};
 
-		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+		static const char* taaValues[aaNumValues] =
+		{
+			"None",
+			"TAA",
+			"TAA + SMAA 1X",
+			"MSAA 2X",
+			"MSAA 4X",
+		};
 
-		const char* aaMode = aaValues[ r_antiAliasing.GetInteger() ];
+		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
+#else
+		static const int aaNumValues = 2;
+
+		static const char* aaValues[aaNumValues] =
+		{
+			"None",
+			"None",
+		};
+
+		static const char* taaValues[aaNumValues] =
+		{
+			"None",
+			"TAA",
+		};
+
+		compile_time_assert( aaNumValues == ( ANTI_ALIASING_TAA + 1 ) );
+#endif
+
+		const char* aaMode = NULL;
+		if( R_UseTemporalAA() )
+		{
+			aaMode = taaValues[ r_antiAliasing.GetInteger() ];
+		}
+		else
+		{
+			aaMode = aaValues[ r_antiAliasing.GetInteger() ];
+		}
 
 		idStr resolutionText;
 		resolutionScale.GetConsoleText( resolutionText );
@@ -418,7 +479,7 @@ float idConsoleLocal::DrawFPS( float y )
 		}
 		else
 		{
-			ImGui::TextColored( fps < com_engineHz_latched ? colorRed : colorYellow, "Average FPS %i", fps );
+			ImGui::TextColored( fps < max_FPS ? colorRed : colorYellow, "Average FPS %i", fps );
 		}
 
 		ImGui::Spacing();
@@ -427,13 +488,14 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( gameThreadTotalTime > maxTime ? colorRed : colorWhite,			"Game+RF: %5llu us   EarlyZ:       %5llu us", gameThreadTotalTime, rendererGPUEarlyZTime );
 		ImGui::TextColored( gameThreadGameTime > maxTime ? colorRed : colorWhite,			"Game:    %5llu us   SSAO:         %5llu us", gameThreadGameTime, rendererGPU_SSAOTime );
 		ImGui::TextColored( gameThreadRenderTime > maxTime ? colorRed : colorWhite,			"RF:      %5llu us   SSR:          %5llu us", gameThreadRenderTime, rendererGPU_SSRTime );
-		ImGui::TextColored( rendererBackEndTime > maxTime ? colorRed : colorWhite,			"RB:      %5llu us   AmbientPass:  %5llu us", rendererBackEndTime, rendererGPUAmbientPassTime );
-		ImGui::TextColored( rendererShadowsTime > maxTime ? colorRed : colorWhite,			"Shadows: %5llu us   Interactions: %5llu us", rendererShadowsTime, rendererGPUInteractionsTime );
-		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    ShaderPass:   %5llu us", rendererGPUShaderPassesTime );
+		ImGui::TextColored( rendererBackEndTime > maxTime ? colorRed : colorWhite,			"RB:      %5llu us   Ambient Pass: %5llu us", rendererBackEndTime, rendererGPUAmbientPassTime );
+		ImGui::TextColored( rendererGPUShadowAtlasTime > maxTime ? colorRed : colorWhite,	"Shadows: %5llu us   Shadow Atlas: %5llu us", rendererShadowsTime, rendererGPUShadowAtlasTime );
+		ImGui::TextColored( rendererGPUInteractionsTime > maxTime ? colorRed : colorWhite,	"Sync:    %5llu us   Interactions: %5llu us", frameSyncTime, rendererGPUInteractionsTime );
+		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    Shader Pass:  %5llu us", rendererGPUShaderPassesTime );
+		ImGui::TextColored( rendererGPU_TAATime > maxTime ? colorRed : colorWhite,			"                    TAA:          %5llu us", rendererGPU_TAATime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
-		ImGui::TextColored( totalCPUTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite,
-							"Total:   %5llu us   Total:        %5llu us", totalCPUTime, rendererGPUTime );
-		ImGui::TextColored( totalFrameTime > maxTime ? colorRed : colorWhite,               "Frame:   %5llu us   Idle:         %5llu us", totalFrameTime, rendererGPUIdleTime );
+		ImGui::TextColored( frameBusyTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite, "Total:   %5llu us   Total:        %5llu us", frameBusyTime, rendererGPUTime );
+		ImGui::TextColored( colorWhite,														"Idle:    %5llu us   Idle:         %5llu us", frameIdleTime, rendererGPUIdleTime );
 
 		ImGui::End();
 	}
@@ -938,7 +1000,7 @@ Scroll
 deals with scrolling text because we don't have key repeat
 ==============
 */
-void idConsoleLocal::Scroll( )
+void idConsoleLocal::Scroll()
 {
 	if( lastKeyEvent == -1 || ( lastKeyEvent + 200 ) > eventLoop->Milliseconds() )
 	{

@@ -1,0 +1,40 @@
+/***************************************************
+railing_for_post_pinky
+***************************************************/
+
+model deltax_railing_pinkyattack {
+	mesh							models/md5/environments/railing.md5mesh
+	anim railing					models/md5/environments/railing.md5anim {
+	}
+}
+
+entityDef deltax_railing_pinkyattack {
+	"inherit"						"cin_base"
+	"model"							"deltax_railing_pinkyattack"
+	"anim"							"railing"
+	"cinematic"						"1"
+
+}
+
+/***************************************************
+doorframe_for_post_pinky
+***************************************************/
+
+export fred {
+	options -prefix ENV_
+	mesh	maps/fred/admin/doorframe.mb -dest models/md5/environments/doorframe
+	anim	maps/fred/admin/doorframe.mb -dest models/md5/environments/doorframe
+}
+
+model deltax_doorframe_pinkyattack {
+	mesh					models/md5/environments/doorframe.md5mesh
+	anim doorframe			models/md5/environments/doorframe.md5anim {
+	}
+}
+
+entityDef deltax_doorframe_pinkyattack {
+	"inherit"						"cin_base"
+	"model"							"deltax_doorframe_pinkyattack"
+	"anim"							"doorframe"
+	"cinematic"						"1"
+}

@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "CollisionModel_local.h"
+#include "renderer/Model_gltf.h"
 
 #define CM_FILE_EXT			"cm"
 #define CM_BINARYFILE_EXT	"bcm"
@@ -620,9 +621,26 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 	generatedFileName.Insert( "generated/", 0 );
 	generatedFileName.SetFileExtension( CM_BINARYFILE_EXT );
 
+	ID_TIME_T currentTimeStamp;
+
 	// if we are reloading the same map, check the timestamp
 	// and try to skip all the work
-	ID_TIME_T currentTimeStamp = fileSystem->GetTimestamp( fileName );
+
+	idStr extension;
+	idStr( fileName ).ExtractFileExtension( extension );
+	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
+	{
+		int id;
+		idStr tmp;
+		idStr file = fileName;
+		gltfManager::ExtractIdentifier( file, id, tmp );
+
+		currentTimeStamp = fileSystem->GetTimestamp( file );
+	}
+	else
+	{
+		currentTimeStamp = fileSystem->GetTimestamp( fileName );
+	}
 
 	// see if we have a generated version of this
 	bool loaded = false;

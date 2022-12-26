@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -60,10 +60,11 @@ struct rumble_t
 	bool			waiting;
 	int				left;
 	int				right;
-	
+
 };
 
-enum gameSKU_t {
+enum gameSKU_t
+{
 	GAME_SKU_DCC = 0,				// Doom Classic Complete
 	GAME_SKU_DOOM1_BFG,				// Doom 1 Ran from BFG
 	GAME_SKU_DOOM2_BFG,				// Doom 2 Ran from BFG
@@ -75,16 +76,17 @@ enum gameSKU_t {
  ExpansionData
 ================================================================================================
 */
-struct ExpansionData {
+struct ExpansionData
+{
 
 	enum { IWAD = 0, PWAD = 1 }	type;
 	GameMode_t					gameMode;
 	GameMission_t				pack_type;
-	const char *				expansionName;
-	const char *				iWadFilename;
-	const char *				pWadFilename;
-	const char *				saveImageFile;
-	const char **				mapNames;
+	const char* 				expansionName;
+	const char* 				iWadFilename;
+	const char* 				pWadFilename;
+	const char* 				saveImageFile;
+	const char** 				mapNames;
 
 
 };
@@ -93,76 +95,76 @@ struct ExpansionData {
 
 namespace DoomLib
 {
-	//typedef int ( *RecvFunc)( char* buff, DWORD *numRecv );
-	//typedef int ( *SendFunc)( const char* buff, DWORD size, sockaddr_in *target, int toNode );
-	//typedef int ( *SendRemoteFunc)();
+//typedef int ( *RecvFunc)( char* buff, DWORD *numRecv );
+//typedef int ( *SendFunc)( const char* buff, DWORD size, sockaddr_in *target, int toNode );
+//typedef int ( *SendRemoteFunc)();
 
-	void InitGlobals( void *ptr = NULL );
-	void InitGame( int argc, char ** argv );
-	void InitControlRemap();
-	keyNum_t RemapControl( keyNum_t key );
-	bool Poll();
-	bool Tic( idUserCmdMgr * userCmdMgr );
-	void Wipe();
-	void Frame( int realoffset = 0, int buffer = 0 );
-	void Draw();
-	void Shutdown();
+void InitGlobals( void* ptr = NULL );
+void InitGame( int argc, char** argv );
+void InitControlRemap();
+keyNum_t RemapControl( keyNum_t key );
+bool Poll();
+bool Tic( idUserCmdMgr* userCmdMgr );
+void Wipe();
+void Frame( int realoffset = 0, int buffer = 0 );
+void Draw();
+void Shutdown();
 
-	//void SetNetworking( RecvFunc rf, SendFunc sf, SendRemoteFunc sendRemote );
-	
-	void SetPlayer( int id );
-	int GetPlayer();
+//void SetNetworking( RecvFunc rf, SendFunc sf, SendRemoteFunc sendRemote );
 
-	byte BuildSourceDest( int toNode );
-	void GetSourceDest( byte sourceDest, int* source, int* dest );
+void SetPlayer( int id );
+int GetPlayer();
 
-	int RemoteNodeToPlayerIndex( int node );
-	int PlayerIndexToRemoteNode( int index );
+byte BuildSourceDest( int toNode );
+void GetSourceDest( byte sourceDest, int* source, int* dest );
 
-	void PollNetwork();
-	void SendNetwork();
+int RemoteNodeToPlayerIndex( int node );
+int PlayerIndexToRemoteNode( int index );
 
-	void *GetGlobalData( int player );
+void PollNetwork();
+void SendNetwork();
 
-	void RunSound();
+void* GetGlobalData( int player );
 
-	//extern RecvFunc Recv;
-	//extern SendFunc Send;
-	//extern SendRemoteFunc SendRemote;
+void RunSound();
 
-	extern void* 	(*Z_Malloc)( int size, int tag, void* user );
-	extern void 	(*Z_FreeTag)(int lowtag );
+//extern RecvFunc Recv;
+//extern SendFunc Send;
+//extern SendRemoteFunc SendRemote;
 
-	extern DoomInterface		Interface;
-	extern int					idealExpansion;
-	extern int					expansionSelected;
-	extern bool					expansionDirty;
+extern void* 	( *Z_Malloc )( int size, int tag, void* user );
+extern void	( *Z_FreeTag )( int lowtag );
 
-	extern bool					skipToLoad;
-	extern char					loadGamePath[MAX_PATH];
+extern DoomInterface		Interface;
+extern int					idealExpansion;
+extern int					expansionSelected;
+extern bool					expansionDirty;
 
-	extern bool					skipToNew;
-	extern int					chosenSkill;
-	extern int					chosenEpisode;
+extern bool					skipToLoad;
+extern char					loadGamePath[MAX_PATH];
 
-	extern idMatchParameters	matchParms;
+extern bool					skipToNew;
+extern int					chosenSkill;
+extern int					chosenEpisode;
 
-	const ExpansionData *		GetCurrentExpansion();
-	void						SetCurrentExpansion( int expansion );
+extern idMatchParameters	matchParms;
 
-	void						SetIdealExpansion( int expansion );
+const ExpansionData* 		GetCurrentExpansion();
+void						SetCurrentExpansion( int expansion );
 
-	void						SetCurrentMapName( idStr name );
-	const idStr &				GetCurrentMapName();
-	void						SetCurrentDifficulty( idStr name );
-	const idStr &				GetCurrentDifficulty();
+void						SetIdealExpansion( int expansion );
 
-	void						ActivateGame();
-	void						ExitGame();
-	void						ShowXToContinue( bool activate );
-	gameSKU_t					GetGameSKU();
-	void						HandleEndMatch();
-	
+void						SetCurrentMapName( idStr name );
+const idStr& 				GetCurrentMapName();
+void						SetCurrentDifficulty( idStr name );
+const idStr& 				GetCurrentDifficulty();
+
+void						ActivateGame();
+void						ExitGame();
+void						ShowXToContinue( bool activate );
+gameSKU_t					GetGameSKU();
+void						HandleEndMatch();
+
 };
 
 

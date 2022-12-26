@@ -1,0 +1,597 @@
+//CINEMATICS
+	
+export fred {
+	//camera	maps/fred/admin/swann_campbell_overhear.mb -dest models/md5/cinematics/admin/overhear_cam
+
+	camera	maps/fred/admin/campbell_overhear_1_n_2_n_3.mb -range 1 313 -dest models/md5/cinematics/admin/overhear_cam1
+	camera	maps/fred/admin/campbell_overhear_4.mb -range 432 736 -dest models/md5/cinematics/admin/overhear_cam2
+	camera	maps/fred/admin/swann_campbell_overhear.mb -range 737 1033 -dest models/md5/cinematics/admin/overhear_cam3
+
+	options -prefix ZOMBIE_CASE_ -keep ATTACHER -rename ATTACHER origin -clearorigin
+	anim	maps/fred/admin/campbell_overhear_1_n_2_n_3.mb -range 1 313 -dest models/md5/cinematics/admin/overhearcampbellcase1
+	anim	maps/fred/admin/campbell_overhear_4.mb -range 432 736 -dest models/md5/cinematics/admin/overhearcampbellcase2
+	
+	options -prefix CAMPBELL_CASE_
+	mesh	maps/fred/admin/swann_campbell_overhear.mb -range 737 737 -dest models/md5/cinematics/admin/overhearcaseontable
+	anim	maps/fred/admin/swann_campbell_overhear.mb -range 737 1033 -dest models/md5/cinematics/admin/overhearcampbellcase3
+
+}
+
+model admin_bfgcase {
+	mesh					models/md5/cinematics/admin/overhearcaseontable.md5mesh
+	anim overhear3			models/md5/cinematics/admin/overhearcampbellcase3.md5anim
+}
+	
+entityDef admin_bfgcase {
+	"inherit"						"cin_base"
+	"model"							"admin_bfgcase"
+	"anim"							"overhear3"
+	"cinematic"						"1"
+}
+
+entityDef admin_overhear_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"cinematic"						"1"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim overhear1"				"models/md5/cinematics/admin/overhear_cam1.md5camera"
+	"anim overhear2"				"models/md5/cinematics/admin/overhear_cam2.md5camera"
+	"anim overhear3"				"models/md5/cinematics/admin/overhear_cam3.md5camera"
+}
+
+model admin_overhear_camphead {
+	inherit							head_campbell
+	anim overhear3					models/md5/heads/campbell/admin/camphead_overhear_end.md5anim
+}
+
+model admin_overhear_campbell {
+	inherit  						char_campbell_bfgcase
+
+	anim overhear					models/md5/chars/campbell/admin/overhearcampbell1.md5anim 
+
+	anim overhear1					models/md5/chars/campbell/admin/overhearcampbell1.md5anim {
+		frame 1							skin skins/characters/npcs/marine_campbell.skin
+	}
+	anim overhear2					models/md5/chars/campbell/admin/overhearcampbell2.md5anim {
+		frame 1							skin skins/characters/npcs/marine_campbell.skin
+	}
+}
+
+entityDef admin_overhear_campbell {
+	"inherit"						"char_campbell_bfgcase"
+	"model"							"admin_overhear_campbell"
+	"cinematic"						"1"
+
+	"sound_bone"					"Chest"
+}
+
+model admin_overhear_campbell2 {
+	inherit  						char_campbell_bfg
+
+	anim overhear3					models/md5/chars/campbell/admin/overhearcampbell3.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							skin skins/characters/npcs/marine_campbell.skin
+		frame 104						sound_voice2 bfgcase_unlock
+		frame 121   					trigger caselight
+		frame 163						sound_voice admin_campbell_planb
+		frame 203						sound_weapon player_bfg_raise
+		frame 218						sound_body player_bfg_idle
+		frame 235						trigger caselight
+	}
+}
+
+entityDef admin_overhear_campbell2 {
+	"inherit"						"char_campbell_bfg"
+	"model"							"admin_overhear_campbell2"
+	"sound_bone"					"Chest"
+	"def_head"						"admin_overhear_camphead"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+}
+
+model admin_overhear_campbell_bfg {
+	inherit  						char_campbell_bfg
+
+	anim typing_loop				models/md5/chars/campbell/admin/typingcampbell_loop.md5anim 
+	anim typing						models/md5/chars/campbell/admin/typingcampbell.md5anim {
+		frame 270						sound_voice admin_campbell_then_i_suggest
+	}
+}
+
+entityDef admin_overhear_campbell_bfg {
+	"inherit"						"char_campbell_bfg"
+	"model"							"admin_overhear_campbell_bfg"
+
+	"sound_bone"					"Chest"
+	"cinematic"						"1"
+}
+
+model admin_overhear_swannhead {
+	inherit							head_swann
+	anim overhear_a					models/md5/heads/swann/admin/swannhead_overhear_1_2_3.md5anim
+	anim overhear_b					models/md5/heads/swann/admin/swannhead_overhear_4.md5anim
+	anim overhear_c					models/md5/heads/swann/admin/swannhead_overhear_end.md5anim
+}
+
+model admin_vent_swann {
+	mesh							models/md5/chars/suit.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim overhear_a					models/md5/cinematics/admin/overhearswann1.md5anim {
+		frame 1						event disableEyeFocus
+		frame 132					sound_voice admin_swann_im_telling_you
+		frame 232 					trigger tim_func_static_2222 
+		frame 237					sound_voice admin_betruger_operation_is_that
+	}
+	anim overhear_b					models/md5/cinematics/admin/overhearswann2.md5anim {
+		frame 1						event disableEyeFocus
+		frame 9						sound_voice admin_swann_the_situation
+		frame 73        			sound_voice admin_betruger_its_not_out_of_control
+	}
+
+	anim overhear_c					models/md5/cinematics/admin/overhearswann3.md5anim {
+		frame 1						event disableEyeFocus
+		frame 4        				sound_voice admin_swann_yes_bertruger
+		frame 43					trigger fredmonlight
+		frame 43					sound_voice2 swann_screen_off
+		frame 59        			sound_voice admin_swann_i_understand
+	}
+}
+
+entityDef admin_vent_swann {
+	"inherit"						"npc_base"
+	"model"							"admin_vent_swann"
+	"anim"							"overhear_a"
+	"sound_bone"					"Chest"
+	"def_head"						"admin_overhear_swannhead"
+	"head_joint"					"Shoulders"
+	"eye_verticle_offset"			"10"
+	"eye_horizontal_offset"			"5"
+	"ik_numlegs"					"0"
+
+	"num_cinematics"				"3"
+	"anim1"							"overhear_a"
+	"anim2"							"overhear_b"
+	"anim3"							"overhear_c"
+
+	"cinematic"						"1"
+}
+
+model admin_overhear_swann {
+	inherit							npc_suit
+
+	anim typing_loop				models/md5/cinematics/admin/typingswann_loop.md5anim
+	anim typing						models/md5/cinematics/admin/typingswann.md5anim {
+		frame 1							sound admin_swann_it_isnt_working
+	}
+}
+
+entityDef admin_overhear_swann {
+	"inherit"						"npc_base"
+	"model"							"admin_overhear_swann"
+	"anim"							"overhear"
+	"sound_bone"					"Chest"
+	"def_head"						"admin_overhear_swannhead"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+	"eye_verticle_offset"			"10"
+	"eye_horizontal_offset"			"5"
+}
+
+model admin_overhear_player {
+	mesh						models/md5/characters/player/mocap/player.md5mesh
+	skin						skins/player/noweapon.skin
+	
+	anim overhear1				models/md5/cinematics/admin/overhearplayer1.md5anim 
+	anim overhear2				models/md5/cinematics/admin/overhearplayer2.md5anim
+	anim railing				models/md5/cinematics/admin/railingplayer.md5anim
+}
+
+entityDef admin_overhear_player {
+	"inherit"					"cin_base"
+	"anim"						"overhear"
+	"model"						"admin_overhear_player" 
+	"cinematic"						"1"
+}
+
+//Imps break door...
+	
+export fred {
+	options -prefix DOOR_
+	mesh	maps/fred/impdoorbreak/impdoorbreak.mb -dest models/md5/environments/impdoorbreak
+	anim	maps/fred/impdoorbreak/impdoorbreak.mb -range 1 1 -dest models/md5/environments/impdoorbreakidle
+	anim	maps/fred/impdoorbreak/impdoorbreak.mb -dest models/md5/environments/impdoorbreak
+}
+
+model admin_impdoors {
+	mesh						models/md5/environments/impdoorbreak.md5mesh
+	anim doorsidle				models/md5/environments/impdoorbreakidle.md5anim
+	anim doors					models/md5/environments/impdoorbreak.md5anim {
+		frame 2						sound admin_impdoor_impact
+		frame 8						sound admin_impdoor_impact
+		frame 17					sound admin_impdoor_impact2
+		frame 22					sound admin_impdoor_creak
+		frame 42					sound admin_impdoor_doorfallimpact
+		frame 53					sound admin_impdoor_doorfallimpact
+	}
+}
+
+entityDef admin_impdoors {
+	"inherit"					"cin_base"
+	"anim"						"doors"
+	"model"						"admin_impdoors"
+}
+
+/***********************************************************************
+
+admin_imps
+
+***********************************************************************/
+
+model admin_imp1 {
+	inherit						monster_demon_imp
+	anim impdoors      			models/md5/monsters/imp/imp1doorbreak.md5anim {
+		ai_no_turn
+		frame 1						call overrideLegs
+		frame 1						disableWalkIK
+		frame 1						disableGravity
+		frame 64					enableGravity
+		frame 64					enableWalkIK
+	}
+
+	anim impcrawl				models/md5/monsters/imp/imp1wallcrawl.md5anim {
+		ai_no_turn
+		frame 1						call overrideLegs
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 2						sound_body snd_sight
+		frame 40					enableGravity
+		frame 40					enableWalkIK
+	}
+}
+
+entityDef admin_imp1 {
+	"inherit"						"monster_demon_imp"
+	"model"							"admin_imp1"
+	"anim"							"impdoorsidle"
+	"on_activate"					"impdoors"
+}
+
+model admin_imp2 {
+	inherit							monster_demon_imp
+
+	anim impdoors      	 			models/md5/monsters/imp/imp2doorbreak.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 89						enableGravity
+		frame 89						enableWalkIK
+	}
+	anim impcrawl					models/md5/monsters/imp/imp2wallcrawl.md5anim {
+		ai_no_turn
+		frame 1							call overrideLegs
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 2							sound_body snd_sight
+		frame 15						enableGravity
+		frame 15						enableWalkIK
+	}
+}
+
+entityDef admin_imp2 {
+	"inherit"						"monster_demon_imp"
+	"model"							"admin_imp2"
+	"anim"							"impdoorsidle"
+	"on_activate"					"impdoors"
+}
+
+//Pinky Attack...
+	
+export fred {
+	camera	maps/fred/admin/railing.mb -dest models/md5/cinematics/admin/cin_pinkyattack_cam
+}
+
+export fred {
+	options	-prefix PINKY_ -align ALL -rename Waist Waist1 -rename LoNeck Waist -parent drool Mouth_Piece
+	anim	maps/fred/admin/railing.mb -range 70 70 -dest models/md5/cinematics/admin/pinkyrailing_idle	
+	anim	maps/fred/admin/railing.mb -dest models/md5/cinematics/admin/pinkyrailing
+	//anim	models/monsters/pinky/animation/cinematics/glassbreak.mb -range 1 67 -dest models/md5/cinematics/admin/pinkyuptoglass
+
+	}
+
+entityDef admin_pinkyattack_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim pinkyattack"				"models/md5/cinematics/admin/cin_pinkyattack_cam.md5camera"
+}
+
+model admin_pinkyattack_pinky {
+	mesh							models/md5/monsters/pinky/pinky.md5mesh
+	anim railing					models/md5/cinematics/admin/pinkyrailing.md5anim
+//	anim uptoglass					models/md5/cinematics/admin/pinkyuptoglass.md5anim
+}
+
+entityDef admin_pinkyattack_pinky {
+	"inherit"						"cin_base"
+	"anim"							"railing"
+	"model"							"admin_pinkyattack_pinky"
+	"cinematic"						"1"
+}
+
+model admin_pinkyattack_shards {
+	mesh							models/md5/environments/glass_shards.md5mesh
+	anim shatter					models/md5/environments/shatter.md5anim
+}
+
+entityDef admin_pinkyattack_shards {
+	"inherit"						"cin_base"
+	"anim"							"shatter"
+	"model"							"admin_pinkyattack_shards"
+	"cinematic"						"1"
+}
+
+model admin_pinky_glassbreak {
+	inherit							monster_demon_pinky
+	
+	anim glassbreak					models/md5/monsters/pinky/glassbreak.md5anim {
+		frame 1							disableGravity
+		frame 7							sound_body snd_admin_footstep
+		frame 10						sound_body snd_admin_handstep	
+		frame 13						sound_voice snd_admin_sight2
+		frame 14						sound_body snd_admin_footstep
+		frame 22						sound_body2 snd_admin_footstep
+		frame 22						sound_body snd_admin_handstep
+		frame 29						sound_body snd_admin_footstep
+		frame 31						sound_body2 snd_admin_handstep	
+		frame 34						sound_body snd_admin_footstep
+		frame 41						sound_body snd_admin_footstep
+		frame 41						sound_body2 snd_admin_handstep
+		frame 47						sound_body snd_admin_handstep	
+		frame 52						sound_voice snd_admin_sight2
+		frame 53						sound_body snd_admin_footstep
+		frame 53						sound_body2 snd_admin_handstep	
+		frame 70						sound_body snd_admin_handstep	
+		frame 71						sound_body2 snd_admin_handstep
+		frame 72						sound_voice snd_sight1
+		frame 74						sound_body snd_admin_footstep
+		frame 76						sound_body2 snd_admin_footstep	
+		frame 79						sound_body snd_admin_handstep	
+		frame 84						enableGravity
+	}
+}
+
+entityDef admin_pinky_glassbreak {
+	"inherit"						"monster_demon_pinky"
+	"model"							"admin_pinky_glassbreak"
+	"anim"							"glassbreak"
+	
+	"snd_admin_footstep"			"admin_monster_demon_pinky_foot"
+	"snd_admin_sight2"				"admin_monster_demon_pinky_sight2"
+	
+}
+
+/***************************************************
+railing_for_pinky
+***************************************************/
+
+export fred {
+	options -prefix ENV_	
+	mesh	maps/fred/admin/railing.mb -dest models/md5/environments/railing	
+	anim	maps/fred/admin/railing.mb -dest models/md5/environments/railing
+}
+
+model admin_railing_pinkyattack {
+	mesh							models/md5/environments/railing.md5mesh
+	anim railing					models/md5/environments/railing.md5anim {
+
+		frame 29						sound admin_monster_demon_pinky_foot
+		frame 30						sound_global admin_monster_demon_pinky_sight2
+		frame 35						sound admin_monster_demon_pinky_hand		
+		frame 79						sound admin_monster_demon_pinky_foot
+		frame 79.1						sound admin_monster_demon_pinky_hand		
+		frame 92						sound admin_monster_demon_pinky_foot
+		frame 101						sound admin_monster_demon_pinky_hand
+		frame 106						sound admin_monster_demon_pinky_foot
+		frame 120						sound_global admin_monster_demon_pinky_sight2
+		frame 124						sound admin_monster_demon_pinky_foot
+		frame 133						sound admin_monster_demon_pinky_foot
+		frame 139						sound admin_monster_demon_pinky_creak_small
+		frame 156						sound admin_monster_demon_pinky_creak_big
+		frame 190						sound admin_monster_demon_pinky_foot
+		frame 197						sound admin_monster_demon_pinky_hand
+		frame 206						sound admin_monster_demon_pinky_hand
+		frame 210						sound_global admin_monster_demon_pinky_sight2
+		frame 248						sound admin_light_break
+		frame 256						sound admin_monster_demon_pinky_thud
+		frame 257						sound admin_monster_demon_pinky_hand
+		frame 260						sound admin_monster_demon_pinky_hand
+		frame 261						sound admin_monster_demon_pinky_foot
+		frame 262						sound admin_monster_demon_pinky_foot
+		frame 272						sound admin_monster_demon_pinky_foot
+		frame 274						sound admin_monster_demon_pinky_foot
+		frame 275						sound admin_monster_demon_pinky_hand
+		frame 285						sound admin_monster_demon_pinky_foot
+		frame 289						sound admin_monster_demon_pinky_hand
+		frame 298						sound admin_monster_demon_pinky_foot
+		frame 300						sound admin_monster_demon_pinky_hand
+		frame 301						sound admin_monster_demon_pinky_foot
+		frame 307						sound admin_monster_demon_pinky_hand
+		frame 318						sound_global admin_monster_demon_pinky_sight1
+		frame 322						sound admin_monster_demon_pinky_foot
+		frame 334						sound admin_monster_demon_pinky_hand
+		frame 352						sound admin_monster_demon_pinky_foot
+		frame 360						sound_global admin_monster_demon_pinky_sight2
+		frame 394						sound admin_monster_demon_pinky_hand
+		frame 397						sound admin_monster_demon_pinky_foot
+	}
+}
+
+entityDef admin_railing_pinkyattack {
+	"inherit"						"cin_base"
+	"model"							"admin_railing_pinkyattack"
+	"anim"							"railing"
+	"cinematic"						"1"
+}
+
+/***************************************************
+doorframe_for_pinky
+***************************************************/
+
+export fred {
+	options -prefix ENV_	
+	mesh	maps/fred/admin/doorframe.mb -dest models/md5/environments/doorframe	
+	anim	maps/fred/admin/doorframe.mb -dest models/md5/environments/doorframe
+}
+
+model admin_doorframe_pinkyattack {
+	mesh							models/md5/environments/doorframe.md5mesh
+	anim doorframe					models/md5/environments/doorframe.md5anim {
+		frame 42						trigger trigger_relay_4
+		frame 42						sound admin_impdoor_impact0
+		frame 79						sound admin_monster_demon_pinky_sight2
+		frame 123						trigger trigger_relay_7
+		frame 123						sound admin_impdoor_impact0
+		frame 142						sound admin_monster_demon_pinky_sight1
+		frame 175						trigger trigger_relay_6
+		frame 175						sound admin_impdoor_impact0
+		frame 232						trigger trigger_relay_8
+		frame 232						sound admin_impdoor_impact0
+		frame 242						sound admin_monster_demon_pinky_sight2
+	}
+}
+
+entityDef admin_doorframe_pinkyattack {
+	"inherit"						"cin_base"
+	"model"							"admin_doorframe_pinkyattack"
+	"anim"							"doorframe"
+	"cinematic"						"1"
+}
+
+/***********************************************************************
+
+Wounded_Marine
+
+***********************************************************************/
+
+model admin_wounded_marine_head {
+	skin							skins/characters/npcs/head_bald_bloody.skin
+
+	mesh							models/md5/characters/npcs/heads/h3.md5mesh
+	anim idle						models/md5/characters/npcs/heads/h3idle.md5anim
+	anim talk_trigger				models/md5/characters/npcs/heads/h3trigger.md5anim
+	anim talk_secondary1			models/md5/characters/npcs/heads/h3secondary.md5anim
+	anim talk_primary				models/md5/characters/npcs/heads/h3primary.md5anim
+	anim dead						models/md5/characters/npcs/heads/h3dead.md5anim
+	anim pain						models/md5/characters/npcs/heads/h3secondary.md5anim
+}
+
+model admin_wounded_marine {
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *origin )
+
+	skin							skins/characters/npcs/body_marine_bloody.skin
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim stand						models/md5/chars/wounded_marine_idle.md5anim
+	anim idle						models/md5/chars/wounded_marine_idle.md5anim
+	anim talk_trigger				models/md5/chars/wounded_marine_trigger.md5anim {
+		frame 1							sound_voice admin_marine_dont_stop
+	}
+	anim talk_primary				models/md5/chars/wounded_marine_primary.md5anim {
+		frame 1							sound_voice admin_marine_there_are
+	}
+	anim talk_secondary1			models/md5/chars/wounded_marine_secondary.md5anim {
+		frame 1							sound_voice admin_marine_death
+		frame 1							call headlook_off
+	}
+	anim pain						models/md5/chars/wounded_marine_secondary.md5anim {
+		frame 1							sound_voice admin_marine_death
+	}
+}
+
+entityDef admin_wounded_marine {
+	"inherit"						"character_default"
+	"scriptobject"					"ai_character_prone"
+	"model"							"admin_wounded_marine"
+	"anim"							"idle"
+	"size"							"64 20 32"
+	"use_aas"						""
+	"turn_rate"						"0"
+	"eye_height"					"28"
+	"die_after_speaking"			"1"
+	"copy_joint_world eyecontrol"	""
+	"gib"							"1"
+	"model_gib" 					"models/md5/chars/skeleton.md5mesh"
+	"snd_gibbed"					"sound_giblets"
+
+	"def_dropGibItem1"				"moveable_item_head_pork"
+	"dropGibItem1Joint"				"headcontrol"
+
+	"def_dropGibItem2"				"moveable_item_torso_pork"
+	"dropGibItem2Joint"				"Chest"
+
+	"def_dropGibItem3"				"moveable_item_rup_arm_pork"
+	"dropGibItem3Joint"				"Ruparm"
+
+	"def_dropGibItem4"				"moveable_item_left_waist_pork"
+	"dropGibItem4Joint"				"Waist"
+
+	"def_dropGibItem5"				"moveable_item_lup_leg_pork"
+	"dropGibItem5Joint"				"Lupleg"
+
+	"def_dropGibItem6"				"moveable_item_rup_leg_pork"
+	"dropGibItem6Joint"				"Rupleg"
+
+	"def_dropGibItem7"				"moveable_item_rup2_leg_pork"
+	"dropGibItem7Joint"				"Rloleg"
+
+	"def_dropGibItem8"				"moveable_item_pelvis_pork"
+	"dropGibItem8Joint"				"Hips"
+
+
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"eye_turn_min"					"0 0 0"
+	"eye_turn_max"					"0 0 0"
+
+	"eye_focus_rate"				"0"
+
+	"talk0_blendin"					"20"
+	"talk0_blendout"				"20"
+	"talk1_blendin"					"20"
+	"talk1_blendout"				"20"
+	"talk2_blendin"					"20"
+	"talk2_blendout"				"20"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		".5 .5 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"head_focus_rate"				"0.5"
+	
+	"def_head"						"admin_wounded_marine_head"
+	"head_joint"					"Shoulders"
+	
+	"ragdoll"						"char_wounded_marine"
+
+	// no damage zones needed
+	"damage_zone chest"				""
+	"damage_zone left_arm"			""
+	"damage_zone right_arm"			""
+	"damage_zone legs"				""
+}

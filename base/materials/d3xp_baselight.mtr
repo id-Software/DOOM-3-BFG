@@ -1,0 +1,24 @@
+textures/base_light/d3xp_tlight01
+{
+	qer_editorimage textures/base_light/d3xp_tlight01.tga
+
+	{
+		blend 	diffusemap
+		map 	textures/base_light/d3xp_tlight01_d.tga
+		rgb		ropelight[ time * 1 ]
+
+	}	
+
+	specularmap	textures/base_light/d3xp_tlight01_s.tga
+        bumpmap	       	textures/base_light/d3xp_tlight01_h.tga
+
+	{
+		blend 	add
+		map 	textures/base_light/d3xp_tlight01_add.tga
+		red	parm0 * 2
+		green	parm1 * 2
+		blue	parm2 * 2
+		rgb		ropelight[ time * 1 ]
+
+	}
+}

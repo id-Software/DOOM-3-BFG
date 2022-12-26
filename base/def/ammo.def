@@ -1,0 +1,286 @@
+/***********************************************************************
+
+ ammo
+
+***********************************************************************/
+
+// Define the types of ammo that are used in the game.
+// This entityDef is required by the game code.
+// Up to 16 ammo types can be defined.
+entityDef ammo_types {
+	"ammo_none"				"0"
+	"ammo_shells"			"1"
+	"ammo_bullets"			"2"
+	"ammo_rockets"			"3"
+	"ammo_cells"			"4"
+	"ammo_grenades"			"5"
+	"ammo_souls"			"6"
+	"ammo_bfg"				"7"
+	"ammo_clip"				"8"
+	"ammo_belt"				"9"
+	"ammo_bloodstone"		"10"
+}
+
+entityDef ammo_names {
+	"ammo_none"				"#str_00918"
+	"ammo_shells"			"#str_07009"
+	"ammo_bullets"			"#str_07010"
+	"ammo_rockets"			"#str_07011"
+	"ammo_cells"			"#str_07012"
+	"ammo_grenades"			"#str_07013"
+	"ammo_souls"			"#str_07014"
+	"ammo_bfg"				"#str_07015"
+	"ammo_clip"				"#str_07016"
+	"ammo_belt"				"#str_07017"
+}
+
+entityDef ammo_bullets_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"		"1"
+
+	"editor_usage"			"Small bullets"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/bullet_ammo/bullet_small.lwo"
+	"snd_acquire"			"sound/items/clip_pickup_small.wav"
+	"size"					"32 32 32"
+	"inv_ammo_bullets"		"24"
+	"inv_item"				"4"
+	"inv_name"				"Bullets"
+	"editor_copy100"		"inv_item"
+	"snd_respawn"			"sound_item_respawn"
+	
+}
+
+entityDef ammo_bullets_large {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Large bullets"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/bullet_ammo/bullet_large.lwo"
+	"snd_acquire"			"sound/items/clip_pickup_large.wav"
+	"size"					"32 32 32"
+	"inv_ammo_bullets"		"48"
+	"inv_item"				"4"
+	"inv_name"				"Bullets"
+	"editor_copy100"		"inv_item"
+	"snd_respawn"			"sound_item_respawn"
+}
+
+entityDef ammo_shells_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small shells"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/shells_ammo/shells_small.lwo"
+	"snd_acquire"			"sound/items/shells_pickup_small.wav"
+	"size"					"32 32 32"
+	"inv_ammo_shells"		"12"
+	"inv_item"				"4"
+	"inv_name"				"Shells"
+	"editor_copy100"		"inv_item"
+	"snd_respawn"			"sound_item_respawn"
+}
+
+entityDef ammo_shells_large {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Large shells"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/shells_ammo/shells_large.lwo"
+	"snd_acquire"			"sound/items/shells_pickup_large.wav"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_shells"		"24"
+	"inv_item"				"4"
+	"inv_name"				"Shells"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_clip_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small ammo clip"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/clip_ammo/clip_small.lwo"
+	"snd_acquire"			"sound/items/clip_pickup_small.wav"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_clip"			"60"
+	"inv_item"				"4"
+	"inv_name"				"Clip"
+	
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_clip_large {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Large ammo clip"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/clip_ammo/clip_large.lwo"
+	"snd_acquire"			"sound/items/clip_pickup_large.wav"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_clip"			"90"
+	"inv_item"				"4"
+	"inv_name"				"Clip"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_grenade_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small grenade ammo"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/grenade_ammo/grenade.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_handgrenade"
+	"inv_ammo_grenades"		"8"
+	"inv_item"				"4"
+	"inv_name"				"grenades"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_rockets_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small rockets"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/rocket_ammo/rocket_small.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_rockets"		"5"
+	"inv_item"				"4"
+	"inv_name"				"Rockets"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_rockets_large {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Large rockets"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/rocket_ammo/rocket_large.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_rockets"		"20"
+	"inv_item"				"4"
+	"inv_name"				"Rockets"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_cells_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small cells"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/cell_ammo/cells_small.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_cells"		"50"
+	"inv_item"				"4"
+	"inv_name"				"Cells"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_cells_large {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Large cells"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/cell_ammo/cells_large.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_cells"		"75"
+	"inv_item"				"4"
+	"inv_name"				"Cells"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_belt_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small ammo belt"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/belt_ammo/belt.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_belt"			"90"
+	"inv_item"				"4"
+	"inv_name"				"Ammo Belt"
+	"editor_copy100"		"inv_item"
+}
+
+entityDef ammo_bfg_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_rotatable"			"1"
+
+	"editor_usage"			"Small BFG ammo"
+
+	"spawnclass"			"idItem"
+	"model"					"models/items/bfg_ammo/bfg_ammo.lwo"
+	"snd_acquire"			"guisounds_ammo"
+	"snd_respawn"			"sound_item_respawn"
+	"size"					"32 32 32"
+	"inv_ammo_bfg"			"6"
+	"inv_item"				"4"
+	"inv_name"				"BFG Ammo"
+	"editor_copy100"		"inv_item"
+}
+

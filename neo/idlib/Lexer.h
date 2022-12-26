@@ -64,6 +64,13 @@ typedef enum
 	LEXFL_ONLYSTRINGS					= BIT( 13 )	// parse as whitespace deliminated strings (quoted strings keep quotes)
 } lexerFlags_t;
 
+typedef enum
+{
+	BRSKIP_BRACES,
+	BRSKIP_BRACKET
+} braceSkipMode_t;
+
+
 // punctuation ids
 #define P_RSHIFT_ASSIGN				1
 #define P_LSHIFT_ASSIGN				2
@@ -182,7 +189,7 @@ public:
 	// skip the rest of the current line
 	int				SkipRestOfLine();
 	// skip the braced section
-	int				SkipBracedSection( bool parseFirstBrace = true );
+	int				SkipBracedSection( bool parseFirstBrace = true , braceSkipMode_t skipMode = BRSKIP_BRACES, int* skipped = nullptr );
 	// skips spaces, tabs, C-like comments etc. Returns false if there is no token left to read.
 	bool			SkipWhiteSpace( bool currentLine );
 	// unread the given token
@@ -267,6 +274,7 @@ private:
 	int				length;					// length of the script in bytes
 	int				line;					// current line in script
 	int				lastline;				// line before reading token
+	int				intialLine;				// line that was set on load as starting line
 	int				tokenavailable;			// set by unreadToken
 	int				flags;					// several script flags
 	const punctuation_t* punctuations;		// the punctuations used in the script

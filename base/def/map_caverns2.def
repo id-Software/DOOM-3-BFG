@@ -1,0 +1,532 @@
+
+export fred {
+
+	options -prefix FRONT_
+
+	addoptions -skipmesh fast
+	mesh	maps/fred/caverns2/bridge2.mb -dest models/md5/cinematics/caverns2/bridge_front
+	anim	maps/fred/caverns2/bridge2.mb -range 315 490 -dest models/md5/cinematics/caverns2/bridge_front
+	anim	maps/fred/caverns2/bridge2.mb -range 1 1 -dest models/md5/cinematics/caverns2/bridge_front_idle
+
+	options -prefix BRIDGE_ -keep corner4
+	addoptions -skipmesh fast
+
+	mesh	maps/fred/caverns2/bridge2.mb -dest models/md5/cinematics/caverns2/bridge
+	anim	maps/fred/caverns2/bridge2.mb -range 315 490 -dest models/md5/cinematics/caverns2/bridge
+	anim	maps/fred/caverns2/bridge2.mb -range 1 1 -dest models/md5/cinematics/caverns2/bridge_idle
+
+	options -prefix BACK_
+	addoptions -skipmesh fast
+
+	mesh	maps/fred/caverns2/bridge2.mb -dest models/md5/cinematics/caverns2/bridge_back
+	anim	maps/fred/caverns2/bridge2.mb -range 315 490 -dest models/md5/cinematics/caverns2/bridge_back
+	anim	maps/fred/caverns2/bridge2.mb -range 1 1 -dest models/md5/cinematics/caverns2/bridge_back_idle
+
+	options -prefix CRN_
+
+	mesh	maps/fred/caverns2/bridge2.mb -dest models/md5/cinematics/caverns2/bridge_crane
+	anim	maps/fred/caverns2/bridge2.mb -range 315 490 -dest models/md5/cinematics/caverns2/bridge_crane
+	anim	maps/fred/caverns2/bridge2.mb -range 1 1 -dest models/md5/cinematics/caverns2/bridge_crane_idle
+
+	options -prefix ENV_
+	
+	mesh	maps/fred/caverns2/vags2.mb -dest models/md5/cinematics/caverns2/vag_rocks
+	anim	maps/fred/caverns2/vags2.mb -dest models/md5/cinematics/caverns2/vag_rocks
+
+}
+
+export james {
+
+options -prefix BB_
+
+	mesh	maps/james/caverns2/bb.mb -range 100 100 -dest models/md5/cinematics/caverns2/boulder_bridge
+	anim	maps/james/caverns2/bb.mb -dest models/md5/cinematics/caverns2/boulder_bridge
+	anim	maps/james/caverns2/bb.mb -range 1 1 -dest models/md5/cinematics/caverns2/boulder_bridge_start
+
+}
+
+
+model caverns_boulderbridge {
+	mesh						models/md5/cinematics/caverns2/boulder_bridge.md5mesh
+	anim start					models/md5/cinematics/caverns2/boulder_bridge_start.md5anim
+	anim boulder				models/md5/cinematics/caverns2/boulder_bridge.md5anim {
+		frame 15					sound_body snd_boulderthud
+		frame 30					sound_body snd_boulderthud
+		frame 43					sound_body snd_boulderthud
+		frame 59					sound_body snd_boulderthud
+		frame 63					sound_body snd_boulderthud
+		frame 75					sound_body snd_boulderthud
+	}
+}
+
+entityDef caverns_boulderbridge {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"sound_bone"			"front_3"
+
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"boulder"
+	"model"					"caverns_boulderbridge"
+	"snd_boulderthud"		"caverns2_boulder"
+}
+
+model caverns_vagrocks {
+	mesh					models/md5/cinematics/caverns2/vag_rocks.md5mesh
+	anim rocks				models/md5/cinematics/caverns2/vag_rocks.md5anim
+}
+
+entityDef caverns_vagrocks {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+	"anim"					"rocks"
+	"model"					"caverns_vagrocks"
+}
+
+model caverns_bridgecrane {
+	mesh					models/md5/cinematics/caverns2/bridge_crane.md5mesh
+	anim bridge				models/md5/cinematics/caverns2/bridge_crane.md5anim
+	anim bridgeidle			models/md5/cinematics/caverns2/bridge_crane_idle.md5anim
+}
+
+entityDef caverns_bridgecrane {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"bridge"
+	"model"					"caverns_bridgecrane"
+}
+
+model caverns_bridgefront {
+	mesh					models/md5/cinematics/caverns2/bridge_front.md5mesh
+	anim bridge				models/md5/cinematics/caverns2/bridge_front.md5anim
+	anim bridgeidle			models/md5/cinematics/caverns2/bridge_front_idle.md5anim
+}
+
+entityDef caverns_bridgefront {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"bridge"
+	"model"					"caverns_bridgefront"
+}
+
+model caverns_bridge {
+	mesh					models/md5/cinematics/caverns2/bridge.md5mesh
+	anim bridge				models/md5/cinematics/caverns2/bridge.md5anim
+	anim bridgeidle			models/md5/cinematics/caverns2/bridge_idle.md5anim
+}
+
+entityDef caverns_bridge {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"bridge"
+	"model"					"caverns_bridge"
+}
+
+model caverns_bridgeback {
+	mesh					models/md5/cinematics/caverns2/bridge_back.md5mesh
+	anim bridge				models/md5/cinematics/caverns2/bridge_back.md5anim
+	anim bridgeidle			models/md5/cinematics/caverns2/bridge_back_idle.md5anim
+}
+
+entityDef caverns_bridgeback {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+
+	"anim"					"bridge"
+	"model"					"caverns_bridgeback"
+}
+
+model caverns_pinky {
+	mesh						models/md5/monsters/vagary/vagary.md5mesh
+	anim af_pose				models/md5/monsters/vagary/af_pose.md5anim
+	anim bridge					models/md5/cinematics/caverns2/bridge_pinky.md5anim {
+		frame 1					sound_voice snd_sight
+		frame 4					sound_weapon snd_step
+		frame 8					sound_weapon snd_step
+		frame 17				sound_weapon snd_step
+		frame 22				sound_weapon snd_step
+		frame 30				sound_body snd_pain
+		frame 58				sound_weapon snd_step
+		frame 66				sound_weapon snd_step
+		frame 71				sound_weapon snd_step
+		frame 82				sound_weapon snd_step
+		frame 84				sound_weapon snd_step
+		frame 95				sound_body snd_death
+		frame 100				event startRagdoll
+	}
+}
+
+entityDef caverns_pinky {
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"sound_bone"				"Chest"
+
+	"spawnclass"				"idAnimated"
+
+	"ragdoll"					"monster_demon_vagary"
+	"model"						"caverns_pinky"
+	"anim"						"bridge"
+
+	"velocityTime"				"200"
+
+	"snd_sight"						"monster_demon_vagary_sight"
+	"snd_pain"						"monster_demon_vagary_pain"
+	"snd_death"						"monster_demon_vagary_die"
+	"snd_step"						"monster_demon_vagary_step"
+}
+
+model caverns_hellknight {
+	mesh						models/md5/monsters/hellknight/hellknight.md5mesh
+	
+	anim af_pose				models/md5/monsters/hellknight/initial.md5anim
+	
+	anim bridge					models/md5/cinematics/caverns2/bridge_hellknight.md5anim {
+		frame 1						sound_voice snd_sight
+		frame 15					sound_voice snd_attackmissile
+		frame 21					call hk_fireball
+		frame 73					sound_voice snd_pain
+		frame 88					sound_voice snd_footstep
+		frame 89					sound_body snd_thud
+		frame 103					sound_voice snd_die
+		frame 105					event startRagdoll
+	}
+}
+
+entityDef caverns_hellknight {
+	"spawnclass"				"idAnimated"
+	"editor_color"				"1 .5 .3"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_copy2"				"anim"
+
+	"sound_bone"				"Chest"
+
+	"ragdoll"					"monster_demon_hellknight"
+	"model"						"caverns_hellknight"
+	"anim"						"bridge"
+
+	"velocityTime"				"200"
+
+	//For Ed.. The 1st sound below.. snd_thud  can be the breaking bridge sounds.. with shaking screen... currently just set as his pain.
+
+	"snd_thud"					"cavcin_hk_bridgebreak"
+	"snd_sight"					"cavcin_hk_sight"
+	"snd_chatter"				"monster_demon_hellknight_chatter"
+	"snd_chatter_combat"		"monster_demon_hellknight_chatter"
+	"snd_pain"					"cavcin_hk_pain"
+	"snd_attackmissile"			"monster_demon_hellknight_attackmissile"
+	"snd_die"					"cavcin_hk_die"
+	"snd_footstep"				"monster_demon_hellknight_footstep"
+	"snd_melee1"				"monster_zombie_commando_melee_miss"
+	"snd_melee2"				"monster_demon_cacodemon_melee"
+}
+
+model caverns_vagary1 {
+	inherit						monster_boss_vagary
+
+	anim vag					models/md5/cinematics/caverns2/vag1.md5anim {
+		ai_no_turn
+		frame 1						call overrideLegs
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 60					sound_body snd_step
+		frame 65					sound_voice cavcin_vag_noise2
+		frame 66					sound_body snd_step
+		frame 70					sound_body snd_step
+		frame 73					sound_body snd_step
+		frame 77					sound_body snd_step
+		frame 84					sound_body snd_step
+		frame 87					sound_body snd_step
+		frame 90					sound_body snd_step
+		frame 93					sound_body snd_step
+		frame 95					sound_body snd_step
+		frame 98					sound_body snd_step
+		frame 100					sound_body snd_step
+		frame 102					sound_body snd_step
+		frame 105					sound_body snd_step
+		frame 106					sound_body snd_step
+		frame 110					sound_voice2 cavcin_vag_noise1
+		frame 112					sound_body snd_step
+		frame 117					sound_body snd_step
+		frame 121					sound_body snd_step
+		frame 123					sound_body snd_step
+		frame 128					sound_body snd_step
+		frame 132					sound_body snd_step
+		frame 134					sound_body snd_step
+		frame 101					trigger vag_force_5
+		frame 135					enableGravity
+		frame 135					enableWalkIK
+	}
+}
+
+entityDef caverns_vagary1 {
+	"inherit"					"monster_boss_vagary"
+	"model"						"caverns_vagary1"
+	"anim"						"vag"
+}
+
+model caverns_vagary2 {
+	inherit						monster_boss_vagary
+
+	anim vag					models/md5/cinematics/caverns2/vag2.md5anim {
+		ai_no_turn
+		frame 1						call overrideLegs
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 122					sound_body snd_step
+		frame 125					sound_voice cavcin_vag_noise2
+		frame 126					sound_body snd_step
+		frame 129					sound_body snd_step
+		frame 133					sound_body snd_step
+		frame 140					sound_body snd_step
+		frame 143					sound_body snd_step
+		frame 146					sound_body snd_step
+		frame 152					sound_body snd_step
+		frame 165					sound_body snd_step
+		frame 166					sound_body snd_step
+		frame 167					sound_body snd_step
+		frame 176					sound_body snd_step
+		frame 180					sound_body snd_step
+		frame 182					sound_body snd_step
+		frame 185					sound_body snd_step
+		frame 187					sound_body snd_step
+		frame 203					sound_voice2 cavcin_vag_noise1
+		frame 215					sound_body snd_step
+		frame 216					sound_body snd_step
+		frame 217					sound_body snd_step
+		frame 220					enableGravity
+		frame 220					enableWalkIK
+	}
+}
+
+entityDef caverns_vagary2 {
+	"inherit"					"monster_boss_vagary"
+	"model"						"caverns_vagary2"
+	"anim"						"vag"
+}
+
+model caverns_imp1 {
+	inherit						monster_demon_imp
+
+	anim railing				models/md5/cinematics/caverns2/imp1railing.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 6						sound_body snd_footstep
+		frame 14					sound_voice snd_sight
+		frame 17					sound_body snd_footstep
+		frame 27					sound_body snd_footstep
+		frame 32					sound_body snd_footstep
+		frame 37					sound_body snd_footstep
+		frame 55					sound_body snd_footstep
+		frame 56					sound_body snd_footstep
+		frame 60					enableGravity
+		frame 60					enableWalkIK
+	}
+}
+
+entityDef caverns_imp1 {
+	"inherit"					"monster_demon_imp"
+	"model"						"caverns_imp1"
+	"anim"						"railing"
+}
+
+model caverns_imp2 {
+	inherit						monster_demon_imp
+	anim railing				models/md5/cinematics/caverns2/imp2railing.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 4						sound_body snd_footstep
+		frame 6						sound_body snd_footstep
+		frame 7						sound_body snd_footstep
+		frame 11					sound_body snd_footstep
+		frame 12					sound_body snd_footstep
+		frame 17					sound_body snd_footstep
+		frame 25					sound_body snd_footstep
+		frame 27					sound_body snd_footstep
+		frame 30					sound_body snd_footstep
+		frame 31					sound_body snd_footstep
+		frame 33					sound_body snd_footstep
+		frame 35					sound_body snd_footstep
+		frame 39					sound_body snd_footstep
+		frame 44					sound_voice snd_sight8
+		frame 53					sound_body snd_footstep
+		frame 56					sound_body snd_footstep
+		frame 82					sound_body snd_footstep
+		frame 85					sound_body snd_footstep
+		frame 90					enableGravity
+		frame 90					enableWalkIK
+	}
+}
+
+entityDef caverns_imp2 {
+	"inherit"					"monster_demon_imp"
+	"model"						"caverns_imp2"
+	"anim"						"railing"
+}
+
+model caverns_char_maint_scared_head {
+	
+	inherit							head_asian_young
+
+	anim talk_trigger				models/md5/heads/asian_young/caverns2/maint1_trig.md5anim {
+		frame 1							sound_voice		caverns2_maint1_trig
+	}
+	anim talk_primary				models/md5/heads/asian_young/caverns2/maint1_1.md5anim {
+		frame 1							sound_voice		caverns2_maint1_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_young/caverns2/maint1_2.md5anim {
+		frame 1							sound_voice		caverns2_maint1_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/asian_young/caverns2/maint1_3.md5anim {
+		frame 1							sound_voice		caverns2_maint1_secondary2
+	}
+}
+
+model caverns_char_maint_scared {
+	mesh							models/md5/chars/jumpsuit.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+		
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim stand						models/md5/chars/caverns/cav2_IDLE.md5anim
+	anim idle						models/md5/chars/caverns/cav2_IDLE.md5anim
+	anim talk_trigger				models/md5/chars/caverns/cav2_trigger.md5anim
+	anim talk_primary				models/md5/chars/caverns/cav2_primary.md5anim
+	anim talk_secondary1			models/md5/chars/caverns/cav2_secondary1.md5anim
+	anim talk_secondary2			models/md5/chars/caverns/cav2_secondary2.md5anim
+}
+
+entityDef caverns_char_maint_scared {
+	"inherit"						"npc_base"
+	"scriptobject"					"character"
+	"def_head"						"caverns_char_maint_scared_head"
+	"model"							"caverns_char_maint_scared"
+	"anim"							"idle"
+	"size"							"64 20 32"
+	"use_aas"						""
+	"turn_rate"						"0"
+	"talk_no_turn"					"1"
+	"no_cower"						"1"
+	"talktrigger"					"1"
+	"ragdoll"						"char_npc_misc.af"
+	"head_joint"					"Shoulders"
+	"copy_joint_world eyecontrol"	""
+	"ik_numlegs"					"0"
+	
+	"talktime"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"			    	"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		".5 .5 0"
+	"look_joint neckcontrol"		".5 .5 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"look_min"						"-40 -120 0"
+	"look_max"						"40 20 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+	"damage_zone head"				"*loneckcontrol"
+	"damage_zone chest"				"*Waist -*loneckcontrol"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"origin Body2"
+}
+
+//  HK WALL
+
+
+export fred {
+	options -prefix ENV_
+	mesh	maps/fred/caverns2/hkwall.mb -range 90 90 -dest models/md5/cinematics/caverns2/hkwallmesh
+	anim	maps/fred/caverns2/hkwall.mb -dest models/md5/cinematics/caverns2/hkwallmesh
+}
+
+
+
+model caverns_hellknight2 {
+	inherit						monster_demon_hellknight
+
+	anim wall					models/md5/cinematics/caverns2/breakwall.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 12					sound_body snd_footstep
+		frame 13					sound_voice snd_sight1
+		frame 22					sound_body snd_footstep
+		frame 35					sound_body snd_footstep
+		frame 55					sound_body snd_footstep
+		frame 72					sound_body snd_footstep
+		frame 82					sound_voice snd_sight2
+		frame 94					sound_body snd_footstep
+		frame 94					enableGravity
+		frame 94					enableWalkIK
+		frame 95					sound_body snd_footstep
+		frame 95					trigger hkhurtme
+		frame 95					trigger hkwallforce
+		frame 96					trigger hkhurtme
+		frame 98					sound_body snd_footstep
+	}
+}
+
+entityDef caverns_hellknight2 {
+	"inherit"					"monster_demon_hellknight"
+	"model"						"caverns_hellknight2"
+	"anim"						"wall"
+}
+
+model caverns_hkwall {
+	mesh					models/md5/cinematics/caverns2/hkwallmesh.md5mesh
+	anim wall				models/md5/cinematics/caverns2/hkwallmesh.md5anim
+}
+
+entityDef caverns_hkwall {
+	"editor_color"			"1 .5 .3"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_copy2"			"anim"
+
+	"spawnclass"			"idAnimated"
+	"anim"					"wall"
+	"model"					"caverns_hkwall"
+}

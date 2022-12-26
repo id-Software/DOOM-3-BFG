@@ -180,6 +180,33 @@ struct AudioDevice
 #include "stub/SoundStub.h"
 #endif // _MSC_VER ; DG end
 
+
+#include "../libs/oggvorbis/ogg/ogg.h"
+#include "../libs/oggvorbis/vorbis/vorbisfile.h"
+
+//
+// idSoundDecoder_Vorbis
+//
+class idSoundDecoder_Vorbis
+{
+public:
+	idSoundDecoder_Vorbis();
+	~idSoundDecoder_Vorbis();
+
+	virtual bool				Open( const char* fileName );
+	virtual bool				IsEOS( void );
+	virtual void				Seek( int samplePos );
+	virtual int					Read( void* buffer, int bufferSize );
+	virtual int64_t				Size( void );
+	virtual int64_t				CompressedSize( void );
+	virtual void				GetFormat( idWaveFile::waveFmt_t& format );
+
+private:
+	idSoundSample* sample;
+	OggVorbis_File* vorbisFile;
+	idFile* mhmmio;
+};
+
 //------------------------
 // Listener data
 //------------------------

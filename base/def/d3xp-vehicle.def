@@ -1,0 +1,60 @@
+
+export jay {
+	options -prefix ROVER_ -align ALL -keep Eyes -parent Eyes BODY -keep SteeringWheel -parent SteeringWheel BODY -keep RMID_UPPER_01 -keep RMID_UPPER_02 -keep RMID_UPPER_03 -keep RMID_UPPER_04 -keep RMID_LOWER_01 -keep RMID_LOWER_02 -keep LMID_UPPER_01 -keep LMID_UPPER_02 -keep LMID_UPPER_03 -keep LMID_UPPER_04 -keep LMID_LOWER_01 -keep LMID_LOWER_02 -keep FRONT -keep RFRONT_UPPER_01 -keep RFRONT_UPPER_02 -keep RFRONT_UPPER_03 -keep RFRONT_UPPER_04 -keep RFRONT_LOWER_01 -keep RFRONT_LOWER_02 -keep LFRONT_UPPER_01 -keep LFRONT_UPPER_02 -keep LFRONT_UPPER_03 -keep LFRONT_UPPER_04 -keep LFRONT_LOWER_01 -keep LFRONT_LOWER_02 -keep LFRONT_UPPER_01 -keep RREAR_UPPER_02 -keep RREAR_UPPER_03 -keep RREAR_UPPER_04 -keep RREAR_LOWER_01 -keep RREAR_LOWER_02 -keep LREAR_UPPER_01 -keep LREAR_UPPER_02 -keep LREAR_UPPER_03 -keep LREAR_UPPER_04 -keep LREAR_LOWER_01 -keep LREAR_LOWER_02 
+	mesh	models/mapobjects/marsrover/marsrover_base.mb -dest models/md5/vehicles/marsrover/marsrover
+	anim	models/mapobjects/marsrover/marsrover_base.mb -dest models/md5/vehicles/marsrover/initial
+}
+
+model env_marsrover {
+	mesh							models/md5/vehicles/marsrover/marsrover.md5mesh
+	anim af_pose					models/md5/vehicles/marsrover/initial.md5anim
+}
+
+entityDef	env_d3xp_vehicle {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_ragdoll"				"1"	
+
+	"editor_usage"					"Self-piloting Vehicle.  Target a set of path_corners to follow."
+	"editor_var velocity"			"How fast to travel. (default: 150)"
+	"editor_var torque"				"Amount of power to the wheels. (default: 200000)"
+	"editor_var steeringSpeed"		"How fast steering wheel turns. (default: 1)"
+
+	"spawnclass"					"idAFEntity_VehicleAutomated"
+
+	"model"							"env_marsrover"
+	
+	"velocity"						"150"
+	"torque"						"400000"
+	"steeringSpeed"					"1"
+	"originHeight"					"72"
+	
+	"sleep"							"0"
+
+	"articulatedFigure"				"env_marsrover.af"
+
+	"wheelBodyFrontLeft"			"front_left_wheel"
+	"wheelBodyFrontRight"			"front_right_wheel"
+	"wheelBodyMiddleLeft"			"middle_left_wheel"
+	"wheelBodyMiddleRight"			"middle_right_wheel"
+	"wheelBodyRearLeft"				"rear_left_wheel"
+	"wheelBodyRearRight"			"rear_right_wheel"
+
+	"wheelJointFrontLeft"			"LFRONT_UPPER_03"
+	"wheelJointFrontRight"			"RFRONT_UPPER_03"
+	"wheelJointMiddleLeft"			"LMID_UPPER_03"
+	"wheelJointMiddleRight"			"RMID_UPPER_03"
+	"wheelJointRearLeft"			"RREAR_UPPER_03"
+	"wheelJointRearRight"			"LREAR_UPPER_03"
+
+	"steeringHingeFrontLeft"		"front_left_steering"
+	"steeringHingeFrontRight"		"front_right_steering"
+	"steeringHingeRearLeft"			"rear_left_steering"
+	"steeringHingeRearRight"		"rear_right_steering"
+
+	"eyesJoint"						"Eyes"
+	"steeringWheelJoint"			"SteeringWheel"
+
+	"wheelRadius"					"72"
+}

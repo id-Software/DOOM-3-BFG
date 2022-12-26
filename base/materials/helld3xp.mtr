@@ -1,0 +1,352 @@
+table lavaflicker2 { { .5, .2, .7, .5, .3, 2, .4, 2, .8, .7, .5, 1, .3, .6, .3, 1, .8, .7, .5, .3 } }
+table lavaflicker3 { { .1, .2, .6, .3, .01, ..5, .3} }
+table lavaflicker4 { {  .5, .7, .3, .05, .6, .1, .01} }
+
+
+
+//============================================================================================================
+//temp
+//============================================================================================================
+
+
+
+
+textures/helld3xp/boney_1
+{
+	noselfShadow
+
+	qer_editorimage		textures/helld3xp/boney_1
+	
+	diffusemap			textures/helld3xp/boney_1
+	{
+		blend			bumpmap				
+		map			addnormals (textures/helld3xp/boney_1_local, heightmap (textures/helld3xp/boney_1_h, 4) ) 
+	}	
+	specularmap			textures/helld3xp/boney_1_s
+}
+
+
+textures/helld3xp/greenrocks_b
+{
+	qer_editorimage		textures/helld3xp/greenrocks_b
+	stone
+	bumpmap				addnormals (textures/helld3xp/greenrocks_b_local, heightmap (textures/helld3xp/greenrocks_bmp.tga,8) ) 
+	diffusemap			textures/helld3xp/greenrocks_b
+	specularmap			textures/helld3xp/greenrocks_b_s
+	{
+		blend		add
+		map			textures/helld3xp/greenrocks_b_add
+		rgb 	candled3xp[ time * .1 ]
+		
+	}
+	
+}
+
+textures/helld3xp/lava1_greenrocks_b
+
+
+{
+	  	noSelfShadow
+	    	noshadows
+	    	stone
+
+		qer_editorimage	textures/helld3xp/greenrocks_b
+	   	
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/lava1_local.tga, heightmap( textures/hell/lava1_h.tga, 8 ) )
+		translate	time *.012,time *.02
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/lava1.tga
+		translate	time *.012,time *.02
+		vertexColor
+	}
+        {
+		blend add
+		map textures/hell/lava1fx.tga
+		rgb		fireballtable[ time * .05 ]
+		translate	time *.012,time *.02
+                vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/lava1_s.tga
+		translate	time *.012,time *.02		
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map		addnormals (textures/helld3xp/greenrocks_b_local, heightmap (textures/helld3xp/greenrocks_bmp.tga,8) ) 
+	}
+	{
+		blend		diffusemap
+		map		textures/helld3xp/greenrocks_b
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/helld3xp/greenrocks_b_s
+		inverseVertexColor
+	}
+	{
+		blend		add
+		map			textures/helld3xp/greenrocks_b_add
+		rgb 	candled3xp[ time * .1 ]
+		
+	}
+}
+
+
+
+
+textures/helld3xp/rubble_01
+{
+	noShadows
+	noselfShadow
+
+	qer_editorimage		textures/helld3xp/rubble_01_d
+	
+	
+									
+		bumpmap			textures/helld3xp/rubble_01_local
+		diffusemap		textures/helld3xp/rubble_01_d
+		specularmap		textures/helld3xp/rubble_01_s
+
+
+}
+
+textures/helld3xp/furnace
+{
+	
+	noselfShadow
+	noshadows
+
+
+	qer_editorimage		textures/helld3xp/furnace_01_d
+	
+	
+									
+		{
+		blend			bumpmap				
+		map			addnormals (textures/helld3xp/furnace_01_local, heightmap (textures/helld3xp/furnace_01_h, 4) ) 
+		}
+	
+		diffusemap		textures/helld3xp/furnace_01_d
+		specularmap		textures/helld3xp/furnace_01_s
+
+
+}
+
+
+
+textures/helld3xp/bacteria_1_d
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/bacteria_1_d.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/bacteria_1_d.tga
+		translate	time *.01, time*.04
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_1_local.tga
+		translate	time *.01, time*.04
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/bacteria_1_s.tga
+		translate	time *.01, time*.04
+	}
+
+			    
+		
+}
+
+textures/helld3xp/bacteria_2_d
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/bacteria_2_d.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/bacteria_2_d.tga
+		translate	time *.02, time*.03
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_2_local.tga
+		translate	time *.02, time*.03
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/bacteria_2_s.tga
+		translate	time *.02, time*.03
+	}
+
+			    
+		
+}
+
+textures/helld3xp/bacteria_3_d
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/bacteria_3_d.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/bacteria_3_d.tga
+		translate	time *.02, time*-.03
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_3_local.tga
+		translate	time *.02, time*-.03
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/bacteria_3_s.tga
+		translate	time *.02, time*-.03
+	}
+
+			    
+		
+}
+
+textures/helld3xp/bacteria_4
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/bacteria_4.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/bacteria_4.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_4_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/bacteria_4_s.tga
+		translate	time *.01, time*.05
+
+	}		    
+		
+}
+textures/helld3xp/bacteria_5
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/bacteria_5.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/bacteria_5.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_3_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/bacteria_3_s.tga
+		translate	time *.01, time*.05
+
+	}		    
+		
+}
+
+
+textures/helld3xp/bacteria_6
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/bacteria_6.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/bacteria_6.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_6_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/bacteria_6_s.tga
+		translate	time *.01, time*.05
+
+	}		    
+		
+}
+
+
+textures/helld3xp/burnedfly
+{
+	noShadows
+        noselfShadow
+	
+	qer_editorimage textures/helld3xp/burnedfly.tga
+
+
+	{
+		Blend		diffusemap	
+		map		textures/helld3xp/burnedfly.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		bumpmap	 
+		map		textures/helld3xp/bacteria_3_local.tga
+		translate	time *.01, time*.05
+	}
+	{
+
+		blend		specularmap	 
+		map		textures/helld3xp/burnedfly_s.tga
+		translate	time *.01, time*.05
+
+	}		    
+		
+}
+
+

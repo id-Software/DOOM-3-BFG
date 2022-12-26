@@ -355,7 +355,7 @@ public:
 		return ( contentVector.size() > 0 ) ;
 	}
 
-	const typename Content<_T>::Vector& GetContents( ) const
+	const typename Content<_T>::Vector& GetContents() const
 	{
 
 		return contentVector;

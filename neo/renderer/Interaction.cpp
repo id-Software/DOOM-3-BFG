@@ -751,7 +751,7 @@ CreateStaticInteraction
 Called by idRenderWorldLocal::GenerateAllInteractions
 ======================
 */
-void idInteraction::CreateStaticInteraction()
+void idInteraction::CreateStaticInteraction( nvrhi::ICommandList* commandList )
 {
 	// note that it is a static interaction
 	staticInteraction = true;
@@ -816,7 +816,7 @@ void idInteraction::CreateStaticInteraction()
 			{
 				// make a static index cache
 				sint->numLightTrisIndexes = lightTris->numIndexes;
-				sint->lightTrisIndexCache = vertexCache.AllocStaticIndex( lightTris->indexes, ALIGN( lightTris->numIndexes * sizeof( lightTris->indexes[0] ), INDEX_CACHE_ALIGN ) );
+				sint->lightTrisIndexCache = vertexCache.AllocStaticIndex( lightTris->indexes, ALIGN( lightTris->numIndexes * sizeof( lightTris->indexes[0] ), INDEX_CACHE_ALIGN ), commandList );
 
 				interactionGenerated = true;
 				R_FreeStaticTriSurf( lightTris );
@@ -834,7 +834,7 @@ void idInteraction::CreateStaticInteraction()
 				if( shadowTris != NULL )
 				{
 					// make a static index cache
-					sint->shadowIndexCache = vertexCache.AllocStaticIndex( shadowTris->indexes, ALIGN( shadowTris->numIndexes * sizeof( shadowTris->indexes[0] ), INDEX_CACHE_ALIGN ) );
+					sint->shadowIndexCache = vertexCache.AllocStaticIndex( shadowTris->indexes, ALIGN( shadowTris->numIndexes * sizeof( shadowTris->indexes[0] ), INDEX_CACHE_ALIGN ), commandList );
 					sint->numShadowIndexes = shadowTris->numIndexes;
 #if defined( KEEP_INTERACTION_CPU_DATA )
 					sint->shadowIndexes = shadowTris->indexes;

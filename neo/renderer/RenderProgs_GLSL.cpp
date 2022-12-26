@@ -31,12 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+#if !defined( USE_NVRHI )
+
 #include "RenderCommon.h"
 #include "RenderProgs_embedded.h"
 
+
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
-
-
 
 struct idCGBlock
 {
@@ -1661,6 +1662,24 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, rp
 	return out;
 }
 
+/*
+================================================================================================
+idRenderProgManager::GetGLSLParmName
+================================================================================================
+*/
+const char* idRenderProgManager::GetGLSLParmName( int rp ) const
+{
+	assert( rp < RENDERPARM_TOTAL );
+	return GLSLParmNames[ rp ];
+}
+
+// RB begin
+const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
+{
+	assert( sf < MAX_SHADER_MACRO_NAMES );
+
+	return GLSLMacroNames[ sf ];
+}
 
 
 /*
@@ -1687,26 +1706,6 @@ int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIn
 
 /*
 ================================================================================================
-idRenderProgManager::GetGLSLParmName
-================================================================================================
-*/
-const char* idRenderProgManager::GetGLSLParmName( int rp ) const
-{
-	assert( rp < RENDERPARM_TOTAL );
-	return GLSLParmNames[ rp ];
-}
-
-// RB begin
-const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
-{
-	assert( sf < MAX_SHADER_MACRO_NAMES );
-
-	return GLSLMacroNames[ sf ];
-}
-// RB end
-
-/*
-================================================================================================
 idRenderProgManager::SetUniformValue
 ================================================================================================
 */
@@ -1729,3 +1728,4 @@ void idRenderProgManager::ZeroUniforms()
 	memset( uniforms.Ptr(), 0, uniforms.Allocated() );
 }
 
+#endif

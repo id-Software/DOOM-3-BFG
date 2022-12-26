@@ -1,0 +1,44 @@
+
+/***********************************************************************
+
+ func
+
+***********************************************************************/
+
+entityDef func_mountedobject {
+	"editor_color"					"0 .5 .8"
+	"editor_mins"					"?"
+	"editor_maxs"					"?"
+	"editor_usage"					"This is an object that the player can mount."
+	"editor_var bindJoint"			"Model bone to be used as view position."
+	"editor_var harc"				"Horizontal view restriction, +/- this angle"
+	"editor_var varc"				"Vertical view restriction, +/- this angle"
+	
+	"spawnclass"					"idFuncMountedWeapon"
+	"def_projectile"				"projectile_rocket"
+	"snd_fire"						"player_rocketlauncher_fire"
+	"firerate"						"3"
+	"harc"							"45"
+	"varc"							"30"
+}
+
+entityDef func_shockwave {
+	"editor_color"					"0 .5 .8"
+	"editor_mins"					"-8 -8 0"
+	"editor_maxs"					"8 8 16"
+	"editor_usage"					"This is an expading sphere that kicks physics object up when the sphere touches them."
+	"editor_var start_on"			"Immediately start expanding if set."
+	"editor_var duration"			"How long it takes to expand to fullsize in milliseconds. (750)"
+	"editor_var startsize"			"Starting size. (8)"
+	"editor_var endsize"			"Ending size. (512)"
+	"editor_var magnitude"			"How hard to kick objects up. (10000)"
+	"editor_var height"				"The height of the expanding shockwave. If 0 then the shockwave expands in a shpere (0)."
+	"editor_var def_player_damage"	"Definition name of damage to inflict when the shockwave hits the player. ()"
+	"editor_var player_damage_size"	"The size of the shockwave player damage ring (20)."
+
+	"spawnclass"					"idShockwave"
+	"duration"						"1000"
+	"startsize"						"8"
+	"endsize"						"512"
+	"magnitude"						"10000"
+}

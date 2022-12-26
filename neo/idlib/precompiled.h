@@ -46,6 +46,9 @@ If you have questions concerning this license or the applicable additional terms
 
 // id lib
 #include "../idlib/Lib.h"
+#include "../idlib/gltfProperties.h"
+#include "../idlib/gltfParser.h"
+
 
 #include "sys/sys_filesystem.h"
 
@@ -87,20 +90,21 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine
-#if defined(__APPLE__) && defined(USE_VULKAN)
+#if defined(__APPLE__) && ( defined( USE_VULKAN ) || defined( USE_NVRHI ) )
 	// SRS - macOS MoltenVK/Metal needs triple buffering for full screen to work properly
 	const uint32 NUM_FRAME_DATA	= 3;
 #else
 	const uint32 NUM_FRAME_DATA = 2;
 #endif
 
-#if defined(USE_VULKAN)
+#if defined( USE_NVRHI )
+	#include "nvrhi/nvrhi.h"
+#elif defined(USE_VULKAN)
 	#include "../renderer/Vulkan/qvk.h"
 #else
-	// RB: replaced QGL with GLEW
 	#include <GL/glew.h>
-	// RB end
 #endif
+
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
 #include "../renderer/BufferObject.h"
@@ -109,6 +113,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #include "../renderer/ModelManager.h"
 #include "../renderer/RenderSystem.h"
 #include "../renderer/RenderWorld.h"
+#include "../renderer/BindingCache.h"
 
 // sound engine
 #include "../sound/sound.h"
@@ -152,10 +157,8 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // The editor entry points are always declared, but may just be
 // stubbed out on non-windows platforms.
-//#if defined(USE_MFC_TOOLS) || defined(USE_QT_TOOLS) || defined(USE_GTK_TOOLS)
 #include "../imgui/ImGui_Hooks.h"
 #include "../tools/edit_public.h"
-//#endif
 
 #include "../tools/compilers/compiler_public.h"
 

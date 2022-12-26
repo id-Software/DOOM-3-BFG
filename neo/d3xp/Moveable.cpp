@@ -1303,7 +1303,7 @@ void idExplodingBarrel::Killed( idEntity* inflictor, idEntity* attacker, int dam
 		gameLocal.RadiusDamage( GetPhysics()->GetOrigin(), this, attacker, this, this, splash );
 	}
 
-	ExplodingEffects( );
+	ExplodingEffects();
 
 	//FIXME: need to precache all the debris stuff here and in the projectiles
 	const idKeyValue* kv = spawnArgs.MatchPrefix( "def_debris" );
@@ -1520,7 +1520,7 @@ bool idExplodingBarrel::ClientReceiveEvent( int event, int time, const idBitMsg&
 		{
 			if( gameLocal.realClientTime - msg.ReadLong() < spawnArgs.GetInt( "explode_lapse", "1000" ) )
 			{
-				ExplodingEffects( );
+				ExplodingEffects();
 			}
 			return true;
 		}

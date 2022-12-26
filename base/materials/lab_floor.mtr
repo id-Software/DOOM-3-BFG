@@ -1,0 +1,7 @@
+textures/lab/medtile01
+{	
+	qer_editorimage 	textures/lab/medtile01.tga
+	bumpmap 		heightmap	(textures/lab/medtile01_b.tga, 3)
+	diffusemap	 	textures/lab/medtile01_d.tga
+	specularmap		textures/lab/medtile01_s.tga
+}

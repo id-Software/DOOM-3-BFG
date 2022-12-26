@@ -1947,6 +1947,9 @@ void FullscreenFXManager::Process( const renderView_t* view )
 		return;
 	}
 
+// RB: skip for now so the game is playable. These old effects really suck with modern APIs
+#if !defined( USE_NVRHI )
+
 	// do the process
 	for( int i = 0; i < fx.Num(); i++ )
 	{
@@ -1988,6 +1991,7 @@ void FullscreenFXManager::Process( const renderView_t* view )
 			Blendback( pfx->GetFadeAlpha() );
 		}
 	}
+#endif
 }
 
 

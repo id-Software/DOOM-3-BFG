@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -62,24 +62,25 @@ If you have questions concerning this license or the applicable additional terms
 
 bool Z_IsStatic( int tag );
 
-void	Z_Init (void);
-void*	Z_Malloc (int size, int tag, void *ptr);
-void    Z_Free (void *ptr);
-void    Z_FreeTag(int lowtag );
-void    Z_FreeTags(int lowtag, int hightag );
-void    Z_DumpHeap (int lowtag, int hightag);
-void    Z_FileDumpHeap (FILE *f);
-void    Z_CheckHeap (void);
-void Z_ChangeTag2 (void **ptr, int tag);
-int     Z_FreeMemory (void);
+void	Z_Init( void );
+void*	Z_Malloc( int size, int tag, void* ptr );
+void    Z_Free( void* ptr );
+void    Z_FreeTag( int lowtag );
+void    Z_FreeTags( int lowtag, int hightag );
+void    Z_DumpHeap( int lowtag, int hightag );
+void    Z_FileDumpHeap( FILE* f );
+void    Z_CheckHeap( void );
+void Z_ChangeTag2( void** ptr, int tag );
+int     Z_FreeMemory( void );
 
 
 //bool MallocForLump( int lump, size_t size, void **ptr, int tag );
 
 
 template< class _type_ >
-bool MallocForLump( int lump, size_t size, _type_ * & ptr, int tag ) {
-	ptr = static_cast< _type_ * >( Z_Malloc( size, tag, 0 ) );
+bool MallocForLump( int lump, size_t size, _type_*& ptr, int tag )
+{
+	ptr = static_cast< _type_* >( Z_Malloc( size, tag, 0 ) );
 
 	return true;
 }
@@ -87,12 +88,12 @@ bool MallocForLump( int lump, size_t size, _type_ * & ptr, int tag ) {
 
 typedef struct memblock_s
 {
-    int			size;	// including the header and possibly tiny fragments
-    void**		user;	// NULL if a free block
-    int			tag;	// purgelevel
-    int			id;	// should be ZONEID
-    struct memblock_s*	next;
-    struct memblock_s*	prev;
+	int			size;	// including the header and possibly tiny fragments
+	void**		user;	// NULL if a free block
+	int			tag;	// purgelevel
+	int			id;	// should be ZONEID
+	struct memblock_s*	next;
+	struct memblock_s*	prev;
 } memblock_t;
 
 

@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -27,21 +28,27 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "ScreenRect.h"
+
 struct guiModelSurface_t
 {
 	const idMaterial* 	material;
 	uint64				glState;
 	int					firstIndex;
 	int					numIndexes;
-	stereoDepthType_t		stereoType;
+	stereoDepthType_t	stereoType;
+	idScreenRect		clipRect;
 };
 
 class idRenderMatrix;
+class Framebuffer;
 
 namespace ImGui
 {
 struct ImDrawData;
 }
+
+struct ImDrawData;
 
 class idGuiModel
 {
@@ -57,7 +64,8 @@ public:
 	void		BeginFrame();
 
 	void		EmitToCurrentView( float modelMatrix[16], bool depthHack );
-	void		EmitFullScreen();
+	void		EmitFullScreen( Framebuffer* renderTarget = nullptr );
+	void		EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
 
 	// RB
 	void		EmitImGui( ImDrawData* drawData );
@@ -66,11 +74,12 @@ public:
 	// 32 bit writes and never read from it.
 	idDrawVert* AllocTris( int numVerts, const triIndex_t* indexes, int numIndexes, const idMaterial* material,
 						   const uint64 glState, const stereoDepthType_t stereoType );
+	idDrawVert* AllocTris( int numVerts, const triIndex_t* indexes, int numIndexes, const idMaterial* material,
+						   const uint64 glState, const stereoDepthType_t stereoType, const idScreenRect& clipRect );
 
 	//---------------------------
 private:
 	void		AdvanceSurf();
-	void		EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
 
 	guiModelSurface_t* 			surf;
 

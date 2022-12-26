@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifndef __MAPFILE_H__
 #define __MAPFILE_H__
+#include "gltfProperties.h"
 
 /*
 ===============================================================================
@@ -348,7 +349,7 @@ public:
 
 	void					ConvertFromBrush( const idMapBrush* brush, int entityNum, int primitiveNum );
 	void					ConvertFromPatch( const idMapPatch* patch, int entityNum, int primitiveNum );
-
+	static MapPolygonMesh*	ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data, const idMat4& transform );
 	static MapPolygonMesh*	Parse( idLexer& src, const idVec3& origin, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
 
@@ -367,6 +368,10 @@ public:
 		return verts.Append( v );
 	}
 
+	int						AddVertices( const idList<idDrawVert>& v )
+	{
+		return verts.Append( v );
+	}
 
 	int						GetNumPolygons() const
 	{
@@ -425,6 +430,10 @@ class idMapEntity
 	friend class			idMapFile;
 
 public:
+	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>  EntityList;
+	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>& EntityListRef;
+	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>* EntityListPtr;
+
 	idDict					epairs;
 	idVec3					originOffset{ vec3_origin };
 
@@ -437,8 +446,12 @@ public:
 	{
 		primitives.DeleteContents( true );
 	}
+	// HVG check gltf scene for entities
+	static int				GetEntities( gltfData* data, EntityListRef entities, int scene = 0 );
 	static idMapEntity* 	Parse( idLexer& src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int entityNum, bool valve220 ) const;
+
+	// HVG NOTE: this is not compatible with gltf (extra) json!
 	// RB begin
 	static idMapEntity* 	ParseJSON( idLexer& src );
 	bool					WriteJSON( idFile* fp, int entityNum, int numEntities ) const;
@@ -538,7 +551,7 @@ protected:
 	float					version;
 	ID_TIME_T					fileTime;
 	unsigned int			geometryCRC;
-	idList<idMapEntity*, TAG_IDLIB_LIST_MAP>	entities;
+	idMapEntity::EntityList	entities;
 	idStr					name;
 	bool					hasPrimitiveData;
 	bool					valve220Format; // RB: for TrenchBroom support

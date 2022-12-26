@@ -1,0 +1,238 @@
+ 
+// CINEMATICS
+
+
+export fred {
+	camera	maps/fred/delta4/hkintro.mb -range 1 251 -dest models/md5/cinematics/delta4/hkintro_cam1
+	camera	maps/fred/delta4/hkintro.mb -range 252 384 -dest models/md5/cinematics/delta4/hkintro_cam1b
+	camera	maps/fred/delta4/hkthrowshaz1.mb -range 182 260 -dest models/md5/cinematics/delta4/hkintro_cam2
+	camera	maps/fred/delta4/hkthrowshaz1.mb -range 261 409 -dest models/md5/cinematics/delta4/hkintro_cam3
+	camera 	maps/fred/delta4/hkintro2.mb -range 617 644 -dest models/md5/cinematics/delta4/hkintro_cam4
+
+	addoptions -prefix ENV_
+	mesh	maps/fred/delta4/hkintro.mb -dest models/md5/cinematics/delta4/hkintro_teleporter
+	anim	maps/fred/delta4/hkintro.mb -range 1 384 -dest models/md5/cinematics/delta4/hkintro_teleporter
+
+
+}
+
+entityDef delta4_hkintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim hk1"				"models/md5/cinematics/delta4/hkintro_cam1.md5camera"
+	"anim hk1b"				"models/md5/cinematics/delta4/hkintro_cam1b.md5camera"
+	"anim hk2"				"models/md5/cinematics/delta4/hkintro_cam2.md5camera"
+	"anim hk3"				"models/md5/cinematics/delta4/hkintro_cam3.md5camera"
+	"anim hk4"				"models/md5/cinematics/delta4/hkintro_cam4.md5camera"
+
+
+}
+
+model delta4_cin_teleporter {
+	mesh					models/md5/cinematics/delta4/hkintro_teleporter.md5mesh
+	anim hk					models/md5/cinematics/delta4/hkintro_teleporter.md5anim {
+		frame 146			sound_body teleport_shoulder_operate
+	}
+}
+
+entityDef delta4_cin_teleporter {
+	"inherit"					"cin_base"
+	"anim"						"hk"
+	"model"						"delta4_cin_teleporter" 
+	"cinematic"					"1"
+}
+
+
+model delta4_cin_hk {
+	mesh					models/md5/monsters/hellknight/hellknight.md5mesh
+	anim out				models/md5/cinematics/delta4/hkintro_hk_out.md5anim {
+		frame 342			sound_global monster_demon_hellknight_chatter_d4
+		frame 343			sound_body hk_cin_footstep
+		frame 365			sound_body hk_cin_footstep
+	
+	}
+	anim hka				models/md5/cinematics/delta4/hkintro_hk1.md5anim {
+		frame 10			sound_body hk_cin_footstep
+		frame 23			sound_global monster_demon_hellknight_chatter_combat_d4
+	
+	}
+	anim hkb				models/md5/cinematics/delta4/hkintro_hk2.md5anim {
+		frame 6				sound_body hk_cin_footstep
+		frame 12			sound_global monster_demon_hellknight_chatter_d4
+	}
+	anim grab				models/md5/cinematics/delta4/hkintro_hkgrab.md5anim {
+		frame 19			sound_body hk_cin_footstep
+		frame 32			sound_global monster_demon_hellknight_sight1_d4
+		frame 37			sound_body hk_cin_footstep
+	
+	}
+	anim throw				models/md5/cinematics/delta4/hkintro_hkthrow.md5anim {
+		
+		frame 7				sound_voice monster_demon_hellknight_chatter_combat
+		frame 34			trigger wallsplat
+		frame 37			sound_body hk_cin_footstep
+		frame 57			sound_global monster_demon_hellknight_chatter_combat_d4
+		frame 88			sound_global monster_demon_hellknight_sight2_d4
+		frame 129			sound_body hk_cin_footstep
+	}
+	anim back				models/md5/cinematics/delta4/hkintro_hkthrow2.md5anim {
+		frame 105			sound_body hk_cin_footstep
+		frame 126			sound_body hk_cin_footstep
+		frame 144			sound_body hk_cin_footstep
+	}
+}
+
+entityDef delta4_cin_hk1 {
+	"inherit"					"cin_base"
+	"anim"						"hka"
+	"model"						"delta4_cin_hk" 
+	"cinematic"					"1"
+}
+
+entityDef delta4_cin_hk2 {
+	"inherit"					"cin_base"
+	"anim"						"hkb"
+	"model"						"delta4_cin_hk" 
+	"cinematic"					"1"
+}
+
+model delta4_cin_player {
+	mesh						models/md5/characters/player/mocap/mgplayer.md5mesh
+	skin						skins/player/machinegun.skin
+	
+	anim hk						models/md5/cinematics/delta4/hkintro_player.md5anim {
+		frame 1					sound_global delta4_hellknight_intro_music
+		frame 1					sound_global hk_intro_sfx
+		frame 13				sound_body player_sounds_footstep
+		frame 30				sound_body player_sounds_footstep
+		frame 43				sound_body player_sounds_footstep
+		frame 45				trigger officelights
+		frame 59				sound_body player_sounds_footstep
+		frame 74				sound_body player_sounds_footstep
+		frame 94				sound_body player_sounds_footstep
+		frame 113				sound_body player_sounds_footstep
+		frame 208				sound_body player_sounds_footstep
+
+	}
+	anim hkb					models/md5/cinematics/delta4/hkintro_player_b.md5anim {
+		frame 2					trigger hk_end
+		frame 37				sound_body player_sounds_footstep
+		frame 38				trigger haz
+	}
+ 
+	anim hkend					models/md5/cinematics/delta4/hkintro_player2.md5anim
+}
+
+entityDef delta4_cin_player {
+	"inherit"					"cin_base"
+	"anim"						"hk"
+	"model"						"delta4_cin_player" 
+	"cinematic"					"1"
+}
+
+entityDef delta4_cin_player_start {
+	"inherit"					"cin_base"
+	"anim"						"hk"
+	"model"						"delta4_cin_player"
+	"auto_advance"				"1"
+	"num_anims"					"2"
+	"anim1"						"hk"
+	"anim2"						"hkb"
+	"cinematic"					"1"
+}
+
+
+model delta4_hazguy {
+	"inherit"						"char_hazmat"
+
+	anim runoutcough			models/md5/cinematics/delta4/hkintro_runoutcough.md5anim {
+		frame 33				sound_body player_sounds_footstep
+		frame 35				sound_voice cough
+		frame 40				sound_body player_sounds_footstep
+		frame 44				sound_body2 player_sounds_footstep
+		frame 54				sound_body player_sounds_footstep
+		frame 58				sound_voice cough
+		frame 91				sound_body player_sounds_footstep
+	} 
+
+}
+
+entityDef delta4_hazguy {
+	"inherit"						"char_hazmat"
+	"model"							"delta4_hazguy"
+	"anim"							"runoutcough"
+	"size"							"1 1 1"
+	"ik_numlegs"					"0"
+	"cinematic"						"1"
+	"skin"							"skins/characters/npcs/d4bloodyhazmat.skin"
+
+
+	"snd_chatter"					""
+	"snd_talk_primary"				""
+	"snd_talk_secondary"			""
+	"snd_hit"						""
+}
+
+model delta4_cin_hazguy {
+	mesh							models/md5/chars/hazmat.md5mesh
+	skin							skins/characters/npcs/d4bloodyhazmat.skin
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim hkgrab						models/md5/cinematics/delta4/hkintro_hazgetsgrabbed.md5anim {
+		frame 17					sound_voice d4_hazmat_what
+		frame 35					sound_voice d4_hazmat_ohno
+	}
+	anim hkthrow					models/md5/cinematics/delta4/hkintro_hazgetsthrown.md5anim {
+		frame 22						sound_voice d4_hazmat_scream
+		frame 31						event startRagdoll
+	}
+}
+
+entityDef delta4_cin_hazguy {
+	"inherit"						"cin_base"
+	"model"							"delta4_cin_hazguy"
+	"anim"							"runoutcough"
+	"ragdoll"						"char_hazmat"
+	"velocityTime"					"200"
+	"cinematic"						"1"
+
+}
+
+model delta4_betruger_head {
+	mesh							models/md5/heads/betruger/betruger.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/betruger/betrugeridle.md5anim
+	anim stand						models/md5/heads/betruger/betrugeridle.md5anim
+	anim laugh						models/md5/heads/betruger/delta4/betheadhkintro.md5anim
+}
+
+
+model delta4_betruger {
+	inherit							npc_labcoat
+
+	anim laugh						models/md5/chars/betruger/delta4/betrugerlaugh.md5anim {
+		frame 64					sound_voice snd_escape
+		frame 112					sound_voice snd_laugh
+	}
+
+}
+
+entityDef delta4_betruger {
+	"inherit"						"npc_base"
+	"model"							"delta4_betruger"
+	"anim"							"laugh"
+	"size"							"1 1 1"
+	"ik_numlegs"					"0"
+	"def_head"						"delta4_betruger_head"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+
+	"snd_escape"					"delta4_betruger_escape"
+	"snd_laugh"						"delta4_betruger_laugh"
+}

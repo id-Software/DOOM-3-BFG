@@ -332,9 +332,9 @@ void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, cons
 R_SetupDrawSurfJoints
 ===================
 */
-void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader )
+void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader, nvrhi::ICommandList* commandList )
 {
-	// RB: added check wether GPU skinning is available at all
+	// RB: added check whether GPU skinning is available at all
 	if( tri->staticModelWithJoints == NULL || !r_useGPUSkinning.GetBool() || !glConfig.gpuSkinningAvailable )
 	{
 		drawSurf->jointCache = 0;
@@ -347,8 +347,7 @@ void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, con
 
 	if( !vertexCache.CacheIsCurrent( model->jointsInvertedBuffer ) )
 	{
-		const int alignment = glConfig.uniformBufferOffsetAlignment;
-		model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, model->numInvertedJoints );
+		model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, model->numInvertedJoints, sizeof( idJointMat ), commandList );
 	}
 	drawSurf->jointCache = model->jointsInvertedBuffer;
 }
@@ -734,7 +733,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		// individual surfaces.
 		const bool surfaceDirectlyVisible = modelIsVisible && !idRenderMatrix::CullBoundsToMVP( vEntity->mvp, tri->bounds );
 
-		// RB: added check wether GPU skinning is available at all
+		// RB: added check whether GPU skinning is available at all
 		const bool gpuSkinned = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable );
 		// RB end
 

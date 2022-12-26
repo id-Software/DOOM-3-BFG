@@ -1,0 +1,480 @@
+/***********************************************************************
+
+	monster_hunter_helltime.def
+
+***********************************************************************/
+
+export jay5 {
+	options -prefix H1_ -keep origin ALL CHUNKS chunk1_joint chunk2_joint chunk3_joint chunk4_joint chunk5_joint chunk6_joint chunk7_joint chunk8_joint body body2 RMISSILE LMISSILE -parent RMISSILE rhand1 -parent LMISSILE lhand1 -parent body2 body -parent chunk1_joint CHUNKS -parent chunk2_joint CHUNKS -parent chunk3_joint CHUNKS -parent chunk4_joint CHUNKS -parent chunk5_joint CHUNKS -parent chunk6_joint CHUNKS -parent chunk7_joint CHUNKS -parent chunk8_joint CHUNKS -sourcedir models/monsters/hunter_helltime/cycles -destdir models/md5/monsters/hunter_helltime
+
+	addoptions -align ALL
+
+	mesh	helltime.mb
+	anim	idle.mb
+	anim	attack1.mb
+	anim	attack2.mb
+	anim	attack3.mb
+	anim	death.mb
+	anim	melee1.mb
+	anim	melee2.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	helltime_start.mb
+	anim	helltime_attack.mb
+	anim	helltime_teleport.mb
+	anim	helltime_teleport_end.mb
+	anim	helltime_start_cinematic.mb
+
+}
+
+model monster_hunter_helltime {
+	mesh							models/md5/monsters/hunter_helltime/helltime.md5mesh
+
+	channel torso					( *body -hips)
+	channel legs					( *CHUNKS ALL origin hips)
+
+	anim idle					    	models/md5/monsters/hunter_helltime/idle.md5anim {
+		frame 1								sound_body snd_chatter
+		frame 1								start_emitter chunk1_emitter chunk1_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk2_emitter chunk2_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk3_emitter chunk3_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk4_emitter chunk4_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk5_emitter chunk5_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk6_emitter chunk6_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk7_emitter chunk7_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk8_emitter chunk8_joint helltime_fireball2.prt
+	}
+	anim attack1						models/md5/monsters/hunter_helltime/attack1.md5anim {
+		frame 1								event motionBlurOff
+		frame 2								sound_weapon snd_attack
+		frame 12							create_missile RMISSILE
+		frame 29							launch_missile RMISSILE
+	}
+	anim attack2						models/md5/monsters/hunter_helltime/attack2.md5anim {
+		frame 1								event motionBlurOff
+		frame 2								sound_weapon snd_attack
+		frame 9								create_missile LMISSILE
+		frame 22							launch_missile LMISSILE
+	}
+	anim attack3						models/md5/monsters/hunter_helltime/attack3.md5anim {
+		frame 1								event motionBlurOff
+		frame 2								sound_body2 snd_summon
+		frame 47							create_missile chunk1_joint
+		frame 48							launch_missile chunk1_joint
+		frame 50							create_missile chunk2_joint
+		frame 51							launch_missile chunk2_joint
+		frame 54							create_missile chunk3_joint
+		frame 55							launch_missile chunk3_joint
+	}
+	anim melee1							models/md5/monsters/hunter_helltime/melee1.md5anim {
+		frame 12							sound_weapon snd_melee_1
+		frame 12								melee melee_Helltime
+	}
+	anim melee2							models/md5/monsters/hunter_helltime/melee2.md5anim {
+		frame 16							sound_weapon snd_melee_1
+		frame 16								melee melee_Helltime
+	}
+
+	anim evade_left						models/md5/monsters/hunter_helltime/evade_left.md5anim
+	anim evade_right					models/md5/monsters/hunter_helltime/evade_right.md5anim
+
+	anim helltime_start					models/md5/monsters/hunter_helltime/helltime_start.md5anim {
+		frame 9								event motionBlurOn
+	}
+	anim helltime_start_cinematic			models/md5/monsters/hunter_helltime/helltime_start_cinematic.md5anim {
+		frame 1								event motionBlurOn
+		frame 15								sound_body2 snd_summon
+		frame 1								start_emitter chunk1_emitter chunk1_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk2_emitter chunk2_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk3_emitter chunk3_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk4_emitter chunk4_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk5_emitter chunk5_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk6_emitter chunk6_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk7_emitter chunk7_joint helltime_fireball2.prt
+		frame 1								start_emitter chunk8_emitter chunk8_joint helltime_fireball2.prt
+	}
+	anim helltime_attack				models/md5/monsters/hunter_helltime/helltime_attack.md5anim {
+		frame 3								sound_weapon snd_melee_1
+		frame 3 								melee melee_Helltime
+	}
+	anim helltime_rangeattack1			models/md5/monsters/hunter_helltime/attack1.md5anim {
+		frame 1								sound_weapon snd_attack
+		frame 12							create_missile RMISSILE
+		frame 29							launch_missile RMISSILE
+	}
+	anim helltime_rangeattack2			models/md5/monsters/hunter_helltime/attack2.md5anim {
+		frame 1								sound_weapon snd_attack
+		frame 9								create_missile LMISSILE
+		frame 22							launch_missile LMISSILE
+	}
+	anim helltime_teleport				models/md5/monsters/hunter_helltime/helltime_teleport.md5anim {
+		frame 1								sound_body2	snd_teleport
+	}
+
+	anim helltime_teleport_end			models/md5/monsters/hunter_helltime/helltime_teleport_end.md5anim {
+		frame 1								sound_body3 snd_teleport_end
+	}
+}
+
+entityDef monster_hunter_helltime {
+	"skin"							"skins/models/monsters/hunter_helltimenochunks"
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_hunter_helltime"
+	"model"							"monster_hunter_helltime"
+	"ragdoll"						"monster_hunter_helltime"
+	"size"							"94 94 96"
+	"use_aas"						"aas96"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"100"
+	"melee_range"					"75"
+	"turn_rate"						"150"
+	"def_projectile"				"projectile_helltimefireball"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"mass"							"600"
+	"burnaway"						"0.50"
+	"finalBoss"						"1"
+
+	"look_min"						"-90 -125 0"
+	"look_max"						"25 125 0"
+	"look_joint Head"				"0.4 0.4 0"
+	"look_joint LoNeck"				"0.6 0.6 0"
+
+	"anim"							"idle"
+
+	"snd_sight1"					"hunter_sight"
+	"snd_sight2"					"hunter_sight"
+	"snd_sight3"					"hunter_sight"
+	"snd_chatter"					"hunter_idle"
+	"snd_chatter_combat"			"hunter_idle"
+	"snd_pain"						"hunter_pain"
+	"snd_attackmissile"				"monster_hunter_helltime_attackmissile"
+	"snd_death"						"hunter_death"
+	"snd_summon"					"monster_hunter_helltime_summon"
+	"snd_absorb"					"monster_hunter_helltime_absorb"
+	"snd_appear"					"monster_hunter_helltime_appear"
+	"snd_melee_1"					"hunter_attack"
+	"snd_melee2"					"hunter_attack"
+	"snd_attack"					"hunter_attack"
+	"snd_teleport"					"helltime_teleport"
+	"snd_teleport_end"				"helltime_teleport_end"
+
+
+	"SmokeParticleSystem"			"imp_trail2-chunk1_joint"
+	"SmokeParticleSystem2"			"imp_trail2-chunk2_joint"
+	"SmokeParticleSystem3"			"imp_trail2-chunk3_joint"
+	"SmokeParticleSystem4"			"imp_trail2-chunk4_joint"
+	"SmokeParticleSystem5"			"imp_trail2-chunk5_joint"
+	"SmokeParticleSystem6"			"imp_trail2-chunk6_joint"
+	"SmokeParticleSystem7"			"imp_trail2-chunk7_joint"
+	"SmokeParticleSystem8"			"imp_trail2-chunk8_joint"
+
+	"smokeParticleSystem9"			"helltime_flame2-hips"
+
+	"skin_burn"						"skins/monsters/hunter_helltime/burnaway"
+	"model_cinematicsmooke"			"ht_deathjuice.prt"
+	"fxPrecacheBlah"				"fx/hunter/helltime/start_teleport"
+	"fxPrecacheBlah2"				"fx/hunter/helltime/end_teleport"
+}
+
+
+// ===================================================================================
+// HELLTIME FIREBALL ATTACK
+// ===================================================================================
+
+entityDef damage_helltimefireball {
+	"damage"						"12"
+	"kickDir"						"1 0 0"
+	"push"							"800"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"20"
+
+	"kick_time"						"600"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"150"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef	damage_helltimefireball_splash {
+	"damage"						"8"
+	"radius"						"120"
+	"push"							"8000"
+}
+
+entityDef projectile_helltimefireball {
+	"spawnclass"					"idProjectile"
+	"mins"							"-4 -4 -4"
+	"maxs"							"4 4 4"
+	"cone"							"3"
+	"model" 						"helltime_fireball2.prt"
+
+	"def_damage"					"damage_helltimefireball"
+	"def_splash_damage"				"damage_helltimefireball_splash"
+
+	"launchFromBarrel"				"1"
+	"health"						"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"575 0 -180"		// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"10"
+	"gravity"						"350"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"75"
+
+	"smoke_fly"						"imp_trail2.prt"	// particle effect while in the air
+	"smoke_detonate"				""			// particle effect when detonates
+	"smoke_residue"					""			// particle effect while in the air
+	"smoke_bounce"					""					// particle effect when bounces
+	"smoke_fuse"					""					// particle effect when removed from fuse expiring
+
+	// parametric particles -- temp
+	"model_detonate"				"imp_explosion.prt"
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	"mtr_light_shader"				"lights/impflyflash"
+	"light_color"					"0.9 0.7 0.05"
+	"light_radius"					"160"
+	"light_offset"					"0 0 0"
+	"light_noshadows"				"1"
+
+
+	"mtr_explode_light_shader"		"lights/impflash"
+	"explode_light_color"			"3.6 3.0 0.5"
+	"explode_light_radius"			"320"
+	"explode_light_fadetime"		"1.0"
+	"explode_light_noshadows"		"1"
+
+	"snd_explode"					"monster_hunter_helltime_fireball_explode"
+	"snd_fly"						"monster_hunter_helltime_fireball_flight"					// particle effect while in the air
+	//"nograb"						"1"
+
+}
+
+
+// ===================================================================================
+// MELEE ATTACK
+// ===================================================================================
+
+entityDef melee_Helltime {
+	// melee specific parameters
+	"snd_hit"						"monster_hunter_helltime_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"22"
+
+	"mtr_blob"						"leftSlash"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"100"
+
+	"kick_time"						"800"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"400"
+}
+
+
+// ===================================================================================
+// Damage defs for the killer projectile
+// ===================================================================================
+entityDef damage_killer_fireball {
+	"damage"						"22"
+	"kickDir"						"1 0 0"
+	"push"							"800"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"20"
+
+	"kick_time"						"600"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"150"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+entityDef	damage_killerfireball_splash {
+	"damage"						"1"
+	"radius"						"10"
+	"push"							"10"
+}
+
+
+// ===================================================================================
+// Pedistal Projectile, the player uses it to kill the helltime hunter
+// ===================================================================================
+entityDef projectile_helltime_killer {
+	"spawnclass"				"idProjectile"
+	"mins"						"-16 -16 -16"
+	"maxs"						"16 16 16"
+	//"cone"						"3"
+	"model" 					"ancient_fireball.prt"
+
+	"def_damage"				"damage_killer_fireball"
+	"def_splash_damage"			"damage_killerfireball_splash"
+	"special_damage"			"1"
+
+	"launchFromBarrel"			"1"
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"0 0 0"				// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"5"
+	"gravity"					"350"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"9999"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"0"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"		"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"				"textures/decals/ballburn_plasma"
+	"decal_size"				"75"
+
+	"smoke_fly"					"ancient_fireball_trail.prt"									// particle effect while in the air
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_residue"				""					// particle effect while in the air
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+
+	// parametric particles -- temp
+	"model_detonate"			"hellknight_explosion.prt"
+
+	"debris_count"				"3"
+	"def_debris"				"debris_largeshrapnel"
+	"def_shrapnel"				"debris_shrapnel"
+
+	"mtr_light_shader"			"lights/impflyflash"
+	"light_color"				"0.1 0.6 0.9"
+	"light_radius"				"240"
+	"light_offset"				"2 0 4"
+	
+
+	"mtr_explode_light_shader"	"lights/spawnflash"
+	"explode_light_color"		"0.1 0.6 0.9"
+	"explode_light_radius"		"240"
+	"explode_light_fadetime"	"1"
+	
+
+	"snd_explode"				"monster_hunter_helltime_fireball_explode"
+	"snd_fly"					"monster_hunter_helltime_fireball_flight"					// particle effect while in the air
+}
+
+
+entityDef projectile_powerball_guided {
+	"spawnclass"					"idGuidedProjectile"
+	"mins"							"-2 -2 -5"
+	"maxs"							"2 2 5"
+	"cone"							"3"
+	"model"							"ancient_fireball.prt"
+
+	"cinematic"						"1"
+
+	"def_damage"					"damage_killer_fireball"
+	"def_splash_damage"				"damage_killerfireball_splash"
+
+	"random"						"0 0 0"		// random angular offset
+	"turn_max"						"360"			// maximum amount to turn per second
+	"clamp_dist"					"50"			// distance to begin clamping off the random direction changes
+	"launchFromBarrel"				"1"
+	"health"						"5"
+	"velocity"						"-500 0 0"
+	"angular_velocity"				"0 0 0"
+	"thrust"						""
+	"thrust_start"					"0"
+	"thrust_end"					"4"
+	"linear_friction"				"0"
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"
+	"mass"							"10"
+	"gravity"						"0"
+	"fuse"							"7"
+	"burstMode"						"1"
+	"burstDist"						"32"
+	"burstVelocity"					"1.25"
+
+	"detonate_on_fuse"				"0"
+	"detonate_on_death"				"1"
+	"detonate_on_world"				"1"
+	"detonate_on_actor"				"1"
+
+	"impact_damage_effect"				"0"
+	"impact_gib"					"1"
+
+	//"mtr_detonate"				"textures/decals/ballburn_rev"
+	"decal_size"					"75"
+
+	// temp temp
+	"smoke_fly"					"ancient_fireball_trail.prt"
+	"smoke_detonate"				""
+	"smoke_residue"					""
+	"smoke_bounce"					""
+	"smoke_fuse"					""
+
+	"debris_count"					"3"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	// parametric particles -- temp
+	"model_detonate"				"hellknight_explosion.prt"
+
+	"mtr_light_shader"			"lights/impflyflash"
+	"light_color"				"0.1 0.6 0.9"
+	"light_radius"				"240"
+	"light_offset"				"2 0 4"
+
+
+	"mtr_explode_light_shader"	"lights/spawnflash"
+	"explode_light_color"		"0.1 0.6 0.9"
+	"explode_light_radius"		"240"
+	"explode_light_fadetime"	"1"
+
+
+	"snd_fly"					"monster_hunter_helltime_rocket_flight"
+	"snd_explode"					"monster_hunter_helltime_rocket_explode"
+	"snd_havetone"					"monster_hunter_helltime_rocket_tone"
+}

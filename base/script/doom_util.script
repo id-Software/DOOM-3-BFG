@@ -1,0 +1,389 @@
+/***********************************************************************
+
+doom_util.script
+
+This defines utility functions for scripts
+
+***********************************************************************/
+
+/*
+==================
+setShaderTime
+
+Frame command for setting the shader time to begin an effect.
+==================
+*/
+void setShaderTime( entity self ) {
+	self.setShaderParm( 4, -sys.getTime() );
+}
+
+/*
+==================
+clearSmoke
+
+Clears smoke particles on monsters
+==================
+*/
+void clearSmoke( entity self ) {
+	self.setSmokeVisibility( ALL_PARTICLES, 0 );
+}
+
+/*
+==================
+headlook_on
+
+Turns on Bone modification for looking.
+==================
+*/
+void headlook_on( entity self ) {
+	self.setBoneMod( true );
+}
+
+/*
+==================
+headlook_off
+
+Turns off Bone modification for looking.
+
+==================
+*/
+void headlook_off( entity self ) {
+	self.setBoneMod( false );
+}
+
+/*
+==================
+overrideLegs
+
+Used to make monster attack anims use the full body
+==================
+*/
+void overrideLegs( entity self ) {
+	self.overrideAnim( ANIMCHANNEL_LEGS );
+}
+
+/*
+==================
+overrideTorso
+
+Used to make monster attack anims use the full body
+==================
+*/
+void overrideTorso( entity self ) {
+	self.overrideAnim( ANIMCHANNEL_TORSO );
+}
+
+/*
+==================
+waitForButtonPress
+
+Waits for the user to press a button
+==================
+*/
+void waitForButtonPress() {
+	float buttons;
+
+	do {
+		buttons = $player1.getButtons();
+		sys.wait( 0.01 );
+	} while( !buttons );
+}
+
+/*
+==================
+abs
+
+Returns the absolute value of a number
+==================
+*/
+float abs( float value ) {
+	if ( value < 0 ) {
+		return value * -1;
+	}
+
+	return value;
+}
+
+/*
+==================
+unpause
+
+Utility function that works with onSignal to unpause a script
+==================
+*/
+void unpause() {
+}
+
+/*
+==================
+anglemod360
+
+Puts angles into the range of 0 to 360
+==================
+*/
+vector anglemod360( vector ang ) {
+	while( ang_x < 0 ) {
+		ang_x += 360;
+	}
+	while( ang_x >= 360 ) {
+		ang_x -= 360;
+	}
+	while( ang_y < 0 ) {
+		ang_y += 360;
+	}
+	while( ang_y >= 360 ) {
+		ang_y -= 360;
+	}
+	while( ang_z < 0 ) {
+		ang_z += 360;
+	}
+	while( ang_z >= 360 ) {
+		ang_z -= 360;
+	}
+
+	return ang;
+}
+
+/*
+==================
+anglemod180
+
+Puts angles into the range of -180 to 180
+==================
+*/
+vector anglemod180( vector ang ) {
+	while( ang_x < -180 ) {
+		ang_x += 360;
+	}
+	while( ang_x >= 180 ) {
+		ang_x -= 360;
+	}
+	while( ang_y < -180 ) {
+		ang_y += 360;
+	}
+	while( ang_y >= 180 ) {
+		ang_y -= 360;
+	}
+	while( ang_z < -180 ) {
+		ang_z += 360;
+	}
+	while( ang_z >= 180 ) {
+		ang_z -= 360;
+	}
+
+	return ang;
+}
+
+/*
+==================
+delayRemoveThread
+
+Service thread for delayRemove.
+==================
+*/
+void delayRemoveThread( entity ent, float mytime ) {
+	sys.wait( mytime );
+	ent.remove();
+}
+
+/*
+==================
+delayRemove
+
+Causes an entity to be removed after a specified amount of time.
+==================
+*/
+void delayRemove( entity ent, float mytime ) {
+	thread delayRemoveThread( ent, mytime );
+}
+
+
+/*
+==================
+fadeOutEnt
+
+Causes a entity to fade to black
+==================
+*/
+void fadeOutEnt( entity ent, vector color, float totalTime ) {
+	float i;
+	vector c;
+	float frac;
+	float numTics;
+	
+	// convert to the total number of game tics
+	numTics = totalTime * sys.getTicsPerSecond();
+
+	for( i = 0; i < numTics; i++ ) {
+		frac = ( numTics - i ) / numTics;
+		c = color * frac;
+		ent.setColor( c_x, c_y, c_z );
+		
+		// wait one game frame
+		sys.waitFrame();
+	}
+	
+	// make sure we are set to exactly black
+	ent.setColor( 0, 0, 0  );
+}
+
+/*
+==================
+fadeInEnt
+
+Causes a entity to from black to color
+==================
+*/
+void fadeInEnt( entity ent, vector color, float totalTime ) {
+	float i;
+	vector c;
+	float frac;
+	float numTics;
+	
+	// convert to the total number of game tics
+	numTics = totalTime * sys.getTicsPerSecond();	
+
+	for( i = 0; i < numTics; i++ ) {
+		frac = i / numTics;
+		c = color * frac;
+		ent.setColor( c_x, c_y, c_z  );
+		
+		// wait one game frame
+		sys.waitFrame();
+	}
+	
+	// make sure we are set to exactly the color
+	ent.setColor( color_x, color_y, color_z );
+}
+
+/*
+==================
+crossFadeEnt
+
+Causes a entity to from one color to another
+==================
+*/
+void crossFadeEnt( entity ent, vector source, vector dest, float totalTime ) {
+	float i;
+	vector c;
+	float frac;
+	float numTics;
+	
+	// convert to the total number of game tics
+	numTics = totalTime * sys.getTicsPerSecond();
+
+	for( i = 0; i < numTics; i++ ) {
+		frac = i / numTics;
+		c = dest * frac + source * ( 1 - frac );
+		ent.setColor( c_x, c_y, c_z  );
+		
+		// wait one game frame
+		sys.waitFrame();
+	}
+	
+	// make sure we are set to exactly the destination color
+	ent.setColor( dest_x, dest_y, dest_z );
+}
+
+/*
+==================
+interpolateShaderParm
+
+Interpolates a single shader parm on an entity over a specified amount of time
+==================
+*/
+void interpolateShaderParm( entity ent, float parm, float fromValue, float toValue, float totalTime ) {
+	float i;
+	float value;
+	float frac;
+	float numTics;
+	
+	// convert to the total number of game tics
+	numTics = totalTime * sys.getTicsPerSecond();
+
+	for( i = 0; i < numTics; i++ ) {
+		frac = i / numTics;
+		value = toValue * frac + fromValue * ( 1 - frac );
+		ent.setShaderParm( parm, value );
+		ent.setLightParm( parm, value );
+		
+		// wait one game frame
+		sys.waitFrame();
+	}
+	
+	// make sure we are set to exactly the destination value
+	ent.setShaderParm( parm, toValue );
+	ent.setLightParm( parm, toValue );
+}
+
+/*
+==================
+CalcTimeForRotationAroundEntity
+
+Calculates the time to perform a rotation of an entity around an entity it is bound to given
+the angles to rotate and the desired speed.
+==================
+*/
+float CalcTimeForRotationAroundEntity( float distanceFromCenter, float angles, float desiredSpeed ) {
+	float distance;
+	
+	if ( desiredSpeed <= 0 ) {
+		return 0;
+	}
+	
+	distance = DEG2RAD( angles ) * distanceFromCenter;
+	
+	return distance / desiredSpeed;
+}
+
+/*
+==================
+func_clipmodel spawn function
+==================
+*/
+void func_clipmodel() {
+	// do nothing
+}
+
+/*
+==================
+RandomDelay
+==================
+*/
+float RandomDelay( float min, float max ) {
+	float t;
+	
+	t = sys.getTime();
+	t += min + sys.random( max - min );
+	
+	return t;
+}
+
+/*
+==================
+RandomTime
+==================
+*/
+float RandomTime( float delay ) {
+	float t;
+	
+	t = sys.getTime();
+	t += sys.random( delay );
+	
+	return t;
+}
+
+/*
+==================
+DelayTime
+==================
+*/
+float DelayTime( float delay ) {
+	float t;
+	
+	t = sys.getTime();
+	t += delay;
+	t += sys.random( 2 ) - 1;
+	
+	return t;
+}

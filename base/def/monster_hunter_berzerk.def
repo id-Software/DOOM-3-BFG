@@ -1,0 +1,469 @@
+/***********************************************************************
+
+	monster_hunter_berzerk.def
+
+***********************************************************************/
+
+export jay2 {
+	options -prefix H2_ -keep mouth -keep heart_light -keep SPINNER -parent heart_light heart2 -parent waist SPINNER -parent SPINNER body2 -sourcedir models/monsters/hunter_berzerk/cycles -destdir models/md5/monsters/hunter_berzerk
+
+	addoptions -align ALL
+
+	mesh	berzerk_makemesh.mb
+	anim	idle.mb
+	anim	evade_left.mb
+	anim	evade_right.mb
+	anim	evade_back.mb
+	anim	evade_backleft.mb
+	anim	evade_backright.mb
+	anim	evade_front.mb
+	anim	evade_frontright.mb
+	anim	evade_frontleft.mb
+	anim	melee1.mb
+	anim	ranged1.mb
+	anim	ranged2.mb
+	anim	ranged3.mb
+	anim	walk.mb
+	anim	pain_chest.mb
+	anim	pain_head.mb
+	anim	berzerk_charge.mb
+	anim	berzerk_summon.mb
+	anim	berzerk_summon_death.mb
+	anim	berzerk_idle.mb
+	anim 	berzerk_rage.mb
+	anim 	berzerk_hit.mb
+	anim 	berzerk_hit2.mb
+	anim 	berzerk_miss.mb
+	anim 	berzerk_pain.mb
+	anim 	berzerk_pain2.mb
+	anim 	berzerk_2_norm.mb
+	anim 	berzerk_walk.mb
+	anim 	berzerk_run.mb
+	anim 	berzerk_leap_attack.mb -range 1 26 -dest berzerk_leap_start
+	anim 	berzerk_leap_loop.mb
+	anim 	berzerk_leap_attack.mb -range 33 40 -dest berzerk_leap_hit
+	anim 	berzerk_leap_attack_miss.mb -range 33 57 -dest berzerk_leap_miss
+	anim 	berzerk_leap_attack_pain.mb -range 33 40 -dest berzerk_leap_pain
+	anim 	berzerk_leap_loop_pain.mb
+}
+
+model monster_hunter_berzerk {
+	mesh						models/md5/monsters/hunter_berzerk/berzerk_makemesh.md5mesh
+
+	channel torso					( *waist )
+	channel legs					( *hips body body2 origin SPINNER )
+
+	anim idle						models/md5/monsters/hunter_berzerk/idle.md5anim
+	anim walk						models/md5/monsters/hunter_berzerk/walk.md5anim {
+		frame 12					sound_body	snd_footstep
+		frame 29					sound_body	snd_footstep
+	}
+	anim berzerk_run				models/md5/monsters/hunter_berzerk/berzerk_run.md5anim {
+		frame 8						sound_body snd_footstep
+		frame 19					sound_body snd_footstep
+	}
+	anim berzerk_walk				models/md5/monsters/hunter_berzerk/berzerk_walk.md5anim {
+		frame 12					sound_body	snd_footstep
+		frame 29					sound_body	snd_footstep
+	}
+	anim berzerk_charge				models/md5/monsters/hunter_berzerk/berzerk_charge.md5anim {
+		frame 8						sound_body snd_footstep
+		frame 19					sound_body snd_footstep
+	}
+	anim berzerk_idle				models/md5/monsters/hunter_berzerk/berzerk_idle.md5anim
+
+
+	////////////////////////////////////////////////////////////
+	// CINEMATIC INTRO
+	////////////////////////////////////////////////////////////
+
+	anim erebus6_intro		models/md5/cinematics/erebus6/hunter2anim.md5anim {
+
+		frame 380				trigger ber_pipeblast_func_emitter
+		frame 411				trigger ber_pipeblast2_func_emitter
+		frame 455				object_call setSkinToBerserk
+		frame 455				sound_voice snd_enter_berzerk
+		frame 455				start_emitter smoke origin berzerker_enrage3.prt
+		frame 455				call map_erebus6::Berzerk_Influence
+		frame 465				start_emitter heathaze origin berzerker_enrage2.prt
+		frame 470				call map_erebus6::HeartLightOn
+		frame 486				sound_body3 snd_chestrip
+		frame 500				start_emitter fireball_start heart1 hunter_bezerk_heart_burn.prt
+		frame 535				stop_emitter heathaze
+		frame 536				stop_emitter fireball_start
+		frame 580				stop_emitter smoke
+	}
+	////////////////////////////////////////////////////////////
+	// CINEMATIC DEATH
+	////////////////////////////////////////////////////////////
+	anim erebus6_outro		models/md5/cinematics/erebus6/hunter2_death.md5anim {
+	}
+
+	////////////////////////////////////////////////////////////
+	// Melee Attacks
+	////////////////////////////////////////////////////////////
+	anim melee1	models/md5/monsters/hunter_berzerk/melee1.md5anim {
+		frame 1					sound_voice2	bzhunter_attack
+		frame 7					melee melee_hunter_berserk_Attack
+	}
+
+	////////////////////////////////////////////////////////////
+	// Range Attacks
+	////////////////////////////////////////////////////////////
+	anim ranged1 models/md5/monsters/hunter_berzerk/ranged1.md5anim {
+		frame 1					sound_item	bzhunter_attack
+		frame 15				start_emitter fireball_start mouth berzerker_fireball2.prt
+		frame 22				sound_body3		snd_chestrip
+		frame 25				create_missile mouth
+		frame 47				stop_emitter fireball_start
+		frame 47				launch_missile mouth
+	}
+	/*anim ranged2 models/md5/monsters/hunter_berzerk/ranged2.md5anim {
+		frame 1					sound_item	bzhunter_attack
+		frame 1					sound_body3		snd_chestrip
+	//	frame 5					call map_erebus6::HeartLightOn
+		frame 8					start_emitter fireball_start heart1 hunter_bezerk_heart_burn.prt
+		frame 24				create_missile heart_light
+		frame 25				launch_missile heart_light
+		frame 33				create_missile heart_light
+		frame 34				launch_missile heart_light
+		frame 43				create_missile heart_light
+		frame 44				launch_missile heart_light
+	//	frame 46				call map_erebus6::HeartLightOff
+		frame 46				stop_emitter fireball_start
+	}
+	anim ranged3 models/md5/monsters/hunter_berzerk/ranged3.md5anim {
+		frame 1					sound_item	bzhunter_attack
+		frame 1					sound_body3		snd_chestrip
+	//	frame 5					call map_erebus6::HeartLightOn
+		frame 8					start_emitter fireball_start heart1 hunter_bezerk_heart_burn.prt
+		frame 24				create_missile heart_light
+		frame 25				launch_missile heart_light
+	//	frame 28				call map_erebus6::HeartLightOff
+		frame 28				stop_emitter fireball_start
+	}*/
+	////////////////////////////////////////////////////////////
+	// Evades
+	////////////////////////////////////////////////////////////
+	anim evade_front				models/md5/monsters/hunter_berzerk/evade_front.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_frontleft				models/md5/monsters/hunter_berzerk/evade_frontleft.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_frontright				models/md5/monsters/hunter_berzerk/evade_frontright.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_back					models/md5/monsters/hunter_berzerk/evade_back.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_left					models/md5/monsters/hunter_berzerk/evade_left.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_right				models/md5/monsters/hunter_berzerk/evade_right.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_backright				models/md5/monsters/hunter_berzerk/evade_backright.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim evade_backleft				models/md5/monsters/hunter_berzerk/evade_backleft.md5anim {
+		frame 1					sound_voice	snd_evade
+	}
+	anim pain					models/md5/monsters/hunter_berzerk/pain_chest.md5anim {
+		frame	1					sound_voice2 snd_pain
+	}
+	anim pain_head					models/md5/monsters/hunter_berzerk/pain_head.md5anim {
+		frame	1					sound_voice2 snd_pain
+	}
+
+	anim berzerk_summon				models/md5/monsters/hunter_berzerk/berzerk_summon.md5anim {
+		frame 1							sound_voice2 snd_enter_berzerk
+		frame 1							start_emitter smoke origin berzerker_enrage3.prt
+		frame 1							call map_erebus6::Berzerk_Influence2
+		frame 10						start_emitter heathaze origin berzerker_enrage2.prt
+	//	frame 25						call map_erebus6::HeartLightOn
+		frame 41						sound_body3 snd_chestrip
+		frame 45						stop_emitter smoke
+		frame 45						stop_emitter heathaze
+
+	}
+
+	anim berzerk_summon_death		models/md5/monsters/hunter_berzerk/berzerk_summon_death.md5anim {
+		frame 1							sound_voice snd_enter_berzerk
+		frame 1							call map_erebus6::ClearHelltime
+		frame 1							start_emitter smoke origin berzerker_enrage3.prt
+	//	frame 1							call map_erebus6::Berzerk_Influence
+		frame 10						start_emitter heathaze origin berzerker_enrage2.prt
+	//	frame 25						call map_erebus6::HeartLightOn
+		frame 41						sound_body3 snd_chestrip
+		frame 45						stop_emitter smoke
+		frame 45						stop_emitter heathaze
+
+	}
+
+	anim berzerk_death		models/md5/monsters/hunter_berzerk/berzerk_summon.md5anim {
+		frame 1							sound_voice snd_enter_berzerk
+		frame 1							call map_erebus6::ClearHelltime
+		frame 1							start_emitter smoke origin berzerker_enrage3.prt
+	//	frame 1							call map_erebus6::Berzerk_Influence
+		frame 10						start_emitter heathaze origin berzerker_enrage2.prt
+	//	frame 25						call map_erebus6::HeartLightOn
+		frame 41						sound_body3 snd_chestrip
+		frame 45						stop_emitter smoke
+		frame 45						stop_emitter heathaze
+
+	}
+
+	anim berzerk_rage				models/md5/monsters/hunter_berzerk/berzerk_rage.md5anim
+
+/*
+	anim berzerk_hit				models/md5/monsters/hunter_berzerk/berzerk_hit.md5anim {
+		frame 11					melee melee_hunter_berserk_Attack_Right
+		frame 19					melee melee_hunter_berserk_Attack_Left
+	}
+*/
+	anim berzerk_hit2				models/md5/monsters/hunter_berzerk/berzerk_hit2.md5anim {
+		frame 1					sound_voice2	bzhunter_attack
+		frame 7							melee melee_hunter_berserk_Attack
+	}
+
+	anim berzerk_miss				models/md5/monsters/hunter_berzerk/berzerk_miss.md5anim
+	anim berzerk_pain				models/md5/monsters/hunter_berzerk/berzerk_pain2.md5anim {
+		frame 1						sound_voice2 snd_berzerk_pain
+	}
+	anim berzerk_2_norm				models/md5/monsters/hunter_berzerk/berzerk_2_norm.md5anim {
+		frame 1						sound_body2 snd_enter_berzerk
+		frame 15					call map_erebus6::HeartLightOff
+		//frame 30						stop_emitter lhandemitter
+		//frame 30						stop_emitter rhandemitter
+	}
+
+	anim berzerk_leap_start			models/md5/monsters/hunter_berzerk/berzerk_leap_start.md5anim {
+		frame 1						sound_voice2 bzhunter_attack
+	}
+	anim berzerk_leap_loop			models/md5/monsters/hunter_berzerk/berzerk_leap_loop.md5anim
+	anim berzerk_leap_loop_pain		models/md5/monsters/hunter_berzerk/berzerk_leap_loop_pain.md5anim
+	anim berzerk_leap_hit			models/md5/monsters/hunter_berzerk/berzerk_leap_hit.md5anim {
+		frame 1						sound_body3 bh_leap_end
+	}
+	anim berzerk_leap_miss			models/md5/monsters/hunter_berzerk/berzerk_leap_miss.md5anim {
+		frame 4						sound_body3 bh_leap_end
+	}
+	anim berzerk_leap_pain			models/md5/monsters/hunter_berzerk/berzerk_leap_pain.md5anim {
+		frame 1						sound_voice2 snd_berzerk_pain
+	}
+
+}
+
+entityDef monster_hunter_berzerk {
+	"inherit"					"monster_default"
+	"scriptobject"					"monster_hunter_berserk"
+	"model"						"monster_hunter_berzerk"
+	"ragdoll"					"monster_hunter_berzerk"
+	"size"						"94 94 96"
+	"use_aas"					"aas96"
+	"team"						"1"
+	"rank"						"2"
+	"health"					"5000"
+	"melee_range"					"75"
+	"turn_rate"					"2160"
+	"def_projectile"				"projectile_fireball_berzerker"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"mass"						"600"
+	"anim"						"idle"
+	"burnaway"					"0.50"
+
+	"chatter_combat_min"			"2"
+	"chatter_combat_max"			"3"
+
+	"damage_zone heart"				"*heart1"
+
+	"skin"						"skins/monsters/hunter_berserk/hunter_berserk"
+	"skin_enrage"					"skins/monsters/hunter_berserk/hunter_berserk_enrage"
+	"skin_toberserk"				"skins/monsters/hunter_berserk/hunter_berserk_toberserk"
+	"skin_tonormal"					"skins/monsters/hunter_berserk/hunter_berserk_tonormal"
+	"skin_burn"						"skins/monsters/hunter_berserk/burnaway"
+
+	"model_burninghands"			"berzerk_hands.prt"
+	"model_burningheart"			"hunter_bezerk_heart_burn.prt"
+
+	"smoke_wound_surftype10"			"berserk_heart_bloodsplat.prt"
+
+	"def_chargeattack"					"melee_hunter_berserk_ChargeAttack"
+
+	"mtr_wound_flesh"					"textures/common/nodraw"
+	"mtr_wound_metal"					"textures/common/nodraw"
+	"mtr_wound_surftype10"				"textures/common/nodraw"
+
+	"snd_enter_berzerk"				"bh_enter_berzerk"
+	"snd_idle"						"bzhunter_idle"
+	"snd_berzerk_pain"				"bzhunter_pain"
+	"snd_pain"						"bzhunter_pain"
+	"snd_sight"						"bzhunter_sight"
+	"snd_footstep"         			"bh_footsteps"
+	"snd_leap_start"				"bzhunter_attack"
+	"snd_melee1"					"bzhunter_attack"
+	//"snd_ranged1"					"bh_enter_berzerk"
+	"snd_ranged1"					"bh_ranged1"
+	"snd_evade"						"bh_evade"
+	"snd_chatter_combat"			"bh_idle"
+	//"snd_prefire"					"bzhunter_attack"
+	"snd_prefire"					"bh_prefire"
+	"snd_chestrip"					"bh_chestrip"
+}
+
+
+entityDef melee_hunter_berserk_ChargeAttack {
+	// melee specific parameters
+	"snd_hit"					"monster_demon_imp_melee_hit"
+	"kickDir"					"1 0 0"
+
+	// damage parameters
+	"damage"					"8"
+
+	"mtr_blob"					"leftSlash"
+	"blob_time"					"300"
+	"blob_x"					"140"
+	"blob_y"					"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"					"20"
+
+	"kick_time"					"800"
+	"kick_amplitude"				"2"
+
+	"dv_time"					"400"
+}
+
+entityDef melee_hunter_berserk_Attack {
+
+	// melee specific parameters
+	"snd_hit"					"monster_demon_imp_melee_hit"
+	"snd_miss"					"monster_demon_imp_melee_miss"
+	"kickDir"					"0 -1 0"
+
+	// damage parameters
+	"damage"					"8"
+
+	"mtr_blob"					"pinkySlash"
+	"blob_time"					"300"
+	"blob_x"					"140"
+	"blob_y"					"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"					"40"
+
+	"kick_time"					"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"					"100"
+}
+
+entityDef melee_hunter_berserk_Attack_Left {
+	"inherit"					"melee_hunter_berserk_Attack"
+	"mtr_blob"					"leftSlash"
+}
+
+entityDef melee_hunter_berserk_Attack_Right {
+	"inherit"					"melee_hunter_berserk_Attack"
+	"mtr_blob"					"rightSlash"
+}
+
+
+
+
+entityDef damage_fireball_berzerker {
+	"damage"					"30"
+	"kickDir"					"1 0 0"
+
+	"mtr_blob"					"genericDamage"
+	"blob_time"					"300"
+	"blob_size"					"400"
+	"blob_offset_x"					"400"
+
+	"knockback"					"10"
+
+	"kick_time"					"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"					"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+
+
+entityDef damage_fireball_berzerker_splash {
+	"damage"					"45"
+	"radius"					"120"
+}
+
+entityDef projectile_fireball_berzerker {
+	"spawnclass"					"idProjectile"
+	"mins"						"-4 -4 -4"
+	"maxs"						"4 4 4"
+	"cone"						"3"
+	"model" 					"berzerker_fireball.prt"
+
+	"reset_time_offset"			"1"
+
+	"def_damage"					"damage_fireball_berzerker"
+	"def_splash_damage"				"damage_fireball_berzerker_splash"
+
+	"launchFromBarrel"				"1"
+	"health"					"5"				// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"475 0 -150"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"				// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"				// when to start accelerating
+	"thrust_end"					"0"				// when to stop accelerating
+	"linear_friction"				"0"				// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"					"0"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"5"
+	"gravity"					"250"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"0"				// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"				// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"				// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"				// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"				"0"				// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"				// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn_plasma"
+	"decal_size"					"75"
+
+	"smoke_fly"					"berzerker_trail.prt"		// particle effect while in the air
+	"smoke_detonate"				""				// particle effect when detonates
+	"smoke_residue"					""				// particle effect while in the air
+	"smoke_bounce"					""				// particle effect when bounces
+	"smoke_fuse"					""				// particle effect when removed from fuse expiring
+
+	// parametric particles -- temp
+	"model_detonate"				"berzerker_explosion.prt"
+
+	"debris_count"					"2"
+	"def_debris"					"debris_largeshrapnel"
+	"def_shrapnel"					"debris_shrapnel"
+
+	"mtr_light_shader"				"lights/impflyflash"
+
+
+	"light_color"					"0.97 0.5 0.18"
+	//"light_color"					"0.1 0.6 0.9"
+	"light_radius"					"96"
+	"light_offset"					"0 0 0"
+
+	"mtr_explode_light_shader"			"lights/spawnflash"
+	"explode_light_color"				"0.97 0.2 0.18"
+	"explode_light_radius"				"128"
+	"explode_light_fadetime"			"1"
+
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+	"snd_fly"					"monster_demon_imp_fireball_flight"	// particle effect while in the air
+}
+

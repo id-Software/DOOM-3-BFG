@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,30 +32,30 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef LINUX
-#include <math.h>
+	#include <math.h>
 #else
-const float PI = 				3.141592657f;
+	const float PI = 				3.141592657f;
 #endif
 
 
 #include "m_fixed.h"
-	
+
 #define FINEANGLES		8192
 #define FINEMASK		(FINEANGLES-1)
 
 
 // 0x100000000 to 0x2000
-#define ANGLETOFINESHIFT	19		
+#define ANGLETOFINESHIFT	19
 
 // Effective size is 10240.
-const extern  fixed_t		finesine[5*FINEANGLES/4];
+const extern  fixed_t		finesine[5 * FINEANGLES / 4];
 
 // Re-use data, is just PI/2 pahse shift.
 const extern  fixed_t*	finecosine;
 
 
 // Effective size is 4096.
-const extern fixed_t		finetangent[FINEANGLES/2];
+const extern fixed_t		finetangent[FINEANGLES / 2];
 
 // Binary Angle Measument, BAM.
 #define ANG45			0x20000000u
@@ -74,7 +74,7 @@ typedef unsigned angle_t;
 // Effective size is 2049;
 // The +1 size is to handle the case when x==y
 //  without additional checking.
-const extern angle_t		tantoangle[SLOPERANGE+1];
+const extern angle_t		tantoangle[SLOPERANGE + 1];
 
 
 // Utility function,
@@ -82,7 +82,7 @@ const extern angle_t		tantoangle[SLOPERANGE+1];
 int
 SlopeDiv
 ( unsigned	num,
-  unsigned	den);
+  unsigned	den );
 
 
 #endif

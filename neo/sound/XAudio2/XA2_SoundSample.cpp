@@ -231,6 +231,12 @@ void idSoundSample_XAudio2::LoadResource()
 			loaded = LoadWav( sampleName );
 		}
 
+		if( !loaded && s_useCompression.GetBool() )
+		{
+			sampleName.SetFileExtension( "ogg" );
+			loaded = LoadOgg( sampleName );
+		}
+
 		if( loaded )
 		{
 			if( cvarSystem->GetCVarBool( "fs_buildresources" ) )
@@ -263,6 +269,39 @@ void idSoundSample_XAudio2::LoadResource()
 		MakeDefault();
 	}
 	return;
+}
+
+/*
+========================
+idSoundSample_XAudio2::LoadOgg
+========================
+*/
+bool idSoundSample_XAudio2::LoadOgg( const idStr& filename )
+{
+	idSoundDecoder_Vorbis decoder;
+
+	if( !decoder.Open( filename ) )
+	{
+		return false;
+	}
+
+	timestamp = 1;
+
+	int64_t totalBufferSize = decoder.Size();
+
+	decoder.GetFormat( format );
+
+	playBegin = 0;
+	playLength = decoder.CompressedSize(); // format.basic.blockSize;
+
+	buffers.SetNum( 1 );
+	buffers[0].bufferSize = totalBufferSize;
+	buffers[0].numSamples = playLength;
+	buffers[0].buffer = AllocBuffer( totalBufferSize, GetName() );
+
+	int val = decoder.Read( buffers[0].buffer, buffers[0].bufferSize );
+
+	return ( val != -1 );
 }
 
 /*

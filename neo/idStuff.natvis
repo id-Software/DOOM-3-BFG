@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- natvis file for Visual Studio debugger (you can include this in a project file, or install in visual studio folder) -->
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+	<Type Name="idList&lt;*&gt;">
+		<DisplayString>{{Size={num} Capacity={size}}}</DisplayString>
+			<Expand>
+				<Item Name="[size]">num</Item>
+				<Item Name="[capacity]">size</Item>
+				<ArrayItems>
+					<Size>num</Size>
+					<ValuePointer>list</ValuePointer>
+				</ArrayItems>
+			</Expand>
+	</Type>
+
+	<Type Name="idVec4">
+		<DisplayString>{{{x,g},{y,g},{z,g},{w,g}}}</DisplayString>
+	</Type>
+
+	<Type Name="idVec2">
+		<DisplayString>{{{x},{y}}}</DisplayString>
+	</Type>
+	
+	<Type Name="idStr">
+		<DisplayString>{data,s}</DisplayString>
+	</Type>
+	
+	<Type Name="idSWFDictionaryEntry">
+		<DisplayString Condition="name != 0">{name}</DisplayString>
+		<Expand>
+			<Item Condition="type == SWF_DICT_SPRITE" Name=" [ Sprite ]">sprite</Item>
+			<Item Condition="type == SWF_DICT_EDITTEXT" Name=" [ EditText ]">edittext</Item>
+			<Item Condition="type == SWF_DICT_FONT" Name=" [ Font ] ">font</Item>
+			<Item Condition="type == SWF_DICT_TEXT" Name=" [ Text ] ">text</Item>
+			<Item Condition="type == SWF_DICT_IMAGE" Name=" [ Image ]">imageSize</Item>
+			<Item Condition="type == SWF_DICT_NULL" Name=" [ Empty ] ">name</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="idSWFScriptVar">
+		<Expand>
+			<Item Condition="type == SWF_VAR_OBJECT" Name=" [ Object ]">value.object</Item>
+			<Item Condition="type == SWF_VAR_FUNCTION" Name=" [ Function ]">value.function</Item>
+			<Item Condition="type == SWF_VAR_STRING" Name=" [ String ]">value.string</Item>
+			<Item Condition="type == SWF_VAR_FLOAT" Name=" [ Float ]">value.f</Item>
+			<Item Condition="type == SWF_VAR_UNDEF" Name=" [ UNDEFINED ]">value</Item>
+			<Item Condition="type == SWF_VAR_BOOL" Name=" [ Bool ]">value.b</Item>
+			<Item Condition="type == SWF_VAR_INTEGER" Name=" [ Int ]">value.i</Item>
+			<Item Condition="type == SWF_VAR_STRINGID" Name=" [ StrID ]">value.i</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="idSWFScriptObject::swfNamedVar_t">
+		<DisplayString >[{name}]{value}</DisplayString>
+	</Type>
+
+	<Type Name="swfMethod_info">
+		<DisplayString >[{name}]</DisplayString>
+	</Type>
+</AutoVisualizer>

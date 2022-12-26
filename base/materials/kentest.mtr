@@ -1,0 +1,1055 @@
+table shattertable1 { clamp { 0, 0, 1, 0 } }
+table shattertable2 { clamp { 0, 0, 0, 1 } }
+table testytable { { 0, 1 } }
+table embertable { clamp { 1, 0 } }
+table staticatable {snap { 1, -1, 1, -1 } }
+
+textures/decals/bluestatica2x
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/greystatica.tga
+	{
+		program	colorProcess.vfp
+		vertexParm		0	 sinTable[ time * 0.4 ]	// 0.0 = source color, 1.0 = target color
+		vertexParm		1		.5, .55, .6	// target full intensity RGB
+		fragmentMap		0		_currentRender
+	}
+	{
+
+	    blend		add
+		scale 2 ,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		red .8
+		green .8
+		blue 1
+		map    textures/decals/statica.tga
+
+	}
+	{
+
+	    blend		add
+		scale 2 ,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		red .8
+		green .8
+		blue 1
+		map    textures/decals/statica.tga
+
+	}
+	{
+
+	    blend		filter
+		scale 2,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/oldfilm.tga
+
+	}
+	{
+
+	    blend		filter
+		scale 1, .005
+		translate time * 0, time * -40
+
+		map    textures/decals/oldfilm2.tga
+
+	}
+}
+
+textures/decals/bloodyfilm1
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/greystatica.tga
+	
+		{
+		program	colorProcess.vfp
+		vertexParm		0	  1   // sinTable[ time * 0.5 ]	// 0.0 = source color, 1.0 = target color
+		vertexParm		1		.8, .8, .8	// target full intensity RGB
+		fragmentMap		0		_currentRender
+	}
+	{
+
+	    blend		add
+		scale 2,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/greystatica.tga
+
+	}
+
+	{
+
+	    blend		filter
+		scale 2,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/oldfilm.tga
+
+	}
+	{
+
+	    blend		filter
+		scale 1, .007
+		translate time * 0, time * -40
+
+		map    textures/decals/oldfilm3.tga
+
+	}
+}
+
+textures/decals/oldfilm1
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/greystatica.tga
+	
+	{
+		program	colorProcess.vfp
+		vertexParm		0	  1   // sinTable[ time * 0.5 ]	// 0.0 = source color, 1.0 = target color
+		vertexParm		1		.8, .8, .8	// target full intensity RGB
+		fragmentMap		0		_currentRender
+	}
+	{
+
+	    blend		add
+		scale 2,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/greystatica.tga
+
+	}
+
+	{
+
+	    blend		filter
+		scale 2,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/oldfilm.tga
+
+	}
+	{
+
+	    blend		filter
+		scale 1, .005
+		translate time * 0, time * -40
+
+		map    textures/decals/oldfilm2.tga
+
+	}
+}
+
+textures/decals/greystatica2x
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/greystatica.tga
+	{
+		program	colorProcess.vfp
+		vertexParm		0	  1   // sinTable[ time * 0.5 ]	// 0.0 = source color, 1.0 = target color
+		vertexParm		1		.5, .5, .5	// target full intensity RGB
+		fragmentMap		0		_currentRender
+	}
+	{
+
+	    blend		add
+		scale 2 ,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/greystatica.tga
+
+	}
+	{
+
+	    blend		add
+		scale 2 ,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/greystatica.tga
+
+	}
+}
+
+textures/decals/greystatica
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/greystatica.tga
+	{
+		program	colorProcess.vfp
+		vertexParm		0	  1   // sinTable[ time * 0.5 ]	// 0.0 = source color, 1.0 = target color
+		vertexParm		1		.5, .5, .5	// target full intensity RGB
+		fragmentMap		0		_currentRender
+	}
+	{
+
+	    blend		add
+		//scale 2 ,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/greystatica.tga
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+
+	}
+	{
+
+	    blend		add
+		//scale 2 ,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/greystatica.tga
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+
+	}
+}
+
+
+textures/decals/statica
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/statica.tga
+	{
+
+	    blend		add
+		//scale 2 ,2
+		translate time * staticatable[ time * 10 ], time *staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/statica.tga
+
+	}
+	{
+
+	    blend		add
+		//scale 2 ,2
+		translate time * staticatable[ time * 20 ],time * staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/statica.tga
+
+	}
+}
+
+textures/decals/statica2x
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/statica.tga
+	{
+
+	    blend		add
+		scale 2 ,2
+		translate time * staticatable[ time * 10 ], staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/statica.tga
+
+	}
+	{
+
+	    blend		add
+		scale 2 ,2
+		translate time * staticatable[ time * 20 ], staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/statica.tga
+
+	}
+}
+
+textures/decals/staticablend
+{
+	noshadows
+	translucent
+
+	qer_editorimage		textures/decals/statica.tga
+	{
+
+	    blend		blend
+		
+		translate time * staticatable[ time * 10 ], staticatable[ time * 10 ]
+		rotate time * 7
+		map    textures/decals/statica.tga
+
+	}
+	{
+
+	    blend		blend
+		translate time * staticatable[ time * 20 ], staticatable[ time * 20 ]
+		rotate time * 6
+		map    textures/decals/statica.tga
+
+	}
+}
+
+
+textures/particles/barrelpoof_sort
+{
+	nonsolid
+	noshadows
+	sort		1
+	qer_editorimage		textures/particles/barrelpoof
+    {
+		blend			blend
+		map				textures/particles/barrelpoof
+		vertexColor
+	}
+}
+
+textures/decals/fly
+{
+        noSelfShadow
+	noshadows
+	nonsolid
+	qer_editorimage textures/decals/fly
+
+    {       
+     blend	diffusemap
+	 map	textures/decals/fly
+	 alphaTest 0.5
+	 
+	}
+	bumpmap	textures/decals/fly_local.tga
+  	specularmap	textures/decals/fly_s.tga   
+
+}
+
+
+textures/ktest/yellow_test
+{
+	qer_editorimage	textures/ktest/yellow_test
+	bumpmap			textures/ktest/yellow_test_local
+	diffusemap		textures/ktest/yellow_test
+	specularmap		textures/ktest/yellow_test_s
+
+   
+}
+
+
+
+models/monsters/gseeker/gwhizz
+{
+	noselfShadow
+        noshadows	
+	translucent
+	//nodraw
+	deform particle2 gwhizz
+
+	{
+			blend	 add
+			map models/monsters/gseeker/gwhizz
+
+	   }
+
+}
+
+models/monsters/cherub/cherub2
+
+{
+    noselfShadow
+	flesh
+	renderbump  -size 1024 1024 -trace 0.01 -colorMap -aa 2  models/monsters/cherub/cherub_local.tga models/monsters/cherub/zcherub_hi.lwo
+ 		{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		map models/monsters/cherub/cherub2_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		
+		map models/monsters/cherub/cherub2_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	forceOverlays
+	    diffusemap	    models/monsters/cherub/cherub.tga
+		bumpmap		addnormals(models/monsters/cherub/cherub_local.tga, heightmap(models/monsters/cherub/cherub_h.tga, 0) )
+	    specularmap  models/monsters/cherub/cherub_s.tga
+	
+
+}
+
+models/monsters/cherub/cherub
+
+{
+    noselfShadow
+	flesh
+	renderbump  -size 1024 1024 -trace 0.05 -colorMap -aa 2  models/monsters/cherub/cherub_local.tga models/monsters/cherub/zcherub_hi.lwo
+ 	
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		map models/monsters/cherub/cherub2_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+        blend add	
+        blend gl_one, gl_zero
+		
+		map models/monsters/cherub/cherub2_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+	forceOverlays
+	    diffusemap	    models/monsters/cherub/cherub.tga
+		bumpmap		addnormals(models/monsters/cherub/cherub_local.tga, heightmap(models/monsters/cherub/cherub_h.tga, 4) )
+	    specularmap  models/monsters/cherub/cherub_s.tga
+	
+
+}
+
+
+models\weapons\rocketlauncher\zoom
+{
+	noselfShadow
+        noshadows	
+	translucent
+	//nodraw
+	deform particle2 rocketblast
+
+	{
+			blend	 add
+			map models\weapons\rocketlauncher\zoom
+
+	   }
+
+}
+
+models\weapons\rocketlauncher\cyberzoom
+{
+	noselfShadow
+        noshadows	
+	translucent
+	//nodraw
+	deform particle2 cyberrocketblast
+
+	{
+			blend	 add
+			map models\weapons\rocketlauncher\cyberzoom
+
+	   }
+
+}
+
+models/monsters/trite/newtrite2
+{
+    noselfShadow
+	unsmoothedtangents
+	flesh
+	renderbump  -size 1024 1024 -trace 0.02 -colorMap -aa 2  models/monsters/trite/newtrite2_local.tga models/monsters/trite/newtrite2_hi.lwo
+ 	
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+   		blend add
+		blend gl_one, gl_zero
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+		forceoverlays	
+	    diffusemap	   models/monsters/trite/newtrite.tga
+		bumpmap		addnormals(models/monsters/trite/newtrite2_local.tga, heightmap(models/monsters/trite/newtrite_h.tga, 3 ) )
+		specularmap		models/monsters/trite/newtrite_s.tga
+
+}
+
+
+models/monsters/trite/newtrite
+{
+    noselfShadow
+	unsmoothedtangents
+	flesh
+	renderbump  -size 1024 1024 -trace 0.02 -colorMap -aa 2  models/monsters/trite/newtrite_local.tga models/monsters/trite/newtrite_hi.lwo
+ 	
+	{	// burning corpse effect
+		if	parm7			// only when dead
+		
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 0.3 * (time - parm7)
+	}
+	{	// burning corpse effect
+		if parm7			// only when dead
+
+		// draw the fire burn at a negative polygonOffset, so it is behind the other stages
+		privatePolygonOffset	-1		// stage-only polygon offset
+   		blend add
+		blend gl_one, gl_zero
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.3 * (time - parm7)
+	}
+		forceoverlays	
+	    diffusemap	   models/monsters/trite/newtrite.tga
+		bumpmap		addnormals(models/monsters/trite/newtrite_local.tga, heightmap(models/monsters/trite/newtrite_h.tga, 3 ) )
+		specularmap		models/monsters/trite/newtrite_s.tga
+
+}
+
+
+
+textures/sfx/roqtest
+
+{
+	qer_editorimage	textures/editor/video.tga
+	deform sprite
+	translucent
+	{
+		blend add
+		videoMap	video/testhead.roq
+	}
+}
+
+
+models/monsters/zombie/boney/boney
+{
+       noSelfShadow
+		flesh
+		unsmoothedTangents
+
+{	// burning corpse effect
+		if	parm7			// only when dead
+		// make a burned away alpha test for the normal skin
+		blend	gl_zero, gl_one			// don't draw anything
+		
+		noclamp map models/monsters/spectre/global_dis.tga	// replace this with a monster-specific texture
+		alphaTest 0.05 + 1.5 * (time - parm7)
+}
+
+	renderbump  -size 1024 1024 -trace 0.03 -colorMap -aa 2   models/monsters/zombie/boney/boney_local.tga models/monsters/zombie/boney/boney_hi.lwo
+		forceoverlays
+ 		diffusemap	  models/monsters/zombie/boney/boney
+
+		{
+ 		  blend bumpmap
+          map  addnormals(models/monsters/zombie/boney/boney_local.tga, heightmap(models/monsters/zombie/boney/boney_h.tga, 8 ) )
+     	}
+		specularmap	models/monsters/zombie/boney/boney_s.tga
+}
+
+
+
+textures/decals/spooky
+{
+	//noshadows
+	//translucent
+
+	qer_editorimage		textures/decals/berserk.tga
+
+	
+	{	// write alpha test values to destination alpha
+		maskcolor				// write only to the alpha channel
+		map textures/decals/berserk2.tga
+		rotate time * 3
+		colored
+		clamp
+	}
+	
+	
+	{
+		blend  gl_dst_alpha, gl_one_minus_dst_alpha
+      	        scale		1, -1
+		map			_scratch
+		centerscale	0.97, 0.97
+	}
+
+
+}
+
+
+textures/particles/barrel_flame
+{
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	//deform tube
+	//sort		5
+	
+	{
+		blend blend
+		map textures/particles/flame3_stripsmall.tga
+		red		1
+	        green		1
+		blue		1
+		scale 1 / 32 , 1
+		scroll table32[ time * 1 ] , 0
+		//rotate	( time * -.2 )
+		//zeroclamp
+	}
+
+
+}
+
+
+textures/particles/barrel_explosion1
+{
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	//deform sprite
+	//sort		5
+	
+	{
+		blend blend
+		map textures/particles/rocketstripsmall.tga
+		red		.8
+	    green		1
+		blue		1
+		//scale 1 / 32 , 1
+		//scroll table32[ time * 1.0 ] , 0
+		//rotate	( time * -.2 )
+		//zeroclamp
+	}
+
+
+}
+
+textures/particles/barrel_explosion2
+{
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	//deform sprite
+	//sort		5
+	
+	{
+		blend blend
+		map textures/particles/rocketstripsmall.tga
+		red		1
+	    green		1
+		blue		1
+		//scale 1 / 32 , 1
+		//scroll table32[ time * 1.2 ] , 0
+		//rotate	( time * -.2 )
+		//zeroclamp
+	}
+
+
+}
+
+textures/particles/barrel_explosion3
+{
+	noSelfShadow
+	translucent
+	noShadows
+	twosided
+	//deform sprite
+	//sort		5
+	
+	{
+		blend blend
+		map textures/particles/rocketstripsmall.tga
+		red		1
+	        green		1
+		blue		.8
+		//scale 1 / 32 , 1
+		//scroll table32[ time * 1.4 ] , 0
+		//rotate	( time * -.2 )
+		//zeroclamp
+	}
+
+
+}
+
+
+textures/particles/sonic2
+{
+	qer_editorimage textures/particles/sonic.tga
+        noSelfShadow
+		noshadows
+	    nonsolid
+		twosided
+		translucent
+
+			{
+				blend	specularmap
+               	map textures/particles/sonic.tga
+				rotate time * -1
+				//centerscale	1+0.05*sinTable[time], 1+0.05*sinTable[time]
+				clamp
+			}
+
+			{
+				blend	bumpmap
+               	map heightmap(textures/particles/sonic_h.tga , 4)
+				rotate time * 1
+				centerscale	1+.4*sinTable[time -.5], 1+.4*sinTable[time -.5]
+				clamp
+			}
+   
+		
+
+
+}
+
+textures/particles/sonic
+{
+	qer_editorimage textures/particles/sonic.tga
+        noSelfShadow
+		noshadows
+	    nonsolid
+		twosided
+		translucent
+
+			{
+				blend	specularmap
+               	map textures/particles/sonic.tga
+				rotate time * 1
+				//centerscale	1+0.05*sinTable[time], 1+0.05*sinTable[time]
+				clamp
+			}
+
+			{
+				blend	bumpmap
+               	map heightmap(textures/particles/sonic_h.tga , 4)
+				rotate time * -.1
+				centerscale	1+.4*sinTable[time], 1+.4*sinTable[time]
+				clamp
+			}
+   
+		
+
+
+}
+
+models/mapobjects/webs/websquare
+{
+	qer_editorimage models/mapobjects/webs/websquare.tga
+        noSelfShadow
+		noshadows
+	    nonsolid
+		twosided
+		translucent
+
+		diffusemap	models/mapobjects/webs/websquare.tga
+		//specularmap	models/mapobjects/webs/websquare.tga
+		//bumpmap	   heightmap(models/mapobjects/webs/websquare.tga , 2 )
+
+
+}
+
+models/mapobjects/webs/corner
+{
+	qer_editorimage models/mapobjects/webs/corner.tga
+        noSelfShadow
+		noshadows
+	    nonsolid
+		twosided
+		translucent
+
+		diffusemap	models/mapobjects/webs/corner.tga
+		//specularmap	models/mapobjects/webs/corner.tga
+		//bumpmap	   heightmap(models/mapobjects/webs/corner.tga , 1 )
+
+
+
+}
+
+textures/particles/bloodstream3
+{
+	qer_editorimage textures/particles/bloodstream3.tga
+	 noSelfShadow
+	    noshadows
+		sort		8
+	{
+      	blend		blend
+		map textures/particles/bloodstream3.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}
+}
+
+textures/particles/blooddrop3
+{
+	qer_editorimage textures/particles/blooddrop2.tga
+	 noSelfShadow
+	    noshadows
+		sort		8
+	{
+      	blend		blend
+		map textures/particles/blooddrop3.tga
+		clamp		// we don't want it to tile if the projection extends past the bounds
+		vertexColor	// oblique projections will be slightly faded down
+	}
+}
+
+
+
+
+models/particles/shrapnel/shrapnel
+{
+        noSelfShadow
+	    noshadows
+		twosided
+		{       
+      		 blend	diffusemap
+			 map	models/particles/shrapnel/shrapnel.tga
+			 alphaTest 0.5
+		}	
+
+		//bumpmap	   heightmap(models/particles/shrapnel/shrapnel_h.tga , 4 )
+		{
+				blend add
+				map     models/particles/shrapnel/shrapnel_fx.tga
+				rgb		embertable[ (time + parm4) * 0.5 ]
+
+		}
+        	
+}
+
+
+
+
+textures/particles/spawnarc4
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+	qer_editorimage  textures/particles/spawnarc4.tga 
+
+		{ 
+      
+      		 blend	add
+	 		map	textures/particles/spawnarc4.tga
+			translate	time * 3 , time * 0
+	}
+	               	
+
+}
+
+textures/particles/spawnarc3
+
+{
+    noselfShadow
+    noshadows	
+	translucent
+	discrete
+	nonsolid
+	noimpact
+
+	qer_editorimage  textures/particles/spawnarc3.tga 
+
+		{ 
+      
+      		 blend	add
+	 		map	textures/particles/spawnarc3.tga
+			translate	time * 3 , time * 0
+	}
+	               	
+
+}
+
+models/wipes/hst_mars
+{
+    noselfShadow
+	noshadows
+
+        		diffusemap	models/wipes/hst_mars.tga
+				bumpmap 	heightmap(models/wipes/hst_mars_h.tga, 6 ) 
+              //specularmap	models/wipes/hst_mars_s.tga
+				
+}
+
+models/wipes/dust
+
+{
+    noselfShadow
+	translucent
+	noshadows
+    //twosided
+ 	{
+	    blend diffuseMap
+		map 	    models/wipes/dust.tga
+		scale	1, 1
+		translate	time * -0.012 , time * 0
+	
+	   }
+	 	{
+	    blend diffuseMap
+		map 	    models/wipes/dust.tga
+		scale	-1, 1
+		translate	time * -0.009 , time * 0
+
+	
+	   }
+		
+
+}
+
+
+models/wipes/wipe01
+
+{
+    noselfShadow
+    //twosided
+ 	
+	    diffusemap	    models/wipes/wipe01.tga
+		specularmap	    models/wipes/wipe01_s.tga
+
+		
+
+}
+
+
+
+textures/sfx/shatterglass01_fx1
+{
+	qer_editorimage textures/sfx/shatterglass01_fx1.tga
+	translucent
+	noshadows
+	twoSided
+	nonsolid
+
+	// non-shattered version
+/*
+	{
+		if ( parm7 == 0 )
+		blend add
+		cubeMap		env/bland
+		texgen		reflect
+	}
+	{
+		if ( parm7 == 0 )
+		blend diffuseMap
+		map textures/sfx/shatterglass01_d.tga
+	}
+*/
+	// shattered version
+	{
+		if ( parm7 == 1 )
+		blend add
+		map	textures/sfx/shatterglass01_fx1.tga
+		rgb	shattertable1 [ ( ( time - parm3 ) * 3 ) + 2 / 3 ]
+	}
+	{
+		if ( parm7 == 1 )
+		blend add
+		map	textures/sfx/shatterglass01_fx2.tga
+		rgb	shattertable1 [ ( ( time - parm3 ) * 3 ) + 1 / 3 ]
+	}
+	{
+		if ( parm7 == 1 )
+		blend add
+		map	textures/sfx/shatterglass01_fx3.tga
+		rgb	shattertable1 [ ( ( time - parm3 ) * 3 ) ]
+	}
+	{
+		if ( parm7 == 1 )
+		blend add
+		map	textures/sfx/shatterglass01_fx4.tga
+		rgb	shattertable2 [ ( ( time - parm3 ) * 3 ) ]
+	}
+}
+
+
+//  lost
+
+unnamed
+
+{
+	qer_editorimage map	textures\sfx\black_2
+	DECAL_MACRO
+	noShadows
+	twoSided
+	nonsolid
+	noimpact
+	translucent
+
+
+	{
+		colored       
+      		blend	add 
+	    map	textures\sfx\black_2
+	}
+
+
+}
+
+s2
+{
+	qer_editorimage map	textures\sfx\black_2
+	DECAL_MACRO
+	noShadows
+	twoSided
+	nonsolid
+	noimpact
+	translucent
+
+
+	{
+		colored       
+      		blend	add 
+	    map	textures\sfx\black_2
+	}
+
+
+}
+
+textures/dynamic/camera1
+{
+	qer_editorimage map	textures\sfx\black_2
+	DECAL_MACRO
+	noShadows
+	twoSided
+	nonsolid
+	noimpact
+	translucent
+
+
+	{
+		colored       
+      		blend	add 
+	    map	textures\sfx\black_2
+	}
+
+
+}
+

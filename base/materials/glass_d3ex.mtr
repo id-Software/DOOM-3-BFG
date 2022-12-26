@@ -1,0 +1,41 @@
+
+
+
+textures/d3exglass/outdoor_glass1
+ {
+	noSelfShadow
+	twosided
+	translucent
+	forceoverlays
+	sort decal
+
+	qer_editorimage textures/d3exglass/glass1
+	{
+                Program           heatHaze.vfp
+                vertexParm              0       time * 0 , time * 0 // texture scrolling
+                vertexParm              1       5        // magnitude of the distortion
+                fragmentProgram			heatHaze.vfp
+                fragmentMap             0       _currentRender
+                fragmentMap             1       textures/sfx/vp1  // the normal map for distortion			
+             
+    	}
+	{	
+		maskcolor				
+	    map	makealpha(textures/d3exglass/glass1)
+	}	
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	cubeMap		env/gen2
+			red		Parm0
+	        green   Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+	{
+     blend filter
+	map textures/d3exglass/outdoor_glass1fx
+	}
+	
+}

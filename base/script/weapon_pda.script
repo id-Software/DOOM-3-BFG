@@ -1,0 +1,59 @@
+/***********************************************************************
+
+item_pda.script
+
+***********************************************************************/
+
+object item_pda : weapon_base {
+	void		init();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		ExitCinematic();
+};
+
+void item_pda::init() {
+	weaponState( "Raise", 0 );
+}
+
+void item_pda::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+
+	weaponState( "Idle", 0 );
+}
+
+void item_pda::Lower() {
+	string previous;
+	entity owner;
+
+	owner = getOwner();
+	previous = owner.getPreviousWeapon();
+
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	owner.selectWeapon( previous );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void item_pda::Idle() {
+	entity owner;
+
+	weaponReady();
+	owner = getOwner();
+	owner.openPDA();
+	while( owner.inPDA() ) {
+		waitFrame();
+	}
+
+	weaponState( "Lower", 0 );
+}
+
+void item_pda::ExitCinematic() {
+	weaponState( "Idle", 0 );
+}

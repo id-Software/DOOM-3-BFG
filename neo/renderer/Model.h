@@ -44,6 +44,9 @@ If you have questions concerning this license or the applicable additional terms
 #define MD5_CAMERA_EXT			"md5camera"
 #define MD5_VERSION				10
 
+#define GLTF_EXT				"gltf"
+#define GLTF_GLB_EXT			"glb"
+
 #include "jobs/ShadowShared.h"
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"
@@ -59,6 +62,7 @@ struct dominantTri_t
 const int SHADOW_CAP_INFINITE	= 64;
 
 class idRenderModelStatic;
+class idImportOptions;
 struct viewDef_t;
 
 // our only drawing geometry type
@@ -165,7 +169,7 @@ public:
 	virtual						~idRenderModel() {};
 
 	// Loads static models only, dynamic models must be loaded by the modelManager
-	virtual void				InitFromFile( const char* fileName ) = 0;
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options ) = 0;
 
 	// Supports reading/writing binary file formats
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) = 0;
@@ -217,6 +221,9 @@ public:
 	// will still touch their data to make sure they
 	// are kept loaded
 	virtual void				TouchData() = 0;
+
+	// uploads the static vertices and indices into the vertex cache.
+	virtual void				CreateBuffers( nvrhi::ICommandList* commandList ) = 0;
 
 	// dump any ambient caches on the model surfaces
 	virtual void				FreeVertexCache() = 0;

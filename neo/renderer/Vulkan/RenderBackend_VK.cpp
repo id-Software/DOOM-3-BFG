@@ -309,8 +309,15 @@ static void CreateVulkanInstance()
 		{
 			vkcontext.instanceExtensions.AddUnique( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
 			vkcontext.deviceProperties2Available = true;
-			break;
 		}
+#if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
+		// SRS - Enable physical device enumeration when using the Vulkan loader on macOS (MoltenVK portability driver)
+		if( idStr::Icmp( instanceExtensionProps[ i ].extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME ) == 0 )
+		{
+			vkcontext.instanceExtensions.AddUnique( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME );
+			createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+		}
+#endif
 	}
 
 	vkcontext.debugUtilsSupportAvailable = false;
@@ -743,7 +750,12 @@ static void SelectPhysicalDevice()
 
 			static idStr version_string;
 			version_string.Clear();
+#if VK_HEADER_VERSION >= 176
 			version_string.Append( va( "Vulkan API %i.%i.%i", VK_API_VERSION_MAJOR( gpu.props.apiVersion ), VK_API_VERSION_MINOR( gpu.props.apiVersion ), VK_API_VERSION_PATCH( gpu.props.apiVersion ) ) );
+#else
+			// SRS - Allow deprecated version macros on older Vulkan SDKs < 1.2.176
+			version_string.Append( va( "Vulkan API %i.%i.%i", VK_VERSION_MAJOR( gpu.props.apiVersion ), VK_VERSION_MINOR( gpu.props.apiVersion ), VK_VERSION_PATCH( gpu.props.apiVersion ) ) );
+#endif
 
 			static idStr extensions_string;
 			extensions_string.Clear();
@@ -761,13 +773,13 @@ static void SelectPhysicalDevice()
 
 			if( vkcontext.deviceProperties2Available && driverPropertiesAvailable )
 			{
-				VkPhysicalDeviceProperties2 pProperties = {};
-				VkPhysicalDeviceDriverProperties pDriverProperties = {};
-				pProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-				pProperties.pNext = &pDriverProperties;
-				pDriverProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
-				vkGetPhysicalDeviceProperties2( vkcontext.physicalDevice, &pProperties );
-				version_string.Append( va( " (%s %s)", pDriverProperties.driverName, pDriverProperties.driverInfo ) );
+				VkPhysicalDeviceProperties2 deviceProperties = {};
+				VkPhysicalDeviceDriverProperties driverProperties = {};
+				deviceProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+				deviceProperties.pNext = &driverProperties;
+				driverProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
+				vkGetPhysicalDeviceProperties2( vkcontext.physicalDevice, &deviceProperties );
+				version_string.Append( va( " (%s %s)", driverProperties.driverName, driverProperties.driverInfo ) );
 			}
 			glConfig.version_string = version_string.c_str();
 

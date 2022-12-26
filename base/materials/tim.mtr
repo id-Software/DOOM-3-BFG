@@ -1,0 +1,341 @@
+//===============================================================
+//Tim's spooky lights
+//===============================================================
+
+table builduplight { clamp { 0, .2, .4, .6, .8, 1, 1, 1 } }
+table builduplight2 { clamp { 0, .2, .4, .6, .8, 1, 1, 1, 1, 0 } }
+table fadedown  { clamp { 1, 1, 1, .8, .8, .6, .5, .4, .2, .2, .1, 0 } }
+table builduppulse { {.8, .6, .4, .2, 0, .2, .4, .6, .8 } }
+table builduppulse2 { { 1 } }
+table xOnlight { { 1, 1, 1 } }
+table xFlickerLight { { 0.8, 0.5, 0, 0.8 } }
+
+lights/squarelight_flash
+{
+	{
+		map		lights/squarelight1.tga
+		colored
+		//CHANGE parm3 to 10 if doesn't work
+		red 		( alarmstrobe[Parm4 + (time * parm3) ]) * Parm0
+		green 	( alarmstrobe[Parm4 + (time * parm3) ]) * Parm1
+		blue 		( alarmstrobe[Parm4 + (time * parm3) ]) * Parm2
+		zeroClamp
+	}
+}
+
+//
+//
+//
+lights/square_trigger_flicker
+{
+	{
+	if ( parm7 == 0 )
+	map	lights/squarelight1.tga
+	zeroclamp
+	colored
+	}
+	{
+	if ( parm7 != 0 )
+	map lights/squarelight1.tga
+	red		( xFlickerLight [ Parm4 + time ] ) * Parm0
+	green	( xFlickerLight [ Parm4 + time ] ) * Parm1
+	blue	( xFlickerLight [ Parm4 + time ] ) * Parm2
+	zeroclamp
+	}
+}
+
+
+
+//builds then holds
+lights/square_builduplight_hold
+{
+	{
+		if ( ((time + parm4) * 0.2) < 1.0 )
+		map	lights/squarelight1.tga
+		red 	( builduplight [ (time + Parm4) * 0.2 ]) * Parm0
+		green	( builduplight [ (time + Parm4) * 0.2 ]) * Parm1
+		blue	( builduplight [ (time + Parm4) * 0.2 ]) * Parm2
+		zeroclamp
+	}
+	{
+		if ( ((time + parm4) * 0.2) >= 1.0 )
+		map	lights/squarelight1.tga
+		red 	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm0
+		green	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm1
+		blue	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm2
+		zeroclamp
+	}
+}
+
+//builds then holds_spot
+lights/spot_builduplight_hold
+{
+	{
+		if ( ((time + parm4) * 0.2) < 1.0 )
+		map	lights/spot01.tga
+		red 	( builduplight [ (time + Parm4) * 0.2 ]) * Parm0
+		green	( builduplight [ (time + Parm4) * 0.2 ]) * Parm1
+		blue	( builduplight [ (time + Parm4) * 0.2 ]) * Parm2
+		zeroclamp
+	}
+	{
+		if ( ((time + parm4) * 0.2) >= 1.0 )
+		map	lights/spot01.tga
+		red 	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm0
+		green	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm1
+		blue	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm2
+		zeroclamp
+	}
+}
+
+//builds then goes out
+lights/square_builduplight
+{
+	{
+		map	lights/squarelight1.tga
+		red 	( builduplight [ (time + Parm4) * 0.1 ]) * Parm0
+		green	( builduplight [ (time + Parm4) * 0.1 ]) * Parm1
+		blue	( builduplight [ (time + Parm4) * 0.1 ]) * Parm2
+		zeroclamp
+	}
+}
+
+//builds then pulses
+lights/square_builduplight2
+{
+	{
+		if ( ((time + parm4) * 0.2) < 1.0 )
+		map	lights/squarelight1.tga
+		red 	( builduplight [ (time + Parm4) * 0.2 ]) * Parm0
+		green	( builduplight [ (time + Parm4) * 0.2 ]) * Parm1
+		blue	( builduplight [ (time + Parm4) * 0.2 ]) * Parm2
+		zeroclamp
+	}
+	{
+		if ( ((time + parm4) * 0.2) >= 1.0 )
+		map	lights/squarelight1.tga
+		red 	( builduppulse [ (time + Parm4) * 0.2 - 1.0 ]) * Parm0
+		green	( builduppulse [ (time + Parm4) * 0.2 - 1.0 ]) * Parm1
+		blue	( builduppulse [ (time + Parm4) * 0.2 - 1.0 ]) * Parm2
+		zeroclamp
+	}
+}
+
+//Test textures
+
+//Tim's light test
+
+textures/base_light/bulb_breakable
+{
+	noshadows
+	qer_editorimage textures/base_light/bulb.tga
+	description "breakable bulb when you shoot it"
+
+	diffusemap	textures/base_light/bulb_d.tga
+	specularmap	textures/base_light/bulb_s.tga
+        bumpmap	        textures/base_light/bulb_local.tga
+
+	{if ( parm7 == 0 )
+		blend gl_one,gl_one
+		map textures/base_light/bulb_fx.tga
+		rgb		blamptable[ time * 5 ]
+	}
+
+	{if ( parm7 != 0 )
+		blend gl_one,gl_one
+		map textures/base_light/bulb_fx.tga
+		rgb		neontable1[ time * 1 ]
+	}
+		
+}
+
+lights/squarelight_breakable
+{
+	{if ( parm7 == 0 )
+		map		lights/squarelight1.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroclamp
+	}
+	{if ( parm7 != 0 )
+		map		lights/squarelight1.tga
+		red 		sound * Parm0
+		green 		sound * Parm1
+		blue 		sound * Parm2
+		zeroclamp
+	}
+
+
+}
+
+lights/squarelight_breakable_off
+{
+	{if ( parm7 == 0 )
+		map	lights/squarelight1.tga
+		colored
+		zeroclamp
+	}
+	{if ( parm7 != 0 )
+		map	lights/squarelight1.tga
+		zeroClamp
+		colored
+		red 	0
+		green 	0
+		blue 	0
+	}
+
+}
+
+//malsswinglight for alpha lab
+lights/swinglight_breakable_off_1
+{
+	{if ( parm7 == 0 )
+		map	lights/spot01.tga
+		colored
+		zeroclamp
+	}
+	{if ( parm7 != 0 )
+		map	lights/spot01.tga
+		zeroClamp
+		colored
+		red 	0
+		green 	0
+		blue 	0
+	}
+
+
+}
+
+
+textures/base_light/extended_light
+{
+	qer_editorimage	textures/base_light/striplight2_ed.tga
+	{if ( parm7 == 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+	{if ( parm7 == 0 )
+		blend		bumpmap
+		map		textures/base_light/striplight2_local.tga
+	}
+	{if ( parm7 == 0 )
+		blend		diffusemap		
+		map		textures/base_light/striplight2dif.tga
+	}
+	{if ( parm7 == 0 )
+		blend		specularmap
+		map		textures/base_light/striplight2spec.tga
+	}
+
+
+	{if ( parm7 != 0 )
+		blend		bumpmap
+		map		addnormals (textures/base_light/striplight2_local.tga, heightmap (textures/base_light/striplight2_brokenbmp.tga, 4) )
+	}
+	{if ( parm7 != 0 )
+		blend		diffusemap
+		map		textures/base_light/striplight2dif2.tga
+	}
+	{if ( parm7 != 0 )
+		blend		specularmap
+		map		textures/base_light/striplight2spec2.tga
+	}
+	{if ( parm7 != 0 )
+		blend		gl_one,gl_one
+		map		textures/base_light/striplight2add_broken.tga
+		red 		parm0 * 2
+		green 		parm1 * 2
+		blue 		parm2 * 2
+	}
+}
+
+//chrome texture for mals room
+textures/sfx/chrome_mal_pipe
+{
+	qer_editorimage	textures/base_trim/asp2spec.tga
+	forceopaque
+	{
+		blend add
+		cubeMap		env/mal_pipe
+//		texgen		normal
+		texgen		reflect
+	}
+}
+
+textures/sfx/lab_glass
+{
+	translucent
+
+	noshadows
+	
+	qer_editorimage	textures/sfx/lab_glass_ed.tga
+	//diffusemap 		textures <none>
+	bumpmap		heightmap (textures/sfx/lab_glass_bmp, 0.5)
+	specularmap		textures/sfx/lab_glass_spec.tga
+	{
+	 	blend	diffuseMap
+		map textures/sfx/lab_glass_ed.tga
+	}
+}
+
+textures/sfx/lab_glass_reflective
+{
+	discrete
+	translucent
+	//twoSided
+	noshadows
+	
+	qer_editorimage	textures/sfx/chiglass1blue.tga
+
+	bumpmap		heightmap (textures/sfx/lab_glass_bmp, 0.2)
+	//specularmap		textures/sfx/lab_glass_spec.tga
+
+	//{
+	//	blend add
+	//	cubeMap		env/bland
+	//	texgen		reflect
+	//}
+	
+	{
+	 	blend	diffuseMap
+		map textures/sfx/lab_glass_ed_lt.tga
+		scale	 16 , 16
+	}
+	{
+		mirrorRenderMap		512	256		// size of the texture to draw the mirror view in
+		blend	blend
+
+		// give it a greenish tint
+		red		0.3
+		green	0.3
+		blue	0.1
+
+		// opacity
+		alpha	0.7
+
+		// these may not be necessary when I finish the code
+		translate	0.5 , 0.5
+		scale	0.5 , 0.5
+	}
+
+
+}
+
+textures/base_light/colored_strip
+{
+	qer_editorimage	textures/base_light/reactorlight1.tga
+	
+	
+	diffusemap		textures/base_light/reactorlight1b.tga
+	specularmap		textures/base_light/reactorlight1_sb.tga	
+	bumpmap		textures/base_light/reactorlight1_localb.tga
+	{
+		colored
+		blend gl_one,gl_one
+		map textures/base_light/reactorlight1_addb.tga		
+	}
+}

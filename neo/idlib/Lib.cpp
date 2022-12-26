@@ -466,7 +466,7 @@ RESULTS
 ===================================================================== */
 void RevBytesSwap( void* bp, int elsize, int elcount )
 {
-	register unsigned char* p, *q;
+	unsigned char* p, *q;
 
 	p = ( unsigned char* ) bp;
 

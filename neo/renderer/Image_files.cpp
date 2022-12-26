@@ -1469,6 +1469,26 @@ retry:
 			}
 		}
 	}
+	else
+	{
+		// Try loading from a deferred image hash list
+		int hash = name.FileNameHash();
+		for( int i = globalImages->deferredImageHash.First( hash ); i != -1; i = globalImages->deferredImageHash.Next( i ) )
+		{
+			idDeferredImage* image = globalImages->deferredImages[i];
+			if( name.Icmp( image->name ) == 0 )
+			{
+				if( pic && *pic == nullptr )
+				{
+					*usage = image->textureUsage;
+					*width = image->width;
+					*height = image->height;
+					memcpy( *pic, image->pic, 4 * *width * *height );
+					break;
+				}
+			}
+		}
+	}
 	// RB end
 
 	if( ( width && *width < 1 ) || ( height && *height < 1 ) )
@@ -1518,6 +1538,9 @@ Loads six files with proper extensions
 bool R_LoadCubeImages( const char* imgName, cubeFiles_t extensions, byte* pics[6], int* outSize, ID_TIME_T* timestamp, int cubeMapSize )
 {
 	int		i, j;
+	const char*	quakeSides[6] =  { "_ft.tga", "_bk.tga", "_lf.tga", "_rt.tga",
+								   "_up.tga", "_dn.tga"
+								 };
 	const char*	cameraSides[6] =  { "_forward.tga", "_back.tga", "_left.tga", "_right.tga",
 									"_up.tga", "_down.tga"
 								  };
@@ -1531,6 +1554,10 @@ bool R_LoadCubeImages( const char* imgName, cubeFiles_t extensions, byte* pics[6
 	if( extensions == CF_CAMERA )
 	{
 		sides = cameraSides;
+	}
+	else if( extensions == CF_QUAKE1 )
+	{
+		sides = quakeSides;
 	}
 	else
 	{

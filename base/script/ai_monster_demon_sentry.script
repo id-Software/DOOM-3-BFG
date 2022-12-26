@@ -1,0 +1,531 @@
+/***********************************************************************
+
+ai_monster_demon_sentry.script
+
+monster_demon_sentry
+
+***********************************************************************/
+
+#define DEMON_SENTRY_RUNDISTANCE		192
+#define DEMON_SENTRY_FIRERATE			0.1
+#define DEMON_SENTRY_MIN_SHOTS			8
+#define DEMON_SENTRY_WALKTURN			65
+#define DEMON_SENTRY_WALKTURN2			30
+#define DEMON_SENTRY_ATTACK_MAX_LENGTH	3
+#define DEMON_SENTRY_ATTACK_MIN_LENGTH	1.2
+#define DEMON_SENTRY_WAIT_MAX_LENGTH	1
+#define DEMON_SENTRY_WAIT_MIN_LENGTH	0.3
+#define DEMON_SENTRY_ATTACK_DELAY		2
+
+
+object monster_demon_sentry : monster_base {
+	boolean		fire;
+	entity		light;
+
+	float		nextAttack;
+
+	//
+	// States
+	//
+	void		state_Idle();
+	void		state_Begin();
+	void		state_Killed();
+
+	void		init();
+	void		destroy();
+
+	void		spawn_flashlight();
+	void		flashlight_off();
+	void		flashlight_on();
+
+	float		should_turn_left();
+	float		should_turn_right();
+
+	// attack checks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+
+	// torso anim states
+	void		Torso_Death();
+	void		Torso_Idle();
+	void		Torso_Pain();
+	void		Torso_RangeAttack();
+
+	// legs anim states
+	void		Legs_Death();
+	void		Legs_Idle();
+	void		Legs_Walk();
+	void		Legs_TurnLeft();
+	void		Legs_TurnRight();
+};
+
+
+/***********************************************************************
+
+Torso animation control
+
+***********************************************************************/
+
+void monster_demon_sentry::Torso_Death() {
+	finishAction( "dead" );
+
+	// never exit
+	waitUntil( 0 );
+}
+
+void monster_demon_sentry::Torso_Idle() {
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+
+	eachFrame {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+			idleAnim( ANIMCHANNEL_TORSO, "stand" );
+		}
+		if ( fire ) {
+			animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+		}
+	}
+}
+
+void monster_demon_sentry::Torso_Pain() {
+	string animname;
+
+	animname = getPainAnim();
+	setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+
+	// no pain for 2 seconds
+	preventPain( 2 );
+
+	finishAction( "pain" );
+	setBlendFrames( ANIMCHANNEL_TORSO, 4 );
+}
+
+void monster_demon_sentry::Torso_RangeAttack() {
+	float endtime;
+	float firetime;
+	float numshots;
+
+	setAnimPrefix( "" );
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 0 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+
+	numshots = 0;
+	while( fire || ( numshots < DEMON_SENTRY_MIN_SHOTS ) ) {
+		endtime = RandomDelay( DEMON_SENTRY_ATTACK_MIN_LENGTH, DEMON_SENTRY_ATTACK_MAX_LENGTH );
+		setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_loop" );
+		firetime = sys.getTime();
+		while( ( fire || ( numshots < DEMON_SENTRY_MIN_SHOTS ) ) && ( sys.getTime() < endtime ) ) {
+			if ( sys.getTime() >= firetime ) {
+				startSound( "snd_fire", SND_CHANNEL_WEAPON, false );
+				attackMissile( "Barrel" );
+				numshots++;
+				firetime = sys.getTime() + DEMON_SENTRY_FIRERATE;
+			}
+			if ( AI_PAIN ) {
+				Torso_Pain();
+				playCycle( ANIMCHANNEL_TORSO, "range_attack_loop" );
+			}
+			waitFrame();
+		}
+
+		if ( !fire && ( numshots >= DEMON_SENTRY_MIN_SHOTS ) ) {
+			break;
+		}
+
+		setBlendFrames( ANIMCHANNEL_TORSO, 2 );
+		playCycle( ANIMCHANNEL_TORSO, "range_attack_aim" );
+		endtime = RandomDelay( DEMON_SENTRY_WAIT_MIN_LENGTH, DEMON_SENTRY_WAIT_MAX_LENGTH );
+		while( ( fire || ( numshots < DEMON_SENTRY_MIN_SHOTS ) ) && ( sys.getTime() < endtime ) ) {
+			if ( AI_PAIN ) {
+				Torso_Pain();
+			}
+			waitFrame();
+		}
+	}
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack_end" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		if ( AI_PAIN ) {
+			Torso_Pain();
+		}
+		waitFrame();
+	}
+
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+Legs animation control
+
+***********************************************************************/
+
+void monster_demon_sentry::Legs_Death() {
+	while( AI_DEAD ) {
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 4 );
+}
+
+float monster_demon_sentry::should_turn_left() {
+	float turnAmount;
+
+	turnAmount = getTurnDelta();
+	if ( turnAmount > 10 ) {
+		if ( hasAnim( ANIMCHANNEL_LEGS, "turn_left" ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+float monster_demon_sentry::should_turn_right() {
+	float turnAmount;
+
+	turnAmount = getTurnDelta();
+	if ( turnAmount < -10 ) {
+		if ( hasAnim( ANIMCHANNEL_LEGS, "turn_right" ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void monster_demon_sentry::Legs_Idle() {
+	float delta;
+
+	if ( !AI_FORWARD && !facingIdeal() ) {
+		if ( should_turn_left() ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+		}
+		if ( should_turn_right() ) {
+			animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+		}
+	}
+
+	idleAnim( ANIMCHANNEL_LEGS, "stand" );
+
+	eachFrame {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= DEMON_SENTRY_WALKTURN ) && ( delta >= -DEMON_SENTRY_WALKTURN ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		if ( !facingIdeal() ) {
+			if ( should_turn_left() ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnLeft", 4 );
+			}
+			if ( should_turn_right() ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_TurnRight", 4 );
+			}
+		}
+	}
+}
+
+void monster_demon_sentry::Legs_Walk() {
+	float delta;
+
+	playCycle( ANIMCHANNEL_LEGS, "walk" );
+
+	while( AI_FORWARD )	{
+		delta = getTurnDelta();
+		if ( ( delta > DEMON_SENTRY_WALKTURN ) || ( delta < -DEMON_SENTRY_WALKTURN ) ) {
+			break;
+		}
+
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 12 );
+}
+
+void monster_demon_sentry::Legs_TurnLeft() {
+	float turnAmount;
+	float delta;
+
+	turnAmount = getTurnDelta();
+	if ( turnAmount > 110 ) {
+		// do it in two turns
+		turnAmount *= 0.5;
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= DEMON_SENTRY_WALKTURN2 ) && ( delta >= -DEMON_SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		waitFrame();
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= DEMON_SENTRY_WALKTURN2 ) && ( delta >= -DEMON_SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 );
+			}
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+void monster_demon_sentry::Legs_TurnRight() {
+	float turnAmount;
+	float delta;
+
+	turnAmount = getTurnDelta();
+	if ( turnAmount < -110 ) {
+		// do it in two turns
+		turnAmount *= 0.5;
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_right" );
+	while( !animDone( ANIMCHANNEL_LEGS, 0 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= DEMON_SENTRY_WALKTURN2 ) && ( delta >= -DEMON_SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 12 );
+			}
+		}
+		waitFrame();
+	}
+
+	playAnim( ANIMCHANNEL_LEGS, "turn_left" );
+	while( !animDone( ANIMCHANNEL_LEGS, 8 ) ) {
+		if ( AI_FORWARD ) {
+			delta = getTurnDelta();
+			if ( ( delta <= DEMON_SENTRY_WALKTURN2 ) && ( delta >= -DEMON_SENTRY_WALKTURN2 ) ) {
+				animState( ANIMCHANNEL_LEGS, "Legs_Walk", 8 );
+			}
+		}
+		waitFrame();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 8 );
+}
+
+/* ===================================================================================== */
+/* ===================================================================================== */
+/* ===================================================================================== */
+
+/*
+=====================
+monster_demon_sentry::init
+=====================
+*/
+void monster_demon_sentry::init() {
+	run_distance = DEMON_SENTRY_RUNDISTANCE;
+	nextAttack = 0;
+
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_demon_sentry::state_Begin
+=====================
+*/
+void monster_demon_sentry::state_Begin() {
+	fire = false;
+	setBoneMod( true );
+
+	if ( getIntKey( "flashlight" ) ) {
+		spawn_flashlight();
+	}
+
+	animState( ANIMCHANNEL_LEGS, "Legs_Idle", 0 );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+
+	monster_begin();
+	setMoveType( MOVETYPE_ANIM );		
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_demon_sentry::state_Idle
+=====================
+*/
+void monster_demon_sentry::state_Idle() {
+	setState( "state_Combat" );
+}
+
+/*
+=====================
+monster_demon_sentry::state_Killed
+=====================
+*/
+void monster_demon_sentry::state_Killed() {
+	stopMove();
+
+	flashlight_off();
+
+	animState( ANIMCHANNEL_TORSO, "Torso_Death", 0 );
+	animState( ANIMCHANNEL_LEGS, "Legs_Death", 0 );
+
+	waitAction( "dead" );
+
+	float burnDelay = getFloatKey( "burnaway" );
+	if ( burnDelay != 0 ) {
+		preBurn();
+		sys.wait( burnDelay );
+		burn();
+		startSound( "snd_burn", SND_CHANNEL_BODY, false );
+		sys.wait( 3 );
+		remove();
+	}
+
+	stopThinking();
+}
+
+/*
+=====================
+monster_demon_sentry::destroy
+=====================
+*/
+void monster_demon_sentry::destroy() {
+	light.remove();
+}
+
+/*
+=====================
+monster_demon_sentry::spawn_flashlight
+=====================
+*/
+void monster_demon_sentry::spawn_flashlight() {
+	string texture;
+	float distance;
+
+	distance = getFloatKey( "flashlight_distance" );
+	if ( !distance ) {
+		distance = 640;
+	}
+
+	// use ik_pose to bind light
+	playAnim( ANIMCHANNEL_TORSO, "ik_pose" );
+	if ( getIntKey( "flashlight" ) == 2 ) {
+		// spot light
+		sys.setSpawnArg( "light_target", "1 0 0" );
+		sys.setSpawnArg( "light_up", "0 0 .5" );
+		sys.setSpawnArg( "light_right", "0 -.5 0" );	
+		sys.setSpawnArg( "light_end", distance + " 0 0" );
+
+		texture = getKey( "mtr_flashlight" );
+		sys.setSpawnArg( "texture", texture );
+
+		sys.setSpawnArg( "name", getName() + "_light" );	
+		light = sys.spawn( "light" );
+		light.setAngles( getAngles() );
+		light.bindToJoint( self, "light", true );
+		light.setOrigin( '0 0 0' );
+	} else {
+		// radial light
+		sys.setSpawnArg( "name", getName() + "_light" );	
+		light = sys.spawn( "light" );
+		light.setRadius( 256 );	
+		light.setAngles( getAngles() + '0 90 0' );
+		light.bindToJoint( self, "light", true );
+		texture = getKey( "mtr_flashlight" );
+		light.setShader( texture );
+		light.setOrigin( '0 0 0' );
+	}
+	stopAnim( ANIMCHANNEL_TORSO, 0 );
+
+	flashlight_on();
+}
+
+/*
+=====================
+monster_demon_sentry::flashlight_off
+=====================
+*/
+void monster_demon_sentry::flashlight_off() {
+	string skin;
+
+	if ( light ) {
+		light.Off();
+		skin = getKey( "skin_flashlight_off" );
+		setSkin( skin );
+	}
+}
+
+/*
+=====================
+monster_demon_sentry::flashlight_on
+=====================
+*/
+void monster_demon_sentry::flashlight_on() {
+	string skin;
+
+	if ( light ) {
+		light.On();
+		skin = getKey( "skin_flashlight_on" );
+		setSkin( skin );
+	}
+}
+
+/*
+=====================
+monster_demon_sentry::do_attack
+=====================
+*/
+void monster_demon_sentry::do_attack( float attack_flags ) {
+	if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_demon_sentry::check_attacks
+=====================
+*/
+float monster_demon_sentry::check_attacks() {
+	float attack_flags = 0;
+	float currentTime = sys.getTime();
+
+	if ( canHitEnemyFromAnim( "range_attack_loop" ) && ( currentTime > nextAttack ) ) {
+		attack_flags |= ATTACK_MISSILE;
+	}
+
+	return attack_flags;
+}
+
+/*
+=====================
+monster_demon_sentry::combat_range
+=====================
+*/
+void monster_demon_sentry::combat_range() {
+	faceEnemy();
+	fire = true;
+	while( canHitEnemyFromAnim( "range_attack_loop" ) ) {
+		waitFrame();
+	}
+	fire = false;
+	waitUntil( !inAnimState( ANIMCHANNEL_TORSO, "Torso_RangeAttack" ) );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( DEMON_SENTRY_ATTACK_DELAY );
+}

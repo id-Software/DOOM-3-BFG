@@ -1,0 +1,58 @@
+
+textures/decals/invuln
+{
+	//noshadows
+	//translucent
+
+	qer_editorimage		textures/decals/berserk.tga
+
+	
+	{	// write alpha test values to destination alpha
+		maskcolor				// write only to the alpha channel
+		map textures/decals/berserk2.tga
+		rotate time * 3
+		//alphaTest 0.5 // - parm3
+		colored
+		clamp
+		translate 0.1, 0.1
+	}
+	
+	{
+		blend  gl_dst_alpha, gl_one_minus_dst_alpha
+      	scale		1, -1
+      	translate	0, -1
+		map			_scratch
+		centerscale	0.97, 0.97
+	}
+
+
+}
+
+textures/decals/haste
+{
+	//noshadows
+	//translucent
+
+	qer_editorimage		textures/decals/berserk.tga
+
+	
+	{	// write alpha test values to destination alpha
+		maskcolor				// write only to the alpha channel
+		map textures/decals/berserk2.tga
+		rotate time * 3
+		//alphaTest 0.5 // - parm3
+		colored
+		clamp
+		translate 0.1, 0.1
+	}
+	
+	{
+		blend  gl_dst_alpha, gl_one_minus_dst_alpha
+      	scale		1, -1
+      	translate	0, -1
+		map			_scratch
+		centerscale	0.97, 0.97
+	}
+
+
+}

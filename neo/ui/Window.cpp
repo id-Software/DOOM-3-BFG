@@ -249,7 +249,7 @@ void idWindow::CleanUp()
 	}
 
 	// ensure the register list gets cleaned up
-	regList.Reset( );
+	regList.Reset();
 
 	// Cleanup the named events
 	namedEvents.DeleteContents( true );
@@ -529,7 +529,7 @@ void idWindow::Activate( bool activate,	idStr& act )
 	int n = ( activate ) ? ON_ACTIVATE : ON_DEACTIVATE;
 
 	//  make sure win vars are updated before activation
-	UpdateWinVars( );
+	UpdateWinVars();
 
 	RunScript( n );
 	int c = children.Num();
@@ -693,7 +693,7 @@ void idWindow::RunNamedEvent( const char* eventName )
 	int c;
 
 	// Find and run the event
-	c = namedEvents.Num( );
+	c = namedEvents.Num();
 	for( i = 0; i < c; i ++ )
 	{
 		if( namedEvents[i]->mName.Icmp( eventName ) )
@@ -2580,7 +2580,7 @@ bool idWindow::Parse( idTokenParser* src, bool rebuild )
 	while( token != "}" )
 	{
 		// track what was parsed so we can maintain it for the guieditor
-		src->SetMarker( );
+		src->SetMarker();
 
 		if( token == "windowDef" || token == "animationDef" )
 		{
@@ -2760,7 +2760,7 @@ bool idWindow::Parse( idTokenParser* src, bool rebuild )
 
 			rvNamedEvent* ev = new( TAG_OLD_UI ) rvNamedEvent( token );
 
-			src->SetMarker( );
+			src->SetMarker();
 
 			if( !ParseScript( src, *ev->mEvent ) )
 			{
@@ -2782,7 +2782,7 @@ bool idWindow::Parse( idTokenParser* src, bool rebuild )
 			ev->time = atoi( token.c_str() );
 
 			// reset the mark since we dont want it to include the time
-			src->SetMarker( );
+			src->SetMarker();
 
 			if( !ParseScript( src, *ev->event, &ev->time ) )
 			{
@@ -2805,7 +2805,7 @@ bool idWindow::Parse( idTokenParser* src, bool rebuild )
 
 			// add the float to the editors wrapper dict
 			// Set the marker after the float name
-			src->SetMarker( );
+			src->SetMarker();
 
 			// Read in the float
 			regList.AddReg( work, idRegister::FLOAT, src, this, varf );
@@ -2820,7 +2820,7 @@ bool idWindow::Parse( idTokenParser* src, bool rebuild )
 
 			// set the marker so we can determine what was parsed
 			// set the marker after the vec4 name
-			src->SetMarker( );
+			src->SetMarker();
 
 			// FIXME: how about we add the var to the desktop instead of this window so it won't get deleted
 			//        when this window is destoyed which even happens during parsing with simple windows ?
@@ -2839,7 +2839,7 @@ bool idWindow::Parse( idTokenParser* src, bool rebuild )
 
 			// add the float to the editors wrapper dict
 			// set the marker to after the float name
-			src->SetMarker( );
+			src->SetMarker();
 
 			// Parse the float
 			regList.AddReg( work, idRegister::FLOAT, src, this, varf );
@@ -4651,7 +4651,7 @@ Returns the number of children
 */
 int idWindow::GetChildCount()
 {
-	return drawWindows.Num( );
+	return drawWindows.Num();
 }
 
 /*
@@ -4835,12 +4835,12 @@ bool idWindow::UpdateFromDictionary( idDict& dict )
 	const idKeyValue*	kv;
 	int					i;
 
-	SetDefaults( );
+	SetDefaults();
 
 	// Clear all registers since they will get recreated
-	regList.Reset( );
-	expressionRegisters.Clear( );
-	ops.Clear( );
+	regList.Reset();
+	expressionRegisters.Clear();
+	ops.Clear();
 
 	for( i = 0; i < dict.GetNumKeyVals(); i ++ )
 	{

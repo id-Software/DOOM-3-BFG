@@ -1,0 +1,484 @@
+
+textures/base_wall/skpanelt2
+{
+	qer_editorimage		textures/base_wall/skpanelt2.tga
+	bumpmap		addnormals (textures/base_wall/skpanelt2_local.tga, heightmap (textures/base_wall/skpanelt2_b.tga, 3))
+	diffusemap		textures/base_wall/skpanelt2.tga
+	specularmap		textures/base_wall/skpanelt2_s.tga
+}
+
+models/mapobjects/steve_temp/bonegrate
+{
+        noSelfShadow
+        stone
+        renderbump  -size 512 512 -trace .1 models/mapobjects/steve_temp/bonegrate_local.tga models/mapobjects/steve_temp/bonegrate_hi.ase
+        qer_editorimage		models/mapobjects/steve_temp/bonegrate.tga	
+        bumpmap	        addnormals (models/mapobjects/steve_temp/bonegrate_local.tga, heightmap (models/mapobjects/steve_temp/bonegrate_h.tga, 4))
+	diffusemap	models/mapobjects/steve_temp/bonegrate.tga
+	specularmap	models/mapobjects/steve_temp/bonegrate_s.tga
+        
+}
+
+textures/outside/fencewall1
+{
+        qer_editorimage		textures/outside/fencewall1.tga	
+        bumpmap	        textures/outside/fencewall1_local.tga
+	diffusemap	textures/outside/fencewall1_d.tga
+	specularmap	textures/outside/fencewall1_s.tga
+        
+}
+
+textures/outside/fencewall2
+{
+        qer_editorimage		textures/outside/fencewall2.tga	
+        bumpmap	        textures/outside/fencewall2_local.tga
+	diffusemap	textures/outside/fencewall2_d.tga
+	specularmap	textures/outside/fencewall2_s.tga
+        
+}
+
+models/mapobjects/steve_temp/ribceiling
+{
+        noSelfShadow
+        stone
+        qer_editorimage		models/mapobjects/steve_temp/ribceiling.tga	
+        bumpmap	        addnormals (models/mapobjects/steve_temp/ribceiling_local.tga, heightmap (models/mapobjects/steve_temp/ribceiling_h.tga, 6)) 
+	diffusemap		models/mapobjects/steve_temp/ribceiling.tga
+        specularmap	models/mapobjects/steve_temp/ribceiling_s.tga
+        
+}
+
+models/mapobjects/steve_temp/a_tecpipebraid2soylent
+{
+	qer_editorimage		models/mapobjects/steve_temp/a_tecpipebraid2soylent.tga
+        noSelfShadow
+	{
+		blend 		bumpmap
+		map	        addnormals (textures/hell/hellbubbles_local.tga, heightmap ( textures/hell/slime_bblood01.tga, 6))
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/slime_dblood03.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/slime_sblood_wall01.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals (textures/object/a_tecpipebraid1_local.tga, heightmap (textures/object/a_tecpipebraid1_bmp.tga, 4))
+                scale    2, 1
+	}
+	{
+		blend		diffusemap
+		map		textures/object/a_tecpipebraid2_d.tga
+                scale    2, 1
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/object/a_tecpipebraid1_s.tga
+                scale    2, 1
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/slimetest
+{
+	qer_editorimage		models/mapobjects/steve_temp/slime_local.tga
+        noSelfShadow
+	    noshadows
+	diffusemap		textures/hell/slime_dblood03.tga
+        specularmap	        textures/hell/slime_sblood_wall01.tga
+        bumpmap                 addnormals (textures/hell/hellbubbles_local.tga, heightmap ( textures/hell/slime_bblood01.tga, 4))
+}
+
+models/mapobjects/steve_temp/sharprock2slimeblood03
+{
+	qer_editorimage		models/mapobjects/steve_temp/sharprock2slimeblood03.tga
+	stone
+        noSelfShadow
+//	    noshadows
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/sharprock2.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/sharprock2_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals (textures/hell/hellbubbles_local.tga, heightmap ( textures/hell/slime_bblood01.tga, 6))
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/slime_dblood03.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/slime_sblood_wall01.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/tooth2
+{
+        qer_editorimage		models/mapobjects/steve_temp/tooth2.tga
+        stone
+        noSelfShadow	
+        bumpmap	        addnormals (models/mapobjects/steve_temp/tooth2_local.tga, heightmap (models/mapobjects/steve_temp/tooth2_h.tga, 4))
+	diffusemap	models/mapobjects/steve_temp/tooth2_d.tga
+	specularmap	models/mapobjects/steve_temp/tooth2_s.tga
+        
+}
+
+models/mapobjects/steve_temp/tooth2sharprock02
+{
+	   noSelfShadow
+	   stone
+	qer_editorimage	models/mapobjects/steve_temp/tooth2sharprock02.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( models/mapobjects/steve_temp/tooth2_local.tga, heightmap( models/mapobjects/steve_temp/tooth2_h.tga, 4 ) )
+	}
+	{
+		blend 		diffusemap
+		map		models/mapobjects/steve_temp/tooth2_d.tga
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	      models/mapobjects/steve_temp/tooth2_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/horn1
+{
+	   noSelfShadow
+	   stone
+	qer_editorimage	models/mapobjects/steve_temp/horn1.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( models/mapobjects/steve_temp/horn1_local.tga, heightmap( models/mapobjects/steve_temp/horn1_h.tga, 4 ) )
+	}
+	{
+		blend 		diffusemap
+		map		models/mapobjects/steve_temp/horn1_d.tga
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	      models/mapobjects/steve_temp/horn1_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/skullface
+{
+	   noSelfShadow
+	   stone
+	qer_editorimage	models/mapobjects/steve_temp/skullface.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( models/mapobjects/steve_temp/skullface_local.tga, heightmap( models/mapobjects/steve_temp/skullface_h.tga, 4 ) )
+	}
+	{
+		blend 		diffusemap
+		map		models/mapobjects/steve_temp/skullface.tga
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	      models/mapobjects/steve_temp/skullface_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/skullsharprock
+{
+        qer_editorimage		models/mapobjects/steve_temp/skullsharprock.tga
+        stone
+        noSelfShadow	
+        bumpmap	        addnormals (models/mapobjects/steve_temp/skullsharprock_local.tga, heightmap (models/mapobjects/steve_temp/skullsharprock_h.tga, 8))
+	diffusemap	models/mapobjects/steve_temp/skullsharprock.tga
+	specularmap	models/mapobjects/steve_temp/skullsharprock_s.tga
+        
+}
+
+textures/hell/bloodsharprock2blend
+{
+        noSelfShadow
+	qer_editorimage		textures/hell/bloodsharprock2blend.tga
+	stone
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/sharprock2.tga
+		vertexColor
+	}
+	{
+		blend		specularmap
+		map	      textures/hell/sharprock2_s.tga
+		vertexColor
+	}
+    {
+		blend		bumpmap
+		map	heightmap(textures/hell/blood_stream1_h.tga, 8 )
+		translate	time * -.01 , time * -0.01
+	}
+		{
+		blend		diffusemap
+		map		textures/hell/blood_stream1.tga   
+		translate	time * .015 , time * -.03
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/blood_stream1_s.tga
+		translate	time * .02 , time * -0.05
+		inverseVertexColor
+
+	}
+} 
+models/mapobjects/steve_temp/mcityc1bricks1a
+{
+	   noSelfShadow	    
+	   stone
+	qer_editorimage	models/mapobjects/steve_temp/mcityc1bricks1a.tga
+
+	{
+		blend 		bumpmap
+		map		textures/mcity/mcityc1_local.tga
+	}
+	{
+		blend 		diffusemap
+		map		textures/mcity/mcityc1.tga
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	        textures/mcity/mcityc1_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/bricks1a_local.tga, heightmap( textures/hell/bricks1a_bmp.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/bricks1a_d.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/bricks1a_s.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/mcityc30bsharprock3
+{
+	   noSelfShadow	    
+	   stone
+	qer_editorimage	models/mapobjects/steve_temp/mcityc30bsharprock3.tga
+
+	{
+		blend 		bumpmap
+		map		textures/base_wall/snpanel22_local.tga
+	}
+	{
+		blend 		diffusemap
+		map		textures/mcity/mcityc30b.tga
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	        textures/mcity/mcityc30_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	        textures/hell/sharprock3_local.tga
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock3.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock3_s.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/stetile1grnstone1
+{
+	   noSelfShadow	 
+	   stone   
+	qer_editorimage	models/mapobjects/steve_temp/stetile1grnstone1.tga
+
+	{
+		blend 		bumpmap
+		map		textures/base_floor/stetile1_local.tga
+                scale    2, 2
+	}
+	{
+		blend 		diffusemap
+		map		textures/base_floor/stetile1green_d.tga
+                scale    2, 2
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	        textures/base_floor/stetile1_s.tga
+                scale    2, 2
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	        addnormals( textures/hell/stone1_local.tga, heightmap( textures/hell/stone1_h.tga, 5 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/stone1.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/stone1_s.tga
+		inverseVertexColor
+	}
+}
+
+models/mapobjects/steve_temp/cbrick3sharprock02
+{
+	   noSelfShadow
+	   stone
+	qer_editorimage	models/mapobjects/steve_temp/cbrick3sharprock02.tga
+
+	{
+		blend 		bumpmap
+		map		addnormals( textures/hell/cbrick3_local.tga, heightmap( textures/hell/cbrick3_h.tga, 8 ) )
+	}
+	{
+		blend 		diffusemap
+		map		textures/hell/cbrick3.tga
+		vertexColor
+	}        
+	{
+		blend		specularmap
+		map	      textures/hell/cbrick3_s.tga
+		vertexColor
+	}
+	{
+		blend		bumpmap
+		map	addnormals( textures/hell/sharprock2_local.tga, heightmap( textures/hell/sharprock2_h.tga, 8 ) )
+	}
+	{
+		blend		diffusemap
+		map		textures/hell/sharprock2.tga
+		inverseVertexColor
+	}
+	{
+		blend 		specularmap
+		map		textures/hell/sharprock2_s.tga
+		inverseVertexColor
+	}
+}
+
+textures/hell/spectrum2_symbol_letters_02
+{
+	qer_editorimage textures/decals/symbol_letters_32d.tga
+	DECAL_MACRO
+	noShadows
+	nonsolid
+	noimpact
+	twoSided
+	translucent
+	spectrum 2
+	{       
+      	blend	diffusemap
+		map		textures/decals/symbol_letters_32d.tga
+		red		(fireballtable[ time * .2]) * parm0
+		green	(fireballtable[ time * .2]) * parm1
+		blue	(fireballtable[ time * .2]) * parm2
+	}
+	{       
+      	blend	specularmap
+		map		textures/decals/symbol_letters_32d.tga
+	}
+}
+
+models/mapobjects/steve_temp/hellarch2temp
+{
+	//noShadows
+      noselfShadow
+	//unsmoothedTangents
+	stone
+	bumpmap	addnormals( models/mapobjects/hellarch2/hellarch2_local.tga, heightmap( models/mapobjects/hellarch2/hellarch2_h.tga, 1 ) )
+	diffusemap		models/mapobjects/hellarch2/a_hellarch2_d07e.tga
+	specularmap		models/mapobjects/hellarch2/hellarch2_s.tga
+  
+}

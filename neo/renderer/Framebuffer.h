@@ -2,7 +2,8 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2022 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 static const int MAX_SHADOWMAP_RESOLUTIONS = 5;
 static const int MAX_BLOOM_BUFFERS = 2;
+static const int MAX_GLOW_BUFFERS = 2;
 static const int MAX_SSAO_BUFFERS = 2;
 static const int MAX_HIERARCHICAL_ZBUFFERS = 6; // native resolution + 5 MIP LEVELS
 
@@ -38,11 +40,11 @@ static const int ENVPROBE_CAPTURE_SIZE = 256;
 static const int RADIANCE_OCTAHEDRON_SIZE = 512;
 static const int IRRADIANCE_OCTAHEDRON_SIZE = 30 + 2;
 
-#if 1
-static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
-#else
-static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 1024, 1024, 1024, 1024, 1024 };
-#endif
+// RB: shadow resolutions used in 1.3
+//static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
+
+// if we use higher resolutions than this than the shadow casting lights don't fit into the 16384^2 atlas anymore
+static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 1024, 512, 512, 256, 128 };
 
 
 class Framebuffer
@@ -50,13 +52,16 @@ class Framebuffer
 public:
 
 	Framebuffer( const char* name, int width, int height );
+	Framebuffer( const char* name, const nvrhi::FramebufferDesc& desc );
+
 	virtual ~Framebuffer();
 
 	static void				Init();
 	static void				Shutdown();
 	static void				CheckFramebuffers();
 	static Framebuffer*		Find( const char* name );
-	static void				ResizeFramebuffers();
+	static void				ResizeFramebuffers( bool reloadImages = true );
+	static void				ReloadImages();
 
 	void					Bind();
 	bool					IsBound();
@@ -100,45 +105,59 @@ public:
 		height = height_;
 	}
 
+	nvrhi::IFramebuffer*	GetApiObject()
+	{
+		return apiObject;
+	}
+
+	idScreenRect			GetViewPortInfo() const;
+
 private:
-	idStr					fboName;
+	idStr						fboName;
 
 	// FBO object
-	uint32_t				frameBuffer;
+	uint32_t					frameBuffer;
 
-	uint32_t				colorBuffers[16];
-	int						colorFormat;
+	uint32_t					colorBuffers[16];
+	int							colorFormat;
 
-	uint32_t				depthBuffer;
-	int						depthFormat;
+	uint32_t					depthBuffer;
+	int							depthFormat;
 
-	uint32_t				stencilBuffer;
-	int						stencilFormat;
+	uint32_t					stencilBuffer;
+	int							stencilFormat;
 
-	int						width;
-	int						height;
+	int							width;
+	int							height;
 
-	bool					msaaSamples;
+	bool						msaaSamples;
+
+	nvrhi::FramebufferHandle	apiObject;
 
 	static idList<Framebuffer*>	framebuffers;
 };
 
 struct globalFramebuffers_t
 {
-	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS];
+	idList<Framebuffer*>		swapFramebuffers;
+	Framebuffer*				shadowAtlasFBO;
+	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS][6];
 	Framebuffer*				hdrFBO;
-#if defined(USE_HDR_MSAA)
-	Framebuffer*				hdrNonMSAAFBO;
-#endif
-//	Framebuffer*				hdrQuarterFBO;
-	Framebuffer*				hdr64FBO;
+	Framebuffer*				ldrFBO;
+	Framebuffer*				postProcFBO; // HDR16
+	Framebuffer*				taaMotionVectorsFBO;
+	Framebuffer*				taaResolvedFBO;
+	Framebuffer*				hdr64FBO;		// TODO remove, not needed with new NVRHI tonemapping anymore
 	Framebuffer*				envprobeFBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
+	Framebuffer*				glowFBO[MAX_GLOW_BUFFERS];	// unused
+	Framebuffer*				transparencyFBO;			// unused
 	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
 	Framebuffer*				csDepthFBO[MAX_HIERARCHICAL_ZBUFFERS];
 	Framebuffer*				geometryBufferFBO;
 	Framebuffer*				smaaEdgesFBO;
 	Framebuffer*				smaaBlendFBO;
+	Framebuffer*				guiRenderTargetFBO;
 };
 
 extern globalFramebuffers_t globalFramebuffers;

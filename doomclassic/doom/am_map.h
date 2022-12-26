@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,18 +36,18 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // Called by main loop.
-qboolean AM_Responder (event_t* ev);
+qboolean AM_Responder( event_t* ev );
 
 // Called by main loop.
-void AM_Ticker (void);
+void AM_Ticker( void );
 
 // Called by main loop,
 // called instead of view drawer if automap active.
-void AM_Drawer (void);
+void AM_Drawer( void );
 
 // Called to force the automap to quit
 // if the level is completed while it is up.
-void AM_Stop (void);
+void AM_Stop( void );
 
 
 

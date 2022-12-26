@@ -1,0 +1,126 @@
+/*
+
+	Alternate Quake Tracks
+	----------------------
+	This is a compilation of alternate tracks.
+	They are to be used for streamers/YouTubers
+	as well as for those who lack the OST.
+	
+	02. Often not Their Right Time	Verbum Mentis
+	03. EoE intermission		Markie Music
+	04. Yss Éskiuth 		Immorpher
+	05. Gwam Swolíst		Immorpher
+	06. Feedback			AlekswithaK
+	07. Thia Whythdyi		Immorpher
+	08. Deeper Outside, pt 1	Verbum Mentis
+	09. Lingering Repetitive Agony	Verbum Mentis
+	10. Architects of Enmity	AlekswithaK
+	11. Scratch my surface		Verbum Mentis
+
+
+	All music is either open source or permitted
+	to be used, when playing the game, by the
+	composer. Enjoy!
+
+	- Greenwood
+*/
+	
+music/aqm/track02
+{
+	description	"Often not Their Right Time	Verbum Mentis"
+
+	volume	-5
+	global
+	looping
+	music/aqm/track02.ogg
+}
+
+music/aqm/track03
+{
+	description	"EoE intermission"
+
+	volume	-5
+	global
+	looping
+	music/aqm/track03.ogg
+}
+
+music/aqm/track04
+{
+	description	"Yss Éskiuth"
+
+	volume	-2
+	global
+	looping
+	music/aqm/track04.ogg
+}
+
+music/aqm/track05
+{
+	description	"Gwam Swolíst"
+
+	volume	-2
+	global
+	looping
+	music/aqm/track05.ogg
+}
+
+music/aqm/track06
+{
+	description	"Feedback"
+
+	volume	-3
+	global
+	looping
+	music/aqm/track06.ogg
+}
+
+music/aqm/track07
+{
+	description	"Thia Whythdyi"
+
+	volume	-2
+	global
+	looping
+	music/aqm/track07.ogg
+}
+
+music/aqm/track08
+{
+	description	"Deeper Outside, pt 1"
+
+	volume	-4
+	global
+	looping
+	music/aqm/track08.ogg
+}
+
+music/aqm/track09
+{
+	description	"Lingering Repetitive Agony"
+
+	volume	-5
+	global
+	looping
+	music/aqm/track09.ogg
+}
+
+music/aqm/track10
+{
+	description	"Architects of Enmity"
+
+	volume	-2
+	global
+	looping
+	music/aqm/track10.ogg
+}
+
+music/aqm/track11
+{
+	description	"Scratch my surface"
+
+	volume	-2
+	global
+	looping
+	music/aqm/track11.ogg
+}

@@ -1,0 +1,2456 @@
+namespace map_alphalabs4 {
+	
+	// Start Globals
+	
+	// Alphapuzzle
+	float g_fConveyDoorRefCount	= 0.0;
+	float g_fWeldDoorRefCount	= 0.0;
+
+	// End Globals
+
+	///////////////////////////////////////////////
+	//	blinky eyes
+	///////////////////////////////////////////////
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("al4_openslats_2s");
+		sys.cacheSoundShader ("al4_support_05s");
+		sys.cacheSoundShader ("small_mover_impact");
+		sys.cacheSoundShader ("al4_plat_movement");
+		sys.cacheSoundShader ("al4_slide_3s");
+		sys.cacheSoundShader ("jacob");
+		sys.cacheSoundShader ("al4_plat_start");
+		sys.cacheSoundShader ("al4_plat_loop");
+		sys.cacheSoundShader ("al4_plat_stop");
+	}
+
+	void eKillSound (entity ent, float eTime) {
+		sys.wait (eTime);
+		ent.stopSound( SND_CHANNEL_ANY, false );
+	}
+
+	void end_vagscene() {
+		$speaker_vagfight.fadeSound (SND_CHANNEL_ANY, -60, 5);			// Fade out after the fight
+	}
+	
+	void start_vagscene() {
+		sys.wait (22.5);
+		sys.trigger ($speaker_vagfight);
+	
+	}
+
+	///////////////////////////////////////////////
+	//	blinky eyes
+	///////////////////////////////////////////////
+
+	void eyesbegone()
+	{
+		$eyes1.time(.5);
+		$eyes1.accelTime(0.1);
+		$eyes1.decelTime(0.1);
+		$eyes1.move(DOWN, 32);
+		sys.waitFor($eyes1);
+		sys.trigger($eye1_light);
+	}
+
+	void bind_objects() {
+
+		$frontroom_door2.bind($frontroom_door1);
+		$frontroom_door3.bind($frontroom_door2);
+		$frontroom_door4.bind($frontroom_door3);
+
+		$ambush_door_2.bind($ambush_door_1);
+		$ambush_door_3.bind($ambush_door_2);
+		$ambush_door_4.bind($ambush_door_3);
+
+		$scissor_door_2.bind($scissor_door_1);
+		$scissor_door_3.bind($scissor_door_2);
+		$scissor_door_4.bind($scissor_door_3);
+
+		$back_scissor_door_2.bind($back_scissor_door_1);
+		$back_scissor_door_3.bind($back_scissor_door_2);
+		$back_scissor_door_4.bind($back_scissor_door_3);
+		
+		}
+
+	void frontroom_door_open()
+	{
+
+		$frontroom_door1.startSoundShader ("al4_openslats_2s", SND_CHANNEL_VOICE );
+		$frontroom_door1.time(2);
+		$frontroom_door1.accelTime(.5);
+		$frontroom_door1.decelTime(.5);
+		$frontroom_door1.rotateOnce('-90 0 0');
+		$frontroom_door2.time(2);
+		$frontroom_door2.accelTime(.5);
+		$frontroom_door2.decelTime(.5);
+		$frontroom_door2.rotateOnce('180 0 0');
+		$frontroom_door3.time(2);
+		$frontroom_door3.accelTime(.5);
+		$frontroom_door3.decelTime(.5);
+		$frontroom_door3.rotateOnce('-180 0 0');
+		$frontroom_door4.time(2);
+		$frontroom_door4.accelTime(.5);
+		$frontroom_door4.decelTime(.5);
+		$frontroom_door4.rotateOnce('180 0 0');
+	}
+		
+	void ambush_door_open()
+	{
+
+		$ambush_door_1.startSoundShader ("al4_openslats_2s", SND_CHANNEL_VOICE );
+		$ambush_door_1.time(2);
+		$ambush_door_1.accelTime(.5);
+		$ambush_door_1.decelTime(.5);
+		$ambush_door_1.rotateOnce('0 0 -90');
+		$ambush_door_2.time(2);
+		$ambush_door_2.accelTime(.5);
+		$ambush_door_2.decelTime(.5);
+		$ambush_door_2.rotateOnce('0 0 180');
+		$ambush_door_3.time(2);
+		$ambush_door_3.accelTime(.5);
+		$ambush_door_3.decelTime(.5);
+		$ambush_door_3.rotateOnce('0 0 -180');
+		$ambush_door_4.time(2);
+		$ambush_door_4.accelTime(.5);
+		$ambush_door_4.decelTime(.5);
+		$ambush_door_4.rotateOnce('0 0 180');
+	}
+	
+	void scissor_door_open()
+	{
+		$scissor_door_1.startSoundShader ("al4_openslats_2s", SND_CHANNEL_VOICE );
+		$scissor_door_1.time(2);
+		$scissor_door_1.accelTime(.5);
+		$scissor_door_1.decelTime(.5);
+		$scissor_door_1.rotateOnce('0 0 90');
+		$scissor_door_2.time(2);
+		$scissor_door_2.accelTime(.5);
+		$scissor_door_2.decelTime(.5);
+		$scissor_door_2.rotateOnce('0 0 -180');
+		$scissor_door_3.time(2);
+		$scissor_door_3.accelTime(.5);
+		$scissor_door_3.decelTime(.5);
+		$scissor_door_3.rotateOnce('0 0 180');
+		$scissor_door_4.time(2);
+		$scissor_door_4.accelTime(.5);
+		$scissor_door_4.decelTime(.5);
+		$scissor_door_4.rotateOnce('0 0 -180');
+	}
+
+	void back_scissor_door1_open()
+	{
+
+		$back_scissor_door_1.startSoundShader ("al4_openslats_2s", SND_CHANNEL_VOICE );
+		$back_scissor_door_1.time(2);
+		$back_scissor_door_1.accelTime(.5);
+		$back_scissor_door_1.decelTime(.5);
+		$back_scissor_door_1.rotateOnce('-90 0 0');
+		$back_scissor_door_2.time(2);
+		$back_scissor_door_2.accelTime(.5);
+		$back_scissor_door_2.decelTime(.5);
+		$back_scissor_door_2.rotateOnce('180 0 0');
+		$back_scissor_door_3.time(2);
+		$back_scissor_door_3.accelTime(.5);
+		$back_scissor_door_3.decelTime(.5);
+		$back_scissor_door_3.rotateOnce('-180 0 0');
+		$back_scissor_door_4.time(2);
+		$back_scissor_door_4.accelTime(.5);
+		$back_scissor_door_4.decelTime(.5);
+		$back_scissor_door_4.rotateOnce('180 0 0');
+	}
+	/*
+
+	A l p h a p u z z l e    c o d e    s t a r t s   h e r e 
+
+	*/
+
+
+	void ExtendPlatform1()
+	{
+		$jump_platform1.time(3);
+		sys.trigger ($speaker_jump_platform);
+		$jump_platform1.move( NORTH, 232 );
+		sys.waitFor( $jump_platform1 );
+	}
+
+
+	void SetupRotatingBridge()
+	{
+		$rotating_bridge.bind( $rotating_bridge_joint );
+
+		$bridge_right_bottom_joint.bind( $rotating_bridge );
+		$bridge_left_bottom_joint.bind( $rotating_bridge );
+
+//		$rotating_bridge_railing_right.bind( $rotating_bridge );
+//		$rotating_bridge_railing_left.bind( $rotating_bridge );
+
+		$bridge_right_top_hydro_machine.bind( $rotating_bridge_spinner );
+		$bridge_left_top_hydro_machine.bind( $rotating_bridge_spinner );
+
+		$bridge_right_top_hydro.bind( $bridge_right_top_hydro_machine );
+		$bridge_left_top_hydro.bind( $bridge_left_top_hydro_machine );
+
+		$bridge_right_bottom_hydro.bind( $bridge_right_top_hydro );
+		$bridge_left_bottom_hydro.bind( $bridge_left_top_hydro );
+
+		$rotating_bridge.time( 0.1 );
+		$rotating_bridge.rotateOnce( '-60 0 0' );
+		sys.waitFor( $rotating_bridge );
+
+		$bridge_right_top_hydro.time( 0.1 );
+		$bridge_left_top_hydro.time( 0.1 );
+		$bridge_right_top_hydro.rotateOnce( '-30 0 0' );
+		$bridge_left_top_hydro.rotateOnce( '-30 0 0' );
+		sys.waitFor( $bridge_left_top_hydro );
+
+		$bridge_right_bottom_hydro.time( 0.1 );
+		$bridge_left_bottom_hydro.time( 0.1 );
+		$bridge_right_bottom_hydro.move( REL_UP, 272 );
+		$bridge_left_bottom_hydro.move( REL_UP, 272 );
+		sys.waitFor( $bridge_left_bottom_hydro );
+
+		$bridge_right_bottom_joint.time( 0.1 );
+		$bridge_left_bottom_joint.time( 0.1 );
+		$bridge_right_bottom_joint.move( REL_FORWARD, 16 );
+		$bridge_left_bottom_joint.move( REL_FORWARD, 16 );
+		sys.waitFor( $bridge_left_bottom_hydro );
+	}
+
+
+	void RotatingBridgeStart()
+	{
+		$bridge_right_bottom_hydro.time( 5.0 );
+		$bridge_left_bottom_hydro.time( 5.0 );
+		$bridge_right_bottom_joint.time( 5.0 );
+		$bridge_left_bottom_joint.time( 5.0 );
+		$rotating_bridge.time( 5.0 );
+		$bridge_right_bottom_hydro.move( REL_DOWN, 272 );
+		$bridge_left_bottom_hydro.move( REL_DOWN, 272 );
+		$bridge_right_bottom_joint.move( REL_BACK, 16 );
+		$bridge_left_bottom_joint.move( REL_BACK, 16 );
+		sys.trigger ($speaker_rotating_bridge);
+		$rotating_bridge.rotateOnce( '60 0 0' );
+		sys.waitFor( $rotating_bridge );
+	}
+
+
+	void RotatingBridgeLoop()
+	{
+		while( true )
+		{
+			$rotating_bridge_spinner.accelTime( 1.0 );
+			$rotating_bridge_spinner.time( 5.0 );
+			$rotating_bridge_spinner.decelTime( 1.0 );
+			$rotating_bridge_joint.accelTime( 1.0 );
+			$rotating_bridge_joint.time( 5.0 );
+			$rotating_bridge_joint.decelTime( 1.0 );
+			sys.trigger ($speaker_rotating_bridge);
+			$rotating_bridge_spinner.rotateOnce( '0 90 0' );
+			sys.trigger ($speaker_rotbridge_tech);
+			$rotating_bridge_joint.rotateOnce( '0 90 0' );
+			sys.waitFor( $rotating_bridge_joint );
+
+			sys.wait( 2.0 );
+		}
+	}
+
+
+	void SectionBridgeGuardSequence( entity eLeftGuard, entity eRightGuard, float nOrient )
+	{
+		if( nOrient == NORTH )
+		{
+			eLeftGuard.time( 0.5 );
+			eLeftGuard.decelTime( 0.25 );
+
+			eRightGuard.time( 0.5 );
+			eRightGuard.decelTime( 0.25 );
+
+			eLeftGuard.startSoundShader ("al4_support_05s", SND_CHANNEL_ANY);
+			
+			eLeftGuard.rotateOnce( '-90 0 0' );
+			eRightGuard.rotateOnce( '90 0 0' );
+			sys.wait( 0.5 );
+			return;
+		}
+
+		if( nOrient == SOUTH )
+		{
+			eLeftGuard.time( 0.5 );
+			eLeftGuard.decelTime( 0.25 );
+
+			eRightGuard.time( 0.5 );
+			eRightGuard.decelTime( 0.25 );
+
+			eLeftGuard.startSoundShader ("al4_support_05s", SND_CHANNEL_ANY);
+			eLeftGuard.rotateOnce( '-90 0 0' );
+			eRightGuard.rotateOnce( '90 0 0' );
+			sys.wait( 0.5 );
+			return;
+		}
+
+		if( nOrient == EAST )
+		{
+			eLeftGuard.time( 0.5 );
+			eLeftGuard.decelTime( 0.25 );
+
+			eRightGuard.time( 0.5 );
+			eRightGuard.decelTime( 0.25 );
+
+			eLeftGuard.startSoundShader ("al4_support_05s", SND_CHANNEL_ANY);
+			eLeftGuard.rotateOnce( '0 0 -90' );
+			eRightGuard.rotateOnce( '0 0 90' );
+			sys.wait( 0.5 );
+			return;
+		}
+
+		if( nOrient == WEST )
+		{
+			eLeftGuard.time( 0.5 );
+			eLeftGuard.decelTime( 0.25 );
+
+			eRightGuard.time( 0.5 );
+			eRightGuard.decelTime( 0.25 );
+
+			eLeftGuard.startSoundShader ("al4_support_05s", SND_CHANNEL_ANY);
+			eLeftGuard.rotateOnce( '0 0 90' );
+			eRightGuard.rotateOnce( '0 0 -90' );
+			sys.wait( 0.5 );
+			return;
+		}
+	}
+
+	void stop_platsound (entity ent, float fTime) {
+		sys.wait (fTime);
+		ent.startSoundShader ("small_mover_impact", SND_CHANNEL_ANY);
+	}
+
+	void SectionBridgePartsSequence( string strBaseName, float nOrient, float nCount )
+	{
+		string strTemp;
+
+		entity	eSection;
+		entity	eLight;
+		entity	eLeftGuard;
+		entity	eRightGuard;
+		float	fTime;
+		string	sTemp;
+
+		float ii;
+
+		for( ii = nCount ; ii > 0; ii-- )
+		{
+			strTemp = strBaseName + "_part" + ii;
+			eSection = sys.getEntity( strTemp );
+			sTemp = strTemp;
+
+			//strTemp = strBaseName + "_guard_left" + ii;
+			//eLeftGuard = sys.getEntity( strTemp );
+
+			//strTemp = strBaseName + "_guard_right" + ii;
+			//eRightGuard = sys.getEntity( strTemp );
+
+			//eLeftGuard.bind( eSection );
+			//eRightGuard.bind( eSection );
+
+			eSection.accelTime( 0.25 );
+			fTime = ( 1.0 + ((ii - 1) / 2) );
+			eSection.time( fTime );
+			eSection.decelTime( 0.25 );
+
+			
+			
+//	void eKillSound (entity ent, float eTime) {			
+
+// This sounds crappy. Killing the mover sound is enough...
+//			thread stop_platsound (eSection, fTime);
+			
+			eSection.move( nOrient, (128 + ((ii - 1) * 64) ) );
+			thread eKillSound (eSection, fTime);
+			eSection.startSoundShader ("al4_plat_movement", SND_CHANNEL_ANY);
+			sys.wait( 0.9 );
+
+			//thread SectionBridgeGuardSequence( eLeftGuard, eRightGuard, nOrient);
+
+			strTemp = strBaseName + "_light" + ii + "_left";
+			eLight = sys.getEntity( strTemp );
+
+			if( eLight )
+			{
+				eLight.On();
+			}
+
+			strTemp = strBaseName + "_light" + ii + "_right";
+			eLight = sys.getEntity( strTemp );
+
+			if( eLight )
+			{
+				eLight.On();
+			}
+		}
+	}
+
+	void SectionBridgeRailsSequence( string strBaseName, float nDirection, float nCount )
+	{
+		string strRightRail;
+		string strLeftRail;
+
+		entity eRightRail;
+		entity eLeftRail;
+
+		strRightRail = strBaseName + "_rail_right";
+		eRightRail = sys.getEntity( strRightRail );
+
+		strLeftRail = strBaseName + "_rail_left";
+		eLeftRail = sys.getEntity( strLeftRail );
+
+		eRightRail.time( 3.0 );
+		eRightRail.accelTime( 0.5 );
+		eRightRail.decelTime( 0.5 );
+		eLeftRail.time( 3.0 );
+		eLeftRail.accelTime( 0.5 );
+		eLeftRail.decelTime( 0.5 );
+		
+		eRightRail.move( nDirection, ((nCount + 1) * 64) );
+		
+		eRightRail.startSoundShader ("al4_slide_3s", SND_CHANNEL_ANY);
+		
+		eLeftRail.move( nDirection, ((nCount + 1) * 64) );
+		sys.waitFor( eLeftRail );
+	}
+
+
+	void ExtendSectionBridges()
+	{
+		SectionBridgeRailsSequence( "sectionbridge1", WEST, 6 );
+		SectionBridgePartsSequence( "sectionbridge1", WEST, 6 );
+		sys.trigger($bridge1_aas_block);
+
+		SectionBridgeRailsSequence( "sectionbridge2", NORTH, 6 );
+		SectionBridgePartsSequence( "sectionbridge2", NORTH, 6 );
+		sys.trigger($bridge2_aas_block);
+
+		SectionBridgeRailsSequence( "sectionbridge3", SOUTH, 6 );
+		SectionBridgePartsSequence( "sectionbridge3", SOUTH, 6 );
+		sys.trigger($bridge3_aas_block);
+
+		SectionBridgeRailsSequence( "sectionbridge4", SOUTH, 8 );
+		SectionBridgePartsSequence( "sectionbridge4", SOUTH, 8 );
+		sys.trigger($bridge4_aas_block);
+
+		SectionBridgeRailsSequence( "sectionbridge5", SOUTH, 8 );
+		SectionBridgePartsSequence( "sectionbridge5", SOUTH, 8 );
+		sys.trigger($bridge5_aas_block);
+
+		SectionBridgeRailsSequence( "sectionbridge6", SOUTH, 6 );
+		SectionBridgePartsSequence( "sectionbridge6", SOUTH, 6 );
+		sys.trigger($bridge6_aas_block);
+	}
+
+
+	void SectionBridgeRemoveOne( float nBridge )
+	{
+		string strRemove;
+		entity eRemove;
+		float ii;
+
+		strRemove = "sectionbridge" + nBridge + "_rail_right";
+		eRemove = sys.getEntity( strRemove );
+		eRemove.remove();
+
+		strRemove = "sectionbridge" + nBridge + "_rail_left";
+		eRemove = sys.getEntity( strRemove );
+		eRemove.remove();
+
+		for( ii = 1; ii > 0; ii++ )
+		{
+			strRemove = "sectionbridge" + nBridge + "_part" + ii;
+			eRemove = sys.getEntity( strRemove );
+
+			if( !eRemove )
+				break;
+
+			eRemove.remove();
+
+			//strRemove = "sectionbridge" + nBridge + "_guard_right" + ii;
+			//eRemove = sys.getEntity( strRemove );
+			//eRemove.remove();
+
+			//strRemove = "sectionbridge" + nBridge + "_guard_left" + ii;
+			//eRemove = sys.getEntity( strRemove );
+			//eRemove.remove();
+		}
+	}
+
+
+	void SectionBridgeRemoveAll()
+	{
+		float ii;
+
+		for( ii = 1; ii <= 6; ii++ )
+		{
+			SectionBridgeRemoveOne( ii );
+		}
+	}
+
+
+	void SetupRideOfDeathObjects()
+	{
+		entity eParent;
+		entity eChild;
+
+		float ii;
+
+		for( ii = 1; ii < 7; ii++ )
+		{
+			eParent = sys.getEntity( "ride_of_death" + ii + "_parent" );
+			eChild = sys.getEntity( "ride_of_death" + ii );
+			eChild.bind( eParent );
+
+			eParent = eChild;
+			eChild = sys.getEntity( "ride_of_death" + ii + "_front_support" );
+			eChild.bind( eParent );
+
+			eChild = sys.getEntity( "ride_of_death" + ii + "_rear_support" );
+			eChild.bind( eParent );
+
+			eChild.time( 0.1 );
+			eChild.move( SOUTH, 64 );
+			sys.waitFor( eChild );
+
+			eChild = sys.getEntity( "ride_of_death" + ii + "_light1" );
+			eChild.bind( eParent );
+			eChild.Off();
+
+			eChild = sys.getEntity( "ride_of_death" + ii + "_light2" );
+			eChild.bind( eParent );
+			eChild.Off();
+		}
+	}
+
+	void ROD_startSound (entity ent) {
+		ent.startSoundShader ("al4_plat_start", SND_CHANNEL_VOICE);
+		sys.wait (0.55);
+		ent.startSoundShader ("al4_plat_loop", SND_CHANNEL_VOICE2);
+	}
+	
+	void ROD_stopSound (entity ent) {
+		ent.startSoundShader ("al4_plat_stop", SND_CHANNEL_VOICE2);
+	}
+
+	void ROD_stopSound_time (entity ent, float fTime) {
+		sys.wait (fTime);
+		ent.startSoundShader ("al4_plat_stop", SND_CHANNEL_VOICE2);
+	}
+
+	
+	void RideOfDeathPath( string strRideName )
+	{
+		entity eRide;
+		entity eRideBase;
+		entity eFrontSupport;
+		entity eRearSupport;
+		entity eLight1;
+		entity eLight2;
+
+		eRide = sys.getEntity( strRideName + "_parent" );
+		eRideBase = sys.getEntity (strRideName);
+
+		eFrontSupport = sys.getEntity( strRideName + "_front_support" );
+		eRearSupport = sys.getEntity( strRideName + "_rear_support" );
+		eLight1 = sys.getEntity( strRideName + "_light1" );
+		eLight2 = sys.getEntity( strRideName + "_light2" );
+
+		eLight1.fadeInLight( 2.0 );
+		eLight2.fadeInLight( 2.0 );
+
+		// west 2112
+		thread ROD_startSound (eRideBase);
+		eRide.time( 33.0 ); // 64u/sec
+		eRide.accelTime( 0.0 );
+		eRide.decelTime( 0.5 );
+		eRide.move( WEST, 2112 );
+
+		sys.waitFor( eRide );
+
+		eRearSupport.time( 1.0 );
+		eRearSupport.move( NORTH, 64 );
+				
+		sys.waitFor( eRearSupport );
+		
+		ROD_stopSound (eRideBase);
+		
+		sys.wait( 1.0 );
+
+		eFrontSupport.time( 1.0 );
+		eFrontSupport.move( NORTH, 64 );
+		sys.waitFor( eFrontSupport );
+
+		thread ROD_startSound (eRideBase);
+
+		// west 64
+		eRide.time( 1.0 ); // 64u/sec
+		eRide.accelTime( 0.5 );
+		eRide.decelTime( 0.0 );
+		eRide.move( WEST, 64 );
+		sys.waitFor( eRide );
+
+		// turn C 90deg
+		eRide.time( 4.0 ); // 22.5deg/sec
+		eRide.accelTime( 0.0 );
+		eRide.decelTime( 0.0 );
+		eRide.rotateOnce( '0 -90 0' );
+		sys.waitFor( eRide );
+
+	// 41s
+
+		// north 64
+		eRide.time( 1.0 );
+		eRide.accelTime( 0.0 );
+		eRide.decelTime( 0.5 );
+		eRide.move( NORTH, 64 );
+		
+		sys.waitFor( eRide );
+		
+		ROD_stopSound (eRideBase);
+
+		eFrontSupport.time( 1.0 );
+		eFrontSupport.move( EAST, 64 );
+
+		sys.waitFor( eFrontSupport );
+		sys.wait( 1.0 );
+
+		eRearSupport.time( 1.0 );
+		eRearSupport.move( EAST, 64 );
+
+		sys.waitFor( eRearSupport );
+
+		thread ROD_startSound (eRideBase);
+
+		// north 352
+		eRide.time( 5.5 );
+		eRide.accelTime( 0.5 );
+		eRide.decelTime( 0.5 );
+		eRide.move( NORTH, 352 );
+
+		sys.waitFor( eRide );
+
+		// down 320
+		eRide.time( 5.0 );
+		eRide.accelTime( 0.5 );
+		eRide.decelTime( 0.5 );
+		eRide.move( DOWN, 320 );
+
+		sys.waitFor( eRide );
+
+		// north 480
+		eRide.time( 7.5 );
+		eRide.accelTime( 0.5 );
+		eRide.decelTime( 0.0 );
+		eRide.move( NORTH, 480 );
+
+		sys.waitFor( eRide );
+
+	// 22s
+
+		// bind to origin 1
+		eRide.bind( $ride_of_death_origin1 );
+
+		// turn CC 90deg
+		$ride_of_death_origin1.time( 4.0 );
+		$ride_of_death_origin1.accelTime( 0.0 );
+		$ride_of_death_origin1.decelTime( 0.0 );
+		$ride_of_death_origin1.rotateOnce( '0 90 0' );
+		
+		sys.waitFor( $ride_of_death_origin1 );
+
+		// unbind from origin 1
+		eRide.unbind();
+		$ride_of_death_origin1.restorePosition();
+
+		// 896
+		eRide.time( 14.0 );
+		eRide.accelTime( 0.0 );
+		eRide.decelTime( 0.0 );
+		eRide.move( WEST, 896 );
+
+		sys.waitFor( eRide );
+
+		// bind to origin 2
+		eRide.bind( $ride_of_death_origin2 );
+
+		// turn CC 90deg
+		$ride_of_death_origin2.time( 4.0 );
+		$ride_of_death_origin2.accelTime( 0.0 );
+		$ride_of_death_origin2.decelTime( 0.0 );
+		$ride_of_death_origin2.rotateOnce( '0 90 0' );
+
+		sys.waitFor( $ride_of_death_origin2 );
+
+		// unbind from origin 2
+		eRide.unbind();
+				
+		$ride_of_death_origin2.restorePosition();
+
+	// 22s
+
+		// south 480
+		eRide.time( 7.5 );
+		eRide.accelTime( 0.0 );
+		eRide.decelTime( 0.5 );
+		eRide.move( SOUTH, 480 );
+
+		sys.waitFor( eRide );
+
+		// up 320
+		eRide.time( 5.0 );
+		eRide.accelTime( 0.5 );
+		eRide.decelTime( 0.5 );
+		eRide.move( UP, 320 );
+
+		sys.waitFor( eRide );
+
+		// south 1182
+		thread ROD_stopSound_time (eRideBase, 17);
+		eRide.time( 18.5 );
+		eRide.accelTime( 0.5 );
+		eRide.decelTime( 0.0 );
+		eRide.move( SOUTH, 1182 );
+		
+		sys.waitFor( eRide );
+		//ROD_stopSound (eRideBase);
+		eRide.restorePosition();
+
+	// 31s
+	}
+	// 116s
+
+
+	void RideOfDeathLoop()
+	{
+		while( true )
+		{
+			thread RideOfDeathPath( "ride_of_death1" );
+			sys.wait( 20.0 );
+
+			thread RideOfDeathPath( "ride_of_death2" );
+			sys.wait( 20.0 );
+
+			thread RideOfDeathPath( "ride_of_death3" );
+			sys.wait( 20.0 );
+
+			thread RideOfDeathPath( "ride_of_death4" );
+			sys.wait( 20.0 );
+
+			thread RideOfDeathPath( "ride_of_death5" );
+			sys.wait( 20.0 );
+
+			thread RideOfDeathPath( "ride_of_death6" );
+			sys.wait( 20.0 );
+		}
+	}
+
+
+	void RemoveRideOfDeathObjects()
+	{
+		entity eObject;
+		float ii;
+
+		for( ii = 1; ii < 7; ii++ )
+		{
+			eObject = sys.getEntity( "ride_of_death" + ii + "_parent" );
+			eObject.remove();
+
+			eObject = sys.getEntity( "ride_of_death" + ii );
+			eObject.remove();
+
+			eObject = sys.getEntity( "ride_of_death" + ii + "_front_support" );
+			eObject.remove();
+
+			eObject = sys.getEntity( "ride_of_death" + ii + "_rear_support" );
+			eObject.remove();
+
+			eObject = sys.getEntity( "ride_of_death" + ii + "_light1" );
+			eObject.remove();
+
+			eObject = sys.getEntity( "ride_of_death" + ii + "_light2" );
+			eObject.remove();
+		}
+	}
+
+
+	void SetupWeldingMachine( string strBaseName )
+	{
+		// the cover object is not bound in this function
+		entity eParent;
+		entity eChild;
+
+		eParent = sys.getEntity( strBaseName + "_support" );
+		eChild = sys.getEntity( strBaseName + "_right_grip" );
+		eChild.bind( eParent );
+
+		eChild = sys.getEntity( strBaseName + "_left_grip" );
+		eChild.bind( eParent );
+
+		eChild = sys.getEntity( strBaseName + "_base" );
+		eChild.bind( eParent );
+
+		eParent = eChild;
+		eChild = sys.getEntity( strBaseName + "_arm" );
+		eChild.bind( eParent );
+
+		eParent = eChild;
+		eChild = sys.getEntity( strBaseName + "_light" );
+		eChild.bind( eParent );
+		eChild.Off();
+
+		eChild = sys.getEntity( strBaseName + "_arm" );
+		eChild.time( 0.1 );
+		eChild.rotateOnce( '135 0 0' );
+		sys.waitFor( eChild );
+	}
+
+
+	void SetupRideOfDeathTrap1()
+	{
+		SetupWeldingMachine( "weld1_front" );
+		SetupWeldingMachine( "weld1_rear" );
+		SetupWeldingMachine( "weld2_front" );
+		SetupWeldingMachine( "weld2_rear" );
+
+		$weld1_rear_support.time( 0.1 );
+		$weld2_rear_support.time( 0.1 );
+		$weld1_rear_support.rotateOnce( '0 180 0' );
+		$weld2_rear_support.rotateOnce( '0 180 0' );
+		sys.waitFor( $weld2_rear_support );
+	}
+
+
+	void WeldingMachineSequence( string strBaseName, string strConveyName )
+	{
+		entity eSupport;
+		entity eSupport_speaker;
+		entity eSupport_05s_speaker;
+		
+		entity eCover;
+		entity eLeftGrip;
+		entity eRightGrip;
+		
+		entity eBase;
+		entity eBase_speaker;
+		
+		entity eArm;
+		entity eArm_speaker;
+		entity eArm_weld_speaker;
+		
+		entity eLight;
+		entity eSpark;
+
+		eSupport = sys.getEntity( strBaseName + "_support" );
+		eSupport_speaker = sys.getEntity( strBaseName + "_support_speaker" );
+		eSupport_05s_speaker = sys.getEntity( strBaseName + "_support_05s_speaker" );
+		eCover = sys.getEntity( strBaseName + "_cover" );
+		
+		eLeftGrip = sys.getEntity( strBaseName + "_left_grip" );
+		
+		eRightGrip = sys.getEntity( strBaseName + "_right_grip" );
+		
+		eBase = sys.getEntity( strBaseName + "_base" );
+		
+		eArm = sys.getEntity( strBaseName + "_arm" );
+		eArm_weld_speaker = sys.getEntity ( strBaseName + "_arm_speaker" );
+		eArm_speaker = sys.getEntity ( strBaseName + "_arm_rot_speaker" );
+		
+		eLight = sys.getEntity( strBaseName + "_light" );
+		eSpark = sys.getEntity( strBaseName + "_sparks" );
+
+		eCover.bind( eSupport );
+
+		eSupport.time( 2.0 );
+		eSupport.accelTime( 0.25 );
+		eSupport.decelTime( 0.25 );
+		sys.trigger (eSupport_speaker);
+		eSupport.move( DOWN, 192 );
+		sys.waitFor( eSupport );
+
+		eSupport.time( 0.5 );
+		eSupport.accelTime( 0.0 );
+		eSupport.decelTime( 0.0 );
+		sys.trigger (eSupport_05s_speaker);
+		eSupport.move( REL_BACK, 12 );
+		sys.waitFor( eSupport );
+
+		eBase.time( 1.0 );
+		eArm.time( 1.0 );
+		eBase.move( UP, 48 );
+		sys.trigger (eArm_speaker);
+		eArm.rotateOnce( '-135 0 0' );
+		sys.waitFor( eArm );
+
+		// turn on sparks
+		eLight.On();
+		sys.trigger (eSpark);
+		
+
+		eBase.time( 2.0 );
+		sys.trigger ( eArm_weld_speaker );
+		eBase.move( DOWN, 48 );
+		sys.waitFor( eBase );
+
+		// turn off sparks
+		eLight.Off();
+		sys.trigger (eSpark);
+
+		eCover.unbind();
+		eCover.bind( sys.getEntity( strConveyName ) );
+
+		eArm.time( 1.0 );
+		sys.trigger (eArm_speaker);
+		eArm.rotateOnce( '135 0 0' );
+		sys.waitFor( eArm );
+
+		eLeftGrip.time( 0.25 );
+		eRightGrip.time( 0.25 );
+		eLeftGrip.rotateOnce( '0 15 0' );
+		eRightGrip.rotateOnce( '0 -15 0' );
+		sys.waitFor( eRightGrip );
+
+		eSupport.time( 1.0 );
+		eSupport.accelTime( 0.0 );
+		eSupport.decelTime( 0.0 );
+		sys.trigger (eSupport_05s_speaker);
+		eSupport.move( REL_FORWARD, 12 );
+		sys.waitFor( eSupport );
+
+		eSupport.time( 2.0 );
+		eSupport.accelTime( 0.25 );
+		eSupport.decelTime( 0.25 );
+		sys.trigger (eSupport_speaker);
+		eSupport.move( UP, 192 );
+		sys.waitFor( eSupport );
+
+		eLeftGrip.time( 0.25 );
+		eRightGrip.time( 0.25 );
+		eLeftGrip.rotateOnce( '0 -15 0' );
+		eRightGrip.rotateOnce( '0 15 0' );
+		sys.waitFor( eRightGrip );
+	}
+	// 10s TOTAL
+
+
+	void ConveyDoorsOpen()
+	{
+		if( g_fConveyDoorRefCount < 1 )
+		{
+			$convey_left_door.open();
+			$convey_right_door.open();
+		}
+
+		g_fConveyDoorRefCount++;
+	}
+
+
+	void ConveyDoorsClose()
+	{
+		g_fConveyDoorRefCount--;
+
+		if( g_fConveyDoorRefCount < 1 )
+		{
+			$convey_left_door.close();
+			$convey_right_door.close();
+		}
+	}
+
+
+	void WeldDoorsOpen()
+	{
+		if( g_fWeldDoorRefCount < 1 )
+		{
+			$weld_left_door.open();
+			$weld_right_door.open();
+		}
+
+		g_fWeldDoorRefCount++;
+	}
+
+
+	void WeldDoorsClose()
+	{
+		g_fWeldDoorRefCount--;
+
+		if( g_fWeldDoorRefCount < 1 )
+		{
+			$weld_left_door.close();
+			$weld_right_door.close();
+		}
+	}
+
+
+	void Convey1ShortPathSequence()
+	{
+		thread ConveyDoorsOpen();
+
+		$convey1_base.time( 2.0 );
+		$convey1_base.accelTime( 0.25 );
+		$convey1_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_1_2s);
+		$convey1_base.move( SOUTH, 520 );
+		sys.waitFor( $convey1_base );
+
+		thread ConveyDoorsClose();
+		thread WeldDoorsOpen();
+
+		thread WeldingMachineSequence( "weld1_front", "convey1_base" );
+		thread WeldingMachineSequence( "weld1_rear", "convey1_base" );
+		sys.wait( 11.0 );
+
+		thread WeldDoorsClose();
+		thread ConveyDoorsOpen();
+
+		$convey1_base.time( 2.0 );
+		$convey1_base.accelTime( 0.25 );
+		$convey1_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_1_2s);
+		$convey1_base.move( NORTH, 520 );
+		sys.waitFor( $convey1_base );
+
+		thread ConveyDoorsClose();
+	}
+	// 15s
+
+
+	void Convey1LongPathSequence()
+	{
+		thread ConveyDoorsOpen();
+
+		$convey1_base.time( 2.5 );
+		$convey1_base.accelTime( 0.25 );
+		$convey1_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_1_2p5s);
+		$convey1_base.move( SOUTH, 632 );
+		sys.waitFor( $convey1_base );
+
+		thread ConveyDoorsClose();
+		thread WeldDoorsOpen();
+
+		thread WeldingMachineSequence( "weld1_front", "convey1_base" );
+		thread WeldingMachineSequence( "weld1_rear", "convey1_base" );
+		sys.wait( 11.0 );
+
+		thread WeldDoorsClose();
+		thread ConveyDoorsOpen();
+
+		$convey1_base.time( 2.5 );
+		$convey1_base.accelTime( 0.25 );
+		$convey1_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_1_2p5s);
+		$convey1_base.move( NORTH, 632 );
+		sys.waitFor( $convey1_base );
+
+		thread ConveyDoorsClose();
+	}
+	// 16s
+
+
+	void Convey2ShortPathSequence()
+	{
+		thread ConveyDoorsOpen();
+
+		$convey2_base.time( 2.0 );
+		$convey2_base.accelTime( 0.25 );
+		$convey2_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_2_2s);
+		$convey2_base.move( SOUTH, 520 );
+		sys.waitFor( $convey2_base );
+
+		thread ConveyDoorsClose();
+		thread WeldDoorsOpen();
+
+		thread WeldingMachineSequence( "weld2_front", "convey2_base" );
+		thread WeldingMachineSequence( "weld2_rear", "convey2_base" );
+		sys.wait( 11.0 );
+
+		thread WeldDoorsClose();
+		thread ConveyDoorsOpen();
+
+		$convey2_base.time( 1.5 );
+		$convey2_base.accelTime( 0.25 );
+		sys.trigger ($speaker_convey_2_1p5s);
+		$convey2_base.move( NORTH, 520 );
+		sys.waitFor( $convey2_base );
+
+		thread ConveyDoorsClose();
+	}
+	// 15s
+
+
+	void Convey2LongPathSequence()
+	{
+		thread ConveyDoorsOpen();
+
+		$convey2_base.time( 2.5 );
+		$convey2_base.accelTime( 0.25 );
+		$convey2_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_2_2p5s);
+		$convey2_base.move( SOUTH, 632 );
+		sys.waitFor( $convey2_base );
+
+		thread ConveyDoorsClose();
+		thread WeldDoorsOpen();
+
+		thread WeldingMachineSequence( "weld2_front", "convey2_base" );
+		thread WeldingMachineSequence( "weld2_rear", "convey2_base" );
+		sys.wait( 11.0 );
+
+		thread WeldDoorsClose();
+		thread ConveyDoorsOpen();
+
+		$convey2_base.time( 2.5 );
+		$convey2_base.accelTime( 0.25 );
+		$convey2_base.decelTime( 0.25 );
+		sys.trigger ($speaker_convey_2_2p5s);
+		$convey2_base.move( NORTH, 632 );
+		sys.waitFor( $convey2_base );
+
+		thread ConveyDoorsClose();
+	}
+	// 16s
+
+
+	void RideOfDeathTrap1Loop()
+	{
+		float fTemp;
+
+		sys.wait( 4.0 );
+
+		while( true )
+		{
+			$weld1_front_cover.unbind();
+			$weld1_rear_cover.unbind();
+			$weld2_front_cover.unbind();
+			$weld2_rear_cover.unbind();
+			$weld1_front_cover.restorePosition();
+			$weld1_rear_cover.restorePosition();
+			$weld2_front_cover.restorePosition();
+			$weld2_rear_cover.restorePosition();
+
+			fTemp = sys.random( 3.0 );
+
+			if( fTemp < 1 )
+			{
+				// 1 goes long, 2 goes short
+				$weld1_front_support.time( 0.1 );
+				$weld1_front_cover.time( 0.1 );
+				$weld1_rear_support.time( 0.1 );
+				$weld1_rear_cover.time( 0.1 );
+				$weld2_front_support.time( 0.1 );
+				$weld2_front_cover.time( 0.1 );
+				$weld2_rear_support.time( 0.1 );
+				$weld2_rear_cover.time( 0.1 );
+				$weld1_front_support.moveTo( $weld1_front_long_origin );
+				$weld1_front_cover.moveTo( $weld1_front_long_origin );
+				$weld1_rear_support.moveTo( $weld1_rear_long_origin );
+				$weld1_rear_cover.moveTo( $weld1_rear_long_origin );
+				$weld2_front_support.moveTo( $weld2_front_short_origin );
+				$weld2_front_cover.moveTo( $weld2_front_short_origin );
+				$weld2_rear_support.moveTo( $weld2_rear_short_origin );
+				$weld2_rear_cover.moveTo( $weld2_rear_short_origin );
+				sys.waitFor( $weld2_rear_cover );
+
+				fTemp = sys.random( 3.0 );
+				if( fTemp < 1 )
+				{
+					// early/early
+					thread Convey1LongPathSequence();
+					thread Convey2ShortPathSequence();
+					sys.wait( 30.0 );
+				}
+				else if( fTemp < 2 )
+				{
+					// late/early
+					sys.wait( 2.0 );
+
+					thread Convey2ShortPathSequence();
+					sys.wait( 8.0 );
+
+					thread Convey1LongPathSequence();
+					sys.wait( 20.0 );
+				}
+				else
+				{
+					// early/late
+					sys.wait( 10.0 );
+
+					thread Convey1LongPathSequence();
+					sys.wait( 2.0 );
+
+					thread Convey2ShortPathSequence();
+					sys.wait( 18.0 );
+				}
+			}
+			else if( fTemp < 2 )
+			{
+				// 1 goes short, 2 goes long
+				$weld1_front_support.time( 0.1 );
+				$weld1_front_cover.time( 0.1 );
+				$weld1_rear_support.time( 0.1 );
+				$weld1_rear_cover.time( 0.1 );
+				$weld2_front_support.time( 0.1 );
+				$weld2_front_cover.time( 0.1 );
+				$weld2_rear_support.time( 0.1 );
+				$weld2_rear_cover.time( 0.1 );
+				$weld1_front_support.moveTo( $weld1_front_short_origin );
+				$weld1_front_cover.moveTo( $weld1_front_short_origin );
+				$weld1_rear_support.moveTo( $weld1_rear_short_origin );
+				$weld1_rear_cover.moveTo( $weld1_rear_short_origin );
+				$weld2_front_support.moveTo( $weld2_front_long_origin );
+				$weld2_front_cover.moveTo( $weld2_front_long_origin );
+				$weld2_rear_support.moveTo( $weld2_rear_long_origin );
+				$weld2_rear_cover.moveTo( $weld2_rear_long_origin );
+				sys.waitFor( $weld2_rear_cover );
+
+				fTemp = sys.random( 3.0 );
+				if( fTemp < 1 )
+				{
+					// early/early
+					thread Convey1ShortPathSequence();
+					thread Convey2LongPathSequence();
+					sys.wait( 30.0 );
+				}
+				else if( fTemp < 2 )
+				{
+					// late/early
+					sys.wait( 2.0 );
+
+					thread Convey2LongPathSequence();
+					sys.wait( 8.0 );
+
+					thread Convey1ShortPathSequence();
+					sys.wait( 20.0 );
+				}
+				else
+				{
+					// early/late
+					sys.wait( 10.0 );
+
+					thread Convey1ShortPathSequence();
+					sys.wait( 2.0 );
+
+					thread Convey2LongPathSequence();
+					sys.wait( 18.0 );
+				}
+			}
+			else
+			{
+				$weld1_front_support.time( 0.1 );
+				$weld1_front_cover.time( 0.1 );
+				$weld1_rear_support.time( 0.1 );
+				$weld1_rear_cover.time( 0.1 );
+				$weld2_front_support.time( 0.1 );
+				$weld2_front_cover.time( 0.1 );
+				$weld2_rear_support.time( 0.1 );
+				$weld2_rear_cover.time( 0.1 );
+				$weld1_front_support.moveTo( $weld1_front_long_origin );
+				$weld1_front_cover.moveTo( $weld1_front_long_origin );
+				$weld1_rear_support.moveTo( $weld1_rear_long_origin );
+				$weld1_rear_cover.moveTo( $weld1_rear_long_origin );
+				$weld2_front_support.moveTo( $weld2_front_long_origin );
+				$weld2_front_cover.moveTo( $weld2_front_long_origin );
+				$weld2_rear_support.moveTo( $weld2_rear_long_origin );
+				$weld2_rear_cover.moveTo( $weld2_rear_long_origin );
+				sys.waitFor( $weld2_rear_cover );
+
+				// 1 goes long, 2 goes long
+				fTemp = sys.random( 3.0 );
+				if( fTemp < 1 )
+				{
+					// early/early
+					thread Convey1LongPathSequence();
+					sys.wait( 2.0 );
+
+					thread Convey2LongPathSequence();
+					sys.wait( 28.0 );
+				}
+				else if( fTemp < 2 )
+				{
+					// late/early
+					sys.wait( 2.0 );
+
+					thread Convey2LongPathSequence();
+					sys.wait( 8.0 );
+
+					thread Convey1LongPathSequence();
+					sys.wait( 20.0 );
+				}
+				else
+				{
+					// late/late
+					sys.wait( 10.0 );
+
+					thread Convey1LongPathSequence();
+					sys.wait( 2.0 );
+
+					thread Convey2LongPathSequence();
+					sys.wait( 18.0 );
+				}
+			}
+		}
+	}
+
+
+	void SetupRideOfDeathTrap2()
+	{
+		$spinner_top.time( 0.1 );
+		$spinner_bottom.time( 0.1 );
+		$spinner_top.rotateOnce( '0 -45 0' );
+		$spinner_bottom.rotateOnce( '0 -45 0' );
+		sys.waitFor( $spinner_bottom );
+	}
+
+
+	void TopSpinnerRotate()
+	{
+		$spinner_top.time( 2.0 );
+		$spinner_top.accelTime( 0.25 );
+		$spinner_top.decelTime( 0.25 );
+		sys.trigger ($speaker_spinner_top);
+		$spinner_top.rotateOnce( '0 -90 0' );
+		sys.waitFor( $spinner_top );
+
+		// do some effects stuff
+		sys.wait( 3.0 );
+	}
+
+
+	void BottomSpinnerRotate()
+	{
+		$spinner_bottom.time( 2.0 );
+		$spinner_bottom.accelTime( 0.25 );
+		$spinner_bottom.decelTime( 0.25 );
+		$spinner_bottom.rotateOnce( '0 -90 0' );
+		sys.trigger ($speaker_spinner_bottom);
+		sys.waitFor( $spinner_bottom );
+
+		// do some effects stuff
+		sys.wait( 3.0 );
+	}
+
+
+	void RideOfDeathTrap2Loop()
+	{
+		while( true )
+		{
+			thread BottomSpinnerRotate();
+			sys.wait( 0.5 );
+
+			thread TopSpinnerRotate();
+			sys.wait( 4.5 );
+		}
+	}
+
+
+	void SetupRideOfDeathTrap3()
+	{
+	}
+
+
+	void RideOfDeathTrap3Loop()
+	{
+		//sys.trigger($trap3_impspawn);  		//disable imp attack because it's dumb
+
+		//bring everything else out 160
+		$discharge_arm_1.bind ($discharge_stack_1);
+		$discharge_arm_2.bind ($discharge_stack_2);
+
+		
+		sys.trigger ($discharge_stack_1_speaker);
+		$discharge_stack_1.move (NORTH, 160);
+		sys.wait (1);
+		sys.trigger ($discharge_stack_2_speaker);
+		$discharge_stack_2.move (NORTH, 160);
+		sys.waitFor ($discharge_stack_2);
+		
+		$discharge_arm_1.unbind ();
+		$discharge_arm_2.unbind ();
+
+		sys.trigger ($discharge_arm_1_speaker);
+		$discharge_arm_1.move (NORTH, 112);
+		sys.wait (0.5);
+		sys.trigger ($discharge_arm_2_speaker);
+		$discharge_arm_2.move (NORTH, 112);
+		sys.waitFor ($discharge_arm_2);
+		
+		$spin_pooperplat1.time( 2.0);
+		$spin_pooperplat2.time( 2.0 );
+		$spin_pooperplat1.accelTime( .25 );
+		$spin_pooperplat2.accelTime( .25 );
+		
+		$spin_pooperplat1.move (WEST, 128);
+		$spin_pooperplat2.move (EAST, 128);
+
+		sys.trigger ($discharge_lens_1_speaker);
+		$discharge_lens_1.rotateOnce ('0 0 90');
+		sys.wait (0.33);
+		sys.trigger ($discharge_lens_2_speaker);
+		$discharge_lens_2.rotateOnce ('0 0 90');
+		//sys.wait(.5);
+
+		//bring to ready position
+		sys.trigger ($speaker_pooper1);			// Who the hell named this "pooper" anyway ?
+		$spin_pooper1.move (DOWN, 96);			// Ahh.. the scatological humor runs rampant... -Xian
+		sys.wait (1.5);
+		sys.trigger ($speaker_pooper2);
+		$spin_pooper2.move (DOWN, 96);
+
+		//bring the nipples up
+		$discharge_nipple_1.time (2);
+		$discharge_nipple_2.time (2);
+		
+		sys.trigger ($discharge_nipple_1_speaker);
+		$discharge_nipple_1.move (UP, 176);
+		sys.wait (0.48);
+		$discharge_nipple_2.move (UP, 176);
+		sys.trigger ($discharge_nipple_2_speaker);
+		sys.waitFor($discharge_nipple_2);
+
+		//initial movement to make sure the particles are on correctly
+		$spin_paddle1.time( 1.2 );
+		$spin_paddle1.accelTime( 0.25 );
+		$spin_paddle1.decelTime( 0.25 );
+		sys.trigger ($speaker_paddle1);
+		$spin_paddle1.rotateOnce( '0 180 0' );
+		sys.waitFor( $spin_paddle1 );
+		
+		
+		//trigger the lightning on
+
+		$dbuzz1.startSoundShader ("jacob", SND_CHANNEL_VOICE );
+
+		sys.trigger ($dbuzz1);
+		sys.trigger ($dbuzz1_light);
+		sys.wait( 1.0 );
+
+		$spin_paddle2.time( 1.2 );
+		$spin_paddle2.accelTime( 0.25 );
+		$spin_paddle2.decelTime( 0.25 );
+		sys.trigger ($speaker_paddle2);
+		$spin_paddle2.rotateOnce( '0 -180 0' );
+		sys.waitFor( $spin_paddle2 );
+		
+		//trigger the lightning on
+		$dbuzz2.startSoundShader ("jacob", SND_CHANNEL_VOICE );
+		sys.trigger ($dbuzz2);
+		sys.trigger ($dbuzz2_light);
+		
+		sys.wait( 1.0 );
+
+		while( true ) {
+			//trigger the lightning off
+			sys.trigger ($dbuzz1);
+			sys.trigger ($dbuzz1_light);
+			$spin_paddle1.time( 1.2 );
+			$spin_paddle1.accelTime( 0.25 );
+			$spin_paddle1.decelTime( 0.25 );
+			sys.trigger ($speaker_paddle1);
+			$spin_paddle1.rotateOnce( '0 180 0' );
+			sys.waitFor( $spin_paddle1 );
+			//trigger the lightning on
+			$dbuzz1.startSoundShader ("jacob", SND_CHANNEL_VOICE );
+			sys.trigger ($dbuzz1);
+			sys.trigger ($dbuzz1_light);
+			sys.wait( 1.0 );
+
+		    //trigger the lightning off
+			sys.trigger ($dbuzz2);
+			sys.trigger ($dbuzz2_light);
+			$spin_paddle2.time( 1.2 );
+			$spin_paddle2.accelTime( 0.25 );
+			$spin_paddle2.decelTime( 0.25 );
+			sys.trigger ($speaker_paddle2);
+			$spin_paddle2.rotateOnce( '0 -180 0' );
+			sys.waitFor( $spin_paddle2 );
+			//trigger the lightning on
+			$dbuzz2.startSoundShader ("jacob", SND_CHANNEL_VOICE );
+			sys.trigger ($dbuzz2);
+			sys.trigger ($dbuzz2_light);
+			sys.wait( 1.0 );
+		}
+	}
+
+
+
+	void SetupRideOfDeathTrap5()
+	{
+		$pounder1_left_base.time( 0.1 );
+		$pounder1_left_cushion.time( 0.1 );
+		$pounder1_left_inside.time( 0.1 );
+		$pounder1_left_outside.time( 0.1 );
+		$pounder2_left_base.time( 0.1 );
+		$pounder2_left_cushion.time( 0.1 );
+		$pounder2_left_inside.time( 0.1 );
+		$pounder2_left_outside.time( 0.1 );
+		$pounder1_right_base.time( 0.1 );
+		$pounder1_right_cushion.time( 0.1 );
+		$pounder1_right_inside.time( 0.1 );
+		$pounder1_right_outside.time( 0.1 );
+		$pounder2_right_base.time( 0.1 );
+		$pounder2_right_cushion.time( 0.1 );
+		$pounder2_right_inside.time( 0.1 );
+		$pounder2_right_outside.time( 0.1 );
+		$pounder1_left_base.rotateOnce( '-30 0 0' );
+		$pounder1_left_cushion.rotateOnce( '-30 0 0' );
+		$pounder1_left_inside.rotateOnce( '-30 0 0' );
+		$pounder1_left_outside.rotateOnce( '-30 0 0' );
+		$pounder2_left_base.rotateOnce( '-30 0 0' );
+		$pounder2_left_cushion.rotateOnce( '-30 0 0' );
+		$pounder2_left_inside.rotateOnce( '-30 0 0' );
+		$pounder2_left_outside.rotateOnce( '-30 0 0' );
+		$pounder1_right_base.rotateOnce( '30 0 0' );
+		$pounder1_right_cushion.rotateOnce( '30 0 0' );
+		$pounder1_right_inside.rotateOnce( '30 0 0' );
+		$pounder1_right_outside.rotateOnce( '30 0 0' );
+		$pounder2_right_base.rotateOnce( '30 0 0' );
+		$pounder2_right_cushion.rotateOnce( '30 0 0' );
+		$pounder2_right_inside.rotateOnce( '30 0 0' );
+		$pounder2_right_outside.rotateOnce( '30 0 0' );
+		sys.waitFor( $pounder2_right_outside );
+
+		$pounder1_left_inside.time( 0.1 );
+		$pounder1_left_outside.time( 0.1 );
+		$pounder2_left_inside.time( 0.1 );
+		$pounder2_left_outside.time( 0.1 );
+		$pounder1_right_inside.time( 0.1 );
+		$pounder1_right_outside.time( 0.1 );
+		$pounder2_right_inside.time( 0.1 );
+		$pounder2_right_outside.time( 0.1 );
+		$pounder1_left_inside.move( REL_FORWARD, 288 );
+		$pounder1_left_outside.move( REL_FORWARD, 256 );
+		$pounder2_left_inside.move( REL_FORWARD, 288 );
+		$pounder2_left_outside.move( REL_FORWARD, 256 );
+		$pounder1_right_inside.move( REL_BACK, 288 );
+		$pounder1_right_outside.move( REL_BACK, 256 );
+		$pounder2_right_inside.move( REL_BACK, 288 );
+		$pounder2_right_outside.move( REL_BACK, 256 );
+		sys.waitFor( $pounder2_right_outside );
+	}
+
+
+	void Pounder1Sequence()
+	{
+		float fRandom;
+
+		fRandom = sys.random( 2.0 );
+
+		if( fRandom < 1.0 )
+		{
+			// extending out
+			
+			$pounder1_left_inside.time( 0.5 );
+			$pounder1_left_inside.accelTime( 0.0 );
+			$pounder1_left_inside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder1_halfsecond);
+			$pounder1_left_inside.move( REL_BACK, 288 );
+			sys.waitFor( $pounder1_left_inside );
+			sys.wait( 0.25 );
+
+			$pounder1_left_outside.time( 0.2 );
+			$pounder1_left_outside.accelTime( 0.0 );
+			$pounder1_left_outside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder1_left_outside_p2);
+			$pounder1_left_outside.move( REL_BACK, 256 );
+			sys.waitFor( $pounder1_left_outside );
+
+			$pounder1_left_outside.time( 0.1 );
+			$pounder1_left_outside.accelTime( 0.0 );
+			$pounder1_left_outside.decelTime( 0.1 );
+			$pounder1_left_cushion.time( 0.1 );
+			$pounder1_left_cushion.accelTime( 0.0 );
+			$pounder1_left_cushion.decelTime( 0.1 );
+			$pounder1_left_outside.move( REL_BACK, 16 );
+			sys.trigger ($speaker_pounder1_left_cushion);
+			$pounder1_left_cushion.move( REL_BACK, 16 );
+			sys.waitFor( $pounder1_left_cushion );
+
+			$pounder1_left_outside.time( 0.2 );
+			$pounder1_left_outside.accelTime( 0.0 );
+			$pounder1_left_outside.decelTime( 0.0 );
+			$pounder1_left_cushion.time( 0.2 );
+			$pounder1_left_cushion.accelTime( 0.0 );
+			$pounder1_left_cushion.decelTime( 0.0 );
+			$pounder1_left_outside.move( REL_FORWARD, 16 );
+			$pounder1_left_cushion.move( REL_FORWARD, 16 );
+			sys.waitFor( $pounder1_left_cushion );
+
+			sys.wait( 2.0 );
+
+			// Sucking back in
+
+			$pounder1_left_outside.time( 1.0 );
+			$pounder1_left_outside.accelTime( 0.25 );
+			$pounder1_left_outside.decelTime( 0.25 );
+			$pounder1_left_inside.time( 2.0 );
+			$pounder1_left_inside.accelTime( 0.5 );
+			$pounder1_left_inside.decelTime( 0.5 );
+			sys.trigger ($speaker_pounder1_left_outside_1s);
+			$pounder1_left_outside.move( REL_FORWARD, 256 );
+			sys.trigger ($speaker_pounder1_left_inside);
+			$pounder1_left_inside.move( REL_FORWARD, 288 );
+			sys.waitFor( $pounder1_left_inside );
+		}
+		else
+		{
+			$pounder1_right_inside.time( 0.5 );
+			$pounder1_right_inside.accelTime( 0.0 );
+			$pounder1_right_inside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder1_halfsecond);
+			$pounder1_right_inside.move( REL_FORWARD, 288 );
+			sys.waitFor( $pounder1_right_inside );
+			sys.wait( 0.25 );
+
+			$pounder1_right_outside.time( 0.2 );
+			$pounder1_right_outside.accelTime( 0.0 );
+			$pounder1_right_outside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder1_right_outside_p2);
+			$pounder1_right_outside.move( REL_FORWARD, 256 );
+			sys.waitFor( $pounder1_right_outside );
+
+			$pounder1_right_outside.time( 0.1 );
+			$pounder1_right_outside.accelTime( 0.0 );
+			$pounder1_right_outside.decelTime( 0.1 );
+			$pounder1_right_cushion.time( 0.1 );
+			$pounder1_right_cushion.accelTime( 0.0 );
+			$pounder1_right_cushion.decelTime( 0.1 );
+			$pounder1_right_outside.move( REL_FORWARD, 16 );
+			sys.trigger ($speaker_pounder1_right_cushion);
+			$pounder1_right_cushion.move( REL_FORWARD, 16 );
+			sys.waitFor( $pounder1_right_cushion );
+
+			$pounder1_right_outside.time( 0.2 );
+			$pounder1_right_outside.accelTime( 0.0 );
+			$pounder1_right_outside.decelTime( 0.0 );
+			$pounder1_right_cushion.time( 0.2 );
+			$pounder1_right_cushion.accelTime( 0.0 );
+			$pounder1_right_cushion.decelTime( 0.0 );
+			$pounder1_right_outside.move( REL_BACK, 16 );
+			$pounder1_right_cushion.move( REL_BACK, 16 );
+			sys.waitFor( $pounder1_right_cushion );
+
+			sys.wait( 2.0 );
+
+			$pounder1_right_outside.time( 1.0 );
+			$pounder1_right_outside.accelTime( 0.25 );
+			$pounder1_right_outside.decelTime( 0.25 );
+			$pounder1_right_inside.time( 2.0 );
+			$pounder1_right_inside.accelTime( 0.5 );
+			$pounder1_right_inside.decelTime( 0.5 );
+			sys.trigger ($speaker_pounder1_right_outside_1s);
+			$pounder1_right_outside.move( REL_BACK, 256 );
+			sys.trigger ($speaker_pounder1_right_inside);
+			$pounder1_right_inside.move( REL_BACK, 288 );
+			sys.waitFor( $pounder1_left_inside );
+		}
+	}
+
+
+	void Pounder2Sequence()
+	{
+		float fRandom;
+
+		fRandom = sys.random( 2.0 );
+
+		if( fRandom < 1.0 )
+		{
+			$pounder2_left_inside.time( 0.5 );
+			$pounder2_left_inside.accelTime( 0.0 );
+			$pounder2_left_inside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder2_halfsecond);
+			$pounder2_left_inside.move( REL_BACK, 288 );
+			sys.waitFor( $pounder2_left_inside );
+			sys.wait( 0.25 );
+
+			$pounder2_left_outside.time( 0.2 );
+			$pounder2_left_outside.accelTime( 0.0 );
+			$pounder2_left_outside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder2_left_outside_p2);
+			$pounder2_left_outside.move( REL_BACK, 256 );
+			sys.waitFor( $pounder2_left_outside );
+
+			$pounder2_left_outside.time( 0.1 );
+			$pounder2_left_outside.accelTime( 0.0 );
+			$pounder2_left_outside.decelTime( 0.1 );
+			$pounder2_left_cushion.time( 0.1 );
+			$pounder2_left_cushion.accelTime( 0.0 );
+			$pounder2_left_cushion.decelTime( 0.1 );
+			$pounder2_left_outside.move( REL_BACK, 16 );
+			$pounder2_left_cushion.move( REL_BACK, 16 );
+			sys.waitFor( $pounder2_left_cushion );
+
+			$pounder2_left_outside.time( 0.2 );
+			$pounder2_left_outside.accelTime( 0.0 );
+			$pounder2_left_outside.decelTime( 0.0 );
+			$pounder2_left_cushion.time( 0.2 );
+			$pounder2_left_cushion.accelTime( 0.0 );
+			$pounder2_left_cushion.decelTime( 0.0 );
+			$pounder2_left_outside.move( REL_FORWARD, 16 );
+			sys.trigger ($speaker_pounder2_left_cushion);
+			$pounder2_left_cushion.move( REL_FORWARD, 16 );
+			sys.waitFor( $pounder2_left_cushion );
+
+			sys.wait( 2.0 );
+
+			$pounder2_left_outside.time( 1.0 );
+			$pounder2_left_outside.accelTime( 0.25 );
+			$pounder2_left_outside.decelTime( 0.25 );
+			$pounder2_left_inside.time( 2.0 );
+			$pounder2_left_inside.accelTime( 0.5 );
+			$pounder2_left_inside.decelTime( 0.5 );
+			sys.trigger ($speaker_pounder2_left_outside_1s);
+			$pounder2_left_outside.move( REL_FORWARD, 256 );
+			sys.trigger ($speaker_pounder2_left_inside);
+			$pounder2_left_inside.move( REL_FORWARD, 288 );
+			sys.waitFor( $pounder2_left_inside );
+		}
+		else
+		{
+			$pounder2_right_inside.time( 0.5 );
+			$pounder2_right_inside.accelTime( 0.0 );
+			$pounder2_right_inside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder2_halfsecond);
+			$pounder2_right_inside.move( REL_FORWARD, 288 );
+			sys.waitFor( $pounder2_right_inside );
+			sys.wait( 0.25 );
+
+			$pounder2_right_outside.time( 0.2 );
+			$pounder2_right_outside.accelTime( 0.0 );
+			$pounder2_right_outside.decelTime( 0.0 );
+			sys.trigger ($speaker_pounder2_right_outside_p2);
+			$pounder2_right_outside.move( REL_FORWARD, 256 );
+			sys.waitFor( $pounder2_right_outside );
+
+			$pounder2_right_outside.time( 0.1 );
+			$pounder2_right_outside.accelTime( 0.0 );
+			$pounder2_right_outside.decelTime( 0.1 );
+			$pounder2_right_cushion.time( 0.1 );
+			$pounder2_right_cushion.accelTime( 0.0 );
+			$pounder2_right_cushion.decelTime( 0.1 );
+			$pounder2_right_outside.move( REL_FORWARD, 16 );
+			sys.trigger ($speaker_pounder2_right_cushion);
+			$pounder2_right_cushion.move( REL_FORWARD, 16 );
+			sys.waitFor( $pounder2_right_cushion );
+
+			$pounder2_right_outside.time( 0.2 );
+			$pounder2_right_outside.accelTime( 0.0 );
+			$pounder2_right_outside.decelTime( 0.0 );
+			$pounder2_right_cushion.time( 0.2 );
+			$pounder2_right_cushion.accelTime( 0.0 );
+			$pounder2_right_cushion.decelTime( 0.0 );
+			$pounder2_right_outside.move( REL_BACK, 16 );
+			$pounder2_right_cushion.move( REL_BACK, 16 );
+			sys.waitFor( $pounder2_right_cushion );
+
+			sys.wait( 2.0 );
+
+			$pounder2_right_outside.time( 1.0 );
+			$pounder2_right_outside.accelTime( 0.25 );
+			$pounder2_right_outside.decelTime( 0.25 );
+			$pounder2_right_inside.time( 2.0 );
+			$pounder2_right_inside.accelTime( 0.5 );
+			$pounder2_right_inside.decelTime( 0.5 );
+			sys.trigger ($speaker_pounder2_right_outside_1s);
+			$pounder2_right_outside.move( REL_BACK, 256 );
+			sys.trigger ($speaker_pounder2_right_inside);
+			$pounder2_right_inside.move( REL_BACK, 288 );
+			sys.waitFor( $pounder2_left_inside );
+		}
+	}
+
+
+	void RideOfDeathTrap5Loop()
+	{
+		// FIXME: add a light cue where the rods come out to let the player
+		// know which one is about to fire
+		sys.wait( 7.5 );
+
+		while( true )
+		{
+			thread Pounder1Sequence();
+			sys.wait( 2.0 );
+
+			thread Pounder2Sequence();
+			sys.wait( 8.0 );
+		}
+	}
+
+
+
+	void SetupRideOfDeathTraps()
+	{
+		SetupRideOfDeathObjects();
+
+		SetupRideOfDeathTrap1();
+		SetupRideOfDeathTrap2();
+		SetupRideOfDeathTrap3();
+		SetupRideOfDeathTrap5();
+	
+		thread RideOfDeathTrap1Loop();
+		thread RideOfDeathTrap2Loop();
+		thread RideOfDeathTrap5Loop();
+	}
+
+
+	void LightGroup1Sequence()
+	{
+		$lightgroup1_swing_light1.accelTime( 0.25 );
+		$lightgroup1_swing_light1.time( 1.0 );
+		$lightgroup1_swing_light1.decelTime( 0.25 );
+		$lightgroup1_swing_light2.accelTime( 0.25 );
+		$lightgroup1_swing_light2.time( 1.0 );
+		$lightgroup1_swing_light2.decelTime( 0.25 );
+		$lightgroup1_swing_light1.rotateOnce( '0 0 135' );
+		$lightgroup1_swing_light2.rotateOnce( '0 0 135' );
+		sys.waitFor( $lightgroup1_swing_light2 );
+
+		$lightgroup1_swing_light1_light.On();
+		$lightgroup1_swing_light2_light.On();
+
+		$lightgroup1_lighta.On();
+		$lightgroup1_lightb.On();
+		$lightgroup1_lightc.On();
+	}
+
+
+	void GlideLight1Loop()
+	{
+		float fTime;
+
+		while( true )
+		{
+			fTime = sys.random( 2.0 );
+
+			$glide_light1.time( fTime + 1.0 );
+			$glide_light1.accelTime( fTime / 4 );
+			$glide_light1.decelTime( fTime / 4 );
+			$glide_light1.move( NORTH, 448 );
+			sys.waitFor( $glide_light1 );
+
+			fTime = sys.random( 2.0 );
+			sys.wait( fTime + 1.0 );
+
+			fTime = sys.random( 2.0 );
+
+			$glide_light1.time( fTime + 1.0 );
+			$glide_light1.accelTime( fTime / 4 );
+			$glide_light1.decelTime( fTime / 4 );
+			$glide_light1.move( SOUTH, 448 );
+			sys.waitFor( $glide_light1 );
+
+			fTime = sys.random( 2.0 );
+			sys.wait( fTime + 1.0 );
+		}
+	}
+
+
+	void GlideLight2Loop()
+	{
+		float fTime;
+
+		while( true )
+		{
+			fTime = sys.random( 1.5 );
+
+			$glide_light2.time( fTime + 0.5 );
+			$glide_light2.accelTime( fTime / 4 );
+			$glide_light2.decelTime( fTime / 4 );
+			$glide_light2.move( WEST, 256 );
+			sys.waitFor( $glide_light2 );
+
+			fTime = sys.random( 1.25 );
+			sys.wait( fTime + 0.5 );
+
+			fTime = sys.random( 1.5 );
+
+			$glide_light2.time( fTime + 0.5 );
+			$glide_light2.accelTime( fTime / 4 );
+			$glide_light2.decelTime( fTime / 4 );
+			$glide_light2.move( EAST, 256 );
+			sys.waitFor( $glide_light2 );
+
+			fTime = sys.random( 1.25 );
+			sys.wait( fTime + 0.5 );
+		}
+	}
+
+
+	void CargoObjectLoop( string strObject )
+	{
+		entity eObject;
+		entity eLight;
+
+		eObject = sys.getEntity( strObject );
+		eLight = sys.getEntity( strObject + "_light" );
+
+		eObject.time( 3.0 );
+		eObject.move( SOUTH, 176 );
+		sys.waitFor( eObject );
+
+		eObject.bind( $cargo_object_origin1 );
+
+		$cargo_object_origin1.time( 1.75 );
+		$cargo_object_origin1.rotateOnce( '0 90 0' );
+		sys.waitFor( $cargo_object_origin1 );
+
+		eObject.unbind();
+		$cargo_object_origin1.restorePosition();
+
+		eObject.time( 0.6 );
+		eObject.move( EAST, 48 );
+		sys.waitFor( eObject );
+
+		eLight.On();
+
+		eObject.bind( $cargo_object_origin2 );
+
+		$cargo_object_origin2.time( 1.75 );
+		$cargo_object_origin2.rotateOnce( '0 90 0' );
+		sys.waitFor( $cargo_object_origin2 );
+
+		eObject.unbind();
+		$cargo_object_origin2.restorePosition();
+
+		eObject.time( 4.25 );
+		eObject.move( NORTH, 304 );
+		sys.waitFor( eObject );
+
+		eObject.bind( $cargo_object_origin3 );
+
+		$cargo_object_origin3.time( 6.0 );
+		$cargo_object_origin3.rotateOnce( '0 -90 0' );
+		sys.waitFor( $cargo_object_origin3 );
+
+		eObject.unbind();
+		$cargo_object_origin3.restorePosition();
+
+		eObject.time( 14.0 );
+		eObject.move( EAST, 896 );
+		sys.waitFor( eObject );
+
+		eObject.bind( $cargo_object_origin4 );
+
+		$cargo_object_origin4.time( 6.0 );
+		$cargo_object_origin4.rotateOnce( '0 -90 0' );
+		sys.waitFor( $cargo_object_origin4 );
+
+		eObject.unbind();
+		$cargo_object_origin4.restorePosition();
+
+		eObject.time( 1.0 );
+		eObject.move( SOUTH, 64 );
+		sys.waitFor( eObject );
+
+		eObject.bind( $cargo_object_origin5 );
+
+		$cargo_object_origin5.time( 4.0 );
+		$cargo_object_origin5.rotateOnce( '0 -90 0' );
+		sys.waitFor( $cargo_object_origin5 );
+
+		eObject.unbind();
+		$cargo_object_origin5.restorePosition();
+
+		eLight.Off();
+
+		eObject.time( 2.0 );
+		eObject.move( WEST, 128 );
+		sys.waitFor( eObject );
+
+		eObject.restorePosition();
+	}
+	// 46s
+
+
+	void CargoObjectSequence()
+	{
+		string strObject;
+		float ii;
+
+		while( true )
+		{
+			for( ii = 1; ii < 5; ii++ )
+			{
+				strObject = "cargo_object" + ii;
+				thread CargoObjectLoop( strObject );
+				sys.wait( 15.0 );
+			}
+		}
+	}
+
+
+
+	void LightsOffThread()
+	{
+		sys.trigger($dark_door_open);
+		sys.trigger($dark_backstab);
+		sys.trigger($dark_b2);
+		sys.trigger($dark_triteclimb);
+		sys.trigger($rod_doortrig);
+		sys.trigger($lightsoff_lock);
+
+		thread ExtendSectionBridges();
+
+		SetupRideOfDeathTraps();
+		RemoveRideOfDeathObjects();
+	}
+
+
+	void LightsOnThread()
+	{
+		sys.trigger($lights_on_doortrig);
+		sys.trigger($lightside_lock_1);
+		thread SectionBridgeRemoveAll();
+
+		thread ExtendPlatform1();
+		thread RotatingBridgeStart();
+
+		thread LightGroup1Sequence();
+		sys.wait( 5.0 );
+
+		thread RotatingBridgeLoop();
+	}
+
+
+	void RideOfDeathThread()
+	{
+		sys.trigger($rod_doortrig);
+		SetupRideOfDeathTraps();
+		RideOfDeathLoop();
+	}
+
+	/*--------------------------------------------------------------------
+		
+		F r a g c h a m b e r    scripting START
+		
+	--------------------------------------------------------------------*/
+
+
+	// -------------------------------------------------
+	// Chamber Core DOWN
+	// -------------------------------------------------
+	void chamber_core_down()
+	{
+		$chamber_core.time(5);
+		$chamber_core.accelTime(1);
+		$chamber_core.decelTime(1.5);
+		$chamber_core.moveTo($chamber_core_down);
+
+		sys.trigger ($chamber_core_down_speaker);
+		sys.wait (4);
+		//no turning back... remove cancel option
+		$guicon1.setGuiParm ( "gui_parm9" , 0);
+		sys.trigger ($speaker_juicer);
+		sys.waitFor ($chamber_core);
+	
+	}
+
+	// -------------------------------------------------
+	// Chamber Core UP
+	// -------------------------------------------------
+	void chamber_core_up()
+	{
+		$chamber_core.time(3);
+		$chamber_core.accelTime(2.5);
+		$chamber_core.decelTime(.5);
+		$chamber_core.moveTo($chamber_core_up);
+
+		sys.trigger ($chamber_core_up_speaker);
+
+		sys.waitFor ($chamber_core);
+	}
+
+	// -------------------------------------------------
+	// Chamber Rods DOWN
+	// -------------------------------------------------
+	void chamber_rods_down()
+	{
+		$chamber_rods.time(4);
+		$chamber_rods.accelTime(1);
+		$chamber_rods.decelTime(.5);
+		$chamber_rods.moveTo($chamber_rod_down);
+
+		sys.trigger ($chamber_rods_down_speaker);
+
+		sys.waitFor ($chamber_rods);
+	}
+
+	// -------------------------------------------------
+	// Chamber Rods UP
+	// -------------------------------------------------
+	void chamber_rods_up()
+	{
+		$chamber_rods.time(3);
+		$chamber_rods.accelTime(1);
+		$chamber_rods.decelTime(.5);
+		$chamber_rods.moveTo($chamber_rod_up);
+
+		sys.trigger ($chamber_rods_up_speaker);
+
+		sys.waitFor ($chamber_rods);
+	}
+
+
+	// -------------------------------------------------
+	// Chamber Sockets OUT
+	// -------------------------------------------------
+	void chamber_sockets_out()
+	{
+		$chamber_socket1.time(2);
+		$chamber_socket1.moveTo($chamber_socket1_out);
+		$chamber_socket2.time(2);
+		$chamber_socket2.moveTo($chamber_socket2_out);
+		$chamber_socket3.time(2);
+		$chamber_socket3.moveTo($chamber_socket3_out);
+		$chamber_socket4.time(2);
+		$chamber_socket4.moveTo($chamber_socket4_out);
+
+		sys.trigger ($chamber_sockets_out_speaker);
+
+		sys.waitFor ($chamber_socket4);
+	}
+
+	// -------------------------------------------------
+	// Chamber Sockets IN
+	// -------------------------------------------------
+	void chamber_sockets_in()
+	{
+		$chamber_socket1.time(2);
+		$chamber_socket1.moveTo($chamber_socket1_in);
+		$chamber_socket2.time(2);
+		$chamber_socket2.moveTo($chamber_socket2_in);
+		$chamber_socket3.time(2);
+		$chamber_socket3.moveTo($chamber_socket3_in);
+		$chamber_socket4.time(2);
+		$chamber_socket4.moveTo($chamber_socket4_in);
+
+		sys.trigger ($chamber_sockets_in_speaker);
+
+		sys.waitFor ($chamber_socket4);
+	}
+
+	// -------------------------------------------------
+	// Close the chamber doors
+	// -------------------------------------------------
+	void chamber_closedoors()
+	{
+		$chamber_door2a.close();
+		$chamber_door2b.close();
+		$chamber_door4a.close();
+		$chamber_door4b.close();
+
+		$chamber_door2a.lock(1);
+		$chamber_door2b.lock(1);
+		$chamber_door4a.lock(1);
+		$chamber_door4b.lock(1);
+
+		$fragchamber_door1_gui.setGuiParm ("gui_parm3", 0);
+		$fragchamber_door2_gui.setGuiParm ("gui_parm3", 0);
+
+		$fragchamber_door1_gui.setShaderParm (7, 0);
+		$fragchamber_door2_gui.setShaderParm (7, 0);
+
+		$fragchamber_door1_blinky_red.show();
+		$fragchamber_door1_blinky_green.hide();
+		$fragchamber_door2_blinky_red.show();
+		$fragchamber_door2_blinky_green.hide();
+
+		$fragchamber_door1_bl1.setColor (1, 0, 0);
+		$fragchamber_door1_bl2.setColor (1, 0, 0);
+		$fragchamber_door2_bl1.setColor (1, 0, 0);
+		$fragchamber_door2_bl2.setColor (1, 0, 0);
+	}
+
+	// -------------------------------------------------
+	// Trigger the Chamber into action!
+	// -------------------------------------------------
+	void chamber_trigger()
+	{
+		float moverthread;
+
+		$guicon1.setGuiParm ("gui_parm9", 1);
+
+		//bridge times
+		$chamber_bridge1.time(.5);
+		$chamber_bridge2.time(.5);
+		$chamber_bridge3.time(.5);
+		$chamber_bridge4.time(.5);
+
+		//doors CLOSE and LOCK
+		thread chamber_closedoors();
+		
+		//bridges up
+		sys.trigger ($bridge_up_speaker);
+		$chamber_bridge1.rotateOnce( '0 0 -61' );
+		$chamber_bridge2.rotateOnce( '100 0 0' );
+		$chamber_bridge3.rotateOnce( '0 0 61' );
+		$chamber_bridge4.rotateOnce( '-100 0 0' );
+		
+		//core DOWN
+
+		thread chamber_core_down();
+
+		//trigger the NPC to panic
+		sys.trigger ($fragchamber_npc_panic);
+		
+		//sockets OUT
+		sys.waitFor($chamber_bridge1);
+
+		moverthread = thread chamber_sockets_out();
+		sys.waitForThread ( moverthread );
+		
+		//rods DOWN
+
+		moverthread = thread chamber_rods_down();
+		sys.waitForThread ( moverthread );
+		sys.wait(1);
+		
+		//kill npc
+		$fragchamber_npc.kill();
+		sys.trigger ($skeleton_spawn);
+		sys.trigger ($punish_lock);
+		//thread frontroom_door_open();
+		
+		//kill the 2nd scientist standing at the door
+		$alphalabs3_fragchamber_scientist2_2.remove();
+
+		sys.trigger ($speaker_warmup);
+		sys.wait (2.5);
+		
+		//...Dramatic pause and doing stuff sound
+		sys.trigger ($fragchamber_active);
+		sys.wait (1);
+		sys.trigger ($punish_relay);
+		sys.wait (1);
+
+		//rods up and sockets in
+		thread chamber_rods_up();
+		sys.wait (1);
+		moverthread = thread chamber_sockets_in();
+		sys.waitForThread ( moverthread );
+		
+		//bridges DOWN
+		sys.trigger ($bridge_down_speaker);
+		$chamber_bridge1.rotateOnce( '0 0 61' );
+		$chamber_bridge2.rotateOnce( '-100 0 0' );
+		$chamber_bridge3.rotateOnce( '0 0 -61' );
+		$chamber_bridge4.rotateOnce( '100 0 0' );
+
+		//core up
+
+		moverthread = thread chamber_core_up();
+		sys.waitForThread ( moverthread );
+		
+		//doors OPEN and unlock
+		sys.wait(1);
+		$chamber_door2a.open();
+		$chamber_door2b.open();
+		$chamber_door4a.open();
+		$chamber_door4b.open();
+
+		$chamber_door2a.lock(0);
+		$chamber_door2b.lock(0);
+		$chamber_door4a.lock(0);
+		$chamber_door4b.lock(0);
+
+		$fragchamber_door1_gui.setGuiParm ("gui_parm3", 1);
+		$fragchamber_door2_gui.setGuiParm ("gui_parm3", 1);
+
+		$fragchamber_door1_gui.setShaderParm (7, 1);
+		$fragchamber_door2_gui.setShaderParm (7, 1);
+
+		$fragchamber_door1_blinky_red.hide();
+		$fragchamber_door1_blinky_green.show();
+		$fragchamber_door2_blinky_red.hide();
+		$fragchamber_door2_blinky_green.show();
+
+		$fragchamber_door1_bl1.setColor (0, 1, 0);
+		$fragchamber_door1_bl2.setColor (0, 1, 0);
+		$fragchamber_door2_bl1.setColor (0, 1, 0);
+		$fragchamber_door2_bl2.setColor (0, 1, 0);
+
+		//trigger control gui to reset it
+		$guicon1.setGuiParm ("gui_parm8", 1);
+		$guicon1.setGuiParm ("gui_parm9", 1);
+	}
+
+	// -------------------------------------------------
+	// Cancel the Chamber
+	// -------------------------------------------------
+	void chamber_cancel()
+	{
+		float moverthread;
+
+		sys.print ("chamber_cancel\n");
+		sys.killthread ("map_alphalabs4::chamber_trigger");
+		sys.killthread ("map_alphalabs4::chamber_core_down");
+		sys.trigger($npc_backup);
+
+		//rods up and sockets in
+		thread chamber_rods_up();
+		thread chamber_sockets_in();
+	
+		//core up
+		moverthread = thread chamber_core_up();
+		//sys.waitForThread ( moverthread );
+
+		//trigger the NPC relief
+		sys.wait( 1 );
+		sys.trigger ($fragchamber_npc_relief );
+		
+		//bridges DOWN
+		sys.trigger ($bridge_down_speaker);
+		$chamber_bridge1.rotateOnce( '0 0 61' );
+		$chamber_bridge2.rotateOnce( '-100 0 0' );
+		$chamber_bridge3.rotateOnce( '0 0 -61' );
+		$chamber_bridge4.rotateOnce( '100 0 0' );
+		sys.waitFor ($chamber_bridge4);
+
+		//doors OPEN and unlock
+		sys.wait(1);
+		$chamber_door2a.open();
+		$chamber_door2b.open();
+		$chamber_door4a.open();
+		$chamber_door4b.open();
+
+		$chamber_door2a.lock(0);
+		$chamber_door2b.lock(0);
+		$chamber_door4a.lock(0);
+		$chamber_door4b.lock(0);
+
+		$fragchamber_door1_gui.setGuiParm ("gui_parm3", 1);
+		$fragchamber_door2_gui.setGuiParm ("gui_parm3", 1);
+
+		$fragchamber_door1_gui.setShaderParm (7, 1);
+		$fragchamber_door2_gui.setShaderParm (7, 1);
+
+		$fragchamber_door1_blinky_red.hide();
+		$fragchamber_door1_blinky_green.show();
+		$fragchamber_door2_blinky_red.hide();
+		$fragchamber_door2_blinky_green.show();
+
+		$fragchamber_door1_bl1.setColor (0, 1, 0);
+		$fragchamber_door1_bl2.setColor (0, 1, 0);
+		$fragchamber_door2_bl1.setColor (0, 1, 0);
+		$fragchamber_door2_bl2.setColor (0, 1, 0);
+
+		sys.wait (1);
+
+		//trigger control gui to reset it
+		$guicon1.setGuiParm ("gui_parm8", 3);
+		$guicon1.setGuiParm ("gui_parm9", 1);
+
+		//trigger the NPC to leave
+		sys.print ("trigger\n");
+		sys.trigger ($fragchamber_npc);
+
+		// keep the doors open for a few seconds
+		float end_time = sys.getTime() + 7;
+		while( sys.getTime() < end_time ) {
+			sys.trigger( $chamber_door2a );
+			sys.trigger( $chamber_door2b );
+			sys.trigger( $chamber_door4a );
+			sys.trigger( $chamber_door4b );
+			sys.wait( 0.5 );
+		}
+	}
+
+	// -------------------------------------------------
+	// Open the chamber doors
+	// -------------------------------------------------
+	void chamber_opendoors()
+	{
+		// doors OPEN and unlock
+		sys.wait(1);
+		sys.trigger($npc_backup);
+		$chamber_door2a.open();
+		$chamber_door2b.open();
+		$chamber_door4a.open();
+		$chamber_door4b.open();
+
+		$chamber_door2a.lock(0);
+		$chamber_door2b.lock(0);
+		$chamber_door4a.lock(0);
+		$chamber_door4b.lock(0);
+
+		$fragchamber_door1_gui.setGuiParm ("gui_parm3", 1);
+		$fragchamber_door2_gui.setGuiParm ("gui_parm3", 1);
+
+		$fragchamber_door1_gui.setShaderParm (7, 1);
+		$fragchamber_door2_gui.setShaderParm (7, 1);
+
+		$fragchamber_door1_blinky_red.hide();
+		$fragchamber_door1_blinky_green.show();
+		$fragchamber_door2_blinky_red.hide();
+		$fragchamber_door2_blinky_green.show();
+
+		$fragchamber_door1_bl1.setColor (0, 1, 0);
+		$fragchamber_door1_bl2.setColor (0, 1, 0);
+		$fragchamber_door2_bl1.setColor (0, 1, 0);
+		$fragchamber_door2_bl2.setColor (0, 1, 0);
+		
+		sys.wait (0.5);
+
+		//trigger the NPC to leave
+		sys.trigger ($fragchamber_npc_leave);
+
+		//trigger control gui to reset it
+		$guicon1.setGuiParm ("gui_parm8", 2);
+		$guicon1.setGuiParm ("gui_parm9", 1);
+
+		// keep the doors open for a few seconds
+		float end_time = sys.getTime() + 7;
+		while( sys.getTime() < end_time ) {
+			sys.trigger( $chamber_door2a );
+			sys.trigger( $chamber_door2b );
+			sys.trigger( $chamber_door4a );
+			sys.trigger( $chamber_door4b );
+			sys.wait( 0.5 );
+		}
+	}
+
+	/*--------------------------------------------------------------------
+		
+		F r a g c h a m b e r    scripting END
+		
+	--------------------------------------------------------------------*/
+
+
+/* ***********************************************************************************
+
+Please place non-init code and functions above these init functions
+
+*********************************************************************************** */
+
+	/*
+	 Pre-init state. Define starting state of key entities
+	*/
+	
+	void setup_objects() {
+		g_fConveyDoorRefCount = 0;
+		g_fWeldDoorRefCount = 0;
+	}
+	
+
+	void init_world() {
+		// -- Start Alphapuzzle
+		thread SetupRotatingBridge();
+
+		thread GlideLight1Loop();
+		thread GlideLight2Loop();
+		thread CargoObjectSequence();
+		// -- End Alphapuzzle
+	}
+	
+	void main() {
+		cache_sounds();
+		bind_objects();
+		setup_objects();	
+		init_world();
+	}
+}

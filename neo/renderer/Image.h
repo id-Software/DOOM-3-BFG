@@ -97,7 +97,7 @@ enum textureFormat_t
 	FMT_Y16_X16,		// 32 bpp
 	FMT_RGB565,			// 16 bpp
 
-	// RB: don't change above for legacy .bimage compatibility
+	// RB: don't change above for .bimage compatibility up until RBDOOM-3-BFG 1.1
 	FMT_ETC1_RGB8_OES,	// 4 bpp
 	FMT_SHADOW_ARRAY,	// 32 bpp * 6
 	FMT_RG16F,			// 32 bpp
@@ -105,21 +105,15 @@ enum textureFormat_t
 	FMT_RGBA32F,		// 128 bpp
 	FMT_R32F,			// 32 bpp
 	FMT_R11G11B10F,		// 32 bpp
+
+	// ^-- used up until RBDOOM-3-BFG 1.3
 	FMT_R8,
 	FMT_DEPTH_STENCIL,  // 32 bpp
-	// RB end
+	FMT_RGBA16S,		// 64 bpp
+	FMT_SRGB8,
 };
 
 int BitsForFormat( textureFormat_t format );
-
-enum textureSamples_t
-{
-	SAMPLE_1	= BIT( 0 ),
-	SAMPLE_2	= BIT( 1 ),
-	SAMPLE_4	= BIT( 2 ),
-	SAMPLE_8	= BIT( 3 ),
-	SAMPLE_16	= BIT( 4 )
-};
 
 /*
 ================================================
@@ -157,13 +151,14 @@ public:
 	textureType_t		textureType;
 	textureFormat_t		format;
 	textureColor_t		colorFormat;
-	textureSamples_t	samples;
+	uint				samples;
 	int					width;
 	int					height;			// not needed for cube maps
 	int					numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
 	bool				gammaMips;		// if true, mips will be generated with gamma correction
 	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
 	bool				isRenderTarget;
+	bool				isUAV;
 };
 
 /*
@@ -175,7 +170,7 @@ ID_INLINE idImageOpts::idImageOpts()
 {
 	format			= FMT_NONE;
 	colorFormat		= CFM_DEFAULT;
-	samples			= SAMPLE_1;
+	samples			= 1;
 	width			= 0;
 	height			= 0;
 	numLevels		= 0;
@@ -183,6 +178,7 @@ ID_INLINE idImageOpts::idImageOpts()
 	gammaMips		= false;
 	readback		= false;
 	isRenderTarget	= false;
+	isUAV			= false;
 }
 
 /*
@@ -232,11 +228,13 @@ typedef enum
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
 	TD_RG16F,
 	TD_RGBA16F,
+	TD_RGBA16S,
 	TD_RGBA32F,
 	TD_R32F,
 	TD_R11G11B10F,			// memory efficient HDR RGB format with only 32bpp
 	// RB end
 	TD_R8F,					// Stephen: Added for ambient occlusion render target.
+	TD_LDR,					// Stephen: Added for SRGB render target when tonemapping.
 	TD_DEPTH_STENCIL,       // depth buffer and stencil buffer
 } textureUsage_t;
 
@@ -245,19 +243,48 @@ typedef enum
 	CF_2D,			// not a cube map
 	CF_NATIVE,		// _px, _nx, _py, etc, directly sent to GL
 	CF_CAMERA,		// _forward, _back, etc, rotated and flipped as needed before sending to GL
+	CF_QUAKE1,		// _ft, _bk, etc, rotated and flipped as needed before sending to GL
 	CF_PANORAMA,	// TODO latlong encoded HDRI panorama typically used by Substance or Blender
 	CF_2D_ARRAY,	// not a cube map but not a single 2d texture either
 	CF_2D_PACKED_MIPCHAIN, // usually 2d but can be an octahedron, packed mipmaps into single 2d texture atlas and limited to dim^2
 	CF_SINGLE,      // SP: A single texture cubemap. All six sides in one image.
 } cubeFiles_t;
 
-enum imageFileType_t
+class idDeferredImage
 {
-	TGA,
-	PNG,
-	JPG,
-	EXR,
+public:
+	idDeferredImage( const char* imageName );
+	~idDeferredImage();
+
+	idStr			name;
+	byte*			pic;
+	int				width;
+	int				height;
+	textureFilter_t textureFilter;
+	textureRepeat_t textureRepeat;
+	textureUsage_t	textureUsage;
 };
+
+ID_INLINE idDeferredImage::idDeferredImage( const char* imageName )
+	: name( imageName )
+	, pic( nullptr )
+	, width( 0 )
+	, height( 0 )
+	, textureFilter( TF_DEFAULT )
+	, textureRepeat( TR_CLAMP )
+	, textureUsage( TD_DEFAULT )
+{
+}
+
+ID_INLINE idDeferredImage::~idDeferredImage()
+{
+	if( pic )
+	{
+		delete pic;
+	}
+}
+
+typedef void ( *ImageGeneratorFunction )( idImage* image, nvrhi::ICommandList* commandList );
 
 #include "BinaryImage.h"
 
@@ -282,13 +309,13 @@ public:
 	void		Bind();
 
 	// RB begin
-	void		GenerateShadowArray( int width, int height, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
+	void		GenerateShadowArray( int width, int height, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, nvrhi::ICommandList* commandList );
 	// RB end
 
 	void		CopyFramebuffer( int x, int y, int width, int height );
 	void		CopyDepthbuffer( int x, int y, int width, int height );
 
-	void		UploadScratch( const byte* pic, int width, int height );
+	void		UploadScratch( const byte* pic, int width, int height, nvrhi::ICommandList* commandList );
 
 	// estimates size of the GL image based on dimensions and storage type
 	int			StorageSize() const;
@@ -297,14 +324,14 @@ public:
 	void		Print() const;
 
 	// check for changed timestamp on disk and reload if necessary
-	void		Reload( bool force );
+	void		Reload( bool force, nvrhi::ICommandList* commandList );
 
 	void		AddReference()
 	{
 		refCount++;
 	};
 
-	void		MakeDefault();	// fill with a grid pattern
+	void		MakeDefault( nvrhi::ICommandList* commandList );	// fill with a grid pattern
 
 	const idImageOpts& 	GetOpts() const
 	{
@@ -332,7 +359,11 @@ public:
 	{
 		levelLoadReferenced = true;
 	}
-	void		ActuallyLoadImage( bool fromBackEnd );
+
+	void		FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList );
+
+	// Adds the image to the list of images to load on the main thread to the gpu.
+	void		DeferredLoadImage();
 
 	//---------------------------------------------
 	// Platform specific implementations
@@ -373,6 +404,7 @@ public:
 	// they must be a multiple of four for dxt data.
 	void		SubImageUpload( int mipLevel, int destX, int destY, int destZ,
 								int width, int height, const void* data,
+								nvrhi::ICommandList* commandList,
 								int pixelPitch = 0 );
 
 	// some scratch images are dynamically resized based on the display window size.  This
@@ -392,6 +424,9 @@ public:
 
 	bool				IsLoaded() const;
 
+	// Creates a sampler for this texture to use in the shader.
+	void				CreateSampler();
+
 	// RB
 	bool				IsDefaulted() const
 	{
@@ -409,32 +444,63 @@ public:
 							   textureFilter_t filter,
 							   textureRepeat_t repeat,
 							   textureUsage_t usage,
-							   textureSamples_t samples = SAMPLE_1,
-							   cubeFiles_t cubeFiles = CF_2D,
-							   bool isRenderTarget = false );
+							   nvrhi::ICommandList* commandList,
+							   bool isRenderTarget = false,
+							   bool isUAV = false,
+							   uint sampleCount = 1,
+							   cubeFiles_t cubeFiles = CF_2D );
 
 	void		GenerateCubeImage( const byte* pic[6], int size,
-								   textureFilter_t filter, textureUsage_t usage );
+								   textureFilter_t filter, textureUsage_t usage, nvrhi::ICommandList* commandList );
 
 	void		SetTexParameters();	// update aniso and trilinear
 
 	// DG: added for imgui integration (to be used with ImGui::Image() etc)
 	void*		GetImGuiTextureID()
 	{
-		if( !IsLoaded() )
-		{
-			// load the image on demand here, which isn't our normal game operating mode
-			ActuallyLoadImage( true );
-		}
-
-#if defined( USE_VULKAN )
-		return ( void* )( intptr_t )image;
-#else
-		return ( void* )( intptr_t )texnum;
-#endif
-
+		return nullptr;
 	}
 	// DG end
+
+	nvrhi::TextureHandle GetTextureHandle()
+	{
+		return texture;
+	}
+
+	void*		GetTextureID()
+	{
+		return ( void* )texture.Get();
+	}
+
+	void* GetSampler( SamplerCache& samplerCache )
+	{
+		if( !sampler )
+		{
+			sampler = samplerCache.GetOrCreateSampler( samplerDesc );
+		}
+
+		return ( void* )sampler.Get();
+	}
+
+	void* GetSampler( nvrhi::IDevice* device )
+	{
+		if( !sampler )
+		{
+			sampler = device->createSampler( samplerDesc );
+		}
+
+		return ( void* )sampler;
+	}
+
+	nvrhi::SamplerDesc* GetSamplerDesc()
+	{
+		return &samplerDesc;
+	}
+
+	void SetSampler( nvrhi::SamplerHandle _sampler )
+	{
+		sampler = _sampler;
+	}
 
 private:
 	friend class idImageManager;
@@ -444,17 +510,18 @@ private:
 	void				SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
 
 	// parameters that define this image
-	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
-	cubeFiles_t			cubeFiles;				// If this is a cube map, and if so, what kind
-	int                 cubeMapSize;
-	void	( *generatorFunction )( idImage* image );	// NULL for files
-	textureUsage_t		usage;					// Used to determine the type of compression to use
-	idImageOpts			opts;					// Parameters that determine the storage method
+	idStr					imgName;			// game path, including extension (except for cube maps), may be an image program
+	cubeFiles_t				cubeFiles;			// If this is a cube map, and if so, what kind
+	int						cubeMapSize;
+	ImageGeneratorFunction	generatorFunction;	// NULL for files
+	textureUsage_t			usage;				// Used to determine the type of compression to use
+	idImageOpts				opts;				// Parameters that determine the storage method
 
 	// Sampler settings
 	textureFilter_t		filter;
 	textureRepeat_t		repeat;
 
+	bool				isLoaded;
 	bool				referencedOutsideLevelLoad;
 	bool				levelLoadReferenced;	// for determining if it needs to be purged
 	bool				defaulted;				// true if the default image was generated because a file couldn't be loaded
@@ -465,7 +532,12 @@ private:
 
 	static const uint32 TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+	nvrhi::TextureHandle	texture;
+	nvrhi::SamplerHandle	sampler;
+	nvrhi::SamplerDesc		samplerDesc;
+
+#elif defined( USE_VULKAN )
 	void				CreateSampler();
 	// SRS - added method to set image layout
 	void                SetImageLayout( VkImage image, VkImageSubresourceRange subresourceRange, VkImageLayout oldImageLayout, VkImageLayout newImageLayout );
@@ -520,6 +592,7 @@ public:
 	{
 		insideLevelLoad = false;
 		preloadingMapImages = false;
+		commandList = nullptr;
 	}
 
 	void				Init();
@@ -543,7 +616,7 @@ public:
 
 	// The callback will be issued immediately, and later if images are reloaded or vid_restart
 	// The callback function should call one of the idImage::Generate* functions to fill in the data
-	idImage* 			ImageFromFunction( const char* name, void ( *generatorFunction )( idImage* image ) );
+	idImage* 			ImageFromFunction( const char* name, ImageGeneratorFunction generatorFunction );
 
 	// scratch images are for internal renderer use.  ScratchImage names should always begin with an underscore
 	idImage* 			ScratchImage( const char* name, idImageOpts* imgOpts, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
@@ -555,7 +628,7 @@ public:
 	void				PurgeAllImages();
 
 	// reloads all apropriate images after a vid_restart
-	void				ReloadImages( bool all );
+	void				ReloadImages( bool all, nvrhi::ICommandList* commandList );
 
 	// Called only by renderSystem::BeginLevelLoad
 	void				BeginLevelLoad();
@@ -570,6 +643,8 @@ public:
 
 	void				PrintMemInfo( MemInfo_t* mi );
 
+	void				LoadDeferredImages( nvrhi::ICommandList* commandList = nullptr );
+
 	// built-in images
 	void				CreateIntrinsicImages();
 	idImage* 			defaultImage;
@@ -577,11 +652,13 @@ public:
 	idImage* 			alphaNotchImage;			// 2x1 texture with just 1110 and 1111 with point sampling
 	idImage* 			whiteImage;					// full of 0xff
 	idImage* 			blackImage;					// full of 0x00
+	idImage* 			blackDiffuseImage;			// full of 0x00
 	idImage* 			cyanImage;					// cyan
 	idImage* 			noFalloffImage;				// all 255, but zero clamped
 	idImage* 			fogImage;					// increasing alpha is denser fog
 	idImage* 			fogEnterImage;				// adjust fogImage alpha based on terminator plane
 	// RB begin
+	idImage*			shadowAtlasImage;			// 8192 * 8192 for clustered forward shading
 	idImage*			shadowImage[5];
 	idImage*			jitterImage1;				// shadow jitter
 	idImage*			jitterImage4;
@@ -590,12 +667,17 @@ public:
 	idImage*			randomImage256;
 	idImage*			blueNoiseImage256;
 	idImage*			currentRenderHDRImage;
-#if defined(USE_HDR_MSAA)
-	idImage*			currentRenderHDRImageNoMSAA;
-#endif
-	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
+	idImage*			ldrImage;						// tonemapped result which can be used for further post processing
+	idImage*			taaMotionVectorsImage;			// motion vectors for TAA projection
+	idImage*			taaResolvedImage;
+	idImage*			taaFeedback1Image;
+	idImage*			taaFeedback2Image;
 	idImage*			bloomRenderImage[2];
+	idImage*			glowImage[2];					// contains any glowable surface information.
+	idImage*			glowDepthImage[2];
+	idImage*			accumTransparencyImage;
+	idImage*			revealTransparencyImage;
 	idImage*			envprobeHDRImage;
 	idImage*			envprobeDepthImage;
 	idImage*			heatmap5Image;
@@ -605,7 +687,7 @@ public:
 	idImage*			smaaSearchImage;
 	idImage*			smaaEdgesImage;
 	idImage*			smaaBlendImage;
-	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
+	idImage*			gbufferNormalsRoughnessImage;	// cheap G-Buffer replacement, holds normals and surface roughness
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
 	idImage*			imguiFontImage;
@@ -619,24 +701,37 @@ public:
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;
 	idImage* 			accumImage;
-	idImage* 			currentRenderImage;				// for SS_POST_PROCESS shaders
-	idImage* 			currentDepthImage;				// for motion blur
+	idImage* 			currentRenderImage;				// for SS_POST_PROCESS shaders, Doom 3 legacy but in HDR now
+	idImage* 			currentDepthImage;				// for motion blur, SSAO and everything that requires depth to world pos reconstruction
 	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
 	idImage* 			loadingIconImage;				// loading icon must exist always
 	idImage* 			hellLoadingIconImage;			// loading icon must exist always
+	idImage*			guiEdit;						// SP: GUI editor image
+	idImage*			guiEditDepthStencilImage;		// SP: Gui-editor image depth-stencil
 
 	//--------------------------------------------------------
 
 	idImage* 			AllocImage( const char* name );
 	idImage* 			AllocStandaloneImage( const char* name );
 
+	idDeferredImage*	AllocDeferredImage( const char* name );
+
 	bool				ExcludePreloadImage( const char* name );
 
 	idList<idImage*, TAG_IDLIB_LIST_IMAGE>	images;
-	idHashIndex			imageHash;
+	idHashIndex								imageHash;
 
-	bool				insideLevelLoad;			// don't actually load images now
-	bool				preloadingMapImages;		// unless this is set
+	// Transient list of images to load on the main thread to the gpu. Freed after images are loaded.
+	idList<idImage*, TAG_IDLIB_LIST_IMAGE>	imagesToLoad;
+
+	// Permanent images to load from memory instead of a file system.
+	idList<idDeferredImage*, TAG_IDLIB_LIST_IMAGE>	deferredImages;
+	idHashIndex										deferredImageHash;
+
+	bool									insideLevelLoad;			// don't actually load images now
+	bool									preloadingMapImages;		// unless this is set
+
+	nvrhi::CommandListHandle				commandList;
 };
 
 extern idImageManager*	globalImages;		// pointer to global list for the rest of the system

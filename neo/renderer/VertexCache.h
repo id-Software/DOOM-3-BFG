@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2016-2017 Dustin Land
 Copyright (C) 2020 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -110,21 +111,21 @@ struct geoBufferSet_t
 class idVertexCache
 {
 public:
-	void			Init( int uniformBufferOffsetAlignment );
+	void			Init( int uniformBufferOffsetAlignment, nvrhi::ICommandList* commandList );
 	void			Shutdown();
-	void			PurgeAll();
+	void			PurgeAll( nvrhi::ICommandList* commandList );
 
 	// call on loading a new map
 	void			FreeStaticData();
 
 	// this data is only valid for one frame of rendering
-	vertCacheHandle_t	AllocVertex( const void* data, int num, size_t size = sizeof( idDrawVert ) );
-	vertCacheHandle_t	AllocIndex( const void* data, int num, size_t size = sizeof( triIndex_t ) );
-	vertCacheHandle_t	AllocJoint( const void* data, int num, size_t size = sizeof( idJointMat ) );
+	vertCacheHandle_t	AllocVertex( const void* data, int num, size_t size = sizeof( idDrawVert ), nvrhi::ICommandList* commandList = nullptr );
+	vertCacheHandle_t	AllocIndex( const void* data, int num, size_t size = sizeof( triIndex_t ), nvrhi::ICommandList* commandList = nullptr );
+	vertCacheHandle_t	AllocJoint( const void* data, int num, size_t size = sizeof( idJointMat ), nvrhi::ICommandList* commandList = nullptr );
 
 	// this data is valid until the next map load
-	vertCacheHandle_t	AllocStaticVertex( const void* data, int bytes );
-	vertCacheHandle_t	AllocStaticIndex( const void* data, int bytes );
+	vertCacheHandle_t	AllocStaticVertex( const void* data, int bytes, nvrhi::ICommandList* commandList );
+	vertCacheHandle_t	AllocStaticIndex( const void* data, int bytes, nvrhi::ICommandList* commandList );
 
 	byte* 			MappedVertexBuffer( vertCacheHandle_t handle );
 	byte* 			MappedIndexBuffer( vertCacheHandle_t handle );
@@ -161,7 +162,7 @@ public:
 	int				mostUsedJoint;
 
 	// Try to make room for <bytes> bytes
-	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type );
+	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type, nvrhi::ICommandList* commandList );
 };
 
 // platform specific code to memcpy into vertex buffers efficiently

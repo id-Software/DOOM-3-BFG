@@ -1,0 +1,1510 @@
+//////////////////////////////////////////////
+//Intro Cinematic Part 1
+//////////////////////////////////////////////
+
+
+//////////////////////////////////////////////
+//Exports
+//////////////////////////////////////////////
+
+export eric {
+
+
+	//cameras part 1
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_cam_a
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_cam_b
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_cam_c
+	camera	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_cam_d
+	camera	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_cam_e
+	camera	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_cam_f
+	camera	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_cam_g
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_cam_h
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_cam_i
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_cam_j
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_cam_k
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_cam_l
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_cam_m // split scene
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_cam_n // split scene
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_cam_o
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_cam_p
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_cam_q
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_cam_r
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_cam_s
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_cam_t
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_cam_u
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_cam_v
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_cam_w
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_cam_x
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_cam_y
+	camera	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_cam_z
+	camera	maps/eric/intro_animation/hellportalcamera.mb	-range 0 204		-dest models/md5/cinematics/intro_eric/hell_portal_cam
+	camera	models/characters/mocap/intro/marines_cuts_roq1.mb	-range 327 395	-dest models/md5/cinematics/intro_eric/roq1
+	camera	models/characters/mocap/intro/marines_cuts_roq2.mb	-range 327 395	-dest models/md5/cinematics/intro_eric/roq2
+
+
+	//scientist mesh
+	mesh	models/characters/cinematic_models/marine.mb 						-dest models/md5/cinematics/intro/marine
+
+
+	//mcneil
+	options -prefix mcn_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_mcneil_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_mcneil_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_mcneil_c
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_mcneil_d
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_mcneil_e
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_mcneil_f
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_mcneil_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_mcneil_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_mcneil_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_mcneil_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_mcneil_k
+	anim	maps/eric/intro_animation/intro_part1_mcn_sci_fill.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_mcneil_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_mcneil_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_mcneil_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_mcneil_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_mcneil_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_mcneil_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_mcneil_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_mcneil_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_mcneil_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_mcneil_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_mcneil_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_mcneil_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_mcneil_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_mcneil_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_mcneil_z
+
+
+	//scientist
+	options -prefix sci_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_scientist_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_scientist_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_scientist_c
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_scientist_d
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_scientist_e
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_scientist_f
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_scientist_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_scientist_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_scientist_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_scientist_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_scientist_k
+	anim	maps/eric/intro_animation/intro_part1_mcn_sci_fill.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_scientist_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_scientist_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_scientist_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_scientist_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_scientist_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_scientist_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_scientist_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_scientist_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_scientist_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_scientist_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_scientist_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_scientist_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_scientist_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_scientist_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_scientist_z
+
+
+	options -prefix mar_det_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_detonate_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_detonate_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_detonate_c
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_detonate_d
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_detonate_e
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_detonate_f
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_detonate_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_detonate_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_detonate_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_detonate_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_detonate_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_detonate_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_detonate_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_detonate_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_detonate_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_detonate_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_detonate_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_detonate_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_detonate_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_detonate_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_detonate_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_detonate_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_detonate_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_detonate_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_detonate_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_detonate_z
+
+
+	options -prefix mar_flash_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_flash_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_flash_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_flash_c
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_flash_d
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_flash_e
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_flash_f
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_flash_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_flash_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_flash_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_flash_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_flash_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_flash_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_flash_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_flash_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_flash_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_flash_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_flash_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_flash_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_flash_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_flash_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_flash_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_flash_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_flash_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_flash_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_flash_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_flash_z
+
+
+	options -prefix mar_pda_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_pda_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_pda_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_pda_c
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_pda_d
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_pda_e
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_pda_f
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_pda_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_pda_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_pda_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_pda_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_pda_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_pda_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_pda_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_pda_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_pda_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_pda_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_pda_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_pda_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_pda_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_pda_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_pda_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_pda_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_pda_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_pda_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_pda_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_pda_z
+
+
+	options -prefix mar_gun1_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_marine1_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_marine1_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_marine1_c
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_marine1_d
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_marine1_e
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_marine1_f
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_marine1_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_marine1_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_marine1_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_marine1_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_marine1_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_marine1_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_marine1_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_marine1_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_marine1_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_marine1_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_marine1_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_marine1_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_marine1_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_marine1_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_marine1_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_marine1_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_marine1_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_marine1_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_marine1_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_marine1_z
+
+
+	options -prefix mar_gun2_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_marine2_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_marine2_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_marine2_c
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_marine2_d
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_marine2_e
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_marine2_f
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_marine2_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_marine2_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_marine2_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_marine2_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_marine2_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_marine2_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_marine2_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_marine2_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_marine2_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_marine2_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_marine2_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_marine2_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_marine2_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_marine2_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_marine2_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_marine2_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_marine2_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_marine2_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_marine2_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_marine2_z
+
+
+	options -prefix mar_gun3_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_marine3_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_marine3_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_marine3_c
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_marine3_d
+	anim	models/characters/mocap/intro/marines_cuts_1and2.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_marine3_e
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_marine3_f
+	anim	models/characters/mocap/intro/marines_cuts_3and4.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_marine3_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_marine3_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_marine3_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_marine3_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_marine3_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_marine3_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_marine3_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_marine3_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_marine3_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_marine3_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_marine3_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_marine3_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_marine3_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_marine3_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_marine3_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_marine3_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_marine3_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_marine3_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_marine3_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_marine3_z
+
+
+	options -prefix player_helmet_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_c
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_d
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_e
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_f
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_plyr_helmet_z
+
+
+	options -prefix player_heart_
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 0 169		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_a
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 170 235		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_b
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 236 326		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_c
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 327 395		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_d
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 396 518		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_e
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 519 636		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_f
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 637 680		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_g
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 681 850		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_h
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 851 910		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_i
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 911 1025		-dest models/md5/cinematics/intro_eric/intro_plyr_heart_j
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1026 1065	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_k
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1066 1180	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_l
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1181 1280	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_m
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1281 1500	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_n
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1501 1650	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_o
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1651 1694	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_p
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1695 1760	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_q
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1761 1830	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_r
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1831 1914	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_s
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 1915 2000	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_t
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2001 2090	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_u
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2091 2163	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_v
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2164 2389	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_w
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2390 2464	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_x
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2465 2603	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_y
+	anim	maps/eric/intro_animation/intro_part1.mb		-range 2604 2662	-dest models/md5/cinematics/intro_eric/intro_plyr_heart_z
+
+}
+
+
+//////////////////////////////////////////////
+//Cameras
+//////////////////////////////////////////////
+
+entityDef erebus1_intro_camera {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idCameraAnim"
+
+	"anim e1_intro_cam_a"			"models/md5/cinematics/intro_eric/intro_cam_a.camera"
+	"anim e1_intro_cam_b"			"models/md5/cinematics/intro_eric/intro_cam_b.camera"
+	"anim e1_intro_cam_c"			"models/md5/cinematics/intro_eric/intro_cam_c.camera"
+	"anim e1_intro_cam_d"			"models/md5/cinematics/intro_eric/intro_cam_d.camera"
+	"anim e1_intro_cam_e"			"models/md5/cinematics/intro_eric/intro_cam_e.camera"
+	"anim e1_intro_cam_f"			"models/md5/cinematics/intro_eric/intro_cam_f.camera"
+	"anim e1_intro_cam_g"			"models/md5/cinematics/intro_eric/intro_cam_g.camera"
+	"anim e1_intro_cam_h"			"models/md5/cinematics/intro_eric/intro_cam_h.camera"
+	"anim e1_intro_cam_i"			"models/md5/cinematics/intro_eric/intro_cam_i.camera"
+	"anim e1_intro_cam_j"			"models/md5/cinematics/intro_eric/intro_cam_j.camera"
+	"anim e1_intro_cam_k"			"models/md5/cinematics/intro_eric/intro_cam_k.camera"
+	"anim e1_intro_cam_l"			"models/md5/cinematics/intro_eric/intro_cam_l.camera"
+	"anim e1_intro_cam_m"			"models/md5/cinematics/intro_eric/intro_cam_m.camera"
+	"anim e1_intro_cam_n"			"models/md5/cinematics/intro_eric/intro_cam_n.camera"
+	"anim e1_intro_cam_o"			"models/md5/cinematics/intro_eric/intro_cam_o.camera"
+	"anim e1_intro_cam_p"			"models/md5/cinematics/intro_eric/intro_cam_p.camera"
+	"anim e1_intro_cam_q"			"models/md5/cinematics/intro_eric/intro_cam_q.camera"
+	"anim e1_intro_cam_r"			"models/md5/cinematics/intro_eric/intro_cam_r.camera"
+	"anim e1_intro_cam_s"			"models/md5/cinematics/intro_eric/intro_cam_s.camera"
+	"anim e1_intro_cam_t"			"models/md5/cinematics/intro_eric/intro_cam_t.camera"
+	"anim e1_intro_cam_u"			"models/md5/cinematics/intro_eric/intro_cam_u.camera"
+	"anim e1_intro_cam_v"			"models/md5/cinematics/intro_eric/intro_cam_v.camera"
+	"anim e1_intro_cam_w"			"models/md5/cinematics/intro_eric/intro_cam_w.camera"
+	"anim e1_intro_cam_x"			"models/md5/cinematics/intro_eric/intro_cam_x.camera"
+	"anim e1_intro_cam_y"			"models/md5/cinematics/intro_eric/intro_cam_y.camera"
+	"anim e1_intro_cam_z"			"models/md5/cinematics/intro_eric/intro_cam_z.camera"
+	"anim hell_portal_cam"			"models/md5/cinematics/intro_eric/hell_portal_cam.camera"
+	"anim intro_roq_cam1"			"models/md5/cinematics/intro_eric/roq1.camera"
+	"anim intro_roq_cam2"			"models/md5/cinematics/intro_eric/roq2.camera"
+
+
+	"cinematic"						"1"
+
+}
+
+
+//////////////////////////////////////////////
+//Mcneil
+//////////////////////////////////////////////
+
+model erebus1_intro_mcneil {
+
+	mesh								models/md5/cinematics/intro/mcneil.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_mcneil_a					models/md5/cinematics/intro_eric/intro_mcneil_a.md5anim {
+		frame 148								sound_voice e1_mcneil_redteam_alt
+	}
+	anim intro_mcneil_b					models/md5/cinematics/intro_eric/intro_mcneil_b.md5anim
+	anim intro_mcneil_c					models/md5/cinematics/intro_eric/intro_mcneil_c.md5anim
+	anim intro_mcneil_d					models/md5/cinematics/intro_eric/intro_mcneil_d.md5anim
+	anim intro_mcneil_e					models/md5/cinematics/intro_eric/intro_mcneil_e.md5anim
+	anim intro_mcneil_f					models/md5/cinematics/intro_eric/intro_mcneil_f.md5anim
+	anim intro_mcneil_g					models/md5/cinematics/intro_eric/intro_mcneil_g.md5anim
+	anim intro_mcneil_h					models/md5/cinematics/intro_eric/intro_mcneil_h.md5anim
+	anim intro_mcneil_i					models/md5/cinematics/intro_eric/intro_mcneil_i.md5anim
+	anim intro_mcneil_j					models/md5/cinematics/intro_eric/intro_mcneil_j.md5anim
+	anim intro_mcneil_k					models/md5/cinematics/intro_eric/intro_mcneil_k.md5anim
+	anim intro_mcneil_l					models/md5/cinematics/intro_eric/intro_mcneil_l.md5anim
+	anim intro_mcneil_m					models/md5/cinematics/intro_eric/intro_mcneil_m.md5anim
+	anim intro_mcneil_n					models/md5/cinematics/intro_eric/intro_mcneil_n.md5anim
+	anim intro_mcneil_o					models/md5/cinematics/intro_eric/intro_mcneil_o.md5anim {
+		frame	95								sound_voice2 e1_tango_garbled
+	}
+	anim intro_mcneil_p					models/md5/cinematics/intro_eric/intro_mcneil_p.md5anim {
+		frame 4									sound_voice e1_mcneil_troublewithtransmission
+	}
+	anim intro_mcneil_q					models/md5/cinematics/intro_eric/intro_mcneil_q.md5anim
+	anim intro_mcneil_r					models/md5/cinematics/intro_eric/intro_mcneil_r.md5anim
+	anim intro_mcneil_s					models/md5/cinematics/intro_eric/intro_mcneil_s.md5anim 	{
+		frame 1								sound_global e1_scene_transition2
+	}
+
+	anim intro_mcneil_t					models/md5/cinematics/intro_eric/intro_mcneil_t.md5anim
+	anim intro_mcneil_u					models/md5/cinematics/intro_eric/intro_mcneil_u.md5anim
+	anim intro_mcneil_v					models/md5/cinematics/intro_eric/intro_mcneil_v.md5anim
+	anim intro_mcneil_w					models/md5/cinematics/intro_eric/intro_mcneil_w.md5anim
+	anim intro_mcneil_x					models/md5/cinematics/intro_eric/intro_mcneil_x.md5anim
+	anim intro_mcneil_y					models/md5/cinematics/intro_eric/intro_mcneil_y.md5anim
+	anim intro_mcneil_z					models/md5/cinematics/intro_eric/intro_mcneil_z.md5anim
+
+}
+
+entityDef erebus1_intro_mcneil {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_mcneil"
+	"anim"							"intro_mcneil_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_mcneil_a"
+	"anim2"							"intro_mcneil_b"
+	"anim3"							"intro_mcneil_c"
+	"anim4"							"intro_mcneil_d"
+	"anim5"							"intro_mcneil_e"
+	"anim6"							"intro_mcneil_f"
+	"anim7"							"intro_mcneil_g"
+	"anim8"							"intro_mcneil_h"
+	"anim9"							"intro_mcneil_i"
+	"anim10"						"intro_mcneil_j"
+	"anim11"						"intro_mcneil_k"
+	"anim12"						"intro_mcneil_l"
+	"anim13"						"intro_mcneil_m"
+	"anim14"						"intro_mcneil_n"
+	"anim15"						"intro_mcneil_o"
+	"anim16"						"intro_mcneil_p"
+	"anim17"						"intro_mcneil_q"
+	"anim18"						"intro_mcneil_r"
+	"anim19"						"intro_mcneil_s"
+	"anim20"						"intro_mcneil_t"
+	"anim21"						"intro_mcneil_u"
+	"anim22"						"intro_mcneil_v"
+	"anim23"						"intro_mcneil_w"
+	"anim24"						"intro_mcneil_x"
+	"anim25"						"intro_mcneil_y"
+	"anim26"						"intro_mcneil_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//scientist
+//////////////////////////////////////////////
+
+model erebus1_intro_scientist {
+
+	mesh									models/md5/cinematics/intro/marine.md5mesh
+
+	channel torso							()
+	channel legs							(*origin)
+
+	anim intro_scientist_a					models/md5/cinematics/intro_eric/intro_scientist_a.md5anim {
+		frame 37								sound_voice e1_sci01_thereclose
+		frame 90								sound_voice2 e1_sci02_redteam
+	}
+	anim intro_scientist_b					models/md5/cinematics/intro_eric/intro_scientist_b.md5anim
+	anim intro_scientist_c					models/md5/cinematics/intro_eric/intro_scientist_c.md5anim
+	anim intro_scientist_d					models/md5/cinematics/intro_eric/intro_scientist_d.md5anim
+	anim intro_scientist_e					models/md5/cinematics/intro_eric/intro_scientist_e.md5anim
+	anim intro_scientist_f					models/md5/cinematics/intro_eric/intro_scientist_f.md5anim
+	anim intro_scientist_g					models/md5/cinematics/intro_eric/intro_scientist_g.md5anim
+	anim intro_scientist_h					models/md5/cinematics/intro_eric/intro_scientist_h.md5anim
+	anim intro_scientist_i					models/md5/cinematics/intro_eric/intro_scientist_i.md5anim
+	anim intro_scientist_j					models/md5/cinematics/intro_eric/intro_scientist_j.md5anim
+	anim intro_scientist_k					models/md5/cinematics/intro_eric/intro_scientist_k.md5anim
+	anim intro_scientist_l					models/md5/cinematics/intro_eric/intro_scientist_l.md5anim {
+		frame 20								sound_voice e1_sci02_troublestabilizing
+	}
+	anim intro_scientist_m					models/md5/cinematics/intro_eric/intro_scientist_m.md5anim
+	anim intro_scientist_n					models/md5/cinematics/intro_eric/intro_scientist_n.md5anim
+	anim intro_scientist_o					models/md5/cinematics/intro_eric/intro_scientist_o.md5anim
+	anim intro_scientist_p					models/md5/cinematics/intro_eric/intro_scientist_p.md5anim {
+		frame 10								sound_voice e1_sci_channel
+	}
+	anim intro_scientist_q					models/md5/cinematics/intro_eric/intro_scientist_q.md5anim
+	anim intro_scientist_r					models/md5/cinematics/intro_eric/intro_scientist_r.md5anim
+	anim intro_scientist_s					models/md5/cinematics/intro_eric/intro_scientist_s.md5anim
+	anim intro_scientist_t					models/md5/cinematics/intro_eric/intro_scientist_t.md5anim
+	anim intro_scientist_u					models/md5/cinematics/intro_eric/intro_scientist_u.md5anim
+	anim intro_scientist_v					models/md5/cinematics/intro_eric/intro_scientist_v.md5anim
+	anim intro_scientist_w					models/md5/cinematics/intro_eric/intro_scientist_w.md5anim
+	anim intro_scientist_x					models/md5/cinematics/intro_eric/intro_scientist_x.md5anim
+	anim intro_scientist_y					models/md5/cinematics/intro_eric/intro_scientist_y.md5anim
+	anim intro_scientist_z					models/md5/cinematics/intro_eric/intro_scientist_z.md5anim
+
+}
+
+entityDef erebus1_intro_scientist {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_scientist"
+	"anim"							"intro_scientist_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_scientist_a"
+	"anim2"							"intro_scientist_b"
+	"anim3"							"intro_scientist_c"
+	"anim4"							"intro_scientist_d"
+	"anim5"							"intro_scientist_e"
+	"anim6"							"intro_scientist_f"
+	"anim7"							"intro_scientist_g"
+	"anim8"							"intro_scientist_h"
+	"anim9"							"intro_scientist_i"
+	"anim10"						"intro_scientist_j"
+	"anim11"						"intro_scientist_k"
+	"anim12"						"intro_scientist_l"
+	"anim13"						"intro_scientist_m"
+	"anim14"						"intro_scientist_n"
+	"anim15"						"intro_scientist_o"
+	"anim16"						"intro_scientist_p"
+	"anim17"						"intro_scientist_q"
+	"anim18"						"intro_scientist_r"
+	"anim19"						"intro_scientist_s"
+	"anim20"						"intro_scientist_t"
+	"anim21"						"intro_scientist_u"
+	"anim22"						"intro_scientist_v"
+	"anim23"						"intro_scientist_w"
+	"anim24"						"intro_scientist_x"
+	"anim25"						"intro_scientist_y"
+	"anim26"						"intro_scientist_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//detonate marine
+//////////////////////////////////////////////
+
+model erebus1_intro_detonate {
+
+	mesh								models/md5/cinematics/intro/stock_marine_detonator.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_detonate_a					models/md5/cinematics/intro_eric/intro_detonate_a.md5anim {
+
+	}
+	anim intro_detonate_b					models/md5/cinematics/intro_eric/intro_detonate_b.md5anim
+	anim intro_detonate_c					models/md5/cinematics/intro_eric/intro_detonate_c.md5anim
+	anim intro_detonate_d					models/md5/cinematics/intro_eric/intro_detonate_d.md5anim
+	anim intro_detonate_e					models/md5/cinematics/intro_eric/intro_detonate_e.md5anim
+	anim intro_detonate_f					models/md5/cinematics/intro_eric/intro_detonate_f.md5anim
+	anim intro_detonate_g					models/md5/cinematics/intro_eric/intro_detonate_g.md5anim
+	anim intro_detonate_h					models/md5/cinematics/intro_eric/intro_detonate_h.md5anim {
+		frame 150							sound_voice e1_marine_onmyway
+	}
+	anim intro_detonate_i					models/md5/cinematics/intro_eric/intro_detonate_i.md5anim
+	anim intro_detonate_j					models/md5/cinematics/intro_eric/intro_detonate_j.md5anim {
+		frame	1					sound_item	e1_bomb_placement
+		frame	25					sound_body2 e1_bomb_keypunches
+		frame 	67					skin skins/detonator_armed
+		frame	70					sound_voice e1_marine_backitup
+		frame	75					sound_item e1_bomb_flashwhine
+		frame	80					sound_voice2 e1_bomb_ticks
+	}
+	anim intro_detonate_k					models/md5/cinematics/intro_eric/intro_detonate_k.md5anim
+	anim intro_detonate_l					models/md5/cinematics/intro_eric/intro_detonate_l.md5anim {
+		frame	40					sound_global e1_rockexplo
+	}
+	anim intro_detonate_m					models/md5/cinematics/intro_eric/intro_detonate_m.md5anim
+	anim intro_detonate_n					models/md5/cinematics/intro_eric/intro_detonate_n.md5anim
+	anim intro_detonate_o					models/md5/cinematics/intro_eric/intro_detonate_o.md5anim {
+		frame	75					sound_voice e1_tango_chatter
+
+	}
+	anim intro_detonate_p					models/md5/cinematics/intro_eric/intro_detonate_p.md5anim
+	anim intro_detonate_q					models/md5/cinematics/intro_eric/intro_detonate_q.md5anim
+	anim intro_detonate_r					models/md5/cinematics/intro_eric/intro_detonate_r.md5anim
+	anim intro_detonate_s					models/md5/cinematics/intro_eric/intro_detonate_s.md5anim
+	anim intro_detonate_t					models/md5/cinematics/intro_eric/intro_detonate_t.md5anim
+	anim intro_detonate_u					models/md5/cinematics/intro_eric/intro_detonate_u.md5anim
+	anim intro_detonate_v					models/md5/cinematics/intro_eric/intro_detonate_v.md5anim
+	anim intro_detonate_w					models/md5/cinematics/intro_eric/intro_detonate_w.md5anim
+	anim intro_detonate_x					models/md5/cinematics/intro_eric/intro_detonate_x.md5anim
+	anim intro_detonate_y					models/md5/cinematics/intro_eric/intro_detonate_y.md5anim
+	anim intro_detonate_z					models/md5/cinematics/intro_eric/intro_detonate_z.md5anim
+
+}
+
+entityDef erebus1_intro_detonate {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_detonate"
+	"anim"							"intro_detonate_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_detonate_a"
+	"anim2"							"intro_detonate_b"
+	"anim3"							"intro_detonate_c"
+	"anim4"							"intro_detonate_d"
+	"anim5"							"intro_detonate_e"
+	"anim6"							"intro_detonate_f"
+	"anim7"							"intro_detonate_g"
+	"anim8"							"intro_detonate_h"
+	"anim9"							"intro_detonate_i"
+	"anim10"						"intro_detonate_j"
+	"anim11"						"intro_detonate_k"
+	"anim12"						"intro_detonate_l"
+	"anim13"						"intro_detonate_m"
+	"anim14"						"intro_detonate_n"
+	"anim15"						"intro_detonate_o"
+	"anim16"						"intro_detonate_p"
+	"anim17"						"intro_detonate_q"
+	"anim18"						"intro_detonate_r"
+	"anim19"						"intro_detonate_s"
+	"anim20"						"intro_detonate_t"
+	"anim21"						"intro_detonate_u"
+	"anim22"						"intro_detonate_v"
+	"anim23"						"intro_detonate_w"
+	"anim24"						"intro_detonate_x"
+	"anim25"						"intro_detonate_y"
+	"anim26"						"intro_detonate_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+
+//////////////////////////////////////////////
+//flash marine
+//////////////////////////////////////////////
+
+model erebus1_intro_flash {
+
+	mesh								models/md5/cinematics/intro/stock_marine_flashlight.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_flash_a					models/md5/cinematics/intro_eric/intro_flash_a.md5anim
+	anim intro_flash_b					models/md5/cinematics/intro_eric/intro_flash_b.md5anim
+	anim intro_flash_c					models/md5/cinematics/intro_eric/intro_flash_c.md5anim
+	anim intro_flash_d					models/md5/cinematics/intro_eric/intro_flash_d.md5anim {
+		frame	10					sound_global e1_rockrumble2
+	}
+	anim intro_flash_e					models/md5/cinematics/intro_eric/intro_flash_e.md5anim
+	anim intro_flash_f					models/md5/cinematics/intro_eric/intro_flash_f.md5anim {
+		frame	30					sound_global e1_rockrumble3
+	}
+	anim intro_flash_g					models/md5/cinematics/intro_eric/intro_flash_g.md5anim
+	anim intro_flash_h					models/md5/cinematics/intro_eric/intro_flash_h.md5anim
+	anim intro_flash_i					models/md5/cinematics/intro_eric/intro_flash_i.md5anim
+	anim intro_flash_j					models/md5/cinematics/intro_eric/intro_flash_j.md5anim
+	anim intro_flash_k					models/md5/cinematics/intro_eric/intro_flash_k.md5anim
+	anim intro_flash_l					models/md5/cinematics/intro_eric/intro_flash_l.md5anim
+	anim intro_flash_m					models/md5/cinematics/intro_eric/intro_flash_m.md5anim
+	anim intro_flash_n					models/md5/cinematics/intro_eric/intro_flash_n.md5anim
+	anim intro_flash_o					models/md5/cinematics/intro_eric/intro_flash_o.md5anim
+	anim intro_flash_p					models/md5/cinematics/intro_eric/intro_flash_p.md5anim
+	anim intro_flash_q					models/md5/cinematics/intro_eric/intro_flash_q.md5anim
+	anim intro_flash_r					models/md5/cinematics/intro_eric/intro_flash_r.md5anim
+	anim intro_flash_s					models/md5/cinematics/intro_eric/intro_flash_s.md5anim {
+		frame 50						sound_voice e1_mchatter_08
+	}
+	anim intro_flash_t					models/md5/cinematics/intro_eric/intro_flash_t.md5anim
+	anim intro_flash_u					models/md5/cinematics/intro_eric/intro_flash_u.md5anim {
+		frame 30						sound_voice e1_mchatter_04
+	}
+	anim intro_flash_v					models/md5/cinematics/intro_eric/intro_flash_v.md5anim {
+		frame	40						sound_voice e1_mchatter_07
+	}
+	anim intro_flash_w					models/md5/cinematics/intro_eric/intro_flash_w.md5anim {
+		frame 35						sound_voice2 e1_mchatter_10
+
+	}
+	anim intro_flash_x					models/md5/cinematics/intro_eric/intro_flash_x.md5anim
+	anim intro_flash_y					models/md5/cinematics/intro_eric/intro_flash_y.md5anim {
+		frame 110						sound_global e1_hellblast
+	}
+	anim intro_flash_z					models/md5/cinematics/intro_eric/intro_flash_z.md5anim {
+		frame 20								start_emitter deathburn00 pelvis intro_burn.prt
+		frame 30								skin skins/die_marine_die
+		frame 30								event burn
+		frame 42								skin skins/intro/flashlightmarinedie
+	}
+
+}
+
+entityDef erebus1_intro_flash {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_flash"
+	"anim"							"intro_flash_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_flash_a"
+	"anim2"							"intro_flash_b"
+	"anim3"							"intro_flash_c"
+	"anim4"							"intro_flash_d"
+	"anim5"							"intro_flash_e"
+	"anim6"							"intro_flash_f"
+	"anim7"							"intro_flash_g"
+	"anim8"							"intro_flash_h"
+	"anim9"							"intro_flash_i"
+	"anim10"						"intro_flash_j"
+	"anim11"						"intro_flash_k"
+	"anim12"						"intro_flash_l"
+	"anim13"						"intro_flash_m"
+	"anim14"						"intro_flash_n"
+	"anim15"						"intro_flash_o"
+	"anim16"						"intro_flash_p"
+	"anim17"						"intro_flash_q"
+	"anim18"						"intro_flash_r"
+	"anim19"						"intro_flash_s"
+	"anim20"						"intro_flash_t"
+	"anim21"						"intro_flash_u"
+	"anim22"						"intro_flash_v"
+	"anim23"						"intro_flash_w"
+	"anim24"						"intro_flash_x"
+	"anim25"						"intro_flash_y"
+	"anim26"						"intro_flash_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//pda marine
+//////////////////////////////////////////////
+
+model erebus1_intro_pda {
+
+	mesh								models/md5/cinematics/intro/stock_marine_pda.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_pda_a					models/md5/cinematics/intro_eric/intro_pda_a.md5anim
+	anim intro_pda_b					models/md5/cinematics/intro_eric/intro_pda_b.md5anim
+	anim intro_pda_c					models/md5/cinematics/intro_eric/intro_pda_c.md5anim
+	anim intro_pda_d					models/md5/cinematics/intro_eric/intro_pda_d.md5anim {
+		frame	25							sound_voice2 e1_scanner_pings
+	}
+	anim intro_pda_e					models/md5/cinematics/intro_eric/intro_pda_e.md5anim
+	anim intro_pda_f					models/md5/cinematics/intro_eric/intro_pda_f.md5anim
+	anim intro_pda_g					models/md5/cinematics/intro_eric/intro_pda_g.md5anim
+	anim intro_pda_h					models/md5/cinematics/intro_eric/intro_pda_h.md5anim {
+		frame 30									sound_voice e1_marine_chamber
+		frame 35								sound_voice2 e1_scanner_keypresses
+	}
+	anim intro_pda_i					models/md5/cinematics/intro_eric/intro_pda_i.md5anim
+	anim intro_pda_j					models/md5/cinematics/intro_eric/intro_pda_j.md5anim
+	anim intro_pda_k					models/md5/cinematics/intro_eric/intro_pda_k.md5anim
+	anim intro_pda_l					models/md5/cinematics/intro_eric/intro_pda_l.md5anim {
+		frame 90								sound_voice e1_engineer01_werein
+	}
+	anim intro_pda_m					models/md5/cinematics/intro_eric/intro_pda_m.md5anim
+	anim intro_pda_n					models/md5/cinematics/intro_eric/intro_pda_n.md5anim {
+		frame 138								sound_voice e1_engineer01_areyouseeingthis
+	}
+	anim intro_pda_o					models/md5/cinematics/intro_eric/intro_pda_o.md5anim
+	anim intro_pda_p					models/md5/cinematics/intro_eric/intro_pda_p.md5anim
+	anim intro_pda_q					models/md5/cinematics/intro_eric/intro_pda_q.md5anim
+	anim intro_pda_r					models/md5/cinematics/intro_eric/intro_pda_r.md5anim
+	anim intro_pda_s					models/md5/cinematics/intro_eric/intro_pda_s.md5anim
+	anim intro_pda_t					models/md5/cinematics/intro_eric/intro_pda_t.md5anim
+	anim intro_pda_u					models/md5/cinematics/intro_eric/intro_pda_u.md5anim
+	anim intro_pda_v					models/md5/cinematics/intro_eric/intro_pda_v.md5anim
+	anim intro_pda_w					models/md5/cinematics/intro_eric/intro_pda_w.md5anim
+	anim intro_pda_x					models/md5/cinematics/intro_eric/intro_pda_x.md5anim
+	anim intro_pda_y					models/md5/cinematics/intro_eric/intro_pda_y.md5anim
+	anim intro_pda_z					models/md5/cinematics/intro_eric/intro_pda_z.md5anim {
+//		frame 16								start_emitter deathburn0 pelvis intro_burn.prt
+		frame 26								skin skins/die_marine_die
+		frame 26								event burn
+	}
+
+}
+
+entityDef erebus1_intro_pda {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_pda"
+	"anim"							"intro_pda_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_pda_a"
+	"anim2"							"intro_pda_b"
+	"anim3"							"intro_pda_c"
+	"anim4"							"intro_pda_d"
+	"anim5"							"intro_pda_e"
+	"anim6"							"intro_pda_f"
+	"anim7"							"intro_pda_g"
+	"anim8"							"intro_pda_h"
+	"anim9"							"intro_pda_i"
+	"anim10"						"intro_pda_j"
+	"anim11"						"intro_pda_k"
+	"anim12"						"intro_pda_l"
+	"anim13"						"intro_pda_m"
+	"anim14"						"intro_pda_n"
+	"anim15"						"intro_pda_o"
+	"anim16"						"intro_pda_p"
+	"anim17"						"intro_pda_q"
+	"anim18"						"intro_pda_r"
+	"anim19"						"intro_pda_s"
+	"anim20"						"intro_pda_t"
+	"anim21"						"intro_pda_u"
+	"anim22"						"intro_pda_v"
+	"anim23"						"intro_pda_w"
+	"anim24"						"intro_pda_x"
+	"anim25"						"intro_pda_y"
+	"anim26"						"intro_pda_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+
+
+//////////////////////////////////////////////
+//marine1
+//////////////////////////////////////////////
+
+model erebus1_intro_marine1 {
+
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_marine1_a					models/md5/cinematics/intro_eric/intro_marine1_a.md5anim
+	anim intro_marine1_b					models/md5/cinematics/intro_eric/intro_marine1_b.md5anim
+	anim intro_marine1_c					models/md5/cinematics/intro_eric/intro_marine1_c.md5anim
+	anim intro_marine1_d					models/md5/cinematics/intro_eric/intro_marine1_d.md5anim {
+		frame	45						sound_voice e1_mchatter_01
+	}
+	anim intro_marine1_e					models/md5/cinematics/intro_eric/intro_marine1_e.md5anim
+	anim intro_marine1_f					models/md5/cinematics/intro_eric/intro_marine1_f.md5anim
+	anim intro_marine1_g					models/md5/cinematics/intro_eric/intro_marine1_g.md5anim
+	anim intro_marine1_h					models/md5/cinematics/intro_eric/intro_marine1_h.md5anim
+	anim intro_marine1_i					models/md5/cinematics/intro_eric/intro_marine1_i.md5anim
+	anim intro_marine1_j					models/md5/cinematics/intro_eric/intro_marine1_j.md5anim
+	anim intro_marine1_k					models/md5/cinematics/intro_eric/intro_marine1_k.md5anim
+	anim intro_marine1_l					models/md5/cinematics/intro_eric/intro_marine1_l.md5anim
+	anim intro_marine1_m					models/md5/cinematics/intro_eric/intro_marine1_m.md5anim
+	anim intro_marine1_n					models/md5/cinematics/intro_eric/intro_marine1_n.md5anim
+	anim intro_marine1_o					models/md5/cinematics/intro_eric/intro_marine1_o.md5anim {
+		frame 1							sound_global e1_scene_transition
+	}
+	anim intro_marine1_p					models/md5/cinematics/intro_eric/intro_marine1_p.md5anim
+	anim intro_marine1_q					models/md5/cinematics/intro_eric/intro_marine1_q.md5anim
+	anim intro_marine1_r					models/md5/cinematics/intro_eric/intro_marine1_r.md5anim
+	anim intro_marine1_s					models/md5/cinematics/intro_eric/intro_marine1_s.md5anim
+	anim intro_marine1_t					models/md5/cinematics/intro_eric/intro_marine1_t.md5anim
+	anim intro_marine1_u					models/md5/cinematics/intro_eric/intro_marine1_u.md5anim
+	anim intro_marine1_v					models/md5/cinematics/intro_eric/intro_marine1_v.md5anim
+	anim intro_marine1_w					models/md5/cinematics/intro_eric/intro_marine1_w.md5anim
+	anim intro_marine1_x					models/md5/cinematics/intro_eric/intro_marine1_x.md5anim
+	anim intro_marine1_y					models/md5/cinematics/intro_eric/intro_marine1_y.md5anim
+	anim intro_marine1_z					models/md5/cinematics/intro_eric/intro_marine1_z.md5anim {
+//		frame 10								start_emitter deathburn1 pelvis intro_burn.prt
+		frame 20								skin skins/die_marine_die
+		frame 20								event burn
+	}
+
+
+}
+
+entityDef erebus1_intro_marine1 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_marine1"
+	"anim"							"intro_marine1_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_marine1_a"
+	"anim2"							"intro_marine1_b"
+	"anim3"							"intro_marine1_c"
+	"anim4"							"intro_marine1_d"
+	"anim5"							"intro_marine1_e"
+	"anim6"							"intro_marine1_f"
+	"anim7"							"intro_marine1_g"
+	"anim8"							"intro_marine1_h"
+	"anim9"							"intro_marine1_i"
+	"anim10"						"intro_marine1_j"
+	"anim11"						"intro_marine1_k"
+	"anim12"						"intro_marine1_l"
+	"anim13"						"intro_marine1_m"
+	"anim14"						"intro_marine1_n"
+	"anim15"						"intro_marine1_o"
+	"anim16"						"intro_marine1_p"
+	"anim17"						"intro_marine1_q"
+	"anim18"						"intro_marine1_r"
+	"anim19"						"intro_marine1_s"
+	"anim20"						"intro_marine1_t"
+	"anim21"						"intro_marine1_u"
+	"anim22"						"intro_marine1_v"
+	"anim23"						"intro_marine1_w"
+	"anim24"						"intro_marine1_x"
+	"anim25"						"intro_marine1_y"
+	"anim26"						"intro_marine1_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+
+
+//////////////////////////////////////////////
+//marine2
+//////////////////////////////////////////////
+
+model erebus1_intro_marine2 {
+
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_marine2_a					models/md5/cinematics/intro_eric/intro_marine2_a.md5anim
+	anim intro_marine2_b					models/md5/cinematics/intro_eric/intro_marine2_b.md5anim
+	anim intro_marine2_c					models/md5/cinematics/intro_eric/intro_marine2_c.md5anim
+	anim intro_marine2_d					models/md5/cinematics/intro_eric/intro_marine2_d.md5anim
+	anim intro_marine2_e					models/md5/cinematics/intro_eric/intro_marine2_e.md5anim {
+		frame 70							sound_voice2 e1_mchatter_02
+	}
+	anim intro_marine2_f					models/md5/cinematics/intro_eric/intro_marine2_f.md5anim {
+		//frame 25							sound_voice e1_mchatter_03
+	}
+	anim intro_marine2_g					models/md5/cinematics/intro_eric/intro_marine2_g.md5anim
+	anim intro_marine2_h					models/md5/cinematics/intro_eric/intro_marine2_h.md5anim
+	anim intro_marine2_i					models/md5/cinematics/intro_eric/intro_marine2_i.md5anim
+	anim intro_marine2_j					models/md5/cinematics/intro_eric/intro_marine2_j.md5anim
+	anim intro_marine2_k					models/md5/cinematics/intro_eric/intro_marine2_k.md5anim
+	anim intro_marine2_l					models/md5/cinematics/intro_eric/intro_marine2_l.md5anim
+	anim intro_marine2_m					models/md5/cinematics/intro_eric/intro_marine2_m.md5anim
+	anim intro_marine2_n					models/md5/cinematics/intro_eric/intro_marine2_n.md5anim
+	anim intro_marine2_o					models/md5/cinematics/intro_eric/intro_marine2_o.md5anim
+	anim intro_marine2_p					models/md5/cinematics/intro_eric/intro_marine2_p.md5anim
+	anim intro_marine2_q					models/md5/cinematics/intro_eric/intro_marine2_q.md5anim
+	anim intro_marine2_r					models/md5/cinematics/intro_eric/intro_marine2_r.md5anim
+	anim intro_marine2_s					models/md5/cinematics/intro_eric/intro_marine2_s.md5anim
+	anim intro_marine2_t					models/md5/cinematics/intro_eric/intro_marine2_t.md5anim
+	anim intro_marine2_u					models/md5/cinematics/intro_eric/intro_marine2_u.md5anim
+	anim intro_marine2_v					models/md5/cinematics/intro_eric/intro_marine2_v.md5anim
+	anim intro_marine2_w					models/md5/cinematics/intro_eric/intro_marine2_w.md5anim
+	anim intro_marine2_x					models/md5/cinematics/intro_eric/intro_marine2_x.md5anim
+	anim intro_marine2_y					models/md5/cinematics/intro_eric/intro_marine2_y.md5anim
+	anim intro_marine2_z					models/md5/cinematics/intro_eric/intro_marine2_z.md5anim {
+//		frame 3									start_emitter deathburn2 pelvis intro_burn.prt
+		frame 13								skin skins/die_marine_die
+		frame 13								event burn
+	}
+}
+
+entityDef erebus1_intro_marine2 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_marine2"
+	"anim"							"intro_marine2_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_marine2_a"
+	"anim2"							"intro_marine2_b"
+	"anim3"							"intro_marine2_c"
+	"anim4"							"intro_marine2_d"
+	"anim5"							"intro_marine2_e"
+	"anim6"							"intro_marine2_f"
+	"anim7"							"intro_marine2_g"
+	"anim8"							"intro_marine2_h"
+	"anim9"							"intro_marine2_i"
+	"anim10"						"intro_marine2_j"
+	"anim11"						"intro_marine2_k"
+	"anim12"						"intro_marine2_l"
+	"anim13"						"intro_marine2_m"
+	"anim14"						"intro_marine2_n"
+	"anim15"						"intro_marine2_o"
+	"anim16"						"intro_marine2_p"
+	"anim17"						"intro_marine2_q"
+	"anim18"						"intro_marine2_r"
+	"anim19"						"intro_marine2_s"
+	"anim20"						"intro_marine2_t"
+	"anim21"						"intro_marine2_u"
+	"anim22"						"intro_marine2_v"
+	"anim23"						"intro_marine2_w"
+	"anim24"						"intro_marine2_x"
+	"anim25"						"intro_marine2_y"
+	"anim26"						"intro_marine2_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+
+
+//////////////////////////////////////////////
+//marine3
+//////////////////////////////////////////////
+
+model erebus1_intro_marine3 {
+
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_marine3_a					models/md5/cinematics/intro_eric/intro_marine3_a.md5anim
+	anim intro_marine3_b					models/md5/cinematics/intro_eric/intro_marine3_b.md5anim
+	anim intro_marine3_c					models/md5/cinematics/intro_eric/intro_marine3_c.md5anim
+	anim intro_marine3_d					models/md5/cinematics/intro_eric/intro_marine3_d.md5anim
+	anim intro_marine3_e					models/md5/cinematics/intro_eric/intro_marine3_e.md5anim
+	anim intro_marine3_f					models/md5/cinematics/intro_eric/intro_marine3_f.md5anim
+	anim intro_marine3_g					models/md5/cinematics/intro_eric/intro_marine3_g.md5anim
+	anim intro_marine3_h					models/md5/cinematics/intro_eric/intro_marine3_h.md5anim
+	anim intro_marine3_i					models/md5/cinematics/intro_eric/intro_marine3_i.md5anim
+	anim intro_marine3_j					models/md5/cinematics/intro_eric/intro_marine3_j.md5anim
+	anim intro_marine3_k					models/md5/cinematics/intro_eric/intro_marine3_k.md5anim
+	anim intro_marine3_l					models/md5/cinematics/intro_eric/intro_marine3_l.md5anim
+	anim intro_marine3_m					models/md5/cinematics/intro_eric/intro_marine3_m.md5anim
+	anim intro_marine3_n					models/md5/cinematics/intro_eric/intro_marine3_n.md5anim {
+		frame 40						sound_voice e1_mchatter_06
+
+	}
+	anim intro_marine3_o					models/md5/cinematics/intro_eric/intro_marine3_o.md5anim
+	anim intro_marine3_p					models/md5/cinematics/intro_eric/intro_marine3_p.md5anim
+	anim intro_marine3_q					models/md5/cinematics/intro_eric/intro_marine3_q.md5anim
+	anim intro_marine3_r					models/md5/cinematics/intro_eric/intro_marine3_r.md5anim
+	anim intro_marine3_s					models/md5/cinematics/intro_eric/intro_marine3_s.md5anim
+	anim intro_marine3_t					models/md5/cinematics/intro_eric/intro_marine3_t.md5anim
+	anim intro_marine3_u					models/md5/cinematics/intro_eric/intro_marine3_u.md5anim
+	anim intro_marine3_v					models/md5/cinematics/intro_eric/intro_marine3_v.md5anim
+	anim intro_marine3_w					models/md5/cinematics/intro_eric/intro_marine3_w.md5anim
+	anim intro_marine3_x					models/md5/cinematics/intro_eric/intro_marine3_x.md5anim
+	anim intro_marine3_y					models/md5/cinematics/intro_eric/intro_marine3_y.md5anim
+	anim intro_marine3_z					models/md5/cinematics/intro_eric/intro_marine3_z.md5anim {
+//		frame 20								start_emitter deathburn3 pelvis intro_burn.prt
+		frame 30								skin skins/die_marine_die
+		frame 30								event burn
+	}
+
+
+}
+
+entityDef erebus1_intro_marine3 {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_marine3"
+	"anim"							"intro_marine3_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_marine3_a"
+	"anim2"							"intro_marine3_b"
+	"anim3"							"intro_marine3_c"
+	"anim4"							"intro_marine3_d"
+	"anim5"							"intro_marine3_e"
+	"anim6"							"intro_marine3_f"
+	"anim7"							"intro_marine3_g"
+	"anim8"							"intro_marine3_h"
+	"anim9"							"intro_marine3_i"
+	"anim10"						"intro_marine3_j"
+	"anim11"						"intro_marine3_k"
+	"anim12"						"intro_marine3_l"
+	"anim13"						"intro_marine3_m"
+	"anim14"						"intro_marine3_n"
+	"anim15"						"intro_marine3_o"
+	"anim16"						"intro_marine3_p"
+	"anim17"						"intro_marine3_q"
+	"anim18"						"intro_marine3_r"
+	"anim19"						"intro_marine3_s"
+	"anim20"						"intro_marine3_t"
+	"anim21"						"intro_marine3_u"
+	"anim22"						"intro_marine3_v"
+	"anim23"						"intro_marine3_w"
+	"anim24"						"intro_marine3_x"
+	"anim25"						"intro_marine3_y"
+	"anim26"						"intro_marine3_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//player_helmet
+//////////////////////////////////////////////
+
+model erebus1_intro_plyr_helmet {
+
+	mesh								models/md5/cinematics/intro/player_helmet.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_plyr_helmet_a					models/md5/cinematics/intro_eric/intro_plyr_helmet_a.md5anim
+	anim intro_plyr_helmet_b					models/md5/cinematics/intro_eric/intro_plyr_helmet_b.md5anim
+	anim intro_plyr_helmet_c					models/md5/cinematics/intro_eric/intro_plyr_helmet_c.md5anim
+	anim intro_plyr_helmet_d					models/md5/cinematics/intro_eric/intro_plyr_helmet_d.md5anim
+	anim intro_plyr_helmet_e					models/md5/cinematics/intro_eric/intro_plyr_helmet_e.md5anim
+	anim intro_plyr_helmet_f					models/md5/cinematics/intro_eric/intro_plyr_helmet_f.md5anim
+	anim intro_plyr_helmet_g					models/md5/cinematics/intro_eric/intro_plyr_helmet_g.md5anim
+	anim intro_plyr_helmet_h					models/md5/cinematics/intro_eric/intro_plyr_helmet_h.md5anim
+	anim intro_plyr_helmet_i					models/md5/cinematics/intro_eric/intro_plyr_helmet_i.md5anim
+	anim intro_plyr_helmet_j					models/md5/cinematics/intro_eric/intro_plyr_helmet_j.md5anim
+	anim intro_plyr_helmet_k					models/md5/cinematics/intro_eric/intro_plyr_helmet_k.md5anim
+	anim intro_plyr_helmet_l					models/md5/cinematics/intro_eric/intro_plyr_helmet_l.md5anim
+	anim intro_plyr_helmet_m					models/md5/cinematics/intro_eric/intro_plyr_helmet_m.md5anim
+	anim intro_plyr_helmet_n					models/md5/cinematics/intro_eric/intro_plyr_helmet_n.md5anim
+	anim intro_plyr_helmet_o					models/md5/cinematics/intro_eric/intro_plyr_helmet_o.md5anim
+	anim intro_plyr_helmet_p					models/md5/cinematics/intro_eric/intro_plyr_helmet_p.md5anim
+	anim intro_plyr_helmet_q					models/md5/cinematics/intro_eric/intro_plyr_helmet_q.md5anim
+	anim intro_plyr_helmet_r					models/md5/cinematics/intro_eric/intro_plyr_helmet_r.md5anim
+	anim intro_plyr_helmet_s					models/md5/cinematics/intro_eric/intro_plyr_helmet_s.md5anim
+	anim intro_plyr_helmet_t					models/md5/cinematics/intro_eric/intro_plyr_helmet_t.md5anim
+	anim intro_plyr_helmet_u					models/md5/cinematics/intro_eric/intro_plyr_helmet_u.md5anim
+	anim intro_plyr_helmet_v					models/md5/cinematics/intro_eric/intro_plyr_helmet_v.md5anim
+	anim intro_plyr_helmet_w					models/md5/cinematics/intro_eric/intro_plyr_helmet_w.md5anim {
+		// Helmet removal here
+		frame 110								sound_voice e1_helmet_removal
+	}
+	anim intro_plyr_helmet_x					models/md5/cinematics/intro_eric/intro_plyr_helmet_x.md5anim {
+		frame	10								sound_global e1_scene_pan_upstairs
+	}
+	anim intro_plyr_helmet_y					models/md5/cinematics/intro_eric/intro_plyr_helmet_y.md5anim
+	anim intro_plyr_helmet_z					models/md5/cinematics/intro_eric/intro_plyr_helmet_z.md5anim
+
+}
+
+entityDef erebus1_intro_plyr_helmet {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_plyr_helmet"
+	"anim"							"intro_plyr_helmet_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_plyr_helmet_a"
+	"anim2"							"intro_plyr_helmet_b"
+	"anim3"							"intro_plyr_helmet_c"
+	"anim4"							"intro_plyr_helmet_d"
+	"anim5"							"intro_plyr_helmet_e"
+	"anim6"							"intro_plyr_helmet_f"
+	"anim7"							"intro_plyr_helmet_g"
+	"anim8"							"intro_plyr_helmet_h"
+	"anim9"							"intro_plyr_helmet_i"
+	"anim10"						"intro_plyr_helmet_j"
+	"anim11"						"intro_plyr_helmet_k"
+	"anim12"						"intro_plyr_helmet_l"
+	"anim13"						"intro_plyr_helmet_m"
+	"anim14"						"intro_plyr_helmet_n"
+	"anim15"						"intro_plyr_helmet_o"
+	"anim16"						"intro_plyr_helmet_p"
+	"anim17"						"intro_plyr_helmet_q"
+	"anim18"						"intro_plyr_helmet_r"
+	"anim19"						"intro_plyr_helmet_s"
+	"anim20"						"intro_plyr_helmet_t"
+	"anim21"						"intro_plyr_helmet_u"
+	"anim22"						"intro_plyr_helmet_v"
+	"anim23"						"intro_plyr_helmet_w"
+	"anim24"						"intro_plyr_helmet_x"
+	"anim25"						"intro_plyr_helmet_y"
+	"anim26"						"intro_plyr_helmet_z"
+
+	"cinematic"						"1"
+
+}
+
+
+
+//////////////////////////////////////////////
+//player heart
+//////////////////////////////////////////////
+
+model erebus1_intro_plyr_heart {
+
+	mesh								models/md5/cinematics/intro/player_heartartifact.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim intro_plyr_heart_a					models/md5/cinematics/intro_eric/intro_plyr_heart_a.md5anim
+	anim intro_plyr_heart_b					models/md5/cinematics/intro_eric/intro_plyr_heart_b.md5anim
+	anim intro_plyr_heart_c					models/md5/cinematics/intro_eric/intro_plyr_heart_c.md5anim
+	anim intro_plyr_heart_d					models/md5/cinematics/intro_eric/intro_plyr_heart_d.md5anim
+	anim intro_plyr_heart_e					models/md5/cinematics/intro_eric/intro_plyr_heart_e.md5anim
+	anim intro_plyr_heart_f					models/md5/cinematics/intro_eric/intro_plyr_heart_f.md5anim
+	anim intro_plyr_heart_g					models/md5/cinematics/intro_eric/intro_plyr_heart_g.md5anim
+	anim intro_plyr_heart_h					models/md5/cinematics/intro_eric/intro_plyr_heart_h.md5anim
+	anim intro_plyr_heart_i					models/md5/cinematics/intro_eric/intro_plyr_heart_i.md5anim
+	anim intro_plyr_heart_j					models/md5/cinematics/intro_eric/intro_plyr_heart_j.md5anim
+	anim intro_plyr_heart_k					models/md5/cinematics/intro_eric/intro_plyr_heart_k.md5anim
+	anim intro_plyr_heart_l					models/md5/cinematics/intro_eric/intro_plyr_heart_l.md5anim
+	anim intro_plyr_heart_m					models/md5/cinematics/intro_eric/intro_plyr_heart_m.md5anim
+	anim intro_plyr_heart_n					models/md5/cinematics/intro_eric/intro_plyr_heart_n.md5anim
+	anim intro_plyr_heart_o					models/md5/cinematics/intro_eric/intro_plyr_heart_o.md5anim
+	anim intro_plyr_heart_p					models/md5/cinematics/intro_eric/intro_plyr_heart_p.md5anim
+	anim intro_plyr_heart_q					models/md5/cinematics/intro_eric/intro_plyr_heart_q.md5anim
+	anim intro_plyr_heart_r					models/md5/cinematics/intro_eric/intro_plyr_heart_r.md5anim
+	anim intro_plyr_heart_s					models/md5/cinematics/intro_eric/intro_plyr_heart_s.md5anim
+	anim intro_plyr_heart_t					models/md5/cinematics/intro_eric/intro_plyr_heart_t.md5anim
+	anim intro_plyr_heart_u					models/md5/cinematics/intro_eric/intro_plyr_heart_u.md5anim
+	anim intro_plyr_heart_v					models/md5/cinematics/intro_eric/intro_plyr_heart_v.md5anim {
+//		frame 1									call map_erebus1::door_bloom
+	}
+	anim intro_plyr_heart_w					models/md5/cinematics/intro_eric/intro_plyr_heart_w.md5anim {
+//		frame 1									call map_erebus1::bloom_off
+	}
+	anim intro_plyr_heart_x					models/md5/cinematics/intro_eric/intro_plyr_heart_x.md5anim {
+//		frame 1									call map_erebus1::door_bloom2
+		frame 10								start_emitter heartjuice weapon intro_heartjuice.prt
+	}
+	anim intro_plyr_heart_y					models/md5/cinematics/intro_eric/intro_plyr_heart_y.md5anim {
+		frame 1									call map_erebus1::bloom_off
+		frame 113								trigger func_fx_explosion
+		frame 113								call map_erebus1::bloom_on
+		frame 116								stop_emitter heartjuice
+		frame 116								trigger intro_emitter_left
+		frame 116								trigger intro_emitter_right
+	}
+	anim intro_plyr_heart_z					models/md5/cinematics/intro_eric/intro_plyr_heart_z.md5anim {
+		frame 1									call map_erebus1::bloom_off
+		frame 1									call map_erebus1::bloom_on
+		frame 1									call map_erebus1::hide_introdoor_light
+	}
+}
+
+entityDef erebus1_intro_plyr_heart {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_plyr_heart"
+	"anim"							"intro_plyr_heart_a"
+
+	"num_cinematics"				"26"
+	"anim1"							"intro_plyr_heart_a"
+	"anim2"							"intro_plyr_heart_b"
+	"anim3"							"intro_plyr_heart_c"
+	"anim4"							"intro_plyr_heart_d"
+	"anim5"							"intro_plyr_heart_e"
+	"anim6"							"intro_plyr_heart_f"
+	"anim7"							"intro_plyr_heart_g"
+	"anim8"							"intro_plyr_heart_h"
+	"anim9"							"intro_plyr_heart_i"
+	"anim10"						"intro_plyr_heart_j"
+	"anim11"						"intro_plyr_heart_k"
+	"anim12"						"intro_plyr_heart_l"
+	"anim13"						"intro_plyr_heart_m"
+	"anim14"						"intro_plyr_heart_n"
+	"anim15"						"intro_plyr_heart_o"
+	"anim16"						"intro_plyr_heart_p"
+	"anim17"						"intro_plyr_heart_q"
+	"anim18"						"intro_plyr_heart_r"
+	"anim19"						"intro_plyr_heart_s"
+	"anim20"						"intro_plyr_heart_t"
+	"anim21"						"intro_plyr_heart_u"
+	"anim22"						"intro_plyr_heart_v"
+	"anim23"						"intro_plyr_heart_w"
+	"anim24"						"intro_plyr_heart_x"
+	"anim25"						"intro_plyr_heart_y"
+	"anim26"						"intro_plyr_heart_z"
+
+	"cinematic"						"1"
+	"skin"							"skins/intro/playerartifact"
+}
+
+//////////////////////////////////////////////
+//marines for ROQ files
+//////////////////////////////////////////////
+
+model erebus1_intro_pda_for_roq {
+
+	mesh								models/md5/cinematics/intro/stock_marine_pda.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim walk_hall						models/md5/cinematics/intro_eric/intro_pda_d.md5anim {
+		frame 1							aviGame gui_roq
+		frame 68							aviGame
+	}
+}
+
+entityDef erebus1_intro_pda_for_roq {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_pda_for_roq"
+	"anim"							"walk_hall"
+
+	"num_cinematics"				"1"
+	"anim1"							"walk_hall"
+
+	"cinematic"						"1"
+
+}
+
+
+model erebus1_intro_marine1_for_roq {
+
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim walk_hall						models/md5/cinematics/intro_eric/intro_marine1_d.md5anim
+
+}
+
+entityDef erebus1_intro_marine1_for_roq {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_marine1_for_roq"
+	"anim"							"walk_hall"
+
+	"num_cinematics"				"1"
+	"anim1"							"walk_hall"
+
+	"cinematic"						"1"
+
+}
+
+
+model erebus1_intro_marine2_for_roq {
+
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim walk_hall						models/md5/cinematics/intro_eric/intro_marine2_d.md5anim
+
+}
+
+entityDef erebus1_intro_marine2_for_roq {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_marine2_for_roq"
+	"anim"							"walk_hall"
+
+	"num_cinematics"				"1"
+	"anim1"							"walk_hall"
+
+	"cinematic"						"1"
+
+}
+
+
+model erebus1_intro_marine3_for_roq {
+
+	mesh								models/md5/cinematics/intro/stock_marine.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim walk_hall						models/md5/cinematics/intro_eric/intro_marine3_d.md5anim
+
+}
+
+entityDef erebus1_intro_marine3_for_roq {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_marine3_for_roq"
+	"anim"							"walk_hall"
+
+	"num_cinematics"				"1"
+	"anim1"							"walk_hall"
+
+	"cinematic"						"1"
+
+}
+
+
+model erebus1_intro_flash_for_roq {
+
+	mesh								models/md5/cinematics/intro/stock_marine_flashlight.md5mesh
+
+	channel torso						()
+	channel legs						(*origin)
+
+	anim walk_hall						models/md5/cinematics/intro_eric/intro_flash_d.md5anim
+
+}
+
+entityDef erebus1_intro_flash_for_roq {
+
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAI"
+	"scriptobject"					"character"
+	"model"							"erebus1_intro_flash_for_roq"
+	"anim"							"walk_hall"
+
+	"num_cinematics"				"1"
+	"anim1"							"walk_hall"
+
+	"cinematic"						"1"
+
+}

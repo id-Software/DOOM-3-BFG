@@ -1,0 +1,74 @@
+/***********************************************************************
+
+	monster_boss_guardian_seeker.def
+
+***********************************************************************/
+
+export James {
+ 	options -prefix GSE_ -sourcedir models/monsters/gseeker/cycles -destdir models/md5/monsters/gseeker
+
+	mesh	gseeker_mesh.mb -rotate 90 -dest gseeker
+	anim	af_pose.mb -rotate 90
+	anim	idle3.mb -rotate 90
+	anim	travel3.mb -rotate 90
+	anim	sight3.mb -rotate 90
+	anim	teleport3.mb -rotate 90
+	anim	pain3.mb -rotate 90
+}
+
+model monster_boss_guardian_seeker {	
+	mesh						    models/md5/monsters/gseeker/gseeker.md5mesh
+	channel torso					( *origin )
+	offset							( 0 0 -48 )
+
+	anim idle				     	models/md5/monsters/gseeker/idle3.md5anim
+	anim fly			            models/md5/monsters/gseeker/travel3.md5anim
+	anim charge						models/md5/monsters/gseeker/travel3.md5anim
+	anim sight						models/md5/monsters/gseeker/sight3.md5anim
+	anim teleport			     	models/md5/monsters/gseeker/teleport3.md5anim
+	anim pain 						models/md5/monsters/gseeker/pain3.md5anim
+	anim initial					models/md5/monsters/gseeker/af_pose.md5anim
+}
+
+entityDef monster_boss_guardian_seeker {	
+	"inherit"						"monster_default"
+	"scriptobject"					"monster_boss_guardian_seeker"
+	"model"							"monster_boss_guardian_seeker"
+	"model_lightbeam"				"models/monsters/gseeker/gseeker_flare_on_orig.lwo"
+	"size"							"48 48 82"
+	"on_activate"					""
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"70"
+	"fly_offset"					"160"
+	"turn_rate"						"360"
+	"fly_speed"						"500"
+	"mass"   						"200"
+	"burnaway"						"0.25"
+	
+	"bone_flytilt"					"body"
+	
+	//"smokeParticleSystem"			"brain_1"
+	
+	//"def_light1"					"seeker_light1"
+	//"def_light2"					"seeker_light2"
+	
+	"snd_sight"   					"monster_boss_guardian_seeker_sight"
+	"snd_death"						"monster_boss_guardian_seeker_die"
+	
+}
+
+//entityDef seeker_light1 {
+//	"inherit"						"light"
+//	"model"							""
+//	"radius"						"64"
+//	"texture"						"lights/lanternglow"
+//	"noshadows"						"1"
+//}
+
+//entityDef seeker_light2 {
+//	"inherit"						"light"
+//	"model"							""
+//	"texture"						"lights/spot01"
+//}

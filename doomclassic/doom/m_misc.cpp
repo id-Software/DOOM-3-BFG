@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -75,51 +75,62 @@ M_DrawText
   qboolean	direct,
   char*		string )
 {
-    int 	c;
-    int		w;
+	int 	c;
+	int		w;
 
-    while (*string)
-    {
-	c = toupper(*string) - HU_FONTSTART;
-	string++;
-	if (c < 0 || c> HU_FONTSIZE)
+	while( *string )
 	{
-	    x += 4;
-	    continue;
-	}
-		
-	w = SHORT (::g->hu_font[c]->width);
-	if (x+w > SCREENWIDTH)
-	    break;
-	if (direct)
-	    V_DrawPatchDirect(x, y, 0, ::g->hu_font[c]);
-	else
-	    V_DrawPatch(x, y, 0, ::g->hu_font[c]);
-	x+=w;
-    }
+		c = toupper( *string ) - HU_FONTSTART;
+		string++;
+		if( c < 0 || c > HU_FONTSIZE )
+		{
+			x += 4;
+			continue;
+		}
 
-    return x;
+		w = SHORT( ::g->hu_font[c]->width );
+		if( x + w > SCREENWIDTH )
+		{
+			break;
+		}
+		if( direct )
+		{
+			V_DrawPatchDirect( x, y, 0, ::g->hu_font[c] );
+		}
+		else
+		{
+			V_DrawPatch( x, y, 0, ::g->hu_font[c] );
+		}
+		x += w;
+	}
+
+	return x;
 }
 
 
 //
 // M_WriteFile
 //
-bool M_WriteFile ( char const*	name, void*		source, int		length ) {
-	
-	idFile *		handle = NULL;
+bool M_WriteFile( char const*	name, void*		source, int		length )
+{
+
+	idFile* 		handle = NULL;
 	int		count;
 
 	handle = fileSystem->OpenFileWrite( name, "fs_savepath" );
 
-	if (handle == NULL )
+	if( handle == NULL )
+	{
 		return false;
+	}
 
 	count = handle->Write( source, length );
 	fileSystem->CloseFile( handle );
 
-	if (count < length)
+	if( count < length )
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -128,24 +139,27 @@ bool M_WriteFile ( char const*	name, void*		source, int		length ) {
 //
 // M_ReadFile
 //
-int M_ReadFile ( char const*	name, byte**	buffer ) {
+int M_ReadFile( char const*	name, byte**	buffer )
+{
 	int count, length;
-	idFile * handle = NULL;
-	byte		*buf;
+	idFile* handle = NULL;
+	byte*		buf;
 
 	handle = fileSystem->OpenFileRead( name, false );
 
-	if (handle == NULL ) {
-		I_Error ("Couldn't read file %s", name);
+	if( handle == NULL )
+	{
+		I_Error( "Couldn't read file %s", name );
 	}
 
 	length = handle->Length();
 
-	buf = ( byte* )Z_Malloc ( handle->Length(), PU_STATIC, NULL);
+	buf = ( byte* )Z_Malloc( handle->Length(), PU_STATIC, NULL );
 	count = handle->Read( buf, length );
 
-	if (count < length ) {
-		I_Error ("Couldn't read file %s", name);
+	if( count < length )
+	{
+		I_Error( "Couldn't read file %s", name );
 	}
 
 	fileSystem->CloseFile( handle );
@@ -209,32 +223,32 @@ extern const char* const temp_chat_macros[];
 //
 // M_SaveDefaults
 //
-void M_SaveDefaults (void)
+void M_SaveDefaults( void )
 {
-/*
-    int		i;
-    int		v;
-    FILE*	f;
-	
-    f = f o pen (::g->defaultfile, "w");
-    if (!f)
-	return; // can't write the file, but don't complain
-		
-    for (i=0 ; i<::g->numdefaults ; i++)
-    {
-	if (::g->defaults[i].defaultvalue > -0xfff
-	    && ::g->defaults[i].defaultvalue < 0xfff)
-	{
-	    v = *::g->defaults[i].location;
-	    fprintf (f,"%s\t\t%i\n",::g->defaults[i].name,v);
-	} else {
-	    fprintf (f,"%s\t\t\"%s\"\n",::g->defaults[i].name,
-		     * (char **) (::g->defaults[i].location));
-	}
-    }
-	
-    fclose (f);
-*/
+	/*
+	    int		i;
+	    int		v;
+	    FILE*	f;
+
+	    f = f o pen (::g->defaultfile, "w");
+	    if (!f)
+		return; // can't write the file, but don't complain
+
+	    for (i=0 ; i<::g->numdefaults ; i++)
+	    {
+		if (::g->defaults[i].defaultvalue > -0xfff
+		    && ::g->defaults[i].defaultvalue < 0xfff)
+		{
+		    v = *::g->defaults[i].location;
+		    fprintf (f,"%s\t\t%i\n",::g->defaults[i].name,v);
+		} else {
+		    fprintf (f,"%s\t\t\"%s\"\n",::g->defaults[i].name,
+			     * (char **) (::g->defaults[i].location));
+		}
+	    }
+
+	    fclose (f);
+	*/
 }
 
 
@@ -242,71 +256,75 @@ void M_SaveDefaults (void)
 // M_LoadDefaults
 //
 
-void M_LoadDefaults (void)
+void M_LoadDefaults( void )
 {
-    int		i;
-    //int		len;
-    //FILE*	f;
-    //char	def[80];
-    //char	strparm[100];
-    //char*	newstring;
-    //int		parm;
-    //qboolean	isstring;
-    
-    // set everything to base values
-    ::g->numdefaults = sizeof(::g->defaults)/sizeof(::g->defaults[0]);
-    for (i=0 ; i < ::g->numdefaults ; i++)
-		*::g->defaults[i].location = ::g->defaults[i].defaultvalue;
-    
-    // check for a custom default file
-    i = M_CheckParm ("-config");
-    if (i && i < ::g->myargc-1)
-    {
-		::g->defaultfile = ::g->myargv[i+1];
-		I_Printf ("	default file: %s\n",::g->defaultfile);
-    }
-    else
-		::g->defaultfile = ::g->basedefault;
+	int		i;
+	//int		len;
+	//FILE*	f;
+	//char	def[80];
+	//char	strparm[100];
+	//char*	newstring;
+	//int		parm;
+	//qboolean	isstring;
 
-/*
-    // read the file in, overriding any set ::g->defaults
-    f = f o pen (::g->defaultfile, "r");
-    if (f)
-    {
-		while (!feof(f))
-		{
-			isstring = false;
-			if (fscanf (f, "%79s %[^\n]\n", def, strparm) == 2)
+	// set everything to base values
+	::g->numdefaults = sizeof( ::g->defaults ) / sizeof( ::g->defaults[0] );
+	for( i = 0 ; i < ::g->numdefaults ; i++ )
+	{
+		*::g->defaults[i].location = ::g->defaults[i].defaultvalue;
+	}
+
+	// check for a custom default file
+	i = M_CheckParm( "-config" );
+	if( i && i < ::g->myargc - 1 )
+	{
+		::g->defaultfile = ::g->myargv[i + 1];
+		I_Printf( "	default file: %s\n", ::g->defaultfile );
+	}
+	else
+	{
+		::g->defaultfile = ::g->basedefault;
+	}
+
+	/*
+	    // read the file in, overriding any set ::g->defaults
+	    f = f o pen (::g->defaultfile, "r");
+	    if (f)
+	    {
+			while (!feof(f))
 			{
-				if (strparm[0] == '"')
+				isstring = false;
+				if (fscanf (f, "%79s %[^\n]\n", def, strparm) == 2)
 				{
-					// get a string default
-					isstring = true;
-					len = strlen(strparm);
-					newstring = (char *)DoomLib::Z_Malloc(len, PU_STATIC, 0);
-					strparm[len-1] = 0;
-					strcpy(newstring, strparm+1);
-				}
-				else if (strparm[0] == '0' && strparm[1] == 'x')
-					sscanf(strparm+2, "%x", &parm);
-				else
-					sscanf(strparm, "%i", &parm);
-				
-				for (i=0 ; i<::g->numdefaults ; i++)
-					if (!strcmp(def, ::g->defaults[i].name))
+					if (strparm[0] == '"')
 					{
-						if (!isstring)
-							*::g->defaults[i].location = parm;
-						else
-							*::g->defaults[i].location = (int) newstring;
-						break;
+						// get a string default
+						isstring = true;
+						len = strlen(strparm);
+						newstring = (char *)DoomLib::Z_Malloc(len, PU_STATIC, 0);
+						strparm[len-1] = 0;
+						strcpy(newstring, strparm+1);
 					}
+					else if (strparm[0] == '0' && strparm[1] == 'x')
+						sscanf(strparm+2, "%x", &parm);
+					else
+						sscanf(strparm, "%i", &parm);
+
+					for (i=0 ; i<::g->numdefaults ; i++)
+						if (!strcmp(def, ::g->defaults[i].name))
+						{
+							if (!isstring)
+								*::g->defaults[i].location = parm;
+							else
+								*::g->defaults[i].location = (int) newstring;
+							break;
+						}
+				}
 			}
-		}
-			
-		fclose (f);
-    }
-*/
+
+			fclose (f);
+	    }
+	*/
 }
 
 
@@ -335,37 +353,37 @@ WritePCXfile
 //
 // M_ScreenShot
 //
-void M_ScreenShot (void)
+void M_ScreenShot( void )
 {
-/*
-    int		i;
-    byte*	linear;
-    char	lbmname[12];
-    
-    // munge planar buffer to linear
-    linear = ::g->screens[2];
-    I_ReadScreen (linear);
-    
-    // find a file name to save it to
-    strcpy(lbmname,"DOOM00.pcx");
-		
-    for (i=0 ; i<=99 ; i++)
-    {
-		lbmname[4] = i/10 + '0';
-		lbmname[5] = i%10 + '0';
-		if (_access(lbmname,0) == -1)
-			break;	// file doesn't exist
-    }
-    if (i==100)
-		I_Error ("M_ScreenShot: Couldn't create a PCX");
-    
-    // save the pcx file
-    WritePCXfile (lbmname, linear,
-		  SCREENWIDTH, SCREENHEIGHT,
-		  (byte*)W_CacheLumpName ("PLAYPAL",PU_CACHE_SHARED));
-	
-    ::g->players[::g->consoleplayer].message = "screen shot";
-*/
+	/*
+	    int		i;
+	    byte*	linear;
+	    char	lbmname[12];
+
+	    // munge planar buffer to linear
+	    linear = ::g->screens[2];
+	    I_ReadScreen (linear);
+
+	    // find a file name to save it to
+	    strcpy(lbmname,"DOOM00.pcx");
+
+	    for (i=0 ; i<=99 ; i++)
+	    {
+			lbmname[4] = i/10 + '0';
+			lbmname[5] = i%10 + '0';
+			if (_access(lbmname,0) == -1)
+				break;	// file doesn't exist
+	    }
+	    if (i==100)
+			I_Error ("M_ScreenShot: Couldn't create a PCX");
+
+	    // save the pcx file
+	    WritePCXfile (lbmname, linear,
+			  SCREENWIDTH, SCREENHEIGHT,
+			  (byte*)W_CacheLumpName ("PLAYPAL",PU_CACHE_SHARED));
+
+	    ::g->players[::g->consoleplayer].message = "screen shot";
+	*/
 }
 
 

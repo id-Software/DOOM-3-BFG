@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-
+#include "TileMap.h"
 #include "../libs/binpack2d/binpack2d.h"
 
 
@@ -196,6 +197,86 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 	}
 }
 
+// Maximum resolution of one tile within tiled shadow map. Resolution must be power of two and
+// square, since quad-tree for managing tiles will not work correctly otherwise. Furthermore
+// resolution must be at least 16.
+//#define MAX_TILE_RES 512
+
+// Specifies how many levels the quad-tree for managing tiles within tiled shadow map should
+// have. The higher the value, the smaller the resolution of the smallest used tile will be.
+// In the current configuration of 8192 resolution and 8 levels, the smallest tile will have
+// a resolution of 64. 16 is the smallest allowed value for the min tile resolution.
+//#define NUM_QUAD_TREE_LEVELS 8
+
+void RectAllocatorQuadTree( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int TILED_SM_RES, const int MAX_TILE_RES = 512, const int NUM_QUAD_TREE_LEVELS = 8 )
+{
+	outputPositions.SetNum( inputSizes.Num() );
+	if( inputSizes.Num() == 0 )
+	{
+		totalSize.Set( 0, 0 );
+		return;
+	}
+
+	idList<int> sizeRemap;
+	sizeRemap.SetNum( inputSizes.Num() );
+	for( int i = 0; i < inputSizes.Num(); i++ )
+	{
+		sizeRemap[i] = i;
+	}
+
+	// Sort the rects from largest to smallest (it makes allocating them in the image better)
+	idSortrects sortrectsBySize;
+	sortrectsBySize.inputSizes = &inputSizes;
+	sizeRemap.SortWithTemplate( sortrectsBySize );
+
+	// quad-tree for managing tiles within tiled shadow map
+	TileMap tileMap;
+
+	totalSize.x = 0;
+	totalSize.y = 0;
+
+	// initialize tile-map that will manage tiles within tiled shadow map
+	if( !tileMap.Init( TILED_SM_RES, MAX_TILE_RES, NUM_QUAD_TREE_LEVELS ) )
+	{
+		return;
+	}
+
+	for( int i = 0; i < inputSizes.Num(); i++ )
+	{
+		idVec2i	size = inputSizes[sizeRemap[i]];
+
+		int area = Max( size.x, size.y );
+
+		Tile tile;
+		bool result = tileMap.GetTile( area, tile );
+
+		if( !result )
+		{
+			outputPositions[sizeRemap[i]].Set( -1, -1 );
+		}
+		else
+		{
+			// convert from [-1..-1] -> [0..1] and flip y
+			idVec2 uvPos;
+			uvPos.x = tile.position.x * 0.5f + 0.5f;
+			uvPos.y = 1.0f - ( tile.position.y * 0.5f + 0.5f );
+
+			outputPositions[sizeRemap[i]].x = uvPos.x * TILED_SM_RES;
+			outputPositions[sizeRemap[i]].y = uvPos.y * TILED_SM_RES;
+
+			if( ( tile.position.x + tile.size ) > totalSize.x )
+			{
+				totalSize.x = tile.position.x + tile.size;
+			}
+
+			if( ( tile.position.y + tile.size ) > totalSize.y )
+			{
+				totalSize.y = tile.position.y + tile.size;
+			}
+		}
+	}
+}
+
 // RB
 class MyContent
 {
@@ -293,7 +374,7 @@ void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList&
 #endif
 	}
 
-
+#if 0
 	for( binpack2d_iterator itor = remainder.Get().begin(); itor != remainder.Get().end(); itor++ )
 	{
 		const BinPack2D::Content<MyContent>& content = *itor;
@@ -309,4 +390,5 @@ void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList&
 					   content.size.w,
 					   content.size.h );
 	}
+#endif
 }

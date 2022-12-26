@@ -373,7 +373,7 @@ void idRenderModelLiquid::Reset()
 idRenderModelLiquid::InitFromFile
 ====================
 */
-void idRenderModelLiquid::InitFromFile( const char* fileName )
+void idRenderModelLiquid::InitFromFile( const char* fileName, nvrhi::ICommandList* commandList, const idImportOptions* options )
 {
 	int				i, x, y;
 	idToken			token;
@@ -604,4 +604,14 @@ idBounds idRenderModelLiquid::Bounds( const struct renderEntity_s* ent ) const
 {
 	// FIXME: need to do this better
 	return bounds;
+}
+
+/*
+====================
+idRenderModelLiquid::CreateBuffers
+====================
+*/
+void idRenderModelLiquid::CreateBuffers( nvrhi::ICommandList* commandList )
+{
+	R_CreateDeformStaticVertices( deformInfo, commandList );
 }

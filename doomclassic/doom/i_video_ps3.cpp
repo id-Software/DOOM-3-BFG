@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,9 +50,9 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-void I_ShutdownGraphics(void)
+void I_ShutdownGraphics( void )
 {
-  // VVTODO: Shutdown Graphics
+	// VVTODO: Shutdown Graphics
 }
 
 
@@ -60,22 +60,28 @@ void I_ShutdownGraphics(void)
 //
 // I_StartFrame
 //
-void I_StartFrame (void)
+void I_StartFrame( void )
 {
-    // er?
+	// er?
 }
 
-static void I_CombineMouseEvent(const event_t* in, event_t* out)
+static void I_CombineMouseEvent( const event_t* in, event_t* out )
 {
-	if (fabs((float)in->data1) > fabs((float)out->data1))
+	if( fabs( ( float )in->data1 ) > fabs( ( float )out->data1 ) )
+	{
 		out->data1 = in->data1;
-	if (fabs((float)in->data2) > fabs((float)out->data2))
+	}
+	if( fabs( ( float )in->data2 ) > fabs( ( float )out->data2 ) )
+	{
 		out->data2 = in->data2;
-	if (fabs((float)in->data3) > fabs((float)out->data3))
+	}
+	if( fabs( ( float )in->data3 ) > fabs( ( float )out->data3 ) )
+	{
 		out->data3 = in->data3;
+	}
 }
 
-void I_GetEvents( controller_t *controller )
+void I_GetEvents( controller_t* controller )
 {
 	event_t e_mouse, e_joystick;
 	int numEvents;
@@ -86,56 +92,65 @@ void I_GetEvents( controller_t *controller )
 	e_joystick.data1 = e_joystick.data2 = e_joystick.data3 = 0;
 
 	numEvents = I_PollMouseInputEvents( controller );
-	if (numEvents) 
+	if( numEvents )
 	{
 		int i;
 		event_t e;
-	
-		// right thumb stick
-		for (i = 0; i < numEvents; ++i)
-		{
-			I_ReturnMouseInputEvent(i, &e);
-			if (e.type == ev_mouse)
-				I_CombineMouseEvent(&e, &e_mouse);
-			else if (e.type == ev_joystick)
-				I_CombineMouseEvent(&e, &e_joystick);
-		}
-	}
 
-	numEvents = I_PollJoystickInputEvents( controller );
-	if (numEvents) 
-	{
-		int i;
-		event_t e;
-		for (i = 0; i < numEvents; ++i)
+		// right thumb stick
+		for( i = 0; i < numEvents; ++i )
 		{
-			I_ReturnJoystickInputEvent(i, &e);
-			if (e.type == ev_keydown || e.type == ev_keyup) {
-				D_PostEvent(&e);
-			} else if (e.type == ev_joystick) {
-				I_CombineMouseEvent(&e, &e_joystick);
-			} else if (e.type == ev_mouse) {
-				I_CombineMouseEvent(&e, &e_mouse);
+			I_ReturnMouseInputEvent( i, &e );
+			if( e.type == ev_mouse )
+			{
+				I_CombineMouseEvent( &e, &e_mouse );
+			}
+			else if( e.type == ev_joystick )
+			{
+				I_CombineMouseEvent( &e, &e_joystick );
 			}
 		}
 	}
 
-	D_PostEvent(&e_mouse);
-	D_PostEvent(&e_joystick);
+	numEvents = I_PollJoystickInputEvents( controller );
+	if( numEvents )
+	{
+		int i;
+		event_t e;
+		for( i = 0; i < numEvents; ++i )
+		{
+			I_ReturnJoystickInputEvent( i, &e );
+			if( e.type == ev_keydown || e.type == ev_keyup )
+			{
+				D_PostEvent( &e );
+			}
+			else if( e.type == ev_joystick )
+			{
+				I_CombineMouseEvent( &e, &e_joystick );
+			}
+			else if( e.type == ev_mouse )
+			{
+				I_CombineMouseEvent( &e, &e_mouse );
+			}
+		}
+	}
+
+	D_PostEvent( &e_mouse );
+	D_PostEvent( &e_joystick );
 }
 
 //
 // I_UpdateNoBlit
 //
-void I_UpdateNoBlit (void)
+void I_UpdateNoBlit( void )
 {
-    // what is this?
+	// what is this?
 }
 
 //
 // I_FinishUpdate
 //
-void I_FinishUpdate (void)
+void I_FinishUpdate( void )
 {
 // DHM - These buffers are not used
 }
@@ -144,18 +159,19 @@ void I_FinishUpdate (void)
 //
 // I_ReadScreen
 //
-void I_ReadScreen (byte* scr)
+void I_ReadScreen( byte* scr )
 {
-    memcpy(scr, ::g->screens[0], SCREENWIDTH*SCREENHEIGHT);
+	memcpy( scr, ::g->screens[0], SCREENWIDTH * SCREENHEIGHT );
 }
 
-inline unsigned int I_PackColor( unsigned int a, unsigned int r, unsigned int g, unsigned int b ) {
+inline unsigned int I_PackColor( unsigned int a, unsigned int r, unsigned int g, unsigned int b )
+{
 	unsigned int color = 0;
 
-	color |= (r & 255) << 24;
-	color |= (g & 255) << 16;
-	color |= (b & 255) << 8;
-	color |= (a & 255);
+	color |= ( r & 255 ) << 24;
+	color |= ( g & 255 ) << 16;
+	color |= ( b & 255 ) << 8;
+	color |= ( a & 255 );
 
 	return color;
 }
@@ -163,19 +179,19 @@ inline unsigned int I_PackColor( unsigned int a, unsigned int r, unsigned int g,
 //
 // I_SetPalette
 //
-void I_SetPalette (byte* palette)
+void I_SetPalette( byte* palette )
 {
 
 	int i;
 
 	// set the X colormap entries
-	for (i=0 ; i<256 ; i++)
+	for( i = 0 ; i < 256 ; i++ )
 	{
-		int r,b,g;
+		int r, b, g;
 		r = gammatable[::g->usegamma][*palette++];
 		g = gammatable[::g->usegamma][*palette++];
 		b = gammatable[::g->usegamma][*palette++];
-		::g->XColorMap[i] = I_PackColor(0xff, r, g, b);
+		::g->XColorMap[i] = I_PackColor( 0xff, r, g, b );
 	}
 
 }

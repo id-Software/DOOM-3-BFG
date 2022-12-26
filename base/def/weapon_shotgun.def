@@ -1,0 +1,294 @@
+/***********************************************************************
+
+	weapon_shotgun.def
+
+***********************************************************************/
+
+export fred {
+	// view model shotgun	
+	options -prefix SG_ -keep barrel eject shell flash -parent flash body -rename barrel2 barrel -parent barrel body -parent eject body -parent body Rhand -parent shell Lhand -rename origin blah -sourcedir models/weapons/shotgun/cycles -destdir models/md5/weapons/shotgun_view 
+	mesh	idle.mb -dest viewshotgun
+	anim	idle.mb
+	anim	raise.mb
+	anim	fire1.mb
+	anim	fire2.mb
+	anim	fire3.mb
+	anim	reload_start.mb
+	anim	reload_loop.mb
+	anim	reload_loop2.mb
+	anim	reload_loop3.mb
+	anim	reload_end.mb
+	anim	reload2.mb
+	anim	lower.mb
+	anim	empty.mb
+
+	// world model shotgun
+	options -prefix PLAYER_SHOTGUN_ -keep ATTACHER barrel flash eject -parent flash sgbody -parent eject sgbody -rename ATTACHER origin -rename sgbarrel barrel -clearorigin
+	addoptions -skipmesh PLAYER_shotgun_body_mesh
+	addoptions -skipmesh PLAYER_shotgun_handle_mesh
+	addoptions -skipmesh PLAYER_shotgun_trigger_mesh
+	addoptions -skipmesh PLAYER_shotgun_loflap_mesh
+	addoptions -skipmesh PLAYER_shotgun_extender_mesh
+	addoptions -skipmesh PLAYER_shotgun_upflap1_mesh
+	addoptions -skipmesh PLAYER_shotgun_upflap2_mesh
+	
+	mesh	models/characters/player/mocap/shotgun_idle.mb -dest models/md5/weapons/shotgun_world/worldshotgun
+	anim	models/characters/player/mocap/shotgun_idle.mb -dest models/md5/weapons/shotgun_world/shotgun_idle
+	anim	models/characters/player/mocap/shotgun_fire.mb -range 49 75 -dest models/md5/weapons/shotgun_world/shotgun_fire1
+}
+
+entityDef weapon_shotgun {
+	"editor_color"				".3 .3 1"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 32"
+	"editor_usage"				"Shotgun"
+	"editor_rotatable"		"1"
+
+	"spawnclass"				"idItem"
+	"size"						"32 32 32"
+	"model"						"models/weapons/shotgun/w_shotgun2.lwo"
+	"model_view" 				"viewmodel_shotgun"
+	"model_world" 				"worldmodel_shotgun"
+	"joint_attach"				"SHOTGUN_ATTACHER"
+	"def_dropItem"				"moveable_item_shotgun"
+
+	"inv_name"					"#str_00243"
+	"inv_weapon"				"weapon_shotgun"
+	"inv_ammo_shells"			"4"
+	"inv_item"					"5"
+
+	"inv_desc"					"#str_02534"
+	"display_name"				"#str_01820"
+	"icon"						"guis/assets/hud/wpn_2"
+	"pdaIcon"					"guis/assets/hud/icons/shotgun_new.tga"	
+	"hudIcon"					"guis/assets/hud/icons/shotgunw.tga"	
+
+	"weapon_scriptobject"		"weapon_shotgun"
+	"def_projectile"			"projectile_bullet_shotgun"
+	"ammoType"					"ammo_shells"
+	"ammoRequired"				"1"
+	"clipSize"					"8"
+	"lowAmmo"					"2"
+	"mtr_flashShader"			"muzzleflash"
+	"flashColor"				"1 0.8 0.4"
+	"flashRadius"				"120"
+	"silent_fire"				"0"
+	"recoilTime"				"325"
+	"recoilAngles"				"-1 0 0"
+
+	"weaponAngleOffsetAverages" "15"
+	"weaponAngleOffsetScale" 	".40"
+	"weaponAngleOffsetMax"		"20"
+	"weaponOffsetTime"			"500"
+	"weaponOffsetScale"			"0.005"
+
+	"hide_time"					"0.3"								// time to hide weapon when talking to npcs or looking at guis
+	"hide_distance"				"-15"								// distance to offset weapon when talking to npcs or looking at guis
+
+	"smoke_muzzle"				"shotgunmuzzlesmoke.prt"
+	"def_ejectBrass"			"debris_shotgunbrass"
+	"ejectBrassDelay"			"650"
+
+	"snd_acquire"				"sound_weapon_acquire"
+	"snd_respawn"				"sound_weapon_respawn"
+	"skin_invisible"			"skins/shotgun_invis"
+	
+	"spread"					"22"
+
+	"controllerShakeHighMag"	"1.0"
+	"controllerShakeHighTime"	"120"
+	"controllerShakeLowMag"		"10.9"
+	"controllerShakeLowTime"	"250"
+}
+
+entityDef moveable_item_shotgun {
+	"inherit"					"weapon_shotgun"
+	"spawnclass"				"idMoveableItem"
+	"model"						"models/weapons/shotgun/w_shotgun2.lwo"
+	"density"					"0.05"
+	"friction"					"0.2"
+	"bouncyness"				"0"
+	"snd_bounce"				"smallbox"
+}
+
+model worldmodel_shotgun {
+	mesh						models/md5/weapons/shotgun_world/worldshotgun.md5mesh
+
+	anim raise					models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim idle 					models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim aim 					models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim fire1 					models/md5/weapons/shotgun_world/shotgun_fire1.md5anim
+	anim fire2 					models/md5/weapons/shotgun_world/shotgun_fire1.md5anim
+	anim fire3 					models/md5/weapons/shotgun_world/shotgun_fire1.md5anim
+	anim reload_start 			models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim reload_loop1 			models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim reload_loop2 			models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim reload_end 			models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+	anim putaway				models/md5/weapons/shotgun_world/shotgun_idle.md5anim
+}
+
+model viewmodel_shotgun {
+	mesh						models/md5/weapons/shotgun_view/viewshotgun.md5mesh
+	
+	anim raise					models/md5/weapons/shotgun_view/raise.md5anim {
+		frame 1					sound_body player_shotgun_raise
+	}
+	anim idle 					models/md5/weapons/shotgun_view/idle.md5anim
+	anim fire1 					models/md5/weapons/shotgun_view/fire1.md5anim {
+		frame 1					sound_weapon player_shotgun_fire
+		frame 17				sound_voice player_shotgun_pump
+	}
+	anim fire2 					models/md5/weapons/shotgun_view/fire2.md5anim {
+		frame 1					sound_weapon player_shotgun_fire
+		frame 17				sound_voice player_shotgun_pump
+	}
+	anim fire3 					models/md5/weapons/shotgun_view/fire3.md5anim {
+		frame 1					sound_weapon player_shotgun_fire
+		frame 17				sound_voice player_shotgun_pump
+	}
+	anim reload_start 			models/md5/weapons/shotgun_view/reload_start.md5anim {
+		frame 1					sound player_shotgun_reload_start	
+	}
+	anim reload_loop1 			models/md5/weapons/shotgun_view/reload_loop.md5anim {
+		frame 4					sound player_shotgun_reload	
+	}
+	anim reload_loop2 			models/md5/weapons/shotgun_view/reload_loop2.md5anim {
+		frame 4					sound player_shotgun_reload	
+	}
+	anim reload_loop3 			models/md5/weapons/shotgun_view/reload_loop3.md5anim {
+		frame 4					sound player_shotgun_reload	
+	}
+	anim reload_end 			models/md5/weapons/shotgun_view/reload_end.md5anim {
+		//frame 1					sound player_shotgun_reload_end
+		frame 14				sound_voice player_shotgun_pump
+	}
+	anim noammo					models/md5/weapons/shotgun_view/empty.md5anim {
+		frame 1					sound_voice player_shotgun_empty
+	}
+	anim putaway				models/md5/weapons/shotgun_view/lower.md5anim 
+}
+
+entityDef	damage_shotgun {
+	"damage"			"14"
+	"kickDir"			"1 0 0"
+
+	"mtr_blob"			"genericDamage"
+	"blob_time"			"300"
+	"blob_size"			"400"
+	"blob_offset_x"		"400"
+
+	"knockback"			"10"
+	
+	"gib"				"1"
+	"smoke_wound_flesh"	"burstysquirt.prt"
+	
+	"mtr_wound_flesh"	"textures/decals/hurt02"
+	"mtr_wound_metal"	"textures/decals/hurtmetal"
+	"mtr_splat_flesh"	"textures/decals/dsplat2"
+	"mtr_splat_flesh2"	"textures/decals/dsplat5"
+	"mtr_splat_flesh3"	"textures/decals/dsplat7"
+	"mtr_splat_flesh4"	"textures/decals/dsplat11"
+	"snd_flesh"			"shotgun_impact_flesh"
+
+	"kick_time"			"400"
+	"kick_amplitude"	"1"
+
+	"dv_time"			"100"
+}
+
+entityDef debris_shotgunbrass {
+	"spawnclass"				"idDebris"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+
+	"model" 					"models/weapons/shell1/sshell_bigger.lwo"
+
+	"health"					"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"60 30 10"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0.6"				// "air" friction
+	"angular_friction"			"0.4"
+	"contact_friction"			"0.1"
+	"bounce"					"0.5"				// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"1"
+	"gravity"					"666"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"3"					// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"0"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"0"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"0"					// whether projectile should detonate when it hits a character in the game
+	"snd_bounce"				"casings_shotgun"
+}
+
+entityDef projectile_bullet_shotgun {
+	"spawnclass"				"idProjectile"
+	"mins"						"-1 -1 -1"
+	"maxs"						"1 1 1"
+	"cone"						"3"
+	//"model" 					"models/items/projectiles/rocket.ase"
+	"scale"						"0.1"
+	"noshadows"					"1"
+								
+	"snd_flesh"					"bullet_impact_flesh"
+	"snd_metal"					"bullet_impact_metal"
+	"snd_stone"					"bullet_impact_stone"
+	"snd_wood"					"bullet_impact_wood"
+	"snd_cardboard"				"bullet_impact_cardboard"
+	"snd_glass"					"bullet_impact_glass"
+	"snd_liquid"				"bullet_impact_liquid"
+	"snd_ricochet"				"bullet_ricochet"
+	"snd_plastic"				"small_plastic"
+
+	"snd_impact"				"shotgun_impact_metal"
+
+	"def_damage"				"damage_shotgun"
+
+	"launchFromBarrel"			"0"
+	"health"					"0"
+	"velocity"					"7200 0 0"	// .38 Special 600 fps.  Source: Petzal, David E. "How fast is a speeding bullet." Field and Stream. 97 (1992): 23
+	"angular_velocity"			"0 0 0"
+	"thrust"					"0"
+	"thrust_start"				"0"
+	"thrust_end"				"0"
+	"linear_friction"			"0"
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0.6"
+	"mass"						"1.0"
+	"gravity"					"0"
+	"fuse"						"4"
+
+	"detonate_on_fuse"			"0"
+	"detonate_on_death"			"0"
+	"detonate_on_world"			"1"
+	"detonate_on_actor"			"1"
+
+	"impact_damage_effect"		"1"
+	"impact_gib"				"1"
+								
+	"mtr_detonate"				"textures/decals/bulleth02"
+	"mtr_detonate_glass"		"textures/decals/testbulletglass1"
+	"decal_size"				"10"
+	"model_smokespark"			"sgsmokeandspark.prt"
+	"model_ricochet"			"bulletricochet.prt"
+
+
+	"smoke_fly"					""
+	"smoke_detonate"			"smokeandspark.smoke"
+	"smoke_bounce"				"sparkdebris.smoke"
+	"smoke_fuse"				""
+
+	"mtr_light_shader"			""
+	"light_color"				"0 0 0"
+	"light_radius"				"0"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	""
+	"explode_light_color"		"0 0 0"
+	"explode_light_radius"		"0"
+	"explode_light_fadetime"	"0"
+}

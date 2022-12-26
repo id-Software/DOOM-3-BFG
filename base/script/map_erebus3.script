@@ -1,0 +1,1142 @@
+namespace map_erebus3
+{
+	string g_strSkill;
+
+	float bAncientQuakes = true;
+	float bMedlabPowercellTaken = false;
+	float SetupStart = 0;
+
+	// Transforming NPC
+
+	void stop_npc_talking() {
+		//sys.print( "Stop acting like an NPC!\n" );
+		$erebus3_transform_npc_2.setTalkState( 0 );
+	}
+
+	/*
+	void transforming_start() {
+		sys.trigger( $npc_trans_start1 );
+	}
+
+	void transforming_close() {
+		sys.trigger( $npc_trans_close1 );
+	}
+
+	void transforming_idle() {
+		sys.trigger( $npc_trans_idle1 );
+	}
+
+	void transforming_transform() {
+		sys.trigger( $npc_trans_trans1 );
+	}
+
+	void transforming_death() {
+		sys.trigger( $npc_trans_death1 );
+	}
+	*/
+
+	void transforming_full() {
+		/*
+		sys.trigger( $npc_trans1 );
+		sys.wait( 1.5 );
+		sys.trigger( $npc_trans2 );
+		sys.wait( 2.5 );
+		sys.trigger( $npc_trans3 );
+		sys.wait( 3 );
+		sys.trigger( $npc_trans4 );
+		sys.wait( 9 );
+		sys.trigger( $npc_trans5 );
+		*/
+	}
+
+	void SpawnSouls() {
+		if( SetupStart == 2 ) {
+			sys.wait( 5 );
+			sys.trigger( $trigger_relay_21 );
+			sys.trigger( $monster_flying_forgotten_13 );
+			SetupStart = 0;
+		}
+	}
+
+	void UnlockAncientDoor() {
+		// unlock the progression
+		sys.wait( 6.0 );
+		sys.trigger( $ancient_door_fadein );
+		sys.trigger( $ancient_door_light_fadein );
+		sys.wait( 2.0 );
+		$ancient_door1a.lock( 0 );
+	}
+
+	// McNeil Radio at the Start
+
+	void mcneil_radio_start() {
+		sys.trigger( $mcneil_start1 );
+		sys.wait( 5.5 );
+		sys.trigger( $mcneil_start2 );
+		sys.wait( 22 );
+		sys.trigger( $e3_obj_start );
+		SetupStart += 1;
+		UnlockAncientDoor();
+	}
+
+	void close_elevdoors() {
+		$start_cliphack1.show();
+		$start_innerdoors_up.close();
+		$start_innerdoors_down.close();
+		$start_door.close();
+		SetupStart += 1;
+	}
+
+	void kill_bjnpc() {
+		$bj_npc.kill();
+	}
+
+	void AncientQuakeDust()
+	{
+		float fDust = 0;
+
+		fDust = sys.random( 2.0 );
+		if( fDust < 1.0 )
+		{
+			sys.trigger( $e3_dust1 );
+			sys.trigger( $e3_dust3 );
+			sys.trigger( $e3_dust5 );
+			sys.trigger( $e3_dust7 );
+			sys.trigger( $e3_dust9 );
+		}
+		else
+		{
+			sys.trigger( $e3_dust2 );
+			sys.trigger( $e3_dust4 );
+			sys.trigger( $e3_dust6 );
+			sys.trigger( $e3_dust8 );
+		}
+	}
+
+
+	void AncientQuakes()
+	{
+		float fTime;
+
+		sys.wait( 5.0 );
+		while( bAncientQuakes )
+		{
+			fTime = sys.random( 15.0 ) + 10.0;
+
+			sys.trigger( $e3_quake );
+			sys.wait( 0.5 );
+
+			AncientQuakeDust();
+			sys.wait( fTime );
+		}
+	}
+
+
+	void SetupDeathOrbs()
+	{
+		float ii;
+		entity eTemp;
+
+		for( ii = 1; ii < 17; ii++ )
+		{
+			// set fly by values
+			eTemp = sys.getEntity( "death_orb" + ii );
+			eTemp.time( 1.0 );
+			eTemp.accelTime( 0.05 );
+			eTemp.decelTime( 0.05 );
+
+			// rotate the blades
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade1" );
+			eTemp.rotate( '0 0 270' );
+
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade2" );
+			eTemp.rotate( '0 0 -270' );
+
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade3" );
+			eTemp.rotate( '0 0 270' );
+
+			// set the angles of the blades
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade2_origin" );
+			eTemp.time( 0.1 );
+			eTemp.rotateOnce( '0 0 60' );
+
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade3_origin" );
+			eTemp.time( 0.1 );
+			eTemp.rotateOnce( '0 0 -60' );
+
+			// start the shakers
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade1_shaker" );
+			sys.trigger( eTemp );
+
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade2_shaker" );
+			sys.trigger( eTemp );
+
+			eTemp = sys.getEntity( "death_orb" + ii + "_blade3_shaker" );
+			sys.trigger( eTemp );
+		}
+	}
+
+
+	void ShowDeathOrbFloor()
+	{
+		$puzzle_floor.setShaderParm( 8, sys.getTime() );
+		$puzzle_floor.setShaderParm( 7, 0 );
+		sys.trigger( $ht_bridge_sound1 );
+		sys.wait( 1.0 );
+
+		sys.trigger( $puzzle_floor_clip );
+	}
+
+
+	void DeathOrbSequence( float nOrb )
+	{
+		entity eOrb = sys.getEntity( "death_orb" + nOrb );
+		entity eOrbSpeaker = sys.getEntity( "orb_sound" + nOrb );
+		float fWait;
+
+		float nMove1, nMove2;
+
+		if( (nOrb % 2) == 0 )
+		{
+			nMove1 = EAST;
+			nMove2 = WEST;
+		}
+		else
+		{
+			nMove1 = WEST;
+			nMove2 = EAST;
+		}
+
+		if( ((nOrb + 2) %4 == 0) || ((nOrb + 1) % 4 == 0) )
+		{
+			sys.trigger( eOrbSpeaker );
+		}
+
+		sys.wait( sys.random( 0.5 ) );
+
+		while( true )
+		{
+			// each orb waits 1.0 seconds +/- a random amount on each side the the
+			// stagger generated doesn't wander over time
+			if( g_strSkill == "0" )
+			{
+				fWait = 0;
+			}
+			else
+			{
+				fWait = sys.random( 0.3 );
+			}
+
+			eOrb.move( nMove1, 1216 );
+			sys.waitFor( eOrb );
+
+			if( g_strSkill == "0" )
+			{
+				sys.wait( 1.5 );
+			}
+			else
+			{
+				sys.wait( 1.0 + fWait );
+			}
+
+			eOrb.move( nMove2, 1216 );
+			sys.waitFor( eOrb );
+
+			if( g_strSkill == "0" )
+			{
+				sys.wait( 1.5 );
+			}
+			else
+			{
+				sys.wait( 1.0 + (0.3 - fWait) );
+			}
+		}
+	}
+
+
+	void DeathOrbLoop()
+	{
+		float ii;
+
+		sys.wait( 4.0 );
+		sys.trigger( $ht_stinger_sound1 );
+		for( ii = 1; ii < 17; ii++ )
+		{
+			thread DeathOrbSequence( ii );
+		}
+	}
+
+
+	void AncientBrick1Shift()
+	{
+		sys.trigger( $ancient_brick1_sound );
+		$ancient_brick1.time( 0.3 );
+		$ancient_brick1.accelTime( 0.1 );
+		$ancient_brick1.decelTime( 0.0 );
+		$ancient_brick1.move( DOWN, 32 );
+		sys.waitFor( $ancient_brick1 );
+	}
+
+
+	void AncientFogOn()
+	{
+		$ancient_fog_on_trigger.disable();
+		$ancient_fog_off_trigger.enable();
+		$ancient_fog.On();
+		sys.trigger( $ancient_fog_on );
+	}
+
+
+	void AncientFogOff()
+	{
+		// disable the earthquakes here as well
+		bAncientQuakes = false;
+
+		$ancient_fog_on_trigger.enable();
+		$ancient_fog_off_trigger.disable();
+		sys.trigger( $ancient_fog_off );
+		sys.wait( 3.0 );
+		$ancient_fog.Off();
+	}
+
+
+	void ScaryElevatorPart1()
+	{
+		sys.trigger( $adam_bustedelevator_speaker3 );
+		sys.wait( 0.5 );
+
+		$adam_bustedelevator.time( 0.25 );
+		$adam_bustedelevator.accelTime( 0.1 );
+		$adam_bustedelevator.decelTime( 0.05 );
+		$adam_bustedelevator.move( DOWN, 24 );
+		sys.waitFor( $adam_bustedelevator );
+		sys.wait( 1.0 );
+
+		$adam_bustedelevator.time( 0.1 );
+		$adam_bustedelevator.accelTime( 0.0 );
+		$adam_bustedelevator.decelTime( 0.0 );
+		$adam_bustedelevator.move( DOWN, 8 );
+		sys.waitFor( $adam_bustedelevator );
+
+		sys.trigger( $adam_bustedelevator_speaker2 );
+	}
+
+
+	void ScaryElevatorPart2()
+	{
+		sys.trigger( $scary_elevator_part3_trigger );
+		sys.trigger( $adam_bustedelevator_speaker1 );
+		sys.trigger( $adam_bustedelevator_light_off );
+		sys.wait( 2.0 );
+
+		sys.trigger( $adam_bustedelevator_light_on );
+	}
+
+
+	void ScaryElevatorPart3()
+	{
+		$adam_bustedelevator.time( 0.25 );
+		$adam_bustedelevator.accelTime( 0.1 );
+		$adam_bustedelevator.decelTime( 0.05 );
+		$adam_bustedelevator.move( DOWN, 16 );
+		sys.waitFor( $adam_bustedelevator );
+		sys.wait( 10.0 );
+
+		sys.trigger( $adam_bustedelevator_speaker3 );
+		sys.wait( 5.0 );
+
+//		sys.trigger( $scary_elevator_part4_trigger );
+	}
+
+
+	void ScaryElevatorPart4()
+	{
+		sys.trigger( $adam_bustedelevator_speaker2 );
+		$adam_bustedelevator.time( 2.75 );
+		$adam_bustedelevator.accelTime( 0.5 );
+		$adam_bustedelevator.decelTime( 0 );
+		$adam_bustedelevator.move( DOWN, 640 );
+		sys.waitFor( $adam_bustedelevator );
+	}
+
+
+	void medlab_delpcellsounds() {
+		sys.trigger( $medlab_pcell_stop );
+		sys.trigger( $medlab_pcell_loop );
+	}
+
+
+	void powercellDelMedLab()
+	{
+		sys.trigger( $medlab_powercell_removed_early );
+
+		// Power shutdown sound
+		thread medlab_delpcellsounds();
+		sys.wait( 1.5 );
+
+		//  Door opening sound/anims
+		sys.trigger( $medlab_pcell_openclose );
+		sys.trigger( $medlab_pcell_idle );
+		$medlab_generator.setAnimation( "opening" );
+		sys.trigger( $medlab_generator );
+		sys.wait( 0.5 );
+
+		$medlab_powercell.hide();
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+
+		sys.trigger( $medlab_powercell_removed );
+
+		// Game scripting...
+		bMedlabPowercellTaken = true;
+		sys.wait( 1.0 );
+
+		$medlab_guis1.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis1.setGui( 2, "guis/screens/malfunction.gui" );
+		$medlab_guis1.setGui( 3, "guis/screens/malfunction.gui" );
+		$medlab_guis2.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis2.setGui( 2, "guis/screens/malfunction.gui" );
+		$medlab_guis2.setGui( 3, "guis/screens/malfunction.gui" );
+		$medlab_guis3.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis3.setGui( 2, "guis/screens/malfunction.gui" );
+		$medlab_guis3.setGui( 3, "guis/screens/malfunction.gui" );
+		$medlab_guis4.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis5.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis6.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis7.setGui( 1, "guis/screens/malfunction.gui" );
+		$medlab_guis8.setGui( 1, "guis/screens/malfunction.gui" );
+	}
+
+
+	void medlab_inspcellsounds() {
+		sys.trigger( $medlab_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $medlab_pcell_loop );
+	}
+
+
+	void powercellInsMedLab()
+	{
+		bMedlabPowercellTaken = false;
+
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$medlab_powercell.show();
+		sys.wait( 0.5 );
+
+		$medlab_generator.setAnimation( "closing" );
+		sys.trigger( $medlab_generator );
+		sys.trigger( $medlab_pcell_openclose );
+		sys.trigger( $medlab_pcell_idle );
+
+		// Power starting sound
+		thread medlab_inspcellsounds();
+
+		sys.trigger( $medlab_powercell_restored );
+
+		// Game scripting...
+		$medlab_guis1.setGui( 1, "guis/screens/cpu_four.gui" );
+		$medlab_guis1.setGui( 2, "guis/screens/cpu_mars2.gui" );
+		$medlab_guis1.setGui( 3, "guis/controlpanels/epd2.gui" );
+		$medlab_guis2.setGui( 1, "guis/screens/cpu_four.gui" );
+		$medlab_guis2.setGui( 2, "guis/screens/cpu_mars2.gui" );
+		$medlab_guis2.setGui( 3, "guis/screens/cpu_six.gui" );
+		$medlab_guis3.setGui( 1, "guis/screens/cpu_four.gui" );
+		$medlab_guis3.setGui( 2, "guis/screens/cpu_mars2.gui" );
+		$medlab_guis3.setGui( 3, "guis/controlpanels/epd2.gui" );
+		$medlab_guis4.setGui( 1, "guis/screens/scan2a.gui" );
+		$medlab_guis5.setGui( 1, "guis/screens/scan5a.gui" );
+		$medlab_guis6.setGui( 1, "guis/screens/scan5b2.gui" );
+		$medlab_guis7.setGui( 1, "guis/screens/sm1.gui" );
+		$medlab_guis8.setGui( 1, "guis/screens/sm1.gui" );
+	}
+
+
+	void SetCreepyElevator()
+	{
+		$erebus2_elev1.time( 9.5 );
+	}
+
+
+	void ClearCreepyElevator()
+	{
+		$erebus2_elev1.time( 3.0 );
+	}
+
+
+	void HallDoorMalfunction()
+	{
+		if( bMedlabPowercellTaken )
+		{
+			sys.trigger( $halldoor_playerclip );
+
+			$hall_door_trigger.remove();
+			sys.trigger( $hall_door_sound );
+
+			$halldoor_working_big.remove();
+			$halldoor_working_small.remove();
+			$halldoor_working_glass.remove();
+			$halldoor_broken_big.show();
+			$halldoor_broken_small.show();
+			$halldoor_broken_glass.show();
+
+			sys.trigger( $halldoor_sparks1 );
+			$halldoor_broken_big.time( 0.5 );
+			$halldoor_broken_small.time( 0.25 );
+			$halldoor_broken_big.move( NORTH, 48 );
+			$halldoor_broken_small.move( SOUTH, 16 );
+			sys.wait( 0.5 );
+
+			sys.trigger( $halldoor_sparks2 );
+			$halldoor_broken_big.time( 0.25 );
+			$halldoor_broken_small.time( 0.125 );
+			$halldoor_broken_big.move( SOUTH, 8 );
+			$halldoor_broken_small.move( NORTH, 4 );
+			sys.wait( 0.25 );
+
+			sys.trigger( $halldoor_sparks1 );
+			$halldoor_broken_big.time( 0.25 );
+			$halldoor_broken_small.time( 0.25 );
+			$halldoor_broken_big.move( NORTH, 4 );
+			$halldoor_broken_small.move( SOUTH, 8 );
+			sys.wait( 2.0 );
+
+			sys.trigger( $halldoor_sparks2 );
+			$halldoor_broken_big.time( 0.25 );
+			$halldoor_broken_small.time( 0.125 );
+			$halldoor_broken_big.move( SOUTH, 4 );
+			$halldoor_broken_small.move( NORTH, 2 );
+			sys.wait( 0.25 );
+
+			sys.trigger( $halldoor_sparks1 );
+			$halldoor_broken_big.time( 0.25 );
+			$halldoor_broken_small.time( 0.25 );
+			$halldoor_broken_big.move( NORTH, 4 );
+			$halldoor_broken_small.move( SOUTH, 2 );
+		}
+	}
+
+
+	void CanMachineStageSequence( string strCan )
+	{
+		entity eCan = sys.getEntity( strCan );
+
+		eCan.show();
+		eCan.startSoundShader ( "e3_bluetube", SND_CHANNEL_VOICE );
+		eCan.time( 1.0 );
+		eCan.accelTime( 0.0 );
+		eCan.decelTime( 0.0 );
+		eCan.move( UP, 64 );
+		sys.waitFor( eCan );
+
+		eCan.bind( $can_track0_bend1 );
+		$can_track0_bend1.time( 1.0 );
+		$can_track0_bend1.accelTime( 0.0 );
+		$can_track0_bend1.decelTime( 0.0 );
+		$can_track0_bend1.rotateOnce( '0 0 -90' );
+		sys.waitFor( $can_track0_bend1 );
+
+		eCan.unbind();
+		$can_track0_bend1.restorePosition();
+
+		eCan.time( 1.0 );
+		eCan.accelTime( 0.0 );
+		eCan.decelTime( 0.5 );
+		eCan.moveTo( $can_hand_origin );
+		sys.waitFor( eCan );
+	}
+
+
+	void CanMachineStartToTrack1Sequence()
+	{
+		$can_hand.time( 2.0 );
+		$can_hand.accelTime( 0.5 );
+		$can_hand.decelTime( 0.5 );
+		$can_forearm.time( 2.0 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_backarm.time( 2.0 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_hand.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );		// -Xian
+		$can_hand.rotateOnce( '0 0 78' );
+		$can_forearm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );	// -Xian
+		$can_forearm.rotateOnce( '0 0 -45' );
+		$can_backarm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );	// -Xian
+		$can_backarm.rotateOnce( '0 0 -33' );
+		sys.waitFor( $can_backarm );
+
+		$can_forearm.time( 3.5 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_forearm.startSoundShader ( "e3_canmover_3_5s", SND_CHANNEL_VOICE );	// -Xian
+		$can_forearm.rotateOnce( '0 0 -90' );
+		sys.wait( 0.25 );
+
+		$can_backarm.time( 3.5 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_backarm.startSoundShader ( "e3_canmover_3_5s", SND_CHANNEL_VOICE );	// -Xian
+		$can_backarm.rotateOnce( '0 0 90' );
+		sys.wait( 0.75 );
+
+		$can_basearm.time( 2.5 );
+		$can_basearm.accelTime( 0.5 );
+		$can_basearm.decelTime( 0.5 );
+		$can_basearm.move( DOWN, 64 );
+		$can_basearm.startSoundShader ( "e3_canmover_2_5s", SND_CHANNEL_VOICE );	// -Xian
+		$can_basearm.rotateOnce( '0 180 0' );
+		sys.waitFor( $can_basearm );
+		sys.wait( 0.5 );
+	}
+
+
+	void CanMachineTrack1ToStartSequence()
+	{
+		$can_backarm.time( 4.0 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_backarm.startSoundShader ( "e3_canmover_4s", SND_CHANNEL_VOICE );		// -Xian
+		$can_backarm.rotateOnce( '0 0 -90' );
+		sys.wait( 0.25 );
+
+		$can_forearm.time( 3.5 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_forearm.startSoundShader ( "e3_canmover_3_5s", SND_CHANNEL_VOICE );	// -Xian
+		$can_forearm.rotateOnce( '0 0 90' );
+		sys.wait( 0.75 );
+
+		$can_basearm.time( 2.5 );
+		$can_basearm.accelTime( 0.5 );
+		$can_basearm.decelTime( 0.5 );
+		$can_basearm.move( UP, 64 );
+		$can_basearm.startSoundShader ( "e3_canmover_2_5s", SND_CHANNEL_VOICE );	// -Xian
+		$can_basearm.rotateOnce( '0 -180 0' );
+		sys.waitFor( $can_basearm );
+		sys.wait( 0.5 );
+
+		$can_hand.time( 2.0 );
+		$can_hand.accelTime( 0.5 );
+		$can_hand.decelTime( 0.5 );
+		$can_forearm.time( 2.0 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_backarm.time( 2.0 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_hand.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );			// -Xian
+		$can_hand.rotateOnce( '0 0 -78' );
+		$can_forearm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );		// -Xian
+		$can_forearm.rotateOnce( '0 0 45' );
+		$can_backarm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );		// -Xian
+		$can_backarm.rotateOnce( '0 0 33' );
+		sys.waitFor( $can_backarm );
+	}
+
+
+	void CanMachineStartToTrack2Sequence()
+	{
+		$can_hand.time( 2.0 );
+		$can_hand.accelTime( 0.5 );
+		$can_hand.decelTime( 0.5 );
+		$can_forearm.time( 2.0 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_backarm.time( 2.0 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_hand.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );			// -Xian
+		$can_hand.rotateOnce( '0 0 78' );
+		$can_forearm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );			// -Xian
+		$can_forearm.rotateOnce( '0 0 -45' );
+		$can_backarm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );			// -Xian
+		$can_backarm.rotateOnce( '0 0 -33' );
+		sys.waitFor( $can_backarm );
+
+		$can_forearm.time( 3.5 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_forearm.startSoundShader ("e3_canmover_3_5s", SND_CHANNEL_VOICE );			// -Xian
+		$can_forearm.rotateOnce( '0 0 -90' );
+		sys.wait( 0.25 );
+
+		$can_backarm.time( 3.5 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_backarm.startSoundShader ( "e3_canmover_3_5s", SND_CHANNEL_VOICE );		// -Xian
+		$can_backarm.rotateOnce( '0 0 90' );
+		sys.wait( 0.75 );
+
+		$can_basearm.time( 2.5 );
+		$can_basearm.accelTime( 0.5 );
+		$can_basearm.decelTime( 0.5 );
+		$can_basearm.move( DOWN, 64 );
+		$can_basearm.startSoundShader ( "e3_canmover_2_5s", SND_CHANNEL_VOICE );		// -Xian
+		$can_basearm.rotateOnce( '0 270 0' );
+		sys.waitFor( $can_basearm );
+		sys.wait( 0.5 );
+	}
+
+
+	void CanMachineTrack2ToStartSequence()
+	{
+		$can_backarm.time( 4.0 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_backarm.startSoundShader ( "e3_canmover_4s", SND_CHANNEL_VOICE );			// -Xian
+		$can_backarm.rotateOnce( '0 0 -90' );
+		sys.wait( 0.25 );
+
+		$can_forearm.time( 3.5 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_forearm.startSoundShader ( "e3_canmover_3_5s", SND_CHANNEL_VOICE );		// -Xian
+		$can_forearm.rotateOnce( '0 0 90' );
+		sys.wait( 0.75 );
+
+		$can_basearm.time( 2.5 );
+		$can_basearm.accelTime( 0.5 );
+		$can_basearm.decelTime( 0.5 );
+		$can_basearm.move( UP, 64 );
+		$can_basearm.startSoundShader ( "e3_canmover_2_5s", SND_CHANNEL_VOICE );		// -Xian
+		$can_basearm.rotateOnce( '0 -270 0' );
+		sys.waitFor( $can_basearm );
+		sys.wait( 0.5 );
+
+		$can_hand.time( 2.0 );
+		$can_hand.accelTime( 0.5 );
+		$can_hand.decelTime( 0.5 );
+		$can_forearm.time( 2.0 );
+		$can_forearm.accelTime( 0.5 );
+		$can_forearm.decelTime( 0.5 );
+		$can_backarm.time( 2.0 );
+		$can_backarm.accelTime( 0.5 );
+		$can_backarm.decelTime( 0.5 );
+		$can_hand.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );				// -Xian
+		$can_hand.rotateOnce( '0 0 -78' );
+		$can_forearm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );			// -Xian
+		$can_forearm.rotateOnce( '0 0 45' );
+		$can_backarm.startSoundShader ( "e3_canmover_2s", SND_CHANNEL_VOICE );			// -Xian
+		$can_backarm.rotateOnce( '0 0 33' );
+		sys.waitFor( $can_backarm );
+	}
+
+
+	void CanTrack1Sequence( string strCan )
+	{
+		entity eCan = sys.getEntity( strCan );
+
+		eCan.time( 4.0 );
+		eCan.accelTime( 0.5 );
+		eCan.decelTime( 0.0 );
+		eCan.move( NORTH, 256 );
+		sys.waitFor( eCan );
+
+		eCan.bind( $can_track1_bend1 );
+		$can_track1_bend1.time( 1.0 );
+		$can_track1_bend1.accelTime( 0.0 );
+		$can_track1_bend1.decelTime( 0.0 );
+		$can_track1_bend1.rotateOnce( '0 0 90' );
+		sys.waitFor( $can_track1_bend1 );
+
+		eCan.unbind();
+		$can_track1_bend1.restorePosition();
+
+		eCan.time( 2.0 );
+		eCan.accelTime( 0.0 );
+		eCan.decelTime( 0.0 );
+		eCan.move( UP, 128 );
+		sys.waitFor( eCan );
+
+		eCan.bind( $can_track1_bend2 );
+		$can_track1_bend2.time( 1.0 );
+		$can_track1_bend2.accelTime( 0.0 );
+		$can_track1_bend2.decelTime( 0.0 );
+		$can_track1_bend2.rotateOnce( '0 0 -90' );
+		sys.waitFor( $can_track1_bend2 );
+
+		eCan.unbind();
+		$can_track1_bend2.restorePosition();
+
+		eCan.time( 8.0 );
+		eCan.accelTime( 0.0 );
+		eCan.decelTime( 0.0 );
+		eCan.move( NORTH, 512 );
+		sys.waitFor( eCan );
+
+		eCan.hide();
+		eCan.restorePosition();
+
+		// 16s
+	}
+
+
+	void CanTrack2Sequence( string strCan )
+	{
+		entity eCan = sys.getEntity( strCan );
+
+		eCan.time( 4.0 );
+		eCan.accelTime( 0.5 );
+		eCan.decelTime( 0.0 );
+		eCan.move( WEST, 256 );
+		sys.waitFor( eCan );
+
+		eCan.bind( $can_track2_bend1 );
+		$can_track2_bend1.time( 1.0 );
+		$can_track2_bend1.accelTime( 0.0 );
+		$can_track2_bend1.decelTime( 0.0 );
+		$can_track2_bend1.rotateOnce( '90 0 0' );
+		sys.waitFor( $can_track2_bend1 );
+
+		eCan.unbind();
+		$can_track2_bend1.restorePosition();
+
+		eCan.time( 7.0 );
+		eCan.accelTime( 0.0 );
+		eCan.decelTime( 0.0 );
+		eCan.move( UP, 448 );
+		sys.waitFor( eCan );
+
+		eCan.bind( $can_track2_bend2 );
+		$can_track2_bend2.time( 1.0 );
+		$can_track2_bend2.accelTime( 0.0 );
+		$can_track2_bend2.decelTime( 0.0 );
+		$can_track2_bend2.rotateOnce( '-90 0 0' );
+		sys.waitFor( $can_track2_bend2 );
+
+		eCan.unbind();
+		$can_track2_bend2.restorePosition();
+
+		eCan.time( 1.0 );
+		eCan.accelTime( 0.5 );
+		eCan.decelTime( 0.0 );
+		eCan.move( WEST, 64 );
+		sys.waitFor( eCan );
+
+		eCan.hide();
+		eCan.restorePosition();
+
+		// 14s
+	}
+
+
+	void CanMachineLoop()
+	{
+		CanMachineTrack1ToStartSequence();
+
+		while( true )
+		{
+			CanMachineStageSequence( "can1" );
+
+			$can1.bind( $can_hand );
+			CanMachineStartToTrack1Sequence();
+
+			$can1.unbind();
+			thread CanTrack1Sequence( "can1" );
+			sys.wait( 1.0 );
+
+			thread CanMachineTrack1ToStartSequence();
+			sys.wait( 4.0 );
+
+			CanMachineStageSequence( "can2" );
+
+			$can2.bind( $can_hand );
+			CanMachineStartToTrack2Sequence();
+
+			$can2.unbind();
+			thread CanTrack2Sequence( "can2" );
+			sys.wait( 1.0 );
+
+			thread CanMachineTrack2ToStartSequence();
+			sys.wait( 4.0 );
+		}
+	}
+
+
+	void SetupCanMachine()
+	{
+		$can_hand_origin.bind( $can_hand );
+		$can_backarm.bind( $can_basearm );
+		$can_forearm.bind( $can_backarm );
+		$can_hand.bind( $can_forearm );
+
+		$can1.hide();
+		$can2.hide();
+		$can3.hide();
+		$can4.hide();
+
+		thread CanMachineLoop();
+	}
+
+
+	void OfficeFogOn()
+	{
+		$office_fog_on_trigger.disable();
+		$office_fog_off_trigger.enable();
+		$office_fog.On();
+		sys.trigger( $office_fog_on );
+	}
+
+
+	void OfficeFogOff()
+	{
+		$office_fog_on_trigger.enable();
+		$office_fog_off_trigger.disable();
+		sys.trigger( $office_fog_off );
+		sys.wait( 2.0 );
+		$office_fog.Off();
+	}
+
+
+	void office_delpcellsounds() {
+		sys.trigger( $office_pcell_stop );
+		sys.trigger( $office_pcell_loop );
+	}
+
+
+	void powercellDelOffice()
+	{
+//		sys.trigger( $office_powercell_removed_early );
+
+		// Power shutdown sound
+		thread office_delpcellsounds();
+		sys.wait( 1.5 );
+
+		//  Door opening sound/anims
+		sys.trigger( $office_pcell_openclose );
+		sys.trigger( $office_pcell_idle );
+		$office_generator.setAnimation( "opening" );
+		sys.trigger( $office_generator );
+		sys.wait( 0.5 );
+
+		$office_powercell.hide();
+		$player1.giveInventoryItem("item_powercell");
+		$player1.startSoundShader( "guisounds_item", SND_CHANNEL_VOICE );
+		sys.trigger( $office_powercell_removed );
+
+		// Game scripting...
+	}
+
+
+	void office_inspcellsounds() {
+		sys.trigger( $office_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $office_pcell_loop );
+	}
+
+
+	void powercellInsOffice()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$office_powercell.show();
+		sys.wait( 0.5 );
+
+		$office_generator.setAnimation( "closing" );
+		sys.trigger( $office_generator );
+		sys.trigger( $office_pcell_openclose );
+		sys.trigger( $office_pcell_idle );
+		sys.wait( 1.0 );
+
+		// Power starting sound
+		thread office_inspcellsounds();
+
+		sys.trigger( $office_powercell_restored );
+
+		// Game scripting...
+	}
+
+
+	void StorageFogShow()
+	{
+		$storage_fog_mover.time( 0.1 );
+		$storage_fog_mover.move( EAST, 128 );
+		sys.waitFor( $storage_fog_mover );
+
+		$storage_fog_show_trigger.disable();
+		$storage_fog_hide_trigger.enable();
+		$storage_fog.On();
+		sys.trigger( $storage_fog_on );
+	}
+
+
+	void StorageFogHide()
+	{
+		$storage_fog_show_trigger.enable();
+		$storage_fog_hide_trigger.disable();
+		sys.trigger( $storage_fog_off );
+		sys.wait( 0.5 );
+		$storage_fog.Off();
+
+		$storage_fog_mover.time( 0.1 );
+		$storage_fog_mover.move( WEST, 128 );
+		sys.waitFor( $storage_fog_mover );
+	}
+
+
+	void storage_delpcellsounds() {
+		// EMPTY
+	}
+
+
+	void powercellDelStorage()
+	{
+		// EMPTY
+	}
+
+
+	void storage_inspcellsounds() {
+		sys.trigger( $storage_pcell_start );
+		sys.wait( .968 );
+		sys.trigger( $storage_pcell_loop );
+	}
+
+
+	void powercellInsStorage()
+	{
+		//  Door closing sound/anims
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$player1.removeInventoryItem( "Pwr Cell" );
+		$storage_powercell1.show();
+		$storage_powercell2.show();
+		sys.wait( 0.5 );
+
+		$storage_generator.setAnimation( "closing" );
+		sys.trigger( $storage_generator );
+		sys.trigger( $storage_pcell_openclose );
+		sys.trigger( $storage_pcell_idle );
+		$storage_gui.guiNamedEvent( 1, "powercellDeviceStarted" );
+		sys.wait( 1.0 );
+
+		// Power starting sound
+		thread storage_inspcellsounds();
+
+		// Game scripting...
+		$storage_control_gui.setGui(1, "guis/erebus3/vent_storage2.gui");
+		$storage_control_gui.setGuiParm( "noninteractive", "0" );
+	}
+
+
+	void ArtifactStorageFogOff()
+	{
+		$storage_fog_enable.disable();
+		$storage_fog_disable.disable();
+
+		$storage_fog_mover.time( 2.0 );
+		$storage_fog_mover.move( DOWN, 512 );
+		sys.waitFor( $storage_fog_mover );
+		$storage_fog.Off();
+	}
+
+
+	void VentArtifactStorageEffects()
+	{
+		sys.trigger( $comp_as1 );
+		sys.wait( 5.0 );
+
+		sys.trigger( $comp_as2 );
+		sys.wait( 1.7 );
+
+		sys.trigger( $comp_as3 );
+		sys.wait( 1.5 );
+
+		sys.trigger( $bj_fade_storage );
+		sys.trigger( $as_suckin );
+		thread ArtifactStorageFogOff();
+		sys.wait( 3.5 );
+
+		sys.trigger( $comp_as4 );
+		sys.wait( 4.0 );
+
+		sys.trigger( $comp_as5 );
+	}
+
+
+	void VentArtifactStorage()
+	{
+		sys.trigger( $storage_door_lock );
+		sys.trigger( $powercell_objective_complete );
+		sys.wait( 2.0 );
+
+		thread VentArtifactStorageEffects();
+		sys.wait( 10.0 );
+
+		sys.trigger( $storage_events );
+		sys.wait( 3.0 );
+
+		sys.trigger( $arti_door2 );
+		sys.trigger( $as_sign1 );
+	}
+
+
+	void SetupLevel()
+	{
+		g_strSkill = sys.getcvar( "g_skill" );
+
+		$cave_egg1.rotate( '0 25 0' );
+		$cave_egg2.rotate( '0 17 0' );
+		$cave_egg3.rotate( '0 21 0' );
+
+		$puzzle_floor.setShaderParm( 7, -100 );
+		$ancient_fog_on_trigger.disable();
+		$ancient_fog_off_trigger.enable();
+
+		$office_fog_on_trigger.enable();
+		$office_fog_off_trigger.disable();
+
+		$storage_fog_enable.disable();
+		$storage_fog_disable.enable();
+
+		$storage_powercell1.hide();
+		$storage_powercell2.hide();
+
+		$storage_fog_mover.time( 0.1 );
+		$storage_fog_mover.move( DOWN, 48 );
+		sys.waitFor( $storage_fog_mover );
+
+		$storage_fog_mover.time( 0.1 );
+		$storage_fog_mover.move( WEST, 128 );
+		sys.waitFor( $storage_fog_mover );
+	}
+
+
+	void Precache()
+	{
+		// SOUNDS
+		sys.cacheSoundShader( "e3_bluetube");
+		sys.cacheSoundShader( "e3_canmover_3_5s");
+		sys.cacheSoundShader( "e3_canmover_2_5s");
+		sys.cacheSoundShader( "e3_canmover_4s");
+		sys.cacheSoundShader( "e3_canmover_4s");
+		sys.cacheSoundShader( "e3_canmover_2s");
+		sys.cacheSoundShader( "guisounds_item" );
+
+		// GUIS
+		$medlab_guis1.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis2.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis3.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis4.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis5.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis6.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis7.precacheGui( "guis/screens/malfunction.gui" );
+		$medlab_guis8.precacheGui( "guis/screens/malfunction.gui" );
+
+		$as_gui.precacheGui("guis/templates/copy one click script.gui");
+		$storage_control_gui.precacheGui( "guis/erebus3/vent_storage.gui" );
+		$storage_control_gui.precacheGui( "guis/erebus3/vent_storage2.gui" );
+		$storage_control_gui.setGuiParm( "noninteractive", "1" );
+	}
+
+	void main()
+	{
+		// LEVEL PRECACHE
+		thread Precache();
+
+		// LEVEL SETUP
+		thread SetupLevel();
+		thread SetupDeathOrbs();
+		thread SetupCanMachine();
+		//thread mcneil_radio_start();
+	}
+}

@@ -1,0 +1,890 @@
+namespace map_phobos1 {
+
+	float f_tp3 = 0;
+	float f_teleporter_on = 0;
+
+	void set_tp3() {
+		f_tp3 = 1;
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Teleporter Science Machine
+	//
+	////////////////////////////////////////////////////
+	void tps_machine_loop () {
+
+		while (1) {
+
+			$tps_arm_base.startSoundShader ( "p1_movement_7_5s", SND_CHANNEL_VOICE );
+
+			$tps_arm_base.accelTime (0);
+			$tps_arm_base.decelTime (0);				// Looks too wierd with acceleration set :: Xian
+
+			$tps_arm_base.time(4);
+			$tps_arm_base.move( UP, 736 );
+			sys.waitFor( $tps_arm_base );
+
+			$tps_arm_base.time(2);
+			$tps_arm_base.rotateOnce( '-90 0 0' );
+			$tps_arm_anchor.startSoundShader ( "p1_arm_2s", SND_CHANNEL_VOICE );
+			$tps_arm_anchor.rotateOnce( '0 0 540' );
+			sys.waitFor( $tps_arm_base );
+
+			$tps_arm_base.time(1.5);
+			$tps_arm_base.move( WEST, 128 );
+			sys.waitFor( $tps_arm_base );
+
+			$rammer_base.startSoundShader ( "p1_movement_4s", SND_CHANNEL_VOICE );
+			$rammer_base.move( WEST, 268 );
+			sys.waitFor( $rammer_base );
+			$rammer_anchor.startSoundShader ( "p1_rotate_1s", SND_CHANNEL_VOICE );
+			$rammer_anchor.rotateOnce( '20 0 0' );
+			sys.waitFor($rammer_anchor);
+
+			sys.wait(.5);
+			$rammer_pincher_base.startSoundShader ( "p1_arm_2s", SND_CHANNEL_VOICE );
+			$rammer_pincher_base.time( 2 );
+			$rammer_pincher_base.accelTime(.25);
+			$rammer_pincher_base.decelTime(.5);
+			$rammer_pincher_base.rotateOnce( '0 1440 0' );
+
+			thread crossFadeEnt ($tps_powerpill1, '.5 1 1', '1 0 0', 2);
+			thread crossFadeEnt ($tps_powerpill1_light, '.5 1 1', '1 0 0', 2);
+			sys.wait(2);
+
+			$rammer_base.startSoundShader ( "p1_movement_4s", SND_CHANNEL_VOICE );
+			$rammer_base.move( EAST, 268 );
+			sys.wait(1.5);
+
+			$tps_arm_anchor.startSoundShader ( "p1_arm_2s", SND_CHANNEL_VOICE );
+			$tps_arm_anchor.rotateOnce( '0 0 -540' );
+			sys.waitFor( $tps_arm_anchor );
+
+			$tps_arm_base.startSoundShader ( "p1_movement_7_5s", SND_CHANNEL_VOICE );
+			$tps_arm_base.time(1.5);
+			$tps_arm_base.move( WEST, -128 );
+			sys.waitFor( $tps_arm_base );
+
+			$tps_arm_base.time(2);
+			$tps_arm_base.rotateOnce( '90 0 0' );
+			$tps_arm_anchor.startSoundShader ( "p1_arm_2s", SND_CHANNEL_VOICE );
+			$tps_arm_anchor.rotateOnce( '0 0 540' );
+			sys.waitFor( $tps_arm_base );
+
+			$rammer_anchor.startSoundShader ( "p1_rotate_1s", SND_CHANNEL_VOICE );
+			$rammer_anchor.rotateOnce( '-20 0 0' );
+
+			$tps_arm_base.time(4);
+			$tps_arm_base.move( DOWN, 736 );
+			sys.waitFor( $tps_arm_base );
+
+			thread crossFadeEnt ($tps_powerpill1, '1 0 0', '.5 1 1', .1);
+			thread crossFadeEnt ($tps_powerpill1_light, '1 0 0', '.5 1 1', .1);
+		}
+	}
+
+	void setup_tps_machine () {
+
+		$tps_arm_anchor.time(2);
+		$tps_arm_anchor.accelTime(.5);
+		$tps_arm_anchor.decelTime(.5);
+
+		$tps_arm_base.time(5);
+		$tps_arm_base.accelTime(.5);
+		$tps_arm_base.decelTime(.5);
+
+		$rammer_anchor.time(1.75);
+		$rammer_anchor.accelTime(.5);
+		$rammer_anchor.decelTime(.5);
+		$rammer_anchor.rotateOnce( '-15 0 0' );
+
+		$rammer_base.time(4);
+		$rammer_base.accelTime(.5);
+		$rammer_base.decelTime(.5);
+
+		thread tps_machine_loop();
+
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Global Fade Lights for Teleporter Event
+	//
+	////////////////////////////////////////////////////
+
+	void light_ramp( float rgb_start, float rgb_end, float time_val )
+	{
+		float i, t, v;
+
+		t = time_val * GAME_FPS;
+		for ( i = 0; i < t; i++ ) {
+			v = rgb_start + ( rgb_end - rgb_start ) * ( i / t );
+			sys.setShaderParm( 0, v );
+			sys.setShaderParm( 1, v );
+			sys.setShaderParm( 2, v );
+			sys.waitFrame();
+		}
+		sys.setShaderParm( 0, rgb_end );
+		sys.setShaderParm( 1, rgb_end );
+		sys.setShaderParm( 2, rgb_end );
+	}
+
+	void t3_powerflux() {
+		float i;
+		float ran_loop, ran_new, ran_time;
+		float old;
+
+		old = .25;
+		ran_loop = ( sys.random( 10 ) + 3 );
+
+		for (i=1; i<=ran_loop; i++) {
+			ran_new = ( sys.random( 1.5 ) + .2 );
+			ran_time = ( sys.random( 1 ) + .2 );
+			light_ramp( old, ran_new, ran_time );
+			old = ran_new;
+		}
+		// how dark to go once cycle is complete
+		light_ramp( old, .2, .3 );
+	}
+
+	void t3_lightramp2() {
+		float ran;
+		ran = sys.random( 3 );
+		sys.wait( ran );
+		while( 1 ) {
+			// wait between power surges
+			ran = ( sys.random( 3 ) + 2 );
+			sys.wait( ran );
+			t3_powerflux();
+		}
+	}
+
+	void t3_lightramp1() {
+		light_ramp( .7, 1, .5 );
+		sys.wait( .5 );
+		light_ramp( .9, .1, 3 );
+		sys.wait( 3 );
+		light_ramp( .1, .9, .1 );
+		sys.wait( .1 );
+		light_ramp( .9, .15, .1 );
+		sys.wait( 1.5 );
+		light_ramp( .15, .6, 1 );
+		sys.wait( 1 );
+		light_ramp( .6, .2, 2 );
+		sys.wait( 2 );
+		light_ramp( .2, .4, .5 );
+		sys.wait( .5 );
+		light_ramp( .4, .9, .1 );
+		sys.wait( .1 );
+		light_ramp( .9, .1, .2 );
+		sys.wait( .2 );
+		light_ramp( .1, .4, 2 );
+		sys.wait( 2 );
+		light_ramp( .4, 1, .1 );
+		sys.wait( .1 );
+		light_ramp( 1, .05, 1.5 );
+		sys.wait( 1.5 );
+		light_ramp( .05, .5, 3 );
+		sys.wait( 3 );
+		t3_lightramp2();
+	}
+/*
+	void power_flux()
+	{
+		float i;
+		float ran_loop, ran_new, ran_time;
+		float old;
+
+		old = .25;
+		ran_loop = (sys.random(10) + 3);
+
+		for (i=1; i<=ran_loop; i++){
+			ran_new = (sys.random(1.5) + .2);
+			ran_time = (sys.random(1) + .2);
+			light_ramp( old, ran_new, ran_time );
+
+			old = ran_new;
+		}
+		// how dark to go once cycle is complete
+		light_ramp( old, .35, .3 );
+	}
+
+	void low_power_loop()
+	{
+		sys.print ("begin low_power_loop\n");
+		sys.print ("power level =" + power + "\n");
+		float ran;
+		ran = sys.random (3);
+		sys.wait (ran);
+
+		while (power == 1){
+			// wait between power surges
+			ran = (sys.random(3) + 2);
+			sys.wait (ran);
+			// TESTING
+			power_flux();
+			}
+
+		sys.print ("made it to the end of low power loop\n");
+		if (power==2){
+			float ii;
+			float rate;
+
+			rate = GAME_FRAMETIME * 0.25;
+			for( ii = rgb_modifier; ii <= 1; ii += rate ) {
+				sys.setShaderParm(0,(ii*.65));
+				sys.setShaderParm(1,(ii*.65));
+				sys.setShaderParm(2,(ii*.75));
+
+				sys.waitFrame();
+			}
+		}
+	}
+
+	void t3_fadelight1()
+	{
+		sys.wait (1);
+
+		float i;
+		float rate;
+
+		if ( power >= 1 ){
+			rate = GAME_FRAMETIME * 0.25;
+			for( i = rgb_modifier; i >= .25; i -= rate ) {
+
+				sys.setShaderParm(0,i);
+				sys.setShaderParm(1,i);
+				sys.setShaderParm(2,i);
+
+				sys.waitFrame();
+			}
+		} else {
+			rate = GAME_FRAMETIME * 0.25;
+			for( i = rgb_modifier; i <= .25; i += rate ) {
+
+				sys.setShaderParm(0,i);
+				sys.setShaderParm(1,i);
+				sys.setShaderParm(2,i);
+
+				sys.waitFrame();
+			}
+		}
+		rgb_modifier = .25;
+		power = 1;
+		low_power_loop();
+	}
+*/
+
+	////////////////////////////////////////////////////
+	//
+	//	TELEPORTER3 SETUP
+	//
+	////////////////////////////////////////////////////
+
+	void setup_teleporter3() {
+		$teleport3_controlpanelarms.time (1.0);
+		$teleport3_controlpanelarms.accelTime (.5 );
+		$teleport3_controlpanelarms.decelTime (.5 );
+		$teleport3_controlpanel.time (.75);
+		$teleport3_controlpanel.accelTime (.25 );
+		$teleport3_controlpanel.decelTime (.5 );
+		$teleport3_shoulder.time (2.0);
+		$teleport3_shoulder.accelTime (1.0 );
+		$teleport3_shoulder.decelTime (1.0 );
+		$teleport3_arm1.time (2.0);
+		$teleport3_arm1.accelTime (1.25 );
+		$teleport3_arm1.decelTime (.75 );
+		$teleport3_arm2.time (2.0);
+		$teleport3_arm2.accelTime (1.25 );
+		$teleport3_arm2.decelTime (.75 );
+
+		$teleport3_controlpanel.rotateOnce ('-20 0 0');
+		sys.waitFor ($teleport3_controlpanel);
+		$teleport3_controlpanelarms.move (DOWN, 33);
+		sys.waitFor ($teleport3_controlpanelarms);
+		$teleport3_controlpanelarms.rotateOnce ('0 45 0');
+		sys.waitFor ($teleport3_controlpanelarms);
+
+		//sys.print( "SET UP TELEPORTER3!" );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	TELEPORTER FALSE START
+	//
+	////////////////////////////////////////////////////
+	void t3_shutdown() {
+		sys.trigger( $teleport3_warpfx );
+		sys.trigger( $teleport3_floorfx );
+		sys.wait( .5 );
+		sys.trigger( $teleport3_arm1_fx );
+		sys.trigger( $teleport3_arm2_fx );
+		sys.wait( .5 );
+		$teleport3_arm1.time( 4 );
+		$teleport3_arm2.time( 4 );
+		$teleport3_arm1.rotateOnce( '0 27 0' );
+		$teleport3_arm2.rotateOnce( '0 -31 0' );
+		sys.wait( .75 );
+		sys.trigger( $teleport3_shoulder_operate );
+		$teleport3_shoulder.time( 4 );
+		$teleport3_shoulder.rotateOnce( '0 0 36' );
+		sys.trigger( $teleport3_lightningfx );
+		sys.wait( .25 );
+		sys.trigger( $teleport3_blightblink );
+		sys.wait( 2 );
+		sys.trigger( $t3_teleporterfx_loop );
+	}
+
+	void teleport3_control_up()
+	{
+		$teleport3_controlpanelarms.move (UP, 33);
+		sys.waitFor ($teleport3_controlpanelarms);
+		$teleport3_controlpanel.rotateOnce ('20 0 0');
+		sys.waitFor ($teleport3_controlpanel);
+		sys.wait (.05);
+	}
+
+	void teleport3_machine_ready()
+	{
+		sys.wait (.25);
+		//trigger tp sounds
+		sys.trigger ($teleport3_machine_poweron);
+//		sys.trigger ($teleport3_machine_idle_delay);
+		//turn on electrical lightning effect
+		sys.trigger ($teleport3_lightningfx);
+		sys.wait (1.95);
+		$teleport3_shoulder.rotateOnce ('0 0 -35');
+		//trigger sound for arms
+		sys.trigger($teleport3_shoulder_operate);
+		sys.wait(.75);
+		$teleport3_arm1.rotateOnce ('0 -30 0');
+		$teleport3_arm2.rotateOnce ('0 30 0');
+		sys.waitFor ($teleport3_arm2);
+		sys.wait (.5);
+		//$teleport3_blackholefx.show();
+		$klaxxon_speaker3.setKey ("klaxxon3_status", "0");
+	}
+
+	void teleport3_klaxxon_on()
+	{
+		if ($klaxxon_speaker3.getFloatKey ("klaxxon3_status") == 0)
+		{
+			sys.wait (.25);
+			$klaxxon3_light1.setColor(0.77,0.49,0.00);
+			$klaxxon3_light2.setColor(0.77,0.49,0.00);
+			$klaxxon3_light_base.setColor(0.77,0.49,0.00);
+			$klaxxon3_light_base.rotate ('0 360 0');
+			sys.trigger ($klaxxon_speaker3);
+			$klaxxon_speaker3.setKey ("klaxxon3_status", "1");
+			sys.wait ( .5 );
+			//turn on blinking blue tp light
+			sys.trigger ($teleport3_blightblink);
+			//sys.wait ( .25 );
+			sys.wait( 3 );
+			//trigger sounds for fx
+			sys.trigger ($t3_teleporterfx_startup);
+			sys.wait ( 1.5 );
+			sys.trigger ($t3_teleporterfx_loop);
+
+			//turn on floor and arm fx
+			sys.trigger ($teleport3_arm1_fx);
+			sys.trigger ($teleport3_arm2_fx);
+			sys.wait ( .5 );
+			sys.trigger ($teleport3_warpfx);
+			sys.trigger ($teleport3_floorfx);
+
+			sys.wait(1);
+			sys.trigger ($select_speaker3);
+		}
+	}
+
+	void t3_statics() {
+		$t3_static1.show();
+		sys.wait( 2.5 );
+		$t3_static1.hide();
+		sys.wait( 4 );
+		$t3_static1.show();
+		sys.wait( 2.5 );
+		$t3_static1.hide();
+	}
+
+	void t3_influence() {
+		sys.wait( 3 );
+		//$t3_control_panel.setKey( "gui", "guis/phobos/p2_malfunction.gui" );
+		//$t3_control_panel.setGuiParm( "noninteractive", "1" );
+		$t3_healthstation.setGuiParm( "noninteractive", "1" );
+		sys.trigger( $t3_sound1 );
+		sys.trigger( $t3_inf1 );
+		$t3_skel1.show();
+		$t3_skel2.show();
+		$t3_skel3.show();
+		thread t3_statics();
+		sys.wait( 2.5 );
+		$t3_skel1.hide();
+		$t3_skel2.hide();
+		$t3_skel3.hide();
+		$t3_healthstation.setGuiParm( "noninteractive", "0" );
+		sys.wait( 4 );
+		$t3_healthstation.setGuiParm( "noninteractive", "1" );
+		sys.trigger( $t3_inf1 );
+		sys.trigger( $t3_hk1 );
+		$t3_skel1.show();
+		$t3_skel2.show();
+		$t3_skel3.show();
+		sys.wait( 2.5 );
+		//$t3_control_panel.setKey( "gui", "guis/phobos/p2_malfunction.gui" );
+		$t3_healthstation.setGuiParm( "noninteractive", "0" );
+		$t3_skel1.hide();
+		$t3_skel2.hide();
+		$t3_skel3.hide();
+		sys.wait( .3 );
+		//sys.trigger( $t3_hk2 );
+	}
+
+	void select_destination()
+	{
+		sys.wait(.25);
+		thread teleport3_klaxxon_on();
+		teleport3_machine_ready();
+	}
+
+	void mcneil_radio_teleporter() {
+		sys.wait( 10 );
+		sys.trigger( $mcneil_fullteleporter );
+		sys.wait( 9 );
+		sys.trigger( $t3_update_obj );
+	}
+
+	/*
+	void mcneil_radio_teleporter() {
+		sys.wait( 6 );
+		sys.trigger( $mcneil_tp1 );
+		sys.wait( 2 );
+		sys.trigger( $mcneil_tp2 );
+		sys.wait( 7.5 );
+		sys.trigger( $mcneil_tp3 );
+		sys.wait( 5 );
+		sys.trigger( $mcneil_tp4 );
+		sys.wait( 1 );
+		sys.trigger( $t3_update_obj );
+	}
+	*/
+
+	void false_start() {
+		f_teleporter_on = 1;
+		if( f_teleporter_on == 1 ) {
+			f_teleporter_on = 0;
+			sys.trigger( $pad1select_speaker3 );
+			//thread t3_lightramp();
+			$t3_cliphack1.show();
+			$t3_door1.lock( 1 );
+			$tp3_door1_frame.setShaderParm( 7, 0 );
+			thread t3_lightramp1();
+
+			// Trigger Teleporter Objective
+			sys.trigger( $objective_teleporter1 );
+
+			sys.wait( 4.5 );
+			thread t3_influence();
+			//$t3_control_panel.setGui(1, "guis/phobos/p2_malfunction.gui");
+			//teleport3_klaxxon_on();
+			//teleport3_machine_ready();
+			sys.wait( 4.5 );
+			thread mcneil_radio_teleporter();
+			sys.wait( 4.5 );
+			thread t3_shutdown();
+			sys.trigger( $teleport3_breakdown );
+			sys.wait( 3 );
+			sys.trigger( $t3_sound1 );
+			sys.wait( 3 );
+			//$cgun_ff1.setKey( "disableFracture", "0" );
+			sys.trigger( $trig_cgun1 );
+			sys.wait( 1.5 );
+			sys.trigger( $fake_hk_snd );
+			sys.wait( 9.5 );
+			$t3_hk1.remove();
+			$t3_hk2.remove();
+			//$tp3_doorgui1.setGuiParm( "gui_parm2", "1" );
+			//$tp3_doorgui1.setShaderParm( 7, 0 );
+			//$tp3_doorgui2.setShaderParm( 7, 1 );
+			//$tp3_doorgui2.setGuiParm( "gui_parm2", "1" );
+			$t3_door1.lock( 0 );
+			$t3_cliphack1.hide();
+			$tp3_door1_frame.setShaderParm( 7, 1 );
+			$tp3_doorgui1.hide();
+			$tp3_doorgui1a.show();
+			$tp3_doorgui2.hide();
+			$tp3_doorgui2a.show();
+			return;
+		}
+		if( f_teleporter_on == 0 ) {
+			return;
+		}
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	GONDOLA JUNCTION SCARE
+	//
+	////////////////////////////////////////////////////
+	void junction_scare() {
+
+		sys.trigger( $junction_door1 );
+		sys.trigger( $junction_marine ); //start the marines animation
+		sys.trigger( $junction_tram );  //start the trams animation
+		sys.wait(4);
+		sys.trigger( $junction_speaker1 );
+		//sys.trigger( $junction_fadeout );
+		sys.wait(.5);		
+		sys.trigger ( $trigger_once_105 );
+		sys.wait(2);
+		sys.trigger( $junction_speaker2 );
+		//sys.trigger( $junction_fadein );
+	}
+
+	void junction_shake() {
+		$gondola_02_base.time(.5);
+		$gondola_02_base.accelTime(.25);
+		$gondola_02_base.decelTime(.125);
+		$gondola_02_base.rotateOnce('8 0 0');
+		sys.waitFor($gondola_02_base);
+		$gondola_02_base.rotateOnce('-8 0 0');
+		sys.waitFor($gondola_02_base);
+		$gondola_02_base.rotateOnce('-6 0 0');
+		sys.waitFor($gondola_02_base);
+		$gondola_02_base.rotateOnce('6 0 0');
+		sys.waitFor($gondola_02_base);
+		$gondola_02_base.rotateOnce('2 0 0');
+		sys.waitFor($gondola_02_base);
+		$gondola_02_base.rotateOnce('-2 0 0');
+	}
+
+	// -Xian
+	void gondola_sound( float fWait ) {
+		$gondola_02.startSoundShader ( "p1_gondola_start", SND_CHANNEL_VOICE );
+		sys.wait (fWait);
+		$gondola_02.startSoundShader ( "p1_gondola_stop", SND_CHANNEL_VOICE );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	GONDOLA RIDE
+	//
+	////////////////////////////////////////////////////
+	void gondola_02_start() {
+
+		$gondola_02_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+
+		$gondola_02_door_left.move ( SOUTH , 28 );
+		$gondola_02_door_right.move ( NORTH , 28 );
+		sys.waitFor( $gondola_02_door_right );
+
+		sys.wait( .5 );
+
+		$gondola_02_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+
+		$gondola_02_door_left.move ( EAST , 2 );
+		$gondola_02_door_right.move ( EAST , 2 );
+		sys.waitFor( $gondola_02_door_right );
+
+		$player1.disableWeapon();
+
+		sys.wait( .5 );
+
+		$gondola_02_arm.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_02_arm.move ( UP , 16);
+		sys.waitFor( $gondola_02_arm );
+
+		sys.wait( 1 );
+
+		sys.trigger( $trigger_once_101 );
+		sys.trigger( $trigger_once_100 );
+		sys.trigger( $trigger_once_99 );
+		sys.trigger( $trigger_once_98 );
+		sys.trigger( $trigger_once_105 );
+		sys.trigger( $trigger_once_96 );
+		sys.trigger( $trigger_once_95 );
+		sys.trigger( $trigger_once_94 );
+
+		//thread trackhitch();
+		//thread ambient_squeals();
+
+		$gondola_02_base.time( 20 );
+		$gondola_02_base.accelTime( 3 );
+		$gondola_02_base.decelTime( 3 );
+
+		thread gondola_sound(17);								// -Xian
+
+		$gondola_02_base.startSpline( $p1_sp1 );
+		$gondola_02_base.removeInitialSplineAngles();
+		sys.waitFor( $gondola_02_base );
+
+		// FIRST STOP (airlock)
+		sys.wait(.5);
+		sys.trigger( $p1_tdoor1 );
+		sys.wait(1.5);
+
+		sys.trigger( $p1_a1_speaker );
+		sys.trigger( $p1_a1_fadein );
+
+		sys.wait(3);
+		//sys.trigger( $p1_a1_speaker );
+		sys.trigger( $p1_a1_fadeout );
+
+		sys.wait(.5);
+		sys.trigger( $p1_tdoor2 );
+
+		$gondola_02_base.time( 15 );
+		$gondola_02_base.accelTime( 3 );
+		$gondola_02_base.decelTime( 3 );
+
+		thread gondola_sound(12);								// -Xian
+
+		$gondola_02_base.startSpline( $p1_sp2 );
+		$gondola_02_base.removeInitialSplineAngles();
+
+		sys.wait(.25);
+		sys.trigger( $p1_a1_steamspeaker );
+		$p1_a1_doorsteam1.show();
+		$p1_a1_doorsteam2.show();
+		sys.wait(1.5);
+		sys.trigger( $p1_a1_doorfade );
+
+		sys.waitFor( $gondola_02_base );
+		sys.trigger( $junction_fadeout );
+
+		// SECOND STOP (power outage/hell knight attack)
+		sys.wait(2);
+
+		sys.trigger( $junction_fadein );
+
+		$gondola_02_base.time( 20 );
+		$gondola_02_base.accelTime( 3 );
+		$gondola_02_base.decelTime( 3 );
+
+		thread gondola_sound(17);								// -Xian
+
+		$gondola_02_base.startSpline( $p1_sp3 );
+		$gondola_02_base.removeInitialSplineAngles();
+		sys.waitFor( $gondola_02_base );
+
+		// THIRD STOP (airlock)
+		sys.wait(.5);
+		sys.trigger( $p1_tdoor3 );
+		sys.wait(1.5);
+
+		sys.trigger( $p1_a2_speaker );
+		sys.trigger( $p1_a2_fadein );
+
+		sys.wait(3);
+		//sys.trigger( $p1_a2_speaker );
+		sys.trigger( $p1_a2_fadeout );
+
+		sys.wait(.5);
+		sys.trigger( $p1_tdoor4 );
+
+		$gondola_02_base.time( 20 );
+		$gondola_02_base.accelTime( 3 );
+		$gondola_02_base.decelTime( 3 );
+
+		thread gondola_sound(17);								// -Xian
+
+		$gondola_02_base.startSpline( $p1_sp4 );
+		$gondola_02_base.removeInitialSplineAngles();
+
+		sys.wait(.25);
+		sys.trigger( $p1_a2_steamspeaker );
+		$p1_a2_doorsteam1.show();
+		$p1_a2_doorsteam2.show();
+		sys.wait(1.5);
+		sys.trigger( $p1_a2_doorfade );
+
+		sys.waitFor( $gondola_02_base );
+
+		// FINAL STOP (station)
+		sys.wait( 1 );
+
+		$gondola_02_arm.startSoundShader ( "e4_shoulder_1s_updown", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_02_arm.move ( DOWN , 16);
+		sys.waitFor( $gondola_02_arm );
+
+		sys.wait( .5 );
+
+		$gondola_02_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+		$gondola_02_door_left.move ( WEST , 2 );
+		$gondola_02_door_right.move ( WEST , 2 );
+		sys.waitFor( $gondola_02_door_right );
+
+		sys.wait( .5 );
+		$gondola_02_door_left.startSoundShader ( "p1_gondola_doors", SND_CHANNEL_VOICE );		// -Xian
+
+		$gondola_02_door_left.move ( NORTH , 28 );
+		$gondola_02_door_right.move ( SOUTH , 28 );
+		sys.waitFor( $gondola_02_door_right );
+
+		sys.wait( .5 );
+
+		$player1.enableWeapon();
+	}
+
+	void open_d1() {
+		$mon_d1_1.open();
+	}
+
+	void open_d2() {
+		$mon_d2_1.open();
+	}
+
+	void mono_influence() {
+		sys.wait( 4 );
+		sys.trigger( $mono_infsound1 );
+		sys.trigger( $mono_inf1 );
+		$mono_hp1.show();
+		$mono_hp2.show();
+		$mono_hp3.show();
+		$mono_hp4.show();
+		$mono_hp5.show();
+		$mono_hp6.show();
+		$mono_hp7.show();
+		$mono_hp8.show();
+		$mono_hp9.show();
+		$mono_hp10.show();
+		$mono_hp11.show();
+		$mono_hp12.show();
+		$mono_hp13.show();
+		$mon_skel1.show();
+		$mon_skel2.show();
+		$mon_skel3.show();
+		$mon_skel4.show();
+		$mon_skel5.show();
+		sys.wait( 6 );
+		$mono_ls1.remove();
+		$mono_ls2.remove();
+		$mono_ls3.remove();
+		$mono_hp1.hide();
+		$mono_hp2.hide();
+		$mono_hp3.hide();
+		$mono_hp4.hide();
+		$mono_hp5.hide();
+		$mono_hp6.hide();
+		$mono_hp7.hide();
+		$mono_hp8.hide();
+		$mono_hp9.hide();
+		$mono_hp10.hide();
+		$mono_hp11.hide();
+		$mono_hp12.hide();
+		$mono_hp13.hide();
+		$mon_skel1.hide();
+		$mon_skel2.hide();
+		$mon_skel3.hide();
+		$mon_skel4.hide();
+		$mon_skel5.hide();
+		sys.trigger( $mono_infsound1 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Move the Monorail
+	//
+	////////////////////////////////////////////////////
+
+	void mcneil_radio_start() {
+		sys.trigger( $mcneil_fullstart1 );
+		sys.wait( 17 );
+		sys.trigger( $p1_primary );
+		sys.wait( 1 );
+		sys.trigger( $p1_secondary );
+	}
+
+	void move_monorail() {
+		sys.wait( .5 );
+		$player1.disableWeapon();
+		//thread mono_influence();
+		//sys.trigger( $mcneil_fullstart1 );
+		sys.trigger( $squeal_speaker );
+		$monorail_anchor.startSpline( $spline1 );
+		$monorail_anchor.removeInitialSplineAngles();
+		sys.wait( 1 );
+		sys.trigger( $trigger_once_108 );
+		sys.waitFor( $monorail_anchor );
+		sys.trigger( $steamchuff );
+		sys.trigger( $squeal_stop_speaker );
+		sys.trigger( $fl_1_1 );
+		sys.trigger( $bl_1_1 );
+		$doorclip_rightFront.hide();
+		$doorclip_leftFront.hide();
+		$doorclip_rightRear.hide();
+		$doorclip_leftRear.hide();
+		sys.trigger( $movement_speaker );
+		$player1.enableWeapon();
+	}
+
+	////////////////////////////////////////////////////
+ 	//
+	//	Setup Monorail
+	//
+	////////////////////////////////////////////////////
+
+	void setup_monorail() {
+		$doorclip_rightFront.show();
+		$doorclip_leftFront.show();
+		$doorclip_rightRear.show();
+		$doorclip_leftRear.show();
+		$monorail_anchor.time( 19.5 );
+		$monorail_anchor.decelTime( 6 );
+		$monorail_anchor.accelTime( 2 );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	Setup
+	//
+	////////////////////////////////////////////////////
+	void setup_objects() {
+		//Move the Gondolas into position and open the doors
+		$gondola_01_arm.move ( DOWN , 16);
+		$gondola_02_arm.move ( DOWN , 16);
+		$gondola_02_door_left.move ( WEST , 2 );
+		$gondola_02_door_right.move ( WEST , 2 );
+		$gondola_02_door_left.move ( NORTH , 28 );
+		$gondola_02_door_right.move ( SOUTH , 28 );
+		sys.trigger( $p1_a1_fadeout );
+		sys.trigger( $p1_a2_fadeout );
+
+		//Setup Teleporter Control GUI
+		//$t3_control_panel.precacheGui("guis/phobos/p2_malfunction.gui");
+		//$t3_control_panel.setGui( 1, "guis/phobos/teleporter_falsestart.gui" );
+
+		//Setup Inital Globalfadelight Values
+		sys.setShaderParm( 0, .7 );
+		sys.setShaderParm( 1, .7 );
+		sys.setShaderParm( 2, .7 );
+	}
+
+	void cache_sounds() {
+
+		sys.cacheSoundShader( "p1_movement_7_5s" );
+		sys.cacheSoundShader( "p1_arm_2s" );
+		sys.cacheSoundShader( "p1_rotate_1s" );
+		sys.cacheSoundShader( "p1_movement_4s" );
+		sys.cacheSoundShader ( "p1_gondola_start" );
+		sys.cacheSoundShader ( "p1_gondola_stop" );
+		sys.cacheSoundShader ( "p1_gondola_doors" );
+		sys.cacheSoundShader ( "e4_shoulder_1s_updown" );
+	}
+
+	////////////////////////////////////////////////////
+	//
+	//	MAIN
+	//
+	////////////////////////////////////////////////////
+	void main () {
+		setup_objects();
+		setup_monorail();
+		setup_tps_machine();
+		cache_sounds();
+		setup_teleporter3();
+	}
+
+} // namespace

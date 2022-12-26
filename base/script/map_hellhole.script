@@ -1,0 +1,368 @@
+namespace map_hellhole {
+
+	void move_entrance_lift()
+	{
+		//level load lift
+		$hellhole_start_lift.time(10);
+		$hellhole_start_lift.accelTime(.5);
+		$hellhole_start_lift.decelTime(.5);
+
+		$hellhole_start_lift.move(DOWN, 1280);
+	}
+
+	void move_first_doors()
+	{
+		sys.trigger($hhbrickdoors1_portal);
+		$hhbrickdoor_1.accelTime(.5);
+		$hhbrickdoor_1.decelTime(.5);
+
+		$hhbrickdoor_2.accelTime(.5);
+		$hhbrickdoor_2.decelTime(.5);
+
+		$hhbrickdoor_1.time(1);
+		
+		$hhbrickdoor_1.startSoundShader ("hh_door_movement_1", SND_CHANNEL_VOICE2 );
+		
+		$hhbrickdoor_1.move(WEST, 32);
+		$hhbrickdoor_2.time	(1);
+		$hhbrickdoor_2.move(WEST, 32);
+		sys.waitFor($hhbrickdoor_1);
+
+		$hhbrickdoor_1.time(2);
+		$hhbrickdoor_1.startSoundShader ("hh_door_movement_2", SND_CHANNEL_VOICE );
+		$hhbrickdoor_1.move(SOUTH, 64);
+		$hhbrickdoor_2.time	(2);
+		$hhbrickdoor_2.move(NORTH, 64);
+		sys.waitFor($hhbrickdoor_1);
+	}
+
+	void move_first_doors_close()
+
+	{
+		$hhbrickdoor_1.accelTime(.5);
+		$hhbrickdoor_1.decelTime(.5);
+
+		$hhbrickdoor_2.accelTime(.5);
+		$hhbrickdoor_2.decelTime(.5);
+
+		$hhbrickdoor_1.time(2);
+		$hhbrickdoor_1.startSoundShader ("hh_door_movement_2", SND_CHANNEL_VOICE2 );
+		$hhbrickdoor_1.move(NORTH, 64);
+		$hhbrickdoor_2.time	(2);
+		$hhbrickdoor_2.move(SOUTH, 64);		
+		sys.waitFor($hhbrickdoor_1);
+
+		$hhbrickdoor_1.time(1);
+		$hhbrickdoor_1.startSoundShader ("hh_door_movement_1", SND_CHANNEL_VOICE );
+		$hhbrickdoor_1.move(EAST, 32);
+		$hhbrickdoor_2.time	(1);
+		$hhbrickdoor_2.move(EAST, 32);		
+		sys.waitFor($hhbrickdoor_1);
+		sys.trigger($hhbrickdoors1_portal);
+	}
+
+	void hellevator_down()
+	{
+		$hellevator.startSoundShader ("hh_rockride_8s", SND_CHANNEL_VOICE );
+		
+		$hellevator.time(8);
+		$hellevator.accelTime(5);
+		$hellevator.decelTime(.5);
+
+		$hellevator.move(DOWN, 2020);	
+	}
+
+	void move_next_doors_open()
+	{
+		sys.trigger($hhbrickdoors2_portal);
+		$hhbrickdoor_3.accelTime(.5);
+		$hhbrickdoor_3.decelTime(.5);
+
+		$hhbrickdoor_4.accelTime(.5);
+		$hhbrickdoor_4.decelTime(.5);
+
+		$hhbrickdoor_3.startSoundShader ("hh_door_movement_3s", SND_CHANNEL_VOICE);
+		$hhbrickdoor_3.time(3);
+		$hhbrickdoor_3.move(NORTH, 32);
+		$hhbrickdoor_4.time	(3);
+		$hhbrickdoor_4.move(NORTH, 32);		
+		sys.waitFor($hhbrickdoor_3);
+
+		$hhbrickdoor_3.time(5);
+		$hhbrickdoor_3.startSoundShader ("hh_door_movement_5s", SND_CHANNEL_VOICE2);
+		$hhbrickdoor_3.move(WEST, 64);
+		$hhbrickdoor_4.time	(5);
+		$hhbrickdoor_4.move(EAST, 64);		
+		sys.waitFor($hhbrickdoor_3);
+
+	}
+
+	void move_next_doors_close()
+	{
+		$hhbrickdoor_3.accelTime(.5);
+		$hhbrickdoor_3.decelTime(.5);
+
+		$hhbrickdoor_4.accelTime(.5);
+		$hhbrickdoor_4.decelTime(.5);
+
+		$hhbrickdoor_3.time(5);
+		$hhbrickdoor_3.startSoundShader ("hh_door_movement_5s", SND_CHANNEL_VOICE);
+		$hhbrickdoor_3.move(EAST, 64);
+		$hhbrickdoor_4.time	(5);
+		$hhbrickdoor_4.move(WEST, 64);		
+		sys.waitFor($hhbrickdoor_3);
+
+		$hhbrickdoor_3.time(3);
+		$hhbrickdoor_3.startSoundShader ("hh_door_movement_3s", SND_CHANNEL_VOICE2);
+		$hhbrickdoor_3.move(SOUTH, 32);
+		$hhbrickdoor_4.time	(3);
+		$hhbrickdoor_4.move(SOUTH, 32);		
+		sys.waitFor($hhbrickdoor_3);
+		sys.trigger($hhbrickdoors2_portal);
+
+	}
+
+	void move_last_doors_open()
+	{
+		sys.trigger($hhbrickdoors3_portal);
+		$hhbrickdoor_5.accelTime(.5);
+		$hhbrickdoor_5.decelTime(.5);
+
+		$hhbrickdoor_6.accelTime(.5);
+		$hhbrickdoor_6.decelTime(.5);
+
+		$hhbrickdoor_5.time(3);
+		
+		$hhbrickdoor_5.startSoundShader ("hh_door_movement_3s", SND_CHANNEL_VOICE2);
+		
+		$hhbrickdoor_5.move(NORTH, 32);
+		$hhbrickdoor_6.time	(3);
+		$hhbrickdoor_6.move(NORTH, 32);		
+		sys.waitFor($hhbrickdoor_5);
+
+		$hhbrickdoor_5.time(5);
+		
+		$hhbrickdoor_5.startSoundShader ("hh_door_movement_5s", SND_CHANNEL_VOICE);
+		
+		$hhbrickdoor_5.move(WEST, 64);
+		$hhbrickdoor_6.time	(5);
+		$hhbrickdoor_6.move(EAST, 64);		
+		sys.waitFor($hhbrickdoor_5);
+
+	}
+
+	void move_last_doors_close()
+	{
+		$hhbrickdoor_5.accelTime(.5);
+		$hhbrickdoor_5.decelTime(.5);
+
+		$hhbrickdoor_6.accelTime(.5);
+		$hhbrickdoor_6.decelTime(.5);
+
+		$hhbrickdoor_5.time(5);
+		$hhbrickdoor_5.startSoundShader ("hh_door_movement_5s", SND_CHANNEL_VOICE2);
+		$hhbrickdoor_5.move(EAST, 64);
+		$hhbrickdoor_6.time	(5);
+		$hhbrickdoor_6.move(WEST, 64);		
+		sys.waitFor($hhbrickdoor_5);
+
+		$hhbrickdoor_5.time(3);
+		$hhbrickdoor_5.startSoundShader ("hh_door_movement_3s", SND_CHANNEL_VOICE);
+		$hhbrickdoor_5.move(SOUTH, 32);
+		$hhbrickdoor_6.time	(3);
+		$hhbrickdoor_6.move(SOUTH, 32);		
+		sys.waitFor($hhbrickdoor_5);
+		sys.trigger($hhbrickdoors3_portal);
+
+	}
+
+	void move_id_brick()
+	{
+		$id_brick.accelTime(.2);
+		$id_brick.decelTime(.2);
+
+		$id_brick.time(1.5);
+		
+		$id_brick.startSoundShader ("hh_door_movement_3s", SND_CHANNEL_VOICE2);
+		
+		$id_brick.move(NORTH, 16);
+		$id_brick.time	(1.5);
+		sys.waitFor($id_brick);
+
+	}
+
+	void move_id_door()
+	{
+		$id_door.accelTime(.5);
+		$id_door.decelTime(.5);
+
+		$id_door.time(3);
+		
+		$id_door.startSoundShader ("hh_door_movement_3s", SND_CHANNEL_VOICE2);
+		
+		$id_door.move(WEST, 32);
+		$id_door.time	(3);
+		sys.waitFor($id_door);
+
+		$id_door.time(5);
+		
+		$id_door.startSoundShader ("hh_door_movement_5s", SND_CHANNEL_VOICE);
+		
+		$id_door.move(UP, 128);
+		$id_door.time	(5);
+		sys.waitFor($id_door);
+
+	}
+
+	void spark_mover ()
+	{
+		//turn on the sparks
+		sys.trigger ($doorsparks);
+
+		//move the sparkmover down and wait for it to finish
+		$sparkmover.move (DOWN, 116);
+		sys.waitFor ($sparkmover);
+		
+		//turn off the sparks
+		sys.trigger ($doorsparks);
+	}
+
+	void harden_lava( entity ent, float parm, float fromValue, float toValue, float totalTime ) {
+		float i;
+		float frac;
+		float numTics;
+
+		// customized for the shader "textures/hell/hellhole_lavascroll_fade"
+		
+		// convert to the total number of game tics
+		numTics = totalTime * sys.getTicsPerSecond();
+
+		float parm3 = fromValue;
+		float parm5 = sys.getTime()*-0.2;
+		float parm6 = sys.getTime()*-0.1;
+		float parm7 = -sys.getTime();
+
+		for( i = 0; i < numTics; i++ ) {
+			parm5 = (sys.getTime()+parm7)*(-0.2*parm3)+parm5;
+			parm6 = (sys.getTime()+parm7)*(-0.1*parm3)+parm6;
+			parm7 = -sys.getTime();
+
+			frac = i / numTics;
+			parm3 = toValue * frac + fromValue * ( 1 - frac );
+
+			ent.setShaderParm( 3, parm3 );
+			ent.setShaderParm( 5, parm5 );
+			ent.setShaderParm( 6, parm6 );
+			ent.setShaderParm( 7, parm7 );
+
+			// wait one game frame
+			sys.waitFrame();
+		}
+		
+		// make sure we are set to exactly the destination value
+		parm3 = toValue;
+		parm5 = (sys.getTime()+parm7)*(-0.2*parm3)+parm5;
+		parm6 = (sys.getTime()+parm7)*(-0.1*parm3)+parm6;
+		parm7 = -sys.getTime();
+
+		ent.setShaderParm( 3, parm3 );
+		ent.setShaderParm( 5, parm5 );
+		ent.setShaderParm( 6, parm6 );
+		ent.setShaderParm( 7, parm7 );
+	}
+
+	void interpolateRocksShader( entity ent, float parm, float fromValue, float toValue, float totalTime ) {
+		float i;
+		float value;
+		float frac;
+		float numTics;
+		
+		// convert to the total number of game tics
+		numTics = totalTime * sys.getTicsPerSecond();
+
+		for( i = 0; i < numTics; i++ ) {
+			frac = i / numTics;
+			value = toValue * frac + fromValue * ( 1 - frac );
+			ent.setShaderParm( parm, value );
+			
+			// wait one game frame
+			sys.waitFrame();
+		}
+		
+		// make sure we are set to exactly the destination value
+		ent.setShaderParm( parm, toValue );
+	}
+
+	void fade_lava_thread() {
+		harden_lava( $hellhole_cyberdeathrocks_2, 3, 1, 0, 3 );
+		thread fadeOutEnt( $func_static_808, '1 1 1', 1 );
+		interpolateRocksShader( $hellhole_cyberdeathrocks_2, 0, 1, 0, 1 );
+	}
+
+	void fade_lava() {
+		thread fade_lava_thread();
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("hh_rockride_8s");
+		sys.cacheSoundShader ("hh_door_movement_3s");
+		sys.cacheSoundShader ("hh_door_movement_5s");
+		sys.cacheSoundShader ("hh_door_movement_1");
+		sys.cacheSoundShader ("hh_door_movement_2");
+	}
+
+	void fade_final_room_down() {
+		$hhs_1.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_2.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_3.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_4.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_5.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_6.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_7.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_8.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_9.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_10.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_11.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_12.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$hhs_13.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$speaker_60.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$speaker_64.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$speaker_67.fadeSound (SND_CHANNEL_ANY, -60, 5);
+		$speaker_70.fadeSound (SND_CHANNEL_ANY, -60, 5);
+	}
+
+	void fade_final_room_up() {
+		$hhs_1.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_2.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_3.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_4.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_5.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_6.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_7.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_8.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_9.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_10.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_11.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_12.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$hhs_13.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$speaker_60.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$speaker_64.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$speaker_67.fadeSound (SND_CHANNEL_ANY, -1, 5);
+		$speaker_70.fadeSound (SND_CHANNEL_ANY, -1, 5);
+	}
+
+	void fadeup_thread() {
+		$speaker_29.fadeSound (SND_CHANNEL_ANY, -60, 5);	// Fade this speaker down first...
+		sys.wait (10);
+		thread fade_final_room_up();
+	}
+
+	void main ()
+	{
+		//bind_objects();
+		//init_world();
+		cache_sounds();
+		thread move_entrance_lift();
+		thread fade_final_room_down();
+	}
+}

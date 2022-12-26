@@ -1,0 +1,3156 @@
+export fred {
+	camera	maps/user/fred/marscity/window.mb -dest models/md5/cinematics/marscity/window_camera
+	camera	maps/fred/marscity/hangar.mb -range 30 100 -dest models/md5/cinematics/marscity/hangar_cam_a
+	camera	maps/fred/marscity/hangar.mb -range 101 200 -dest models/md5/cinematics/marscity/hangar_cam_b
+	camera	maps/fred/marscity/hangar.mb -range 201 267 -dest models/md5/cinematics/marscity/hangar_cam_c
+	camera	maps/fred/marscity/hangar.mb -range 268 389 -dest models/md5/cinematics/marscity/hangar_cam_d
+	camera	maps/fred/marscity/hangar_characters.mb -range 360 678 -dest models/md5/cinematics/marscity/hangar_cam_e
+	camera	maps/fred/marscity/hangar_characters.mb -range 679 766 -dest models/md5/cinematics/marscity/hangar_cam_f
+	camera	maps/fred/marscity/hangar_characters.mb -range 767 863 -dest models/md5/cinematics/marscity/hangar_cam_g
+	camera	maps/fred/marscity/hangar_characters.mb -range 864 937 -dest models/md5/cinematics/marscity/hangar_cam_h
+	camera	maps/fred/marscity/hangar_characters.mb -range 938 980 -dest models/md5/cinematics/marscity/hangar_cam_i
+	camera	maps/fred/marscity/hangar_characters.mb -range 981 1050 -dest models/md5/cinematics/marscity/hangar_cam_j
+	camera	maps/fred/marscity/hangar_characters.mb -range 1051 1125 -dest models/md5/cinematics/marscity/hangar_cam_k
+	camera	maps/fred/marscity/hangar_characters.mb -range 1126 1236 -dest models/md5/cinematics/marscity/hangar_cam_l
+
+//	camera	maps/fred/marscity/betrugercin1.mb -dest models/md5/cinematics/marscity/betrugercin1_cam
+	camera	maps/fred/marscity/betrugercin1.mb -range 1 54 -dest models/md5/cinematics/marscity/betrugercin1_cam_a
+	camera	maps/fred/marscity/betrugercin1.mb -range 55 92 -dest models/md5/cinematics/marscity/betrugercin1_cam_b
+	camera	maps/fred/marscity/betrugercin1.mb -range 93 137 -dest models/md5/cinematics/marscity/betrugercin1_cam_c
+	camera	maps/fred/marscity/betrugercin1.mb -range 138 1737 -dest models/md5/cinematics/marscity/betrugercin1_cam_d
+
+	camera	maps/fred/marscity/reception.mb -range 24 100 -dest models/md5/cinematics/marscity/receptioncin1_camera_a
+	camera	maps/fred/marscity/reception.mb -range 101 145 -dest models/md5/cinematics/marscity/receptioncin1_camera_b
+	camera	maps/fred/marscity/reception.mb -range 146 339 -dest models/md5/cinematics/marscity/receptioncin1_camera_c
+	camera	maps/fred/marscity/reception.mb -range 340 475 -dest models/md5/cinematics/marscity/receptioncin1_camera_d
+	camera	maps/fred/marscity/reception.mb -range 476 803 -dest models/md5/cinematics/marscity/receptioncin1_camera_e
+	camera	maps/fred/marscity/reception.mb -range 804 820 -dest models/md5/cinematics/marscity/receptioncin1_camera_f
+
+
+	camera	maps/fred/marscity/sargecin_eric.mb -dest models/md5/cinematics/marscity/sargecin_cam
+
+	camera	maps/fred/marscity/sargecin_eric.mb -range 120 176 -dest models/md5/cinematics/marscity/sargecin_cam1
+	camera	maps/user/fred/marscity/sargecin_eric.mb -range 177 380 -dest models/md5/cinematics/marscity/sargecin_cam2
+	camera	maps/fred/marscity/sargecin_eric.mb -range 381 555 -dest models/md5/cinematics/marscity/sargecin_cam3
+	camera	maps/user/fred/marscity/sargecin_eric.mb -range 556 700 -dest models/md5/cinematics/marscity/sargecin_cam4
+	camera	maps/fred/marscity/sargecin_eric.mb -range 701 814 -dest models/md5/cinematics/marscity/sargecin_cam5
+	camera	maps/user/fred/marscity/sargecin_eric.mb -range 815 920 -dest models/md5/cinematics/marscity/sargecin_cam6
+	camera	maps/fred/marscity/sargecin_eric.mb -range 921 960 -dest models/md5/cinematics/marscity/sargecin_cam7
+
+	camera	maps/kevinc/marscity/IPN_News_Body.mb -range 0 4500 -dest models/md5/cinematics/marscity/ipn_news_cam
+
+
+	camera	maps/eric/marscity/sci_team_request.mb -dest models/md5/cinematics/marscity/sci_team_request_cam
+
+	options -prefix CHAIR_
+
+	mesh	maps/fred/marscity/office1.mb -dest models/md5/environments/marscitychair1
+	anim	maps/fred/marscity/office1.mb -dest models/md5/environments/marscitychair1
+
+	options -prefix HANGAR_
+
+	mesh 	maps/fred/marscity/hangar.mb -range 30 1271 -dest models/md5/cinematics/marscity/marscityhangar
+	anim 	maps/fred/marscity/hangar.mb -range 30 1271 -dest models/md5/cinematics/marscity/marscityhangar
+}
+
+entityDef marscity_cinematic_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim betrugercin1"				"models/md5/cinematics/marscity/betrugercin1_cam.camera"
+	"anim betrugercin1_a"			"models/md5/cinematics/marscity/betrugercin1_cam_a.camera"
+	"anim betrugercin1_b"			"models/md5/cinematics/marscity/betrugercin1_cam_b.camera"
+	"anim betrugercin1_c"			"models/md5/cinematics/marscity/betrugercin1_cam_c.camera"
+	"anim betrugercin1_d"			"models/md5/cinematics/marscity/betrugercin1_cam_d.camera"
+
+
+	"anim reception_a"				"models/md5/cinematics/marscity/receptioncin1_camera_a.camera"
+	"anim reception_b"				"models/md5/cinematics/marscity/receptioncin1_camera_b.camera"
+	"anim reception_c"				"models/md5/cinematics/marscity/receptioncin1_camera_c.camera"
+	"anim reception_d"				"models/md5/cinematics/marscity/receptioncin1_camera_d.camera"
+	"anim reception_e"				"models/md5/cinematics/marscity/receptioncin1_camera_e.camera"
+	"anim reception_f"				"models/md5/cinematics/marscity/receptioncin1_camera_f.camera"
+
+	"anim hangar_a"					"models/md5/cinematics/marscity/hangar_cam_a.camera"
+	"anim hangar_b"					"models/md5/cinematics/marscity/hangar_cam_b.camera"
+	"anim hangar_c"					"models/md5/cinematics/marscity/hangar_cam_c.camera"
+	"anim hangar_d"					"models/md5/cinematics/marscity/hangar_cam_d.camera"
+	"anim hangar_e"					"models/md5/cinematics/marscity/hangar_cam_e.camera"
+
+	"anim hangar_f"					"models/md5/cinematics/marscity/hangar_cam_f.camera"
+	"anim hangar_g"					"models/md5/cinematics/marscity/hangar_cam_g.camera"
+	"anim hangar_h"					"models/md5/cinematics/marscity/hangar_cam_h.camera"
+	"anim hangar_i"					"models/md5/cinematics/marscity/hangar_cam_i.camera"
+	"anim hangar_j"					"models/md5/cinematics/marscity/hangar_cam_j.camera"
+	"anim hangar_k"					"models/md5/cinematics/marscity/hangar_cam_k.camera"
+	"anim hangar_l"					"models/md5/cinematics/marscity/hangar_cam_l.camera"
+
+	"anim window"					"models/md5/cinematics/marscity/window_camera.camera"
+	"anim sargecin"					"models/md5/cinematics/marscity/sargecin_cam.camera"
+
+	
+	"anim sargecin1"				"models/md5/cinematics/marscity/sargecin_cam1.camera"
+	"anim sargecin2"				"models/md5/cinematics/marscity/sargecin_cam2.camera"
+	"anim sargecin3"				"models/md5/cinematics/marscity/sargecin_cam3.camera"
+	"anim sargecin4"				"models/md5/cinematics/marscity/sargecin_cam4.camera"
+	"anim sargecin5"				"models/md5/cinematics/marscity/sargecin_cam5.camera"
+	"anim sargecin6"				"models/md5/cinematics/marscity/sargecin_cam6.camera"
+	"anim sargecin7"				"models/md5/cinematics/marscity/sargecin_cam7.camera"
+
+	"anim ipn_news"					"models/md5/cinematics/marscity/ipn_news_cam.camera"
+}
+
+entityDef marscity_sci_team_request_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim sci_team_request"			"models/md5/cinematics/marscity/sci_team_request_cam"
+}
+
+model marscity_ship {
+	mesh							models/md5/cinematics/marscity/spaceship.md5mesh
+	skin							skins/dropship.skin 
+	anim window						models/md5/cinematics/marscity/windowship.md5anim {
+	frame 1							sound_global marscity_music_intro_cutscene
+	frame 6							sound_global marscity_gui_intro_cutscene
+	frame 671						sound_global marscity_rocketintro_cutscene2
+	frame 675						sound_global marscity_rocketintro_vo	
+	frame 675						sound_global marscity_rocketintro_cutscene
+	frame 900						trigger tim_func_static_2337
+	}
+	 
+	anim bind						models/md5/cinematics/marscity/spaceship_bindme.md5anim
+}
+
+entityDef marscity_ship {
+	"inherit"						"cin_base"
+	"model"							"marscity_ship"
+	"anim"							"window"
+	"cinematic"						"1"
+}
+
+model marscity_ship2 {
+	mesh							models/md5/cinematics/marscity/hangarship.md5mesh
+	skin							skins/dropship.skin 
+	anim hangar_a					models/md5/cinematics/marscity/hangarship_a.md5anim {
+		frame 54						trigger func_emitter_37
+		frame 54						trigger func_emitter_38
+		frame 54						trigger func_emitter_39
+		frame 54						trigger func_emitter_99
+		frame 54						trigger func_emitter_101
+		frame 54						trigger func_emitter_102
+	}
+	anim hangar_b					models/md5/cinematics/marscity/hangarship_b.md5anim {
+		frame 1							skin skins/dropshipns.skin
+	}
+	anim hangar_c					models/md5/cinematics/marscity/hangarship_c.md5anim {
+		frame 1							skin skins/dropshipns.skin
+	}
+	anim hangar_d					models/md5/cinematics/marscity/hangarship_d.md5anim {
+		frame 1							call map_marscity1::move_hangar_fog
+	}
+	anim bind						models/md5/cinematics/marscity/smallbind.md5anim
+}
+
+entityDef marscity_ship2 {
+	"inherit"						"cin_base"
+	"model"							"marscity_ship2"
+	"anim"							"hangar_a"
+	"num_anims"						"4"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"anim4"							"hangar_d"
+	"cinematic"						"1"
+}
+
+model marscity_ship3 {
+	mesh							models/md5/cinematics/marscity/spaceship.md5mesh
+	skin							skins/dropship.skin 
+	anim hangarend					models/md5/cinematics/marscity/hangarshipbigend.md5anim {
+		frame 140						trigger shipinnerlight
+		frame 140						trigger trigger_remove_gui_block
+
+		frame 154						trigger func_emitter_doorleft
+		frame 154						trigger func_emitter_doorright
+		frame 120						trigger func_emitter_dropshifloor
+					
+		frame 775						trigger shipbot1
+		frame 775						trigger shipbot2
+		frame 775						trigger shipbot3
+		frame 775						trigger shipbot4
+		frame 775						trigger shipbot5
+		frame 775						trigger shipbot6
+		frame 782						trigger shipinnerlight
+		frame 782						sound_global ship_liftoff
+	}
+	anim hangarloop					models/md5/cinematics/marscity/hangarshipbigendloop.md5anim
+	anim bind						models/md5/cinematics/marscity/spaceship_bindme.md5anim
+}
+
+entityDef marscity_ship3 {
+	"inherit"						"cin_base"
+	"model"							"marscity_ship3"
+	"anim"							"hangarend"
+	"loop_last_anim"				"1"
+	"auto_advance"					"1"
+	"num_anims"						"2"
+	"anim1"							"hangarend"
+	"anim2"							"hangarloop"
+	"cinematic"						"1"
+}
+
+model marscity_security_goggles_pda_head {
+	mesh							models/md5/characters/npcs/heads/goggles.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim blink						models/md5/characters/npcs/heads/gogglesblink.md5anim
+	anim idle						models/md5/characters/npcs/heads/gogglesidle.md5anim
+	anim stand						models/md5/characters/npcs/heads/gogglesidle.md5anim
+	anim talk_trigger				models/md5/heads/security_goggles/marscity/sec_hangar_trigger.md5anim {
+		frame 1						sound_voice snd_talk_trigger
+	}
+	anim talk_primary				models/md5/heads/security_goggles/marscity/sec_hangar_primary.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/security_goggles/marscity/sec_hangar_secondary_1.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/security_goggles/marscity/sec_hangar_secondary_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_security_goggles_pda {
+	inherit							npc_security
+	anim stand						models/md5/chars/PDA_idle_look.md5anim
+	anim talk_trigger				models/md5/chars/PDA_talk_security_guard.md5anim
+	anim talk_primary				models/md5/chars/PDA_talk.md5anim
+	anim talk_secondary1			models/md5/chars/PDA_talk.md5anim
+	anim talk_secondary2			models/md5/chars/PDA_talk.md5anim
+}
+
+entityDef marscity_security_goggles_pda {
+	"inherit"						"npc_base"
+	"def_head"						"marscity_security_goggles_pda_head"
+	"model"							"marscity_security_goggles_pda"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"384"
+
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.1"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"pda_marscity_security_goggles_pda"
+	"def_dropDeathItem"				"pda_marscity_security_goggles_pda"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+	
+	"snd_talk_trigger"				"marscity_sec_hangar_trigger"
+	"snd_talk_primary"				"marscity_sec_hangar_primary"
+	"snd_talk_secondary"			"marscity_sec_hangar_secondary1"
+	"snd_talk_secondary2"			"marscity_sec_hangar_secondary2"
+}
+
+model marscity_civilian1_head {
+	mesh							models/md5/characters/npcs/heads/h1.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim blink						models/md5/characters/npcs/heads/h1blink.md5anim
+	anim idle						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h1idle.md5anim
+	anim talk_trigger				models/md5/heads/old/marscity/civ1_1.md5anim {
+		frame 1						sound_voice snd_talk_trigger
+	}
+	anim talk_primary				models/md5/heads/old/marscity/civ1_2.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/old/marscity/civ1_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/old/marscity/civ1_4.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_civilian1 {
+	mesh							models/md5/chars/labcoat.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+	
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+
+	anim stand						models/md5/chars/mc_civ1_idle.md5anim {
+		frame 1							event disableEyeFocus
+	} 
+	anim idle						models/md5/chars/mc_civ1_secondary2.md5anim {
+		frame 1							event disableEyeFocus
+	} 				
+	anim talk_trigger				models/md5/chars/mc_civ1_trigger.md5anim {
+		frame 1							event enableEyeFocus
+	} 
+	anim talk_primary				models/md5/chars/mc_civ1_primary.md5anim {
+		frame 1							event enableEyeFocus
+	} 
+	anim talk_secondary1			models/md5/chars/mc_civ1_secondary1.md5anim {
+		frame 1							event enableEyeFocus
+	} 
+	anim talk_secondary2			models/md5/chars/mc_civ1_secondary2.md5anim {
+		frame 1							event disableEyeFocus
+	} 
+}
+
+entityDef marscity_civilian1 {
+	"inherit"						"npc_base"
+	"model"							"marscity_civilian1"
+	"scriptobject"					"character"
+
+	"copy_joint_world eyecontrol"	""
+	
+	"size"							"32 32 38"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		".7 .7 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"talk_no_turn"					"1"
+	"no_cower"						"1"
+	"ignore_push"					"1"
+	
+	"talktime"						"0"
+	"talkradius"					"384"
+	
+	"head_focus_rate"				"0.1"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"def_head"						"marscity_civilian1_head"
+	"head_joint"					"Shoulders"
+
+	"snd_talk_trigger"				"marscity_civilian1_trigger"
+	"snd_talk_primary"				"marscity_civilian1_primary"
+	"snd_talk_secondary"			"marscity_civilian1_secondary1"
+	"snd_talk_secondary2"			"marscity_civilian1_secondary2"
+}
+
+model char_labcoat_black {
+	inherit							npc_labcoat
+	anim pda_idle_look				models/md5/chars/PDA_idle_look.md5anim
+	anim pda_idle					models/md5/chars/PDA_idle.md5anim
+	anim pda_talk					models/md5/chars/PDA_talk.md5anim
+	anim gui_operate				models/md5/chars/gui_operate_daniel.md5anim
+	anim operate_computer6			models/md5/chars/operate_computer_loop3.md5anim
+}
+
+entityDef char_labcoat_black {
+	"inherit"						"npc_base"
+
+	"copy_joint_world eyecontrol"	""
+	
+	"head_focus_rate"				"0.1"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"model"							"char_labcoat_black"
+	"skin"							"skins/characters/npcs/soldier_black"
+	"eye_verticle_offset"			"0"
+	"def_head"						"head_black"
+	"head_joint"					"Shoulders"
+}
+
+model marscity_sec_checkin {	
+	inherit							npc_security
+
+	anim idle							models/md5/cinematics/marscity/sec_checkin_idle.md5anim {
+		frame 1							event disableEyeFocus
+	} 
+	anim idlenorot						models/md5/cinematics/marscity/sec_checkin_idle_norot.md5anim {
+		frame 1							event disableEyeFocus
+	} 
+	anim stand							models/md5/cinematics/marscity/sec_checkin_idle.md5anim {
+		frame 1							event disableEyeFocus
+	} 
+	
+	anim welcome						models/md5/cinematics/marscity/sec_checkin_welcome.md5anim {
+		frame 1							event disableEyeFocus
+		frame 7							event enableEyeFocus
+		frame 40 						event disableEyeFocus
+	} 
+	anim need							models/md5/cinematics/marscity/sec_checkin_need.md5anim  {
+		frame 1							event disableEyeFocus
+		frame 3							event enableEyeFocus
+		frame 17						event disableEyeFocus
+		frame 35 						event enableEyeFocus
+		frame 48 						event disableEyeFocus
+		frame 110 						event enableEyeFocus
+		frame 125 						event disableEyeFocus
+			
+	} 
+	anim cleared						models/md5/cinematics/marscity/sec_checkin_cleared.md5anim {
+		frame 1							event disableEyeFocus
+		frame 55						event enableEyeFocus
+		frame 76						event disableEyeFocus
+	}  
+	anim hold							models/md5/cinematics/marscity/sec_checkin_holdstill.md5anim {
+		frame 1							event disableEyeFocus
+		frame 12						event enableEyeFocus
+		frame 53						event disableEyeFocus
+	}  
+	anim waisting						models/md5/cinematics/marscity/sec_checkin_waisting.md5anim {
+		frame 1							event disableEyeFocus
+		frame 10 						event enableEyeFocus
+		frame 38						event disableEyeFocus
+	}  
+	anim letmeget						models/md5/cinematics/marscity/sec_checkin_letmeget.md5anim {
+		frame 1							event disableEyeFocus
+	}  
+}
+
+entityDef marscity_sec_checkin {	
+	"inherit"						"npc_base"
+	"model"							"marscity_sec_checkin"
+	"anim"							"idle"
+	"size"							""
+	"ik_numlegs"					"0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		".6 .6 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+
+	"def_head"						"marscity_sec_checkin_head"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"headcontrol"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_soft_desk_chair2"
+
+	"snd_welcome"					"marscity_sec_checkin_welcome"
+	"snd_need"						"marscity_sec_checkin_need"
+	"snd_hold"						"marscity_sec_checkin_hold"
+	"snd_waisting"					"marscity_sec_checkin_waisting"
+	"snd_letmeget"					"marscity_sec_checkin_letmeget"
+	"snd_cleared"					"marscity_sec_checkin_cleared"
+}
+
+model marscity_sec_checkin_head {
+	skin 							skins/characters/npcs/prettyoldhead.skin
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h2idle.md5anim {
+	}
+	anim stand						models/md5/characters/npcs/heads/h2idle.md5anim
+	anim blink						models/md5/characters/npcs/heads/h2blink.md5anim
+	anim cleared						models/md5/characters/npcs/heads/marscity/checkin_cleared.md5anim {
+		frame 1							sound_voice snd_cleared									
+	}
+	anim need						models/md5/characters/npcs/heads/marscity/checkin_gonnaneed.md5anim {
+		frame 1							sound_voice snd_need	
+	}
+	anim hold						models/md5/characters/npcs/heads/marscity/checkin_holdstill.md5anim {
+		frame 1							sound_voice snd_hold									
+	}
+	anim letmeget						models/md5/characters/npcs/heads/marscity/checkin_letmeget.md5anim {
+		frame 1							sound_voice snd_letmeget						
+	}
+	anim waisting						models/md5/characters/npcs/heads/marscity/checkin_waisting.md5anim {
+		frame 1							sound_voice snd_waisting								
+	}
+	anim welcome						models/md5/characters/npcs/heads/marscity/checkin_welcome.md5anim {
+		frame 1							sound_voice snd_welcome									
+	}
+}
+
+model char_security_goggles_pistol {
+	inherit							npc_security
+}
+
+entityDef char_security_goggles_pistol {
+	"inherit"						"npc_base"
+	"model"							"char_security_goggles_pistol"
+	"def_head"						"head_security_goggles"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_pistol"
+	"def_dropDeathItem"				"moveable_item_pistol"
+	"dropDeathItemJoint"			"pistol"
+}
+
+model marscity_suit_young_chair {
+	inherit							npc_suit	
+	
+	anim stand						models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim idle					    models/md5/chars/operate_computer_sitting_higher.md5anim
+
+	anim cower						models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim turn_left					models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim turn_right					models/md5/chars/operate_computer_sitting_higher.md5anim
+}
+
+entityDef marscity_suit_young_chair {
+	"inherit"						"npc_base"
+	"model"							"marscity_suit_young_chair"
+	"def_head"						"head_young"
+	"head_joint"					"Shoulders"
+	"ignore_push"					"1"
+	"anim"							"idle"
+	"ik_numLegs"					"0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_soft_desk_chair2"
+	"def_dropDeathItem"				"moveable_chair2"
+	"dropDeathItemJoint"			"chair"
+
+	"dropDeathItemRotation"			"-90 0 0"
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"talk_time"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+	
+	"look_joint Waist"				"0.2 0 0"
+	"look_joint Chest"				"0.2 0 0"
+	"look_joint Shoulders"			"0.2 0 0"
+	"look_joint headcontrol"		"0.4 0.5 0"
+	"look_joint neckcontrol"		"0.4 0.5 0"
+	"look_joint Ruparm"				"-0.5 0 0"
+	"look_joint Luparm"				"-0.5 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+	"eye_verticle_offset"			"20"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.08"
+}
+
+model marscity_labcoat_black {
+	inherit							npc_labcoat
+	anim pda_idle_look				models/md5/chars/PDA_idle_look.md5anim
+	anim pda_idle					models/md5/chars/PDA_idle.md5anim
+	anim pda_talk					models/md5/chars/PDA_talk.md5anim
+	anim gui_operate				models/md5/chars/gui_operate_daniel.md5anim
+	anim talk_primary				models/md5/chars/PDA_talk.md5anim
+	anim talk_secondary1			models/md5/chars/PDA_talk.md5anim
+	anim talk_secondary2			models/md5/chars/PDA_talk.md5anim
+}
+
+entityDef marscity_labcoat_black {
+	"inherit"						"npc_base"
+	"model"							"marscity_labcoat_black"
+	"skin"							"skins/characters/npcs/soldier_black"
+	"eye_verticle_offset"			"0"
+	"def_head"						"head_black"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						".5"
+	"head_focus_rate"				"0.1"
+	
+	"copy_joint_world eyecontrol"	""
+	
+	"def_attach"					"pda_marscity_labcoat_black"
+	"def_dropDeathItem"				"pda_marscity_labcoat_black"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+	
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+}
+
+model marscity_char_maint_asian_pda_head {
+	//inherit							head_asian_young
+	
+	skin							skins/characters/npcs/head_asian_young.skin
+	mesh							models/md5/characters/npcs/heads/h5.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/characters/npcs/heads/h5idle.md5anim
+	anim stand						models/md5/characters/npcs/heads/h5idle.md5anim
+	//anim blink					models/md5/characters/npcs/heads/h5blink.md5anim
+	anim dead						models/md5/characters/npcs/heads/h5death.md5anim
+	
+	anim talk_primary				models/md5/heads/asian_young/marscity/maint_tech_hallway1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_young/marscity/maint_tech_hallway2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/asian_young/marscity/maint_tech_hallway3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim talk_excuseme				models/md5/heads/asian_young/marscity/maint_tech_hallway4.md5anim {
+		frame 1						sound_voice snd_talk_excuse
+	}
+}
+
+model marscity_char_maint_asian_pda {
+	inherit							npc_jumpsuit
+	anim stand	   				    models/md5/chars/PDA_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim pda_idle_look				models/md5/chars/PDA_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim talk_excuseme              models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_primary				models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+}
+
+entityDef marscity_char_maint_asian_pda {
+	"inherit"						"npc_base"
+	"def_head"						"marscity_char_maint_asian_pda_head"
+	"head_joint"					"Shoulders"
+	"model"							"marscity_char_maint_asian_pda"
+	"ik_numLegs"					"0"
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"talk_no_turn"					"1"
+	"talktime"						"1"
+	"talkradius"					"384"
+
+	"head_focus_rate"				"0.1"
+
+	"copy_joint_world eyecontrol"	""
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"def_attach"					"pda_marscity_char_maint_asian_pda"
+	"def_dropDeathItem"				"pda_marscity_char_maint_asian_pda"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+	
+	"snd_talk_excuse"				"marscity_maint_tech_hallway_excuse"
+	"snd_talk_primary"				"marscity_maint_tech_hallway_primary"
+	"snd_talk_secondary"			"marscity_maint_tech_hallway_secondary1"
+	"snd_talk_secondary2"			"marscity_maint_tech_hallway_secondary2"
+	"snd_talk_idle"					"marscity_maint_tech_hallway_idle1"
+	"snd_talk_idle2"				"marscity_maint_tech_hallway_idle2"
+}
+
+model marscity_security_machinegun {
+	inherit							npc_security
+	
+	anim walk						models/md5/chars/walk_machinegun.md5anim {
+		frame 3						sound_body snd_footstep
+		frame 17					sound_body snd_footstep
+		frame 32					sound_body snd_footstep
+		frame 46					sound_body snd_footstep
+	}
+	anim stand						models/md5/chars/p90_stand.md5anim
+	anim idle						models/md5/chars/p90_stand.md5anim
+	anim talk_trigger				models/md5/chars/p90_talk.md5anim {
+		frame 1						sound_voice snd_talk_trigger
+	}
+	anim talk_primary				models/md5/chars/p90_talk.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/chars/p90_talk.md5anim { 
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/chars/p90_talk.md5anim { 
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+entityDef marscity_security_machinegun {
+	"inherit"						"npc_base"
+	"model"							"marscity_security_machinegun"
+	"def_head"						"head_security_helmet"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+	"talktime"						".6"
+	"talkradius"					"420"
+
+	"def_attach"					"prop_machinegun"
+
+	"ik_numLegs"					"0"
+	"snd_talk_trigger"				"marscity_security_guard_admin_trigger"
+	"snd_talk_primary"				"marscity_security_guard_admin_primary"
+	"snd_talk_secondary"			"marscity_security_guard_admin_secondary1"
+	"snd_talk_secondary2"			"marscity_security_guard_admin_secondary2"
+}
+
+model marscity_civilian_bathroom_head {
+	inherit							head_black
+	
+	anim talk_primary				models/md5/heads/black/marscity/marine_bathroom_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/black/marscity/marine_bathroom_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/black/marscity/marine_bathroom_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim talk_excuseme				models/md5/heads/black/marscity/marine_bathroom_4.md5anim {
+		frame 1						sound_voice snd_talk_excuseme
+	}
+}
+
+model marscity_civilian_bathroom {
+	inherit							npc_tshirt
+	
+	anim operate_computer5			models/md5/chars/stand.md5anim
+	anim stand						models/md5/chars/stand.md5anim
+	anim talk_primary				models/md5/chars/stand_talk.md5anim
+	anim talk_secondary1			models/md5/chars/stand_talk.md5anim
+	anim talk_secondary2			models/md5/chars/stand_talk.md5anim
+}
+
+entityDef marscity_civilian_bathroom {
+	"inherit"						"npc_base"
+	"model"							"marscity_civilian_bathroom"
+	"def_head"						"marscity_civilian_bathroom_head"
+	"skin"							"skins/characters/npcs/soldier_black"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"talktime"						".5"
+	"talkradius"					"384"
+
+	"copy_joint_world eyecontrol"	""
+	
+	"head_focus_rate"				"0.1"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+	
+	"snd_talk_primary"				"marscity_marine_bathroom_primary"
+	"snd_talk_secondary"			"marscity_marine_bathroom_secondary1"
+	"snd_talk_secondary2"			"marscity_marine_bathroom_secondary2"
+	"snd_talk_excuseme"				"marscity_marine_bathroom_excuseme"
+}
+
+model marscity_sec_window {	
+	inherit							npc_tshirt
+
+	anim window						models/md5/cinematics/marscity/sec_window.md5anim {
+		frame 685						sound_voice marscity_cin_marine1_1
+		frame 895						sound_voice marscity_cin_marine1_2
+	}
+}
+entityDef marscity_sec_window {	
+	"inherit"						"npc_base"
+	"model"							"marscity_sec_window"
+	"anim"							"window"
+	"size"							"12 12 74"
+	"ik_numlegs"					"0"
+	"def_attach"					"prop_soft_desk_chair2"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_head"						"marscity_sec_window2_head"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"headcontrol"
+	"cinematic"						"1"
+}
+
+model marscity_sec_window2_head {
+	inherit							head_young
+	
+	anim talk_primary				models/md5/heads/young/marscity/marine6_hq_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/young/marscity/marine6_hq_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/young/marscity/marine6_hq_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim window						models/md5/characters/npcs/heads/h2mc1window.md5anim
+}
+
+model marscity_sec_window2 {
+	inherit							npc_tshirt
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+	anim stand						models/md5/chars/operate_computer_sitting.md5anim {
+		frame 2						sound_body typing
+		frame 11					sound_body2 typing
+		frame 18					sound_body typing
+		frame 28					sound_body2 typing
+		frame 31					sound_body typing
+		frame 34					sound_body2 typing
+		frame 37					sound_body typing
+		frame 41					sound_body2 typing
+		frame 44					sound_body typing
+		frame 75					sound_body2 typing
+		frame 79					sound_body typing
+		frame 82					sound_body2 typing
+		frame 88					sound_body typing
+		frame 93					sound_body2 typing
+		frame 95					sound_body typing
+		frame 98					sound_body2 typing
+		frame 103					sound_body typing
+		frame 105					sound_body2 typing
+		frame 133					sound_body typing
+		frame 136					sound_body2 typing
+		frame 143					sound_body typing
+		frame 146					sound_body2 typing
+		frame 149					sound_body typing
+		frame 153					sound_body2 typing
+		frame 156					sound_body typing
+		frame 159					sound_body2 typing
+		frame 169					sound_body typing
+		frame 173					sound_body2 typing
+		frame 175					sound_body typing
+	}
+	anim idle					    models/md5/chars/operate_computer_sitting.md5anim {
+		frame 2						sound_body typing
+		frame 11					sound_body2 typing
+		frame 18					sound_body typing
+		frame 28					sound_body2 typing
+		frame 31					sound_body typing
+		frame 34					sound_body2 typing
+		frame 37					sound_body typing
+		frame 41					sound_body2 typing
+		frame 44					sound_body typing
+		frame 75					sound_body2 typing
+		frame 79					sound_body typing
+		frame 82					sound_body2 typing
+		frame 88					sound_body typing
+		frame 93					sound_body2 typing
+		frame 95					sound_body typing
+		frame 98					sound_body2 typing
+		frame 103					sound_body typing
+		frame 105					sound_body2 typing
+		frame 133					sound_body typing
+		frame 136					sound_body2 typing
+		frame 143					sound_body typing
+		frame 146					sound_body2 typing
+		frame 149					sound_body typing
+		frame 153					sound_body2 typing
+		frame 156					sound_body typing
+		frame 159					sound_body2 typing
+		frame 169					sound_body typing
+		frame 173					sound_body2 typing
+		frame 175					sound_body typing
+	}
+	anim cower						models/md5/chars/operate_computer_sitting.md5anim {
+		frame 2						sound_body typing
+		frame 11					sound_body2 typing
+		frame 18					sound_body typing
+		frame 28					sound_body2 typing
+		frame 31					sound_body typing
+		frame 34					sound_body2 typing
+		frame 37					sound_body typing
+		frame 41					sound_body2 typing
+		frame 44					sound_body typing
+		frame 75					sound_body2 typing
+		frame 79					sound_body typing
+		frame 82					sound_body2 typing
+		frame 88					sound_body typing
+		frame 93					sound_body2 typing
+		frame 95					sound_body typing
+		frame 98					sound_body2 typing
+		frame 103					sound_body typing
+		frame 105					sound_body2 typing
+		frame 133					sound_body typing
+		frame 136					sound_body2 typing
+		frame 143					sound_body typing
+		frame 146					sound_body2 typing
+		frame 149					sound_body typing
+		frame 153					sound_body2 typing
+		frame 156					sound_body typing
+		frame 159					sound_body2 typing
+		frame 169					sound_body typing
+		frame 173					sound_body2 typing
+		frame 175					sound_body typing
+	}
+	anim turn_left					models/md5/chars/operate_computer_sitting.md5anim
+	anim turn_right					models/md5/chars/operate_computer_sitting.md5anim
+		
+	anim talk_primary				models/md5/chars/operate_computer_talk.md5anim
+	anim talk_secondary1			models/md5/chars/operate_computer_talk.md5anim
+	anim talk_secondary2			models/md5/chars/operate_computer_talk.md5anim
+}
+
+entityDef marscity_sec_window2 {
+	"inherit"						"npc_base"
+	"model"							"marscity_sec_window2"
+	"anim"							"idle"
+
+	"def_head"						"marscity_sec_window2_head"	
+	"head_joint"					"Shoulders"
+	"ignore_push"					"1"
+	"ik_numlegs"					"0"
+	"def_attach"					"prop_soft_desk_chair2"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"def_dropDeathItem"				"moveable_chair2"
+	"dropDeathItemJoint"			"chair"
+	"dropDeathItemRotation"			"-90 0 0"
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"talk_time"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0.2 0.2 0"
+	"look_joint headcontrol"		"-0.1 -0.1 0"
+	"look_joint neckcontrol"		"0.8 0.8 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"snd_talk_primary"				"marscity_marine6_hq_primary"
+	"snd_talk_secondary"			"marscity_marine6_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine6_hq_secondary2"
+}
+
+model marscity_betruger_head {
+	mesh							models/md5/heads/betruger/betruger.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/betruger/betrugeridle.md5anim
+	anim stand						models/md5/heads/betruger/betrugeridle.md5anim
+	anim betrugercin1				models/md5/heads/betruger/marscity/betspeech.md5anim
+	anim betrugercin_a				models/md5/heads/betruger/marscity/betspeech_a.md5anim
+	anim betrugercin_b				models/md5/heads/betruger/marscity/betspeech_b.md5anim
+	anim betrugercin_c				models/md5/heads/betruger/marscity/betspeech_c.md5anim {
+		frame 3         				sound_voice marscity_speech_bertruger1
+	}
+	anim betrugercin_d				models/md5/heads/betruger/marscity/betspeech_d.md5anim {
+		frame 192        				sound_voice marscity_speech_bertruger2
+		frame 752        				sound_voice marscity_speech_bertruger3
+		frame 1292       				sound_voice marscity_speech_bertruger4
+	}
+}
+
+model marscity_cinematic_betruger {
+	inherit							npc_labcoat
+
+	anim betrugercin_a				models/md5/chars/betruger/marscity/meeting_a.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim betrugercin_b				models/md5/chars/betruger/marscity/meeting_b.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim betrugercin_c				models/md5/chars/betruger/marscity/meeting_c.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim betrugercin_d				models/md5/chars/betruger/marscity/meeting_d.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim window						models/md5/chars/betruger/marscity/window.md5anim {
+		frame 760       				sound_voice marscity_cin_bertruger1_1
+	}
+}
+
+entityDef marscity_cinematic_betruger {
+	"inherit"						"npc_base"
+	"size"							""
+	"model"							"marscity_cinematic_betruger"
+	"anim"							"betrugercin_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_betruger_head"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+}
+
+entityDef marscity_meeting_betruger {
+	"inherit"						"npc_base"
+	"size"							""
+	"model"							"marscity_cinematic_betruger"
+	"anim"							"betrugercin_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_betruger_head"
+	"head_joint"					"Shoulders"
+	"num_cinematics"				"4"
+	"anim1"							"betrugercin_a"
+	"anim2"							"betrugercin_b"
+	"anim3"							"betrugercin_c"
+	"anim4"							"betrugercin_d"
+
+	"cinematic"						"1"
+}
+
+model marscity_head_swann {
+	skin 							skins/characters/npcs/swannglasses.skin
+	mesh							models/md5/heads/swann/swann.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim stand						models/md5/heads/swann/swannidle.md5anim
+	anim idle						models/md5/heads/swann/swannidle.md5anim
+	anim betrugercin_a				models/md5/heads/swann/marscity/swannhead_speech_a.md5anim
+	anim betrugercin_b				models/md5/heads/swann/marscity/swannhead_speech_b.md5anim
+	anim betrugercin_c				models/md5/heads/swann/marscity/swannhead_speech_c.md5anim
+	anim betrugercin_d				models/md5/heads/swann/marscity/swannhead_speech_d.md5anim
+	anim hangar_a					models/md5/heads/swann/marscity/mc_hangar_a.md5anim
+	anim hangar_b					models/md5/heads/swann/marscity/mc_hangar_b.md5anim
+	anim hangar_c					models/md5/heads/swann/marscity/mc_hangar_c.md5anim
+	anim hangar_d					models/md5/heads/swann/marscity/mc_hangar_d.md5anim
+	anim hangar_e					models/md5/heads/swann/marscity/mc_hangar_e.md5anim
+	anim hangar_f					models/md5/heads/swann/marscity/mc_hangar_f.md5anim
+}
+
+model marscity_cinematic_swann {	
+	inherit							npc_suit
+
+	anim betrugercin_a				models/md5/chars/swann/marscity/meeting_a.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 1							sound_voice marscity_speech_swann1
+
+	}
+	anim betrugercin_b				models/md5/chars/swann/marscity/meeting_b.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim betrugercin_c				models/md5/chars/swann/marscity/meeting_c.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim betrugercin_d				models/md5/chars/swann/marscity/meeting_d.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 79						sound_voice marscity_speech_swann2
+		frame 537						sound_voice marscity_speech_swann3
+		frame 1042						sound_voice marscity_speech_swann4
+		frame 1552						sound_voice marscity_speech_swann5
+	}
+}
+
+entityDef marscity_cinematic_swann {	
+	"inherit"						"npc_base"
+	"size"							""
+	"model"							"marscity_cinematic_swann"
+	"anim"							"betrugercin_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_swann"
+	"head_joint"					"Shoulders"
+	"num_cinematics"				"4"
+	"anim1"							"betrugercin_a"
+	"anim2"							"betrugercin_b"
+	"anim3"							"betrugercin_c"
+	"anim4"							"betrugercin_d"
+
+	"cinematic"						"1"
+}
+
+model marscity_hangar_swann {	
+	inherit							npc_suit
+
+	anim hangar_a					models/md5/chars/swann/marscity/hangar_a.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 250						sound_voice marscity_cin_swann1_1
+	}
+	anim hangar_b					models/md5/chars/swann/marscity/hangar_b.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 41						sound_voice marscity_cin_swann1_2
+	}
+
+	anim hangar_c					models/md5/chars/swann/marscity/hangar_c.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_d					models/md5/chars/swann/marscity/hangar_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_e					models/md5/chars/swann/marscity/hangar_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+
+	anim hangar_f					models/md5/chars/swann/marscity/hangar_f.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 1							sound_voice marscity_cin_swann1_3
+	}
+}
+
+entityDef marscity_hangar_swann {	
+	"inherit"						"npc_base"
+	"size"							"0 0 0"
+	"model"							"marscity_hangar_swann"
+	"anim"							"hangar_a"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_swann"
+	"head_joint"					"Shoulders"
+
+	"num_cinematics"				"6"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"anim4"							"hangar_d"
+	"anim5"							"hangar_e"
+	"anim6"							"hangar_f"
+	"cinematic"						"1"
+}
+
+model marscity_walking_swann {
+	inherit							npc_suit
+}
+
+entityDef marscity_walking_swann {
+	"inherit"						"npc_base"
+	"size"							""
+	"model"							"marscity_walking_swann"
+	"eye_verticle_offset"			"0"
+	"def_head"						"head_swann"
+	"head_joint"					"Shoulders"
+}
+
+model marscity_head_campbell {
+	inherit							head_campbell
+
+	anim hangar_a					models/md5/heads/campbell/marscity/mc_hangar_a.md5anim
+	anim hangar_b					models/md5/heads/campbell/marscity/mc_hangar_b.md5anim
+	anim hangar_c					models/md5/heads/campbell/marscity/mc_hangar_c.md5anim
+	anim hangar_d					models/md5/heads/campbell/marscity/mc_hangar_d.md5anim
+	anim hangar_e					models/md5/heads/campbell/marscity/mc_hangar_e.md5anim
+	anim hangar_f					models/md5/heads/campbell/marscity/mc_hangar_f.md5anim
+}
+
+model marscity_cinematic_campbell {	
+	inherit							char_campbell_bfgcase
+
+	anim betrugercin_a				models/md5/chars/campbell/marscity/betrugercin1_campbell_a.md5anim
+	anim betrugercin_b				models/md5/chars/campbell/marscity/betrugercin1_campbell_b.md5anim
+	anim betrugercin_c				models/md5/chars/campbell/marscity/betrugercin1_campbell_c.md5anim
+	anim betrugercin_d				models/md5/chars/campbell/marscity/betrugercin1_campbell_d.md5anim
+}
+
+entityDef marscity_cinematic_campbell {	
+	"inherit"						"char_campbell_bfgcase"
+	"model"							"marscity_cinematic_campbell"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_campbell"
+	"head_joint"					"Shoulders"
+	"size"							""
+
+	"num_cinematics"				"4"
+	"anim1"							"betrugercin_a"
+	"anim2"							"betrugercin_b"
+	"anim3"							"betrugercin_c"
+	"anim4"							"betrugercin_d"
+
+	"cinematic"						"1"
+}
+
+model marscity_hangar_campbell {	
+	inherit							char_campbell_bfgcase
+
+	anim hangar_a					models/md5/chars/campbell/marscity/hangar_campbell_a.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_b					models/md5/chars/campbell/marscity/hangar_campbell_b.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 4							sound_voice marscity_cin_campbell1_1
+	}
+	anim hangar_c					models/md5/chars/campbell/marscity/hangar_campbell_c.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 93						sound_voice marscity_cin_campbell1_2
+	}
+	anim hangar_d					models/md5/chars/campbell/marscity/hangar_campbell_d.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_e					models/md5/chars/campbell/marscity/hangar_campbell_e.md5anim {
+		frame 1		 					event disableEyeFocus
+	}
+	anim hangar_f					models/md5/chars/campbell/marscity/hangar_campbell_f.md5anim {
+		frame 1		 					event disableEyeFocus
+		frame 114						sound_voice marscity_cin_campbell1_3
+	}
+}
+
+entityDef marscity_hangar_campbell {	
+	"inherit"						"char_campbell_bfgcase"
+	"model"							"marscity_hangar_campbell"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_campbell"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+
+	"num_cinematics"				"6"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"anim4"							"hangar_d"
+	"anim5"							"hangar_e"
+	"anim6"							"hangar_f"
+	"cinematic"						"1"
+}
+
+model marscity_head_sarge {
+	mesh							models/md5/heads/sarge/sarge.md5mesh
+	anim stand						models/md5/heads/sarge/sargeidle.md5anim
+	
+	anim sargecin1					models/md5/heads/sarge/marscity/sargecin_sargehead1.md5anim
+	anim sargecin2					models/md5/heads/sarge/marscity/sargecin_sargehead2.md5anim
+	anim sargecin3					models/md5/heads/sarge/marscity/sargecin_sargehead3.md5anim
+	anim sargecin4					models/md5/heads/sarge/marscity/sargecin_sargehead4.md5anim
+	anim sargecin5					models/md5/heads/sarge/marscity/sargecin_sargehead5.md5anim
+	anim sargecin6					models/md5/heads/sarge/marscity/sargecin_sargehead6.md5anim
+	anim sargecin7					models/md5/heads/sarge/marscity/sargecin_sargehead7.md5anim
+}
+
+model marscity_cinematic_sarge {
+	inherit							npc_marine
+
+	anim sargecin1					models/md5/chars/sarge/marscity/mission1.md5anim {
+		//frame 1						aviGame sargecin
+		frame 1							event disableEyeFocus
+		frame 1 						sound_global marscity_cin_sarge_gui
+		frame 7							sound_voice snd_sargecin1
+	}
+	anim sargecin2					models/md5/chars/sarge/marscity/mission2.md5anim {
+		frame 1							event disableEyeFocus	
+		frame 63						sound_voice snd_sargecin2
+		frame 197						sound_voice snd_sargecin3
+	}
+	anim sargecin3					models/md5/chars/sarge/marscity/mission3.md5anim {
+		frame 1							event disableEyeFocus
+		frame 94						sound_voice snd_sargecin4
+		frame 174						sound_voice snd_sargecin5
+	}
+	anim sargecin4					models/md5/chars/sarge/marscity/mission4.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim sargecin5					models/md5/chars/sarge/marscity/mission5.md5anim {
+		frame 1							event disableEyeFocus
+		frame 1							trigger sentrytrig
+		frame 1							trigger trigger_relay_sarge_light
+		frame 8							sound_voice snd_sargecin6
+		frame 111						sound_voice snd_sargecin7
+	}
+	anim sargecin6					models/md5/chars/sarge/marscity/mission6.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim sargecin7					models/md5/chars/sarge/marscity/mission7.md5anim {
+		frame 1							event disableEyeFocus
+		//frame 39						aviGame
+	}
+}
+
+entityDef marscity_cinematic_sarge {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_sarge"
+	"size"							"12 12 74"
+	"anim"							"sargecin"
+	"sound_bone"					"headcontrol"
+	"ik_numlegs"					"0"
+	
+	"def_head"						"marscity_head_sarge"
+	"head_joint"					"Shoulders"
+
+	"num_cinematics"				"7"
+	"anim1"							"sargecin1"
+	"anim2"							"sargecin2"
+	"anim3"							"sargecin3"
+	"anim4"							"sargecin4"
+	"anim5"							"sargecin5"
+	"anim6"							"sargecin6"
+	"anim7"							"sargecin7"
+
+	"snd_sargecin1"					"marscity_cin_sarge1"
+	"snd_sargecin2"					"marscity_cin_sarge2"
+	"snd_sargecin3"					"marscity_cin_sarge3"
+	"snd_sargecin4"					"marscity_cin_sarge4"
+	"snd_sargecin5"					"marscity_cin_sarge5"
+	"snd_sargecin6"					"marscity_cin_sarge6"
+	"snd_sargecin7"					"marscity_cin_sarge7"
+
+	"cinematic"						"1"
+}
+
+model marscity_cinematic_head_sarge2 {
+	mesh							models/md5/heads/sarge/sarge.md5mesh
+	anim stand						models/md5/heads/sarge/sargeidle.md5anim
+	
+	anim sargecin_start				models/md5/heads/sarge/marscity/sargecin_missionloop.md5anim						
+	
+	anim wait_loop					models/md5/heads/sarge/marscity/sargecin_wait_loop.md5anim
+
+	anim talk_primary				models/md5/heads/sarge/marscity/mc_sarge_primary.md5anim {
+		frame 1							sound_voice marscity_sarge_primary
+	}
+	anim talk_secondary1			models/md5/heads/sarge/marscity/mc_sarge_secondary.md5anim {
+		frame 1							sound_voice marscity_sarge_secondary
+	}
+	anim talk_secondary2			models/md5/heads/sarge/marscity/mc_sarge_secondary2.md5anim {
+		frame 1							sound_voice marscity_sarge_secondary2
+	}
+}
+
+model marscity_cinematic_sarge2 {
+	inherit							marscity_cinematic_sarge
+	
+	anim stand						models/md5/chars/sarge/marscity/mc_sarge_wait_loop.md5anim {
+		frame 1							event disableEyeFocus
+		frame 500 						sound_voice marscity_sarge_cough
+	}
+
+	anim sargecin_start				models/md5/chars/sarge/marscity/missionloop.md5anim
+	
+	anim wait						models/md5/chars/sarge/marscity/mc_sarge_wait.md5anim
+	anim wait_loop					models/md5/chars/sarge/marscity/mc_sarge_wait_loop.md5anim {
+		frame 1							event disableEyeFocus
+		frame 500 						sound_voice marscity_sarge_cough
+	}
+
+	anim talk_primary				models/md5/chars/sarge/marscity/mc_sarge_primary.md5anim {
+		frame 1							event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/sarge/marscity/mc_sarge_secondary.md5anim {
+		frame 1							event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/sarge/marscity/mc_sarge_secondary2.md5anim {
+		frame 1							event enableEyeFocus
+	}
+}
+
+entityDef marscity_cinematic_sarge2 {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_sarge2"
+	"size"							"12 12 74"
+	
+	"follow_once"					"1"
+	"def_head"						"marscity_cinematic_head_sarge2"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"Chest"
+	"talktime"						"1"
+	"bone_focus"					"headcontrol"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+	"bone_orientation"				"Body2"
+	"ik_numLegs"					"0"
+	"talk_no_turn"					"1"
+	"blink_min"						"2.5"
+	"blink_max"						"8.0"
+
+	"look_min"						"-90 -85 0"
+	"look_max"						"25 85 0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				".1 .12 0"
+	"look_joint Shoulders"			".2 .23 0"
+	"look_joint headcontrol"		".7 .65 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"0"
+	"eye_horizontal_offset"			"3"
+
+	"eye_focus_rate"				"0.005"
+	"head_focus_rate"				"0.07"
+}
+
+model marscity_hangar {
+	mesh							models/md5/cinematics/marscity/marscityhangar.md5mesh
+	anim hangar						models/md5/cinematics/marscity/marscityhangar.md5anim
+}
+
+entityDef marscity_hangar {
+	"inherit"						"cin_base"
+	"model"							"marscity_hangar"
+	"anim"							"hangar"
+	"cinematic"						"1"
+}
+
+model marscity_civilian2 {
+	inherit							npc_suit
+
+	anim talk_primary				models/md5/chars/stand_talk.md5anim {
+		prevent_idle_override
+		frame 1							event enableEyeFocus
+		frame 1							sound_voice marscity_maint1_primary
+	}
+}
+
+entityDef marscity_civilian2 {
+	"inherit"						"npc_base"
+	"copy_joint_world eyecontrol"	""
+	"model"							"marscity_civilian2"
+	"snd_blocked"					"marscity_maint1_blocked"
+	"snd_talk_secondary"			"marscity_maint1_secondary"
+}
+
+model marscity_receptionist_head {
+	mesh							models/md5/heads/head02young/h2_cinematic.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim stand						models/md5/heads/head02young/marscity/reception_idle.md5anim 
+	anim blink						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim typing						models/md5/heads/head02young/marscity/reception_idle.md5anim 
+	anim typing_end					models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim talk_primary				models/md5/heads/head02young/marscity/reception_primary.md5anim {
+		frame 5							sound_voice marscity_receptionist_primary
+	}
+	anim talk_secondary1			models/md5/heads/head02young/marscity/reception_secondary1.md5anim {
+		frame 1							sound_voice marscity_receptionist_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/head02young/marscity/reception_secondary2.md5anim {
+		frame 1							sound_voice marscity_receptionist_secondary2
+	}	
+
+	anim reception_a				models/md5/heads/head02young/marscity/reception_a.md5anim {
+		frame 31         				sound_voice marscity_receptionist_trigger_1
+		frame 60         				sound_voice marscity_receptionist_trigger_2
+	}
+	anim reception_b				models/md5/heads/head02young/marscity/reception_b.md5anim {
+		frame 16        				sound_voice marscity_receptionist_trigger_3
+	}
+	anim reception_c				models/md5/heads/head02young/marscity/reception_c.md5anim {
+		frame 51      	 				sound_voice marscity_receptionist_trigger_4
+	}
+	anim reception_d				models/md5/heads/head02young/marscity/reception_d.md5anim {
+		frame 75        				sound_voice marscity_receptionist_trigger_5
+	}
+	anim reception_e				models/md5/heads/head02young/marscity/reception_e.md5anim {
+		frame 41        				sound_voice marscity_receptionist_trigger_6
+		frame 134      	 				sound_voice marscity_receptionist_trigger_7
+		frame 239        				sound_voice marscity_receptionist_trigger_8
+		frame 294        				sound_voice marscity_receptionist_trigger_9
+	}
+	anim reception_f					models/md5/heads/head02young/marscity/reception_f.md5anim
+}
+
+model marscity_receptionist {
+	inherit							npc_suit
+
+	anim idle						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing.md5anim
+	anim stand						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing.md5anim {
+		frame 1							sound_body2 typing
+		frame 5							sound_body typing
+		frame 10						sound_body2 typing
+		frame 15						sound_body typing
+		frame 20						sound_body2 typing
+		frame 25						sound_body typing
+		frame 30						sound_body2 typing
+		frame 35						sound_body typing
+		frame 40						sound_body2 typing
+		frame 45						sound_body typing
+	}
+	anim typing						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing.md5anim
+	anim turn_left					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing.md5anim
+	anim turn_right					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing.md5anim
+
+	anim reception_a				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_a.md5anim {
+		frame 1          				disableGravity
+		frame 1			 				event disableEyeFocus
+		frame 38						sound_body marscity_reception_chair
+	}
+	anim reception_b				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_b.md5anim {
+		frame 1          				disableGravity
+		frame 1			 				event disableEyeFocus	
+	}
+	anim reception_c				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_c.md5anim {
+		frame 1          				disableGravity
+		frame 1			 				event disableEyeFocus		
+		//frame 193						call map_marscity1::show_pda
+	}
+	anim reception_d				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_d.md5anim {
+		frame 1							call map_marscity1::show_pda
+		frame 1          				disableGravity
+		frame 1			 				event disableEyeFocus
+	}
+	anim reception_e				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_e.md5anim {
+		frame 1          				disableGravity
+		frame 1			 				event disableEyeFocus
+		frame 86						trigger tim_func_static_2675
+		frame 88						sound_body marscity_reception_type
+	}
+	anim reception_f				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_f.md5anim {
+		frame 1          				disableGravity
+		frame 1			 				event disableEyeFocus
+	}
+}
+
+entityDef marscity_receptionist {
+	"inherit"						"npc_base"
+	"model"							"marscity_receptionist"
+	"size"							"12 12 74"
+	"def_attach"					"prop_soft_desk_chair2"	
+
+	"ik_numLegs"					"0"
+	"def_head"						"marscity_receptionist_head"
+	"head_joint"					"Shoulders"
+	
+	"head_focus_rate"				"0.1"
+	"eye_horizontal_offset"			"0"
+
+	"turn_rate"						"0"
+	"talktime"						"0"
+	"no_cower"						"1"
+	"ignore_push"					"1"
+
+	"num_cinematics"				"6"
+	"anim1"							"reception_a"
+	"anim2"							"reception_b"
+	"anim3"							"reception_c"
+	"anim4"							"reception_d"
+	"anim5"							"reception_e"
+	"anim6"							"reception_f"
+
+	"sound_bone"					"headcontrol"
+	"cinematic"						"1"
+}
+
+entityDef marscity_receptionist_start {
+	"inherit"						"npc_base"
+	"model"							"marscity_receptionist"
+	"size"							"12 12 74"
+	"def_attach"					"prop_soft_desk_chair2"	
+
+	"ik_numLegs"					"0"
+	"def_head"						"marscity_receptionist_head"
+	"head_joint"					"Shoulders"
+	
+	"head_focus_rate"				"0.1"
+	"eye_horizontal_offset"			"0"
+
+	"turn_rate"						"0"
+	"talktime"						"0"
+	"no_cower"						"1"
+	"ignore_push"					"1"
+
+	"sound_bone"					"headcontrol"
+	"cinematic"						"1"
+}
+
+model marscity_receptionist2 {
+	inherit							npc_suit
+
+	anim idle						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim stand						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim  {
+		frame 1							sound_body2 typing
+		frame 4							sound_body typing
+		frame 10						sound_body2 typing
+		frame 15						sound_body typing
+		frame 21						sound_body2 typing
+		frame 25						sound_body typing
+		frame 30						sound_body2 typing
+		frame 35						sound_body typing
+		frame 40						sound_body2 typing
+		frame 45						sound_body typing
+		frame 52						sound_body2 typing
+		frame 57						sound_body typing
+	}
+	anim typing						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim 
+	anim talk_primary				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_primary.md5anim 
+	anim talk_secondary1			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary1.md5anim 
+	anim talk_secondary2			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary2.md5anim 
+	anim turn_left					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim turn_right					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+}
+
+entityDef marscity_receptionist2 {
+	"inherit"						"npc_base"
+	"model"							"marscity_receptionist2"
+	"size"							"12 12 74"
+	"def_attach"					"prop_soft_desk_chair2"	
+
+	"ik_numLegs"					"0"
+	"def_head"						"marscity_receptionist_head"
+	"head_joint"					"Shoulders"
+
+	"talk_time"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0.2 0 0"
+	"look_joint headcontrol"		"0.4 0.3 0"
+	"look_joint neckcontrol"		"0.4 0.5 0"
+	"look_joint Ruparm"				"-0.5 0 0"
+	"look_joint Luparm"				"-0.5 0 0"
+	"look_min"						"-40 -80 0"
+	"look_max"						"40 45 0"
+
+	"no_cower"						"1"
+
+	"turn_rate"						"0"
+	"talktime"						"0"
+
+	"sound_bone"					"headcontrol"
+
+	"snd_talk_primary"				"marscity_receptionist_primary"
+	"snd_talk_secondary1"			"marscity_receptionist_secondary1"
+	"snd_talk_secondary2"			"marscity_receptionist_secondary2"
+}
+
+model marscity_receptionist_head3 {
+	mesh							models/md5/heads/head02young/h2_cinematic.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim idle						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim stand						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim blink						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim typing						models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim typing_end					models/md5/heads/head02young/marscity/reception_idle.md5anim
+	anim talk_primary				models/md5/heads/head02young/marscity/reception_secondary3.md5anim {
+		frame 5							sound_voice marscity_receptionist_secondary3
+	}
+	anim talk_secondary1			models/md5/heads/head02young/marscity/reception_secondary3.md5anim {
+		frame 5							sound_voice marscity_receptionist_secondary3
+	}
+	anim talk_secondary2			models/md5/heads/head02young/marscity/reception_secondary3.md5anim {
+		frame 5							sound_voice marscity_receptionist_secondary3
+	}
+}
+
+model marscity_receptionist3 {
+	inherit							npc_suit
+
+	anim idle						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim stand						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim typing						models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim talk_primary				models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3.md5anim
+	anim talk_secondary1			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3.md5anim
+	anim talk_secondary2			models/md5/chars/receptionist/marscity/receptioncin1_receptionist_secondary3.md5anim 
+	anim turn_left					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+	anim turn_right					models/md5/chars/receptionist/marscity/receptioncin1_receptionist_typing2.md5anim
+}
+
+entityDef marscity_receptionist3 {
+	"inherit"						"marscity_receptionist2"
+	"model"							"marscity_receptionist3"
+	"def_head"						"marscity_receptionist_head3"
+}
+
+model marscity_smallpda {
+	mesh							models/md5/chars/receptionist/marscity/receptioncin1_smallpda.md5mesh
+	anim recep_a					models/md5/chars/receptionist/marscity/receptioncin1_smallpda_a.md5anim
+	anim recep_b					models/md5/chars/receptionist/marscity/receptioncin1_smallpda_b.md5anim
+	anim recep_c					models/md5/chars/receptionist/marscity/receptioncin1_smallpda_c.md5anim
+
+	skin 							skins/models/props/pdathing.skin
+}
+
+entityDef marscity_smallpda {
+	"inherit"						"cin_base"
+	"model"							"marscity_smallpda"
+
+	"num_anims"						"3"
+	"anim1"							"recep_a"
+	"anim2"							"recep_b"
+	"anim3"							"recep_c"
+	
+	"auto_advance"					"1"
+	"cinematic"						"1"
+}
+
+model marscity_dufflebag {
+	mesh							models/md5/chars/receptionist/marscity/receptioncin1_dufflebag.md5mesh
+	anim recep						models/md5/chars/receptionist/marscity/receptioncin1_dufflebag.md5anim
+}
+
+entityDef marscity_dufflebag {
+	"inherit"						"cin_base"
+	"model"							"marscity_dufflebag"
+	"cinematic"						"1"
+}
+
+model marscity_suit_officeguy1 {
+	inherit							npc_suit
+	anim office						models/md5/chars/office1working.md5anim
+}
+
+entityDef marscity_suit_officeguy1 {
+	"inherit"						"npc_base"	
+	"model"							"marscity_suit_officeguy1"
+	"anim"							"office"
+	"def_head"						"head_young"
+	"head_joint"					"Shoulders"
+	"copy_joint_world eyecontrol"	""
+}
+
+model marscity_civilian_hallway {
+	inherit							npc_jumpsuit
+	
+	anim talk_primary				models/md5/chars/stand_talk.md5anim {
+		prevent_idle_override
+		frame 1							event enableEyeFocus
+		frame 1							sound_voice marscity_maint_tech_hallway_primary
+	}
+}
+
+entityDef marscity_civilian_hallway {
+	"inherit"						"npc_base"
+	"model"							"marscity_civilian_hallway"
+	"snd_talk_secondary"			"marscity_maint_tech_hallway_secondary"
+	"def_head"						"head_asian_young"
+	"head_joint"					"Shoulders"
+	"copy_joint_world eyecontrol"	""
+}
+
+model marscity_labcoat_monitor_head {
+	inherit							head_black
+	
+	anim talk_primary				models/md5/heads/black/marscity/scientist_monitor_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/black/marscity/scientist_monitor_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/black/marscity/scientist_monitor_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_labcoat_monitor {
+	inherit							npc_labcoat
+	anim stand						models/md5/chars/operate_computer_loop3.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim operate_computer6			models/md5/chars/operate_computer_loop3.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim talk_primary				models/md5/chars/stand_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/stand_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/stand_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+}
+
+entityDef marscity_labcoat_monitor {
+	"inherit"						"npc_base"
+	"model"							"marscity_labcoat_monitor"
+	"def_head"						"marscity_labcoat_monitor_head"
+	"head_joint"					"Shoulders"
+	"talk_no_turn"					"1"
+	"turn_rate"						"0"
+	"talktime"						"0"
+	"talkradius"					"384"
+	"ik_numLegs"					"0"
+	"copy_joint_world eyecontrol"	""
+	
+	"head_focus_rate"				"0.1"
+	
+	"eye_turn_min"					"-5 -5 0"
+	"eye_turn_max"					"5 5 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+	
+	"snd_talk_primary"				"marscity_sci_monitor_primary"
+	"snd_talk_secondary"			"marscity_sci_monitor_secondary1"
+	"snd_talk_secondary2"			"marscity_sci_monitor_secondary2"
+}
+
+model marscity_civilian_kitchen_head {
+	inherit							head_asian_old
+	
+	anim talk_primary				models/md5/heads/asian_old/marscity/maint_kitchen_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_old/marscity/maint_kitchen_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/asian_old/marscity/maint_kitchen_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_civilian_kitchen {
+	inherit							npc_jumpsuit
+	
+	anim stand						models/md5/chars/drinkfoamcup.md5anim
+	anim idle						models/md5/chars/drinkfoamcup.md5anim
+	anim drink_idle					models/md5/chars/drink_idle.md5anim
+	
+	anim talk_primary				models/md5/chars/drink_idle.md5anim
+	anim talk_secondary1			models/md5/chars/drink_idle.md5anim
+	anim talk_secondary2			models/md5/chars/drink_idle.md5anim
+}
+
+entityDef marscity_civilian_kitchen {
+	"inherit"						"npc_base"
+	"model"							"marscity_civilian_kitchen"
+	"def_head"						"marscity_civilian_kitchen_head"
+	"head_joint"					"Shoulders"
+	"ik_numLegs"					"0"
+	"def_attach"					"prop_foamcup"
+	"talktime"						"0"
+	"talkradius"					"384"
+	"head_focus_rate"				"0.08"
+	"copy_joint_world eyecontrol"	""
+		
+	"snd_talk_primary"				"marscity_kitchen_maint_primary"
+	"snd_talk_secondary"			"marscity_kitchen_maint_secondary1"
+	"snd_talk_secondary2"			"marscity_kitchen_maint_secondary2"
+}
+
+model marscity_maint1_hallway_head {
+	inherit							head_bald
+	
+	anim talk_primary				models/md5/heads/bald/marscity/hallway_maint_1_9.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_primary
+	}
+	anim talk_secondary1			models/md5/heads/bald/marscity/hallway_maint_1_10.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/bald/marscity/hallway_maint_1_11.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_secondary2
+	}
+	anim convo1						models/md5/heads/bald/marscity/hallway_maint_1_1.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo1
+	}
+	anim convo2						models/md5/heads/bald/marscity/hallway_maint_1_2.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo2
+	}
+	anim convo3						models/md5/heads/bald/marscity/hallway_maint_1_3.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo3
+	}
+	anim convo4						models/md5/heads/bald/marscity/hallway_maint_1_4.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo4
+	}
+	anim convo5						models/md5/heads/bald/marscity/hallway_maint_1_5.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo5
+	}
+	anim convo6						models/md5/heads/bald/marscity/hallway_maint_1_6.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo2_1
+	}
+	anim convo7						models/md5/heads/bald/marscity/hallway_maint_1_7.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo2_2
+	}
+	anim convo8						models/md5/heads/bald/marscity/hallway_maint_1_8.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_1_convo2_3
+	}
+}
+
+model marscity_maint1_hallway {	
+	inherit							npc_jumpsuit
+	anim talk_primary				models/md5/chars/stand_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/stand_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/stand_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim stand						models/md5/chars/gui_operate_main_worker.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim idle						models/md5/chars/gui_operate_main_worker.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim convo1						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo2						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo3						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo4						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo5						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo6						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo7						models/md5/chars/gui_operate_main_worker.md5anim
+	anim convo8						models/md5/chars/gui_operate_main_worker.md5anim
+}
+
+entityDef marscity_maint1_hallway {	
+	"inherit"						"npc_base"
+	"model"							"marscity_maint1_hallway"
+	"def_head"						"marscity_maint1_hallway_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.1"
+
+	"look_joint Waist"				".2 .2 0"
+	"look_joint Chest"				".2 .2 0"
+	"look_joint Shoulders"			".1 .1 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"pda_marscity_maint1_hallway"
+	"def_dropDeathItem"				"pda_marscity_maint1_hallway"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+}
+
+model marscity_maint2_hallway_head {
+	inherit							head_asian_old
+	
+	anim talk_primary				models/md5/heads/asian_old/marscity/hallway_maint_2_8.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_old/marscity/hallway_maint_2_9.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/asian_old/marscity/hallway_maint_2_10.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_secondary2
+	}
+	anim convo1						models/md5/heads/asian_old/marscity/hallway_maint_2_1.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo1
+	}
+	anim convo2						models/md5/heads/asian_old/marscity/hallway_maint_2_2.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo2
+	}
+	anim convo3						models/md5/heads/asian_old/marscity/hallway_maint_2_3.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo3
+	}
+	anim convo4						models/md5/heads/asian_old/marscity/hallway_maint_2_4.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo4
+	}
+	anim convo5						models/md5/heads/asian_old/marscity/hallway_maint_2_5.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo2_1
+	}
+	anim convo6						models/md5/heads/asian_old/marscity/hallway_maint_2_6.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo2_2
+	}
+	anim convo7						models/md5/heads/asian_old/marscity/hallway_maint_2_7.md5anim {
+		frame 1						sound_voice marscity_hallway_maint_2_convo2_3
+	}
+}
+
+model marscity_maint2_hallway {
+	inherit							npc_jumpsuit
+
+	anim stand						models/md5/chars/drinkfoamcup.md5anim
+	anim idle						models/md5/chars/drinkfoamcup.md5anim
+	anim drink_idle					models/md5/chars/drink_idle.md5anim
+
+	anim talk_primary				models/md5/chars/drink_idle.md5anim
+	anim talk_secondary1			models/md5/chars/drink_idle.md5anim
+	anim convo1						models/md5/chars/drink_idle.md5anim
+	anim convo2						models/md5/chars/drink_idle.md5anim
+	anim convo3						models/md5/chars/drink_idle.md5anim
+	anim convo4						models/md5/chars/drink_idle.md5anim
+	anim convo5						models/md5/chars/drink_idle.md5anim
+	anim convo6						models/md5/chars/drink_idle.md5anim
+	anim convo7						models/md5/chars/drink_idle.md5anim		
+}
+
+entityDef marscity_maint2_hallway {
+	"inherit"						"npc_base"
+	"model"							"marscity_maint2_hallway"
+	"def_head"						"marscity_maint2_hallway_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"def_attach"					"prop_foamcup"
+
+	"look_joint Waist"				".2 .2 0"
+	"look_joint Chest"				".2 .2 0"
+	"look_joint Shoulders"			".1 .1 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+}
+
+model marscity_suit_asian_chair_head {
+	inherit							head_asian_young
+	
+	anim respond					models/md5/heads/asian_young/marscity/marine3_hq_yes_sir.md5anim {
+		frame 1						sound_voice snd_respond
+	}
+	anim talk_primary				models/md5/heads/asian_young/marscity/marine3_hq_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_young/marscity/marine3_hq_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/asian_young/marscity/marine3_hq_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_suit_asian_chair {
+	inherit							npc_suit
+
+	anim stand						models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim idle					    models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim cower						models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim turn_left					models/md5/chars/operate_computer_sitting_higher.md5anim
+	anim turn_right					models/md5/chars/operate_computer_sitting_higher.md5anim
+		
+	anim respond					models/md5/chars/operate_computer_talk.md5anim
+	anim talk_primary				models/md5/chars/operate_computer_talk.md5anim
+	anim talk_secondary1			models/md5/chars/operate_computer_talk.md5anim
+	anim talk_secondary2			models/md5/chars/operate_computer_talk.md5anim
+}
+
+entityDef marscity_suit_asian_chair {
+	"inherit"						"npc_base"
+	"model"							"marscity_suit_asian_chair"
+	"def_head"						"marscity_suit_asian_chair_head"
+	"head_joint"					"Shoulders"
+	"ignore_push"					"1"
+	"anim"							"stand"
+	"ik_numLegs"					"0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_soft_desk_chair2"
+	"def_dropDeathItem"				"moveable_chair2"
+	"dropDeathItemJoint"			"chair"
+
+	"dropDeathItemRotation"			"-90 0 0"
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"talk_time"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+	
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0.2 0.2 0"
+	"look_joint headcontrol"		"-0.1 -0.1 0"
+	"look_joint neckcontrol"		"0.8 0.8 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+	"eye_verticle_offset"			"20"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.08"
+	
+	"snd_respond"					"marscity_marine3_hq_respond"
+	"snd_talk_primary"				"marscity_marine3_hq_primary"
+	"snd_talk_secondary"			"marscity_marine3_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine3_hq_secondary2"
+}
+
+model marscity_suit_asian_chair_head2 {
+	inherit							head_asian_young
+	
+	anim respond					models/md5/heads/asian_young/marscity/marine3_hq_yes_sir.md5anim {
+		frame 1						sound_voice snd_respond
+	}
+	anim talk_primary				models/md5/heads/asian_young/marscity/marine3_hq_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_young/marscity/marine3_hq_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/asian_young/marscity/marine3_hq_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_suit_asian_chair2 {
+	inherit							npc_suit
+
+	anim stand						models/md5/chars/operate_computer_sitting.md5anim
+	anim idle					    models/md5/chars/operate_computer_sitting.md5anim
+	anim cower						models/md5/chars/operate_computer_sitting.md5anim
+	anim turn_left					models/md5/chars/operate_computer_sitting.md5anim
+	anim turn_right					models/md5/chars/operate_computer_sitting.md5anim
+		
+	anim respond					models/md5/chars/operate_computer_talk.md5anim
+	anim talk_primary				models/md5/chars/operate_computer_talk.md5anim
+	anim talk_secondary1			models/md5/chars/operate_computer_talk.md5anim
+	anim talk_secondary2			models/md5/chars/operate_computer_talk.md5anim
+}
+
+entityDef marscity_suit_asian_chair2 {
+	"inherit"						"npc_base"
+	"model"							"marscity_suit_asian_chair2"
+	"def_head"						"marscity_suit_asian_chair_head2"
+	"head_joint"					"Shoulders"
+	"ignore_push"					"1"
+	"anim"							"stand"
+	"ik_numLegs"					"0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_soft_desk_chair2"
+	"def_dropDeathItem"				"moveable_chair2"
+	"dropDeathItemJoint"			"chair"
+
+	"dropDeathItemRotation"			"-90 0 0"
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"talk_time"						"0"
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+	
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0.2 0.2 0"
+	"look_joint headcontrol"		"-0.1 -0.1 0"
+	"look_joint neckcontrol"		"0.8 0.8 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"look_min"						"-90 -80 0"
+	"look_max"						"25 80 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+
+	"eye_verticle_offset"			"20"
+	"eye_horizontal_offset"			"-8"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0.08"
+	
+	"snd_respond"					"marscity_marine3_hq_respond"
+	"snd_talk_primary"				"marscity_marine3_hq_primary"
+	"snd_talk_secondary"			"marscity_marine3_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine3_hq_secondary2"
+}
+
+model marscity_suit_chair {
+	mesh							models/md5/environments/marscitychair1.md5mesh
+	anim office						models/md5/environments/marscitychair1.md5anim		
+}
+
+entityDef marscity_suit_chair {
+	"inherit"						"cin_base"
+	"model"							"marscity_suit_chair"
+	"anim"							"office"
+}
+
+model marscity_cinematic_player {
+	inherit							npc_tshirt
+
+	anim betrugercin_a				models/md5/cinematics/marscity/betrugercin1_player_a.md5anim {
+		frame 1							disableGravity
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim betrugercin_b				models/md5/cinematics/marscity/betrugercin1_player_b.md5anim {
+		frame 1							disableGravity
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim betrugercin_c				models/md5/cinematics/marscity/betrugercin1_player_c.md5anim {
+		frame 1							disableGravity
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim betrugercin_d				models/md5/cinematics/marscity/betrugercin1_player_d.md5anim {
+		frame 1							disableGravity
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim recep_a					models/md5/cinematics/marscity/receptioncin1_player_a.md5anim {
+		frame 1						 	event disableEyeFocus
+		frame 26						sound_body player_sounds_footstep
+		frame 38						sound_body player_sounds_footstep
+		frame 49						sound_body player_sounds_footstep
+		frame 58						sound_body player_sounds_footstep
+		frame 64						sound_body2 marscity_reception_duffle
+	}
+	anim recep_b					models/md5/cinematics/marscity/receptioncin1_player_b.md5anim {
+		frame 1						 	event disableEyeFocus
+		frame 10						skin skins/characters/npcs/marine_player.skin
+	}
+	anim recep_c					models/md5/cinematics/marscity/receptioncin1_player_c.md5anim {
+		frame 1						 	event disableEyeFocus
+	}
+	anim recep_d					models/md5/cinematics/marscity/receptioncin1_player_d.md5anim {
+		frame 1						 	event disableEyeFocus
+	}
+	anim recep_e					models/md5/cinematics/marscity/receptioncin1_player_e.md5anim {
+		frame 1						 	event disableEyeFocus
+	}
+	anim recep_f					models/md5/cinematics/marscity/receptioncin1_player_f.md5anim {
+		frame 1						 	event disableEyeFocus
+	}
+
+	anim sargecin1					models/md5/cinematics/marscity/sargecin_player1.md5anim {
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim sargecin2					models/md5/cinematics/marscity/sargecin_player2.md5anim {
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim sargecin3					models/md5/cinematics/marscity/sargecin_player3.md5anim {
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim sargecin4					models/md5/cinematics/marscity/sargecin_player4.md5anim {
+		frame 1						 	event disableEyeFocus
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim sargecin5					models/md5/cinematics/marscity/sargecin_player5.md5anim {
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim sargecin6					models/md5/cinematics/marscity/sargecin_player6.md5anim {
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+	anim sargecin7					models/md5/cinematics/marscity/sargecin_player7.md5anim {
+		frame 1							skin skins/characters/npcs/marine_player.skin
+	}
+}
+
+entityDef marscity_cinematic_player {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_player"
+	"anim"							"betrugercin_a"
+	"ik_numlegs"						"0"
+	"def_head"						"marscity_head_player"
+	"head_joint"					"Shoulders"
+	"cinematic"						"1"
+}
+
+entityDef marscity_meeting_player {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_player"
+	"anim"							"betrugercin_a"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_player"
+	"head_joint"					"Shoulders"
+
+	"num_cinematics"				"4"
+	"anim1"							"betrugercin_a"
+	"anim2"							"betrugercin_b"
+	"anim3"							"betrugercin_c"
+	"anim4"							"betrugercin_d"
+
+	"cinematic"						"1"
+}
+
+entityDef marscity_reception_player {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_player"
+	"anim"							"recep_a"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_player"
+	"head_joint"					"Shoulders"
+
+	"num_cinematics"				"6"
+	"anim1"							"recep_a"
+	"anim2"							"recep_b"
+	"anim3"							"recep_c"
+	"anim4"							"recep_d"
+	"anim5"							"recep_e"
+	"anim6"							"recep_f"
+
+	"cinematic"						"1"
+}
+
+model marscity_hangar_player {
+	inherit							npc_tshirt
+
+	anim hangar_a					models/md5/cinematics/marscity/hangar_player_a.md5anim {
+		frame 1							event disableEyeFocus	
+	}
+	anim hangar_b					models/md5/cinematics/marscity/hangar_player_b.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim hangar_c					models/md5/cinematics/marscity/hangar_player_c.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim hangar_d					models/md5/cinematics/marscity/hangar_player_d.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim hangar_e					models/md5/cinematics/marscity/hangar_player_e.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim hangar_f					models/md5/cinematics/marscity/hangar_player_f.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim hangar_g					models/md5/cinematics/marscity/hangar_player_g.md5anim {
+		frame 1							event disableEyeFocus
+	}
+	anim hangar_h					models/md5/cinematics/marscity/hangar_player_h.md5anim {
+		frame 1							event disableEyeFocus
+	}
+}
+
+entityDef marscity_hangar_player {
+	"inherit"						"npc_base"
+	"model"							"marscity_hangar_player"
+	"anim"							"hangar_a"
+	"ik_numlegs"					"0"
+	"def_head"						"marscity_head_player"
+	"head_joint"					"Shoulders"
+
+	"def_attach"					"prop_dufflebag"
+
+	"num_cinematics"				"8"
+	"anim1"							"hangar_a"
+	"anim2"							"hangar_b"
+	"anim3"							"hangar_c"
+	"anim4"							"hangar_d"
+	"anim5"							"hangar_e"
+	"anim6"							"hangar_f"
+	"anim7"							"hangar_g"
+	"anim8"							"hangar_h"
+
+	"cinematic"						"1"
+}
+
+model marscity_head_player {
+	inherit							head_player
+	anim recep_a					models/md5/heads/player/marscity/reception_a.md5anim
+	anim recep_b					models/md5/heads/player/marscity/reception_b.md5anim
+	anim recep_c					models/md5/heads/player/marscity/reception_c.md5anim
+	anim recep_d					models/md5/heads/player/marscity/reception_d.md5anim
+	anim recep_e					models/md5/heads/player/marscity/reception_e.md5anim
+	anim recep_f					models/md5/heads/player/marscity/reception_f.md5anim
+
+	anim hangar_a					models/md5/heads/player/marscity/hangar_a.md5anim
+	anim hangar_b					models/md5/heads/player/marscity/hangar_b.md5anim
+	anim hangar_c					models/md5/heads/player/marscity/hangar_c.md5anim
+	anim hangar_d					models/md5/heads/player/marscity/hangar_d.md5anim
+	anim hangar_e					models/md5/heads/player/marscity/hangar_e.md5anim
+	anim hangar_f					models/md5/heads/player/marscity/hangar_f.md5anim
+	anim hangar_g					models/md5/heads/player/marscity/hangar_g.md5anim
+	anim hangar_h					models/md5/heads/player/marscity/hangar_h.md5anim
+}
+
+
+model marscity_cinematic_doctor {
+	inherit							npc_labcoat
+	anim doctor_start				models/md5/cinematics/marscity/patient_doctor_start.md5anim
+	anim doctor						models/md5/cinematics/marscity/patient_doctor.md5anim {
+		frame 50						sound_voice snd_doc2
+		frame 80						sound_voice snd_doc1
+		frame 131						sound_voice snd_doc3
+	}
+
+	anim doctor_end					models/md5/cinematics/marscity/patient_doctor_end.md5anim
+}
+
+entityDef marscity_cinematic_doctor {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_doctor"
+	"sound_bone"					"headcontrol"
+	"anim"							"doctor"
+	"ik_numlegs"					"0"
+	"def_head"						"head_surgeon"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_adrenaline"
+
+	"snd_doc1"						"marscity_sci_hospital_1"
+	"snd_doc2"						"marscity_sci_hospital_2"
+	"snd_doc3"						"marscity_sci_hospital_3"
+}
+
+model marscity_cinematic_victim {
+	inherit							npc_tshirt
+	skin							skins/characters/npcs/soldier_bald_bloody.skin
+
+	anim victim_start				models/md5/cinematics/marscity/patient_victim_start.md5anim
+	anim victim						models/md5/cinematics/marscity/patient_victim.md5anim {
+		frame 50						sound_voice snd_injured
+	}
+	anim victim_end					models/md5/cinematics/marscity/patient_victim_end.md5anim
+}
+
+entityDef marscity_cinematic_victim {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_victim"
+	"def_head"						"head_zombie4"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"headcontrol"
+	"anim"							"victim"
+	"ik_numlegs"					"0"
+	"size"							"0 0 0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"snd_injured"					"marscity_injured_hospital_1"
+}
+
+model marscity_cinematic_security {
+	inherit							npc_security
+
+	anim security_loop				models/md5/cinematics/marscity/patient_security_start.md5anim
+	anim security_start				models/md5/cinematics/marscity/patient_security_start.md5anim {
+		frame 1						sound_voice snd_guard1
+	}
+	anim security					models/md5/cinematics/marscity/patient_security.md5anim
+	anim security_end				models/md5/cinematics/marscity/patient_security_end.md5anim
+}
+
+entityDef marscity_cinematic_security {
+	"inherit"						"npc_base"
+	"model"							"marscity_cinematic_security"
+	"sound_bone"					"headcontrol"
+	"anim"							"security"
+	"ik_numlegs"					"0"
+	"def_head"						"head_security_goggles"
+	"head_joint"					"Shoulders"
+	"size"							"0 0 0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"snd_guard1"					"marscity_guard_hospital_1"
+	"snd_guard2"					"marscity_guard_hospital_2"
+}
+
+model marscity_marine_helmet_p90_directions_ver1 {
+	inherit							npc_marine
+	anim stand						models/md5/chars/p90_stand.md5anim
+	anim idle						models/md5/chars/p90_stand.md5anim
+
+	anim talk_trigger				models/md5/chars/p90_point_left.md5anim {
+		frame 1						sound_voice snd_talk_trigger
+	}
+	anim talk_primary				models/md5/chars/marscity_marine1_ver1_hq_primary.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/chars/marscity_marine1_ver1_hq_secondary1.md5anim { 
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/chars/marscity_marine1_ver1_hq_secondary2.md5anim { 
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+entitydef marscity_marine_helmet_p90_directions_ver1 {
+	"inherit"						"npc_base"
+	"model"							"marscity_marine_helmet_p90_directions_ver1"
+	"talk_no_turn"					"1"
+	"ignore_push"					"1"
+	"ik_numLegs"					"0"
+	"talktime"						".6"
+	"talkradius"					"384"
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+
+	"look_min"						"-90 -75 0"
+	"look_max"						"25 75 0"
+	"look_joint Waist"				"0.1333 0.05 0"
+	"look_joint Chest"				"0.1333 0.05 0"
+	"look_joint Shoulders"			"0.1333 0.05 0"
+	"look_joint headcontrol"		"0.6 0.6 0"
+	"look_joint Ruparm"				"-0.4 0 0"
+	"look_joint Luparm"				"-0.4 0 0"	
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_machinegun"
+	
+	"snd_talk_trigger"				"marscity_marine1_ver1_hq_trigger"
+	"snd_talk_primary"				"marscity_marine1_ver1_hq_primary"
+	"snd_talk_secondary"			"marscity_marine1_ver1_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine1_ver1_hq_secondary2"	
+}
+
+model marscity_marine_helmet_p90_directions_ver2 {
+	inherit							npc_marine
+	anim stand						models/md5/chars/p90_stand.md5anim
+	anim idle						models/md5/chars/p90_stand.md5anim
+
+	anim talk_primary				models/md5/chars/p90_talk.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/chars/p90_talk.md5anim { 
+		frame 1						sound_voice snd_talk_secondary
+	}
+}
+
+entitydef marscity_marine_helmet_p90_directions_ver2 {
+	"inherit"						"npc_base"
+	"model"							"marscity_marine_helmet_p90_directions_ver2"
+	"talk_no_turn"					"1"
+	"talktime"						".6"
+	"talkradius"					"384"
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_attach"					"prop_machinegun"
+	
+	"snd_talk_primary"				"marscity_marine1_ver2_hq_primary"
+	"snd_talk_secondary"			"marscity_marine1_ver2_hq_secondary"
+}
+
+model marscity_marine_helmet_p90_walking {
+	inherit							npc_marine
+	anim stand						models/md5/chars/p90_talk.md5anim
+	anim walk						models/md5/chars/walk_machinegun.md5anim {
+		frame 3							sound_body player_sounds_footstep
+		frame 17						sound_body player_sounds_footstep
+		frame 32						sound_body player_sounds_footstep
+		frame 46						sound_body player_sounds_footstep
+	}
+
+	anim talk_primary				models/md5/chars/p90_talk.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/chars/p90_talk.md5anim { 
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/chars/p90_talk.md5anim { 
+		frame 1						sound_voice snd_talk_secondary2
+	}
+	anim talk_excuseme				models/md5/chars/p90_talk.md5anim { 
+		frame 1						sound_voice snd_talk_excuseme
+	}
+}
+
+entitydef marscity_marine_helmet_p90_walking {
+	"inherit"						"npc_base"
+	"model"							"marscity_marine_helmet_p90_walking"
+	"talk_no_turn"					"1"
+	"talktime"						".6"
+	"def_attach"					"prop_machinegun"
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"head_focus_rate"				"0.1"
+
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".3 .3 0"
+	"look_joint headcontrol"		".6 .6 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+	
+	"snd_talk_primary"				"marscity_marine4_hq_primary"
+	"snd_talk_secondary"			"marscity_marine4_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine4_hq_secondary2"
+	"snd_talk_excuseme"				"marine_excuseme"	
+}
+
+model marscity_soldier_young_pda_head {
+	inherit							head_young
+	
+	anim talk_primary				models/md5/heads/young/marscity/marine2_hq_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/young/marscity/marine2_hq_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/young/marscity/marine2_hq_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_soldier_young_pda {
+	inherit							npc_base
+	mesh							models/md5/chars/tshirt.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+	
+	anim stand						models/md5/chars/PDA_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim pda_idle_look				models/md5/chars/PDA_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim talk_primary				models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+}
+
+entityDef marscity_soldier_young_pda {
+	"inherit"						"npc_base"
+	"model"							"marscity_soldier_young_pda"
+	"def_head"						"marscity_soldier_young_pda_head"
+	"head_joint"					"Shoulders"
+	
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.1"
+	
+	"ignore_push"					"1"
+	
+	"copy_joint_world eyecontrol"	""
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"pda_marscity_soldier_young_pda"
+	"def_dropDeathItem"				"pda_marscity_soldier_young_pda"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+	
+	"snd_talk_primary"				"marscity_marine2_hq_primary"
+	"snd_talk_secondary"			"marscity_marine2_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine2_hq_secondary2"
+}
+
+entityDef marscity_labcoat_young {
+	"inherit"						"npc_base"
+
+	"copy_joint_world eyecontrol"	""
+
+	"def_head"						"head_young"
+	"head_joint"					"Shoulders"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				".2 .2 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".6 .6 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"turn_rate"						"0"
+	"talktime"						"0"
+	"snd_talk_primary"				"default_primary"
+	"snd_talk_secondary"			"default_secondary"
+	"snd_talk_trigger"				"default_trigger"
+}
+
+model char_marine_asian_chair1_head {
+	inherit							head_asian_young
+	
+	anim talk_primary				models/md5/heads/asian_young/marscity/marine2_sitting_1_1.md5anim {
+		frame 1						sound_voice marscity_marine2_sitting_1_primary
+	}
+	anim talk_secondary1			models/md5/heads/asian_young/marscity/marine2_sitting_1_2.md5anim {
+		frame 1						sound_voice marscity_marine2_sitting_1_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/asian_young/marscity/marine2_sitting_1_3.md5anim {
+		frame 1						sound_voice marscity_marine2_sitting_1_secondary2
+	}
+	anim convo1						models/md5/heads/asian_young/marscity/marine2_sitting_1_4.md5anim {
+		frame 1						sound_voice marscity_marine2_sitting_1_convo1
+	}
+	anim convo2						models/md5/heads/asian_young/marscity/marine2_sitting_1_5.md5anim {
+		frame 1						sound_voice marscity_marine2_sitting_1_convo2
+	}
+	anim convo3						models/md5/heads/asian_young/marscity/marine2_sitting_1_6.md5anim {
+		frame 1						sound_voice marscity_marine2_sitting_1_convo3
+	}
+}
+
+model char_marine_asian_chair1 {
+	mesh							models/md5/chars/tshirt.md5mesh
+	channel torso					( *Waist )
+	channel legs					( chair origin Body Body2 *Hips -*Waist SPINNER )
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+	
+	anim stand						models/md5/chars/marscity/marscity_marine2_stand.md5anim
+	anim idle1						models/md5/chars/marscity/marscity_marine2_idle1.md5anim
+	anim idle2						models/md5/chars/marscity/marscity_marine2_idle2.md5anim {
+		frame 22						sound_voice2		cough
+		frame 42						sound_voice2		cough
+	}
+	anim idle3						models/md5/chars/marscity/marscity_marine2_idle3.md5anim
+
+	anim talk_primary				models/md5/chars/marscity/marscity_marine2_talk1.md5anim
+	anim talk_secondary1			models/md5/chars/marscity/marscity_marine2_talk2.md5anim
+	anim talk_secondary2			models/md5/chars/marscity/marscity_marine2_talk3.md5anim
+	
+	anim convo1						models/md5/chars/marscity/marscity_marine2_convo1.md5anim
+	anim convo2						models/md5/chars/marscity/marscity_marine2_convo2.md5anim
+	anim convo3						models/md5/chars/marscity/marscity_marine2_convo3.md5anim
+}
+
+entityDef char_marine_asian_chair1 {
+	"inherit"						"npc_base"
+	"model"							"char_marine_asian_chair1"
+	"def_head"						"char_marine_asian_chair1_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"1"
+
+	"turn_rate"						"0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		"0.5 0.4 0"
+	"look_joint neckcontrol"		"0.5 0.4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"look_min"						"-40 -80 0"
+	"look_max"						"40 80 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"prop_metal_lounge_chair"
+	"def_dropDeathItem"				"moveable_kitchenchair"
+	"dropDeathItemJoint"			"chair"
+	"dropDeathItemRotation"			"0 0 -90"
+	"dropDeathItemOffset"			"0 30 30"
+}
+
+model char_marine_young_chair1_head {
+	inherit							head_young
+	
+	anim talk_primary				models/md5/heads/young/marscity/marine1_sitting_1_1.md5anim {
+		frame 1						sound_voice marscity_marine1_sitting_1_primary
+	}
+	anim talk_secondary1			models/md5/heads/young/marscity/marine1_sitting_1_2.md5anim {
+		frame 1						sound_voice marscity_marine1_sitting_1_secondary1
+	}
+	anim talk_secondary2			models/md5/heads/young/marscity/marine1_sitting_1_3.md5anim {
+		frame 1						sound_voice marscity_marine1_sitting_1_secondary2
+	}
+	anim convo1						models/md5/heads/young/marscity/marine1_sitting_1_4.md5anim {
+		frame 1						sound_voice marscity_marine1_sitting_1_convo1
+	}
+	anim convo2						models/md5/heads/young/marscity/marine1_sitting_1_5.md5anim {
+		frame 1						sound_voice marscity_marine1_sitting_1_convo2
+	}
+	anim convo3						models/md5/heads/young/marscity/marine1_sitting_1_6.md5anim {
+		frame 1						sound_voice marscity_marine1_sitting_1_convo3
+	}
+}
+
+model char_marine_young_chair1 {
+	mesh							models/md5/chars/tshirt.md5mesh
+	channel torso					( *Waist )
+	channel legs					( chair origin Body Body2 *Hips -*Waist SPINNER )
+
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+	
+	anim stand						models/md5/chars/marscity/marscity_marine1_stand.md5anim
+	anim idle1						models/md5/chars/marscity/marscity_marine1_idle1.md5anim
+	anim idle2						models/md5/chars/marscity/marscity_marine1_idle2.md5anim
+	anim idle3						models/md5/chars/marscity/marscity_marine1_idle3.md5anim
+
+	anim talk_primary				models/md5/chars/marscity/marscity_marine1_talk1.md5anim
+	anim talk_secondary1			models/md5/chars/marscity/marscity_marine1_talk2.md5anim
+	anim talk_secondary2			models/md5/chars/marscity/marscity_marine1_talk3.md5anim
+	
+	anim convo1						models/md5/chars/marscity/marscity_marine1_convo1.md5anim
+	anim convo2						models/md5/chars/marscity/marscity_marine1_convo2.md5anim
+	anim convo3						models/md5/chars/marscity/marscity_marine1_convo3.md5anim
+}
+
+entityDef char_marine_young_chair1 {
+	"inherit"						"npc_base"
+	"model"							"char_marine_young_chair1"
+	"def_head"						"char_marine_young_chair1_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"1"
+
+	"turn_rate"						"0"
+	
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"	
+	
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Shoulders"			"0 0 0"
+	"look_joint headcontrol"		"0.5 0.4 0"
+	"look_joint neckcontrol"		"0.5 0.4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	"look_min"						"-40 -80 0"
+	"look_max"						"40 80 0"
+	
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"prop_metal_lounge_chair"
+	"def_dropDeathItem"				"moveable_kitchenchair"
+	"dropDeathItemJoint"			"chair"
+	"dropDeathItemRotation"			"0 0 -90"
+	"dropDeathItemOffset"			"0 30 30"
+}
+
+model marscity_soldier_black_head {
+	inherit							head_black
+	
+	anim talk_primary				models/md5/heads/black/marscity/marine5_hq_1.md5anim {
+		frame 1						sound_voice snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/heads/black/marscity/marine5_hq_2.md5anim {
+		frame 1						sound_voice snd_talk_secondary
+	}
+	anim talk_secondary2			models/md5/heads/black/marscity/marine5_hq_3.md5anim {
+		frame 1						sound_voice snd_talk_secondary2
+	}
+}
+
+model marscity_soldier_black {
+	inherit							npc_tshirt
+	anim stand	   				    models/md5/chars/PDA_idle_look.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim idle_stand					models/md5/chars/PDA_idle_look.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim talk_primary				models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+}
+
+entityDef marscity_soldier_black {
+	"inherit"						"npc_base"
+	"model"							"marscity_soldier_black"
+	"def_head"						"marscity_soldier_black_head"
+	"skin"							"skins/characters/npcs/soldier_black"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	"talkradius"					"384"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"head_focus_rate"				"0.1"
+
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"					"pda_marscity_soldier_black"
+	"def_dropDeathItem"				"pda_marscity_soldier_black"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+	
+	"snd_talk_primary"				"marscity_marine5_hq_primary"
+	"snd_talk_secondary"			"marscity_marine5_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine5_hq_secondary2"
+}
+
+model marscity_soldier_bald_pda_head {
+	inherit							head_bald
+	
+	anim talk_primary				models/md5/characters/npcs/heads/h3idle.md5anim
+	anim talk_secondary1			models/md5/characters/npcs/heads/h3idle.md5anim
+	anim talk_secondary2			models/md5/characters/npcs/heads/h3idle.md5anim
+}
+
+model marscity_soldier_bald_pda {
+	inherit							npc_tshirt
+	anim stand	   				    models/md5/chars/PDA_idle.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim idle_stand					models/md5/chars/PDA_idle_look.md5anim {
+		frame 1					 		event disableEyeFocus
+	}
+	anim talk_primary				models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary1			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+	anim talk_secondary2			models/md5/chars/PDA_talk.md5anim {
+		frame 1					 		event enableEyeFocus
+	}
+}
+
+entityDef marscity_soldier_bald_pda {
+	"inherit"						"npc_base"
+	"model"							"marscity_soldier_bald_pda"
+	"def_head"						"marscity_soldier_bald_pda_head"
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+	"head_focus_rate"				"0.1"	
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .1 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"def_attach"                    "pda_marscity_soldier_bald_pda" 
+    "def_dropDeathItem"             "pda_marscity_soldier_bald_pda"
+	"dropDeathItemJoint"			"pda"
+	"dropDeathItemRotation"			"0 0 0"
+	
+	"snd_talk_primary"				"marscity_marine5_hq_primary"
+	"snd_talk_secondary"			"marscity_marine5_hq_secondary1"
+	"snd_talk_secondary2"			"marscity_marine5_hq_secondary2"
+}
+
+model marscity_sci_team_request_head {
+	skin 							skins/characters/npcs/prettyoldhead.skin
+	mesh							models/md5/heads/head02young/h2_cinematic.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim sci_team_request			models/md5/heads/head02young/marscity/sci_team_request.md5anim
+}
+
+model marscity_sci_team_request {
+	inherit							npc_labcoat
+	
+	anim sci_team_request	   		models/md5/chars/marscity/sci_team_request.md5anim {
+		frame 1							aviGame sci_team
+		frame 6         				sound_voice marscity_sci_team_request
+		frame 215						aviGame
+	}
+}
+
+entityDef marscity_sci_team_request {
+	"inherit"						"npc_base"
+	"model"							"marscity_sci_team_request"
+	"def_head"						"marscity_sci_team_request_head"
+	"talk_no_turn"					"1"
+	"turn_rate"						"0"
+
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"head_joint"					"Shoulders"
+	"sound_bone"					"headcontrol"
+}
+
+model marscity_suit_young2 {
+	inherit							npc_suit
+	anim stand_hands_at_waist		models/md5/chars/stand_hands_at_waist.md5anim
+}
+
+entityDef marscity_suit_young2 {
+	"inherit"						"npc_base"
+	"def_head"						"head_young"
+	"head_joint"					"Shoulders"
+	"model"							"marscity_suit_young2"
+
+	"copy_joint_world eyecontrol"	""
+}
+
+//IPN NEWS GUY
+
+model marscity_ipn_news_head {
+	mesh							models/md5/characters/npcs/heads/h2.md5mesh
+	skin 							skins/characters/npcs/prettyoldhead.skin
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+	
+	anim ipn_news					models/md5/heads/head02young/marscity/ipn_news_head.md5anim {
+		//frame 1							aviGame ipn_news
+		//frame 4500						aviGame
+	}
+}
+
+model marscity_ipn_news {
+	inherit							npc_suit
+	
+	anim ipn_news					models/md5/chars/marscity/ipn_news.md5anim {
+		frame 1         				sound_voice marscity_ipn_news_vo
+	}
+}
+
+entityDef marscity_ipn_news {
+	"inherit"						"npc_base"
+	"model"							"marscity_ipn_news"
+	"size"							"12 12 74"
+	"def_attach"					"prop_soft_desk_chair2"	
+
+	"copy_joint_world eyecontrol"	""
+
+	"ik_numLegs"					"0"
+	"def_head"						"marscity_ipn_news_head"
+	"head_joint"					"Shoulders"
+	
+	"sound_bone"					"headcontrol"
+	"cinematic"						"1"
+}

@@ -1,0 +1,493 @@
+
+/***********************************************************************
+
+ target
+
+***********************************************************************/
+entityDef target_checkpoint {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"				"Trigger this to trigger a trigger an upcoming map. It will be triggered when the player spawns"
+	"editor_var levelName"		"level name to fire trigger in, this is the map name minus the path, i.e. admin"
+	"editor_var triggerName"	"trigger name to fire"
+
+	"spawnclass"			"idTarget_Checkpoint"
+}
+
+entityDef target_endLevel {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"When triggered, displays end level gui and transfers the player to the next map.  Orient the entity to specify the view during the stats display."
+	"editor_var nextMap"	"the map name to transfer to (for example: johnc/test_box, etc)."
+	"editor_gui guiName"	"end of level gui."
+	"editor_var endOfGame"	"set to true if this is the end of the game"
+
+	"spawnclass"			"idTarget_EndLevel"
+	"nextMap"				"guis/EndLevel.gui"
+}
+
+entityDef target_sessionCommand {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"When triggered, sends the specified command (playdemo e3_1, etc) to the game."
+	"editor_var command"	"the string to return to session."
+
+	"spawnclass"			"idTarget_SessionCommand"
+}
+
+entityDef target_setshaderparm {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to set shader parms on."
+
+	"editor_color _color"			"New color for the entity."
+	"editor_var shaderParm0"	"New value for shader parm 0."
+	"editor_var shaderParm1"	"New value for shader parm 1."
+	"editor_var shaderParm2"	"New value for shader parm 2."
+	"editor_var shaderParm3"	"New value for shader parm 3."
+	"editor_var shaderParm4"	"New value for shader parm 4."
+	"editor_var shaderParm5"	"New value for shader parm 5."
+	"editor_var shaderParm6"	"New value for shader parm 6."
+	"editor_var shaderParm7"	"New value for shader parm 7."
+	"editor_bool toggle"			"If true will toggle any 0,1 shaderparm set."
+
+	"spawnclass"			"idTarget_SetShaderParm"
+}
+
+entityDef target_setshadertime {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to set the shadertime (parm4) on."
+
+	"spawnclass"			"idTarget_SetShaderTime"
+}
+
+entityDef target_setglobalparmtime {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger to set the passed global parm to current time offset"
+	"editor_var globalParm"	"which global parm to set."
+
+	"spawnclass"			"idTarget_SetGlobalShaderTime"
+}
+
+entityDef target_entity_setcolor {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Changes the color on the targeted entity."
+	"editor_color _color"	"Color to change to."
+
+	"spawnclass"			"idTarget_FadeEntity"
+
+	"fadeTime"				"0"
+}
+
+entityDef target_entity_fadeout {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to fade out."
+	
+	"editor_color _color"	"Color to fade to."
+	"editor_var fadeTime"	"How long fade should take."
+
+	"spawnclass"			"idTarget_FadeEntity"
+	
+	"_color"				"0 0 0"
+	"fadeTime"				"1"
+}
+
+entityDef target_entity_fadein {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to fade in."
+
+	"editor_color _color"		"Color to fade to."
+	"editor_var fadeTime"	"How long fade should take."
+
+	"spawnclass"			"idTarget_FadeEntity"
+
+	"_color"				"1 1 1"
+	"fadeTime"				"1"
+}
+
+entityDef target_light_fadeout {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target one or more lights to fade out."
+	
+	"editor_var fadeTime"	"How long fade should take."
+
+	"spawnclass"			"idTarget_LightFadeOut"
+	
+	"fadeTime"				"1"
+}
+
+entityDef target_light_fadein {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target one or more lights to fade in."
+
+	"editor_var fadeTime"	"How long fade should take."
+
+	"spawnclass"			"idTarget_LightFadeIn"
+
+	"fadeTime"				"1"
+}
+
+entityDef target_null {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-6 -6 -6"
+	"editor_maxs"			"6 6 6"
+
+	"editor_usage"			"Generic target to point camera views at"
+	"spawnclass"			"idTarget"
+}
+
+entityDef target_give {
+	"editor_color"			"0.2 0.7 0.5"
+	"editor_mins"			"-6 -6 -6"
+	"editor_maxs"			"6 6 6"
+
+
+	"editor_usage"			"Gives the player a list of items."
+	"editor_var item1"		"Use item1, item2, item3, etc.. to give player items, use the entity name.. i.e. item_key_red"
+	"editor_var onspawn"	"Give to player automatically on spawn defaults to 1"
+	"editor_var development" "Use only with devmap defaults to 1"
+	"developer"				"1"
+	"onspawn"				"1"
+	"spawnclass"			"idTarget_Give"
+}
+
+
+entityDef target_setmodel {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to set the model."
+	"editor_model newmodel"	"Name of model to set on entity"
+
+	"spawnclass"			"idTarget_SetModel"
+}
+
+entityDef target_setinfluence {
+	"editor_color"					"1 1 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"effect_all"					"1"
+	"fade_time"						"0.75"
+
+	"editor_usage"					"Trigger to set off demonic influences."
+	"editor_var radius"				"Area radius to affect"
+	"editor_var time"				"Time ( in seconds ) for the effect to last"
+	"editor_bool targetsOnly"		"Only effect targets, ignore the radius"
+	"editor_bool effect_all"		"Effect everything (default)"
+	"editor_bool effect_lights" 	"Effect lights in the area"
+	"editor_bool effect_guis"		"Effect guis in the area"
+	"editor_bool effect_sounds" 	"Effect sounds in the area"
+	"editor_bool effect_models" 	"Effect models in the area"
+	"editor_bool effect_vision" 	"Effect players vision"
+	"editor_bool effect_demonic"	"Only effect entities with demonic set to 1"
+	"editor_var fade_time"			"Default fade time for color fades, defaults to 0.75"
+	"editor_var influenceLevel"		"influence level, 0 is none, 1 is no gun or hud, 2 is no gun, hud or movement, 3 is slow player movement"
+	"editor_var flashIn"			"time to flash in the effect"
+	"editor_var flashOut"			"time to flash out the effect"
+	"editor_var snd_flashIn"		"flash In sound"
+	"editor_var snd_flashOut"		"flash Out sound"
+	"editor_var switchToView"		"name of cameraView entity to switch to during the influence"
+	"editor_var mtrVision"			"material to show during vision effects, if visionRadius is set the alpha channel of the material scales from 0 to 1 based on radius proximity of the player to the influence"
+	"editor_var mtrSkin"			"skin to set on player during vision effects"
+	"editor_var mtrWorld"			"material to globally replace in the world"
+	"editor_var	visionRadius"		"radius to effect vision effects with, mtrVision will always be used ( if it is set ) but this will also double the vision based on the radius"
+	"editor_snd snd_influence"		"sound to play when influence is active, will turn off at end of influence"
+	"editor_var fovTime"			"Time ( in seconds ) to move from current to target fov"
+	"editor_var fov"				"Target fov"
+	"editor_var snapAngle"			"Angle to snap the player to"
+	"editor_var triggerActivate"	"Trigger to activate and trigger again to restore"
+
+	"spawnclass"					"idTarget_SetInfluence"
+}
+
+entityDef target_setkeyval {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to set key val pairs on."
+	"editor_usage1"			"Use keyval, keyval1, keyval2, etc.. for multiples."
+
+	"editor_var keyval"		"Separate key val with semicolon... key;val"
+
+	"spawnclass"			"idTarget_SetKeyVal"
+}
+
+entityDef target_setfov {
+	"editor_color"			"1 0 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger to change fov"
+	"editor_var time"		"Time ( in seconds ) to move from current to target fov"
+	"editor_var fov"		"Target fov"
+
+	"spawnclass"			"idTarget_SetFov"
+}
+
+entityDef target_primaryobjective {
+	"editor_color"			"1 0 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger to change primary mission objective"
+	"editor_var text"		"Text to set the objective to"
+
+	"spawnclass"			"idTarget_SetPrimaryObjective"
+}
+
+entityDef target_show {
+	"editor_color"			"1 0 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger to unhide the targeted entities."
+
+	"spawnclass"			"idTarget_Show"
+}
+
+entityDef target_lock {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an door to lock or unlock.  Toggles door's lock state each time it's triggered."
+
+	"editor_var locked"		"Value to set 'locked' to on doors."
+
+	"spawnclass"			"idTarget_LockDoor"
+}
+
+entityDef target_enableweapons {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger this to turn off the no_weapons flag in a level. Used once the player gets their weapons."
+	"editor_var weapon"		"Weapon to select if it's in the player's inventory."
+	"editor_var disable"	"Set to 1 to disable weapons, 0 to enable them"
+
+	"spawnclass"			"idTarget_EnableLevelWeapons"
+	"weapon"				"weapon_pistol"
+}
+
+entityDef target_removeweapons {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger this to remove weapons"
+	"editor_var weapon"		"Weapon to remove by slot.. i.e. weapon0, weapon1.. use multiples to remove more than one"
+
+	"spawnclass"			"idTarget_RemoveWeapons"
+}
+
+entityDef target_levelTrigger {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"				"Trigger this to trigger a trigger an upcoming map. It will be triggered when the player spawns"
+	"editor_var levelName"		"level name to fire trigger in, this is the map name minus the path, i.e. admin"
+	"editor_var triggerName"	"trigger name to fire"
+
+	"spawnclass"			"idTarget_LevelTrigger"
+}
+
+entityDef target_enableStamina {
+	"editor_color"			"1 0 1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger this to enable or disable stamina"
+	"editor_var enable"		"set to 1 to enable or 0 to disable"
+
+	"spawnclass"			"idTarget_EnableStamina"
+}
+
+
+entityDef target_giveemail {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger this to give an email to the player."
+	"editor_var email"		"name of email ( as defined in a pda file ) to give to the player"
+
+	"spawnclass"			"idTarget_GiveEmail"
+}
+
+entityDef target_givesecurity {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"				"Trigger this to give a new security clearance to the player."
+	"editor_var text_security"	"The security clearance"
+
+	"text_security"			"General Access"
+	"spawnclass"			"idTarget_GiveSecurity"
+}
+
+entityDef target_tip {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Trigger this to show a tip to the player."
+	"editor_var text_tip"	"tip text"
+
+	"spawnclass"			"idTarget_Tip"
+	"text_title"			"#str_02907"
+}
+
+entityDef target_callobjectfunction {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an entity to set call a function from it's script object."
+
+	"editor_var call"		"Object function to call on entity"
+
+	"spawnclass"			"idTarget_CallObjectFunction"
+}
+
+entityDef target_npc_talk {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an npc to cause him to talk to the player."
+
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"target_talk"
+}
+
+entityDef target_npc_talk_triggered {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an npc to cause him to say his triggered talk anim to the player."
+
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"say_triggered"
+}
+
+entityDef target_npc_talk_primary {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an npc to cause him to say his primary talk anim to the player."
+
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"say_primary"
+}
+
+entityDef target_npc_talk_secondary {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target an npc to cause him to say his secondary talk anim to the player."
+
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"say_secondary"
+}
+
+entityDef target_ai_followalternatepath1 {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target a monster or npc and trigger target to cause them to follow the path set in 'alt_path1' (set on the character)."
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"follow_alternate_path1"
+}
+
+entityDef target_ai_followalternatepath2 {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target a monster or npc and trigger target to cause them to follow the path set in 'alt_path2' (set on the character)."
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"follow_alternate_path2"
+}
+
+entityDef target_ai_followalternatepath3 {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Target a monster or npc and trigger target to cause them to follow the path set in 'alt_path3' (set on the character)."
+	"spawnclass"			"idTarget_CallObjectFunction"
+	"call"					"follow_alternate_path3"
+}
+
+entityDef target_FadeSoundClass {
+	"editor_color"			"0.1 1 0.1"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Fades given sound class"
+	
+	"editor_var fadeClass"		"The sound class to fade ( all sound classes default to zero )"
+	"editor_var fadeTime"		"How long it takes in seconds to fade from current volume to current volume - fadeDB."
+	"editor_var fadeDB"			"How much to fade in DB, use positive numbers only.. 20 will fade all fadeClasss sounds by 20 DB."
+	"editor_var fadeDuration"	"How long in seconds to wait before restoring fadeClass sounds to their original volume."
+	"editor_var fadeIn"			"You can optionally set fadeDuration to 0 and use another target_FadeSoundClass to fade the class back in"
+	
+
+	"spawnclass"			"idTarget_FadeSoundClass"
+	
+	"fadeClass"				"0"
+	"fadeTime"				"0.5"
+	"fadeDB"				"20"
+}
+
+entityDef target_rumble_joystick {
+	"editor_color"				"1 1 0"
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+
+	"editor_usage"				"Trigger this to activate a rumbling on the controller."
+	"editor_var low_magnitude"	"Low rumble magnitude 0.0 - 1.0"
+	"editor_var low_duration"	"Low rumble duration in MS"
+	"editor_var high_magnitude"	"High rumble magnitude 0.0 - 1.0"
+	"editor_var high_duration"	"High rumble duration in MS"
+
+	"spawnclass"				"idTarget_RumbleJoystick"
+}

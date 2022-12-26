@@ -242,6 +242,9 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 			time( &aclock );
 			struct tm* newtime = localtime( &aclock );
 			Printf( "log file '%s' opened on %s\n", fileName, asctime( newtime ) );
+
+			// print engine version
+			Printf( "%s\n", com_version.GetString() );
 		}
 		if( logFile )
 		{

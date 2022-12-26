@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012-2021 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -52,7 +53,7 @@ public:
 	idRenderModelStatic();
 	virtual						~idRenderModelStatic();
 
-	virtual void				InitFromFile( const char* fileName );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
 	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
 	virtual bool				SupportsBinaryModel()
@@ -72,6 +73,7 @@ public:
 	virtual void				SetLevelLoadReferenced( bool referenced );
 	virtual bool				IsLevelLoadReferenced();
 	virtual void				TouchData();
+	virtual void				CreateBuffers( nvrhi::ICommandList* commandList );
 	virtual void				InitEmpty( const char* name );
 	virtual void				AddSurface( modelSurface_t surface );
 	virtual void				FinishSurfaces( bool useMikktspace );
@@ -80,7 +82,7 @@ public:
 	virtual void				Print() const;
 	virtual void				List() const;
 	virtual int					Memory() const;
-	virtual ID_TIME_T				Timestamp() const;
+	virtual ID_TIME_T			Timestamp() const;
 	virtual int					NumSurfaces() const;
 	virtual int					NumBaseSurfaces() const;
 	virtual const modelSurface_t* Surface( int surfaceNum ) const;
@@ -128,6 +130,7 @@ public:
 	bool						ConvertASEToModelSurfaces( const struct aseModel_s* ase );
 	bool						ConvertLWOToModelSurfaces( const struct st_lwObject* lwo );
 	bool						ConvertMAToModelSurfaces( const struct maModel_s* ma );
+	bool						ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh );
 
 	struct aseModel_s* 			ConvertLWOToASE( const struct st_lwObject* obj, const char* fileName );
 
@@ -178,6 +181,7 @@ protected:
 class idMD5Mesh
 {
 	friend class				idRenderModelMD5;
+	friend class				idRenderModelGLTF;
 
 public:
 	idMD5Mesh();
@@ -212,33 +216,35 @@ private:
 
 class idRenderModelMD5 : public idRenderModelStatic
 {
+	friend class				idRenderModelGLTF;
 public:
-	virtual void				InitFromFile( const char* fileName );
-	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
-	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
-	virtual dynamicModel_t		IsDynamicModel() const;
-	virtual idBounds			Bounds( const struct renderEntity_s* ent ) const;
-	virtual void				Print() const;
-	virtual void				List() const;
-	virtual void				TouchData();
-	virtual void				PurgeModel();
-	virtual void				LoadModel();
-	virtual int					Memory() const;
-	virtual idRenderModel* 		InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel );
-	virtual int					NumJoints() const;
-	virtual const idMD5Joint* 	GetJoints() const;
-	virtual jointHandle_t		GetJointHandle( const char* name ) const;
-	virtual const char* 		GetJointName( jointHandle_t handle ) const;
-	virtual const idJointQuat* 	GetDefaultPose() const;
-	virtual int					NearestJoint( int surfaceNum, int a, int b, int c ) const;
+	void				InitFromFile( const char* fileName, const idImportOptions* options ) override;
+	bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) override;
+	void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const override;
+	dynamicModel_t		IsDynamicModel() const override;
+	idBounds			Bounds( const struct renderEntity_s* ent ) const override;
+	void				Print() const override;
+	void				List() const override;
+	void				TouchData() override;
+	void				PurgeModel() override;
+	void				LoadModel() override;
+	void				CreateBuffers( nvrhi::ICommandList* commandList ) override;
+	int					Memory() const override;
+	idRenderModel* 		InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel ) override;
+	int					NumJoints() const override;
+	const idMD5Joint* 	GetJoints() const override;
+	jointHandle_t		GetJointHandle( const char* name ) const override;
+	const char* 		GetJointName( jointHandle_t handle ) const override;
+	const idJointQuat* 	GetDefaultPose() const override;
+	int					NearestJoint( int surfaceNum, int a, int b, int c ) const override;
 
-	virtual bool				SupportsBinaryModel()
+	bool				SupportsBinaryModel() override
 	{
 		return true;
 	}
 
 	// RB begin
-	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL );
+	void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL ) override;
 	// RB end
 
 private:
@@ -265,7 +271,7 @@ struct md3Surface_s;
 class idRenderModelMD3 : public idRenderModelStatic
 {
 public:
-	virtual void				InitFromFile( const char* fileName );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;
@@ -296,7 +302,7 @@ class idRenderModelLiquid : public idRenderModelStatic
 public:
 	idRenderModelLiquid();
 
-	virtual void				InitFromFile( const char* fileName );
+	virtual void				InitFromFile( const char* fileName, nvrhi::ICommandList* commandList, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;
@@ -304,6 +310,7 @@ public:
 	virtual dynamicModel_t		IsDynamicModel() const;
 	virtual idRenderModel* 		InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel );
 	virtual idBounds			Bounds( const struct renderEntity_s* ent ) const;
+	virtual void				CreateBuffers( nvrhi::ICommandList* commandList );
 
 	virtual void				Reset();
 	void						IntersectBounds( const idBounds& bounds, float displacement );
@@ -356,7 +363,7 @@ class idRenderModelPrt : public idRenderModelStatic
 public:
 	idRenderModelPrt();
 
-	virtual void				InitFromFile( const char* fileName );
+	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
 		return false;

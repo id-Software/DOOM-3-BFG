@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "r_data.h"
 
 #ifdef __GNUG__
-#pragma interface
+	#pragma interface
 #endif
 
 
@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 extern  short*		lastopening;
 
 
-typedef void (*planefunction_t) (int top, int bottom);
+typedef void ( *planefunction_t )( int top, int bottom );
 
 extern planefunction_t	floorfunc;
 extern planefunction_t	ceilingfunc_t;
@@ -52,8 +52,8 @@ extern short		ceilingclip[SCREENWIDTH];
 extern fixed_t		yslope[SCREENHEIGHT];
 extern fixed_t		distscale[SCREENWIDTH];
 
-void R_InitPlanes (void);
-void R_ClearPlanes (void);
+void R_InitPlanes( void );
+void R_ClearPlanes( void );
 
 void
 R_MapPlane
@@ -69,7 +69,7 @@ R_MakeSpans
   int		t2,
   int		b2 );
 
-void R_DrawPlanes (void);
+void R_DrawPlanes( void );
 
 visplane_t*
 R_FindPlane

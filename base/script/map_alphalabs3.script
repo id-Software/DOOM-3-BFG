@@ -1,0 +1,119 @@
+#include "script/map_alphalabs3_crane.script"
+
+namespace map_alphalabs3 {
+	
+
+	void fade_combat_speaker() {
+		$xspeaker_1.fadeSound ( SND_CHANNEL_ANY, -60, 10 );
+		$speaker_8.fadeSound ( SND_CHANNEL_ANY, -60, 10 );
+	
+	}
+	
+	////////////////////////////////////////////////////
+	//
+	//	activate waste lift
+	//
+	////////////////////////////////////////////////////
+	void waste_lift_up()
+	{
+		//spawner
+		sys.trigger ($deathsquad_spawn);
+
+		//raises waste lift
+		$waste_lift.time (3);
+		$waste_lift.accelTime (.1);
+		$waste_lift.decelTime (.1);
+		$waste_lift.move (UP, 256);
+
+		//opens waste lift doors
+		sys.wait (1);
+		sys.trigger ($waste_lift_door_l);
+	}
+
+	
+	////////////////////////////////////////////////////
+	//
+	//	break the little al3_platform
+	//
+	////////////////////////////////////////////////////
+	void al3_platform_break()
+	{
+		//set the bottom call gui to malfunction
+		//so it can't be called twice
+		$func_static_4685.setGuiParm("gui_parm5" , 2);
+		$func_static_3921.setGuiParm("gui_parm5" , 2);
+		$func_static_4685.setShaderParm(7 , 0);
+		$func_static_3921.setShaderParm(7 , 0);
+
+
+		//first move down
+		$al3_platform_break.time ( 2.5 );
+		$al3_platform_break.accelTime ( .5 );
+		$al3_platform_break.decelTime ( 0 );
+		sys.trigger ($lspeaker_1);
+		
+		$al3_platform.startSoundShader ("broken_plat_2_5s", SND_CHANNEL_VOICE2 );
+		
+		$al3_platform_break.move ( DOWN, 190 );
+
+		sys.waitFor ($al3_platform_break);
+
+		//bounce a bit or something
+		sys.trigger ($broke_spark);
+		$al3_platform_break.time ( .2 );
+		$al3_platform_break.accelTime ( .2 );
+		$al3_platform_break.decelTime ( 0 );
+		$al3_platform_break.move ( UP, 6 );
+
+		sys.waitFor ($al3_platform_break);
+
+		$al3_platform_break.time ( .2 );
+		$al3_platform_break.accelTime ( 0 );
+		$al3_platform_break.decelTime ( .2 );
+		$al3_platform_break.move ( DOWN, 8 );
+
+		//rotate a about 24 degrees
+		$al3_platform_break.time ( .6 );
+		$al3_platform_break.accelTime ( .6 );
+		$al3_platform_break.decelTime ( 0 );
+		
+		$al3_platform_break.startSoundShader ("platbreak_01", SND_CHANNEL_VOICE );
+		
+		$al3_platform_break.rotateOnce ( '-24 5 0' );
+
+		sys.waitFor ($al3_platform_break);
+
+		$al3_platform_break.time ( .1 );
+		$al3_platform_break.accelTime ( .1 );
+		$al3_platform_break.decelTime ( 0 );
+		
+		$al3_platform_break.startSoundShader ("platbreak_02", SND_CHANNEL_BODY );
+		
+		$al3_platform_break.rotateOnce ( '1 0 0' );
+
+		sys.waitFor ($al3_platform_break);
+
+		$al3_platform_break.rotateOnce ( '-1 0 0' );
+	}
+
+	void cache_sounds() {
+		sys.cacheSoundShader ("broken_plat_2_5s");
+		sys.cacheSoundShader ("platbreak_01");
+		sys.cacheSoundShader ("platbreak_02");
+	}
+
+
+	//////////////////////////////////////////////////////////
+	//
+	//     Vent cover opener
+	//
+	//////////////////////////////////////////////////////////
+	void open_vent_cover() {
+		$ventcover1.rotateOnce('0 0 -120');
+	}
+
+	void main() {
+		cache_sounds();
+		init_crane();
+	}
+}

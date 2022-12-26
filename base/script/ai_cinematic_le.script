@@ -1,0 +1,26 @@
+/***********************************************************************
+
+ai_cinematic_le.script
+
+***********************************************************************/
+
+object cinematic_le_meyers : ai {
+	void init();
+};
+
+void cinematic_le_meyers::init() {
+
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+
+	while ( !AI_ACTIVATED ) {
+		waitFrame();
+	}
+
+	playAnim( ANIMCHANNEL_TORSO, self.getKey( "meyers_animation" ) );
+
+	while( !( animDone( ANIMCHANNEL_TORSO, 0 ) ) ) {
+		waitFrame();
+	}
+
+	idleAnim( ANIMCHANNEL_TORSO, "stand" );
+}

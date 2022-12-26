@@ -47,6 +47,7 @@ public:
 
 	idStaticList();
 	idStaticList( const idStaticList<type, size>& other );
+	idStaticList( std::initializer_list<type> initializerList );
 	~idStaticList<type, size>();
 
 	void				Clear();										// marks the list as empty.  does not deallocate or intialize data.
@@ -112,6 +113,13 @@ template<class type, int size>
 ID_INLINE idStaticList<type, size>::idStaticList( const idStaticList<type, size>& other )
 {
 	*this = other;
+}
+
+template<class type, int size>
+ID_INLINE idStaticList<type, size>::idStaticList( std::initializer_list<type> initializerList )
+{
+	SetNum( initializerList.size() );
+	std::copy( initializerList.begin(), initializerList.end(), list );
 }
 
 /*

@@ -1,0 +1,124 @@
+textures/recyc_floor/recycfloor1_1_fin
+{
+	qer_editorimage textures/recyc_floor/recycfloor1_1_fin.tga
+        diffusemap	textures/recyc_floor/recycfloor1_d1_fin.tga      
+	specularmap	textures/recyc_floor/recycfloor1_s1_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/recycfloor1_local1_fin.tga  , heightmap( textures/recyc_floor/recycfloor1_b1_fin.tga, 5 ) )
+
+
+}  
+
+
+textures/recyc_floor/recycfloor1_2_fin
+{
+	qer_editorimage textures/recyc_floor/recycfloor1_2_fin.tga
+        diffusemap	textures/recyc_floor/recycfloor1_d2_fin.tga      
+	specularmap	textures/recyc_floor/recycfloor1_s2_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/recycfloor1_local2_fin.tga  , heightmap( textures/recyc_floor/recycfloor1_b2_fin.tga, 5 ) )
+
+       
+} 
+
+
+textures/recyc_floor/recycfloor1_3_fin
+{
+	qer_editorimage textures/recyc_floor/recycfloor1_3_fin.tga
+        diffusemap	textures/recyc_floor/recycfloor1_d3_fin.tga      
+	specularmap	textures/recyc_floor/recycfloor1_s3_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/recycfloor1_local3_fin.tga  , heightmap( textures/recyc_floor/recycfloor1_b3_fin.tga, 5 ) )
+
+       
+} 
+
+textures/recyc_floor/recycfloor1_4_fin
+{
+	qer_editorimage textures/recyc_floor/recycfloor1_4_fin.tga
+        diffusemap	textures/recyc_floor/recycfloor1_d4_fin.tga      
+	specularmap	textures/recyc_floor/recycfloor1_s4_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/recycfloor1_local4_fin.tga  , heightmap( textures/recyc_floor/recycfloor1_b4_fin.tga, 6 ) )
+
+       
+} 
+
+
+textures/recyc_floor/recycfloor1_7_fin
+{
+	qer_editorimage textures/recyc_floor/recycfloor1_7_fin.tga
+        diffusemap	textures/recyc_floor/recycfloor1_d7_fin.tga      
+	specularmap	textures/recyc_floor/recycfloor1_s7_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/recycfloor1_local7_fin.tga  , heightmap( textures/recyc_floor/recycfloor1_b7_fin.tga, 5 ) )
+
+       
+} 
+
+
+textures/recyc_floor/a_sen_techgrate_01_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_01_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d01_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s01_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local01_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b01_fin.tga, 5 ) )
+
+       
+}
+
+
+textures/recyc_floor/a_sen_techgrate_02_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_02_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d02_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s02_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local02_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b02_fin.tga, 5 ) )
+
+       
+}
+
+textures/recyc_floor/a_sen_techgrate_03_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_03_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d03_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s03_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local03_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b03_fin.tga, 5 ) )
+
+       
+}
+
+textures/recyc_floor/a_sen_techgrate_04_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_04_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d04_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s04_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local04_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b04_fin.tga, 5 ) )
+
+       
+}
+
+textures/recyc_floor/a_sen_techgrate_07_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_07_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d07_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s07_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local07_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b07_fin.tga, 5 ) )
+
+       
+}
+
+textures/recyc_floor/a_sen_techgrate_05_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_05_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d05_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s05_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local05_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b05_fin.tga, 5 ) )
+
+       
+}
+
+textures/recyc_floor/a_sen_techgrate_06_fin
+{
+	qer_editorimage textures/recyc_floor/a_sen_techgrate_06_fin.tga
+        diffusemap	textures/recyc_floor/a_sen_techgrate_d06_fin.tga      
+	specularmap	textures/recyc_floor/a_sen_techgrate_s06_fin.tga        
+        bumpmap	        addnormals( textures/recyc_floor/a_sen_techgrate_local06_fin.tga  , heightmap( textures/recyc_floor/a_sen_techgrate_b06_fin.tga, 5 ) )
+
+       
+}

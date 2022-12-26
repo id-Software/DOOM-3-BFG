@@ -52,6 +52,9 @@ public:
 	float       zmin;
 	float		zmax;
 
+	bool		operator==( idScreenRect& other ) const;
+	bool		operator!=( idScreenRect& other ) const;
+
 	// clear to backwards values
 	void		Clear();
 	bool		IsEmpty() const;

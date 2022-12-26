@@ -1,0 +1,25 @@
+entityDef	damage_fragchamberfog {
+	"damage"			"25"
+	"kickDir"			"0 0 0"
+	"mtr_blob"			"toxinDamage"
+	"blob_time"			"0"
+	"blob_size"			"0"
+	"blob_offset_x"			"0"
+	"knockback"			"0"
+	"kick_time"			"0"
+	"kick_amplitude"		"0"
+	"dv_time"			"100"
+}
+
+entityDef	damage_fragchamberpipe {
+	"damage"			"5"
+	"kickDir"			"0 0 0"
+	"mtr_blob"			"toxinDamage"
+	"blob_time"			"0"
+	"blob_size"			"0"
+	"blob_offset_x"			"0"
+	"knockback"			"0"
+	"kick_time"			"0"
+	"kick_amplitude"		"0"
+	"dv_time"			"100"
+}

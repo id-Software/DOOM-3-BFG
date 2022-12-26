@@ -1,0 +1,246 @@
+//CINEMATICS
+	
+export fred {
+	camera	maps/fred/recycling/betruger_video1.mb -dest models/md5/cinematics/recycling/betruger_vid_camera
+	camera	maps/fred/recycling/betruger_video2.mb -dest models/md5/cinematics/recycling/betruger_vid_camera2
+
+}
+
+export james {
+		camera	maps/james/recycling2.mb -dest models/md5/cinematics/recycling2/mancintro_cam
+		
+		addoptions -prefix PIPE_ -keep steam1 steam2 steam3 steam4
+		
+		mesh    maps/james/recycling2.mb -dest models/md5/cinematics/recycling2/mancintro_pipes
+		anim    maps/james/recycling2.mb -dest models/md5/cinematics/recycling2/mancintro_pipes
+
+}
+
+entityDef recycling2_mancintro_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"cinematic"						"1"
+	
+	"spawnclass"					"idCameraAnim"
+	"anim"							"mancintro"
+	"anim mancintro"				"models/md5/cinematics/recycling2/mancintro_cam.md5camera"
+}
+
+model recycling2_mancintro_player {
+	skin							skins/player/noweapon.skin
+	mesh							models/md5/characters/player/mocap/player.md5mesh
+	anim mancintro					models/md5/cinematics/recycling2/mancintro_player.md5anim
+}
+
+entityDef recycling2_mancintro_player {
+	"inherit"						"cin_base"
+	"model"							"recycling2_mancintro_player"
+	"anim"							"mancintro"
+	"cinematic"						"1"
+}
+
+model recycling2_mancintro_manc {
+	mesh							models/md5/monsters/mancubus/james/mancubus.md5mesh
+	anim mancintro					models/md5/cinematics/recycling2/mancintro_manc.md5anim {
+
+		frame 3						sound_global monster_demon_mancubus_sight
+		frame 25					sound_body monster_demon_mancubus_step
+		frame 75					sound_body monster_demon_mancubus_step
+		frame 100					sound_body monster_demon_mancubus_step
+		frame 100					sound_global monster_demon_mancubus_chatter
+		frame 125					sound_body monster_demon_mancubus_step
+		frame 150					sound_body monster_demon_mancubus_step
+		frame 175					sound_body monster_demon_mancubus_step
+		frame 185					sound_body monster_demon_mancubus_step
+		frame 200					sound_body monster_demon_mancubus_step
+		frame 201					sound_body	monster_demon_guardian_death_impact
+		
+		frame 208					sound_global monster_demon_mancubus_pain
+		frame 234					sound_global monster_demon_mancubus_pain
+		frame 283					sound_global monster_demon_mancubus_sight
+		frame 307					sound_body monster_demon_mancubus_step
+		frame 317					sound_body monster_demon_mancubus_step
+		frame 327					sound_body monster_demon_mancubus_step
+		frame 338					sound_body monster_demon_mancubus_step
+		frame 344					sound_body monster_demon_mancubus_step
+		frame 351					sound_body monster_demon_mancubus_step
+		frame 356					sound_body monster_demon_mancubus_step
+		frame 362					sound_body monster_demon_mancubus_step
+		
+		}
+
+}
+
+entityDef recycling2_mancintro_manc {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	"spawnclass"					"idAnimated"								
+	"model"							"recycling2_mancintro_manc"
+	"anim"							"mancintro"
+	"cinematic"						"1"
+}
+
+model recycling2_mancintro_pipes {
+	mesh							models/md5/cinematics/recycling2/mancintro_pipes.md5mesh
+	anim mancintro					models/md5/cinematics/recycling2/mancintro_pipes.md5anim {
+
+		frame 208					sound_body recycling_revintro_clang3 
+		frame 234					sound_body recycling_revintro_clang2
+		frame 283					sound_body recycling_revintro_clang1
+		frame 284					sound_body2 recycling_revintro_clang3
+		frame 208			     	   trigger manc_steam1
+		frame 208			     	   trigger manc_steam2
+		frame 208			     	   trigger manc_steam3
+		frame 208			     	   trigger manc_steam4
+
+		}
+
+}
+
+entityDef recycling2_mancintro_pipes {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+
+	"spawnclass"					"idAnimated"
+	"model"							"recycling2_mancintro_pipes"
+	"anim"							"mancintro"
+	"cinematic"						"1"
+}
+
+//Triple Imps
+
+export fred {
+
+	options -prefix IMP1_ -keep Lknee Rknee Lelbow Relbow camera Body -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent Hips Body -parent Waist Body -parent camera Head
+
+
+	anim maps/fred/recycling/recycling.mb -dest models/md5/cinematics/recycling/imp1
+	
+	options -prefix IMP4_ -keep Lknee Rknee Lelbow Relbow camera Body -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent Hips Body -parent Waist Body -parent camera Head
+	
+	anim maps/fred/recycling/recycling.mb -dest models/md5/cinematics/recycling/imp2
+
+	options -prefix IMP3_ -keep Lknee Rknee Lelbow Relbow camera Body -keep Rmissile Lmissile -parent Rmissile Rhand -parent Lmissile Lhand -parent Rwing Chest -parent Lwing Chest -parent Hips Body -parent Waist Body -parent camera Head
+	
+	anim maps/fred/recycling/recycling.mb -dest models/md5/cinematics/recycling/imp3
+
+}
+
+model recycling2_imp1_cin {
+	mesh						models/md5/monsters/imp/imp.md5mesh
+	anim crawl					models/md5/cinematics/recycling/imp1.md5anim
+}
+
+entityDef recycling2_imp1_cin {
+	"inherit"					"cin_base"
+	"model"						"recycling2_imp1_cin"
+	"anim"						"crawl"
+}
+
+model recycling2_imp2_cin {
+	mesh						models/md5/monsters/imp/imp.md5mesh
+	anim crawl					models/md5/cinematics/recycling/imp2.md5anim {
+		frame 3				sound_body monster_demon_imp_footstep
+		frame 12			sound_body monster_demon_imp_footstep
+		frame 16			sound_body2 monster_demon_imp_footstep
+		frame 20			sound_body monster_demon_imp_footstep
+		frame 20			sound_body2 monster_demon_imp_footstep
+		frame 25			sound_body monster_demon_imp_footstep
+		frame 30			sound_voice monster_demon_imp_chatter
+		frame 48			sound_body monster_demon_imp_footstep
+		frame 50			sound_body2 monster_demon_imp_footstep
+		frame 48			sound_body monster_demon_imp_footstep
+		frame 53			sound_body2 monster_demon_imp_footstep
+		frame 55			sound_body monster_demon_imp_footstep
+		frame 59			sound_body2 monster_demon_imp_footstep
+		frame 48			sound_body monster_demon_imp_footstep
+		frame 72			sound_body2 monster_demon_imp_footstep
+		frame 75			sound_body monster_demon_imp_footstep
+		frame 83			sound_body2 monster_demon_imp_footstep
+		frame 94			sound_body monster_demon_imp_footstep
+		frame 100			sound_body2 monster_demon_imp_footstep
+		frame 105			sound_body monster_demon_imp_footstep
+	}
+}
+
+entityDef recycling2_imp2_cin {
+	"inherit"					"cin_base"
+	"model"						"recycling2_imp2_cin"
+	"anim"						"crawl"
+}
+
+model recycling2_imp3_cin {	
+	mesh						models/md5/monsters/imp/imp.md5mesh
+	anim crawl					models/md5/cinematics/recycling/imp3.md5anim
+}
+
+entityDef recycling2_imp3_cin {	
+	"inherit"					"cin_base"
+	"model"						"recycling2_imp3_cin"
+	"anim"						"crawl"
+}
+
+model recycling2_video_bethead {
+	inherit							head_betruger
+	anim video_a					models/md5/heads/betruger/recycling2/betvideo1.md5anim
+	anim video_b					models/md5/heads/betruger/recycling2/betvideo2.md5anim
+
+}
+
+model recycling2_video_betruger {
+	mesh							models/md5/chars/labcoat.md5mesh
+
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol)
+
+	anim idle						models/md5/chars/betruger/recycling/betruger_vid1.md5anim	
+	anim stand						models/md5/chars/betruger/recycling/betruger_vid1.md5anim
+	anim video_a					models/md5/chars/betruger/recycling/betruger_vid1.md5anim {
+//		frame 1						aviGame betvid1
+		frame 1						event disableEyeFocus
+		frame 1						sound_voice recycling_video_betruger1
+//		frame 1120					aviGame
+	}
+	anim video_b					models/md5/chars/betruger/recycling/betruger_vid2.md5anim {
+	//	frame 1						aviGame betvid2
+		frame 1						event disableEyeFocus
+		frame 1						sound_voice recycling_video_betruger2
+	//	frame 915					aviGame
+	}
+}
+
+
+entityDef recycling2_video_betruger {
+	"inherit"						"character_default"
+	"size"							"1 1 1"
+	"model"							"recycling2_video_betruger"
+	"anim"							"video"
+	"sound_bone"					"Chest"
+	"def_head"						"recycling2_video_bethead"
+	"head_joint"					"Shoulders"
+
+//	"bone_focus"					"headcontrol"
+//	"bone_orientation"				"Body"
+//	"bone_leftEye"					"Leyeaim"
+//	"bone_rightEye"					"Reyeaim"
+
+	"copy_joint neckcontrol"		"neckcontrol"
+	"copy_joint headcontrol"		"headcontrol"
+	"copy_joint_world eyecontrol"	"eyecontrol"
+}
+
+entityDef recycling2_video_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+
+	"anim betruger_cam_a"				"models/md5/cinematics/recycling/betruger_vid_camera.md5camera"
+	"anim betruger_cam_b"				"models/md5/cinematics/recycling/betruger_vid_camera2.md5camera"
+
+}
+

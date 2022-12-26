@@ -1,0 +1,1215 @@
+namespace map_hell1 {
+
+	float cage_instance = 0;
+
+	void setup_objects ()
+	{ 
+               $brickdoor1.accelTime (.2);
+               $brickdoor1.decelTime (.3);
+               $brickdoor1.time (1);
+
+               $alcove1_leftwall.accelTime (.5);
+               $alcove1_leftwall.decelTime (.5);
+               $alcove1_leftwall.time (4);
+               $alcove1_rightwall.accelTime (.5);
+               $alcove1_rightwall.decelTime (.5);
+               $alcove1_rightwall.time (4);
+               $alcove1_backwall.accelTime (.5);
+               $alcove1_backwall.decelTime (.5);
+               $alcove1_backwall.time (4);
+
+               $alcove2_leftwall.accelTime (.5);
+               $alcove2_leftwall.decelTime (.5);
+               $alcove2_leftwall.time (4);
+               $alcove2_rightwall.accelTime (.5);
+               $alcove2_rightwall.decelTime (.5);
+               $alcove2_rightwall.time (4);
+               $alcove2_backwall.accelTime (.5);
+               $alcove2_backwall.decelTime (.5);
+               $alcove2_backwall.time (4);
+
+               $brick1.time (1.5);
+               $brick2.time (1);
+               $brick3.time (1.2);
+               $brick4.time (1);
+               $brick5.time (1.5);
+               $brick6.time (1.3);
+               $brick7.time (1.4);
+               $brick8.time (1);
+               $brick9.time (1.5);
+               $brick10.time (1);
+               $brick11.time (1.5);
+               $bricksleft_anchor.time (1.3);
+               $bricksright_anchor.time (1.3);
+
+               $bricksleft.bind ($bricksleft_anchor);
+               $bricksright.bind ($bricksright_anchor);               
+
+               $rock1.bind ($rock_rotating1);
+               $rock2.bind ($rock_rotating2);
+               $rock3.bind ($rock_rotating3);
+               $rock4.bind ($rock_rotating4);
+               $rock5.bind ($rock_rotating5);
+               $rock6.bind ($rock_rotating6);
+               $rock7.bind ($rock_rotating7);
+               $rock8.bind ($rock_rotating8);
+               $rock9.bind ($rock_rotating9);
+               $rock10.bind ($rock_rotating10);
+               $rock11.bind ($rock_rotating11);
+               $rock12.bind ($rock_rotating12);
+               
+               $cageside1.bind ($cageside1_rotate); 
+               $cageside2.bind ($cageside2_rotate);
+               $cageside3.bind ($cageside3_rotate);
+               $cageside4.bind ($cageside4_rotate);
+               $cagebottom.bind ($cagebottom_rotate);
+
+               $cage2side1.bind ($cage2side1_anchor);
+               $cage2side2.bind ($cage2side2_anchor);
+               $cage2side3.bind ($cage2side3_anchor);
+               $cage2side4.bind ($cage2side4_anchor);
+
+               $cageroom_mover.accelTime (.5);
+               $cageroom_mover.decelTime (.5);
+               $cageroom_mover.time (9);
+               
+               $wall1.bind ($wall1_anchor);
+               $wall2.bind ($wall2_anchor);
+               
+               $step1.time (.5);
+               $step2.time (.5);
+               $step3.time (.5);
+               $step4.time (.5);
+               $step5.time (.5);
+               $step6.time (.5);
+
+               $doorblock1.time (.4);
+               $doorblock1.decelTime (.1);			
+	             	        
+	}
+
+    void telering_move ()
+	{
+		while (1)
+		{ 
+			$telering_anchor.accelTime (.4);
+			$telering_anchor.decelTime (.4);
+			$telering_anchor.time (1);
+			$telering_anchor.rotateOnce ('-10 15 5');
+			sys.waitFor ($telering_anchor);
+			$telering_anchor.rotateOnce ('10 -15 -5');
+			sys.waitFor ($telering_anchor);
+	        
+			$telering_anchor.accelTime (.5);
+			$telering_anchor.decelTime (.5);
+			$telering_anchor.time (2);
+			$telering_anchor.rotateOnce ('20 10 0');
+			sys.waitFor ($telering_anchor);
+			$telering_anchor.rotateOnce ('-20 -10 0');                  
+			sys.waitFor ($telering_anchor);
+	        
+			sys.wait (1);                   
+        }
+    }
+
+    void telering_bob ()
+	{
+		while (1)
+		{ 
+            $telering_bobbing.accelTime (.5);
+            $telering_bobbing.decelTime (.5);
+            $telering_bobbing.time (4);
+            $telering_bobbing.move (UP,32);
+            sys.waitFor ($telering_bobbing);
+            $telering_bobbing.move (DOWN,32);
+            sys.waitFor ($telering_bobbing);
+            sys.trigger ($telering_spark);
+            
+            $telering_spark.startSoundShader ("tp_electro", SND_CHANNEL_VOICE2 );
+            
+            sys.trigger ($telering_light1);
+            sys.trigger ($telering_light2);
+            sys.wait (1);
+            sys.trigger ($telering_spark);
+            sys.trigger ($telering_light1);
+            sys.trigger ($telering_light2);                                 
+        }
+    }
+
+    void cage_mover (entity ent, vector vec, float ftime, entity etarget) {
+		cage_instance++;
+		ent.time (ftime);
+		ent.rotateOnce (vec);
+		ent.moveTo (etarget);
+		sys.waitFor (ent);
+		
+		if (cage_instance == 1 )
+			ent.startSoundShader ("gateimpact_01", SND_CHANNEL_VOICE2 );
+		if (cage_instance == 2 )
+			ent.startSoundShader ("gateimpact_02", SND_CHANNEL_VOICE2 );		
+		if (cage_instance == 3 )
+			ent.startSoundShader ("gateimpact_03", SND_CHANNEL_VOICE2 );
+		if (cage_instance == 4 )
+			ent.startSoundShader ("gateimpact_04", SND_CHANNEL_VOICE2 );
+		if (cage_instance == 5 )
+			ent.startSoundShader ("gateimpact_05", SND_CHANNEL_VOICE2 );
+    }
+
+
+        //////////////////////////
+	// fly hazmat
+	//////////////////////////
+    
+    void StartSplineMover() {
+		$hazmat_mover.time( 10 );
+		$hazmat_mover.accelTime( 2 );
+		
+		sys.trigger ($speaker_corpsemover);			// On
+		
+		$hazmat_mover.startSpline( $func_splinemover_1 );
+		$hazmat_mover.removeInitialSplineAngles();
+		
+		sys.waitFor ($hazmat_mover);
+		
+		sys.trigger ($speaker_corpsemover);			// Off
+		
+		sys.trigger ($hazmat_remove);
+		sys.trigger ($hazmat_splash);
+		sys.wait (2);
+		sys.trigger ($hazmat_splash);
+	}
+
+    
+         //////////////////////////
+	// cage
+	//////////////////////////
+
+    //trap player in cage
+
+	void cage_close () 
+	{      
+            $cageroom_mover.move (UP ,300);               
+
+
+            $cageside1_rotate.time (4);
+            $cageside2_rotate.time (4);
+            $cageside3_rotate.time (4);
+            $cageside4_rotate.time (4);
+            $cagebottom_rotate.time (4);
+
+            $cageside1_rotate.rotateOnce ('0 360 0');
+            $cageside2_rotate.rotateOnce ('0 360 0');
+            $cageside3_rotate.rotateOnce ('0 360 0');
+            $cageside4_rotate.rotateOnce ('0 360 0');
+            $cagebottom_rotate.rotateOnce ('360 720 360');
+
+
+            sys.waitFor ($cageside1_rotate);
+
+            $cageside1.unbind (); 
+            $cageside2.unbind ();
+            $cageside3.unbind ();
+            $cageside4.unbind ();
+            $cagebottom.unbind ();
+
+            sys.waitFor ($cageside1);
+
+
+			thread cage_mover ($cageside1, '0 -360 0', 3, $cageside1_spot1);
+			sys.wait (1);
+			thread cage_mover ($cageside2, '0 -360 0', 3, $cageside1_spot1);
+			sys.wait (1);
+			thread cage_mover ($cageside3, '0 -360 0', 3, $cageside1_spot1);
+			sys.wait (1);
+			thread cage_mover ($cageside4, '0 -360 0', 3, $cageside1_spot1);
+			sys.wait (1);
+			cage_mover ($cagebottom, '0 0 0', 3, $cagebottom_spot1);
+			
+			sys.wait (0.5);
+
+
+/*
+            $cageside1.time (3);
+            $cageside2.time (3);
+            $cageside3.time (3);
+            $cageside4.time (3);
+            $cagebottom.time (3);
+
+            $cageside1.rotateOnce ('0 -360 0');
+            $cageside2.rotateOnce ('0 -360 0');
+            $cageside3.rotateOnce ('0 -360 0');
+            $cageside4.rotateOnce ('0 -360 0');
+
+            $cageside1.moveTo ($cageside1_spot1);
+            $cageside2.moveTo ($cageside1_spot1);
+            $cageside3.moveTo ($cageside1_spot1);
+            $cageside4.moveTo ($cageside1_spot1);
+            $cagebottom.moveTo ($cagebottom_spot1);
+*/
+
+            //sys.waitFor ($cageside1);
+
+            sys.trigger ($soul_emitter_1);
+                            
+            sys.wait (2);
+
+            sys.trigger ($light_trigger1);
+            
+            //move room and rocks up fast
+
+            $rock1.unbind ();
+            $rock2.unbind ();
+            $rock3.unbind ();
+            $rock4.unbind ();
+            $rock5.unbind ();
+            $rock6.unbind ();
+            $rock7.unbind ();
+            $rock8.unbind ();
+            $rock9.unbind ();
+            $rock10.unbind ();
+            $rock11.unbind ();
+            $rock12.unbind ();
+            
+            $rock1.bind ($cageroom_mover);
+            $rock2.bind ($cageroom_mover);
+            $rock3.bind ($cageroom_mover);
+            $rock4.bind ($cageroom_mover);
+            $rock5.bind ($cageroom_mover);
+            $rock6.bind ($cageroom_mover);
+            $rock7.bind ($cageroom_mover);
+            $rock8.bind ($cageroom_mover);
+            $rock9.bind ($cageroom_mover);
+            $rock10.bind ($cageroom_mover);
+            $rock11.bind ($cageroom_mover);
+            $rock12.bind ($cageroom_mover);
+            $rock13.bind ($cageroom_mover);
+            $rock14.bind ($cageroom_mover);
+            $rock15.bind ($cageroom_mover);
+            $rock16.bind ($cageroom_mover);               
+            $rock17.bind ($cageroom_mover);
+            $rock18.bind ($cageroom_mover);
+            $rock19.bind ($cageroom_mover);
+            $rock20.bind ($cageroom_mover);
+
+            $cageroom_tube.bind ($cageroom_mover);
+            $cageroom_mover.accelTime (2);
+            $cageroom_mover.time (4);
+            
+            $cageroom_mover.startSoundShader ("cage_decent", SND_CHANNEL_VOICE );
+            
+            $cageroom_mover.move (UP ,5000);
+
+            sys.wait (4);
+
+            sys.trigger ($cage_teleport);
+            $cage2side1_anchor.startSoundShader ("gates_land", SND_CHANNEL_VOICE );
+            
+            sys.waitFrame();
+            $cageroom_mover.remove();
+	               
+        }
+
+void cage_open () 
+
+	{        
+               //release player in new area
+               
+               $cage2side1_anchor.startSoundShader ("hell_revgate", SND_CHANNEL_VOICE2 );
+               
+               $cage2side1_anchor.time (.2);
+               $cage2side2_anchor.time (.2);
+               $cage2side3_anchor.time (.2);
+               $cage2side4_anchor.time (.2);
+
+               $cage2side1_anchor.rotateOnce ('3 0 0');
+               $cage2side2_anchor.rotateOnce ('0 0 2');
+               $cage2side3_anchor.rotateOnce ('-3 0 0');
+               $cage2side4_anchor.rotateOnce ('0 0 -2');
+
+               sys.waitFor ($cage2side1_anchor);
+
+               $cage2side1_anchor.decelTime (.5);
+               $cage2side2_anchor.decelTime (.5);
+               $cage2side3_anchor.decelTime (.5);
+               $cage2side4_anchor.decelTime (.5);
+
+               $cage2side1_anchor.time (.6);
+               $cage2side2_anchor.time (.8);
+               $cage2side3_anchor.time (.6);
+               $cage2side4_anchor.time (.8);
+               
+               $cage2side1_anchor.rotateOnce ('-40 0 0');
+               $cage2side2_anchor.rotateOnce ('0 0 -40');
+               $cage2side3_anchor.rotateOnce ('40 0 0');
+               $cage2side4_anchor.rotateOnce ('0 0 40');
+                                                        
+               sys.waitFor ($cage2side1_anchor);
+
+               $cage2side1_anchor.accelTime (1);
+               $cage2side2_anchor.accelTime (1);
+               $cage2side3_anchor.accelTime (1);
+               $cage2side4_anchor.accelTime (1);
+
+               $cage2side1_anchor.time (1);
+               $cage2side2_anchor.time (1);
+               $cage2side3_anchor.time (1);
+               $cage2side4_anchor.time (1);
+
+               sys.waitFor ($cage2side1_anchor);
+
+               $cage2side1_anchor.moveTo ($cage2side1_spot1);
+               $cage2side2_anchor.moveTo ($cage2side2_spot1);
+               $cage2side3_anchor.moveTo ($cage2side3_spot1);
+               $cage2side4_anchor.moveTo ($cage2side4_spot1);
+                             
+               sys.waitFor ($cage2side1_anchor);
+               
+                         
+               $cage2side1_anchor.rotateOnce ('-300 0 0');
+               $cage2side2_anchor.rotateOnce ('0 0 -300');
+               $cage2side3_anchor.rotateOnce ('300 0 0');
+               $cage2side4_anchor.rotateOnce ('0 0 300');
+
+               $cage2side1_anchor.moveTo ($cage2side1_spot2);
+               $cage2side2_anchor.moveTo ($cage2side2_spot2);
+               $cage2side3_anchor.moveTo ($cage2side3_spot2);
+               $cage2side4_anchor.moveTo ($cage2side4_spot2);
+
+               sys.waitFor ($cage2side1_anchor);
+
+               $cage2side1_anchor.time (.8);
+               $cage2side2_anchor.time (.8);
+               $cage2side3_anchor.time (.8);
+               $cage2side4_anchor.time (.8);
+
+               $cage2side1_anchor.rotateOnce ('-800 0 0');
+               $cage2side2_anchor.rotateOnce ('0 0 -800');
+               $cage2side3_anchor.rotateOnce ('800 0 0');
+               $cage2side4_anchor.rotateOnce ('0 0 800');
+
+               $cage2side1_anchor.moveTo ($cage2side1_spot3);
+               $cage2side2_anchor.moveTo ($cage2side2_spot3);
+               $cage2side3_anchor.moveTo ($cage2side3_spot3);
+               $cage2side4_anchor.moveTo ($cage2side4_spot3);
+             
+
+           }
+
+        //////////////////////////
+	// wall open
+	//////////////////////////
+
+        //rearrange blocks
+
+	void wall_open () 
+	{        
+                 $wall4_corner.time (.5);
+                 $wall4_corner.accelTime (.5);
+                 $wall1_1.time (.5);
+                 $wall1_1.decelTime (.5);
+                 $wall1_2.time (.5);
+                 $wall1_2.decelTime (.5);
+                 $wall1_3.time (.5);
+                 $wall1_3.decelTime (.5);
+                 $wall1_4.time (.5);
+                 $wall1_4.decelTime (.5);
+                 $wall1_5.time (.5);
+                 $wall1_5.decelTime (.5);
+                 $wall1_6.time (.6);
+                 $wall1_6.decelTime (.5);
+
+                 $wall2_1.time (1);
+                 $wall2_1.decelTime (.5);
+                 $wall2_2.time (.5);
+                 $wall2_2.decelTime (.5);
+                 $wall2_3.time (.5);
+                 $wall2_3.decelTime (.5);
+                 $wall2_4.time (.5);
+                 $wall2_4.decelTime (.5);
+                 $wall2_5.time (.6);
+                 $wall2_5.decelTime (.5);
+                 $wall2_6.time (.5);
+                 $wall2_6.decelTime (.5);
+
+                 $wall3_1.time (.6);
+                 $wall3_1.decelTime (.5);
+                 $wall3_2.time (.6);
+                 $wall3_2.decelTime (.5);
+                 $wall3_3.time (.6);
+                 $wall3_3.decelTime (.5);
+                 $wall3_4.time (.6);
+                 $wall3_4.decelTime (.5);
+                 $wall3_5.time (.6);
+                 $wall3_5.decelTime (.5);
+                 $wall3_6.time (.6);
+                 $wall3_6.decelTime (.5);
+
+                 $wall4_1.time (.8);
+                 $wall4_1.decelTime (.5);
+                 $wall4_2.time (.6);
+                 $wall4_2.decelTime (.5);
+                 $wall4_3.time (2);
+                 $wall4_3.decelTime (.5);
+                 $wall4_4.time (.5);
+                 $wall4_4.decelTime (.5);
+                 $wall4_5.time (1);
+                 $wall4_5.decelTime (.5);
+
+                 $wall1_anchor.rotateOnce ('0 -80 0');
+                 $wall2_anchor.rotateOnce ('0 80 0');
+
+                 $wall1_1.move (SOUTH ,320);
+                 $wall1_1.rotateOnce ('0 -90 0');
+                                
+                 $wall1_corner.moveTo ($wall1_corner_spot1);
+                 $wall1_2.moveTo ($wall1_2_spot1);
+                 $wall1_3.moveTo ($wall1_3_spot1);
+                 $wall1_4.moveTo ($wall1_4_spot1);
+                 $wall1_5.moveTo ($wall1_5_spot1);
+                 $wall1_6.moveTo ($wall1_6_spot1);
+
+                 $wall2_2.moveTo ($wall2_2_spot1);
+                 $wall2_3.moveTo ($wall2_3_spot1);
+                 $wall2_4.moveTo ($wall2_4_spot1);
+                 $wall2_5.moveTo ($wall2_5_spot1);
+                 $wall2_6.moveTo ($wall2_6_spot1);
+
+                 sys.waitFor ($wall1_anchor);
+
+                 $wall1_corner.move (UP ,128);
+
+                 $wall1_2.rotateOnce ('0 180 0');
+                 $wall1_3.rotateOnce ('0 180 0');
+                 $wall1_4.rotateOnce ('0 180 0');
+                 $wall1_5.rotateOnce ('0 180 0');
+                 $wall1_6.rotateOnce ('0 270 0');
+
+                 $wall2_2.rotateOnce ('0 -180 0');
+                 $wall2_3.rotateOnce ('0 -90 0');
+                 $wall2_4.rotateOnce ('0 -180 0');
+                 $wall2_5.rotateOnce ('0 90 0');
+                 $wall2_6.rotateOnce ('0 -180 0');
+
+                 $wall1_2.moveTo ($wall1_2_spot2);
+                 $wall1_3.moveTo ($wall1_3_spot2);
+                 $wall1_4.moveTo ($wall1_4_spot2);
+                 $wall1_5.moveTo ($wall1_5_spot2);
+                 $wall1_6.moveTo ($wall1_6_spot2);
+
+                 $wall2_2.moveTo ($wall2_2_spot2);
+                 $wall2_3.moveTo ($wall2_3_spot2);
+                 $wall2_4.moveTo ($wall2_4_spot2);
+                 $wall2_5.moveTo ($wall2_5_spot2);
+                 $wall2_6.moveTo ($wall2_6_spot2);
+
+                 $wall3_1.move (WEST ,320);
+
+                 sys.waitFor ($wall3_1);
+                 
+                 $wall3_2.moveTo ($wall3_2_spot1);                 
+                 $wall3_2.moveTo ($wall3_2_spot2);
+
+                 $wall3_3.moveTo ($wall3_2_spot1);
+                 $wall3_3.moveTo ($wall3_3_spot2);
+
+                 $wall3_4.moveTo ($wall3_4_spot1);
+                 $wall3_4.moveTo ($wall3_4_spot2);
+
+                 $wall3_5.moveTo ($wall3_5_spot1);
+                 $wall3_5.moveTo ($wall3_5_spot2);
+
+                 $wall3_6.moveTo ($wall3_6_spot1);
+                 $wall3_6.rotateOnce ('0 180 0');
+                 $wall3_6.moveTo ($wall3_6_spot2);
+
+                 $wall2_1.moveTo ($wall2_1_spot1);
+                 sys.waitFor ($wall2_1);
+                 $wall2_1.rotateOnce ('0 270 0');
+                 $wall2_1.moveTo ($wall2_1_spot2);
+
+                 $wall4_corner.moveTo ($wall4_corner_spot1);
+                 sys.waitFor ($wall4_corner);
+                 $wall4_corner.move (UP ,128);
+                 
+                 $wall4_1.move (EAST ,256);
+                                  
+                 $wall4_2.moveTo ($wall4_2_spot1);
+                  sys.waitFor ($wall4_2);
+                 $wall4_2.moveTo ($wall4_2_spot2);
+                 
+                 $wall4_3.moveTo ($wall4_3_spot1);
+                  sys.waitFor ($wall4_3);
+                 $wall4_3.moveTo ($wall4_3_spot2);
+
+                 $wall4_4.moveTo ($wall4_4_spot1);
+                  sys.waitFor ($wall4_4);
+                 $wall4_4.moveTo ($wall4_4_spot2);
+
+                 $wall4_5.moveTo ($wall4_5_spot1);
+                  sys.waitFor ($wall4_5);
+                 $wall4_5.rotateOnce ('0 0 360');
+                 $wall4_5.moveTo ($wall4_5_spot2);
+                              
+        }
+
+        //////////////////////////
+	// form bridge
+	//////////////////////////
+
+        //rearrange blocks to make bridge
+
+	void bridge_form () 
+	{ 
+                 sys.trigger ($bridgequake);
+
+                 $wall1_corner.rotateOnce ('0 180 0');
+                 $wall4_corner.rotateOnce ('0 -180 0');
+                 $wall1_corner.moveTo ($wall1_corner_spot2);
+                 $wall4_corner.moveTo ($wall4_corner_spot2);
+
+                 sys.waitFor ($wall4_corner);
+
+                 $wall1_corner.moveTo ($wall1_corner_spot3);
+                 $wall4_corner.moveTo ($wall4_corner_spot3);
+
+                 sys.waitFor ($wall4_corner);
+
+                 $wall1_1.time (2);
+                 $wall1_1.decelTime (.5);
+                 $wall1_2.time (2.5);
+                 $wall1_2.decelTime (.5);
+                 $wall1_3.time (1.7);
+                 $wall1_3.decelTime (.5);
+                 $wall1_4.time (2.4);
+                 $wall1_4.decelTime (.5);
+                 $wall1_5.time (2.2);
+                 $wall1_5.decelTime (.5);
+                 $wall1_6.time (2.6);
+                 $wall1_6.decelTime (.5);
+
+                 $wall2_1.time (2.1);
+                 $wall2_1.decelTime (.5);
+                 $wall2_2.time (2);
+                 $wall2_2.decelTime (.5);
+                 $wall2_3.time (1.8);
+                 $wall2_3.decelTime (.5);
+                 $wall2_4.time (2.3);
+                 $wall2_4.decelTime (.5);
+                 $wall2_5.time (2.6);
+                 $wall2_5.decelTime (.5);
+                 $wall2_6.time (2.1);
+                 $wall2_6.decelTime (.5);
+
+                 $wall3_1.time (2.1);
+                 $wall3_1.decelTime (.5);
+                 $wall3_2.time (2.4);
+                 $wall3_2.decelTime (.5);
+                 $wall3_3.time (2.5);
+                 $wall3_3.decelTime (.5);
+                 $wall3_4.time (1.7);
+                 $wall3_4.decelTime (.5);
+                 $wall3_5.time (1.8);
+                 $wall3_5.decelTime (.5);
+                 $wall3_6.time (2);
+                 $wall3_6.decelTime (.5);
+
+                 $wall4_1.time (2);
+                 $wall4_1.decelTime (.5);
+                 $wall4_2.time (2.2);
+                 $wall4_2.decelTime (.5);
+                 $wall4_3.time (2.5);
+                 $wall4_3.decelTime (.5);
+                 $wall4_4.time (2.1);
+                 $wall4_4.decelTime (.5);
+                 $wall4_5.time (1.9);
+                 $wall4_5.decelTime (.5);
+
+                 $wall1_1.moveTo ($bridge1_1_spot1);
+                 $wall1_2.moveTo ($bridge1_2_spot1);
+                 $wall1_3.moveTo ($bridge1_3_spot1);
+                 $wall1_4.moveTo ($bridge1_4_spot1);
+                 $wall1_5.moveTo ($bridge1_5_spot1);
+                 $wall1_6.moveTo ($bridge1_6_spot1);
+
+                 $wall2_1.moveTo ($bridge2_1_spot1);
+                 $wall2_2.moveTo ($bridge2_2_spot1);
+                 $wall2_3.moveTo ($bridge2_3_spot1);
+                 $wall2_4.moveTo ($bridge2_4_spot1);
+                 $wall2_5.moveTo ($bridge2_5_spot1);
+                 $wall2_6.moveTo ($bridge2_6_spot1);
+
+                 $wall3_1.moveTo ($bridge3_1_spot1);
+                 $wall3_2.moveTo ($bridge3_2_spot1);
+                 $wall3_3.moveTo ($bridge3_3_spot1);
+                 $wall3_4.moveTo ($bridge3_4_spot1);
+                 $wall3_5.moveTo ($bridge3_5_spot1);
+                 $wall3_6.moveTo ($bridge3_6_spot1);
+
+                 $wall4_1.moveTo ($bridge4_1_spot1);
+                 $wall4_2.moveTo ($bridge4_2_spot1);
+                 $wall4_3.moveTo ($bridge4_3_spot1);
+                 $wall4_4.moveTo ($bridge4_4_spot1);
+                 $wall4_5.moveTo ($bridge4_5_spot1);
+
+                 sys.waitFor ($wall4_5);
+
+                 $wall1_1.moveTo ($bridge1_1_spot2);
+                 $wall1_1.rotateOnce ('0 -180 360');
+                 $wall1_2.moveTo ($bridge1_2_spot2);
+                 $wall1_2.rotateOnce ('0 180 -360');
+                 $wall1_3.moveTo ($bridge1_3_spot2);
+                 $wall1_3.rotateOnce ('0 180 360');
+                 $wall1_4.moveTo ($bridge1_4_spot2);
+                 $wall1_4.rotateOnce ('0 180 -360');
+                 $wall1_5.moveTo ($bridge1_5_spot2);
+                 $wall1_5.rotateOnce ('0 180 360');
+                 $wall1_6.moveTo ($bridge1_6_spot2);
+                 $wall1_6.rotateOnce ('0 -180 360');
+
+                 $wall2_1.moveTo ($bridge2_1_spot2);
+                 $wall2_1.rotateOnce ('0 -180 360');
+                 $wall2_2.moveTo ($bridge2_2_spot2);
+                 $wall2_2.rotateOnce ('0 180 -360');
+                 $wall2_3.moveTo ($bridge2_3_spot2);
+                 $wall2_3.rotateOnce ('0 180 360');
+                 $wall2_4.moveTo ($bridge2_4_spot2);
+                 $wall2_4.rotateOnce ('0 -180 360');
+                 $wall2_5.moveTo ($bridge2_5_spot2);
+                 $wall2_5.rotateOnce ('0 180 -360');
+                 $wall2_6.moveTo ($bridge2_6_spot2);
+                 $wall2_6.rotateOnce ('0 -180 360');
+
+                 $wall3_1.moveTo ($bridge3_1_spot2);
+                 $wall3_1.rotateOnce ('0 -180 360');
+                 $wall3_2.moveTo ($bridge3_2_spot2);
+                 $wall3_2.rotateOnce ('0 -180 360');
+                 $wall3_3.moveTo ($bridge3_3_spot2);
+                 $wall3_3.rotateOnce ('0 180 -360');
+                 $wall3_4.moveTo ($bridge3_4_spot2);
+                 $wall3_4.rotateOnce ('0 180 360');
+                 $wall3_5.moveTo ($bridge3_5_spot2);
+                 $wall3_5.rotateOnce ('0 -180 360');
+                 $wall3_6.moveTo ($bridge3_6_spot2);
+                 $wall3_6.rotateOnce ('0 180 -360');
+
+                 $wall4_1.moveTo ($bridge4_1_spot2);
+                 $wall4_1.rotateOnce ('0 -180 360');
+                 $wall4_2.moveTo ($bridge4_2_spot2);
+                 $wall4_2.rotateOnce ('0 180 -360');
+                 $wall4_3.moveTo ($bridge4_3_spot2);
+                 $wall4_3.rotateOnce ('0 -180 360');
+                 $wall4_4.moveTo ($bridge4_4_spot2);
+                 $wall4_4.rotateOnce ('0 -180 360');
+                 $wall4_5.moveTo ($bridge4_5_spot2);
+                 $wall4_5.rotateOnce ('0 -180 360');
+
+                 sys.waitFor ($wall4_5);
+                 sys.trigger ($bridgequake);
+                                                   
+        }
+
+         //////////////////////////
+	// first hall with dust particles
+	//////////////////////////
+       
+	//  turn dust particles on and off
+ 	
+        void start_firstdust () 
+	{ 
+        while (1)
+	{ 
+                 sys.trigger ($pillardust1);    
+                 sys.wait (1);
+                 sys.trigger ($pillardust2);    
+                 sys.wait (.8);
+                 sys.trigger ($pillardust3);    
+                 sys.wait (3);
+                 sys.trigger ($pillardust1);    
+                 sys.wait (1);
+                 sys.trigger ($pillardust2);    
+                 sys.wait (.8);
+                 sys.trigger ($pillardust3);    
+                 sys.wait (2);                
+        }
+        }
+         void firstdust_off ()
+	{
+
+			sys.killthread ( "map_hell1::start_firstdust" );
+
+	}
+
+        //////////////////////////
+	// steps
+	//////////////////////////
+
+        //lower steps in first hall
+        
+	void step_lower () 
+	{
+                                       			
+			$step1.move ( DOWN , 7 );  
+			sys.waitFor ($step1);
+                        $step2.move ( DOWN , 15 );  
+			sys.waitFor ($step2);
+                        $step3.move ( DOWN , 23 );  
+			sys.waitFor ($step3);
+                        $step4.move ( DOWN , 31 );  
+			sys.waitFor ($step4);
+                        $step5.move ( DOWN , 39 );  
+			sys.waitFor ($step5);
+                        $step6.move ( DOWN , 47 );  
+			sys.waitFor ($step6);
+                        $step7.move ( DOWN , 55 );  
+			sys.waitFor ($step7);			
+	}
+ 
+        //////////////////////////
+	// first room
+	//////////////////////////
+
+        //wall in first room opens to let monster through
+
+	void door_open () 
+	{
+               
+        sys.trigger ($hk_wallbust_01);
+        
+        $bricksleft_anchor.rotateOnce ('0 30 0');
+        $bricksright_anchor.rotateOnce ('0 -30 0');
+
+        $bricksleft_anchor.moveTo ($bricksleft_spot2);
+        $bricksright_anchor.moveTo ($bricksright_spot2);
+                       
+		$brick1.moveTo ($brick1_spot2);
+        $brick2.moveTo ($brick2_spot2);
+        $brick2.rotateOnce ('0 180 0');
+        $brick3.moveTo ($brick3_spot2);
+        $brick3.rotateOnce ('0 -180 0');
+        $brick4.moveTo ($brick4_spot2);
+        $brick4.rotateOnce ('0 180 0');
+        $brick5.moveTo ($brick5_spot2);
+        $brick6.moveTo ($brick6_spot2);
+        $brick7.moveTo ($brick7_spot2);
+        $brick8.moveTo ($brick8_spot2);
+        $brick8.rotateOnce ('0 0 180');
+        $brick9.moveTo ($brick9_spot2);
+        $brick10.moveTo ($brick10_spot2);
+        $brick10.rotateOnce ('0 180 0');
+        $brick11.moveTo ($brick11_spot2);
+
+        
+        $brick1.moveTo ($brick1_spot3);
+        $brick2.moveTo ($brick2_spot3);
+        $brick3.moveTo ($brick3_spot3);
+        $brick4.moveTo ($brick4_spot3);
+        $brick5.moveTo ($brick5_spot3);
+        $brick6.moveTo ($brick6_spot3);
+        $brick7.moveTo ($brick7_spot3);
+        $brick8.moveTo ($brick8_spot3);
+        $brick9.moveTo ($brick9_spot3);
+        $brick10.moveTo ($brick10_spot3);
+        $brick11.moveTo ($brick11_spot3);
+              
+  		sys.waitFor ($brick11);
+    }
+
+        //wall in first room closes behind monster 
+
+	void door_close () 
+	{
+                          
+        $hk_wallbust_01.startSoundShader ("hk_revwallbust", SND_CHANNEL_VOICE2 );
+        
+        $brick1.moveTo ($brick1_spot2);
+        $brick2.moveTo ($brick2_spot2);
+        $brick2.rotateOnce ('0 180 0');
+        $brick3.moveTo ($brick3_spot2);
+        $brick3.rotateOnce ('0 -180 0');
+        $brick4.moveTo ($brick4_spot2);
+        $brick4.rotateOnce ('0 180 0');
+        $brick5.moveTo ($brick5_spot2);
+        $brick6.moveTo ($brick6_spot2);
+        $brick7.moveTo ($brick7_spot2);
+        $brick8.moveTo ($brick8_spot2);
+        $brick8.rotateOnce ('0 0 180');
+        $brick9.moveTo ($brick9_spot2);
+        $brick10.moveTo ($brick10_spot2);
+        $brick10.rotateOnce ('0 180 0');
+        $brick11.moveTo ($brick11_spot2);
+
+        $brick1.moveTo ($brick1_spot1);
+        $brick2.moveTo ($brick2_spot1);
+        $brick3.moveTo ($brick3_spot1);
+        $brick4.moveTo ($brick4_spot1);
+        $brick5.moveTo ($brick5_spot1);
+        $brick6.moveTo ($brick6_spot1);
+        $brick7.moveTo ($brick7_spot1);
+        $brick8.moveTo ($brick8_spot1);
+        $brick9.moveTo ($brick9_spot1);
+        $brick10.moveTo ($brick10_spot1);
+        $brick11.moveTo ($brick11_spot1);
+
+        $bricksleft_anchor.moveTo ($bricksleft_spot1);
+        $bricksright_anchor.moveTo ($bricksright_spot1);
+        $bricksleft_anchor.rotateOnce ('0 -30 0');
+        $bricksright_anchor.rotateOnce ('0 30 0');
+        
+        sys.waitFor ($bricksright_anchor);                
+               	
+	}
+
+    //////////////////////////
+	// alcoves
+	//////////////////////////
+
+	void alcove1_open () 
+	{
+                                
+		$alcove1_leftwall.startSoundShader ("wallmover_01", SND_CHANNEL_VOICE2 );
+		$alcove1_leftwall.moveTo ($alcove1_leftwall_2);
+        $alcove1_rightwall.startSoundShader ("wallmover_01", SND_CHANNEL_VOICE2 );
+        $alcove1_rightwall.moveTo ($alcove1_rightwall_2);
+        $alcove1_backwall.startSoundShader ("wallmover_02", SND_CHANNEL_VOICE2 );
+        $alcove1_backwall.moveTo ($alcove1_backwall_2);
+                           
+  		sys.waitFor ($alcove1_leftwall);
+    }
+
+	void alcove1_close () 
+	{
+                                
+		$alcove1_leftwall.moveTo ($alcove1_leftwall_1);
+        $alcove1_rightwall.moveTo ($alcove1_rightwall_1);
+        $alcove1_backwall.moveTo ($alcove1_backwall_1);
+                    
+  		sys.waitFor ($alcove1_leftwall);
+    }
+
+	void alcove2_open () 
+	{
+        $alcove2_leftwall.startSoundShader ("wallmover_01", SND_CHANNEL_VOICE2 );                        
+		$alcove2_leftwall.moveTo ($alcove2_leftwall_2);
+        $alcove2_rightwall.startSoundShader ("wallmover_01", SND_CHANNEL_VOICE2 );
+        $alcove2_rightwall.moveTo ($alcove2_rightwall_2);
+        $alcove2_backwall.startSoundShader ("wallmover_02", SND_CHANNEL_VOICE2 );
+        $alcove2_backwall.moveTo ($alcove2_backwall_2);
+                    
+  		sys.waitFor ($alcove2_leftwall);
+    }
+
+	void alcove2_close () 
+	{
+                                
+		$alcove2_leftwall.moveTo ($alcove2_leftwall_1);
+        $alcove2_rightwall.moveTo ($alcove2_rightwall_1);
+        $alcove2_backwall.moveTo ($alcove2_backwall_1);
+                    
+  		sys.waitFor ($alcove2_leftwall);
+    }
+
+	//////////////////////////
+	// pit
+	//////////////////////////
+
+	void pit_descent () 
+	{
+        sys.wait (1);
+        $pit_plat1.accelTime (.1);
+        $pit_plat1.decelTime (.5);
+        $pit_plat1.time (2);               			
+		
+		$pit_plat1.startSoundShader ("hellride_lower_2s", SND_CHANNEL_VOICE );
+		
+		$pit_plat1.moveTo ( $pit1_spot1);
+        $pit_plat1.rotateOnce ('0 40 0');  
+		sys.waitFor ($pit_plat1);
+        
+        $pit_plat1.time (7.5);
+        
+        $pit_plat1.startSoundShader ("hell_rockride_8s", SND_CHANNEL_VOICE2 );
+        
+        $pit_plat1.moveTo ( $pit1_spot2);
+        $pit_plat1.rotateOnce ('0 -40 0');  
+		sys.waitFor ($pit_plat1);
+		
+        $pit_plat1.time (2);
+        
+        $pit_plat1.startSoundShader ("hellride_lower_2s", SND_CHANNEL_VOICE );
+        
+        $pit_plat1.move ( DOWN , 32 );
+        sys.waitFor ($pit_plat1);
+
+        sys.wait (6);
+
+        $pit_plat1.decelTime (.1);
+        $pit_plat1.time (.8);
+        
+        $pit_plat1.startSoundShader ("hellride_platrot", SND_CHANNEL_VOICE2 );
+        
+        $pit_plat1.move ( DOWN , 192 );
+        $pit_plat1.rotateOnce ('0 0 -43');
+        sys.waitFor ($pit_plat1);
+        $pit_plat1.time (.2);
+        $pit_plat1.move ( UP , 4 );
+        sys.waitFor ($pit_plat1);
+        $pit_plat1.move ( DOWN , 4 );
+        sys.waitFor ($pit_plat1);
+        sys.wait (.5);
+        $pit_plat1.decelTime (.5);
+        $pit_plat1.time (1.2);
+        $pit_plat1.move ( DOWN , 32 );                          
+	}
+
+    //////////////////////////
+	// basement pillar room
+	//////////////////////////
+
+	void bbrick1 () 
+	{
+        $bbrick1_mover1.time (.1);               			
+        $bbrick1_mover2.time (.1);
+        $bbrick1_mover3.time (.2);
+        $bbrick1_mover4.time (.1);
+        $bbrick1_mover5.time (.2);
+        $bbrick1_mover6.time (.2);
+        $bbrick1_mover1.rotateOnce ('-30 0 0');
+        $bbrick1_mover2.rotateOnce ('0 -75 0');
+        $bbrick1_mover3.rotateOnce ('0 -95 0');
+        $bbrick1_mover4.rotateOnce ('0 85 0');
+        $bbrick1_mover5.rotateOnce ('0 60 0');
+        $bbrick1_mover5.move (NORTH , 32);
+        $bbrick1_mover6.rotateOnce ('0 85 0');                         
+	}
+
+    void bbrick1_down () 
+	{
+        $bbrick1_moveable1.bind ($bbrick1_lower);
+        $bbrick1_moveable2.bind ($bbrick1_lower);
+        $bbrick1_moveable3.bind ($bbrick1_lower);
+        $bbrick1_moveable4.bind ($bbrick1_lower);
+        $bbrick1_moveable8.bind ($bbrick1_lower);
+        
+        sys.wait (.5);
+        $bbrick1_lower.accelTime (.5);
+        $bbrick1_lower.time (2);
+        $bbrick1_lower.move (DOWN , 64);
+        $bbrick1_lower.rotateOnce ('0 5 0');
+	}
+
+    void bbrick2 () 
+	{
+        $bbrick2_mover1.time (.1);               			
+        $bbrick2_mover2.time (.1);
+        $bbrick2_mover3.time (.1);
+        $bbrick2_mover4.time (.1);
+        $bbrick2_mover5.time (.1);
+        $bbrick2_mover6.time (.1);
+        $bbrick2_mover1.rotateOnce ('-35 0 0');
+        $bbrick2_mover2.rotateOnce ('0 70 0');
+        $bbrick2_mover3.rotateOnce ('0 85 0');
+        $bbrick2_mover4.rotateOnce ('0 80 0');
+        $bbrick2_mover5.rotateOnce ('0 -80 0');
+        $bbrick2_mover6.rotateOnce ('0 -75 0');                         
+	}
+
+    void bbrick3 () 
+	{
+        $bbrick3_mover1.time (.5);               			
+        $bbrick3_mover2.time (.5);
+        
+        $bbrick3_mover1.rotateOnce ('0 -70 0');
+        $bbrick3_mover2.rotateOnce ('0 75 0');
+	}
+
+    //////////////////////////
+	// mancubus plat room crusher
+	//////////////////////////
+        
+    void stomp1 () 
+	{   
+        $stomp1.time (.6);
+        $stomp1.accelTime (.5);
+        $stomp1.decelTime (.05);
+        $stomp1.move (DOWN ,256);
+        sys.waitFor ($stomp1);
+
+        sys.trigger ($stomp1_particle);
+        sys.trigger ($stomp1_speaker);
+
+        $stomp1.time (.08);
+        $stomp1.accelTime (.05);
+        $stomp1.decelTime (.02);
+        $stomp1.move (UP ,4);
+        sys.waitFor ($stomp1);
+        $stomp1.move (DOWN ,4);                        
+        sys.waitFor ($stomp1);
+        
+        sys.wait (3);
+
+        $stomp1.time (2);
+        $stomp1.accelTime (.5);
+        $stomp1.decelTime (.2);
+        $stomp1.move (UP ,256);
+        sys.waitFor ($stomp1);                        
+    }
+
+	void start_stomp1 () 
+	{
+        while(1) {
+            $stomp1.time (.6);
+            $stomp1.accelTime (.5);
+            $stomp1.decelTime (.05);
+            $stomp1.move (DOWN ,256);
+            sys.waitFor ($stomp1);
+
+            sys.trigger ($stomp1_particle);
+            sys.trigger ($stomp1_speaker);
+
+            $stomp1.time (.08);
+            $stomp1.accelTime (.05);
+            $stomp1.decelTime (.02);
+            $stomp1.move (UP ,4);
+            sys.waitFor ($stomp1);
+            $stomp1.move (DOWN ,4);                        
+            sys.waitFor ($stomp1);
+            
+            sys.wait (.8);
+            
+            $stomp1.time (2);
+            $stomp1.accelTime (.5);
+            $stomp1.decelTime (.2);
+            $stomp1.move (UP ,256);
+            sys.waitFor ($stomp1);
+            sys.wait (1);
+		}                                       					
+	}
+
+    //////////////////////////
+	// misc
+	//////////////////////////
+
+
+    void close_doorblock1 () 
+	{
+		sys.trigger ($doorblock1_dust);
+	        sys.trigger ($doorblock1_speaker);
+                $doorblock1.rotateOnce ('0 90 0');  
+		sys.waitFor ($doorblock1);              
+		$doorblock1.move ( SOUTH ,224);  
+		sys.waitFor ($doorblock1);
+                sys.trigger ($doorblock1_obstacle);
+		sys.wait (1);
+		sys.trigger ($doorblock1_dust);
+	}
+
+    void brickdoor1_open () 
+	{
+		$brickdoor1.rotateOnce ('0 80 0');  
+		sys.waitFor ($brickdoor1);
+	}
+    
+    void drop_corpse1 () 
+	{
+		$corpse1.unbind ();  			
+	}
+
+    void drop_corpse2 () 
+	{
+        $corpsedrop2.accelTime (.3);
+        $corpsedrop2.time (.5);                       			
+		$corpsedrop2.move ( DOWN,80);
+        sys.waitFor ($corpsedrop2);
+        $corpsedrop2.move ( DOWN,8);  						
+	}
+
+    void drop_corpse3 () 
+	{
+        $corpse3.unbind (); 						
+	}
+    void drop_corpse5 () 
+	{
+		$corpse5.unbind (); 						
+	}
+   
+    void drop_corpse6 () 
+	{
+        $corpse6.unbind (); 						
+	}
+	        
+	void cache_sounds() {
+		sys.cacheSoundShader ("tp_electro");
+		sys.cacheSoundShader ("gateimpact_01");
+		sys.cacheSoundShader ("gateimpact_02");
+		sys.cacheSoundShader ("gateimpact_03");
+		sys.cacheSoundShader ("gateimpact_04");
+		sys.cacheSoundShader ("gateimpact_05");
+		sys.cacheSoundShader ("wallmover_01");
+		sys.cacheSoundShader ("wallmover_02");
+		sys.cacheSoundShader ("hell_rockride_8s");
+		sys.cacheSoundShader ("hellride_lower_2s");
+		sys.cacheSoundShader ("hellride_platrot");
+		sys.cacheSoundShader ("hk_revwallbust");
+		sys.cacheSoundShader ("hell_revgate");
+		sys.cacheSoundShader ("cage_decent");
+		sys.cacheSoundShader ("gates_land");
+		sys.cacheSoundShader ("hell_corpsemover");
+	}        
+	
+	void guardian_room_fadeout() {
+		$hs_1.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_2.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_3.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_4.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_5.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_6.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_7.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_8.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_9.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_10.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_11.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+		$hs_12.fadeSound ( SND_CHANNEL_ANY, -60, 5 );
+	}
+
+	void guardian_room_fadein() {
+		$hs_1.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_2.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_3.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_4.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_5.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_6.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_7.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_8.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_9.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_10.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_11.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+		$hs_12.fadeSound ( SND_CHANNEL_ANY, -2, 5 );
+	}
+
+
+	// They are on by default...
+	void toggle_guardianroom_sounds() {
+		sys.trigger ($hs_1);
+		sys.trigger ($hs_2);
+		sys.trigger ($hs_3);
+		sys.trigger ($hs_4);
+		sys.trigger ($hs_5);
+		sys.trigger ($hs_6);
+		sys.trigger ($hs_7);
+		sys.trigger ($hs_8);
+		sys.trigger ($hs_9);
+		sys.trigger ($hs_10);
+		sys.trigger ($hs_11);
+		sys.trigger ($hs_12);
+	}
+
+	
+	void main ()
+	{
+		cache_sounds();
+		setup_objects();
+		guardian_room_fadeout();		// Fade guardian sounds out
+		thread ( telering_move() );
+        thread ( telering_bob() );
+	}
+}

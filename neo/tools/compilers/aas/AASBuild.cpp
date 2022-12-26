@@ -3,6 +3,8 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Harrie van Ginneken
+Copyright (C) 2022 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -417,6 +419,79 @@ idBrushList idAASBuild::AddBrushesForMapBrush( const idMapBrush* mapBrush, const
 
 	return brushList;
 }
+/*
+============
+idAASBuild::AddBrushesForMapPolygonMesh
+============
+*/
+
+idBrushList idAASBuild::AddBrushesForMapPolygonMesh( const MapPolygonMesh* mapMesh, const idVec3& origin, const idMat3& axis, int entityNum, int primitiveNum, idBrushList brushList )
+{
+	int contents = 0;
+	int validBrushes = 0;
+
+	idFixedWinding w;
+	idPlane plane;
+	idVec3 d1, d2;
+	idBrush* brush;
+	const idMaterial* mat;
+
+	//per map polygon
+	for( int p = 0 ; p < mapMesh->GetNumPolygons(); p++ )
+	{
+		const MapPolygon& face = mapMesh->GetFace( p );
+
+		mat = declManager->FindMaterial( face.GetMaterial() );
+		contents = ContentsForAAS( mat->GetContentFlags() );
+
+		if( !contents )
+		{
+			return brushList;
+		}
+
+		const idList<idDrawVert>& verts = mapMesh->GetDrawVerts();
+		const idList<int>& indices = face.GetIndexes();
+
+		//create brush from triangle
+
+		//Front face
+		d1 = verts[indices[1]].xyz - verts[indices[0]].xyz;
+		d2 = verts[indices[2]].xyz - verts[indices[0]].xyz;
+		plane.SetNormal( d1.Cross( d2 ) );
+		if( plane.Normalize() != 0.0f )
+		{
+			plane.FitThroughPoint( verts[indices[2]].xyz );
+
+			w.Clear();
+			w += verts[indices[0]].xyz;
+			w += verts[indices[1]].xyz;
+			w += verts[indices[2]].xyz;
+
+			brush = new idBrush();
+			brush->SetContents( contents );
+			if( brush->FromWinding( w, plane ) )
+			{
+				brush->SetEntityNum( entityNum );
+				brush->SetPrimitiveNum( primitiveNum );
+				brush->SetFlag( BFL_PATCH );
+				brush->Transform( origin, axis );
+				brushList.AddToTail( brush );
+				validBrushes++;
+			}
+			else
+			{
+				delete brush;
+			}
+		}
+	}
+
+	if( !validBrushes )
+	{
+		common->Warning( "map polygon primitive %d on entity %d is completely degenerate", primitiveNum, entityNum );
+	}
+
+	return brushList;
+}
 
 /*
 ============
@@ -612,6 +687,11 @@ idBrushList idAASBuild::AddBrushesForMapEntity( const idMapEntity* mapEnt, int e
 				brushList = AddBrushesForMapPatch( static_cast<idMapPatch*>( mapPrim ), origin, axis, entityNum, i, brushList );
 			}
 			continue;
+		}
+		//HVG: Map polygon mesh support
+		if( mapPrim->GetType() == idMapPrimitive::TYPE_MESH )
+		{
+			brushList = AddBrushesForMapPolygonMesh( static_cast< MapPolygonMesh* >( mapPrim ), origin, axis, entityNum, i, brushList );
 		}
 	}
 

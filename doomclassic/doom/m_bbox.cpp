@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef __GNUG__
-#pragma implementation "m_bbox.h"
+	#pragma implementation "m_bbox.h"
 #endif
 #include "m_bbox.h"
 
@@ -39,10 +39,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-void M_ClearBox (fixed_t *box)
+void M_ClearBox( fixed_t* box )
 {
-    box[BOXTOP] = box[BOXRIGHT] = MININT;
-    box[BOXBOTTOM] = box[BOXLEFT] = MAXINT;
+	box[BOXTOP] = box[BOXRIGHT] = MININT;
+	box[BOXBOTTOM] = box[BOXLEFT] = MAXINT;
 }
 
 void
@@ -51,14 +51,22 @@ M_AddToBox
   fixed_t	x,
   fixed_t	y )
 {
-    if (x<box[BOXLEFT])
-	box[BOXLEFT] = x;
-    else if (x>box[BOXRIGHT])
-	box[BOXRIGHT] = x;
-    if (y<box[BOXBOTTOM])
-	box[BOXBOTTOM] = y;
-    else if (y>box[BOXTOP])
-	box[BOXTOP] = y;
+	if( x < box[BOXLEFT] )
+	{
+		box[BOXLEFT] = x;
+	}
+	else if( x > box[BOXRIGHT] )
+	{
+		box[BOXRIGHT] = x;
+	}
+	if( y < box[BOXBOTTOM] )
+	{
+		box[BOXBOTTOM] = y;
+	}
+	else if( y > box[BOXTOP] )
+	{
+		box[BOXTOP] = y;
+	}
 }
 
 

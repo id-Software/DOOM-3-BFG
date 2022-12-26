@@ -1,0 +1,12 @@
+player_doommarine_enpro_e3_2012 { 
+	"inherit"				"player_doommarine" 
+	"health"				"100" 
+	"weapon"				"weapon_fists,weapon_pda,weapon_pistol,weapon_machinegun,weapon_shotgun,weapon_chaingun" 
+	"weapon_nightmare"		"weapon_fists,weapon_pda,weapon_pistol,weapon_machinegun,weapon_shotgun,weapon_chaingun" 
+	"current_weapon"		"5" 
+	"ammo_clip"				"2"
+	"ammo_shells"			"0"
+	"ammo_bullets"			"0"
+	
+	
+}  

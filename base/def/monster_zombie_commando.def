@@ -1,0 +1,351 @@
+/***********************************************************************
+
+monster_zombie_commando
+
+***********************************************************************/
+
+export fred {
+	options	-prefix ZCT_ -parent Tentacle Rhand -keep Lknee Rknee waist_orientation -parent waist_orientation Body2 -parent waist waist_orientation
+
+	anim	maps/fred/delta2a/malzctcolumns.mb -dest models/md5/monsters/zct/delta2a_leapdown
+	anim	maps/fred/monorail/raisecommando2.mb -dest models/md5/cinematics/monorail/zct
+
+	addoptions -align All  -sourcedir models/monsters/zombie/zct/cycles -destdir models/md5/monsters/zct
+
+	mesh	zct_mesh.mb	-dest zct
+	anim	ZC_tent_INITIAL.mb -dest initial
+	anim	ZC_tent_WALK.mb -dest walk1
+	anim	run5.mb -dest zctrun5
+	anim	zctleap1.mb -dest zctleap1
+	anim	alert_idle2.mb -dest zctidle
+	anim	sight1.mb -dest zctsight1
+	anim	sight4.mb -dest zctsight2
+	anim	ZC_tent_PAIN_HEAD.mb -dest pain_head
+	anim	ZC_tent_PAIN_CHEST.mb -dest pain_chest
+	anim	ZC_tent_PAIN_RUPARM.mb -dest pain_ruparm
+	anim	ZC_tent_PAIN_LUPARM.mb -dest pain_luparm
+	anim	ZC_tent_ATTACK1.mb -dest range_tentacle
+	anim	ZC_tent_PUNCH2.mb -dest punch2
+	anim	ZC_tent_PUNCH3.mb -dest punch3
+	anim	ZC_tent_KICK.mb -dest kick1
+
+	anim	melee_tent.mb -dest melee_tent
+	anim	stab1.mb -dest stab1
+	anim	teleportin.mb -dest teleportin
+}
+
+model monster_zombie_commando {
+	mesh							models/md5/monsters/zct/zct.md5mesh
+
+	channel torso					( *waist )
+	channel legs					( *Hips origin Body2 waist_orientation )
+
+	anim af_pose					models/md5/monsters/zct/initial.md5anim
+	anim ik_pose					models/md5/monsters/zct/initial.md5anim
+
+	anim teleport					models/md5/monsters/zct/teleportin.md5anim {
+
+		frame 3							sound_body snd_footstep
+		frame 4							sound_body snd_footstep
+		frame 52						sound_voice snd_sight1
+	}
+	anim idle						models/md5/monsters/zct/zctidle.md5anim
+	anim stand						models/md5/monsters/zct/zctidle.md5anim
+	anim walk						models/md5/monsters/zct/walk1.md5anim {
+		frame 12						sound_body snd_footstep
+		frame 27						sound_body snd_footstep
+		frame 45						sound_body snd_footstep
+		frame 60						sound_body snd_footstep
+	}
+	anim run			    		models/md5/monsters/zct/zctrun5.md5anim {
+		frame 3							sound_body snd_footstep
+		frame 12						sound_body snd_footstep
+		frame 23						sound_body snd_footstep
+		frame 32						sound_body snd_footstep
+		frame 41						sound_body snd_footstep
+		frame 52						sound_body snd_footstep
+	}
+	anim sight1						models/md5/monsters/zct/zctsight1.md5anim {
+		//frame 1							call overrideLegs
+		frame 8							sound_voice snd_sight1
+	}
+	anim sight2						models/md5/monsters/zct/zctsight2.md5anim {
+		//frame 1							call overrideLegs
+		frame 8							sound_voice snd_sight2
+	}
+	anim pain						models/md5/monsters/zct/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/zct/pain_head.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/zct/pain_luparm.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 15						sound_body snd_footstep
+	}
+	anim pain_right_arm				models/md5/monsters/zct/pain_ruparm.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 14						sound_body snd_footstep
+	}
+	anim pain_legs					models/md5/monsters/zct/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	anim pain_chest					models/md5/monsters/zct/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+
+	anim melee_attack1				models/md5/monsters/zct/punch2.md5anim {
+		//frame 1						call overrideLegs
+		frame 9							sound_voice snd_melee_attack_1	
+		frame 9							sound_body snd_footstep
+		frame 18						melee melee_commando_right		
+		frame 31						sound_body snd_footstep
+	}
+	anim melee_attack2				models/md5/monsters/zct/punch3.md5anim {
+		//frame 1						call overrideLegs
+		frame 11						melee melee_commando_left
+		frame 11						sound_body snd_footstep
+		frame 12						sound_voice snd_melee_attack_2	
+		frame 18						sound_body snd_footstep
+	}
+	anim melee_attack3				models/md5/monsters/zct/kick1.md5anim {
+		frame 1							call overrideLegs
+		frame 4							sound_voice snd_melee_attack_3
+		frame 4							melee melee_commando_push
+		frame 15						sound_body snd_footstep
+	}
+	anim melee_attack4				models/md5/monsters/zct/melee_tent.md5anim {
+		frame 1							call overrideLegs
+		frame 9							sound_weapon snd_tentacle_out
+		frame 10						object_call tentacle_attack_start
+		frame 10						sound_voice snd_melee_attack_5	
+		frame 10						sound_body snd_footstep
+		frame 12						object_call tentacle_attack_end
+		frame 15						sound_body snd_footstep
+		frame 23						sound_body snd_footstep
+		//frame 20						sound_body snd_tentacle_in
+	}
+
+	anim range_attack1				models/md5/monsters/zct/range_tentacle.md5anim {
+		frame 1							call overrideLegs
+		frame 15						sound_voice snd_range_attack_1
+		frame 16						sound_body snd_footstep
+		frame 18						sound_weapon snd_tentacle_out
+		frame 20						object_call tentacle_attack_start
+		frame 27						object_call tentacle_attack_end
+		//frame 28						sound_weapon snd_tentacle_in		
+		frame 29						sound_body snd_footstep
+		frame 36						sound_body snd_footstep
+	}
+	anim range_attack2				models/md5/monsters/zct/zctleap1.md5anim {
+		frame 1							call overrideLegs
+		frame 3							sound_body snd_footstep		
+		frame 4							sound_voice snd_range_attack_2
+		frame 24						sound_body snd_footstep		
+		frame 24						sound_body snd_tentacle_out
+		frame 26						sound_body snd_footstep		
+		frame 28						object_call tentacle_attack_start
+		//frame 37						sound_item snd_tentacle_in
+		frame 38						sound_body snd_footstep
+		frame 39						sound_body snd_footstep		
+		frame 40						object_call tentacle_attack_end
+		frame 41						sound_body snd_footstep
+	}
+	anim range_attack3				models/md5/monsters/zct/stab1.md5anim {
+		frame 1							call overrideLegs
+		frame 7							sound_body snd_footstep
+		frame 11						sound_body snd_footstep
+		frame 12						sound_voice snd_range_attack_3
+		frame 13						sound_weapon snd_tentacle_out
+		frame 14						object_call tentacle_attack_start	
+		frame 31						object_call tentacle_attack_end
+		frame 38						sound_weapon snd_tentacle_in
+	}
+}
+
+entityDef monster_zombie_commando {
+	"inherit"						"zombie_default"
+	"model"							"monster_zombie_commando"
+	"ragdoll"						"monster_zombie_commando"
+	"scriptobject"					"monster_zombie_commando_tentacle"
+	"gib"							"0"
+	//"offsetModel"					"-12 0 0"
+	
+
+	"size"							"48 48 80"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"1"
+	"health"						"170"
+	"melee_range"					"40"
+	"turn_rate"						"360"
+	"chatter_min"					"3"
+	"chatter_max"					"8"
+	"chatter_combat_min"			"3"
+	"chatter_combat_max"			"6"
+	"mass"							"250"
+	
+	"burnaway"						"0.50"
+	"smoke_burnParticleSystem"		"burn_imp.prt-chest"
+
+	"blockedRadius"					"20"
+	"blockedMoveTime"				"500"
+	"blockedAttackTime"				"500"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"0"
+	"ik_waist"						"Body2"
+	"ik_foot1"						"Ltoe_r"
+	"ik_foot2"						"Rtoe_r"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+
+	"damage_zone head"				"*loneck"
+	"damage_zone chest"				"*waist -*Rshldr -*Lshldr -*loneck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips origin Body2"
+
+	"damage_scale head"				"2"
+
+	"snd_tentacle_out"				"monster_zombie_commando_tentacle_out"
+	"snd_tentacle_in"				"monster_zombie_commando_tentacle_in"
+	"snd_sight1"					"monster_zombie_commando_sight1"
+	"snd_sight2"					"monster_zombie_commando_sight2"
+	"snd_chatter"					"monster_zombie_commando_chatter"
+	"snd_chatter_combat"			"monster_zombie_commando_chatter_combat"
+	"snd_pain"						"monster_zombie_commando_pain"
+	//"snd_attackmissile"			"monster_zombie_commando_attackmissile"
+	"snd_melee_attack_1"			"monster_zombie_commando_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_commando_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_commando_attackmelee_3"
+	"snd_melee_attack_4"			"monster_zombie_commando_attackmelee_4"
+	"snd_melee_attack_5"			"monster_zombie_commando_attackmelee_5"
+	"snd_death"						"monster_zombie_commando_death"
+	"snd_thud"						"monster_zombie_commando_thud"
+	"snd_footstep"					"monster_zombie_commando_footstep"
+	"snd_breath"					"monster_zombie_commando_breath"
+	"snd_inhale"					"monster_zombie_commando_breath_inhale"
+	"snd_exhale"					"monster_zombie_commando_breath_exhale"
+	"snd_bounce"					"ragdoll_impact"
+	"snd_bodyroll"					"monster_zombie_commando_body_roll"
+	"snd_range_attack_1"			"monster_zombie_commando_range_attack_1"
+	"snd_range_attack_2"			"monster_zombie_commando_range_attack_2"
+	"snd_range_attack_3"			"monster_zombie_commando_range_attack_3"
+	"snd_burn"						"monster_demon_tick_burn"
+
+	// For Precache, include entitydefs that are referenced in script
+	"def_tentacle"					"melee_commandoTentacle"
+}
+
+entityDef melee_commando_right {
+	"damage"						"12"
+	"kickDir"						"0 1 0"
+	
+	//"mtr_blob"						"genericDamage"
+	//"blob_time"						"300"
+	//"blob_size"						"400"
+	//"blob_offset_x"					"400"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"55"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+
+	"snd_hit"			"fist_impact_flesh"
+	"snd_miss"			"fist_whoosh"
+}
+
+entityDef melee_commando_left {
+	"damage"						"12"
+	"kickDir"						"0 -1 0"
+	
+	//"mtr_blob"						"genericDamage"
+	//"blob_time"						"300"
+	//"blob_size"						"400"
+	//"blob_offset_x"					"400"
+	
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"45"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+
+	"snd_hit"			"fist_impact_flesh"
+	"snd_miss"			"fist_whoosh"
+}
+
+entityDef melee_commando_push {
+	"damage"						"12"
+	"kickDir"						"1 0 1"
+	
+	//"mtr_blob"						"genericDamage"
+	//"blob_time"						"300"
+	//"blob_size"						"400"
+	//"blob_offset_x"					"400"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"300"
+	"blob_x"						"50"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"65"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+
+	"snd_hit"			"fist_impact_flesh"
+	"snd_miss"			"fist_whoosh"
+}
+
+entityDef melee_commandoTentacle {
+	"damage"						"12"
+	"melee_bone"					"joint13"
+
+	"kickDir"						"1 0 0"
+	
+	//"mtr_blob"						"genericDamage"
+	//"blob_time"						"300"
+	//"blob_size"						"400"
+	//"blob_offset_x"					"400"
+
+	"mtr_blob"						"tentacle_smack"
+	"blob_time"						"300"
+	"blob_x"						"50"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"100"
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+
+	"snd_hit"						"monster_zombie_commando_melee_tentacle_hit"
+	"snd_miss"						"monster_zombie_commando_melee_tentacle_miss"
+}

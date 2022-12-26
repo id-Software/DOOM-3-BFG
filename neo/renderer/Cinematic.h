@@ -84,7 +84,7 @@ public:
 	virtual				~idCinematic();
 
 	// returns false if it failed to load
-	virtual bool		InitFromFile( const char* qpath, bool looping );
+	virtual bool		InitFromFile( const char* qpath, bool looping, nvrhi::ICommandList* commandList );
 
 	// returns the length of the animation in milliseconds
 	virtual int			AnimationLength();
@@ -94,7 +94,7 @@ public:
 	// RB end
 
 	// the pointers in cinData_t will remain valid until the next UpdateForTime() call
-	virtual cinData_t	ImageForTime( int milliseconds );
+	virtual cinData_t	ImageForTime( int milliseconds, nvrhi::ICommandList* commandList );
 
 	// closes the file and frees all allocated memory
 	virtual void		Close();

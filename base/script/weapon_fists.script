@@ -1,0 +1,79 @@
+/***********************************************************************
+
+weapon_fists.script
+
+***********************************************************************/
+
+// blend times
+#define FISTS_IDLE_TO_LOWER		4
+#define FISTS_IDLE_TO_PUNCH		0
+#define FISTS_RAISE_TO_IDLE		4
+#define FISTS_PUNCH_TO_IDLE		1
+
+object weapon_fists : weapon_base {
+	float		side;
+
+	void		init();
+	
+	void		Lower();
+	void		Raise();
+	void		Idle();
+	void		Fire();
+	void		ExitCinematic();
+	string		GetFireAnim();
+};
+
+void weapon_fists::init() {
+	weaponState( "Raise", 0 );
+}
+
+void weapon_fists::Raise() {
+	weaponRising();
+	playAnim( ANIMCHANNEL_ALL, "raise" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, FISTS_RAISE_TO_IDLE ) );
+	weaponState( "Idle", FISTS_RAISE_TO_IDLE );
+}
+
+void weapon_fists::Lower() {
+	weaponLowering();
+	playAnim( ANIMCHANNEL_ALL, "putaway" );
+	waitUntil( animDone( ANIMCHANNEL_ALL, 0 ) );
+	weaponHolstered();
+	waitUntil( WEAPON_RAISEWEAPON );
+	weaponState( "Raise", 0 );
+}
+
+void weapon_fists::Idle() {
+	weaponReady();
+	playCycle( ANIMCHANNEL_ALL, "idle" );
+	while( 1 ) {
+		if ( WEAPON_LOWERWEAPON ) {
+			weaponState( "Lower", FISTS_IDLE_TO_LOWER );
+		}
+		if ( WEAPON_ATTACK || WEAPON_NETFIRING ) {
+			weaponState( "Fire", FISTS_IDLE_TO_PUNCH );
+		}
+		waitFrame();
+	}
+}
+
+void weapon_fists::Fire() {
+	playAnim( ANIMCHANNEL_ALL, GetFireAnim() );
+	sys.wait( 0.1 );
+	melee();
+	waitUntil( animDone( ANIMCHANNEL_ALL, FISTS_PUNCH_TO_IDLE ) );
+	side = !side;
+	weaponState( "Idle", FISTS_PUNCH_TO_IDLE );
+}
+
+void weapon_fists::ExitCinematic() {
+	weaponState( "Idle", 0 );
+}
+
+string weapon_fists::GetFireAnim() {
+	if ( side ) {
+		return "punch_left";
+	} else {
+		return "punch_right";
+	}
+}

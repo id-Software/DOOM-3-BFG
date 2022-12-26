@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -47,21 +47,27 @@ If you have questions concerning this license or the applicable additional terms
 //
 // T_FireFlicker
 //
-void T_FireFlicker (fireflicker_t* flick)
+void T_FireFlicker( fireflicker_t* flick )
 {
-    int	amount;
-	
-    if (--flick->count)
-	return;
-	
-    amount = (P_Random()&3)*16;
-    
-    if (flick->sector->lightlevel - amount < flick->minlight)
-	flick->sector->lightlevel = flick->minlight;
-    else
-	flick->sector->lightlevel = flick->maxlight - amount;
+	int	amount;
 
-    flick->count = 4;
+	if( --flick->count )
+	{
+		return;
+	}
+
+	amount = ( P_Random() & 3 ) * 16;
+
+	if( flick->sector->lightlevel - amount < flick->minlight )
+	{
+		flick->sector->lightlevel = flick->minlight;
+	}
+	else
+	{
+		flick->sector->lightlevel = flick->maxlight - amount;
+	}
+
+	flick->count = 4;
 }
 
 
@@ -69,23 +75,23 @@ void T_FireFlicker (fireflicker_t* flick)
 //
 // P_SpawnFireFlicker
 //
-void P_SpawnFireFlicker (sector_t*	sector)
+void P_SpawnFireFlicker( sector_t*	sector )
 {
-    fireflicker_t*	flick;
-	
-    // Note that we are resetting sector attributes.
-    // Nothing special about it during gameplay.
-    sector->special = 0; 
-	
-    flick = (fireflicker_t*)DoomLib::Z_Malloc( sizeof(*flick), PU_LEVEL, 0);
+	fireflicker_t*	flick;
 
-    P_AddThinker (&flick->thinker);
+	// Note that we are resetting sector attributes.
+	// Nothing special about it during gameplay.
+	sector->special = 0;
 
-    flick->thinker.function.acp1 = (actionf_p1) T_FireFlicker;
-    flick->sector = sector;
-    flick->maxlight = sector->lightlevel;
-    flick->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel)+16;
-    flick->count = 4;
+	flick = ( fireflicker_t* )DoomLib::Z_Malloc( sizeof( *flick ), PU_LEVEL, 0 );
+
+	P_AddThinker( &flick->thinker );
+
+	flick->thinker.function.acp1 = ( actionf_p1 ) T_FireFlicker;
+	flick->sector = sector;
+	flick->maxlight = sector->lightlevel;
+	flick->minlight = P_FindMinSurroundingLight( sector, sector->lightlevel ) + 16;
+	flick->count = 4;
 }
 
 
@@ -99,21 +105,23 @@ void P_SpawnFireFlicker (sector_t*	sector)
 // T_LightFlash
 // Do flashing lights.
 //
-void T_LightFlash (lightflash_t* flash)
+void T_LightFlash( lightflash_t* flash )
 {
-    if (--flash->count)
-	return;
-	
-    if (flash->sector->lightlevel == flash->maxlight)
-    {
-	flash-> sector->lightlevel = flash->minlight;
-	flash->count = (P_Random()&flash->mintime)+1;
-    }
-    else
-    {
-	flash-> sector->lightlevel = flash->maxlight;
-	flash->count = (P_Random()&flash->maxtime)+1;
-    }
+	if( --flash->count )
+	{
+		return;
+	}
+
+	if( flash->sector->lightlevel == flash->maxlight )
+	{
+		flash-> sector->lightlevel = flash->minlight;
+		flash->count = ( P_Random()&flash->mintime ) + 1;
+	}
+	else
+	{
+		flash-> sector->lightlevel = flash->maxlight;
+		flash->count = ( P_Random()&flash->maxtime ) + 1;
+	}
 
 }
 
@@ -125,25 +133,25 @@ void T_LightFlash (lightflash_t* flash)
 // After the map has been loaded, scan each sector
 // for specials that spawn thinkers
 //
-void P_SpawnLightFlash (sector_t*	sector)
+void P_SpawnLightFlash( sector_t*	sector )
 {
-    lightflash_t*	flash;
+	lightflash_t*	flash;
 
-    // nothing special about it during gameplay
-    sector->special = 0;	
-	
-    flash = (lightflash_t*)DoomLib::Z_Malloc( sizeof(*flash), PU_LEVEL, 0);
+	// nothing special about it during gameplay
+	sector->special = 0;
 
-    P_AddThinker (&flash->thinker);
+	flash = ( lightflash_t* )DoomLib::Z_Malloc( sizeof( *flash ), PU_LEVEL, 0 );
 
-    flash->thinker.function.acp1 = (actionf_p1) T_LightFlash;
-    flash->sector = sector;
-    flash->maxlight = sector->lightlevel;
+	P_AddThinker( &flash->thinker );
 
-    flash->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel);
-    flash->maxtime = 64;
-    flash->mintime = 7;
-    flash->count = (P_Random()&flash->maxtime)+1;
+	flash->thinker.function.acp1 = ( actionf_p1 ) T_LightFlash;
+	flash->sector = sector;
+	flash->maxlight = sector->lightlevel;
+
+	flash->minlight = P_FindMinSurroundingLight( sector, sector->lightlevel );
+	flash->maxtime = 64;
+	flash->mintime = 7;
+	flash->count = ( P_Random()&flash->maxtime ) + 1;
 }
 
 
@@ -156,21 +164,23 @@ void P_SpawnLightFlash (sector_t*	sector)
 //
 // T_StrobeFlash
 //
-void T_StrobeFlash (strobe_t*		flash)
+void T_StrobeFlash( strobe_t*		flash )
 {
-    if (--flash->count)
-	return;
-	
-    if (flash->sector->lightlevel == flash->minlight)
-    {
-	flash-> sector->lightlevel = flash->maxlight;
-	flash->count = flash->brighttime;
-    }
-    else
-    {
-	flash-> sector->lightlevel = flash->minlight;
-	flash->count =flash->darktime;
-    }
+	if( --flash->count )
+	{
+		return;
+	}
+
+	if( flash->sector->lightlevel == flash->minlight )
+	{
+		flash-> sector->lightlevel = flash->maxlight;
+		flash->count = flash->brighttime;
+	}
+	else
+	{
+		flash-> sector->lightlevel = flash->minlight;
+		flash->count = flash->darktime;
+	}
 
 }
 
@@ -187,49 +197,57 @@ P_SpawnStrobeFlash
   int		fastOrSlow,
   int		inSync )
 {
-    strobe_t*	flash;
-	
-    flash = (strobe_t*)DoomLib::Z_Malloc( sizeof(*flash), PU_LEVEL, 0);
+	strobe_t*	flash;
 
-    P_AddThinker (&flash->thinker);
+	flash = ( strobe_t* )DoomLib::Z_Malloc( sizeof( *flash ), PU_LEVEL, 0 );
 
-    flash->sector = sector;
-    flash->darktime = fastOrSlow;
-    flash->brighttime = STROBEBRIGHT;
-    flash->thinker.function.acp1 = (actionf_p1) T_StrobeFlash;
-    flash->maxlight = sector->lightlevel;
-    flash->minlight = P_FindMinSurroundingLight(sector, sector->lightlevel);
-		
-    if (flash->minlight == flash->maxlight)
-	flash->minlight = 0;
+	P_AddThinker( &flash->thinker );
 
-    // nothing special about it during gameplay
-    sector->special = 0;	
+	flash->sector = sector;
+	flash->darktime = fastOrSlow;
+	flash->brighttime = STROBEBRIGHT;
+	flash->thinker.function.acp1 = ( actionf_p1 ) T_StrobeFlash;
+	flash->maxlight = sector->lightlevel;
+	flash->minlight = P_FindMinSurroundingLight( sector, sector->lightlevel );
 
-    if (!inSync)
-	flash->count = (P_Random()&7)+1;
-    else
-	flash->count = 1;
+	if( flash->minlight == flash->maxlight )
+	{
+		flash->minlight = 0;
+	}
+
+	// nothing special about it during gameplay
+	sector->special = 0;
+
+	if( !inSync )
+	{
+		flash->count = ( P_Random() & 7 ) + 1;
+	}
+	else
+	{
+		flash->count = 1;
+	}
 }
 
 
 //
 // Start strobing lights (usually from a trigger)
 //
-void EV_StartLightStrobing(line_t*	line)
+void EV_StartLightStrobing( line_t*	line )
 {
-    int		secnum;
-    sector_t*	sec;
-	
-    secnum = -1;
-    while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
-    {
-	sec = &::g->sectors[secnum];
-	if (sec->specialdata)
-	    continue;
-	
-	P_SpawnStrobeFlash (sec,SLOWDARK, 0);
-    }
+	int		secnum;
+	sector_t*	sec;
+
+	secnum = -1;
+	while( ( secnum = P_FindSectorFromLineTag( line, secnum ) ) >= 0 )
+	{
+		sec = &::g->sectors[secnum];
+		if( sec->specialdata )
+		{
+			continue;
+		}
+
+		P_SpawnStrobeFlash( sec, SLOWDARK, 0 );
+	}
 }
 
 
@@ -237,34 +255,38 @@ void EV_StartLightStrobing(line_t*	line)
 //
 // TURN LINE'S TAG LIGHTS OFF
 //
-void EV_TurnTagLightsOff(line_t* line)
+void EV_TurnTagLightsOff( line_t* line )
 {
-    int			i;
-    int			j;
-    int			min;
-    sector_t*		sector;
-    sector_t*		tsec;
-    line_t*		templine;
-	
-    sector = ::g->sectors;
-    
-    for (j = 0;j < ::g->numsectors; j++, sector++)
-    {
-	if (sector->tag == line->tag)
+	int			i;
+	int			j;
+	int			min;
+	sector_t*		sector;
+	sector_t*		tsec;
+	line_t*		templine;
+
+	sector = ::g->sectors;
+
+	for( j = 0; j < ::g->numsectors; j++, sector++ )
 	{
-	    min = sector->lightlevel;
-	    for (i = 0;i < sector->linecount; i++)
-	    {
-		templine = sector->lines[i];
-		tsec = getNextSector(templine,sector);
-		if (!tsec)
-		    continue;
-		if (tsec->lightlevel < min)
-		    min = tsec->lightlevel;
-	    }
-	    sector->lightlevel = min;
+		if( sector->tag == line->tag )
+		{
+			min = sector->lightlevel;
+			for( i = 0; i < sector->linecount; i++ )
+			{
+				templine = sector->lines[i];
+				tsec = getNextSector( templine, sector );
+				if( !tsec )
+				{
+					continue;
+				}
+				if( tsec->lightlevel < min )
+				{
+					min = tsec->lightlevel;
+				}
+			}
+			sector->lightlevel = min;
+		}
 	}
-    }
 }
 
 
@@ -276,87 +298,91 @@ EV_LightTurnOn
 ( line_t*	line,
   int		bright )
 {
-    int		i;
-    int		j;
-    sector_t*	sector;
-    sector_t*	temp;
-    line_t*	templine;
-	
-    sector = ::g->sectors;
-	
-    for (i = 0; i < ::g->numsectors; i++, sector++)
-    {
-	if (sector->tag == line->tag)
+	int		i;
+	int		j;
+	sector_t*	sector;
+	sector_t*	temp;
+	line_t*	templine;
+
+	sector = ::g->sectors;
+
+	for( i = 0; i < ::g->numsectors; i++, sector++ )
 	{
-	    // bright = 0 means to search
-	    // for highest light level
-	    // surrounding sector
-	    if (!bright)
-	    {
-		for (j = 0;j < sector->linecount; j++)
+		if( sector->tag == line->tag )
 		{
-		    templine = sector->lines[j];
-		    temp = getNextSector(templine,sector);
+			// bright = 0 means to search
+			// for highest light level
+			// surrounding sector
+			if( !bright )
+			{
+				for( j = 0; j < sector->linecount; j++ )
+				{
+					templine = sector->lines[j];
+					temp = getNextSector( templine, sector );
 
-		    if (!temp)
-			continue;
+					if( !temp )
+					{
+						continue;
+					}
 
-		    if (temp->lightlevel > bright)
-			bright = temp->lightlevel;
+					if( temp->lightlevel > bright )
+					{
+						bright = temp->lightlevel;
+					}
+				}
+			}
+			sector-> lightlevel = bright;
 		}
-	    }
-	    sector-> lightlevel = bright;
 	}
-    }
 }
 
-    
+
 //
 // Spawn glowing light
 //
 
-void T_Glow(glow_t*	g)
+void T_Glow( glow_t*	g )
 {
-    switch(g->direction)
-    {
-      case -1:
-	// DOWN
-	g->sector->lightlevel -= GLOWSPEED;
-	if (g->sector->lightlevel <= g->minlight)
+	switch( g->direction )
 	{
-	    g->sector->lightlevel += GLOWSPEED;
-	    g->direction = 1;
+		case -1:
+			// DOWN
+			g->sector->lightlevel -= GLOWSPEED;
+			if( g->sector->lightlevel <= g->minlight )
+			{
+				g->sector->lightlevel += GLOWSPEED;
+				g->direction = 1;
+			}
+			break;
+
+		case 1:
+			// UP
+			g->sector->lightlevel += GLOWSPEED;
+			if( g->sector->lightlevel >= g->maxlight )
+			{
+				g->sector->lightlevel -= GLOWSPEED;
+				g->direction = -1;
+			}
+			break;
 	}
-	break;
-	
-      case 1:
-	// UP
-	g->sector->lightlevel += GLOWSPEED;
-	if (g->sector->lightlevel >= g->maxlight)
-	{
-	    g->sector->lightlevel -= GLOWSPEED;
-	    g->direction = -1;
-	}
-	break;
-    }
 }
 
 
-void P_SpawnGlowingLight(sector_t*	sector)
+void P_SpawnGlowingLight( sector_t*	sector )
 {
-    glow_t*	g;
-	
-    g = (glow_t*)DoomLib::Z_Malloc( sizeof(*g), PU_LEVEL, 0);
+	glow_t*	g;
 
-    P_AddThinker(&g->thinker);
+	g = ( glow_t* )DoomLib::Z_Malloc( sizeof( *g ), PU_LEVEL, 0 );
 
-    g->sector = sector;
-    g->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel);
-    g->maxlight = sector->lightlevel;
-    g->thinker.function.acp1 = (actionf_p1) T_Glow;
-    g->direction = -1;
+	P_AddThinker( &g->thinker );
 
-    sector->special = 0;
+	g->sector = sector;
+	g->minlight = P_FindMinSurroundingLight( sector, sector->lightlevel );
+	g->maxlight = sector->lightlevel;
+	g->thinker.function.acp1 = ( actionf_p1 ) T_Glow;
+	g->direction = -1;
+
+	sector->special = 0;
 }
 
 

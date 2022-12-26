@@ -1,0 +1,487 @@
+textures/lab/hilabpanel
+{
+	qer_editorimage 	textures/lab/hilabpanel.tga
+	bumpmap 		textures/lab/hilabpanel_local.tga
+	diffusemap		textures/lab/hilabpanel_d.tga
+	specularmap		textures/lab/hilabpanel_s.tga
+}	
+
+textures/lab/box01
+{
+	qer_editorimage 	textures/lab/box01.tga
+	{
+		blend bumpmap	
+		map	textures/lab/box01b_local.tga
+		//clamp
+	}
+	{
+		blend diffusemap
+		map	textures/lab/box01_d.tga
+		//clamp
+	}
+	specularmap		textures/lab/box01_s.tga
+}
+textures/lab/boxtop01
+{
+	qer_editorimage 	textures/lab/boxtop01.tga
+	{
+		blend bumpmap	
+		map	textures/lab/box01top_local.tga
+		//clamp
+	}
+	{
+		blend diffusemap
+		map	textures/lab/box01_d.tga
+		//clamp
+	}
+	specularmap		textures/lab/box01_s.tga
+}
+
+
+textures/lab/whitetechtrim01
+{
+	qer_editorimage 	textures/lab/whitetechtrim01.tga
+	bumpmap 		textures/lab/whitetechtrim01_local.tga
+	diffusemap		textures/lab/whitetechtrim01_d.tga
+	specularmap		textures/lab/whitetechtrim01_s.tga
+}	
+
+
+textures/lab/white_plain
+{
+	qer_editorimage 	textures/lab/white_plain.tga
+	bumpmap 		heightmap	(textures/lab/white_plain_b.tga, 5)
+	diffusemap		textures/lab/white_plain_d.tga
+	specularmap		textures/lab/white_plain_s.tga
+}	
+
+textures/lab/green_plain
+{
+	qer_editorimage 	textures/lab/green_plain.tga
+	bumpmap 		heightmap	(textures/lab/white_plain_b.tga, 5)
+	diffusemap		textures/lab/green_plain_d.tga
+	specularmap		textures/lab/white_plain_s.tga
+}
+	
+
+textures/lab/cage01_shadow
+{
+	translucent
+	twosided
+	nonsolid
+	noimpact
+	noshadows
+	//polygonOffset
+	qer_editorimage	textures/lab/cage01_shadow.tga
+	{
+		blend gl_dst_color,gl_zero
+		map textures/lab/cage01_shadow.tga
+	}	
+}
+
+textures/lab/cage01
+
+
+{
+ 	noSelfShadow
+        noshadows
+	twosided
+	qer_editorimage textures/lab/cage01.tga
+
+	{       
+      	 blend	diffusemap
+	 map	textures/lab/cage01_d.tga
+	 alphaTest 0.5
+	}
+	specularmap	textures/lab/cage01_s.tga
+	bumpmap 	textures/lab/cage01_local.tga
+       
+
+}
+
+textures/lab/white_panel5
+{
+	qer_editorimage 	textures/lab/white_panel5.tga
+	bumpmap 		textures/lab/white_panel5_local.tga
+	diffusemap		textures/lab/white_panel5_d.tga
+	specularmap		textures/lab/white_panel5_s.tga
+}	
+
+textures/lab/white_panel3
+{
+	qer_editorimage 	textures/lab/white_panel3.tga
+	bumpmap 		textures/lab/white_panel4_local.tga
+	diffusemap		textures/lab/white_panel4_d.tga
+	specularmap		textures/lab/white_panel4_s.tga
+}	
+
+
+textures/lab/labwall1a
+{
+	qer_editorimage 	textures/lab/labwall1a.tga
+	bumpmap 		models/seneca/labtex/labwall1a_local.tga
+	diffusemap		models/seneca/labtex/labwall1a_d.tga
+	specularmap		models/seneca/labtex/labwall1a_s.tga
+}	
+
+textures/lab/labwall1b
+{
+	qer_editorimage 	textures/lab/labwall1b.tga
+	bumpmap 		models/seneca/labtex/labwall1b_local.tga
+	diffusemap		models/seneca/labtex/labwall1b_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1b_add.tga
+	}
+}	
+
+textures/lab/labwall1c
+{
+	qer_editorimage 	textures/lab/labwall1c.tga
+	bumpmap 		models/seneca/labtex/labwall1c_local.tga
+	diffusemap		models/seneca/labtex/labwall1c_d.tga
+}	
+
+textures/lab/labwall1c2
+{
+	qer_editorimage 	textures/lab/labwall1c2.tga
+	bumpmap 		models/seneca/labtex/labwall1c_local.tga
+	diffusemap		models/seneca/labtex/labwall1c_d2.tga
+}	
+
+textures/lab/labwall1c3
+{
+	qer_editorimage 	textures/lab/labwall1c3.tga
+	bumpmap 		models/seneca/labtex/labwall1c_local.tga
+	diffusemap		models/seneca/labtex/labwall1c_d3.tga
+	specularmap		models/seneca/labtex/labwall1c_s3.tga
+}	
+
+textures/lab/labwall1c4
+{
+	qer_editorimage 	textures/lab/labwall1c4.tga
+	bumpmap 		models/seneca/labtex/labwall1c_local.tga
+	diffusemap		models/seneca/labtex/labwall1c_d4.tga
+}	
+
+
+
+textures/lab/labwall1d
+{
+	qer_editorimage 	textures/lab/labwall1d.tga
+	bumpmap 		models/seneca/labtex/labwall1d_local.tga
+	diffusemap		models/seneca/labtex/labwall1d_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1d_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+}	
+
+textures/lab/labwall1e
+{
+	qer_editorimage 	textures/lab/labwall1e.tga
+	bumpmap 		models/seneca/labtex/labwall1e_local.tga
+	diffusemap		models/seneca/labtex/labwall1e_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1e_add.tga
+	}
+}	
+
+textures/lab/labwall1f
+{
+	qer_editorimage 	textures/lab/labwall1f.tga
+	bumpmap 		models/seneca/labtex/labwall1f_local.tga
+	diffusemap		models/seneca/labtex/labwall1f_d.tga
+}	
+
+textures/lab/labwall1flit
+{
+	qer_editorimage 	textures/lab/labwall1flit.tga
+	bumpmap 		models/seneca/labtex/labwall1f_local.tga
+	diffusemap		models/seneca/labtex/labwall1f_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1f_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+}	
+
+textures/lab/labwall1f2
+{
+	qer_editorimage 	textures/lab/labwall1f2.tga
+	bumpmap 		models/seneca/labtex/labwall1f_local.tga
+	diffusemap		models/seneca/labtex/labwall1f2_d.tga
+}	
+
+textures/lab/labwall1f2lit
+{
+	qer_editorimage 	textures/lab/labwall1f2lit.tga
+	bumpmap 		models/seneca/labtex/labwall1f_local.tga
+	diffusemap		models/seneca/labtex/labwall1f2_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1f_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+}	
+
+textures/lab/labwall1g
+{
+	qer_editorimage 	textures/lab/labwall1g.tga
+	bumpmap 		models/seneca/labtex/labwall1g_local.tga
+	diffusemap		models/seneca/labtex/labwall1g_d.tga
+	specularmap 	models/seneca/labtex/labwall1g_s.tga
+}	
+
+textures/lab/labwall1h
+{
+	qer_editorimage 	textures/lab/labwall1h_ed.tga
+	bumpmap 		models/seneca/labtex/labwall1h_local.tga
+	diffusemap		models/seneca/labtex/labwall1h_d.tga
+	specularmap		models/seneca/labtex/labwall1h_s.tga
+}	
+
+textures/lab/labwall1h2
+{
+	qer_editorimage 	textures/lab/labwall1h2.tga
+	bumpmap 		models/seneca/labtex/labwall1h_local.tga
+	diffusemap		models/seneca/labtex/labwall1h2_d.tga
+	specularmap		models/seneca/labtex/labwall1h_s.tga
+}	
+
+textures/lab/labwall1i2
+{
+	qer_editorimage 	textures/lab/labwall1i2.tga
+	bumpmap 		models/seneca/labtex/labwall1i2_local.tga
+	diffusemap		models/seneca/labtex/labwall1i2_d.tga
+	specularmap		models/seneca/labtex/labwall1i2_s.tga
+}	
+
+textures/lab/labwall1i
+{
+	qer_editorimage 	textures/lab/labwall1i.tga
+	bumpmap 		models/seneca/labtex/labwall1i_local.tga
+	diffusemap		models/seneca/labtex/labwall1i_d.tga
+	specularmap		models/seneca/labtex/labwall1i_s.tga
+}	
+
+textures/lab/labwall1j
+{
+	qer_editorimage 	textures/lab/labwall1j.tga
+	bumpmap 		models/seneca/labtex/labwall1j_local.tga
+	diffusemap		models/seneca/labtex/labwall1j_d.tga
+	specularmap		models/seneca/labtex/labwall1j_s.tga
+}	
+
+textures/lab/labwall1j2
+{
+	qer_editorimage 	textures/lab/labwall1j2.tga
+	bumpmap 		models/seneca/labtex/labwall1j2_local.tga
+	diffusemap		models/seneca/labtex/labwall1j2_d.tga
+}	
+
+textures/lab/newlabtex1
+{
+	qer_editorimage 	textures/lab/newlabtex1.tga
+	bumpmap 		models/seneca/labtex/newlabtex1_local.tga
+	diffusemap		models/seneca/labtex/newlabtex1_d.tga
+}	
+
+textures/lab/newlabtex1a
+{
+	qer_editorimage 	textures/lab/newlabtex1a.tga
+	bumpmap 		models/seneca/labtex/newlabtex1_local.tga
+	diffusemap		models/seneca/labtex/newlabtex1a_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/newlabtex1a_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+}	
+
+textures/lab/newlabtex1b
+{
+	qer_editorimage 	textures/lab/newlabtex1b.tga
+	bumpmap 		addnormals ( models/seneca/labtex/newlabtex1_local.tga, heightmap(models/seneca/labtex/newlabtex1b_bmp.tga, 3 ) )
+	diffusemap		models/seneca/labtex/newlabtex1b_d.tga
+}	
+
+textures/lab/newlabtex2
+{
+	qer_editorimage 	textures/lab/newlabtex2.tga
+	bumpmap 		models/seneca/labtex/newlabtex2_local.tga
+	diffusemap		models/seneca/labtex/newlabtex2_d.tga
+	{
+		blend gl_one,gl_one
+		map models/seneca/labtex/newlabtex2_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+}	
+
+textures/lab/labvent
+{	
+	qer_editorimage 	textures/lab/labvent.tga
+	
+	{
+
+	blend diffusemap	
+	map 			textures/lab/labvent_d.tga
+	//scale	 2 , 2
+
+	}
+	{
+
+	blend specularmap	
+	map 			textures/lab/labvent_s.tga
+	//scale	 2 , 2
+
+	}
+	{
+
+       	blend bumpmap		
+	map 			textures/lab/labvent_local.tga
+	//scale	 2 , 2
+
+        }
+}
+
+
+textures/lab/white_panel
+{	
+	qer_editorimage 	textures/lab/white_panel.tga
+	bumpmap			addnormals ( textures/lab/white_panel_local.tga, heightmap( textures/lab/white_panel_b.tga, 3 ) )
+	diffusemap	 	textures/lab/white_panel_d.tga
+	specularmap		textures/lab/white_panel_s.tga
+}
+
+
+textures/lab/green_panel
+{	
+	qer_editorimage 	textures/lab/green_panel.tga
+	bumpmap			addnormals ( textures/lab/white_panel_local.tga, heightmap( textures/lab/white_panel_b.tga, 3 ) )
+	diffusemap	 	textures/lab/green_panel_d.tga
+	specularmap		textures/lab/white_panel_s.tga
+}
+
+textures/lab/green_panel2
+{	
+	qer_editorimage 	textures/lab/green_panel2.tga
+	bumpmap			addnormals ( textures/lab/white_panel_local.tga, heightmap( textures/lab/white_panel_b.tga, 3 ) )
+	diffusemap	 	textures/lab/green_panel2_d.tga
+	specularmap		textures/lab/white_panel_s.tga
+}
+
+
+textures/lab/whitedoor1_ed
+{	
+	qer_editorimage 	textures/lab/whitedoor1_ed.tga
+	bumpmap 		heightmap	(textures/lab/whitedoor1_bmp.tga, 10)
+	diffusemap	 	textures/lab/whitedoor1_d.tga
+	specularmap		textures/lab/whitedoor1_s.tga
+}
+
+textures/lab/vent1_d
+{	
+	qer_editorimage 	textures/lab/vent1_d1.tga
+	bumpmap 		heightmap	(textures/lab/vent1_bmp.tga, 10)
+	diffusemap	 	textures/lab/vent1_d1.tga
+	specularmap		textures/lab/vent1_d1.tga
+}
+
+textures/lab/vent1b_d
+{	
+	qer_editorimage 	textures/lab/vent1b_d.tga
+	bumpmap 		heightmap	(textures/lab/vent1b_bmp.tga, 10)
+	diffusemap	 	textures/lab/vent1_d1.tga
+	specularmap		textures/lab/vent1_d1.tga
+}
+
+textures/lab/whitegrate1_ed
+{	
+	qer_editorimage 	textures/lab/whitegrate1_ed.tga
+	bumpmap 		heightmap	(textures/lab/whitegrate1_bmp.tga, 5)
+	diffusemap	 	textures/lab/whitegrate1_d.tga
+	specularmap		textures/lab/whitegrate1_s.tga
+}
+
+textures/lab/labfloor1_d
+{
+	discrete
+	qer_editorimage	textures/lab/labfloor1_d.tga
+	diffusemap		textures/lab/labfloor1_d.tga
+	mirror
+	solid
+}
+
+textures/lab/outlet1_ed
+{	
+	qer_editorimage 	textures/lab/outlet1_ed.tga
+	bumpmap 		heightmap	(textures/lab/outlet1_bmp.tga, 5)
+	diffusemap	 	textures/lab/outlet1_d.tga
+}
+
+textures/lab/noteboard1_d
+{	
+	qer_editorimage 	textures/lab/noteboard1_d.tga
+	bumpmap 		heightmap	(textures/lab/noteboard1_bmp.tga, 10)
+	diffusemap	 	textures/lab/noteboard1_d.tga
+}
+
+textures/lab/lswitch1_ed
+{	
+	qer_editorimage 	textures/lab/lswitch1_ed.tga
+	bumpmap 		heightmap	(textures/lab/lswitch1_bmp.tga, 5)
+	diffusemap	 	textures/lab/lswitch1_d.tga
+}
+
+textures/lab/whitewall_d
+{	
+	qer_editorimage 	textures/lab/whitewall_d.tga
+	bumpmap 		textures/lab/whitewall_local.tga
+	diffusemap	 	textures/lab/whitewall_d.tga
+}
+
+textures/lab/whitediv_d
+{	
+	qer_editorimage 	textures/lab/whitediv_d.tga
+	bumpmap 		heightmap ( textures/lab/whitediv_bmp.tga, 25)
+	diffusemap	 	textures/lab/whitediv_d.tga
+	specularmap		textures/lab/whitediv_d.tga
+}
+
+textures/lab/whiteroof_d
+{	
+	qer_editorimage 	textures/lab/whiteroof_d.tga
+	bumpmap 		heightmap ( textures/lab/whiteroof_bmp.tga, 25)
+	diffusemap	 	textures/lab/whiteroof_d.tga
+	{	
+		blend gl_one,gl_one
+		map textures/lab/whiteroof_a.tga
+	}
+}
+
+textures/lab/whiteroof2_d
+{	
+	qer_editorimage 	textures/lab/whiteroof2_d.tga
+	bumpmap 		heightmap ( textures/lab/whiteroof2_bmp.tga, 25)
+	diffusemap	 	textures/lab/whiteroof2_d.tga
+}
+
+textures/lab/whitetrim1_d
+{	
+	qer_editorimage 	textures/lab/whitetrim1_d.tga
+	bumpmap 		heightmap ( textures/lab/whitetrim1_bmp.tga, 25)
+	diffusemap	 	textures/lab/whitetrim1_d.tga
+}
+
+textures/lab/whitetrim2_d
+{	
+	qer_editorimage 	textures/lab/whitetrim2_d.tga
+	bumpmap 		heightmap ( textures/lab/whitetrim1_bmp.tga, 25)
+	diffusemap	 	textures/lab/whitetrim2_d.tga
+}
+
+
+

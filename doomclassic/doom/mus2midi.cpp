@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,104 +35,114 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // reads a variable length integer
-unsigned long ReadVarLen( char* buffer ) {
+unsigned long ReadVarLen( char* buffer )
+{
 	unsigned long value;
 	byte c;
 
-	if ((value = *buffer++) & 0x80) {
+	if( ( value = *buffer++ ) & 0x80 )
+	{
 		value &= 0x7f;
-		do  {
-			value = (value << 7) + ((c = *buffer++) & 0x7f);
-		}  while (c & 0x80);
+		do
+		{
+			value = ( value << 7 ) + ( ( c = *buffer++ ) & 0x7f );
+		}
+		while( c & 0x80 );
 	}
 	return value;
 }
 
 // Writes a variable length integer to a buffer, and returns bytes written
-int WriteVarLen( long value, byte* out ) 
+int WriteVarLen( long value, byte* out )
 {
 	long buffer, count = 0;
 
 	buffer = value & 0x7f;
-	while ((value >>= 7) > 0) {
+	while( ( value >>= 7 ) > 0 )
+	{
 		buffer <<= 8;
 		buffer += 0x80;
-		buffer += (value & 0x7f);
+		buffer += ( value & 0x7f );
 	}
 
-	while (1) {
+	while( 1 )
+	{
 		++count;
-		*out = (byte)buffer;
+		*out = ( byte )buffer;
 		++out;
-		if (buffer & 0x80)
+		if( buffer & 0x80 )
+		{
 			buffer >>= 8;
+		}
 		else
+		{
 			break;
+		}
 	}
 	return count;
 }
 
 // writes a byte, and returns the buffer
-unsigned char* WriteByte(void* buf, byte b)
+unsigned char* WriteByte( void* buf, byte b )
 {
-	unsigned char* buffer = (unsigned char*)buf;
+	unsigned char* buffer = ( unsigned char* )buf;
 	*buffer++ = b;
 	return buffer;
 }
 
-unsigned char* WriteShort(void* b, unsigned short s)
+unsigned char* WriteShort( void* b, unsigned short s )
 {
-	unsigned char* buffer = (unsigned char*)b;
-	*buffer++ = (s >> 8);
-	*buffer++ = (s & 0x00FF);
+	unsigned char* buffer = ( unsigned char* )b;
+	*buffer++ = ( s >> 8 );
+	*buffer++ = ( s & 0x00FF );
 	return buffer;
 }
 
-unsigned char* WriteInt(void* b, unsigned int i)
+unsigned char* WriteInt( void* b, unsigned int i )
 {
-	unsigned char* buffer = (unsigned char*)b;
-	*buffer++ = (i & 0xff000000) >> 24;
-	*buffer++ = (i & 0x00ff0000) >> 16;
-	*buffer++ = (i & 0x0000ff00) >> 8;
-	*buffer++ = (i & 0x000000ff);
+	unsigned char* buffer = ( unsigned char* )b;
+	*buffer++ = ( i & 0xff000000 ) >> 24;
+	*buffer++ = ( i & 0x00ff0000 ) >> 16;
+	*buffer++ = ( i & 0x0000ff00 ) >> 8;
+	*buffer++ = ( i & 0x000000ff );
 	return buffer;
 }
 
 // Format - 0(1 track only), 1(1 or more tracks, each play same time), 2(1 or more, each play seperatly)
-void Midi_CreateHeader(MidiHeaderChunk_t* header, short format, short track_count,  short division)
+void Midi_CreateHeader( MidiHeaderChunk_t* header, short format, short track_count,  short division )
 {
-	WriteInt(header->name, 'MThd');
-	WriteInt(&header->length, 6);
-	WriteShort(&header->format, format);
-	WriteShort(&header->ntracks, track_count);
-	WriteShort(&header->division, division);
+	WriteInt( header->name, 'MThd' );
+	WriteInt( &header->length, 6 );
+	WriteShort( &header->format, format );
+	WriteShort( &header->ntracks, track_count );
+	WriteShort( &header->division, division );
 }
 
-unsigned char* Midi_WriteTempo(unsigned char* buffer, int tempo)
+unsigned char* Midi_WriteTempo( unsigned char* buffer, int tempo )
 {
-	buffer = WriteByte(buffer, 0x00);	// delta time
-	buffer = WriteByte(buffer, 0xff);	// sys command
-	buffer = WriteShort(buffer, 0x5103); // command - set tempo
-	
-	buffer = WriteByte(buffer, tempo & 0x000000ff);
-	buffer = WriteByte(buffer, (tempo & 0x0000ff00) >> 8);
-	buffer = WriteByte(buffer, (tempo & 0x00ff0000) >> 16);
+	buffer = WriteByte( buffer, 0x00 );	// delta time
+	buffer = WriteByte( buffer, 0xff );	// sys command
+	buffer = WriteShort( buffer, 0x5103 ); // command - set tempo
+
+	buffer = WriteByte( buffer, tempo & 0x000000ff );
+	buffer = WriteByte( buffer, ( tempo & 0x0000ff00 ) >> 8 );
+	buffer = WriteByte( buffer, ( tempo & 0x00ff0000 ) >> 16 );
 
 	return buffer;
 }
 
-int Midi_UpdateBytesWritten(int* bytes_written, int to_add, int max)
+int Midi_UpdateBytesWritten( int* bytes_written, int to_add, int max )
 {
 	*bytes_written += to_add;
-	if (max && *bytes_written > max)
+	if( max && *bytes_written > max )
 	{
-		assert(0);
+		assert( 0 );
 		return 0;
 	}
 	return 1;
 }
 
-unsigned char MidiMap[] = 
+unsigned char MidiMap[] =
 {
 	0,				// prog change
 	0,				// bank sel
@@ -152,19 +162,21 @@ unsigned char MidiMap[] =
 };
 
 // The MUS data is stored in little-endian.
-namespace {
-	unsigned short LittleToNative( const unsigned short value ) {
-		return value;
-	}
+namespace
+{
+unsigned short LittleToNative( const unsigned short value )
+{
+	return value;
+}
 }
 
-int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
+int Mus2Midi( unsigned char* bytes, unsigned char* out, int* len )
 {
 	// mus header and instruments
 	MUSheader_t header;
-	
+
 	// current position in read buffer
-	unsigned char* cur = bytes,* end;
+	unsigned char* cur = bytes, * end;
 	if( cur[0] != 'M' || cur[1] != 'U' || cur[2] != 'S' )
 	{
 		return 0;
@@ -176,7 +188,7 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	MidiTrackChunk_t midiTrackHeader;
 	// Stores the position of the midi track header(to change the size)
 	byte* midiTrackHeaderOut;
-	
+
 	// Delta time for midi event
 	int delta_time = 0;
 	int temp;
@@ -186,8 +198,8 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	byte last_status = 0;
 
 	// read the mus header
-	memcpy(&header, cur, sizeof(header));
-	cur += sizeof(header);
+	memcpy( &header, cur, sizeof( header ) );
+	cur += sizeof( header );
 
 	header.scoreLen = LittleToNative( header.scoreLen );
 	header.scoreStart = LittleToNative( header.scoreStart );
@@ -195,13 +207,16 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	header.sec_channels = LittleToNative( header.sec_channels );
 	header.instrCnt = LittleToNative( header.instrCnt );
 	header.dummy = LittleToNative( header.dummy );
-	
+
 	// only 15 supported
-	if (header.channels > MIDI_MAXCHANNELS - 1)
+	if( header.channels > MIDI_MAXCHANNELS - 1 )
+	{
 		return 0;
+	}
 
 	// Map channel 15 to 9(percussions)
-	for (temp = 0; temp < MIDI_MAXCHANNELS; ++temp) {
+	for( temp = 0; temp < MIDI_MAXCHANNELS; ++temp )
+	{
 		channelMap[temp] = -1;
 		channel_volume[temp] = 0x40;
 	}
@@ -212,143 +227,159 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	end = cur + header.scoreLen;
 
 	// Write out midi header
-	Midi_CreateHeader(&midiHeader, 0, 1, 0x0059);
-	Midi_UpdateBytesWritten(&bytes_written, MIDIHEADERSIZE, *len);
-	memcpy(out, &midiHeader, MIDIHEADERSIZE);	// cannot use sizeof(packs it to 16 bytes)
+	Midi_CreateHeader( &midiHeader, 0, 1, 0x0059 );
+	Midi_UpdateBytesWritten( &bytes_written, MIDIHEADERSIZE, *len );
+	memcpy( out, &midiHeader, MIDIHEADERSIZE );	// cannot use sizeof(packs it to 16 bytes)
 	out += MIDIHEADERSIZE;
-	 
+
 	// Store this position, for later filling in the midiTrackHeader
-	Midi_UpdateBytesWritten(&bytes_written, sizeof(midiTrackHeader), *len);
+	Midi_UpdateBytesWritten( &bytes_written, sizeof( midiTrackHeader ), *len );
 	midiTrackHeaderOut = out;
-	out += sizeof(midiTrackHeader);
-	
+	out += sizeof( midiTrackHeader );
+
 
 	// microseconds per quarter note(yikes)
-	Midi_UpdateBytesWritten(&bytes_written, 7, *len);
-	out = Midi_WriteTempo(out, 0x001aa309);
-	
+	Midi_UpdateBytesWritten( &bytes_written, 7, *len );
+	out = Midi_WriteTempo( out, 0x001aa309 );
+
 	// Percussions channel starts out at full volume
-	Midi_UpdateBytesWritten(&bytes_written, 4, *len);
-	out = WriteByte(out, 0x00);
-	out = WriteByte(out, 0xB9);
-	out = WriteByte(out, 0x07);
-	out = WriteByte(out, 127);
-	
+	Midi_UpdateBytesWritten( &bytes_written, 4, *len );
+	out = WriteByte( out, 0x00 );
+	out = WriteByte( out, 0xB9 );
+	out = WriteByte( out, 0x07 );
+	out = WriteByte( out, 127 );
+
 	// Main Loop
-	while (cur < end) {
-		byte channel; 
+	while( cur < end )
+	{
+		byte channel;
 		byte event;
 		byte temp_buffer[32];	// temp buffer for current iterator
-		byte *out_local = temp_buffer;
+		byte* out_local = temp_buffer;
 		byte status, bit1, bit2, bitc = 2;
-		
+
 		// Read in current bit
 		event		= *cur++;
-		channel		= (event & 15);		// current channel
-		
+		channel		= ( event & 15 );		// current channel
+
 		// Write variable length delta time
-		out_local += WriteVarLen(delta_time, out_local);
-		
-		if (channelMap[channel] < 0) {
+		out_local += WriteVarLen( delta_time, out_local );
+
+		if( channelMap[channel] < 0 )
+		{
 			// Set all channels to 127 volume
-			out_local = WriteByte(out_local, 0xB0 + currentChannel);
-			out_local = WriteByte(out_local, 0x07);
-			out_local = WriteByte(out_local, 127);
-			out_local = WriteByte(out_local, 0x00);
+			out_local = WriteByte( out_local, 0xB0 + currentChannel );
+			out_local = WriteByte( out_local, 0x07 );
+			out_local = WriteByte( out_local, 127 );
+			out_local = WriteByte( out_local, 0x00 );
 
 			channelMap[channel] = currentChannel++;
-			if (currentChannel == 9)
+			if( currentChannel == 9 )
+			{
 				++currentChannel;
+			}
 		}
 
 		status = channelMap[channel];
 
 		// Handle ::g->events
-		switch ((event & 122) >> 4)
+		switch( ( event & 122 ) >> 4 )
 		{
-		default:
-			assert(0);
-			break;
-		case MUSEVENT_KEYOFF:
-			status |=  0x80;
-			bit1 = *cur++;
-			bit2 = 0x40;
-			break;
-		case MUSEVENT_KEYON:
-			status |= 0x90;
-			bit1 = *cur & 127;
-			if (*cur++ & 128)	// volume bit?
-				channel_volume[channelMap[channel]] = *cur++;
-			bit2 = channel_volume[channelMap[channel]];
-			break;
-		case MUSEVENT_PITCHWHEEL:
-			status |= 0xE0;
-			bit1 = (*cur & 1) >> 6;
-			bit2 = (*cur++ >> 1) & 127;
-			break;
-		case MUSEVENT_CHANNELMODE:
-			status |= 0xB0;
-			assert(*cur < sizeof(MidiMap) / sizeof(MidiMap[0]));
-			bit1 = MidiMap[*cur++];
-			bit2 = (*cur++ == 12) ? header.channels + 1 : 0x00;
-			break;
-		case MUSEVENT_CONTROLLERCHANGE:
-			if (*cur == 0) {
-				cur++;
-				status |= 0xC0;
+			default:
+				assert( 0 );
+				break;
+			case MUSEVENT_KEYOFF:
+				status |=  0x80;
 				bit1 = *cur++;
-				bitc = 1;
-			} else {
+				bit2 = 0x40;
+				break;
+			case MUSEVENT_KEYON:
+				status |= 0x90;
+				bit1 = *cur & 127;
+				if( *cur++ & 128 )	// volume bit?
+				{
+					channel_volume[channelMap[channel]] = *cur++;
+				}
+				bit2 = channel_volume[channelMap[channel]];
+				break;
+			case MUSEVENT_PITCHWHEEL:
+				status |= 0xE0;
+				bit1 = ( *cur & 1 ) >> 6;
+				bit2 = ( *cur++ >> 1 ) & 127;
+				break;
+			case MUSEVENT_CHANNELMODE:
 				status |= 0xB0;
-				assert(*cur < sizeof(MidiMap) / sizeof(MidiMap[0]));
+				assert( *cur < sizeof( MidiMap ) / sizeof( MidiMap[0] ) );
 				bit1 = MidiMap[*cur++];
-				bit2 = *cur++;
-			}
-			break;
-		case 5:	// Unknown
-			assert(0);
-			break;
-		case MUSEVENT_END:	// End
-			status = 0xff;
-			bit1 = 0x2f;
-			bit2 = 0x00;
-			assert(cur == end);
-			break;
-		case 7:	// Unknown
-			assert(0);
-			break;
+				bit2 = ( *cur++ == 12 ) ? header.channels + 1 : 0x00;
+				break;
+			case MUSEVENT_CONTROLLERCHANGE:
+				if( *cur == 0 )
+				{
+					cur++;
+					status |= 0xC0;
+					bit1 = *cur++;
+					bitc = 1;
+				}
+				else
+				{
+					status |= 0xB0;
+					assert( *cur < sizeof( MidiMap ) / sizeof( MidiMap[0] ) );
+					bit1 = MidiMap[*cur++];
+					bit2 = *cur++;
+				}
+				break;
+			case 5:	// Unknown
+				assert( 0 );
+				break;
+			case MUSEVENT_END:	// End
+				status = 0xff;
+				bit1 = 0x2f;
+				bit2 = 0x00;
+				assert( cur == end );
+				break;
+			case 7:	// Unknown
+				assert( 0 );
+				break;
 		}
 
 		// Write it out
-		out_local = WriteByte(out_local, status);
-		out_local = WriteByte(out_local, bit1);
-		if (bitc == 2) 
-			out_local = WriteByte(out_local, bit2);
-			
+		out_local = WriteByte( out_local, status );
+		out_local = WriteByte( out_local, bit1 );
+		if( bitc == 2 )
+		{
+			out_local = WriteByte( out_local, bit2 );
+		}
+
 
 		// Write out temp stuff
-		if (out_local != temp_buffer)
+		if( out_local != temp_buffer )
 		{
-			Midi_UpdateBytesWritten(&bytes_written, out_local - temp_buffer, *len);
-			memcpy(out, temp_buffer, out_local - temp_buffer);
+			Midi_UpdateBytesWritten( &bytes_written, out_local - temp_buffer, *len );
+			memcpy( out, temp_buffer, out_local - temp_buffer );
 			out += out_local - temp_buffer;
 		}
 
-		if (event & 128) {
+		if( event & 128 )
+		{
 			delta_time = 0;
-			do {
-				delta_time = delta_time * 128 + (*cur & 127);
-			} while ((*cur++ & 128));
-		} else {
+			do
+			{
+				delta_time = delta_time * 128 + ( *cur & 127 );
+			}
+			while( ( *cur++ & 128 ) );
+		}
+		else
+		{
 			delta_time = 0;
 		}
 	}
 
 	// Write out track header
-	WriteInt(midiTrackHeader.name, 'MTrk');
-	WriteInt(&midiTrackHeader.length, out - midiTrackHeaderOut - sizeof(midiTrackHeader));
-	memcpy(midiTrackHeaderOut, &midiTrackHeader, sizeof(midiTrackHeader));
-	
+	WriteInt( midiTrackHeader.name, 'MTrk' );
+	WriteInt( &midiTrackHeader.length, out - midiTrackHeaderOut - sizeof( midiTrackHeader ) );
+	memcpy( midiTrackHeaderOut, &midiTrackHeader, sizeof( midiTrackHeader ) );
+
 	// Store length written
 	*len = bytes_written;
 	/*{

@@ -1,0 +1,276 @@
+//SWAYING HOSES FOR TANK...
+	
+export fred {
+	
+	camera	maps/patd/delta2b_cam.mb -dest models/md5/cinematics/delta2b/delta2b_roq_camera
+	camera	maps/patd/delta2b_roq2_cam.mb -dest models/md5/cinematics/delta2b/delta2b_roq2_camera
+	camera	maps/patd/delta2b_roq3_cam.mb -dest models/md5/cinematics/delta2b/delta2b_roq3_camera
+}
+
+entityDef delta2b_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim delta2b_cam"				"models/md5/cinematics/delta2b/delta2b_roq_camera.md5camera "
+}
+
+entityDef delta2b_roq2_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim delta2b_roq2_cam"				"models/md5/cinematics/delta2b/delta2b_roq2_camera.md5camera "
+}
+
+entityDef delta2b_roq3_cam {
+	"editor_color"					"1 .5 0"
+	"editor_mins"					"-16 -16 0"
+	"editor_maxs"					"16 16 64"
+	
+	"spawnclass"					"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim delta2b_roq3_cam"				"models/md5/cinematics/delta2b/delta2b_roq3_camera.md5camera "
+}
+
+export fred {
+	
+	options -prefix WIRE_
+
+	mesh	maps/fred/delta2b/waterwires.mb -range 1 1 -dest models/md5/cinematics/delta2b/waterwires
+	anim	maps/fred/delta2b/waterwires.mb -xyzprecision .01 -dest models/md5/cinematics/delta2b/waterwires
+}
+
+
+model delta2b_waterwires {
+	mesh						models/md5/cinematics/delta2b/waterwires.md5mesh
+	anim sway					models/md5/cinematics/delta2b/waterwires.md5anim
+}
+
+entityDef delta2b_waterwires {
+	"inherit"					"cin_base"
+	"model"						"delta2b_waterwires"
+	"anim"						"sway"
+}
+
+//IMP TANK
+	
+export fred {
+	
+	options -prefix IMPWIRE_
+
+	mesh	maps/fred/delta2b/monster_tanks.mb -dest models/md5/cinematics/delta2b/impwires
+	anim	maps/fred/delta2b/monster_tanks.mb -dest models/md5/cinematics/delta2b/impwires
+	anim	maps/fred/delta2b/monster_tanks_twitch.mb -range 23 97 -dest models/md5/cinematics/delta2b/imptwitch
+}
+
+
+model delta2b_tankimpwires {	
+	mesh						models/md5/cinematics/delta2b/impwires.md5mesh
+	anim sway					models/md5/cinematics/delta2b/impwires.md5anim
+	anim twitch					models/md5/cinematics/delta2b/imptwitch.md5anim
+}
+
+entityDef delta2b_tankimpwires {	
+	"inherit"					"cin_base"
+	"model"						"delta2b_tankimpwires"
+	"anim"						"sway"
+	"auto_advance"				"1"
+	"loop_last_anim"			"1"
+
+	"num_anims"					"2"
+	"anim1"						"twitch"
+	"anim2"						"sway"
+
+}
+
+model delta2b_tankimp {
+	mesh						models/md5/monsters/imp/imp.md5mesh
+	anim sway					models/md5/monsters/imp/imptankidle.md5anim
+	anim twitch					models/md5/monsters/imp/imptanktwitch.md5anim
+
+}
+
+entityDef delta2b_tankimp {
+	"inherit"					"cin_base"
+	"anim"						"sway"
+	"model"						"delta2b_tankimp"
+
+	"auto_advance"				"1"
+	"loop_last_anim"			"1"
+
+	"num_anims"					"2"
+	"anim1"						"twitch"
+	"anim2"						"sway"
+}
+
+//Revenant Tank
+
+
+export fred {
+	options -prefix REV_ -parent Loneck Shldrs -keep Rmissile Lmissile -parent Rmissile Rgun -parent Lmissile Lgun
+	
+	anim	maps/fred/delta2b/monster_tanks.mb -dest models/md5/cinematics/delta2b/revenant
+
+	addoptions -align ALL
+
+	mesh	models/monsters/revenant/Fred/animation/idle1.ma -dest models/md5/cinematics/delta2b/revenant
+}
+
+//REVENANT TANK
+
+export fred {
+	
+	options -prefix REVWIRE_
+
+	mesh	maps/fred/delta2b/monster_tanks.mb -dest models/md5/cinematics/delta2b/revwires
+	anim	maps/fred/delta2b/monster_tanks.mb -dest models/md5/cinematics/delta2b/revwires
+}
+
+
+model delta2b_tankrevwires {
+	mesh						models/md5/cinematics/delta2b/revwires.md5mesh
+	anim sway					models/md5/cinematics/delta2b/revwires.md5anim
+}
+
+entityDef delta2b_tankrevwires {
+	"inherit"					"cin_base"
+	"anim"						"sway"
+	"model"						"delta2b_tankrevwires"
+}
+
+model delta2b_tankrev {
+	skin						skins/models/monsters/revnoeyes.skin
+	mesh						models/md5/cinematics/delta2b/revenant.md5mesh
+	anim sway					models/md5/cinematics/delta2b/revenant.md5anim
+}
+
+entityDef delta2b_tankrev {
+	"inherit"					"cin_base"
+	"anim"						"sway"
+	"model"						"delta2b_tankrev"
+}
+
+model delta2b_keycardzombie {
+	inherit						model_monster_zombie
+	mesh							models/md5/monsters/zombies/labcoatzombie.md5mesh
+	skin							skins/monsters/zombies/labcoat.skin
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim keycardidle			models/md5/monsters/zombies/keycardgetupidle.md5anim
+	anim keycardgetup			models/md5/monsters/zombies/keycardgetup.md5anim {
+		ai_no_turn
+		}
+}
+
+entityDef delta2b_keycardzombie {
+	"inherit"						"monster_zombie_base"
+	"skin"							"skins/monsters/zombies/labcoat.skin"	
+	"model"							"delta2b_keycardzombie"
+	"def_head"						"head_stump"
+	"head_joint"					"Shoulders"
+}
+
+model delta2b_hazmat {
+	mesh							models/md5/chars/hazmat.md5mesh
+	
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER chair)
+
+	anim stand						models/md5/chars/hazmat_d2b/hazmat_idle.md5anim
+	
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim ik_pose					models/md5/chars/af_pose.md5anim
+	
+	anim cower						models/md5/chars/cower4.md5anim
+	
+	anim talk_trigger				models/md5/chars/hazmat_d2b/trigger.md5anim {
+		frame 1						sound_voice  snd_talk_trigger
+	}
+	anim talk_primary				models/md5/chars/hazmat_d2b/primary.md5anim {
+		frame 1						sound_voice  snd_talk_primary
+	}
+	anim talk_secondary1			models/md5/chars/hazmat_d2b/secondary1.md5anim {
+		frame 1						sound_voice  snd_talk_secondary1
+	}
+	anim talk_secondary2			models/md5/chars/hazmat_d2b/secondary2.md5anim {
+		frame 1						sound_voice  snd_talk_secondary2
+	}
+}
+
+entityDef delta2b_hazmat {
+	"inherit"						"npc_base"
+	"model"							"delta2b_hazmat"
+	"ragdoll"						"char_hazmat"
+	
+	"head_joint"					"Shoulders"
+
+	"copy_joint_world eyecontrol"	""	
+
+	"talk_no_turn"					"1"
+	"talktime"						"0"
+	
+	"turn_rate"						"0"
+
+	"ik_numLegs"					"0"
+	"ik_footSize"					"0"
+	
+
+	"look_joint Waist"				".1 .1 0"
+	"look_joint Chest"				".1 .2 0"
+	"look_joint Shoulders"			".2 .2 0"
+	"look_joint headcontrol"		".4 .4 0"
+	"look_joint Ruparm"				"0 0 0"
+	"look_joint Luparm"				"0 0 0"
+	
+	"head_focus_rate"				"0.1"
+
+	"talk0_blendin"					"8"
+	"talk0_blendout"				"8"
+	"talk1_blendin"					"8"
+	"talk1_blendout"				"8"
+	"talk2_blendin"					"8"
+	"talk2_blendout"				"8"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	
+	"snd_talk_trigger"				"delta2b_hazmat_trigger"
+	"snd_talk_primary"				"delta2b_hazmat_primary"
+	"snd_talk_secondary1"			"delta2b_hazmat_secondary1"
+	"snd_talk_secondary2"			"delta2b_hazmat_secondary2"
+}
+
+entityDef delta2b_imp {
+	"inherit"					"monster_demon_imp"
+	"model"						"delta2b_imp"
+	"anim"						"cabinet_leap"
+}
+
+model delta2b_imp {
+	inherit						monster_demon_imp
+	anim cabinet_leap			models/md5/monsters/imp/cabinet_leap.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 1							sound_voice snd_sight8
+		frame 4							sound_body snd_footstep
+		frame 15						sound_body snd_footstep
+		frame 16						attack_begin melee_impLeapAttack
+		frame 28						attack_end
+		frame 18						trigger impush
+		frame 27						enableGravity
+		frame 27						enableWalkIK
+		frame 30						sound_body snd_footstep	
+		frame 32						sound_body snd_footstep
+		frame 38						sound_body snd_footstep
+	}
+}

@@ -243,7 +243,7 @@ ID_INLINE void idCmdSystem::ArgCompletion_FileName( const idCmdArgs& args, void(
 
 ID_INLINE void idCmdSystem::ArgCompletion_MapName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "maps/", true, ".map", ".json", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "maps/", true, ".map", ".json", ".gltf", ".glb", NULL );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_MapNameNoJson( const idCmdArgs& args, void( *callback )( const char* s ) )

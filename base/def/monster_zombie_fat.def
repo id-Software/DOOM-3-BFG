@@ -1,0 +1,414 @@
+/***********************************************************************
+
+monster_zombie_fat
+
+***********************************************************************/
+
+export fred {
+
+	options		-prefix FATTY_ -parent pipe Rhand -keep rub Lknee Rknee -parent rub waist -parent Belly rub
+
+	anim		maps/fred/delta2a/bathroomzombies.mb -range 1 1 -dest models/md5/monsters/zfat/deltabathroomloop	
+	anim		maps/fred/delta2a/bathroomzombies.mb -dest models/md5/monsters/zfat/deltabathroomgetup
+	anim		models/monsters/combos/zjump_eats_zfat_loop.mb -dest models/md5/combos/zfat_eatenby_zjump_loop
+	anim		models/monsters/combos/zjump_eats_zfat_getup.mb -dest models/md5/combos/zfat_eatenby_zjump_getup
+	anim		maps/fred/marscity_2/mars_city2.mb -range 1 90 -dest models/md5/cinematics/marscity_2/impfeast_fatty_loop
+	anim		maps/fred/marscity_2/mars_city2.mb -range 91 170 -dest models/md5/cinematics/marscity_2/impfeast_fatty
+	anim		maps/fred/marscity_2/mars_city2.mb -range 170 170 -dest models/md5/cinematics/marscity_2/impfeast_fatty_end
+	//anim		maps/fred/underground/airlockencounter.mb -rotate 180 -range 1 80 -dest models/md5/cinematics/underground/airlockfdrag
+	//anim		maps/fred/underground/airlockencounter.mb -rotate 180 -range 81 150 -dest models/md5/cinematics/underground/airlockfeatloop
+	//anim		maps/fred/underground/airlockencounter.mb -rotate 180 -range 150 186 -dest models/md5/cinematics/underground/airlockfgetup
+
+	addoptions -prefix FATYY_
+	anim		maps/fred/delta2a/zoffice3.mb -xyzprecision 0.001 -quatprecision 0.00001 -dest models/md5/cinematics/delta2a/zoffice3
+
+	addoptions -prefix FAT_
+	anim		models/monsters/zombie/fatty/animation/cycles/pipeidle.ma -rotate 90 -dest models/md5/monsters/zfat/pipeidle
+
+	addoptions	-prefix FATTY_ -sourcedir models/monsters/zombie/fatty/animation/cycles -destdir models/md5/monsters/zfat
+
+	mesh		makemesh.ma -dest zfat
+	mesh		influence_zfat.mb -skipmesh monkeywrench_layer1 -skipmesh fattyskel -skipmesh fattydamagemodel
+	
+	anim		idle1.ma
+	anim		sight3.ma
+	anim		walk1.ma
+	anim		walk2.ma -cycleStart 30
+	anim		walk3.ma -cycleStart 23
+	anim		walk4.ma
+	anim		facepain.ma
+	anim		bellypain.ma
+	anim		leftarmpain.ma
+	anim		rightarmpain.ma
+	anim		legpain.ma
+	anim		death1.ma
+	anim		death1_twitch.ma
+	anim		turn_left.ma
+	anim		turn_right.ma
+	anim		death2.ma
+	anim		getup_attempt1.ma
+	anim		getup_attempt2.ma
+	anim		getup1.ma
+	anim		getup1.ma -range 1 1 -dest death1_pose
+	anim		getup2.ma
+	anim		initial.ma
+	anim		attack1.ma
+	anim		attack_leftslap.ma
+	anim		attack2.ma
+	anim		attack3.ma
+	anim		barrel_idle.ma
+	anim		barrel_throw.ma
+	anim		pipeattack1.ma
+	anim		pipewalk4.ma
+	anim		pipesight.ma
+	anim		influence_eating_arm.mb -rotate 90
+
+}
+
+model monster_zombie_fat {
+	mesh							models/md5/monsters/zfat/zfat.md5mesh
+	channel torso					( *waist )
+	channel legs					( *Hips origin Body Body2 )
+
+	anim af_pose					models/md5/monsters/zfat/initial.md5anim
+	anim ik_pose					models/md5/monsters/zfat/initial.md5anim
+
+	anim initial					models/md5/monsters/zfat/initial.md5anim
+
+	anim idle						models/md5/monsters/zfat/idle1.md5anim
+	anim sight						models/md5/monsters/zfat/sight3.md5anim {
+		frame 1							sound_voice snd_sight3	
+		frame 30						leftfoot
+	}
+	anim walk						models/md5/monsters/zfat/walk1.md5anim {
+		frame 7							rightfoot
+		frame 25						leftfoot
+	}
+	anim walk2						models/md5/monsters/zfat/walk2.md5anim {
+		frame 15						leftfoot
+		frame 37						rightfoot
+	}
+	anim walk3						models/md5/monsters/zfat/walk3.md5anim {
+		frame 5							leftfoot
+		frame 18						rightfoot
+	}
+	anim walk4						models/md5/monsters/zfat/walk4.md5anim {
+		frame 7							rightfoot
+		frame 26						leftfoot
+	}
+	anim melee_attack1				models/md5/monsters/zfat/attack_leftslap.md5anim {
+		frame 1							sound_weapon snd_melee_attack_1
+		frame 4							rightfoot
+		frame 13						melee melee_zombie_fat_Left2
+		frame 17						leftfoot
+		frame 25						rightfoot
+	}
+	anim melee_attack2				models/md5/monsters/zfat/attack2.md5anim {
+		frame 1							sound_weapon snd_melee_attack_2	
+		frame 4							rightfoot
+		frame 8							melee melee_zombie_fat_Right		
+		frame 17						leftfoot
+	}
+	anim melee_attack3				models/md5/monsters/zfat/attack3.md5anim {
+		frame 1							sound_weapon snd_melee_attack_3
+		frame 4							rightfoot	
+		frame 10						melee melee_zombie_fat_Left
+		frame 17						leftfoot
+	}
+	// included twice so that we have an even number of left and right attacks
+	anim melee_attack4				models/md5/monsters/zfat/attack3.md5anim {
+		frame 1							sound_weapon snd_melee_attack_3
+		frame 4							rightfoot	
+		frame 10						melee melee_zombie_fat_Left
+		frame 17						leftfoot
+	}
+	anim pain						models/md5/monsters/zfat/bellypain.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							leftfoot
+		frame 18						leftfoot
+	}
+	anim pain_head					models/md5/monsters/zfat/facepain.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 9							leftfoot
+	}
+	anim pain_left_arm				models/md5/monsters/zfat/leftarmpain.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							leftfoot
+		frame 19						leftfoot
+	}
+	anim pain_right_arm				models/md5/monsters/zfat/rightarmpain.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 4							leftfoot
+		frame 18						leftfoot
+	}
+	anim pain_chest					models/md5/monsters/zfat/bellypain.md5anim {
+		frame 1							sound_voice snd_pain
+		frame 3							leftfoot
+		frame 18						leftfoot
+	}
+	
+	anim zjump_eats_zfat_loop		models/md5/combos/zfat_eatenby_zjump_loop.md5anim {
+		frame 1							disableWalkIK
+		ai_no_turn
+	}
+	anim zjump_eats_zfat_getup		models/md5/combos/zfat_eatenby_zjump_getup.md5anim {
+		ai_no_turn
+		
+		frame 1							call overrideLegs
+		frame 1							disableWalkIK
+		frame 80						enableWalkIK
+	}
+	
+	anim death_getup_pose			models/md5/monsters/zfat/death1_pose.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							call overrideLegs
+	}
+		
+	anim death1pose					models/md5/monsters/zfat/death1_pose.md5anim {
+		ai_no_turn
+		frame 1							disableWalkIK
+		frame 1							call overrideLegs
+	}
+
+	anim barrel_idle				models/md5/monsters/zfat/barrel_Idle.md5anim
+	anim barrel_throw				models/md5/monsters/zfat/barrel_Throw.md5anim {
+		frame 1							sound_voice snd_sight1	
+		frame 17						event throwMoveable
+	}
+}
+
+entityDef monster_zombie_fat {
+	"inherit"						"zombie_default"
+	"scriptobject"					"monster_zombie"
+	"size"							"48 48 68"
+	"use_aas"						"aas48"
+	"team"							"1"
+	"rank"							"0"
+	"health"						"100"
+	"melee_range"					"32"
+	"walk_on_sight"					"1"
+	"mass"							"200"
+	
+	"blockedRadius"					"10"
+	"blockedMoveTime"				"1200"
+	"blockedAttackTime"				"1200"
+
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_waist"						"Body2"
+	"ik_foot1"						"Ltoe_r"
+	"ik_foot2"						"Rtoe_r"
+	"ik_ankle1"						"Lankle_r"
+	"ik_ankle2"						"Rankle_r"
+	"ik_knee1"						"Lloleg"
+	"ik_knee2"						"Rloleg"
+	"ik_hip1"						"Lupleg"
+	"ik_hip2"						"Rupleg"
+	"ik_dir1"						"Lknee"
+	"ik_dir2"						"Rknee"
+
+	"model"							"monster_zombie_fat"
+	"ragdoll"						"monster_zombie_fat"
+	"skin"							"skins/monsters/zombies/zfat.skin"
+
+	"damage_zone head"				"*loneck"
+	"damage_zone chest"				"*waist -*Rshldr -*Lshldr -*loneck"
+	"damage_zone left_arm"			"*Lshldr"
+	"damage_zone right_arm"			"*Rshldr"
+	"damage_zone legs"				"*Hips origin Body Body2"
+
+	"damage_scale head"				"2"
+	
+	"dropGibItem9Joint"				"head"
+
+	"snd_sight1"					"monster_zombie_fat_sight1"
+	"snd_sight2"					"monster_zombie_fat_sight2"
+	"snd_sight3"					"monster_zombie_fat_sight3"
+	"snd_sight4"					"monster_zombie_fat_sight4"
+	"snd_sight5"					"monster_zombie_fat_sight5"
+	"snd_sight6"					"monster_zombie_fat_sight6"
+	"snd_sight7"					"monster_zombie_fat_sight7"
+	"snd_swipe"						"monster_zombie_fat_swipe"
+	"snd_wrench"					"monster_zombie_fat_wrench"
+	
+	"snd_footstep"					"monster_zombie_fat_footstep"
+	"snd_chatter"					"monster_zombie_fat_chatter"
+	"snd_chatter_combat"			"monster_zombie_fat_chatter_combat"
+	"snd_pain"						"monster_zombie_fat_pain"
+	"snd_melee_attack_1"			"monster_zombie_fat_attackmelee_1"
+	"snd_melee_attack_2"			"monster_zombie_fat_attackmelee_2"
+	"snd_melee_attack_3"			"monster_zombie_fat_attackmelee_3"
+	"snd_thud"						"monster_zombie_fat_thud"
+	"snd_bounce"					"ragdoll_impact"
+
+	"skin_dropGib"					"skins/monsters/zombies/zfatgib.skin"
+}
+
+
+entityDef monster_zombie_fat2 {
+	"inherit"						"monster_zombie_fat"
+	"skin"							"skins/monsters/zombies/zfat2.skin"
+	"skin_dropGib"					"skins/monsters/zombies/zfatgib2.skin"
+}
+
+/***********************************************************************
+
+monster_zombie_fat_wrench
+
+***********************************************************************/
+
+model monster_zombie_fat_wrench {
+	inherit							monster_zombie_fat
+	
+	anim idle						models/md5/monsters/zfat/pipeidle.md5anim
+	anim sight						models/md5/monsters/zfat/pipesight.md5anim
+	anim walk						models/md5/monsters/zfat/pipewalk4.md5anim {
+		frame 7							rightfoot
+		frame 26						leftfoot
+	}
+	anim walk2						models/md5/monsters/zfat/pipewalk4.md5anim {
+		frame 7							rightfoot
+		frame 26						leftfoot
+	}
+	anim walk3						models/md5/monsters/zfat/pipewalk4.md5anim {
+		frame 7							rightfoot
+		frame 26						leftfoot
+	}
+	anim walk4						models/md5/monsters/zfat/pipewalk4.md5anim {
+		frame 7							rightfoot
+		frame 26						leftfoot
+	}
+	anim melee_attack1				models/md5/monsters/zfat/pipeattack1.md5anim {
+		frame 8							melee melee_zombie_fat_right_wrench
+	}
+	anim melee_attack2				models/md5/monsters/zfat/pipeattack1.md5anim {
+		frame 8							melee melee_zombie_fat_right_wrench
+	}
+	anim melee_attack3				models/md5/monsters/zfat/pipeattack1.md5anim {
+		frame 8							melee melee_zombie_fat_right_wrench
+	}
+	anim melee_attack4				models/md5/monsters/zfat/pipeattack1.md5anim {
+		frame 8							melee melee_zombie_fat_right_wrench
+	}
+}
+
+entityDef monster_zombie_fat_wrench {
+	"inherit"						"monster_zombie_fat"
+	"model"							"monster_zombie_fat_wrench"
+	"skin"							"skins/monsters/zombies/zfatwrench.skin"
+
+	"def_dropDeathItem"				"moveable_wrench"
+	"dropDeathItemJoint"			"pipe"
+	"skin_dropDeath"				"skins/monsters/zombies/zfat2.skin"
+}
+
+
+entityDef melee_zombie_fat_Left {
+	// melee specific parameters
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+	"kickDir"						"0 -1 0"
+
+	// damage parameters			
+	"damage"						"20"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"55"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_fat_Left2 {
+	// melee specific parameters
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+	"kickDir"						"0 -1 0"
+
+	// damage parameters			
+	"damage"						"20"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"600"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"40"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_fat_Right {
+	"snd_hit"			"fist_impact"
+	"snd_miss"			"fist_whoosh"	
+	"kickDir"						"0 1 0"
+
+	"damage"						"20"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"45"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_zombie_fat_right_wrench {
+	"snd_hit"			"monster_zombie_fat_wrench"
+	"snd_miss"			"fist_whoosh"	
+	"kickDir"						"0 1 0"
+
+	"damage"						"20"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"600"
+	"blob_x"						"-140"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"45"
+
+	"kick_time"						"350"
+	"kick_amplitude"				"1.1"
+
+	"dv_time"						"100"
+}
+
+/***********************************************************************
+
+monster_zombie_fat_eating
+
+***********************************************************************/
+
+model monster_zombie_fat_eating {
+	mesh							models/md5/monsters/zfat/influence_zfat.md5mesh
+	anim eating_arm					models/md5/monsters/zfat/influence_eating_arm.md5anim
+}
+
+entityDef monster_zombie_fat_eating {
+	"inherit"					"cin_base"
+	"model"						"monster_zombie_fat_eating"
+	"anim"						"eating_arm"
+}

@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -134,6 +135,11 @@ idBufferObject::idBufferObject()
 	vmaAllocation = NULL;
 #endif
 
+#elif defined( USE_NVRHI )
+	bufferHandle.Reset();
+	inputLayout.Reset();
+	buffer = NULL;
+
 #else
 	apiObject = NULL;
 	buffer = NULL;
@@ -173,7 +179,7 @@ void idVertexBuffer::Reference( const idVertexBuffer& other )
 	size = other.GetSize();					// this strips the MAPPED_FLAG
 	offsetInOtherBuffer = other.GetOffset();	// this strips the OWNS_BUFFER_FLAG
 	usage = other.usage;
-	apiObject = other.apiObject;
+	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
 #endif
@@ -197,7 +203,7 @@ void idVertexBuffer::Reference( const idVertexBuffer& other, int refOffset, int 
 	size = refSize;
 	offsetInOtherBuffer = other.GetOffset() + refOffset;
 	usage = other.usage;
-	apiObject = other.apiObject;
+	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
 #endif
@@ -237,7 +243,7 @@ void idIndexBuffer::Reference( const idIndexBuffer& other )
 	size = other.GetSize();					// this strips the MAPPED_FLAG
 	offsetInOtherBuffer = other.GetOffset();	// this strips the OWNS_BUFFER_FLAG
 	usage = other.usage;
-	apiObject = other.apiObject;
+	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
 #endif
@@ -261,7 +267,7 @@ void idIndexBuffer::Reference( const idIndexBuffer& other, int refOffset, int re
 	size = refSize;
 	offsetInOtherBuffer = other.GetOffset() + refOffset;
 	usage = other.usage;
-	apiObject = other.apiObject;
+	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
 #endif
@@ -301,7 +307,7 @@ void idUniformBuffer::Reference( const idUniformBuffer& other )
 	size = other.GetSize();					// this strips the MAPPED_FLAG
 	offsetInOtherBuffer = other.GetOffset();	// this strips the OWNS_BUFFER_FLAG
 	usage = other.usage;
-	apiObject = other.apiObject;
+	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
 #endif
@@ -325,7 +331,7 @@ void idUniformBuffer::Reference( const idUniformBuffer& other, int refOffset, in
 	size = refSize;
 	offsetInOtherBuffer = other.GetOffset() + refOffset;
 	usage = other.usage;
-	apiObject = other.apiObject;
+	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
 #endif

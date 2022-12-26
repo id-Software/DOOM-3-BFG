@@ -1,0 +1,736 @@
+export seneca {
+
+	options -prefix hellholebricks1_ -sourcedir models/mapobjects/hellhole/ -destdir models/md5/cinematics/hellhole/
+	mesh	hellhole_coffinbricks.mb -range 78 78
+	anim	hellhole_coffinbricks.mb
+
+	options -prefix ENV_ 
+	mesh maps/fred/cyberdemon/cyberdeath.mb -dest models/md5/cinematics/hellhole/cyberdeath_rocks
+	anim maps/fred/cyberdemon/cyberdeath.mb -range 549 800 -dest models/md5/cinematics/hellhole/cyberdeath_rocks
+
+}
+
+export fred {
+
+	options -prefix LS_
+	mesh	maps/fred/hell/hellsteps.mb -dest models/md5/cinematics/hell1/lstep
+	anim	maps/fred/hell/hellsteps.mb -dest models/md5/cinematics/hell1/lstep
+	anim	maps/fred/hell/hellsteps.mb -range 50 50 -dest models/md5/cinematics/hell1/lstepbind
+
+	options -prefix RS_
+	mesh	maps/fred/hell/hellsteps.mb -dest models/md5/cinematics/hell1/rstep
+	anim	maps/fred/hell/hellsteps.mb -dest models/md5/cinematics/hell1/rstep
+	anim	maps/fred/hell/hellsteps.mb -range 50 50 -dest models/md5/cinematics/hell1/rstepbind
+	
+	options -prefix ENV_
+	mesh	maps/fred/cyberdemon/cyberintro.mb -range 765 765  -dest models/md5/cinematics/hellhole/cyberrocks
+	anim	maps/fred/cyberdemon/cyberintro.mb -range 29 29 -dest models/md5/cinematics/hellhole/cyberrocks1
+	anim	maps/fred/cyberdemon/cyberintro.mb -range 30 745 -dest models/md5/cinematics/hellhole/cyberrocks2
+	anim	maps/fred/cyberdemon/cyberintro.mb -range 746 765 -dest models/md5/cinematics/hellhole/cyberrocks3
+
+	options -prefix SOUL_ -keep neworig guilight toplftnub toprtnub midnub botlftnub botrtnub -rename origin blah -rename neworig origin
+	mesh	maps/fred/cyberdemon/cyberdeath.mb -dest models/md5/cinematics/hellhole/cyberdeath_soulcube
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 44 89 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube1
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 90 199 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube2
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 200 220 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube3
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 221 275 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube4 -prefix SOUL2_
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 276 340 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube5 -prefix SOUL2_
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 341 372 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube6 -prefix SOUL2_
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 373 399 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube7 -prefix SOUL2_
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 400 428 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube8
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 429 548 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube9
+	anim	maps/fred/cyberdemon/cyberdeath.mb -range 549 800 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube10
+
+
+	//anim	maps/fred/cyberdemon/cyberdeath.mb -range 400 608 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube3
+	//anim	maps/fred/cyberdemon/cyberdeath.mb -range 221 399 -dest models/md5/cinematics/hellhole/cyberdeath_soulcube2 -prefix SOUL2_
+
+
+
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 30 104 -dest models/md5/cinematics/hellhole/cybercam_a
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 105 220 -dest models/md5/cinematics/hellhole/cybercam_b
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 221 252 -dest models/md5/cinematics/hellhole/cybercam_c
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 253 337 -dest models/md5/cinematics/hellhole/cybercam_d
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 338 492 -dest models/md5/cinematics/hellhole/cybercam_e
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 493 542 -dest models/md5/cinematics/hellhole/cybercam_f
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 543 654 -dest models/md5/cinematics/hellhole/cybercam_g
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 655 732 -dest models/md5/cinematics/hellhole/cybercam_h
+	camera 	maps/fred/cyberdemon/cyberintro.mb -range 733 765 -dest models/md5/cinematics/hellhole/cybercam_i
+
+//	camera	maps/fred/cyberdemon/cyberdeath.mb -dest models/md5/cinematics/hellhole/cyberdeath_camera
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 44 89 -dest models/md5/cinematics/hellhole/cyberdeath_camera_a
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 90 199 -dest models/md5/cinematics/hellhole/cyberdeath_camera_b
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 200 220 -dest models/md5/cinematics/hellhole/cyberdeath_camera_c
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 221 275 -dest models/md5/cinematics/hellhole/cyberdeath_camera_d
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 276 340 -dest models/md5/cinematics/hellhole/cyberdeath_camera_e
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 341 372 -dest models/md5/cinematics/hellhole/cyberdeath_camera_f
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 373 428 -dest models/md5/cinematics/hellhole/cyberdeath_camera_g
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 429 548 -dest models/md5/cinematics/hellhole/cyberdeath_camera_h
+	camera	maps/fred/cyberdemon/cyberdeath.mb -range 549 800 -dest models/md5/cinematics/hellhole/cyberdeath_camera_i
+
+	camera	maps/fred/cyberdemon/bodyshot1.mb -dest models/md5/cinematics/hellhole/rescue_bodyshot_camera
+	camera	maps/fred/cyberdemon/rescue1.mb -dest models/md5/cinematics/hellhole/rescue_camera
+	camera	maps/fred/cyberdemon/swanndead.mb -dest models/md5/cinematics/hellhole/rescue_swanndead_camera
+	camera	maps/fred/cyberdemon/rescue2.mb -dest models/md5/cinematics/hellhole/rescue_camera2
+}
+
+
+model hellhole_cyberdeathrocks {
+	mesh							models/md5/cinematics/hellhole/cyberdeath_rocks.md5mesh
+	anim open						models/md5/cinematics/hellhole/cyberdeath_rocks.md5anim {
+		// the huge lava fire  549
+		frame 1					trigger	soulcubefire		
+		// rocksmoke ON			
+		frame 27				trigger rocksmoke1
+		frame 52				trigger rocksmoke3
+		frame 63				trigger rocksmoke2
+		// rocksmoke OFF
+		frame 49				trigger rocksmoke1
+		frame 71				trigger rocksmoke3
+		frame 82				trigger rocksmoke2
+		// ROCKS HITTING THE GROUND
+		frame 39				trigger rock1explode
+        frame 75				trigger rock2explode
+		// turn the huge lava fire off
+		frame 103				trigger	soulcubefire
+		// fade  the lava out
+		frame 120				call "map_hellhole::fade_lava"
+		// turn off the room's particles
+		frame 90				trigger func_emitter_1
+		frame 90				trigger func_emitter_2
+		frame 90				trigger func_emitter_3
+		frame 90				trigger func_emitter_4
+		frame 90				trigger func_emitter_5
+	}
+}
+
+entityDef hellhole_cyberdeathrocks {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"hellhole_cyberdeathrocks"
+	"cinematic"						"1"
+}
+
+
+model hellhole_coffinbricks {
+	mesh							models/md5/cinematics/hellhole/hellhole_coffinbricks.md5mesh
+	anim open						models/md5/cinematics/hellhole/hellhole_coffinbricks.md5anim
+		{
+			frame 1						trigger	hellhole_dust1
+			frame 1						sound_voice2 hh_rockslide_01
+			frame 10					trigger	hellhole_dust2
+			frame 11					trigger	hellhole_dust3
+			frame 18					trigger	hellhole_dust4
+			frame 36					trigger	hellhole_dust5
+			frame 40					trigger hellhole_coffinclip
+			frame 54					trigger	hellhole_dust6
+		}
+}
+
+entityDef hellhole_coffinbricks {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"hellhole_coffinbricks"
+	"cinematic"						"1"
+}
+
+
+// CYBERDEMON INTRO
+
+
+entityDef hellhole_cam {
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+
+	
+	"spawnclass"				"idCameraAnim"
+	"cinematic"						"1"
+
+	//"anim cyberintro"			"models/md5/cinematics/hellhole/cybercam.md5camera"
+	"anim cyberintro_a"			"models/md5/cinematics/hellhole/cybercam_a.md5camera"
+	"anim cyberintro_b"			"models/md5/cinematics/hellhole/cybercam_b.md5camera"
+	"anim cyberintro_c"			"models/md5/cinematics/hellhole/cybercam_c.md5camera"
+	"anim cyberintro_d"			"models/md5/cinematics/hellhole/cybercam_d.md5camera"
+	"anim cyberintro_e"			"models/md5/cinematics/hellhole/cybercam_e.md5camera"
+	"anim cyberintro_f"			"models/md5/cinematics/hellhole/cybercam_f.md5camera"
+	"anim cyberintro_g"			"models/md5/cinematics/hellhole/cybercam_g.md5camera"
+	"anim cyberintro_h"			"models/md5/cinematics/hellhole/cybercam_h.md5camera"
+	"anim cyberintro_i"			"models/md5/cinematics/hellhole/cybercam_i.md5camera"
+
+	"anim cyberdeath_a"			"models/md5/cinematics/hellhole/cyberdeath_camera_a.md5camera"
+	"anim cyberdeath_b"			"models/md5/cinematics/hellhole/cyberdeath_camera_b.md5camera"
+	"anim cyberdeath_c"			"models/md5/cinematics/hellhole/cyberdeath_camera_c.md5camera"
+	"anim cyberdeath_d"			"models/md5/cinematics/hellhole/cyberdeath_camera_d.md5camera"
+	"anim cyberdeath_e"			"models/md5/cinematics/hellhole/cyberdeath_camera_e.md5camera"
+	"anim cyberdeath_f"			"models/md5/cinematics/hellhole/cyberdeath_camera_f.md5camera"
+	"anim cyberdeath_g"			"models/md5/cinematics/hellhole/cyberdeath_camera_g.md5camera"
+	"anim cyberdeath_h"			"models/md5/cinematics/hellhole/cyberdeath_camera_h.md5camera"
+	"anim cyberdeath_i"			"models/md5/cinematics/hellhole/cyberdeath_camera_i.md5camera"
+}
+
+model hellhole_cyberbricks {
+	mesh							models/md5/cinematics/hellhole/cyberrocks.md5mesh
+	anim cyberintro1				models/md5/cinematics/hellhole/cyberrocks1.md5anim
+	// {
+	//	frame 21					trigger func_emitter_67
+	//}
+	anim cyberintro2				models/md5/cinematics/hellhole/cyberrocks2.md5anim  {
+		frame 24					trigger func_emitter_67
+	}
+
+	anim cyberintro3				models/md5/cinematics/hellhole/cyberrocks3.md5anim
+}
+
+entityDef hellhole_cyberbricks {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"hellhole_cyberbricks"
+	"anim"							"cyberintro1"
+	"auto_advance"					"0"
+	"num_anims"						"3"
+	"anim1"							"cyberintro1"
+	"anim2"							"cyberintro2"
+	"anim3"							"cyberintro3"
+	"cinematic"						"1"
+
+}
+
+model hellhole_cin_player {
+	mesh						models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin						skins/player/shotgun.skin
+
+	anim cyberintro_a				models/md5/cinematics/hellhole/cyberintro_player1.md5anim
+	anim cyberintro_b				models/md5/cinematics/hellhole/cyberintro_player2.md5anim
+	anim cyberintro_c				models/md5/cinematics/hellhole/cyberintro_player3.md5anim
+	anim cyberintro_d				models/md5/cinematics/hellhole/cyberintro_player4.md5anim
+	anim cyberintro_e				models/md5/cinematics/hellhole/cyberintro_player5.md5anim 
+	anim cyberintro_f				models/md5/cinematics/hellhole/cyberintro_player6.md5anim
+	anim cyberintro_g				models/md5/cinematics/hellhole/cyberintro_player7.md5anim
+	anim cyberintro_h				models/md5/cinematics/hellhole/cyberintro_player8.md5anim {
+		frame 60					trigger hellhole_cyberbricks_1
+	}
+	anim cyberintro_i				models/md5/cinematics/hellhole/cyberintro_player9.md5anim
+
+}
+
+entityDef hellhole_cin_player {
+	"inherit"					"cin_base"
+	"anim"						"cyberintro"
+	"model"						"hellhole_cin_player"
+	"cinematic"						"1"
+
+	"auto_advance"					"1"
+	"num_anims"						"8"
+	"anim1"							"cyberintro_a"
+	"anim2"							"cyberintro_b"
+	"anim3"							"cyberintro_c"
+	"anim4"							"cyberintro_d" 
+	"anim5"							"cyberintro_e"
+	//"anim6"							"cyberintro_f"
+	"anim6"							"cyberintro_g" 
+	"anim7"							"cyberintro_h" 
+	"anim8"							"cyberintro_i" 
+
+}
+
+model hellhole_cin_player2 {
+	mesh						models/md5/characters/player/mocap/wepplayer.md5mesh
+	skin						skins/player/shotgun.skin
+
+	anim cyberdeath_a				models/md5/cinematics/hellhole/cyberdeath_player_a.md5anim 
+	anim cyberdeath_b				models/md5/cinematics/hellhole/cyberdeath_player_b.md5anim
+	anim cyberdeath_c				models/md5/cinematics/hellhole/cyberdeath_player_c.md5anim {
+		frame 1 					trigger func_static_52874
+	}
+	anim cyberdeath_d				models/md5/cinematics/hellhole/cyberdeath_player_d.md5anim
+	anim cyberdeath_e				models/md5/cinematics/hellhole/cyberdeath_player_e.md5anim
+	anim cyberdeath_f				models/md5/cinematics/hellhole/cyberdeath_player_f.md5anim
+	anim cyberdeath_g				models/md5/cinematics/hellhole/cyberdeath_player_g.md5anim
+	anim cyberdeath_h				models/md5/cinematics/hellhole/cyberdeath_player_h.md5anim
+	anim cyberdeath_i				models/md5/cinematics/hellhole/cyberdeath_player_i.md5anim
+}
+
+entityDef hellhole_cin_player2 {
+	"inherit"					"cin_base"
+	"anim"						"cyberdeath"
+	"model"						"hellhole_cin_player2"
+	"cinematic"						"1"
+
+	"auto_advance"					"1"
+	"num_anims"						"9"
+	"anim1"							"cyberdeath_a"
+	"anim2"							"cyberdeath_b"
+	"anim3"							"cyberdeath_c"
+	"anim4"							"cyberdeath_d" 
+	"anim5"							"cyberdeath_e"
+	"anim6"							"cyberdeath_f"
+	"anim7"							"cyberdeath_g" 
+	"anim8"							"cyberdeath_h" 
+	"anim9"							"cyberdeath_i" 
+
+
+}
+
+model hellhole_cin_player3 {
+	mesh						models/md5/characters/player/mocap/player.md5mesh
+	skin						skins/player/noweapon.skin
+
+	anim rescue					models/md5/cinematics/hellhole/rescue_player.md5anim
+
+}
+
+entityDef hellhole_cin_player3 {
+	"inherit"					"cin_base"
+	"model"						"hellhole_cin_player3"
+	"cinematic"						"1"
+
+	"anim"						"rescue" 
+
+}
+
+model hellhole_cin_marine {
+	inherit							npc_marine
+
+	anim rescue1 			models/md5/cinematics/hellhole/rescue_marine1.md5anim 
+	anim rescue2			models/md5/cinematics/hellhole/rescue_marine2.md5anim
+	anim rescue2b			models/md5/cinematics/hellhole/rescue_marine2b.md5anim 
+}
+
+entityDef hellhole_cin_marine {
+	"inherit"					"npc_base"
+	"size"						""
+
+	"copy_joint_world eyecontrol"	""
+
+	"model"						"hellhole_cin_marine"
+	"anim"						"rescue1"
+	"def_head"					"head_marine_helmet"
+	"head_joint"				"Shoulders"
+	"cinematic"						"1"
+	"ragdoll"						""
+	"ik_numlegs"					"0"
+}
+
+model hellhole_cin_npcplayerhead {
+	mesh							models/md5/heads/player/player.md5mesh
+	channel eyelids					( Ruplid Rlolid Luplid Llolid )
+
+	anim blink						models/md5/heads/player/blink.md5anim
+	anim rescue1b					models/md5/heads/player/rescue1b.md5anim
+}
+
+
+model hellhole_cin_npcplayer {
+	inherit						npc_player
+
+	anim rescue1b 				models/md5/cinematics/hellhole/rescue_marine1b.md5anim
+}
+
+entityDef hellhole_cin_npcplayer {
+	"inherit"					"npc_base"
+	"size"						""
+
+	"model"						"hellhole_cin_npcplayer"
+	"anim"						"rescue1b"
+	"def_head"					"hellhole_cin_npcplayerhead"
+	"head_joint"				"Shoulders"
+	"cinematic"						"1"
+}
+
+entityDef hellhole_rescue_cam {
+	"editor_color"				"1 .5 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+
+	
+	"spawnclass"				"idCameraAnim"
+	"cinematic"						"1"
+
+	"anim bodyshot"				"models/md5/cinematics/hellhole/rescue_bodyshot_camera.md5camera"
+	"anim rescue"				"models/md5/cinematics/hellhole/rescue_camera.md5camera"
+	"anim swann"				"models/md5/cinematics/hellhole/rescue_swanndead_camera.md5camera"
+	"anim rescueb"				"models/md5/cinematics/hellhole/rescue_camera2.md5camera"
+}
+
+
+model hellhole_cin_cyberdemon {
+	mesh							models/md5/monsters/cyberdemon/cyberdemon.md5mesh
+
+	channel torso						(  )
+	channel legs						( *origin )
+	
+	anim stand						models/md5/cinematics/hellhole/cyberintro_cyberdemon1.md5anim
+	
+	anim idle						models/md5/cinematics/hellhole/cyberintro_cyberdemon1.md5anim
+
+	anim cyberintro_a					models/md5/cinematics/hellhole/cyberintro_cyberdemon1.md5anim 
+	anim cyberintro_b					models/md5/cinematics/hellhole/cyberintro_cyberdemon2.md5anim
+	anim cyberintro_c					models/md5/cinematics/hellhole/cyberintro_cyberdemon3.md5anim
+	anim cyberintro_d					models/md5/cinematics/hellhole/cyberintro_cyberdemon4.md5anim 
+	anim cyberintro_e					models/md5/cinematics/hellhole/cyberintro_cyberdemon5.md5anim
+	anim cyberintro_f					models/md5/cinematics/hellhole/cyberintro_cyberdemon6.md5anim
+	anim cyberintro_g					models/md5/cinematics/hellhole/cyberintro_cyberdemon7.md5anim
+	anim cyberintro_h					models/md5/cinematics/hellhole/cyberintro_cyberdemon8.md5anim
+	anim cyberintro_i					models/md5/cinematics/hellhole/cyberintro_cyberdemon9.md5anim
+
+
+}
+
+entityDef hellhole_cin_cyberdemon {
+	"inherit"					"monster_boss_cyberdemon"
+	"anim"						"cyberintro_a"
+	"model"						"hellhole_cin_cyberdemon"
+	"team"						"0"
+	"ik_numLegs"				"0"
+	"head_look"					"0"
+	"turn_rate"					"0"
+	"cinematic"						"1"
+	"ragdoll"					""
+
+	"num_cinematics"				"8"
+	"anim1"							"cyberintro_a"
+	"anim2"							"cyberintro_b"
+	"anim3"							"cyberintro_c"
+	"anim4"							"cyberintro_d"
+	"anim5"							"cyberintro_e"
+	//"anim6"							"cyberintro_f"
+	"anim6"							"cyberintro_g"
+	"anim7"							"cyberintro_h"
+	"anim8"							"cyberintro_i"
+}
+
+model hellhole_cin_cyberdemon2 {
+	mesh							models/md5/cinematics/hellhole/cyberdeath_cyberdemon.md5mesh
+
+	channel torso						(  )
+	channel legs						( *origin )
+	
+	anim stand						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	
+	anim idle						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+
+	anim bind							models/md5/cinematics/hellhole/cyberdeath_cyberdemon_bind.md5anim
+	anim cyberdeath_a					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim {
+		frame 1							sound_global hh_music_cyberdeath
+		frame 1							sound_global hh_sfx_cyberdeath
+		//frame 1							sound_global cyberdemon_death_music
+		//frame 1							sound_global cyberdemon_death_sfx
+		frame 33						trigger func_smoke_1
+	}
+	anim cyberdeath_b					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_b.md5anim
+	anim cyberdeath_c					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_c.md5anim
+	anim cyberdeath_d					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_d.md5anim {
+		frame 1							trigger func_smoke_2
+	}
+	anim cyberdeath_e					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_e.md5anim {
+		frame 8								trigger func_emitter_106
+		frame 12							trigger func_smoke_2
+		frame 12							trigger func_smoke_1
+	}
+	anim cyberdeath_f					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_f.md5anim
+	anim cyberdeath_g					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_g.md5anim
+	anim cyberdeath_h					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_h.md5anim
+	anim cyberdeath_i					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_i.md5anim {
+		frame 226						trigger startrescue
+	}
+
+	anim af_pose					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim ik_pose					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+
+	anim sight1						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim sight2						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim sight3						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim walk						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim pain						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim pain_chest					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim 
+	anim pain_head					models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim 
+	anim pain_left_arm				models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim 
+	anim pain_right_arm				models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim 
+	anim melee_attack1				models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim 
+	anim melee_attack2				models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+	anim range_attack				models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+ 
+	anim death						models/md5/cinematics/hellhole/cyberdeath_cyberdemon_a.md5anim
+
+
+}
+
+entityDef hellhole_cin_cyberdemon2 {
+	//"inherit"					"cin_base"
+	"inherit"					"monster_boss_cyberdemon"
+	"anim"						"cyberdeath_a"
+	"model"						"hellhole_cin_cyberdemon2"
+	"team"						"0"
+	"ik_numLegs"				"0"
+	"turn_rate"					"0"
+	"head_look"					"0"
+	"head_focus_rate"				"0"
+	"bone_focus"					"Barrel"
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+	"look_joint Waist"				"0 0 0"
+	"look_joint Chest"				"0 0 0"
+	"look_joint Head"				"0 0 0"
+	"size"							""
+	"cinematic"						"1"
+	"ragdoll"					""
+
+	"num_cinematics"				"9"
+	"anim1"							"cyberdeath_a"
+	"anim2"							"cyberdeath_b"
+	"anim3"							"cyberdeath_c"
+	"anim4"							"cyberdeath_d"
+	"anim5"							"cyberdeath_e"
+	"anim6"							"cyberdeath_f"
+	"anim7"							"cyberdeath_g"
+	"anim8"							"cyberdeath_h"
+	"anim9"							"cyberdeath_i"
+
+}
+
+
+model hellhole_soulcube {
+	mesh							models/md5/cinematics/hellhole/cyberdeath_soulcube.md5mesh
+	anim cyberdeath_a				models/md5/cinematics/hellhole/cyberdeath_soulcube1.md5anim {
+		frame 1						trigger soulsmoke
+
+	}
+	anim cyberdeath_b				models/md5/cinematics/hellhole/cyberdeath_soulcube2.md5anim
+	anim cyberdeath_c				models/md5/cinematics/hellhole/cyberdeath_soulcube3.md5anim {
+		frame 1						trigger soulsmoke
+	}
+
+	anim cyberdeath_d				models/md5/cinematics/hellhole/cyberdeath_soulcube4.md5anim
+	anim cyberdeath_e				models/md5/cinematics/hellhole/cyberdeath_soulcube5.md5anim
+	anim cyberdeath_f				models/md5/cinematics/hellhole/cyberdeath_soulcube6.md5anim 
+	anim cyberdeath_g				models/md5/cinematics/hellhole/cyberdeath_soulcube7.md5anim {
+		frame 15						trigger soulsmoke
+	}
+	anim cyberdeath_h				models/md5/cinematics/hellhole/cyberdeath_soulcube8.md5anim
+	anim cyberdeath_i				models/md5/cinematics/hellhole/cyberdeath_soulcube9.md5anim
+	anim cyberdeath_j				models/md5/cinematics/hellhole/cyberdeath_soulcube10.md5anim {
+		frame 20						trigger soulsmoke
+	}
+
+
+
+}
+
+entityDef hellhole_soulcube {
+	"inherit"						"cin_base"
+	"editor_mins"					"-32 -32 0"
+	"editor_maxs"					"32 32 64"
+	"model"							"hellhole_soulcube"
+	"cinematic"						"1"
+
+	"auto_advance"					"1"
+	"num_anims"						"10"
+	"anim1"							"cyberdeath_a"
+	"anim2"							"cyberdeath_b"
+	"anim3"							"cyberdeath_c"
+	"anim4"							"cyberdeath_d"
+	"anim5"							"cyberdeath_e"
+	"anim6"							"cyberdeath_f"
+	"anim7"							"cyberdeath_g"
+	"anim8"							"cyberdeath_h"
+	"anim9"							"cyberdeath_i"
+	"anim10"						"cyberdeath_j"
+}
+
+model hellhole_swann_head {
+	skin 							skins/characters/npcs/swannbloody.skin
+	mesh							models/md5/heads/swann/swann.md5mesh
+
+	anim dead						models/md5/heads/swann/swanndead.md5anim 
+}
+
+model hellhole_swann {
+	mesh							models/md5/chars/suit.md5mesh
+	channel torso					( *origin )
+
+	skin							skins/characters/npcs/bloodysuit.skin
+	anim af_pose					models/md5/chars/af_pose.md5anim
+	anim stand						models/md5/cinematics/delta5/swann_idle.md5anim
+	anim idle						models/md5/cinematics/delta5/swann_idle.md5anim
+	anim dead						models/md5/cinematics/hellhole/rescue_swanndead.md5anim
+}
+
+entityDef hellhole_swann {
+	"inherit"						"character_default"
+	"scriptobject"					"character"
+	"model"							"hellhole_swann"
+	"anim"							"idle"
+	"size"							"64 20 32"
+	"use_aas"						""
+	"turn_rate"						"0"
+	"eye_height"					"28"
+
+	"talktrigger"					"1"
+	"no_cower"						"1"
+	"talk_no_turn"					"1"
+
+	"bone_focus"					"headcontrol"
+	"bone_orientation"				"Body"
+	"bone_leftEye"					"Leyeaim"
+	"bone_rightEye"					"Reyeaim"
+
+	"eye_turn_min"					"-20 -30 0"
+	"eye_turn_max"					"20 30 0"
+	"eye_verticle_offset"			"5"
+	"eye_horizontal_offset"			"-0"
+	"eye_focus_rate"				"0.5"
+	"head_focus_rate"				"0"
+	"head_look"						"0"
+
+	"look_min"						"0 0 0"
+	"look_max"						"0 0 0"
+	"look_joint headcontrol"		"0 0 0"
+
+	"copy_joint neckcontrol"		"neckcontrol"
+	"copy_joint headcontrol"		"headcontrol"
+	"copy_joint_world eyecontrol"	"eyecontrol"
+
+	"def_head"						"hellhole_swann_head"
+	"head_joint"					"Shoulders"
+	
+	"ragdoll"						"char_wounded_marine"
+
+	"damage_zone chest"				"*Waist -*loneckcontrol"
+	"damage_zone left_arm"			"*Luparm"
+	"damage_zone right_arm"			"*Ruparm"
+	"damage_zone legs"				"origin Body2"
+	"cinematic"						"1"
+}
+
+model hellhole_imp {
+	inherit						monster_demon_imp
+
+	anim cybercrawl				models/md5/monsters/imp/impcyberwakeup.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 40					enableGravity
+		frame 40					enableWalkIK
+	}
+}
+
+entityDef hellhole_imp {
+	"inherit"					"monster_demon_imp"
+	"model"						"hellhole_imp"
+	"anim"						"cybercrawl"
+}
+
+model hellhole_maggot {
+	inherit						monster_demon_maggot
+
+	anim cybercrawl				models/md5/monsters/maggot3/magcyberwakeup.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 40					enableGravity
+		frame 40					enableWalkIK
+	}
+}
+
+entityDef hellhole_maggot {
+	"inherit"					"monster_demon_maggot"
+	"model"						"hellhole_maggot"
+	"anim"						"cybercrawl"
+}
+
+model hellhole_pdamarine {
+	inherit							npc_base
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim pdamarine					models/md5/cinematics/hellhole/rescue_pdamarine.md5anim
+
+
+}
+
+entityDef hellhole_pdamarine {
+	"inherit"					"npc_base"
+	"model"						"hellhole_pdamarine"
+	"anim"						"pdamarine"
+	"def_attach"				"prop_pda"
+	"def_head"					"head_marine_helmet"
+	"head_joint"				"Shoulders"
+	"cinematic"						"1"
+	"copy_joint_world eyecontrol"	""
+}
+
+model hellhole_lookmarine {
+	inherit							npc_base
+	mesh							models/md5/chars/marine.md5mesh
+	channel torso					( *Waist )
+	channel legs					( origin Body Body2 *Hips -*Waist SPINNER eyecontrol chair)
+
+	anim pdamarine					models/md5/cinematics/hellhole/rescue_bodylook.md5anim
+	anim talk_primary					models/md5/cinematics/hellhole/rescue_bodylook.md5anim
+
+
+}
+
+entityDef hellhole_lookmarine {
+	"inherit"					"npc_base"
+	"model"						"hellhole_lookmarine"
+	"anim"						"pdamarine"
+	"def_attach"				"prop_machinegun"
+	"def_head"					"head_marine_helmet"
+	"head_joint"				"Shoulders"
+	"cinematic"					"1"
+	"copy_joint_world eyecontrol"	""
+}
+
+model hellhole_walkmarine {
+	inherit								npc_marine_w_mgun
+
+	anim shot1							models/md5/cinematics/hellhole/hellhole_marinewalk.md5anim {
+		frame 1							event ignoreDamage
+		frame 6							sound_body player_sounds_footstep
+		frame 17						sound_body player_sounds_footstep
+		frame 31						sound_body player_sounds_footstep
+		frame 45						sound_body player_sounds_footstep
+		frame 59						sound_body player_sounds_footstep
+		frame 71						sound_body player_sounds_footstep
+		frame 85						sound_body player_sounds_footstep
+		frame 96						sound_body player_sounds_footstep
+		frame 112						sound_body player_sounds_footstep
+		frame 124						sound_body player_sounds_footstep
+		frame 136						sound_body player_sounds_footstep
+		frame 145						sound_body player_sounds_footstep
+	}
+
+}
+entityDef hellhole_walkmarine {
+	"inherit"						"npc_base"
+	"model"							"hellhole_walkmarine"
+	"sound_bone"					"Chest"	
+	"def_projectile"				"projectile_bullet_zsec_machinegun"
+	"projectile_spread"				"0"
+	"num_projectiles"				"1"
+	"smoke_weapon"					"cgsmoke.smoke"
+	"smoke_wound_metal"				"bulletricochet.prt"
+	"smoke_wound_ricochet"			"bulletricochet.prt"
+	"mtr_flashShader"				"muzzleflash"
+	"flashTime"						"0.15"
+	"flashColor"					"1 0.8 0.4"
+	"flashRadius"					"120"
+	"cinematic"						"1"
+	"gib"							"0"
+	"model_gib" 					"models/md5/chars/skeleton_w_mgun.md5mesh"
+	"mass"							"5000"
+	"copy_joint_world eyecontrol"	""
+	"ik_numlegs"					"0"
+	"ragdoll"						""
+
+	"def_head"						"head_marine_helmet"
+	"head_joint"					"Shoulders"
+}
+
+

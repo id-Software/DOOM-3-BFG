@@ -1,0 +1,302 @@
+table acceleratorflashtable { clamp { 3, 2.5, 1.5, 1, 1, 1, 1, 1, 1, .17, .17, .17, .17  } }
+table acceleratortextable { clamp { 3, 2.5, 1.5, 1, 1, 1, 1, 1, 1, .001, .001, .001, .001  } }
+
+
+//parm 3=flicker speed	parm 4=offset
+
+//**************************************************************************************************
+//	 D	E	L	T	A		1 
+//**************************************************************************************************
+
+specialcase/delta1/squarelight1
+{
+	{
+		if ( global0 == 0 )
+		map	lights/squarelight1.tga
+		colored
+		zeroclamp
+	}
+	{
+		if ( global0 != 0 )
+		map	lights/squarelight1.tga
+		red 	( Parm0 * acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		green ( Parm1 * acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		blue 	( Parm2 * acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		zeroclamp
+	}
+}
+
+specialcase/delta1/spot01
+{
+	{
+		if ( global0 == 0 )
+		map	lights/spot01.tga
+		colored
+		zeroClamp
+	}
+	{
+		if ( global0 != 0 )
+		map	lights/spot01.tga
+		red 	( Parm0 * acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		green ( Parm1 * acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		blue 	( Parm2 * acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		zeroClamp
+	}
+}
+
+
+specialcase/delta1/square_blast
+{
+	{
+		if ( global0 == 0 )
+		map		lights/squarelight1.tga
+		red 		( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm0
+		green 	( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm1
+		blue 		( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm2
+		zeroclamp
+	}
+	{
+		if ( global0 != 0 )
+		map		lights/squarelight1.tga
+		red 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm0 ) * ( acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		green 	( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm1 ) * ( acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		blue 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm2 ) * ( acceleratorflashtable[ ( time - global1 ) / 7 ] )
+		zeroclamp
+	}
+}
+
+specialcase/delta1/xiantex1
+{
+	qer_editorimage	textures/base_wall/xiantex1.tga
+	bumpmap		addnormals( models/seneca/xianroom/xiantex1_local.tga, heightmap( models/seneca/xianroom/xiantex1_bmp.tga, 12 ) )
+	{
+		blend	diffusemap
+		map	models/seneca/xianroom/xiantex1_d.tga
+		red	parm3
+		green	parm3
+		blue	parm3
+	}
+	specularmap		models/seneca/xianroom/xiantex1_s.tga
+	{
+		if ( global0 == 0 )
+		blend gl_one,gl_one
+		map models/seneca/xianroom/xiantex1_add.tga
+		rgb (.3 * sintable [.15 + time * .5 ]) +.7
+	}
+	{
+		if ( global0 != 0 )
+		blend gl_one,gl_one
+		map models/seneca/xianroom/xiantex1_add.tga
+		rgb ( (.3 * sintable [.15 + time * .5 ]) +.7 ) * ( acceleratortextable [ ( time - global1 ) / 7 ] )
+	}
+}
+
+specialcase/delta1/newlabtex2
+{
+	qer_editorimage 	textures/lab/newlabtex2.tga
+	bumpmap 		models/seneca/labtex/newlabtex2_local.tga
+	diffusemap		models/seneca/labtex/newlabtex2_d.tga
+	{
+		if ( global0 == 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/newlabtex2_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+	{
+		if ( global0 != 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/newlabtex2_add.tga
+		rgb ( (.3 * sintable [.15 + time ]) +.7 ) * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+	}
+}	
+
+specialcase/delta1/striplight_ed_noflare
+{
+	qer_editorimage	textures/base_light/striplight_ed_noflare.tga
+	{
+		blend bumpmap
+		map	textures/base_light/striplight_local.tga
+	}
+	{
+		blend diffusemap
+		map	textures/base_light/bluetex4aspec.tga
+	}
+	{
+		blend specularmap
+		map	textures/base_light/striplightspec.tga
+	}
+	{
+		if (global0 == 0 )
+		blend gl_one,gl_one
+		map textures/base_light/striplightadd.tga
+		red		Parm0
+		green		Parm1
+		blue		Parm2
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one,gl_one
+		map textures/base_light/striplightadd.tga
+		red		Parm0 * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+		green		Parm1 * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+		blue		Parm2 * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+	}
+}
+
+specialcase/delta1/labwall1d
+{
+	qer_editorimage 	textures/lab/labwall1d.tga
+	bumpmap 		models/seneca/labtex/labwall1d_local.tga
+	diffusemap		models/seneca/labtex/labwall1d_d.tga
+	{
+		if (global0 == 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1d_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1d_add.tga
+		rgb ((.3 * sintable [.15 + time ]) +.7) * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+	}
+}	
+
+specialcase/delta1/striplight2_ed
+{
+	qer_editorimage	textures/base_light/striplight2_ed.tga
+	bumpmap		textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2dif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		if (global0 == 0 )
+		blend	gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+	}
+	{
+		if (global0 != 0 )
+		blend	gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
+	}
+}
+
+specialcase/delta1/striplight2_ed_noshadow
+{
+	noshadows
+	qer_editorimage	textures/base_light/striplight2_ed_noshadow.tga
+	bumpmap		textures/base_light/striplight2_local.tga
+	diffusemap		textures/base_light/striplight2dif.tga
+	specularmap		textures/base_light/striplight2spec.tga
+	{
+		if (global0 == 0 )
+		blend	gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+	}
+	{
+		if (global0 != 0 )
+		blend	gl_one,gl_one
+		map		textures/base_light/striplight2add.tga
+		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
+	}
+}
+
+specialcase/delta1/newlabtex1a
+{
+	qer_editorimage 	textures/lab/newlabtex1a.tga
+	bumpmap 		models/seneca/labtex/newlabtex1_local.tga
+	diffusemap		models/seneca/labtex/newlabtex1a_d.tga
+	{	
+		if (global0 == 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/newlabtex1a_add.tga
+		rgb (.3 * sintable [.15 + time ]) +.7
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/newlabtex1a_add.tga
+		rgb ( (.3 * sintable [.15 + time ]) +.7 ) * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+	}
+}	
+
+specialcase/delta1/labwall1e
+{
+	qer_editorimage 	textures/lab/labwall1e.tga
+	bumpmap 		models/seneca/labtex/labwall1e_local.tga
+	diffusemap		models/seneca/labtex/labwall1e_d.tga
+	{
+		if (global0 == 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1e_add.tga
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one,gl_one
+		map models/seneca/labtex/labwall1e_add.tga
+		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
+	}
+}	
+
+specialcase/delta1/bluetex4a_ed
+{
+	qer_editorimage	textures/base_light/bluetex4a_ed.tga
+	bumpmap		textures/base_light/bluetex4a_local.tga
+	diffusemap		textures/base_light/bluetex4adif.tga
+	{
+		if (global0 == 0 )
+		blend gl_one,gl_one
+		map textures/base_light/bluetex4aadd.tga
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one,gl_one
+		map textures/base_light/bluetex4aadd.tga
+		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
+	}
+	specularmap		textures/base_light/bluetex4aspec.tga
+}
+
+specialcase/delta1/reactorlight1
+{
+	qer_editorimage	textures/base_light/reactorlight1.tga
+	bumpmap		textures/base_light/reactorlight1_local.tga
+	diffusemap		textures/base_light/reactorlight1_d.tga
+	specularmap		textures/base_light/reactorlight1_s.tga
+	{
+		if (global0 == 0 )
+		blend gl_one, gl_one
+		map textures/base_light/reactorlight1_add.tga
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one, gl_one
+		map textures/base_light/reactorlight1_add.tga
+		rgb		acceleratortextable[ ( time - global1 ) / 7 ]
+	}
+}
+
+specialcase/delta1/trimlight
+{
+	qer_editorimage textures/base_light/trimlight.tga
+
+	diffusemap	textures/base_light/trimlight_d.tga
+	specularmap	textures/base_light/trimlight_s.tga
+        bumpmap	        textures/base_light/trimlight_local.tga
+	{
+		if (global0 == 0 )
+		blend gl_one,gl_one
+		map textures/base_light/trimlight_fx.tga
+		rgb		blamptable[ time * 5 ]
+	}
+	{
+		if (global0 != 0 )
+		blend gl_one,gl_one
+		map textures/base_light/trimlight_fx.tga
+		rgb		( blamptable[ time * 5 ] ) * ( acceleratortextable[ ( time - global1 ) / 7 ] )
+	}
+}
+
+
+
+

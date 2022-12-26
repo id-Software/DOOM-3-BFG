@@ -285,17 +285,17 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 	int64 hi[MAX_LEVELS];
 
 	// Keep the top of the stack in registers to avoid load-hit-stores.
-	register int64 st_lo = 0;
-	register int64 st_hi = numDrawSurfs - 1;
-	register int64 level = 0;
+	int64 st_lo = 0;
+	int64 st_hi = numDrawSurfs - 1;
+	int64 level = 0;
 
 	for( ; ; )
 	{
-		register int64 i = st_lo;
-		register int64 j = st_hi;
+		int64 i = st_lo;
+		int64 j = st_hi;
 		if( j - i >= 4 && level < MAX_LEVELS - 1 )
 		{
-			register uint64 pivot = indices[( i + j ) / 2];
+			uint64 pivot = indices[( i + j ) / 2];
 			do
 			{
 				while( indices[i] > pivot )
@@ -330,7 +330,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 		{
 			for( ; i < j; j-- )
 			{
-				register int64 m = i;
+				int64 m = i;
 				for( int64 k = i + 1; k <= j; k++ )
 				{
 					if( indices[k] < indices[m] )
@@ -606,7 +606,8 @@ void R_RenderView( viewDef_t* parms )
 
 	// we need to set the projection matrix before doing
 	// portal-to-screen scissor calculations
-	R_SetupProjectionMatrix( tr.viewDef );
+	R_SetupProjectionMatrix( tr.viewDef, true );
+	R_SetupProjectionMatrix( tr.viewDef, false );
 
 	// RB: we need a unprojection matrix to calculate the vertex position based on the depth image value
 	// for some post process shaders
@@ -618,6 +619,9 @@ void R_RenderView( viewDef_t* parms )
 	idRenderMatrix viewRenderMatrix;
 	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
 	idRenderMatrix::Multiply( tr.viewDef->projectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.mvp );
+
+	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->unjitteredProjectionMatrix, tr.viewDef->unjitteredProjectionRenderMatrix );
+	idRenderMatrix::Multiply( tr.viewDef->unjitteredProjectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.unjitteredMVP );
 
 	// the planes of the view frustum are needed for portal visibility culling
 	idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustums[FRUSTUM_PRIMARY], tr.viewDef->worldSpace.mvp, false, true );

@@ -1,0 +1,24 @@
+material guiSolid {
+	{
+		blend blend
+		colored
+		map "_white"
+		clamp
+	}
+}
+
+material doomLeftEye {
+	stereoeye left
+	{
+		blend blend
+		map guis/assets/mainmenu/eye_left.tga
+	}
+}
+
+material doomRightEye {
+	stereoeye right
+	{
+		blend blend
+		map guis/assets/mainmenu/eye_left.tga
+	}
+}

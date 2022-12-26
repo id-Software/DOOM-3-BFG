@@ -1,0 +1,248 @@
+/***********************************************************************
+
+monster_flying_cacodemon.script
+
+monster_flying_cacodemon
+
+***********************************************************************/
+
+#define CACO_ATTACK_RATE	3
+#define CACO_NOFOVTIME		4
+
+object monster_flying_cacodemon : monster_base {
+	float		nextAttack;
+	float		nextNoFOVAttack;
+	entity		combat_node;
+
+	// States
+	void		state_Begin();
+	void		state_Idle();
+
+	// attacks
+	float		check_attacks();
+	void		do_attack( float attack_flags );
+	void		combat_range();
+	void		combat_melee();
+
+	void		init();
+	
+	// anim states
+	void		Torso_Idle();
+	void		Torso_Fly();
+	void		Torso_Pain();
+	void		Torso_MeleeAttack();
+	void		Torso_RangeAttack();
+	void		Torso_TurretAttack();
+};
+
+/***********************************************************************
+
+	Torso animation control
+
+***********************************************************************/
+
+void monster_flying_cacodemon::Torso_Idle() {
+	playCycle( ANIMCHANNEL_TORSO, "idle" );
+	
+	eachFrame {
+		if ( AI_PAIN )		{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 2 ); }
+		if ( AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Fly", 4 ); }
+	}
+}
+
+void monster_flying_cacodemon::Torso_Fly() {
+	playCycle( ANIMCHANNEL_TORSO, "fly" );
+	
+	eachFrame {
+		if ( AI_PAIN )		{ animState( ANIMCHANNEL_TORSO, "Torso_Pain", 2 ); }	
+		if ( !AI_FORWARD )	{ animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 ); }
+	}
+}
+
+void monster_flying_cacodemon::Torso_Pain() {
+	string animname;
+	float nextpain;
+	float currenttime;
+	
+	animname = getPainAnim();
+	playAnim( ANIMCHANNEL_TORSO, animname );
+
+	nextpain = sys.getTime() + 0.25;
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 2 ) ) {
+		if ( AI_PAIN ) {
+			currenttime = sys.getTime();
+			if ( currenttime > nextpain ) {
+				animState( ANIMCHANNEL_TORSO, "Torso_Pain", 2 );
+			}
+		}
+		waitFrame();
+	}
+
+	finishAction( "pain" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 2 );
+}
+
+void monster_flying_cacodemon::Torso_MeleeAttack() {
+	playAnim( ANIMCHANNEL_TORSO, "melee_attack" );
+	
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		waitFrame();
+	}
+	
+	finishAction( "melee_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_flying_cacodemon::Torso_RangeAttack() {
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		faceEnemy();
+		waitFrame();
+	}
+
+	finishAction( "range_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+void monster_flying_cacodemon::Torso_TurretAttack() {
+	disablePain();
+	faceEnemy();
+
+	playAnim( ANIMCHANNEL_TORSO, "range_attack" );
+	while( !animDone( ANIMCHANNEL_TORSO, 4 ) ) {
+		faceEnemy();
+		waitFrame();
+	}
+
+	finishAction( "turret_attack" );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 4 );
+}
+
+/***********************************************************************
+
+	AI
+
+***********************************************************************/
+
+/*
+=====================
+monster_flying_cacodemon::init
+=====================
+*/
+void monster_flying_cacodemon::init() {
+	setState( "state_Begin" );
+}
+
+/*
+=====================
+monster_flying_cacodemon::state_Begin
+=====================
+*/
+void monster_flying_cacodemon::state_Begin() {
+	setMoveType( MOVETYPE_FLY );
+	animState( ANIMCHANNEL_TORSO, "Torso_Idle", 0 );
+	monster_begin();
+	setState( "state_Idle" );
+}
+
+/*
+=====================
+monster_flying_cacodemon::state_Idle
+=====================
+*/
+void monster_flying_cacodemon::state_Idle() {
+	wait_for_enemy();
+	
+	nextAttack		= 0;
+	nextNoFOVAttack = 0;
+	
+	setState( "state_Combat" );
+}
+
+/***********************************************************************
+
+	attacks
+
+***********************************************************************/
+
+/*
+=====================
+monster_flying_cacodemon::do_attack
+=====================
+*/
+void monster_flying_cacodemon::do_attack( float attack_flags ) {
+	nextNoFOVAttack = sys.getTime() + CACO_NOFOVTIME;
+	if ( attack_flags & ATTACK_COMBAT_NODE ) {
+		combat_ainode( combat_node );
+	} else if ( attack_flags & ATTACK_MELEE ) {
+		combat_melee();
+	} else if ( attack_flags & ATTACK_MISSILE ) {
+		combat_range();
+	}
+}
+
+/*
+=====================
+monster_flying_cacodemon::check_attacks
+=====================
+*/
+float monster_flying_cacodemon::check_attacks() {
+	float currentTime;
+	float canMelee;
+	float attack_flags;
+	
+	attack_flags = 0;
+	
+	canMelee = testMeleeAttack();
+	currentTime = sys.getTime();
+	if ( !canMelee ) {
+		combat_node = getCombatNode();
+		if ( combat_node ) {
+			attack_flags |= ATTACK_COMBAT_NODE;
+		}
+	}
+	
+	if ( canMelee ) {
+		attack_flags |= ATTACK_MELEE;
+	}
+
+	if ( ( ( sys.getTime() > nextNoFOVAttack ) && AI_ENEMY_VISIBLE ) || AI_ENEMY_IN_FOV ) {
+		if ( !canReachEnemy() || ( currentTime >= nextAttack ) ) {
+			if ( canHitEnemyFromAnim( "range_attack" ) ) {
+				attack_flags |= ATTACK_MISSILE;
+			}
+		}
+	}
+	
+	return attack_flags;
+}
+
+/*
+=====================
+monster_flying_cacodemon::combat_range
+=====================
+*/
+void monster_flying_cacodemon::combat_range() {
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_RangeAttack", 4 );
+	waitAction( "range_attack" );
+
+	// don't attack for a bit
+	nextAttack = DelayTime( CACO_ATTACK_RATE );
+	nextNoFOVAttack = sys.getTime() + CACO_NOFOVTIME;
+}
+
+/*
+=====================
+monster_flying_cacodemon::combat_melee
+=====================
+*/
+void monster_flying_cacodemon::combat_melee() {
+	faceEnemy();
+	animState( ANIMCHANNEL_TORSO, "Torso_MeleeAttack", 4 );
+	waitAction( "melee_attack" );
+}
