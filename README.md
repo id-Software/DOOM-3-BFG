@@ -498,14 +498,14 @@ Recommended in this case is `cmake-vs2019-64bit.bat` or `cmake-vs2019-64bit-no-f
 	For command line builds:
 
 		> cd neo/
-		> ./cmake-macos-opengl-release.sh
+		> ./cmake-macos-release.sh
 	
 	For Xcode builds:
 	
 		> cd neo/
-		> ./cmake-xcode-opengl-release.sh	
+		> ./cmake-xcode-release.sh	
 		or
-		> ./cmake-xcode-opengl-universal.sh (universal build on macOS Big Sur / Xcode 12.2 or later)
+		> ./cmake-xcode-universal.sh (universal build on macOS Big Sur / Xcode 12.2 or later)
 	
 	Depending on which package manager you install (Homebrew or MacPorts) you may need to change the openal-soft library and include paths specified in the cmake shell scripts.  For single architecture builds (debug, release, retail) the default openal-soft paths are set for Homebrew on x86, while for universal builds the default paths are set for MacPorts on x86 or Apple Silicon.  If you want to build using the single architecture shell scripts (debug, release, retail) on Apple Silicon, you will need to change the openal-soft paths from `/usr/local/...` to either `/opt/homebrew/...` (Homebrew) or `/opt/local/...` (MacPorts).
 	
@@ -516,7 +516,7 @@ Recommended in this case is `cmake-vs2019-64bit.bat` or `cmake-vs2019-64bit-no-f
 		> cd ../build
 		> make
 	
-	For Xcode builds double click on RBDOOM-3-BFG/xcode-opengl-\<buildtype\>/RBDoom3BFG.xcodeproj and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
+	For Xcode builds double click on RBDOOM-3-BFG/xcode-\<buildtype\>/RBDoom3BFG.xcodeproj and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
 
 ---
 # Installation, Getting the Game Data, Running the Game <a name="installation"></a>
@@ -609,11 +609,11 @@ Anyway:
 		* _common.crc
 		* (etc)
 		 
-5. On macOS the RBDoom3BFG executable will also search for game data within an app bundle's relative path ../Resources/base and, as a last resort, within the absolute path /Applications/RBDoom-3-BFG.app/Contents/Resources/base.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external dylib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler" or "sudo port install dylibbundler").  For example, the following command will copy all external dynamic library dependencies to the Contents/libs directory of the game's app bundle and adjust the rpaths within the RBDoom3BFG executable and copied dylibs.
+5. On macOS the RBDoom3BFG executable will also search for game data within an app bundle's Contents/Resources/base folder, and as a last resort, within the absolute path /Applications/RBDoom-3-BFG.app/Contents/Resources/base.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external dylib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler" or "sudo port install dylibbundler").  For example, the following command will copy all external dylib dependencies to the Contents/libs directory of the game's app bundle and adjust the rpaths within the RBDoom3BFG executable and copied dylibs.
 
 		> dylibbundler -od -b -x RBDoom-3-BFG.app/Contents/MacOS/RBDoom3BFG -d RBDoom-3-BFG.app/Contents/libs/
 
-	After running dylibbundler you must re-sign the modified executable and dylibs if planning to run on **Apple Silicon** machines.  The output of dylibbundler will indicate which dylibs (if any) require re-signing.  This code signing step is not needed for x86-based Macs.
+	After running dylibbundler you may need to re-sign the modified executable and dylibs if planning to run on **Apple Silicon** machines.  Newer versions of dylibbundler now do this automatically.  The output of dylibbundler will indicate which executable and dylibs (if any) require re-signing.  This code signing step is not needed for x86-based Macs.
 
 		> codesign -s - --force RBDoom-3-BFG.app/Contents/libs/lib<modified-by-dylibbundler>.dylib
 		...
