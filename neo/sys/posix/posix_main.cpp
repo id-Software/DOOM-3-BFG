@@ -425,8 +425,7 @@ const char* Sys_DefaultBasePath()
 	basepath = Sys_EXEPath();
 	if( basepath.Length() )
 	{
-		basepath.StripFilename();
-		exepath = basepath;
+		exepath = basepath.StripFilename();
 		testbase = basepath;
 		testbase += "/";
 		testbase += BASE_GAMEDIR;
@@ -457,8 +456,9 @@ const char* Sys_DefaultBasePath()
 	if( exepath.Length() )
 	{
 #if defined(__APPLE__)
-		// SRS - Check for macOS app bundle resources path
-		basepath = exepath + "/../Resources";
+		// SRS - Check for macOS app bundle resources path (up one dir level and down to Resources dir)
+		basepath = exepath;
+		basepath = basepath.StripFilename() + "/Resources";
 		testbase = basepath;
 		testbase += "/";
 		testbase += BASE_GAMEDIR;
@@ -471,11 +471,11 @@ const char* Sys_DefaultBasePath()
 			common->Printf( "no '%s' directory in macOS app bundle resources path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
 		}
 #endif
-		// SRS - Check for macOS/linux build path (directory structure with build dir and possible config suffix)
+		// SRS - Check for linux/macOS build path (directory structure with build dir and possible config suffix)
+		basepath = exepath;
+		basepath.StripFilename();						// up 1st dir level for linux and macOS single-config makefile builds
 #if defined(__APPLE__) && !defined( NO_MULTI_CONFIG )
-		basepath = exepath + "/../..";		// for macOS Xcode builds with Debug/Release/etc config suffix
-#else
-		basepath = exepath + "/..";			// for linux and macOS single-config makefile builds
+		basepath.StripFilename();						// up 2nd dir level for macOS Xcode builds with Debug/Release/etc config suffix
 #endif
 		testbase = basepath;
 		testbase += "/";
