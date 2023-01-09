@@ -132,7 +132,7 @@ class DeviceManager
 public:
 	static DeviceManager* Create( nvrhi::GraphicsAPI api );
 
-#if defined( USE_VK ) && defined( VULKAN_USE_PLATFORM_SDL )
+#if USE_VK && defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Helper method for creating SDL Vulkan surface within DeviceManager_VK()
     vk::Result CreateSDLWindowSurface( vk::Instance instance, vk::SurfaceKHR* surface );
 #endif
