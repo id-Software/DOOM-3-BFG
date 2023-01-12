@@ -1793,7 +1793,27 @@ else()
 		add_dependencies(precomp_header_rbdoom3bfg idlib)
 	endif()
 
-	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
+	if(MACOSX_BUNDLE)
+		# define contents of macOS app bundle Resources folder
+		set(MACOS_RESOURCES sys/posix/res/Doom3BFG.icns ../base)
+		source_group("Resources" FILES ${MACOS_RESOURCES})
+		set_source_files_properties(${MACOS_RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+		# enable Xcode to display the icons file properly
+		set_source_files_properties(sys/posix/res/Doom3BFG.icns PROPERTIES XCODE_EXPLICIT_FILE_TYPE .icns)
+
+		# add macOS bundle properties to executable
+		set(MACOSX_BUNDLE_BUNDLE_NAME RBDoom-3-BFG)
+		set(MACOSX_BUNDLE_BUNDLE_VERSION 1.5.0)
+		set(MACOSX_BUNDLE_SHORT_VERSION_STRING 1.5.0)
+		set(MACOSX_BUNDLE_ICON_FILE Doom3BFG.icns)
+		set(MACOSX_BUNDLE_INFO_STRING "")					# to be added by author if desired
+		set(MACOSX_BUNDLE_COPYRIGHT "")						# to be added by author if desired
+
+		add_executable(RBDoom3BFG MACOSX_BUNDLE ${MACOS_RESOURCES} ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
+	else()
+		add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
+	endif()
 
 	if(USE_VULKAN)
         add_dependencies(RBDoom3BFG nvrhi_vk)

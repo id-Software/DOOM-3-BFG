@@ -254,6 +254,10 @@ bool Init( int windowWidth, int windowHeight )
 	io.GetClipboardTextFn = GetClipboardText;
 	io.ClipboardUserData = NULL;
 
+	// SRS - store imgui.ini file in fs_savepath (not in cwd please!)
+	static idStr BFG_IniFilename = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_savepath" ), io.IniFilename );
+	io.IniFilename = BFG_IniFilename;
+
 	// make it a bit prettier with rounded edges
 	ImGuiStyle& style = ImGui::GetStyle();
 	//style.ChildWindowRounding = 9.0f;
