@@ -1766,23 +1766,6 @@ else()
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 				COMMENT "Creating idlib/precompiled.h.gch for RBDoom3BFG"
 				)
-	endif()
-	
-	if(WIN32)
-		set(remove_command "del")
-	else()
-		set(remove_command "rm")
-	endif()
-	
-	if (USE_PRECOMPILED_HEADERS)
-		# it's ugly enough that the precompiled header binary needs to be in the 
-		# source directory (instead of the build directory), so let's at least
-		# delete it after build.
-		add_custom_target(rm_precomp_header ALL
-				COMMAND ${remove_command} "idlib/precompiled.h.gch"
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				COMMENT "remove idlib/precompiled.h.gch"
-				)
 				
 		# make sure this is run after creating idlib
 		add_dependencies(precomp_header_rbdoom3bfg idlib)
@@ -1797,8 +1780,18 @@ else()
 		# make sure precompiled header is created before executable is compiled
 		add_dependencies(RBDoom3BFG precomp_header_rbdoom3bfg)
 		
+		if(WIN32)
+			set(remove_command "del")
+		else()
+			set(remove_command "rm")
+		endif()
+
 		# make sure precompiled header is deleted after executable is compiled
-		add_dependencies(rm_precomp_header RBDoom3BFG)
+		add_custom_command(TARGET RBDoom3BFG POST_BUILD
+				COMMAND ${remove_command} "idlib/precompiled.h.gch"
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+				COMMENT "remove idlib/precompiled.h.gch"
+		)
 	endif()	
 
 	if(NOT WIN32)
