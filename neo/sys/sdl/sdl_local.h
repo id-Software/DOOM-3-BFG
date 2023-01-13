@@ -36,7 +36,7 @@ const int GRAB_HIDECURSOR	= ( 1 << 2 );
 const int GRAB_SETSTATE		= ( 1 << 3 );
 
 // SRS - Generalized Vulkan SDL platform
-#if defined(VULKAN_USE_PLATFORM_SDL)
+#if defined( VULKAN_USE_PLATFORM_SDL )
 	void VKimp_GrabInput( int flags );
 #else
 	void GLimp_GrabInput( int flags );
