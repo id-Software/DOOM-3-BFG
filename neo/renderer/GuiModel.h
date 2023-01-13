@@ -43,12 +43,6 @@ struct guiModelSurface_t
 class idRenderMatrix;
 class Framebuffer;
 
-// SRS - not needed, causes mismatched types when calling ImGui_RenderDrawLists( ImDrawData* )
-//namespace ImGui
-//{
-//struct ImDrawData;
-//}
-
 struct ImDrawData;
 
 class idGuiModel
