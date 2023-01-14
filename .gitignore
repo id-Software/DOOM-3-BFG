@@ -8,7 +8,7 @@ neo/ipch
 *.exe
 *.7z
 *.zip
-*.DS_Store
+.DS_Store
 imgui.ini
 
 Doom3BFG.exe
