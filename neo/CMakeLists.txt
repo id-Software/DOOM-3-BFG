@@ -94,9 +94,15 @@ if(UNIX)
 	set(USE_VULKAN ON)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
-    if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
+    if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64" ) OR
        (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64"))
         set(USE_PRECOMPILED_HEADERS OFF)
+    endif()
+    
+	# SRS - For single-config dev builds, define NO_MULTI_CONFIG to search for basepath up 1 dir level vs 2
+    if((CMAKE_GENERATOR MATCHES "Unix Makefiles") OR
+       (CMAKE_GENERATOR MATCHES "Ninja" AND NOT CMAKE_GENERATOR MATCHES "Multi-Config"))
+		add_definitions(-DNO_MULTI_CONFIG)
     endif()
 endif()
 

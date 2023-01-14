@@ -473,9 +473,9 @@ const char* Sys_DefaultBasePath()
 #endif
 		// SRS - Check for linux/macOS build path (directory structure with build dir and possible config suffix)
 		basepath = exepath;
-		basepath.StripFilename();						// up 1st dir level for linux and macOS single-config makefile builds
-#if defined(__APPLE__) && !defined( NO_MULTI_CONFIG )
-		basepath.StripFilename();						// up 2nd dir level for macOS Xcode builds with Debug/Release/etc config suffix
+		basepath.StripFilename();						// up 1st dir level for single-config dev builds
+#if !defined( NO_MULTI_CONFIG )
+		basepath.StripFilename();						// up 2nd dir level for multi-config dev builds with Debug/Release/etc suffix
 #endif
 		testbase = basepath;
 		testbase += "/";
