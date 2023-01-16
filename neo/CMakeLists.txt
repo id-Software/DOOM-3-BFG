@@ -94,8 +94,10 @@ if(UNIX)
 	set(USE_VULKAN ON)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
+    #     - Also disable precompiled headers when using the Ninja Multi-Config generator on linux or macOS
     if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64" ) OR
-       (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64"))
+       (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64") OR
+       (CMAKE_GENERATOR MATCHES "Ninja Multi-Config"))
         set(USE_PRECOMPILED_HEADERS OFF)
     endif()
     
