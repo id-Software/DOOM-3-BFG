@@ -743,6 +743,11 @@ void idImage::DeferredLoadImage()
 	globalImages->imagesToLoad.AddUnique( this );
 }
 
+void idImage::DeferredPurgeImage()
+{
+	globalImages->imagesToLoad.Remove( this );
+}
+
 /*
 ==================
 StorageSize

@@ -2238,7 +2238,7 @@ Display a single image over most of the screen
 */
 void idRenderBackend::DBG_TestImage()
 {
-	idImage*	image = NULL;
+	idImage* image   = NULL;
 	idImage* imageCr = NULL;
 	idImage* imageCb = NULL;
 	int		max;
@@ -2254,9 +2254,9 @@ void idRenderBackend::DBG_TestImage()
 	{
 		cinData_t	cin;
 
-		// SRS - Don't need calibrated time for testing cinematics, so just call ImageForTime( 0 ) for current system time
+		// SRS - Don't need calibrated time for testing cinematics, so just call ImageForTime( ) with current system time
 		// This simplification allows cinematic test playback to work over both 2D and 3D background scenes
-		cin = tr.testVideo->ImageForTime( 0 /*viewDef->renderView.time[1] - tr.testVideoStartTime*/, commandList );
+		cin = tr.testVideo->ImageForTime( Sys_Milliseconds() /*viewDef->renderView.time[1] - tr.testVideoStartTime*/, commandList );
 		if( cin.imageY != NULL )
 		{
 			image = cin.imageY;
@@ -2308,9 +2308,10 @@ void idRenderBackend::DBG_TestImage()
 	float scale[16] = { 0 };
 	scale[0] = w; // scale
 	scale[5] = h; // scale
-	scale[12] = halfScreenWidth - ( halfScreenWidth * w ); // translate
-	scale[13] = halfScreenHeight - ( halfScreenHeight * h ); // translate
 	scale[10] = 1.0f;
+	scale[12] = halfScreenWidth - ( halfScreenWidth * w ); 			// translate to center x
+	scale[13] = halfScreenHeight / 2 - ( halfScreenHeight * h );	// translate to center y of console dropdown
+	scale[14] = -0.5f;												// translate to center z
 	scale[15] = 1.0f;
 
 	float ortho[16] = { 0 };

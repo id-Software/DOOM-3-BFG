@@ -66,19 +66,31 @@ void CinematicAudio_OpenAL::InitAudio( void* audioContext )
 		case AV_SAMPLE_FMT_U8:
 		case AV_SAMPLE_FMT_U8P:
 		{
+#if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
+			av_sample_cin = dec_ctx2->ch_layout.nb_channels == 2 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
+#else
 			av_sample_cin = dec_ctx2->channels == 2 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
+#endif
 			break;
 		}
 		case AV_SAMPLE_FMT_S16:
 		case AV_SAMPLE_FMT_S16P:
 		{
+#if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
+			av_sample_cin = dec_ctx2->ch_layout.nb_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+#else
 			av_sample_cin = dec_ctx2->channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+#endif
 			break;
 		}
 		case AV_SAMPLE_FMT_FLT:
 		case AV_SAMPLE_FMT_FLTP:
 		{
+#if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
+			av_sample_cin = dec_ctx2->ch_layout.nb_channels == 2 ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_MONO_FLOAT32;
+#else
 			av_sample_cin = dec_ctx2->channels == 2 ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_MONO_FLOAT32;
+#endif
 			break;
 		}
 		default:
@@ -105,29 +117,32 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 
 	alGetSourcei( alMusicSourceVoicecin, AL_SOURCE_STATE, &state );
 	alGetSourcei( alMusicSourceVoicecin, AL_BUFFERS_PROCESSED, &processed );
+	//common->Printf( "AL_CinematicAudio: processed = %2d, bufids = %2d, tBuffers = %2d, state = %d\n", processed, bufids.size(), tBuffer.size(), state );
 
 	if( trigger )
 	{
-		tBuffer.push( data );
-		sizes.push( size );
+		ALuint bufid;
+
+		// SRS - Unqueue all processed alBuffers and place them on the free bufids queue
 		while( processed > 0 )
 		{
-			ALuint bufid;
+			alSourceUnqueueBuffers( alMusicSourceVoicecin, 1, &bufid );
+			bufids.push( bufid );
+			processed--;
+		}
 
-			// SRS - Only unqueue an alBuffer if we don't already have a free bufid to use
-			if( bufids.size() == 0 )
-			{
-				alSourceUnqueueBuffers( alMusicSourceVoicecin, 1, &bufid );
-				bufids.push( bufid );
-				processed--;
-			}
-			if( !tBuffer.empty() )
+		tBuffer.push( data );
+		sizes.push( size );
+		while( !tBuffer.empty() )
+		{
+			// SRS - If we have an audio buffer ready to play and a free bufid, then queue it up
+			if( !bufids.empty() )
 			{
 				uint8_t* tempdata = tBuffer.front();
 				tBuffer.pop();
 				int tempSize = sizes.front();
 				sizes.pop();
-				if( tempSize > 0 )
+				if( tempdata )
 				{
 					bufid = bufids.front();
 					bufids.pop();
@@ -147,7 +162,8 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 					}
 				}
 			}
-			else	// SRS - When no new audio frames left to queue, break and continue playing
+			// SRS - If there are no available bufids remaining, break and continue playing
+			else
 			{
 				break;
 			}
@@ -161,16 +177,23 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 		av_freep( &data );
 #elif defined(USE_BINKDEC)
 		Mem_Free( data );
+		data = NULL;
 #endif
 		offset++;
-		if( offset == NUM_BUFFERS )
+		// SRS - Initiate playback trigger once we have MIN_BUFFERS filled: limit startup latency
+		if( offset == MIN_BUFFERS )
 		{
-			alSourceQueueBuffers( alMusicSourceVoicecin, offset, alMusicBuffercin );
+			alSourceQueueBuffers( alMusicSourceVoicecin, MIN_BUFFERS, &alMusicBuffercin[0] );
 			ALenum error = alGetError();
 			if( error != AL_NO_ERROR )
 			{
 				common->Warning( "OpenAL Cinematic: %s\n", alGetString( error ) );
 				return;
+			}
+			// SRS - Prepare additional free buffers to handle variable packet rate codecs (e.g. webm vorbis)
+			for( int i = MIN_BUFFERS; i < NUM_BUFFERS; i++ )
+			{
+				bufids.push( alMusicBuffercin[ i ] );
 			}
 			trigger = true;
 		}

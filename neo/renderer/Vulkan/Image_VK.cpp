@@ -590,7 +590,8 @@ void idImage::AllocImage()
 	viewCreateInfo.viewType = ( opts.textureType == TT_CUBIC ) ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
 	viewCreateInfo.format = internalFormat;
 	viewCreateInfo.components = VK_GetComponentMappingFromTextureFormat( opts.format, opts.colorFormat );
-	viewCreateInfo.subresourceRange.aspectMask = ( opts.format == FMT_DEPTH ) ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+	// SRS - Added FMT_DEPTH_STENCIL case
+	viewCreateInfo.subresourceRange.aspectMask = ( opts.format == FMT_DEPTH || opts.format == FMT_DEPTH_STENCIL ) ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 	viewCreateInfo.subresourceRange.levelCount = opts.numLevels;
 	viewCreateInfo.subresourceRange.layerCount = ( opts.textureType == TT_CUBIC ) ? 6 : 1;
 	viewCreateInfo.subresourceRange.baseMipLevel = 0;

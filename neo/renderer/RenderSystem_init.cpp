@@ -704,25 +704,15 @@ void R_TestVideo_f( const idCmdArgs& args )
 
 	tr.testImage = globalImages->ImageFromFile( "_scratch", TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
 	tr.testVideo = idCinematic::Alloc();
-	tr.testVideo->InitFromFile( args.Argv( 1 ), true, NULL );
-
-	cinData_t	cin;
-
-	// FIXME commandList
-	cin = tr.testVideo->ImageForTime( 0, NULL );
-	// SRS - Also handle ffmpeg and original RoQ decoders for test videos (using cin.image)
-	if( cin.imageY == NULL && cin.image == NULL )
+	// SRS - make sure we have a valid bink, ffmpeg, or RoQ video file, otherwise delete testVideo and return
+	// SRS - no need to call ImageForTime() here, playback is handled within idRenderBackend::DBG_TestImage()
+	if( !tr.testVideo->InitFromFile( args.Argv( 1 ), true, NULL ) )
 	{
 		delete tr.testVideo;
 		tr.testVideo = NULL;
 		tr.testImage = NULL;
 		return;
 	}
-
-	common->Printf( "%i x %i images\n", cin.imageWidth, cin.imageHeight );
-
-	int	len = tr.testVideo->AnimationLength();
-	common->Printf( "%5.1f seconds of video\n", len * 0.001 );
 
 	// try to play the matching wav file
 	idStr	wavString = args.Argv( ( args.Argc() == 2 ) ? 1 : 2 );
@@ -2257,6 +2247,13 @@ void idRenderSystemLocal::Shutdown()
 	}
 
 	renderModelManager->Shutdown();
+
+	// SRS - if testVideo is currently playing, make sure cinematic is deleted before ShutdownCinematic()
+	if( tr.testVideo )
+	{
+		delete tr.testVideo;
+		tr.testVideo = NULL;
+	}
 
 	idCinematic::ShutdownCinematic();
 

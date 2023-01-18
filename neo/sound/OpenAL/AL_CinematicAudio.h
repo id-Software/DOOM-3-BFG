@@ -33,7 +33,8 @@
 #define __CINEMATIC_AUDIO_AL_H__
 
 #include <queue>
-#define NUM_BUFFERS 4
+#define MIN_BUFFERS 4					// SRS - Minimum buffers to fill before triggering playback
+#define NUM_BUFFERS 16					// SRS - Total buffers available to support variable rate codecs
 
 class CinematicAudio_OpenAL: public CinematicAudio
 {
@@ -58,7 +59,7 @@ private:
 	//	  then start popping those frames instead of the current, so we don't lose any audio frames and the sound doesn't crack anymore.
 	std::queue<uint8_t*>	tBuffer;
 	std::queue<int>			sizes;
-	std::queue<ALuint>		bufids;		// SRS - Added queue of free alBuffer ids to handle audio frame underflow (starvation) case
+	std::queue<ALuint>		bufids;		// SRS - Added queue of free alBuffer ids to handle variable rate codecs
 };
 
 #endif
