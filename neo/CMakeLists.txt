@@ -94,9 +94,17 @@ if(UNIX)
 	set(USE_VULKAN ON)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
-    if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
-       (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64"))
+    #     - Also disable precompiled headers when using the Ninja Multi-Config generator on linux or macOS
+    if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64" ) OR
+       (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64") OR
+       (CMAKE_GENERATOR MATCHES "Ninja Multi-Config"))
         set(USE_PRECOMPILED_HEADERS OFF)
+    endif()
+    
+	# SRS - For single-config dev builds, define NO_MULTI_CONFIG to search for basepath up 1 dir level vs 2
+    if((CMAKE_GENERATOR MATCHES "Unix Makefiles") OR
+       (CMAKE_GENERATOR MATCHES "Ninja" AND NOT CMAKE_GENERATOR MATCHES "Multi-Config"))
+		add_definitions(-DNO_MULTI_CONFIG)
     endif()
 endif()
 
@@ -502,17 +510,18 @@ file(GLOB RENDERER_VULKAN_SOURCES renderer/Vulkan/*.cpp)
 file(GLOB RENDERER_NVRHI_INCLUDES renderer/NVRHI/*.h)
 file(GLOB RENDERER_NVRHI_SOURCES renderer/NVRHI/*.cpp)
 
-file(GLOB SHADERS shaders/*.hlsl shaders/*.inc )
-file(GLOB SHADERS_BUILTIN shaders/builtin/*.hlsl )
-file(GLOB SHADERS_BUILTIN_DEBUG shaders/builtin/debug/*.hlsl )
-file(GLOB SHADERS_BUILTIN_FOG shaders/builtin/fog/*.hlsl )
-file(GLOB SHADERS_BUILTIN_LEGACY shaders/builtin/legacy/*.hlsl )
-file(GLOB SHADERS_BUILTIN_LIGHTING shaders/builtin/lighting/*.hlsl )
-file(GLOB SHADERS_BUILTIN_POST shaders/builtin/post/*.hlsl )
-file(GLOB SHADERS_BUILTIN_SSAO shaders/builtin/SSAO/*.hlsl )
-file(GLOB SHADERS_BUILTIN_SSGI shaders/builtin/SSGI/*.hlsl )
-file(GLOB SHADERS_BUILTIN_VIDEO shaders/builtin/video/*.hlsl )
-file(GLOB SHADERS_BUILTIN_VR shaders/builtin/VR/*.hlsl )
+# SRS - not needed, since handled by CMakeLists.txt for Shaders target
+#file(GLOB SHADERS shaders/*.hlsl shaders/*.inc )
+#file(GLOB SHADERS_BUILTIN shaders/builtin/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_DEBUG shaders/builtin/debug/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_FOG shaders/builtin/fog/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_LEGACY shaders/builtin/legacy/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_LIGHTING shaders/builtin/lighting/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_POST shaders/builtin/post/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_SSAO shaders/builtin/SSAO/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_SSGI shaders/builtin/SSGI/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_VIDEO shaders/builtin/video/*.hlsl )
+#file(GLOB SHADERS_BUILTIN_VR shaders/builtin/VR/*.hlsl )
 
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
@@ -1139,17 +1148,18 @@ source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_SOURCES})
 
 source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
-source_group("renderer\\Shaders" FILES ${SHADERS})
-source_group("renderer\\Shaders\\builtin" FILES ${SHADERS_BUILTIN})
-source_group("renderer\\Shaders\\builtin\\debug" FILES ${SHADERS_BUILTIN_DEBUG})
-source_group("renderer\\Shaders\\builtin\\fog" FILES ${SHADERS_BUILTIN_FOG})
-source_group("renderer\\Shaders\\builtin\\legacy" FILES ${SHADERS_BUILTIN_LEGACY})
-source_group("renderer\\Shaders\\builtin\\lighting" FILES ${SHADERS_BUILTIN_LIGHTING})
-source_group("renderer\\Shaders\\builtin\\post" FILES ${SHADERS_BUILTIN_POST})
-source_group("renderer\\Shaders\\builtin\\SSAO" FILES ${SHADERS_BUILTIN_SSAO})
-source_group("renderer\\Shaders\\builtin\\SSGI" FILES ${SHADERS_BUILTIN_SSGI})
-source_group("renderer\\Shaders\\builtin\\video" FILES ${SHADERS_BUILTIN_VIDEO})
-source_group("renderer\\Shaders\\builtin\\VR" FILES ${SHADERS_BUILTIN_VR})
+# SRS - not needed, since handled by CMakeLists.txt for Shaders target
+#source_group("renderer\\Shaders" FILES ${SHADERS})
+#source_group("renderer\\Shaders\\builtin" FILES ${SHADERS_BUILTIN})
+#source_group("renderer\\Shaders\\builtin\\debug" FILES ${SHADERS_BUILTIN_DEBUG})
+#source_group("renderer\\Shaders\\builtin\\fog" FILES ${SHADERS_BUILTIN_FOG})
+#source_group("renderer\\Shaders\\builtin\\legacy" FILES ${SHADERS_BUILTIN_LEGACY})
+#source_group("renderer\\Shaders\\builtin\\lighting" FILES ${SHADERS_BUILTIN_LIGHTING})
+#source_group("renderer\\Shaders\\builtin\\post" FILES ${SHADERS_BUILTIN_POST})
+#source_group("renderer\\Shaders\\builtin\\SSAO" FILES ${SHADERS_BUILTIN_SSAO})
+#source_group("renderer\\Shaders\\builtin\\SSGI" FILES ${SHADERS_BUILTIN_SSGI})
+#source_group("renderer\\Shaders\\builtin\\video" FILES ${SHADERS_BUILTIN_VIDEO})
+#source_group("renderer\\Shaders\\builtin\\VR" FILES ${SHADERS_BUILTIN_VR})
 
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
@@ -1336,17 +1346,18 @@ set(RBDOOM3_INCLUDES
 			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
 			${RENDERER_PASSES_INCLUDES}
 			
-			${SHADERS}
-			${SHADERS_BUILTIN}
-			${SHADERS_BUILTIN_DEBUG}
-			${SHADERS_BUILTIN_FOG}
-			${SHADERS_BUILTIN_LEGACY}
-			${SHADERS_BUILTIN_LIGHTING}
-			${SHADERS_BUILTIN_POST}
-			${SHADERS_BUILTIN_SSAO}
-			${SHADERS_BUILTIN_SSGI}
-			${SHADERS_BUILTIN_VIDEO}
-			${SHADERS_BUILTIN_VR}
+			# SRS - not needed, since handled by CMakeLists.txt for Shaders target
+			#${SHADERS}
+			#${SHADERS_BUILTIN}
+			#${SHADERS_BUILTIN_DEBUG}
+			#${SHADERS_BUILTIN_FOG}
+			#${SHADERS_BUILTIN_LEGACY}
+			#${SHADERS_BUILTIN_LIGHTING}
+			#${SHADERS_BUILTIN_POST}
+			#${SHADERS_BUILTIN_SSAO}
+			#${SHADERS_BUILTIN_SSGI}
+			#${SHADERS_BUILTIN_VIDEO}
+			#${SHADERS_BUILTIN_VR}
 			
 			${RENDERER_SMAA_INCLUDES}
 			${IRRXML_INCLUDES}
@@ -1602,17 +1613,18 @@ if(MSVC)
 		)
 	endif()
 	
-	set_source_files_properties( ${SHADERS} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_DEBUG} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_FOG} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_LEGACY} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_LIGHTING} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_POST} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_SSAO} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_SSGI} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_VIDEO} PROPERTIES VS_TOOL_OVERRIDE "None" )
-	set_source_files_properties( ${SHADERS_BUILTIN_VR} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	# SRS - not needed, since handled by CMakeLists.txt for Shaders target
+	#set_source_files_properties( ${SHADERS} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_DEBUG} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_FOG} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_LEGACY} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_LIGHTING} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_POST} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_SSAO} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_SSGI} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_VIDEO} PROPERTIES VS_TOOL_OVERRIDE "None" )
+	#set_source_files_properties( ${SHADERS_BUILTIN_VR} PROPERTIES VS_TOOL_OVERRIDE "None" )
 	
 	list(APPEND RBDOOM3_SOURCES ${WIN32_RESOURCES})
 	
@@ -1771,7 +1783,27 @@ else()
 		add_dependencies(precomp_header_rbdoom3bfg idlib)
 	endif()
 
-	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
+	if(MACOSX_BUNDLE)
+		# define contents of macOS app bundle Resources folder
+		set(MACOS_RESOURCES sys/posix/res/Doom3BFG.icns ../base)
+		source_group("Resources" FILES ${MACOS_RESOURCES})
+		set_source_files_properties(${MACOS_RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+		# enable Xcode to display the icons file properly
+		set_source_files_properties(sys/posix/res/Doom3BFG.icns PROPERTIES XCODE_EXPLICIT_FILE_TYPE .icns)
+
+		# add macOS bundle properties to executable
+		set(MACOSX_BUNDLE_BUNDLE_NAME RBDoom-3-BFG)
+		set(MACOSX_BUNDLE_BUNDLE_VERSION 1.5.0)
+		set(MACOSX_BUNDLE_SHORT_VERSION_STRING 1.5.0)
+		set(MACOSX_BUNDLE_ICON_FILE Doom3BFG.icns)
+		set(MACOSX_BUNDLE_INFO_STRING "")					# to be added by author if desired
+		set(MACOSX_BUNDLE_COPYRIGHT "")						# to be added by author if desired
+
+		add_executable(RBDoom3BFG MACOSX_BUNDLE ${MACOS_RESOURCES} ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
+	else()
+		add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
+	endif()
 
 	if(USE_VULKAN)
         add_dependencies(RBDoom3BFG nvrhi_vk)

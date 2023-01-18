@@ -68,7 +68,7 @@ If you have questions concerning this license or the applicable additional terms
 // RB begin
 // Default base path (used only if none could be found)
 #ifdef __APPLE__
-	#define DEFAULT_BASEPATH				"/Applications/RBDOOM-3-BFG.app/Contents/Resources"
+	#define DEFAULT_BASEPATH				"/Applications/RBDoom3BFG.app/Contents/Resources"
 #else
 	#define DEFAULT_BASEPATH				"/usr/share/games/doom3bfg"
 #endif

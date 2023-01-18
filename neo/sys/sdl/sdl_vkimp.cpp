@@ -484,7 +484,7 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 	// if we're currently not in fullscreen mode, we need to switch to fullscreen
 	if( !( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN ) )
 	{
-		if( SDL_SetWindowFullscreen( window, SDL_TRUE ) < 0 )
+		if( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN ) < 0 )
 		{
 			common->Warning( "Couldn't switch to fullscreen mode, reason: %s!", SDL_GetError() );
 			return false;
@@ -510,14 +510,16 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 		}
 	}
 
+	// if window is maximized, restore it to normal before setting size
+	if( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED )
+	{
+        SDL_RestoreWindow( window );
+	}
+
 	SDL_SetWindowSize( window, parms.width, parms.height );
 
-	// SRS - this logic prevents window position drift on linux when coming in and out of fullscreen
 #if !defined(__APPLE__)
-	SDL_bool borderState = SDL_GetWindowFlags( window ) & SDL_WINDOW_BORDERLESS ? SDL_FALSE : SDL_TRUE;
-	SDL_SetWindowBordered( window, SDL_FALSE );
 	SDL_SetWindowPosition( window, parms.x, parms.y );
-	SDL_SetWindowBordered( window, borderState );
 #endif
 
 	return true;
@@ -722,6 +724,8 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 
 	modeList.Clear();
 
+	bool	verbose = false;
+
 	// DG: SDL2 implementation
 	if( requestedDisplayNum >= SDL_GetNumVideoDisplays() )
 	{
@@ -740,6 +744,28 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			{
 				common->Warning( "Can't get video mode no %i, because of %s\n", i, SDL_GetError() );
 				continue;
+			}
+
+			if( SDL_BITSPERPIXEL( m.format ) != 32 && SDL_BITSPERPIXEL( m.format ) != 24 )
+			{
+				continue;
+			}
+			if( ( m.refresh_rate != 60 ) && ( m.refresh_rate != 120 ) )
+			{
+				continue;
+			}
+			if( m.h < 720 )
+			{
+				continue;
+			}
+			if( verbose )
+			{
+				common->Printf( "          -------------------\n" );
+				common->Printf( "          modeNum             : %i\n", i );
+				common->Printf( "          dmBitsPerPel        : %i\n", SDL_BITSPERPIXEL( m.format ) );
+				common->Printf( "          dmPelsWidth         : %i\n", m.w );
+				common->Printf( "          dmPelsHeight        : %i\n", m.h );
+				common->Printf( "          dmDisplayFrequency  : %i\n", m.refresh_rate );
 			}
 
 			vidMode_t mode;

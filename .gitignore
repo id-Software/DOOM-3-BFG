@@ -1,5 +1,6 @@
 build*
 eclipse*
+xcode*
 neo/ipch
 *~
 *.gch
@@ -7,6 +8,7 @@ neo/ipch
 *.exe
 *.7z
 *.zip
+.DS_Store
 imgui.ini
 
 Doom3BFG.exe
@@ -36,6 +38,7 @@ base/strings/
 base/video/
 base/wads/
 base/renderprogs2/
+base/generated/
 
 GPATH
 GRTAGS
