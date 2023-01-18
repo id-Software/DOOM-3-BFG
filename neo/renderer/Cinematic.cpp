@@ -757,11 +757,11 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping, n
 		}
 		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d, Format=%s, Planar=%d\n", dec_ctx2->sample_rate,
 #if	LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59,37,100)
-					   dec_ctx2->ch_layout.nb_channels,
+						dec_ctx2->ch_layout.nb_channels,
 #else
-					   dec_ctx2->channels,
+						dec_ctx2->channels,
 #endif
-					   GetSampleFormat( dec_ctx2->sample_fmt ), hasplanar );
+						GetSampleFormat( dec_ctx2->sample_fmt ), hasplanar );
 
 #if defined(_MSC_VER) && !defined(USE_OPENAL)
 		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_XAudio2;
