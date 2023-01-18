@@ -513,7 +513,7 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 	// if window is maximized, restore it to normal before setting size
 	if( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED )
 	{
-        SDL_RestoreWindow( window );
+		SDL_RestoreWindow( window );
 	}
 
 	SDL_SetWindowSize( window, parms.width, parms.height );
