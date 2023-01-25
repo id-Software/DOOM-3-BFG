@@ -1817,13 +1817,24 @@ else()
 			set(remove_command "rm")
 		endif()
 
-		# make sure precompiled header is deleted after executable is compiled
-		add_custom_command(TARGET RBDoom3BFG POST_BUILD
-				COMMAND ${remove_command} "idlib/precompiled.h.gch"
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				COMMENT "remove idlib/precompiled.h.gch"
-		)
-	endif()	
+		# delete precompiled header file after executable is compiled: command line build case
+		if(CMAKE_GENERATOR MATCHES "Makefiles" OR CMAKE_GENERATOR MATCHES "Ninja")
+			add_custom_target(rm_precomp_header ALL
+					COMMAND ${remove_command} "idlib/precompiled.h.gch"
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "remove idlib/precompiled.h.gch"
+					)
+			add_dependencies(rm_precomp_header RBDoom3BFG)
+
+		# delete precompiled header file after executable is compiled: IDE build case (e.g. Xcode)
+		else()
+			add_custom_command(TARGET RBDoom3BFG POST_BUILD
+					COMMAND ${remove_command} "idlib/precompiled.h.gch"
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "remove idlib/precompiled.h.gch"
+			)
+		endif()
+	endif()
 
 	if(NOT WIN32)
         if(NOT APPLE)
