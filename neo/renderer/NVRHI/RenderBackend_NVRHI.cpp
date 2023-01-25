@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "../../framework/Common_local.h"
-#include "../../imgui/imgui.h"
+#include "imgui.h"
 #include "../ImmediateMode.h"
 
 #include "nvrhi/utils.h"

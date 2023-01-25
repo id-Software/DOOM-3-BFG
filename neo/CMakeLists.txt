@@ -348,6 +348,7 @@ else (JPEG_FOUND)
     set(JPEG_LIBRARY "" )
 endif (JPEG_FOUND)
 
+include_directories("libs/imgui")
 
 macro(SET_OPTION option value)
   set(${option} ${value} CACHE "" INTERNAL FORCE)
