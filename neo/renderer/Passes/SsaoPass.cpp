@@ -34,6 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 
 struct SsaoConstants
 {
+	idVec2i		viewportOrigin;
+	idVec2i		viewportSize;
+
 	idVec2      clipToView;
 	idVec2      invQuantizedGbufferSize;
 
@@ -224,7 +227,7 @@ void SsaoPass::CreateBindingSet(
 void SsaoPass::Render(
 	nvrhi::ICommandList* commandList,
 	const SsaoParameters& params,
-	viewDef_t* viewDef,
+	const viewDef_t* viewDef,
 	int bindingSetIndex )
 {
 	assert( m_Deinterleave.BindingSets[bindingSetIndex] );
@@ -241,17 +244,19 @@ void SsaoPass::Render(
 	quarterResExtent.maxY = ( quarterResExtent.maxY + 3 ) / 4;
 
 	SsaoConstants ssaoConstants = {};
+	ssaoConstants.viewportOrigin = idVec2i( viewDef->viewport.x1, viewDef->viewport.y1 );
+	ssaoConstants.viewportSize = idVec2i( viewDef->viewport.GetWidth(), viewDef->viewport.GetHeight() );
 	ssaoConstants.clipToView = idVec2(
 								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[0 * 4 + 0],
-								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[0 * 4 + 1] );
+								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[1 * 4 + 1] );
 	ssaoConstants.invQuantizedGbufferSize = 1.f / m_QuantizedGbufferTextureSize;
 	ssaoConstants.quantizedViewportOrigin = idVec2i( quarterResExtent.minX, quarterResExtent.minY ) * 4;
 	ssaoConstants.amount = params.amount;
 	ssaoConstants.invBackgroundViewDepth = ( params.backgroundViewDepth > 0.f ) ? 1.f / params.backgroundViewDepth : 0.f;
 	ssaoConstants.radiusWorld = params.radiusWorld;
 	ssaoConstants.surfaceBias = params.surfaceBias;
-	ssaoConstants.powerExponent = params.powerExponent;
 	ssaoConstants.radiusToScreen = 0.5f * viewDef->viewport.GetHeight() * abs( viewDef->projectionMatrix[1 * 4 + 1] );
+	ssaoConstants.powerExponent = params.powerExponent;
 	commandList->writeBuffer( m_ConstantBuffer, &ssaoConstants, sizeof( ssaoConstants ) );
 
 	uint32_t dispatchWidth = ( quarterResExtent.width() + 7 ) / 8;

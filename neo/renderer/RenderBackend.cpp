@@ -5878,7 +5878,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	}
 
 	// FIXME: the hierarchical depth buffer does not work with the MSAA depth texture source
-	if( r_useSSAO.GetInteger() <= 0 || r_useSSAO.GetInteger() > 1 || R_GetMSAASamples() > 1 )
+	if( !r_useSSAO.GetBool() || R_GetMSAASamples() > 1 )
 	{
 		return;
 	}
@@ -5908,7 +5908,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 #if defined( USE_NVRHI )
 	commandList->clearTextureFloat( globalImages->hierarchicalZbufferImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
 	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[0]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
-	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[1]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
 #endif
 
 	// build hierarchical depth buffer
@@ -6147,6 +6146,10 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	if( r_ssaoFiltering.GetBool() )
 	{
 		float jitterTexScale[4];
+		
+#if defined( USE_NVRHI )
+		commandList->clearTextureFloat( globalImages->ambientOcclusionImage[1]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
+#endif
 
 		// AO blur X
 		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
@@ -6241,7 +6244,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 		return;
 	}
 
-	if( r_useSSAO.GetInteger() <= 0 || r_useSSAO.GetInteger() < 2 )
+	if( !r_useSSAO.GetBool() )
 	{
 		return;
 	}
@@ -6257,7 +6260,24 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 		return;
 	}
 
-	//GL_CheckErrors();
+	renderLog.OpenMainBlock( MRB_SSAO_PASS );
+	renderLog.OpenBlock( "Render_NewSSAO", colorBlue );
+
+	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[0]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
+	
+	SsaoParameters ssaoParams;
+	// SRS - these are the defaults, but explicitly listed here for testing and possible adjustment
+	ssaoParams.amount = 2.f;
+	ssaoParams.backgroundViewDepth = 100.f;
+	ssaoParams.radiusWorld = 0.5f;
+	ssaoParams.surfaceBias = .1f;
+	ssaoParams.powerExponent = 2.f;
+	ssaoParams.enableBlur = true;
+	ssaoParams.blurSharpness = 16.f;
+	ssaoPass->Render( commandList, ssaoParams, _viewDef, 0 );
+
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 #endif
 }
 
@@ -6600,14 +6620,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 			delete hiZGenPass;
 		}
 
-		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
-		{
-			hiZGenPass = NULL;
-		}
-		else
-		{
-			hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
-		}
+		hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
 	}
 
 
@@ -6854,7 +6867,16 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// build hierarchical depth buffer and SSAO render target
 	//-------------------------------------------------
-	DrawScreenSpaceAmbientOcclusion( _viewDef, false );
+#if defined( USE_NVRHI )
+	if( r_useNewSsaoPass.GetBool() )
+	{
+		DrawScreenSpaceAmbientOcclusion2( _viewDef, false );
+	}
+	else
+#endif
+	{
+		DrawScreenSpaceAmbientOcclusion( _viewDef, false );
+	}
 
 	//-------------------------------------------------
 	// render static lighting and consider SSAO results

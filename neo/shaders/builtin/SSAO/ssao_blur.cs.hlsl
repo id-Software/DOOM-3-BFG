@@ -26,6 +26,9 @@
 
 struct SsaoConstants
 {
+	int2		viewportOrigin;
+	int2		viewportSize;
+
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
 
@@ -168,10 +171,9 @@ void main( uint2 groupId : SV_GroupID, uint2 threadId : SV_GroupThreadID, uint2 
 #endif
 
 	int2 storePos = int2( globalId.xy ) + g_Ssao.quantizedViewportOrigin;
-	float2 storePosF = float2( storePos );
 
-	//if (all(storePosF >= g_Ssao.view.viewportOrigin.xy) && all(storePosF < g_Ssao.view.viewportOrigin.xy + g_Ssao.view.viewportSize.xy))
-	//{
-	//    u_RenderTarget[storePos] = totalOcclusion;
-	//}
+	if (all(storePos >= g_Ssao.viewportOrigin.xy) && all(storePos < g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy))
+	{
+		u_RenderTarget[storePos] = totalOcclusion;
+	}
 }

@@ -93,7 +93,7 @@ public:
 	void Render(
 		nvrhi::ICommandList* commandList,
 		const SsaoParameters& params,
-		viewDef_t* viewDef,
+		const viewDef_t* viewDef,
 		int bindingSetIndex = 0 );
 };
 

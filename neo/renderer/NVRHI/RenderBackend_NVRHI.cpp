@@ -249,12 +249,6 @@ void idRenderBackend::Init()
 	currentJointOffset = 0;
 	prevBindingLayoutType = -1;
 
-	// RB: FIXME but for now disable it to avoid validation errors
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
-	{
-		r_useSSAO.SetBool( false );
-	}
-
 	deviceManager->GetDevice()->waitForIdle();
 	deviceManager->GetDevice()->runGarbageCollection();
 }
@@ -1858,12 +1852,6 @@ void idRenderBackend::CheckCVars()
 		r_antiAliasing.ClearModified();
 	}
 #endif
-
-	// RB: FIXME but for now disable it to avoid validation errors
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
-	{
-		r_useSSAO.SetBool( false );
-	}
 }
 
 /*

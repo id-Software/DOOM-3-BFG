@@ -83,7 +83,7 @@ cbuffer c_MipMapgen : register( b0 )
 	MipmmapGenConstants g_MipMapGen;
 };
 
-RWTexture2D<VALUE_TYPE> u_output[NUM_LODS] : register( u0 );
+RWTexture2D<VALUE_TYPE> u_output[] : register( u0 );
 Texture2D<VALUE_TYPE> t_input : register( t0 );
 // *INDENT-ON*
 

@@ -26,6 +26,9 @@
 
 struct SsaoConstants
 {
+	int2		viewportOrigin;
+	int2		viewportSize;
+
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
 
