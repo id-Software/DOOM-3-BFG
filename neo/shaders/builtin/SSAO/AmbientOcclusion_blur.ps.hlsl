@@ -22,9 +22,9 @@
 // *INDENT-OFF*
 #define VALUE_TYPE float
 
-Texture2D				t_NormalRoughness	: register( t0 VK_DESCRIPTOR_SET( 1 ) );
-Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 VK_DESCRIPTOR_SET( 1 ) );
-Texture2D				t_Ao				: register( t2 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D				t_NormalRoughness	: register( t0 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_Ao				: register( t2 VK_DESCRIPTOR_SET( 0 ) );
 
 #define normal_buffer	t_NormalRoughness
 #define cszBuffer		t_ViewDepth
@@ -103,7 +103,7 @@ float3 sampleNormal( Texture2D normalBuffer, int2 ssC, int mipLevel )
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -16000.0;
+static const float FAR_PLANE_Z = -16000.0;
 
 float CSZToKey( float z )
 {
