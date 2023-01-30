@@ -34,8 +34,13 @@ If you have questions concerning this license or the applicable additional terms
 
 struct SsaoConstants
 {
-	idVec2i		viewportOrigin;
-	idVec2i		viewportSize;
+	idVec2		viewportOrigin;
+	idVec2		viewportSize;
+
+	idVec4		modelMatrixX;
+	idVec4		modelMatrixY;
+	idVec4		modelMatrixZ;
+	idVec4 		modelMatrixW;
 
 	idVec2      clipToView;
 	idVec2      invQuantizedGbufferSize;
@@ -244,8 +249,9 @@ void SsaoPass::Render(
 	quarterResExtent.maxY = ( quarterResExtent.maxY + 3 ) / 4;
 
 	SsaoConstants ssaoConstants = {};
-	ssaoConstants.viewportOrigin = idVec2i( viewDef->viewport.x1, viewDef->viewport.y1 );
-	ssaoConstants.viewportSize = idVec2i( viewDef->viewport.GetWidth(), viewDef->viewport.GetHeight() );
+	ssaoConstants.viewportOrigin = idVec2( viewDef->viewport.x1, viewDef->viewport.y1 );
+	ssaoConstants.viewportSize = idVec2( viewDef->viewport.GetWidth(), viewDef->viewport.GetHeight() );
+	idRenderMatrix::CopyMatrix( *( idRenderMatrix* )viewDef->worldSpace.modelMatrix, ssaoConstants.modelMatrixX, ssaoConstants.modelMatrixY, ssaoConstants.modelMatrixZ, ssaoConstants.modelMatrixW );
 	ssaoConstants.clipToView = idVec2(
 								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[0 * 4 + 0],
 								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[1 * 4 + 1] );

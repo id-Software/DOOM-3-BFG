@@ -26,8 +26,13 @@
 
 struct SsaoConstants
 {
-	int2		viewportOrigin;
-	int2		viewportSize;
+	float2		viewportOrigin;
+	float2		viewportSize;
+
+	float4		modelMatrixX;
+	float4		modelMatrixY;
+	float4		modelMatrixZ;
+	float4 		modelMatrixW;
 
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
@@ -72,10 +77,10 @@ void main( uint3 globalId : SV_DispatchThreadID )
 #else
 			float4 clipPos = float4( 0, 0, depth, 1 );
 			float4 viewPos;
-			viewPos.x = dot4( clipPos, rpModelMatrixX );
-			viewPos.y = dot4( clipPos, rpModelMatrixY );
-			viewPos.z = dot4( clipPos, rpModelMatrixZ );
-			viewPos.w = dot4( clipPos, rpModelMatrixW );
+			viewPos.x = dot4( clipPos, g_Ssao.modelMatrixX );
+			viewPos.y = dot4( clipPos, g_Ssao.modelMatrixY );
+			viewPos.z = dot4( clipPos, g_Ssao.modelMatrixZ );
+			viewPos.w = dot4( clipPos, g_Ssao.modelMatrixW );
 
 			float linearDepth = viewPos.z / viewPos.w;
 #endif

@@ -26,8 +26,13 @@
 
 struct SsaoConstants
 {
-	int2		viewportOrigin;
-	int2		viewportSize;
+	float2		viewportOrigin;
+	float2		viewportSize;
+
+	float4		modelMatrixX;
+	float4		modelMatrixY;
+	float4		modelMatrixZ;
+	float4 		modelMatrixW;
 
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
@@ -172,8 +177,8 @@ float ComputeAO( float3 V, float3 N, float InvR2 )
 
 float2 WindowToClip( float2 windowPos )
 {
-	float2 clipToWindowScale = float2( 0.5f * rpWindowCoord.z, -0.5f * rpWindowCoord.w );
-	float2 clipToWindowBias = rpViewOrigin.xy + rpWindowCoord.zw * 0.5f;
+	float2 clipToWindowScale = float2( 0.5f * g_Ssao.viewportSize.x, -0.5f * g_Ssao.viewportSize.y );
+	float2 clipToWindowBias = g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy * 0.5f;
 
 	float2 windowToClipScale = 1.f / clipToWindowScale;
 	float2 windowToClipBias = -clipToWindowBias * windowToClipScale;
@@ -204,9 +209,9 @@ void main( uint3 globalId : SV_DispatchThreadID )
 
 	// View to clip space.
 	float3 pN;
-	pN.x = dot4( float4( pixelNormal, 0 ), rpModelMatrixX );
-	pN.y = dot4( float4( pixelNormal, 0 ), rpModelMatrixY );
-	pN.z = dot4( float4( pixelNormal, 0 ), rpModelMatrixZ );
+	pN.x = dot4( float4( pixelNormal, 0 ), g_Ssao.modelMatrixX );
+	pN.y = dot4( float4( pixelNormal, 0 ), g_Ssao.modelMatrixY );
+	pN.z = dot4( float4( pixelNormal, 0 ), g_Ssao.modelMatrixZ );
 
 	pixelNormal = normalize( pN );
 
@@ -272,9 +277,9 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	if( directionalLength > 0 )
 	{
 		float3 worldSpaceResult;
-		worldSpaceResult.x = dot4( float4( normalize( result.xyz ), 0 ), rpModelMatrixX );
-		worldSpaceResult.y = dot4( float4( normalize( result.xyz ), 0 ), rpModelMatrixY );
-		worldSpaceResult.z = dot4( float4( normalize( result.xyz ), 0 ), rpModelMatrixZ );
+		worldSpaceResult.x = dot4( float4( normalize( result.xyz ), 0 ), g_Ssao.modelMatrixX );
+		worldSpaceResult.y = dot4( float4( normalize( result.xyz ), 0 ), g_Ssao.modelMatrixY );
+		worldSpaceResult.z = dot4( float4( normalize( result.xyz ), 0 ), g_Ssao.modelMatrixZ );
 
 		result.xyz = worldSpaceResult.xyz * directionalLength;
 	}

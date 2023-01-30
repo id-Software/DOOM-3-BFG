@@ -26,8 +26,13 @@
 
 struct SsaoConstants
 {
-	int2		viewportOrigin;
-	int2		viewportSize;
+	float2		viewportOrigin;
+	float2		viewportSize;
+
+	float4		modelMatrixX;
+	float4		modelMatrixY;
+	float4		modelMatrixZ;
+	float4 		modelMatrixW;
 
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
@@ -171,8 +176,9 @@ void main( uint2 groupId : SV_GroupID, uint2 threadId : SV_GroupThreadID, uint2 
 #endif
 
 	int2 storePos = int2( globalId.xy ) + g_Ssao.quantizedViewportOrigin;
+	float2 storePosF = float2( storePos );
 
-	if (all(storePos >= g_Ssao.viewportOrigin.xy) && all(storePos < g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy))
+	if (all(storePosF >= g_Ssao.viewportOrigin.xy) && all(storePosF < g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy))
 	{
 		u_RenderTarget[storePos] = totalOcclusion;
 	}
