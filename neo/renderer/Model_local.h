@@ -271,6 +271,8 @@ struct md3Surface_s;
 class idRenderModelMD3 : public idRenderModelStatic
 {
 public:
+	idRenderModelMD3();
+
 	virtual void				InitFromFile( const char* fileName, const idImportOptions* options );
 	virtual bool				SupportsBinaryModel()
 	{
@@ -285,6 +287,7 @@ private:
 	int							dataSize;		// just for listing purposes
 	struct md3Header_s* 		md3;			// only if type == MOD_MESH
 	int							numLods;
+	idList<const idMaterial*>	shaders;		// DG: md3Shader_t::shaderIndex indexes into this array
 
 	void						LerpMeshVertexes( srfTriangles_t* tri, const struct md3Surface_s* surf, const float backlerp, const int frame, const int oldframe ) const;
 };
