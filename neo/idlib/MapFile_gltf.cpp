@@ -560,14 +560,15 @@ void ResolveEntity( gltfData* data, idMapEntity* newEntity, gltfNode* node )
 #endif
 }
 
-int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode* node , idDict epairs )
+int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode* node , idDict epairs , idMapEntity* worldspawn )
 {
 	int entityCount = 0;
 
 	const char* classname = node->extras.strPairs.GetString( "classname" );
 
 	// skip all nodes with "worldspawn." or "BSP" in the name
-	if( idStr::Icmpn( node->name, "BSP", 3 ) != 0 && idStr::Icmpn( node->name, "worldspawn.", 11 ) != 0 )
+	if( idStr::Icmpn( node->name, "BSP", 3 ) != 0
+			&& idStr::Icmpn( node->name, "worldspawn.", 11 ) != 0 )
 	{
 		idStr classnameStr = node->extras.strPairs.GetString( "classname" );
 
@@ -592,10 +593,14 @@ int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode*
 		}
 
 	}
+	else
+	{
+		AddMeshesToWorldspawn_r( worldspawn, node, mat4_identity, data );
+	}
 
 	for( auto& child : node->children )
 	{
-		entityCount += FindEntities( data, entities, data->NodeList()[child], epairs );
+		entityCount += FindEntities( data, entities, data->NodeList()[child], epairs , worldspawn );
 	}
 
 	return entityCount;
@@ -664,7 +669,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 				// add entities from all subnodes
 				for( auto& child : node->children )
 				{
-					entityCount += FindEntities( data, entities, data->NodeList()[child] , epairs );
+					entityCount += FindEntities( data, entities, data->NodeList()[child] , epairs, worldspawn );
 				}
 			}
 		}
