@@ -29,10 +29,9 @@ struct SsaoConstants
 	float2		viewportOrigin;
 	float2		viewportSize;
 
-	float4		modelMatrixX;
-	float4		modelMatrixY;
-	float4		modelMatrixZ;
-	float4 		modelMatrixW;
+	float4x4	matClipToView;
+	float4x4	matWorldToView;
+	float4x4	matViewToWorld;
 
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
@@ -207,13 +206,7 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float3 pixelNormal = t_Normals[pixelPos].xyz;
 #endif
 
-	// View to clip space.
-	float3 pN;
-	pN.x = dot4( float4( pixelNormal, 0 ), g_Ssao.modelMatrixX );
-	pN.y = dot4( float4( pixelNormal, 0 ), g_Ssao.modelMatrixY );
-	pN.z = dot4( float4( pixelNormal, 0 ), g_Ssao.modelMatrixZ );
-
-	pixelNormal = normalize( pN );
+	pixelNormal = normalize(mul(float4(pixelNormal, 0), g_Ssao.matWorldToView).xyz);
 
 	float2 pixelClipPos = WindowToClip( pixelPos );
 	float3 pixelViewPos = ViewDepthToViewPos( pixelClipPos.xy, pixelViewDepth );
@@ -276,12 +269,7 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float directionalLength = length( result.xyz );
 	if( directionalLength > 0 )
 	{
-		float3 worldSpaceResult;
-		worldSpaceResult.x = dot4( float4( normalize( result.xyz ), 0 ), g_Ssao.modelMatrixX );
-		worldSpaceResult.y = dot4( float4( normalize( result.xyz ), 0 ), g_Ssao.modelMatrixY );
-		worldSpaceResult.z = dot4( float4( normalize( result.xyz ), 0 ), g_Ssao.modelMatrixZ );
-
-		result.xyz = worldSpaceResult.xyz * directionalLength;
+		result.xyz = mul(float4(normalize(result.xyz), 0), g_Ssao.matViewToWorld).xyz * directionalLength;
 	}
 #endif
 

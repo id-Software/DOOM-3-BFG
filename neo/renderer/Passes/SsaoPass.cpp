@@ -36,11 +36,10 @@ struct SsaoConstants
 {
 	idVec2		viewportOrigin;
 	idVec2		viewportSize;
-
-	idVec4		modelMatrixX;
-	idVec4		modelMatrixY;
-	idVec4		modelMatrixZ;
-	idVec4 		modelMatrixW;
+	
+	idRenderMatrix matClipToView;
+	idRenderMatrix matWorldToView;
+	idRenderMatrix matViewToWorld;
 
 	idVec2      clipToView;
 	idVec2      invQuantizedGbufferSize;
@@ -251,7 +250,13 @@ void SsaoPass::Render(
 	SsaoConstants ssaoConstants = {};
 	ssaoConstants.viewportOrigin = idVec2( viewDef->viewport.x1, viewDef->viewport.y1 );
 	ssaoConstants.viewportSize = idVec2( viewDef->viewport.GetWidth(), viewDef->viewport.GetHeight() );
-	idRenderMatrix::CopyMatrix( *( idRenderMatrix* )viewDef->worldSpace.modelMatrix, ssaoConstants.modelMatrixX, ssaoConstants.modelMatrixY, ssaoConstants.modelMatrixZ, ssaoConstants.modelMatrixW );
+
+	// SRS - FIXME: These transformations need to be verified
+	ssaoConstants.matClipToView = viewDef->unprojectionToCameraRenderMatrix;
+	ssaoConstants.matViewToWorld = viewDef->unprojectionToWorldRenderMatrix;
+	idRenderMatrix::Inverse( ssaoConstants.matViewToWorld, ssaoConstants.matWorldToView );
+	// SRS end
+
 	ssaoConstants.clipToView = idVec2(
 								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[0 * 4 + 0],
 								   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[1 * 4 + 1] );

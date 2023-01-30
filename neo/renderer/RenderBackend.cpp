@@ -6241,7 +6241,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
 		// 3D views only
-		return;
+		// FIXME: Disable for now until flickering problem is solved
+		//return;
 	}
 
 	if( !r_useSSAO.GetBool() )

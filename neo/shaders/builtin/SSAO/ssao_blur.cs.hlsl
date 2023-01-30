@@ -29,10 +29,9 @@ struct SsaoConstants
 	float2		viewportOrigin;
 	float2		viewportSize;
 
-	float4		modelMatrixX;
-	float4		modelMatrixY;
-	float4		modelMatrixZ;
-	float4 		modelMatrixW;
+	float4x4	matClipToView;
+	float4x4	matWorldToView;
+	float4x4	matViewToWorld;
 
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
