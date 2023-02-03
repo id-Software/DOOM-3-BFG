@@ -58,6 +58,8 @@ idCVar r_useLightStencilSelect( "r_useLightStencilSelect", "0", CVAR_RENDERER | 
 
 extern idCVar stereoRender_swapEyes;
 
+// SRS - flag indicating whether we are drawing a 3d view vs. a 2d-only view (e.g. menu or pda)
+bool drawView3D;
 
 /*
 ================
@@ -6238,11 +6240,11 @@ NVRHI SSAO using compute shaders.
 */
 void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef, bool downModulateScreen )
 {
-	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
+	// SRS - run ssao pass on 3d + 2d overlay views to avoid flickering, skip for 2d-only views (menu & pda)
+	if( ( !_viewDef->viewEntitys || _viewDef->is2Dgui ) && !drawView3D )
 	{
 		// 3D views only
-		// FIXME: Disable for now until flickering problem is solved
-		//return;
+		return;
 	}
 
 	if( !r_useSSAO.GetBool() )
@@ -6266,15 +6268,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 
 	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[0]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
 	
-	SsaoParameters ssaoParams;
-	// SRS - these are the defaults, but explicitly listed here for testing and possible adjustment
-	ssaoParams.amount = 2.f;
-	ssaoParams.backgroundViewDepth = 100.f;
-	ssaoParams.radiusWorld = 0.5f;
-	ssaoParams.surfaceBias = .1f;
-	ssaoParams.powerExponent = 2.f;
-	ssaoParams.enableBlur = true;
-	ssaoParams.blurSharpness = 16.f;
+	SsaoParameters ssaoParams = {};
 	ssaoPass->Render( commandList, ssaoParams, _viewDef, 0 );
 
 	renderLog.CloseBlock();
@@ -6655,7 +6649,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 
 	// SRS - Save glConfig.timerQueryAvailable state so it can be disabled for RC_DRAW_VIEW_GUI then restored after it is finished
 	const bool timerQueryAvailable = glConfig.timerQueryAvailable;
-	bool drawView3D_timestamps = false;
+	drawView3D = false;
 
 	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
 	{
@@ -6665,7 +6659,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 
 			case RC_DRAW_VIEW_GUI:
-				if( drawView3D_timestamps )
+				if( drawView3D )
 				{
 					// SRS - Capture separate timestamps for overlay GUI rendering when RC_DRAW_VIEW_3D timestamps are active
 					renderLog.OpenMainBlock( MRB_DRAW_GUI );
@@ -6688,7 +6682,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 
 			case RC_DRAW_VIEW_3D:
-				drawView3D_timestamps = true;
+				drawView3D = true;
 				DrawView( cmds, 0 );
 				c_draw3d++;
 				break;
