@@ -269,28 +269,32 @@ void SsaoPass::Render(
 	ssaoConstants.radiusToScreen = 0.5f * viewDef->viewport.GetHeight() * abs( viewDef->projectionMatrix[1 * 4 + 1] );
 	ssaoConstants.powerExponent = params.powerExponent;
 	commandList->writeBuffer( m_ConstantBuffer, &ssaoConstants, sizeof( ssaoConstants ) );
+	
+	// SRS - after writing constant buffer, compute ssao for 3d views only
+	if( viewDef->viewEntitys && !viewDef->is2Dgui )
+	{
+		uint32_t dispatchWidth = ( quarterResExtent.width() + 7 ) / 8;
+		uint32_t dispatchHeight = ( quarterResExtent.height() + 7 ) / 8;
 
-	uint32_t dispatchWidth = ( quarterResExtent.width() + 7 ) / 8;
-	uint32_t dispatchHeight = ( quarterResExtent.height() + 7 ) / 8;
+		nvrhi::ComputeState state;
+		state.pipeline = m_Deinterleave.Pipeline;
+		state.bindings = { m_Deinterleave.BindingSets[bindingSetIndex] };
+		commandList->setComputeState( state );
+		commandList->dispatch( dispatchWidth, dispatchHeight, 1 );
 
-	nvrhi::ComputeState state;
-	state.pipeline = m_Deinterleave.Pipeline;
-	state.bindings = { m_Deinterleave.BindingSets[bindingSetIndex] };
-	commandList->setComputeState( state );
-	commandList->dispatch( dispatchWidth, dispatchHeight, 1 );
+		state.pipeline = m_Compute.Pipeline;
+		state.bindings = { m_Compute.BindingSets[bindingSetIndex] };
+		commandList->setComputeState( state );
+		commandList->dispatch( dispatchWidth, dispatchHeight, 16 );
 
-	state.pipeline = m_Compute.Pipeline;
-	state.bindings = { m_Compute.BindingSets[bindingSetIndex] };
-	commandList->setComputeState( state );
-	commandList->dispatch( dispatchWidth, dispatchHeight, 16 );
+		dispatchWidth = ( viewExtent.width() + 15 ) / 16;
+		dispatchHeight = ( viewExtent.height() + 15 ) / 16;
 
-	dispatchWidth = ( viewExtent.width() + 15 ) / 16;
-	dispatchHeight = ( viewExtent.height() + 15 ) / 16;
-
-	state.pipeline = m_Blur.Pipeline;
-	state.bindings = { m_Blur.BindingSets[bindingSetIndex] };
-	commandList->setComputeState( state );
-	commandList->dispatch( dispatchWidth, dispatchHeight, 1 );
+		state.pipeline = m_Blur.Pipeline;
+		state.bindings = { m_Blur.BindingSets[bindingSetIndex] };
+		commandList->setComputeState( state );
+		commandList->dispatch( dispatchWidth, dispatchHeight, 1 );
+	}
 
 	commandList->endMarker();
 }
