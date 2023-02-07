@@ -182,6 +182,7 @@ float2 WindowToClip( float2 windowPos )
 	float2 windowToClipScale = 1.f / clipToWindowScale;
 	float2 windowToClipBias = -clipToWindowBias * windowToClipScale;
 
+	// TODO add pixelOffset for TAA
 	return windowPos.xy * windowToClipScale + windowToClipBias;
 }
 
@@ -206,7 +207,8 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float3 pixelNormal = t_Normals[pixelPos].xyz;
 #endif
 
-	pixelNormal = normalize(mul(float4(pixelNormal, 0), g_Ssao.matWorldToView).xyz);
+	// RB: pixelNormal is already in view space
+	//pixelNormal = normalize( mul( float4( pixelNormal, 0 ), g_Ssao.matWorldToView ).xyz );
 
 	float2 pixelClipPos = WindowToClip( pixelPos );
 	float3 pixelViewPos = ViewDepthToViewPos( pixelClipPos.xy, pixelViewDepth );
@@ -269,7 +271,7 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float directionalLength = length( result.xyz );
 	if( directionalLength > 0 )
 	{
-		result.xyz = mul(float4(normalize(result.xyz), 0), g_Ssao.matViewToWorld).xyz * directionalLength;
+		result.xyz = mul( float4( normalize( result.xyz ), 0 ), g_Ssao.matViewToWorld ).xyz * directionalLength;
 	}
 #endif
 

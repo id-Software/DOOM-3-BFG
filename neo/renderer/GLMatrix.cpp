@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -537,13 +538,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 	projectionMatrix[3 * 4 + 0] = 0.0f;
 
 	projectionMatrix[0 * 4 + 1] = 0.0f;
-
-	// RB: Y axis now points down the screen
-#if defined(USE_VULKAN)
-	projectionMatrix[1 * 4 + 1] = -2.0f * zNear / height;
-#else
 	projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
-#endif
 	projectionMatrix[2 * 4 + 1] = yoffset;
 	projectionMatrix[3 * 4 + 1] = 0.0f;
 

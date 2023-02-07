@@ -75,7 +75,8 @@ void main( uint3 globalId : SV_DispatchThreadID )
 			float linearDepth = depth;
 #else
 			float4 clipPos = float4( 0, 0, depth, 1 );
-			float4 viewPos = mul(clipPos, g_Ssao.matClipToView);
+			//float4 clipPos = float4( 0, 0, depth * 2.0 - 1.0, 1 );
+			float4 viewPos = mul( clipPos, g_Ssao.matClipToView );
 			float linearDepth = viewPos.z / viewPos.w;
 #endif
 

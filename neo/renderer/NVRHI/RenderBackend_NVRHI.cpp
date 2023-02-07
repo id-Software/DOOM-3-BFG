@@ -1749,10 +1749,6 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 	if( depth || stencil )
 	{
 		nvrhi::utils::ClearDepthStencilAttachment( commandList, framebuffer, 1.0f, stencilValue );
-
-		//nvrhi::ITexture* depthTexture = ( nvrhi::ITexture* )( globalImages->currentDepthImage->GetTextureID() );
-		//const nvrhi::FormatInfo& depthFormatInfo = nvrhi::getFormatInfo( depthTexture->getDesc().format );
-		//commandList->clearDepthStencilTexture( depthTexture, nvrhi::AllSubresources, depth, 1.f, depthFormatInfo.hasStencil, stencilValue );
 	}
 }
 

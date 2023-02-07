@@ -43,9 +43,6 @@
 
 #define MIN_MIP_LEVEL 0
 
-static const float DOOM_TO_METERS = 0.0254;					// doom to meters
-static const float METERS_TO_DOOM = ( 1.0 / DOOM_TO_METERS );	// meters to doom
-
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
 static const float FAR_PLANE_Z = -4000.0;

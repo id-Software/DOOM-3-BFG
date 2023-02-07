@@ -6148,7 +6148,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	if( r_ssaoFiltering.GetBool() )
 	{
 		float jitterTexScale[4];
-		
+
 #if defined( USE_NVRHI )
 		commandList->clearTextureFloat( globalImages->ambientOcclusionImage[1]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
 #endif
@@ -6240,15 +6240,14 @@ NVRHI SSAO using compute shaders.
 */
 void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef, bool downModulateScreen )
 {
-	// SRS - run ssao pass on 3d + 2d overlay views to avoid flickering, skip for 2d-only views (menu & pda)
-	if( ( !_viewDef->viewEntitys || _viewDef->is2Dgui ) && !drawView3D )
+	if( !r_useSSAO.GetBool() )
 	{
-		// 3D views only
 		return;
 	}
 
-	if( !r_useSSAO.GetBool() )
+	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
+		// 3D views only
 		return;
 	}
 
@@ -6264,12 +6263,11 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 	}
 
 	renderLog.OpenMainBlock( MRB_SSAO_PASS );
-	renderLog.OpenBlock( "Render_NewSSAO", colorBlue );
+	renderLog.OpenBlock( "Render_SSAO2", colorBlue );
 
 	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[0]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
-	
-	SsaoParameters ssaoParams = {};
-	ssaoPass->Render( commandList, ssaoParams, _viewDef, 0 );
+
+	ssaoPass->Render( commandList, _viewDef, 0 );
 
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
