@@ -30,7 +30,7 @@
 static idCVar r_ssaoBackgroundViewDepth( "r_ssaoBackgroundViewDepth", "100", CVAR_RENDERER | CVAR_FLOAT, "" );
 static idCVar r_ssaoRadiusWorld( "r_ssaoRadiusWorld", "0.5", CVAR_RENDERER | CVAR_FLOAT, "" );
 static idCVar r_ssaoSurfaceBias( "r_ssaoSurfaceBias", "0.1", CVAR_RENDERER | CVAR_FLOAT, "" );
-static idCVar r_ssaoPowerExponent( "r_ssaoSurfaceBias", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
+static idCVar r_ssaoPowerExponent( "r_ssaoPowerExponent", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
 static idCVar r_ssaoBlurSharpness( "r_ssaoBlurSharpness", "16", CVAR_RENDERER | CVAR_FLOAT, "" );
 static idCVar r_ssaoAmount( "r_ssaoAmount", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
 
