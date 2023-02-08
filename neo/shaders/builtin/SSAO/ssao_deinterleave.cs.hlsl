@@ -26,6 +26,13 @@
 
 struct SsaoConstants
 {
+	float2		viewportOrigin;
+	float2		viewportSize;
+
+	float4x4	matClipToView;
+	float4x4	matWorldToView;
+	float4x4	matViewToWorld;
+
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
 
@@ -67,14 +74,22 @@ void main( uint3 globalId : SV_DispatchThreadID )
 #if LINEAR_DEPTH
 			float linearDepth = depth;
 #else
-			float4 clipPos = float4( 0, 0, depth, 1 );
-			float4 viewPos;
-			viewPos.x = dot4( clipPos, rpModelMatrixX );
-			viewPos.y = dot4( clipPos, rpModelMatrixY );
-			viewPos.z = dot4( clipPos, rpModelMatrixZ );
-			viewPos.w = dot4( clipPos, rpModelMatrixW );
+			//float4 clipPos = float4( 0, 0, depth, 1 );
+			//float4 clipPos = float4( 0, 0, depth * 2.0 - 1.0, 1 );
 
+			// adjust depth
+			depth = ( depth * 2.0 - 1.0 );
+			float4 clipPos = float4( 0, 0, depth, 1 );
+
+			float4 viewPos = mul( clipPos, g_Ssao.matClipToView );
 			float linearDepth = viewPos.z / viewPos.w;
+
+			// HACK: adjust linear depth to fit into [0 .. 16000] range
+			//linearDepth += 0.35;
+			//linearDepth = saturate( linearDepth );
+			//linearDepth = 1.0 - linearDepth; // reverse depth
+			//linearDepth *= 4000; // zFar
+			//linearDepth *= DOOM_TO_METERS;
 #endif
 
 			depths[y * 4 + x] = linearDepth;

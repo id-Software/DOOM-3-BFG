@@ -165,6 +165,9 @@ static float dot4( float2 a, float4 b )
 // RB: the golden ratio is useful to animate Blue noise
 #define c_goldenRatioConjugate 0.61803398875
 
+static const float DOOM_TO_METERS = 0.0254;					// doom to meters
+static const float METERS_TO_DOOM = ( 1.0 / DOOM_TO_METERS );	// meters to doom
+
 // ----------------------
 // sRGB <-> Linear RGB Color Conversion
 // ----------------------
@@ -494,78 +497,5 @@ float3 Hash33( float3 p3 )
 	p3 += dot( p3, p3.yxz + 19.19 );
 	return frac( ( p3.xxy + p3.yxx ) * p3.zyx );
 }
-
-/*
-static float3 DitherRGB( float3 color, float2 uvSeed, float quantSteps )
-{
-	// uniform noise
-	//float3 noise = Hash33( float3( uvSeed, rpJitterTexOffset.w ) );
-
-	//float3 noise = float3( InterleavedGradientNoise( uvSeed ) );
-	float3 noise = _float3( InterleavedGradientNoiseAnim( uvSeed, rpJitterTexOffset.w ) );
-
-	// triangular noise [-0.5;1.5[
-
-#if 1
-	noise.x = RemapNoiseTriErp( noise.x );
-	noise = noise * 2.0 - 0.5;
-#endif
-
-	noise = _float3( noise.x );
-
-	// quantize/truncate color and dither the result
-	//float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-
-	// lets assume 2^3 bits = 8
-	//float scale = 7.0;
-	//const float quantSteps = 8.0;
-	float scale = quantSteps - 1.0;
-
-	// apply dither
-	color += noise / ( quantSteps );
-
-	color = floor( color * scale ) / scale;
-
-	//float3 color = c + whiteNoise / 255.0;
-
-	return color;
-}
-*/
-
-/*
-static float3 DitherChromaticBlueNoise( float3 color, float2 n, SamplerState blueTex )
-{
-	// uniform noise
-	//float3 noise = Hash33( float3( n, rpJitterTexOffset.w ) );
-
-	//float3 noise = float3( InterleavedGradientNoise( n ) );
-	//float3 noise = float3( InterleavedGradientNoiseAnim( n, rpJitterTexOffset.w ) );
-
-	// uv is screen position / sizeof blue noise image
-	float2 uv = n.xy * rpJitterTexOffset.xy;
-	float3 noise = tex2D( blueTex, uv ).rgb;
-
-	// rpJitterTexOffset.w is frameTime % 64
-	noise = frac( noise + c_goldenRatioConjugate * rpJitterTexOffset.w );
-
-	// triangular noise [-0.5;1.5[
-	noise.x = RemapNoiseTriErp( noise.x );
-	noise = noise * 2.0 - 0.5;
-
-	//noise = float3( noise.x );
-
-	// quantize/truncate color and dither the result
-	//float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-
-	// lets assume 2^3 bits = 8
-	float quantSteps = 255.0;
-
-	//float3 color = floor( c * scale + noise ) / scale;
-
-	color = floor( 0.5 + color * quantSteps - 0.5 + noise ) * ( 1.0 / ( quantSteps - 1.0 ) );
-
-	return color;
-}
-*/
 
 #define SMAA_RT_METRICS float4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)

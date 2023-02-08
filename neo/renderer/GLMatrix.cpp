@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -494,6 +495,19 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 	//
 	const float zNear = ( viewDef->renderView.cramZNear ) ? ( r_znear.GetFloat() * 0.25f ) : r_znear.GetFloat();
 
+	const int viewWidth = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
+	const int viewHeight = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
+
+	// TODO integrate jitterx += viewDef->renderView.stereoScreenSeparation;
+
+	// this mimics the logic in the Donut Feature Demo
+	const float xoffset = -2.0f * jitterx / ( 1.0f * viewWidth );
+	const float yoffset = -2.0f * jittery / ( 1.0f * viewHeight );
+
+	float* projectionMatrix = doJitter ? viewDef->projectionMatrix : viewDef->unjitteredProjectionMatrix;
+
+#if 0
+
 	float ymax = zNear * tan( viewDef->renderView.fov_y * idMath::PI / 360.0f );
 	float ymin = -ymax;
 
@@ -503,47 +517,13 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 	const float width = xmax - xmin;
 	const float height = ymax - ymin;
 
-	const int viewWidth = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
-	const int viewHeight = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
-
-#if 0
-	jitterx = jitterx * width / viewWidth;
-	jitterx += r_centerX.GetFloat();
-	jitterx += viewDef->renderView.stereoScreenSeparation;
-	xmin += jitterx * width;
-	xmax += jitterx * width;
-	const float xoffset = ( xmax + xmin ) / width; // 0 without jitter
-
-	jittery = jittery * height / viewHeight;
-	jittery += r_centerY.GetFloat();
-	ymin += jittery * height;
-	ymax += jittery * height;
-	const float yoffset = ( ymax + ymin ) / height;
-
-#else
-	// this mimics the logic in the Donut / Feature Demo
-	const float xoffset = -2.0f * jitterx / ( 1.0f * viewWidth );
-	const float yoffset = -2.0f * jittery / ( 1.0f * viewHeight );
-#endif
-
-	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan
-	// for a detailed explanation see https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-
-	float* projectionMatrix = doJitter ? viewDef->projectionMatrix : viewDef->unjitteredProjectionMatrix;
-
 	projectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
 	projectionMatrix[1 * 4 + 0] = 0.0f;
 	projectionMatrix[2 * 4 + 0] = xoffset;
 	projectionMatrix[3 * 4 + 0] = 0.0f;
 
 	projectionMatrix[0 * 4 + 1] = 0.0f;
-
-	// RB: Y axis now points down the screen
-#if defined(USE_VULKAN)
-	projectionMatrix[1 * 4 + 1] = -2.0f * zNear / height;
-#else
 	projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
-#endif
 	projectionMatrix[2 * 4 + 1] = yoffset;
 	projectionMatrix[3 * 4 + 1] = 0.0f;
 
@@ -562,6 +542,43 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 	projectionMatrix[1 * 4 + 3] = 0.0f;
 	projectionMatrix[2 * 4 + 3] = -1.0f;
 	projectionMatrix[3 * 4 + 3] = 0.0f;
+
+#else
+
+	// alternative Z for better precision in the distance
+
+	float aspect = viewDef->renderView.fov_x / viewDef->renderView.fov_y;
+
+	float yScale = 1.0f / ( tanf( 0.5f * DEG2RAD( viewDef->renderView.fov_y ) ) );
+	float xScale = yScale / aspect;
+
+	const float epsilon = 1.9073486328125e-6F;	// 2^-19;
+	const float zFar = 160000;
+
+	//float k = zFar / ( zFar - zNear );
+	float k = 1.0f - epsilon;
+
+	projectionMatrix[0 * 4 + 0] = xScale;
+	projectionMatrix[1 * 4 + 0] = 0.0f;
+	projectionMatrix[2 * 4 + 0] = xoffset;
+	projectionMatrix[3 * 4 + 0] = 0.0f;
+
+	projectionMatrix[0 * 4 + 1] = 0.0f;
+	projectionMatrix[1 * 4 + 1] = yScale;
+	projectionMatrix[2 * 4 + 1] = yoffset;
+	projectionMatrix[3 * 4 + 1] = 0.0f;
+
+	projectionMatrix[0 * 4 + 2] = 0.0f;
+	projectionMatrix[1 * 4 + 2] = 0.0f;
+	projectionMatrix[2 * 4 + 2] = -k;
+	projectionMatrix[3 * 4 + 2] = -k * zNear;
+
+	projectionMatrix[0 * 4 + 3] = 0.0f;
+	projectionMatrix[1 * 4 + 3] = 0.0f;
+	projectionMatrix[2 * 4 + 3] = -1.0f;
+	projectionMatrix[3 * 4 + 3] = 0.0f;
+
+#endif
 
 	if( viewDef->renderView.flipProjection )
 	{

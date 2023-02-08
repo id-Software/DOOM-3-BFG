@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "../../framework/Common_local.h"
-#include "../../imgui/imgui.h"
+#include "imgui.h"
 #include "../ImmediateMode.h"
 
 #include "nvrhi/utils.h"
@@ -248,12 +248,6 @@ void idRenderBackend::Init()
 	currentIndexOffset = 0;
 	currentJointOffset = 0;
 	prevBindingLayoutType = -1;
-
-	// RB: FIXME but for now disable it to avoid validation errors
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
-	{
-		r_useSSAO.SetBool( false );
-	}
 
 	deviceManager->GetDevice()->waitForIdle();
 	deviceManager->GetDevice()->runGarbageCollection();
@@ -1755,10 +1749,6 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 	if( depth || stencil )
 	{
 		nvrhi::utils::ClearDepthStencilAttachment( commandList, framebuffer, 1.0f, stencilValue );
-
-		//nvrhi::ITexture* depthTexture = ( nvrhi::ITexture* )( globalImages->currentDepthImage->GetTextureID() );
-		//const nvrhi::FormatInfo& depthFormatInfo = nvrhi::getFormatInfo( depthTexture->getDesc().format );
-		//commandList->clearDepthStencilTexture( depthTexture, nvrhi::AllSubresources, depth, 1.f, depthFormatInfo.hasStencil, stencilValue );
 	}
 }
 
@@ -1858,12 +1848,6 @@ void idRenderBackend::CheckCVars()
 		r_antiAliasing.ClearModified();
 	}
 #endif
-
-	// RB: FIXME but for now disable it to avoid validation errors
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
-	{
-		r_useSSAO.SetBool( false );
-	}
 }
 
 /*

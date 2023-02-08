@@ -2,7 +2,7 @@
 #ifndef NEO_IMGUI_BFGIMGUI_H_
 #define NEO_IMGUI_BFGIMGUI_H_
 
-#include "libs/imgui/imgui.h"
+#include "imgui.h"
 
 #include "../idlib/math/Vector.h"
 

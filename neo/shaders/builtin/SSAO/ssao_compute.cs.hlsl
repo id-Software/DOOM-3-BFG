@@ -26,6 +26,13 @@
 
 struct SsaoConstants
 {
+	float2		viewportOrigin;
+	float2		viewportSize;
+
+	float4x4	matClipToView;
+	float4x4	matWorldToView;
+	float4x4	matViewToWorld;
+
 	float2      clipToView;
 	float2      invQuantizedGbufferSize;
 
@@ -169,12 +176,13 @@ float ComputeAO( float3 V, float3 N, float InvR2 )
 
 float2 WindowToClip( float2 windowPos )
 {
-	float2 clipToWindowScale = float2( 0.5f * rpWindowCoord.z, -0.5f * rpWindowCoord.w );
-	float2 clipToWindowBias = rpViewOrigin.xy + rpWindowCoord.zw * 0.5f;
+	float2 clipToWindowScale = float2( 0.5f * g_Ssao.viewportSize.x, -0.5f * g_Ssao.viewportSize.y );
+	float2 clipToWindowBias = g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy * 0.5f;
 
 	float2 windowToClipScale = 1.f / clipToWindowScale;
 	float2 windowToClipBias = -clipToWindowBias * windowToClipScale;
 
+	// TODO add pixelOffset for TAA
 	return windowPos.xy * windowToClipScale + windowToClipBias;
 }
 
@@ -199,13 +207,8 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float3 pixelNormal = t_Normals[pixelPos].xyz;
 #endif
 
-	// View to clip space.
-	float3 pN;
-	pN.x = dot4( float4( pixelNormal, 0 ), rpModelMatrixX );
-	pN.y = dot4( float4( pixelNormal, 0 ), rpModelMatrixY );
-	pN.z = dot4( float4( pixelNormal, 0 ), rpModelMatrixZ );
-
-	pixelNormal = normalize( pN );
+	// RB: pixelNormal is already in view space
+	//pixelNormal = normalize( mul( float4( pixelNormal, 0 ), g_Ssao.matWorldToView ).xyz );
 
 	float2 pixelClipPos = WindowToClip( pixelPos );
 	float3 pixelViewPos = ViewDepthToViewPos( pixelClipPos.xy, pixelViewDepth );
@@ -268,12 +271,7 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float directionalLength = length( result.xyz );
 	if( directionalLength > 0 )
 	{
-		float3 worldSpaceResult;
-		worldSpaceResult.x = dot4( float4( normalize( result.xyz ), 0 ), rpModelMatrixX );
-		worldSpaceResult.y = dot4( float4( normalize( result.xyz ), 0 ), rpModelMatrixY );
-		worldSpaceResult.z = dot4( float4( normalize( result.xyz ), 0 ), rpModelMatrixZ );
-
-		result.xyz = worldSpaceResult.xyz * directionalLength;
+		result.xyz = mul( float4( normalize( result.xyz ), 0 ), g_Ssao.matViewToWorld ).xyz * directionalLength;
 	}
 #endif
 

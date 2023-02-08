@@ -83,7 +83,11 @@ cbuffer c_MipMapgen : register( b0 )
 	MipmmapGenConstants g_MipMapGen;
 };
 
+#ifdef __spirv__	// use unbounded array size for proper SPIR-V descriptor binding
+RWTexture2D<VALUE_TYPE> u_output[] : register( u0 );
+#else				// use bounded array for DXIL -flegacy-resource-reservation flag
 RWTexture2D<VALUE_TYPE> u_output[NUM_LODS] : register( u0 );
+#endif
 Texture2D<VALUE_TYPE> t_input : register( t0 );
 // *INDENT-ON*
 

@@ -353,8 +353,8 @@ private:
 	void				Tonemap( const viewDef_t* viewDef );
 	void				Bloom( const viewDef_t* viewDef );
 
-	void				DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef, bool downModulateScreen );
-	void				DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef, bool downModulateScreen );
+	void				DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef );
+	void				DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef );
 	void				DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewDef );
 
 	// Experimental feature

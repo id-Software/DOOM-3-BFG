@@ -66,7 +66,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	localNormal.z = sqrt( 1.0f - dot3( localNormal, localNormal ) );
 
 	float3 globalNormal;
-#if 1
+#if 0
 	globalNormal.x = dot3( localNormal, fragment.texcoord2 );
 	globalNormal.y = dot3( localNormal, fragment.texcoord3 );
 	globalNormal.z = dot3( localNormal, fragment.texcoord4 );
