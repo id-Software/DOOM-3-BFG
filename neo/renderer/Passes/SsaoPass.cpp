@@ -275,7 +275,7 @@ void SsaoPass::Render(
 		ssaoConstants.radiusWorld = r_ssaoRadiusWorld.GetFloat();
 		ssaoConstants.surfaceBias = r_ssaoSurfaceBias.GetFloat();
 		ssaoConstants.powerExponent = r_ssaoPowerExponent.GetFloat();
-		ssaoConstants.radiusToScreen = 0.5f * viewDef->viewport.GetHeight() * abs( viewDef->projectionMatrix[1 * 4 + 1] );
+		ssaoConstants.radiusToScreen = 0.5f * viewDef->viewport.GetHeight() * abs( projectionMatrix[1 * 4 + 1] );
 		commandList->writeBuffer( m_ConstantBuffer, &ssaoConstants, sizeof( ssaoConstants ) );
 
 		uint32_t dispatchWidth = ( quarterResExtent.width() + 7 ) / 8;

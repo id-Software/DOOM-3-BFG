@@ -5870,9 +5870,8 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 }
 
 
-void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef, bool downModulateScreen )
+void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef )
 {
-#if !defined(USE_VULKAN)
 	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
 		// 3D views only
@@ -5915,7 +5914,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	// build hierarchical depth buffer
 	if( r_useHierarchicalDepthBuffer.GetBool() )
 	{
-#if defined( USE_NVRHI )
 		renderLog.OpenBlock( "Render_HiZ" );
 
 		//if( R_GetMSAASamples() > 1 )
@@ -5934,63 +5932,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		hiZGenPass->Dispatch( commandList, MAX_HIERARCHICAL_ZBUFFERS );
 
 		renderLog.CloseBlock();
-#else
-		renderLog.OpenBlock( "Render_HiZ", colorDkGrey );
-
-		renderProgManager.BindShader_AmbientOcclusionMinify();
-
-		GL_Color( 0, 0, 0, 1 );
-
-		GL_SelectTexture( 0 );
-		//globalImages->currentDepthImage->Bind();
-
-		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
-		{
-			int width = globalFramebuffers.csDepthFBO[i]->GetWidth();
-			int height = globalFramebuffers.csDepthFBO[i]->GetHeight();
-
-			globalFramebuffers.csDepthFBO[i]->Bind();
-
-			GL_Viewport( 0, 0, width, height );
-			GL_Scissor( 0, 0, width, height );
-
-			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
-
-			glClear( GL_COLOR_BUFFER_BIT );
-
-			if( i == 0 )
-			{
-				renderProgManager.BindShader_AmbientOcclusionReconstructCSZ();
-
-				globalImages->currentDepthImage->Bind();
-			}
-			else
-			{
-				renderProgManager.BindShader_AmbientOcclusionMinify();
-
-				GL_SelectTexture( 0 );
-				globalImages->hierarchicalZbufferImage->Bind();
-			}
-
-			float jitterTexScale[4];
-			jitterTexScale[0] = i - 1;
-			jitterTexScale[1] = 0;
-			jitterTexScale[2] = 0;
-			jitterTexScale[3] = 0;
-			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
-
-			float screenCorrectionParm[4];
-			screenCorrectionParm[0] = 1.0f / width;
-			screenCorrectionParm[1] = 1.0f / height;
-			screenCorrectionParm[2] = width;
-			screenCorrectionParm[3] = height;
-			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
-
-			DrawElementsWithCounters( &unitSquareSurface );
-		}
-
-		renderLog.CloseBlock();
-#endif
 	}
 
 	if( previousFramebuffer != NULL )
@@ -6009,41 +5950,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_Viewport( 0, 0, aoScreenWidth, aoScreenHeight );
 	GL_Scissor( 0, 0, aoScreenWidth, aoScreenHeight );
 
-	if( downModulateScreen )
-	{
-		if( r_ssaoFiltering.GetBool() )
-		{
-			globalFramebuffers.ambientOcclusionFBO[0]->Bind();
-
-#if defined( USE_NVRHI )
-			GL_Clear( true, false, false, 0, 0, 0, 0, 0, false );
-#else
-			glClearColor( 0, 0, 0, 0 );
-			glClear( GL_COLOR_BUFFER_BIT );
-#endif
-
-			renderProgManager.BindShader_AmbientOcclusion();
-		}
-		else
-		{
-			if( r_ssaoDebug.GetInteger() <= 0 )
-			{
-				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_ALPHAMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-			}
-
-			if( previousFramebuffer != NULL )
-			{
-				previousFramebuffer->Bind();
-			}
-			else
-			{
-				Framebuffer::Unbind();
-			}
-
-			renderProgManager.BindShader_AmbientOcclusionAndOutput();
-		}
-	}
-	else
 	{
 		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 
@@ -6086,19 +5992,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	windowCoordParm[3] = aoScreenHeight;
 	SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
-#if 0
-	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
-	idRenderMatrix modelViewMatrix;
-	idRenderMatrix::Transpose( *( idRenderMatrix* )backEnd.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
-	idRenderMatrix cameraToWorldMatrix;
-	if( !idRenderMatrix::Inverse( modelViewMatrix, cameraToWorldMatrix ) )
-	{
-		idLib::Warning( "cameraToWorldMatrix invert failed" );
-	}
-
-	SetVertexParms( RENDERPARM_MODELMATRIX_X, cameraToWorldMatrix[0], 4 );
-	//SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToWorldRenderMatrix[0], 4 );
-#endif
 	SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToCameraRenderMatrix[0], 4 );
 
 	const float jitterSampleScale = 1.0f;
@@ -6171,26 +6064,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		DrawElementsWithCounters( &unitSquareSurface );
 
 		// AO blur Y
-		if( downModulateScreen )
-		{
-			if( previousFramebuffer != NULL )
-			{
-				previousFramebuffer->Bind();
-			}
-			else
-			{
-				Framebuffer::Unbind();
-			}
-
-			if( r_ssaoDebug.GetInteger() <= 0 )
-			{
-				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-			}
-		}
-		else
-		{
-			globalFramebuffers.ambientOcclusionFBO[0]->Bind();
-		}
+		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 
 		renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
 
@@ -6207,7 +6081,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		DrawElementsWithCounters( &unitSquareSurface );
 	}
 
-	if( !downModulateScreen )
 	{
 		// go back to main scene render target
 		if( previousFramebuffer != NULL )
@@ -6238,7 +6111,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 /*
 NVRHI SSAO using compute shaders.
 */
-void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef, bool downModulateScreen )
+void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef )
 {
 	if( !r_useSSAO.GetBool() )
 	{
@@ -6271,7 +6144,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
-#endif
 }
 
 void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewDef )
@@ -6863,12 +6735,12 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 #if defined( USE_NVRHI )
 	if( r_useNewSsaoPass.GetBool() )
 	{
-		DrawScreenSpaceAmbientOcclusion2( _viewDef, false );
+		DrawScreenSpaceAmbientOcclusion2( _viewDef );
 	}
 	else
 #endif
 	{
-		DrawScreenSpaceAmbientOcclusion( _viewDef, false );
+		DrawScreenSpaceAmbientOcclusion( _viewDef );
 	}
 
 	//-------------------------------------------------

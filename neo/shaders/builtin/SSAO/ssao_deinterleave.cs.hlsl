@@ -78,15 +78,15 @@ void main( uint3 globalId : SV_DispatchThreadID )
 			//float4 clipPos = float4( 0, 0, depth * 2.0 - 1.0, 1 );
 
 			// adjust depth
-			depth = depth * 2.0 - 1.0;
+			depth = ( depth * 2.0 - 1.0 );
 			float4 clipPos = float4( 0, 0, depth, 1 );
 
 			float4 viewPos = mul( clipPos, g_Ssao.matClipToView );
 			float linearDepth = viewPos.z / viewPos.w;
 
 			// HACK: adjust linear depth to fit into [0 .. 16000] range
-			linearDepth += 0.35;
-			linearDepth = saturate( linearDepth );
+			//linearDepth += 0.35;
+			//linearDepth = saturate( linearDepth );
 			//linearDepth = 1.0 - linearDepth; // reverse depth
 			//linearDepth *= 4000; // zFar
 			//linearDepth *= DOOM_TO_METERS;
