@@ -47,18 +47,19 @@ This file contains the following sections:
 
 `RBDOOM-3-BFG is a modernization effort of DOOM-3-BFG.`
 
-RBDOOM-3-BFG is based on DOOM-3-BFG and the goal of this port is to bring DOOM-3-BFG up to latest technology in 2021 making it closer to Doom 2016 while still remaining a DOOM 3 port regarding the gameplay. 
+RBDOOM-3-BFG is based on DOOM-3-BFG and the goal of this port is to bring DOOM-3-BFG up to latest technology in 2023 making it closer to Doom 2016 while still remaining a DOOM 3 port regarding the gameplay. 
 
 I started this project in 2012 and focused on making this code being future proof so other cool projects can build interesting things on top of it without the need to fix a lot of stuff first. Over 40 people all over the world contributed cool patches. Some results are:
 
 ## Gaming / Graphics Related
+* DX12 / Vulkan support through NVRHI (NVIDIA Rendering Hardware Interface) (thanks to Stephen Pridham for major porting effort)
 * Physically Based Rendering using GGX Cook-Torrence as in other modern engines (UE4, Unity) and 3D authoring tools like Blender 2.93 or Adobe Substance
 * Baked Global Illumination using Irradiance Volumes and Image Based Lighting that fix the pitch black areas
-* Soft shadows using PCF hardware shadow mapping.
+* Soft shadows using a fat shadow mapping atlas
 	All 3 light types (point, spot, parallel/sun) are supported which means parallel lights (sun) use
 	scene independent cascaded shadow mapping.
 * True internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
-* Enhanced Subpixel Morphological Antialiasing as a cheap alternative for MSAA and that works well with HDR. For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
+* Temporal Antialiasing (TAA) as a cheap alternative for MSAA and that works well with HDR and also improves PBR lighting
 * Filmic post process effects like Chromatic Aberration and Dithering
 * Screen Space Ambient Occlusion http://graphics.cs.williams.edu/papers/SAOHPG12/ used to only dim down the Global Illumination contribution like in the Frostbite engine
 * Bink video playback through libbinkdec (thanks to Daniel Gibson) or FFmpeg (thanks to Carl Kenner)
@@ -66,29 +67,29 @@ I started this project in 2012 and focused on making this code being future proo
 * Netcode fixes to allow multiplayer sessions to friends with +connect <ip of friend> (manual port forwarding required)
 
 ## Programming and Code Quality
-* Flexible build system using CMake allowing to add optional features like Vulkan rendering, FFmpeg for videos or OpenAL for sound
+* Flexible build system using CMake allowing to add optional features like FFmpeg for videos or OpenAL for sound
 * Linux support for both GCC and Clang with a proper SDL 2 OS layer including gamepad support
-* Win64 support and Visual Studio support up to VS 2019
-* macOS support (updated in 2021 thanks to Stephen Saunders)
+* Win64 support and Visual Studio support up to VS 2019-2022
+* macOS support (updated in 2023 thanks to Stephen Saunders)
 * OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
 * Sourcecode cleanup using the Artistic Style C++ beautifier to ensure the Git diffs and logs are clean
 * Fixed tons of warnings using the Clang compiler
 * Fast compile times using precompiled header support which allows to compile the entire engine and builtin tools in less than 30 seconds on a Ryzen 9
 * Although not really supported but runs on exotic hardware like MIPS64, PPC64, ARM64 and E2K architectures
-* Updated idRenderLog to support RenderDoc and Nvidia's Nsight and only issue OpenGL or Vulkan debug commands if the debug extensions are detected. Reference: https://devblogs.nvidia.com/best-practices-gpu-performance-events/
+* Updated idRenderLog with new markers to support RenderDoc and Nvidia's Nsight
 
 ## Modding Support
-RBDOOM-3-BFG allows mod editing and has many tiny fixes so custom content can be put into mod directories and the engine accepts it like vanilla Doom 3. DOOM 3 BFG wasn't designed for actual development or modding support. Many things like reading anything outside of the packed resource files was not supported. I also fixed many things in the renderer like r_showTris.
+RBDOOM-3-BFG allows mod editing and has many tiny fixes so custom content can be put into mod directories and the engine accepts it like vanilla Doom 3.
 
 * TrenchBroom Mapping Support - see more information in the TrenchBroom section
 * New PBR related material keywords like basecolormap, normalmap, rmaomap
 * invertGreen( normalmap.png ) material keyword to allow flipping the Y-Axis for tangent space normal maps 
-* PNG image support
+* glTF2 .glb model support for static and skinned models (thanks to Harrie van Ginneken)
+* Changed dmap to support compiling maps straight from glTF2 .glb models instead of .map files using a new polygon based workflow
 * Collada .DAE model support in addition to .ase and .lwo for static map models
 * Wavefront OBJ model support to make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom
-* Added back dmap and aas compilers (mapping tools, thanks to Pat Raynor) and improved them to work with TrenchBroom
+* Added back dmap and aas compilers (mapping tools, thanks to Pat Raynor) and improved them to work with TrenchBroom and Blender
 * Added in-engine Flash debugging tools and new console variables
-* Added Steel Storm 2 Engine render demo fixes
 * Merged LordHavoc's image compression progress bar which shows up in the map loading screen
   when loading and compressing new images from mods
 * Added support for Mikkelsen tangent space standard for new assets (thanks to Stephen Pridham)
@@ -135,7 +136,7 @@ PBR allows artists to create textures that are based on real world measured colo
 
 ***RBDOOM-3-BFG only supports the standard PBR Roughness/Metallic workflow.***
 
-Adding PBR is a requirement to make the new content look the same in RBDOOM-3-BFG as in Blender 2.9x with Cycles or Eevee and Substance Designer. PBR became the standard material authoring since 2014. With RBDOOM-3-BFG modders can work with modern tools and expect that their content looks as expected.
+Adding PBR is a requirement to make the new content look the same in RBDOOM-3-BFG as in Blender 3.x with Cycles or Eevee and Substance Designer. PBR became the standard material authoring since 2014. With RBDOOM-3-BFG modders can work with modern tools and expect that their content looks as expected.
 
 The PBR implementation is restricted to standard PBR using the Roughness/Metallic workflow for now. Specialized rendering paths for skin, clothes and vegetation will be in future releases.
 
@@ -339,16 +340,16 @@ The first top band is the original signal. The second shows just 8 blocks and if
 ***The goal of the TrenchBroom support is to make mapping for RBDOOM-3-BFG as easy as for Quake 1.***
 
 Mapping for Doom 3 BFG using TrenchBroom requires an extended unofficial build that is bundled with the official RBDOOM-3-BFG 7z package.
-You can find the customized version under tools/trenchbroom/.
+You can find the customized TrenchBroomBFG version under tools/trenchbroom/.
 
-More information about this custom TrenchBroom and the source code is here:
+More information about this custom TrenchBroomBFG and the source code is here:
 
 https://github.com/RobertBeckebans/TrenchBroom
 
 Doom 3 BFG also requires some extensions in order to work with TrenchBroom. 
 The Quake 1/2/3 communities already adopted the Valve 220 .map format in the BSP compilers and I did the same with dmap in RBDOOM-3-BFG.
 
-### TrenchBroom speficic Changes
+### TrenchBroomBFG speficic Changes
 * idMapFile and dmap were changed to support the Valve 220 .map format to aid mapping with TrenchBroom
 * Added exportFGD `[nomodels]` console command which exports all def/*.def entityDef declarations to base/exported/_tb/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
 If the nomodels argument is not given then it will also export all needed models by entity declarations to base/_tb/ as Wavefront OBJ files.
@@ -638,10 +639,10 @@ Name                                   | Description
 :--------------------------------------| :------------------------------------------------
 r_antiAliasing                         | Different Anti-Aliasing modes
 r_useShadowMapping [0 or 1]            | Use soft shadow mapping instead of hard stencil shadows
-r_hdrAutoExposure [0 or 1]             | Adaptive tonemapping with HDR. This allows to have very bright or very dark scenes but the camera will adapt to it so the scene won't loose details. Default is 0
-r_exposure [0 .. 1]                    | Default 0.5, Controls brightness and affects HDR -> sRGB Rec. 709 exposure key. This is what you change in the video brightness options
+r_exposure [0 .. 1]                    | Default 0.5, controls brightness and affects HDR -> sRGB Rec. 709 exposure key. This is what you change in the video brightness options
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene
 r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to mimic a filmic look
+r_forceAmbient                         | Default 0.5, controls additional brightness by Global Illumination 
 
 ## Modding Support
 Name                              | Description
@@ -653,19 +654,16 @@ bakeLightGrids [`<switches>`...]       | `<Switches>` limit[num] : max probes pe
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
 exportFGD `[nomodels]`                 | Command: Exports all entity defs to base/_tb/*.fgd for usage in convertMapToValve220 `<map>`           | 
 exportImagesToTrenchBroom              | Command: Decompresses and saves all TB relevant .bimage images to base/_tb/*.png files
-exportModelsToTrenchBroom              | Command: Saves all .base|.blwo|.bmd5mesh models to base/_tb/*.obj files
-exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
-before loading a map.
+exportModelsToTrenchBroom              | Command: Saves all binarized models to base/_tb/*.obj files
+convertMapToValve220 `<map>`           | Command: Saves *_valve220.map version of the given map. This makes it editable with TrenchBroomBFG. 
+convertMapQuakeToDoom `<map>`          | Command: Expects a Quake 1 .map in the Valve220 format and does some Doom 3 specific fixes
+makeZooMapForModels                    | Command: Makes a Source engine style zoo map with mapobject/models like .blwo, .base et cetera and saves it to maps/zoomaps/zoo_models.map. This helps mappers to get a good overview of the trememdous amount of custom models available in Doom 3 BFG by sorting them into categories and arranging them in 3D. It also filters models so that only modular models are picked that can be reused in new maps.
+exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
 postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
 postLoadExportFlashToSWF               | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
 postLoadExportFlashToJSON              | Cvar: Set to 1 at startup to dump the Flash .bswf files as .json. Can be reimported into the engine and imported into Blender for inspection
 swf_show                               | Cvar: Draws the bounding box of instanced Flash sprites in red and their names
-
-convertMapToJSON mapfile               | Command: Convert .map file to new .json map format with polygons instead of brushes. This was easy because the original .map format is only an array of entities and each entity has a simple dictionary for its values. This JSON format contains all level data and can be imported and exported to Blender without loosing any data. The new DMap can also compile map files with the .json suffix like regular maps.
-<img src="https://i.imgur.com/2k9IvJC.png" width="384"> 
-
-
 
 
 ---
