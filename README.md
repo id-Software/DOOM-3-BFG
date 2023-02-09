@@ -53,7 +53,7 @@ I started this project in 2012 and focused on making this code being future proo
 
 ## Gaming / Graphics Related
 * DX12 / Vulkan support through NVRHI (NVIDIA Rendering Hardware Interface) (thanks to Stephen Pridham for major porting effort)
-* Physically Based Rendering using GGX Cook-Torrence as in other modern engines (UE4, Unity) and 3D authoring tools like Blender 2.93 or Adobe Substance
+* Physically Based Rendering using GGX Cook-Torrence as in other modern engines (UE4, Unity) and 3D authoring tools like Blender 3.x or Adobe Substance
 * Baked Global Illumination using Irradiance Volumes and Image Based Lighting that fix the pitch black areas
 * Soft shadows using a fat shadow mapping atlas
 	All 3 light types (point, spot, parallel/sun) are supported which means parallel lights (sun) use
