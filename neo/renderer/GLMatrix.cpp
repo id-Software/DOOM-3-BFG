@@ -506,7 +506,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 
 	float* projectionMatrix = doJitter ? viewDef->projectionMatrix : viewDef->unjitteredProjectionMatrix;
 
-#if 0
+#if 1
 
 	float ymax = zNear * tan( viewDef->renderView.fov_y * idMath::PI / 360.0f );
 	float ymin = -ymax;
