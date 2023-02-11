@@ -1,5 +1,6 @@
 /*
 * Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
+* Copyright (C) 2022 Robert Beckebans (id Tech 4x integration)
 *
 * Permission is hereby granted, free of charge, to any person obtaining a
 * copy of this software and associated documentation files (the "Software"),
@@ -162,22 +163,6 @@ void TemporalAntiAliasingPass::Init(
 			bindingSetDesc.bindings.push_back( nvrhi::BindingSetItem::Texture_SRV( 1, params.sourceDepth, stencilFormat ) );
 		}
 		m_MotionVectorsBindingSet = device->createBindingSet( bindingSetDesc, m_MotionVectorsBindingLayout );
-
-#if 0
-		nvrhi::GraphicsPipelineDesc pipelineDesc;
-		pipelineDesc.primType = nvrhi::PrimitiveType::TriangleStrip;
-		pipelineDesc.VS = taaMotionVectorsShaderInfo.vs; //m_CommonPasses->m_FullscreenVS;
-		pipelineDesc.PS = taaMotionVectorsShaderInfo.ps; //m_MotionVectorPS;
-		pipelineDesc.bindingLayouts = { m_MotionVectorsBindingLayout };
-
-		pipelineDesc.renderState.rasterState.setCullNone();
-		pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
-		pipelineDesc.renderState.depthStencilState.stencilEnable = false;
-
-		//nvrhi::IFramebuffer* sampleFramebuffer = m_MotionVectorsFramebufferFactory->GetFramebuffer( *sampleView );
-		nvrhi::IFramebuffer* sampleFramebuffer = globalFramebuffers.taaMotionVectorsFBO->GetApiObject();
-		m_MotionVectorsPso = device->createGraphicsPipeline( pipelineDesc, sampleFramebuffer );
-#endif
 	}
 
 	{
@@ -208,55 +193,6 @@ void TemporalAntiAliasingPass::Init(
 	}
 }
 
-#if 0
-void TemporalAntiAliasingPass::RenderMotionVectors(
-	nvrhi::ICommandList* commandList,
-	const ICompositeView& compositeView,
-	const ICompositeView& compositeViewPrevious,
-	dm::float3 preViewTranslationDifference )
-{
-	assert( compositeView.GetNumChildViews( ViewType::PLANAR ) == compositeViewPrevious.GetNumChildViews( ViewType::PLANAR ) );
-	assert( m_MotionVectorsPso );
-
-	commandList->beginMarker( "MotionVectors" );
-
-	for( uint viewIndex = 0; viewIndex < compositeView.GetNumChildViews( ViewType::PLANAR ); viewIndex++ )
-	{
-		const IView* view = compositeView.GetChildView( ViewType::PLANAR, viewIndex );
-		const IView* viewPrevious = compositeViewPrevious.GetChildView( ViewType::PLANAR, viewIndex );
-
-		const nvrhi::ViewportState viewportState = view->GetViewportState();
-
-		// This pass only works for planar, single-viewport views
-		assert( viewportState.viewports.size() == 1 );
-
-		const nvrhi::Viewport& inputViewport = viewportState.viewports[0];
-
-		TemporalAntiAliasingConstants taaConstants = {};
-		affine3 viewReprojection = inverse( view->GetViewMatrix() ) * translation( -preViewTranslationDifference ) * viewPrevious->GetViewMatrix();
-		taaConstants.reprojectionMatrix = inverse( view->GetProjectionMatrix( false ) ) * affineToHomogeneous( viewReprojection ) * viewPrevious->GetProjectionMatrix( false );
-		taaConstants.inputViewOrigin = float2( inputViewport.minX, inputViewport.minY );
-		taaConstants.inputViewSize = float2( inputViewport.width(), inputViewport.height() );
-		taaConstants.stencilMask = m_StencilMask;
-		commandList->writeBuffer( m_TemporalAntiAliasingCB, &taaConstants, sizeof( taaConstants ) );
-
-		nvrhi::GraphicsState state;
-		state.pipeline = m_MotionVectorsPso;
-		state.framebuffer = m_MotionVectorsFramebufferFactory->GetFramebuffer( *view );
-		state.bindings = { m_MotionVectorsBindingSet};
-		state.viewport = viewportState;
-		commandList->setGraphicsState( state );
-
-		nvrhi::DrawArguments args;
-		args.instanceCount = 1;
-		args.vertexCount = 4;
-		commandList->draw( args );
-	}
-
-	commandList->endMarker();
-}
-#endif
-
 void TemporalAntiAliasingPass::TemporalResolve(
 	nvrhi::ICommandList* commandList,
 	const TemporalAntiAliasingParameters& params,
@@ -279,9 +215,7 @@ void TemporalAntiAliasingPass::TemporalResolve(
 	taaConstants.inputViewSize = idVec2( viewportInput.width() + 1, viewportInput.height() + 1 );
 	taaConstants.outputViewOrigin = idVec2( viewportOutput.minX, viewportOutput.minY );
 	taaConstants.outputViewSize = idVec2( viewportOutput.width() + 1, viewportOutput.height() + 1 );
-	//taaConstants.inputPixelOffset.Set( 0, 0 ); // TODO = viewInput->GetPixelOffset();
 	taaConstants.inputPixelOffset = GetCurrentPixelOffset();
-	// SRS - FIXME: Is this correct?  Replaces 1.0f / idVec2 () which does not compile using Clang
 	taaConstants.outputTextureSizeInv = idVec2( 1.0f, 1.0f ) / idVec2( float( renderSystem->GetWidth() ), float( renderSystem->GetHeight() ) );
 	taaConstants.inputOverOutputViewSize = taaConstants.inputViewSize / taaConstants.outputViewSize;
 	taaConstants.outputOverInputViewSize = taaConstants.outputViewSize / taaConstants.inputViewSize;

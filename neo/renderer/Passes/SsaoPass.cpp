@@ -41,6 +41,8 @@ struct SsaoConstants
 {
 	idVec2		viewportOrigin;
 	idVec2		viewportSize;
+	idVec2		pixelOffset;
+	idVec2		unused;
 
 	idRenderMatrix matClipToView;
 	idRenderMatrix matWorldToView; // unused
@@ -258,6 +260,7 @@ void SsaoPass::Render(
 		SsaoConstants ssaoConstants = {};
 		ssaoConstants.viewportOrigin = idVec2( viewDef->viewport.x1, viewDef->viewport.y1 );
 		ssaoConstants.viewportSize = idVec2( viewDef->viewport.GetWidth(), viewDef->viewport.GetHeight() );
+		ssaoConstants.pixelOffset = tr.backend.GetCurrentPixelOffset();
 
 		// RB: this actually should work but it only works with the old SSAO method ...
 		//ssaoConstants.matClipToView = viewDef->unprojectionToCameraRenderMatrix;

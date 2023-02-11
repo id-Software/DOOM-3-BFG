@@ -28,6 +28,8 @@ struct SsaoConstants
 {
 	float2		viewportOrigin;
 	float2		viewportSize;
+	float2		pixelOffset;
+	float2		unused; // padding
 
 	float4x4	matClipToView;
 	float4x4	matWorldToView;

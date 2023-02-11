@@ -22,19 +22,6 @@
 #ifndef RENDERER_PASSES_SSAOPASS_H_
 #define RENDERER_PASSES_SSAOPASS_H_
 
-/*
-struct SsaoParameters
-{
-	float amount = 2.f;
-	float backgroundViewDepth = 100.f;
-	float radiusWorld = 0.5f;
-	float surfaceBias = 0.1f;
-	float powerExponent = 2.f;
-	bool enableBlur = true;
-	float blurSharpness = 16.f;
-};
-*/
-
 class SsaoPass
 {
 private:

@@ -28,6 +28,8 @@ struct SsaoConstants
 {
 	float2		viewportOrigin;
 	float2		viewportSize;
+	float2		pixelOffset;
+	float2		unused; // padding
 
 	float4x4	matClipToView;
 	float4x4	matWorldToView;
@@ -182,9 +184,8 @@ float2 WindowToClip( float2 windowPos )
 	float2 windowToClipScale = 1.0 / clipToWindowScale;
 	float2 windowToClipBias = -clipToWindowBias * windowToClipScale;
 
-	// TODO add pixelOffset for TAA
-	//windowPos = windowPos * 2.0 - 1.0;
-	return windowPos.xy * windowToClipScale + windowToClipBias;
+	//return windowPos.xy * windowToClipScale + windowToClipBias;
+	return ( windowPos.xy + g_Ssao.pixelOffset.xy ) * windowToClipScale + windowToClipBias;
 }
 
 float3 ViewDepthToViewPos( float2 clipPosXY, float viewDepth )
