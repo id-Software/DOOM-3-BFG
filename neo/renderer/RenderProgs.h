@@ -392,8 +392,6 @@ enum
 	BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT,
 	BUILTIN_AMBIENT_OCCLUSION_BLUR,
 	BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
-	BUILTIN_AMBIENT_OCCLUSION_MINIFY,
-	BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
 
 	BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
 	BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR,
@@ -915,16 +913,6 @@ public:
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT );
 	}
 
-	void	BindShader_AmbientOcclusionMinify()
-	{
-		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_MINIFY );
-	}
-
-	void	BindShader_AmbientOcclusionReconstructCSZ()
-	{
-		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ );
-	}
-
 	void	BindShader_DeepGBufferRadiosity()
 	{
 		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI );
@@ -939,13 +927,6 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT );
 	}
-
-#if 0
-	void	BindShader_ZCullReconstruct()
-	{
-		BindShader_Builtin( BUILTIN_ZCULL_RECONSTRUCT );
-	}
-#endif
 
 	void	BindShader_Bink()
 	{
