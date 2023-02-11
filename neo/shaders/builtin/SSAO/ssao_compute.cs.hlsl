@@ -176,13 +176,14 @@ float ComputeAO( float3 V, float3 N, float InvR2 )
 
 float2 WindowToClip( float2 windowPos )
 {
-	float2 clipToWindowScale = float2( 0.5f * g_Ssao.viewportSize.x, -0.5f * g_Ssao.viewportSize.y );
-	float2 clipToWindowBias = g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy * 0.5f;
+	float2 clipToWindowScale = float2( 0.5 * g_Ssao.viewportSize.x, -0.5 * g_Ssao.viewportSize.y );
+	float2 clipToWindowBias = g_Ssao.viewportOrigin.xy + g_Ssao.viewportSize.xy * 0.5;
 
-	float2 windowToClipScale = 1.f / clipToWindowScale;
+	float2 windowToClipScale = 1.0 / clipToWindowScale;
 	float2 windowToClipBias = -clipToWindowBias * windowToClipScale;
 
 	// TODO add pixelOffset for TAA
+	//windowPos = windowPos * 2.0 - 1.0;
 	return windowPos.xy * windowToClipScale + windowToClipBias;
 }
 
@@ -207,7 +208,9 @@ void main( uint3 globalId : SV_DispatchThreadID )
 	float3 pixelNormal = t_Normals[pixelPos].xyz;
 #endif
 
-	// RB: pixelNormal is already in view space
+	// RB: pixelNormal is already in view space but it has to be negated to look correct which is weird
+	pixelNormal = -normalize( pixelNormal );
+	//pixelNormal = normalize( float3( pixelNormal.x, 1.0 - pixelNormal.y, -pixelNormal.z ) );
 	//pixelNormal = normalize( mul( float4( pixelNormal, 0 ), g_Ssao.matWorldToView ).xyz );
 
 	float2 pixelClipPos = WindowToClip( pixelPos );
