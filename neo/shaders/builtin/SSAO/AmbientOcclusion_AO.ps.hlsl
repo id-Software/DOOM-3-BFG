@@ -164,7 +164,7 @@ float3 reconstructCSPosition( float2 S, float z )
 {
 	float4 P;
 	P.z = z;// * 2.0 - 1.0;
-	P.xy = ( S * rpWindowCoord.xy );// * 2.0 - 1.0;
+	P.xy = ( S * rpWindowCoord.xy ) * 2.0 - 1.0;
 	P.w = 1.0;
 
 	float4 csP;
