@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 	#include <sys/DeviceManager.h>
 	#include <nvrhi/utils.h>
 
-	idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "0", CVAR_RENDERER | CVAR_BOOL, "use the new ssao pass from donut" );
+	idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "1", CVAR_RENDERER | CVAR_BOOL, "use the new SSAO pass from Donut" );
 	extern DeviceManager* deviceManager;
 #endif
 

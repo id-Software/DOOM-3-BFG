@@ -1,5 +1,8 @@
 /*
 * Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
+* Copyright (C) 2022 Stephen Pridham (id Tech 4x integration)
+* Copyright (C) 2023 Stephen Saunders (id Tech 4x integration)
+* Copyright (C) 2023 Robert Beckebans (id Tech 4x integration)
 *
 * Permission is hereby granted, free of charge, to any person obtaining a
 * copy of this software and associated documentation files (the "Software"),
@@ -27,12 +30,12 @@
 #include "SsaoPass.h"
 
 
-static idCVar r_ssaoBackgroundViewDepth( "r_ssaoBackgroundViewDepth", "100", CVAR_RENDERER | CVAR_FLOAT, "" );
-static idCVar r_ssaoRadiusWorld( "r_ssaoRadiusWorld", "0.5", CVAR_RENDERER | CVAR_FLOAT, "" );
-static idCVar r_ssaoSurfaceBias( "r_ssaoSurfaceBias", "0.1", CVAR_RENDERER | CVAR_FLOAT, "" );
+static idCVar r_ssaoBackgroundViewDepth( "r_ssaoBackgroundViewDepth", "100", CVAR_RENDERER | CVAR_FLOAT, "specified in meters" );
+static idCVar r_ssaoRadiusWorld( "r_ssaoRadiusWorld", "1.0", CVAR_RENDERER | CVAR_FLOAT, "specified in meters" );
+static idCVar r_ssaoSurfaceBias( "r_ssaoSurfaceBias", "0.05", CVAR_RENDERER | CVAR_FLOAT, "specified in meters" );
 static idCVar r_ssaoPowerExponent( "r_ssaoPowerExponent", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
 static idCVar r_ssaoBlurSharpness( "r_ssaoBlurSharpness", "16", CVAR_RENDERER | CVAR_FLOAT, "" );
-static idCVar r_ssaoAmount( "r_ssaoAmount", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
+static idCVar r_ssaoAmount( "r_ssaoAmount", "4", CVAR_RENDERER | CVAR_FLOAT, "" );
 
 struct SsaoConstants
 {
@@ -40,8 +43,8 @@ struct SsaoConstants
 	idVec2		viewportSize;
 
 	idRenderMatrix matClipToView;
-	idRenderMatrix matWorldToView;
-	idRenderMatrix matViewToWorld;
+	idRenderMatrix matWorldToView; // unused
+	idRenderMatrix matViewToWorld; // unused
 
 	idVec2      clipToView;
 	idVec2      invQuantizedGbufferSize;
@@ -240,42 +243,44 @@ void SsaoPass::Render(
 	assert( m_Blur.BindingSets[bindingSetIndex] );
 
 	{
-		nvrhi::Rect viewExtent( viewDef->viewport.x1, viewDef->viewport.x2, viewDef->viewport.y1, viewDef->viewport.y2 );
+		// RB HACK: add one 1 extra pixel to width and height
+		nvrhi::Rect viewExtent( viewDef->viewport.x1, viewDef->viewport.x2 + 1, viewDef->viewport.y1, viewDef->viewport.y2 + 1 );
 		nvrhi::Rect quarterResExtent = viewExtent;
 		quarterResExtent.minX /= 4;
 		quarterResExtent.minY /= 4;
 		quarterResExtent.maxX = ( quarterResExtent.maxX + 3 ) / 4;
 		quarterResExtent.maxY = ( quarterResExtent.maxY + 3 ) / 4;
 
+		// TODO required and remove this by fixing the shaders
+		renderProgManager.BindShader_TextureVertexColor();
+		renderProgManager.CommitConstantBuffer( commandList, true );
+
 		SsaoConstants ssaoConstants = {};
 		ssaoConstants.viewportOrigin = idVec2( viewDef->viewport.x1, viewDef->viewport.y1 );
 		ssaoConstants.viewportSize = idVec2( viewDef->viewport.GetWidth(), viewDef->viewport.GetHeight() );
 
-		ssaoConstants.matClipToView = viewDef->unprojectionToCameraRenderMatrix;
+		// RB: this actually should work but it only works with the old SSAO method ...
+		//ssaoConstants.matClipToView = viewDef->unprojectionToCameraRenderMatrix;
 
-		// SRS - FIXME: These transformations need to be verified
+		idRenderMatrix::Inverse( *( idRenderMatrix* ) viewDef->projectionMatrix, ssaoConstants.matClipToView );
 
 		// RB: TODO: only need for DIRECTIONAL_OCCLUSION
+		// we don't store the view matrix separatly yet
 		//ssaoConstants.matViewToWorld = viewDef->worldSpace;
 		//idRenderMatrix::Inverse( ssaoConstants.matViewToWorld, ssaoConstants.matWorldToView );
-		// SRS end
-
-		float projectionMatrix[16];
-
-		//R_MatrixTranspose( viewDef->projectionMatrix, projectionMatrix );
-		memcpy( projectionMatrix, viewDef->projectionMatrix, 16 * 4 );
 
 		ssaoConstants.clipToView = idVec2(
-									   projectionMatrix[2 * 4 + 3] / projectionMatrix[0 * 4 + 0],
-									   projectionMatrix[2 * 4 + 3] / projectionMatrix[1 * 4 + 1] );
-		ssaoConstants.invQuantizedGbufferSize = 1.f / m_QuantizedGbufferTextureSize;
+									   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[0 * 4 + 0],
+									   viewDef->projectionMatrix[2 * 4 + 3] / viewDef->projectionMatrix[1 * 4 + 1] );
+
+		ssaoConstants.invQuantizedGbufferSize = idVec2( 1.0f, 1.0f ) / m_QuantizedGbufferTextureSize;
 		ssaoConstants.quantizedViewportOrigin = idVec2i( quarterResExtent.minX, quarterResExtent.minY ) * 4;
 		ssaoConstants.amount = r_ssaoAmount.GetFloat();
 		ssaoConstants.invBackgroundViewDepth = ( r_ssaoBackgroundViewDepth.GetFloat() > 0.f ) ? 1.f / r_ssaoBackgroundViewDepth.GetFloat() : 0.f;
 		ssaoConstants.radiusWorld = r_ssaoRadiusWorld.GetFloat();
 		ssaoConstants.surfaceBias = r_ssaoSurfaceBias.GetFloat();
 		ssaoConstants.powerExponent = r_ssaoPowerExponent.GetFloat();
-		ssaoConstants.radiusToScreen = 0.5f * viewDef->viewport.GetHeight() * abs( projectionMatrix[1 * 4 + 1] );
+		ssaoConstants.radiusToScreen = 0.5f * viewDef->viewport.GetHeight() * abs( viewDef->projectionMatrix[1 * 4 + 1] );
 		commandList->writeBuffer( m_ConstantBuffer, &ssaoConstants, sizeof( ssaoConstants ) );
 
 		uint32_t dispatchWidth = ( quarterResExtent.width() + 7 ) / 8;

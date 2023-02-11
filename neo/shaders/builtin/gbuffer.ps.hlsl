@@ -66,7 +66,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	localNormal.z = sqrt( 1.0f - dot3( localNormal, localNormal ) );
 
 	float3 globalNormal;
-#if 0
+
+#if 1
+	// rotate normal into view space
 	globalNormal.x = dot3( localNormal, fragment.texcoord2 );
 	globalNormal.y = dot3( localNormal, fragment.texcoord3 );
 	globalNormal.z = dot3( localNormal, fragment.texcoord4 );
@@ -81,6 +83,5 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// RB: rpColor is white and only used to generate the _fa_ uniform array
 	result.color.rgb = ( globalNormal.xyz * 0.5 + 0.5 ) * fragment.color.rgb;// * rpColor;
-	//result.color.rgb = ( globalNormal.xyz );// * fragment.color.rgb;// * rpColor;
 	result.color.a = 1.0;
 }

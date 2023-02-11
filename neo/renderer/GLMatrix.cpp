@@ -535,7 +535,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 	projectionMatrix[2 * 4 + 2] = -0.999f;			// adjust value to prevent imprecision issues
 
 	// RB: was -2.0f * zNear
-	// the transformation into window space has changed from [-1 .. -1] to [0 .. -1]
+	// the transformation into window space has changed from [-1 .. 1] to [0 .. 1]
 	projectionMatrix[3 * 4 + 2] = -1.0f * zNear;
 
 	projectionMatrix[0 * 4 + 3] = 0.0f;
@@ -545,7 +545,8 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 
 #else
 
-	// alternative Z for better precision in the distance
+	// alternative far plane at infinity Z for better precision in the distance but still no reversed depth buffer
+	// see Foundations of Game Engine Development 2, chapter 6.3
 
 	float aspect = viewDef->renderView.fov_x / viewDef->renderView.fov_y;
 
@@ -570,7 +571,11 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 
 	projectionMatrix[0 * 4 + 2] = 0.0f;
 	projectionMatrix[1 * 4 + 2] = 0.0f;
+
+	// adjust value to prevent imprecision issues
 	projectionMatrix[2 * 4 + 2] = -k;
+
+	// the clip space Z range has changed from [-1 .. 1] to [0 .. 1] for DX12 & Vulkan
 	projectionMatrix[3 * 4 + 2] = -k * zNear;
 
 	projectionMatrix[0 * 4 + 3] = 0.0f;
@@ -665,9 +670,11 @@ create a matrix with similar functionality like gluUnproject, project from windo
 */
 void R_SetupUnprojection( viewDef_t* viewDef )
 {
+	// RB: I don't like that this doesn't work
+	//idRenderMatrix::Inverse( *( idRenderMatrix* ) viewDef->projectionMatrix, viewDef->unprojectionToCameraRenderMatrix );
+
 	R_MatrixFullInverse( viewDef->projectionMatrix, viewDef->unprojectionToCameraMatrix );
 	idRenderMatrix::Transpose( *( idRenderMatrix* )viewDef->unprojectionToCameraMatrix, viewDef->unprojectionToCameraRenderMatrix );
-
 
 	R_MatrixMultiply( viewDef->worldSpace.modelViewMatrix, viewDef->projectionMatrix, viewDef->unprojectionToWorldMatrix );
 	R_MatrixFullInverse( viewDef->unprojectionToWorldMatrix, viewDef->unprojectionToWorldMatrix );
