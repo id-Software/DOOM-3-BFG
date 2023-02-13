@@ -55,6 +55,8 @@ idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0"
 idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
 
+idCVar r_uploadBufferSizeMB( "r_uploadBufferSizeMB", "64", CVAR_INTEGER | CVAR_INIT, "Size of gpu upload buffer (Vulkan only)" );
+
 // SRS - What is GLimp_SwapBuffers() used for?  Disable for now
 //void GLimp_SwapBuffers();
 void RB_SetMVP( const idRenderMatrix& mvp );
@@ -214,7 +216,14 @@ void idRenderBackend::Init()
 
 	if( !commandList )
 	{
-		commandList = deviceManager->GetDevice()->createCommandList();
+		nvrhi::CommandListParameters params = {};
+		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+		{
+			// SRS - set upload buffer size to avoid Vulkan staging buffer fragmentation
+			size_t maxBufferSize = ( size_t )( r_uploadBufferSizeMB.GetInteger() * 1024 * 1024 );
+			params.setUploadChunkSize( maxBufferSize );
+		}
+		commandList = deviceManager->GetDevice()->createCommandList( params );
 	}
 
 	// allocate the vertex array range or vertex objects
