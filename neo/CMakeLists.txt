@@ -68,7 +68,7 @@ option(USE_DX12
 option(USE_VULKAN
 				"Use Vulkan" ON)
 
-option(USE_AMD_ALLOCATOR
+option(USE_VMA
 				"Use VMA allocator instead of the NVRHI builtin one" ON)
 
 set(NVRHI_INSTALL OFF)
@@ -411,9 +411,9 @@ if(USE_VULKAN)
 	endif()
 
 	# SRS - Add support for vma allocator vs. NVRHI builtin allocator
-	if(USE_AMD_ALLOCATOR)
+	if(USE_VMA)
 		add_definitions(-DUSE_AMD_ALLOCATOR)
-		include_directories("libs/VulkanMemoryAllocator/include")
+		include_directories("libs/vma/include")
 	endif()
 else()
 
