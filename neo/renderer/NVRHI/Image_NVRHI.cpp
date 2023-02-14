@@ -42,6 +42,50 @@ Contains the Image implementation for OpenGL.
 
 extern DeviceManager* deviceManager;
 
+#if defined( USE_AMD_ALLOCATOR )
+#include "vk_mem_alloc.h"
+
+extern VmaAllocator 	m_VmaAllocator;
+
+int						idImage::garbageIndex = 0;
+idList< VkImage >		idImage::imageGarbage[ NUM_FRAME_DATA ] = {};
+idList< VmaAllocation > idImage::allocationGarbage[ NUM_FRAME_DATA ] = {};
+
+/*
+========================
+pickImageUsage - copied from nvrhi vulkan-texture.cpp
+========================
+*/
+vk::ImageUsageFlags pickImageUsage( const nvrhi::TextureDesc& desc )
+{
+	const nvrhi::FormatInfo& formatInfo = nvrhi::getFormatInfo( desc.format );
+
+	vk::ImageUsageFlags usageFlags = vk::ImageUsageFlagBits::eTransferSrc |
+									 vk::ImageUsageFlagBits::eTransferDst |
+									 vk::ImageUsageFlagBits::eSampled;
+
+	if( desc.isRenderTarget )
+	{
+		if( formatInfo.hasDepth || formatInfo.hasStencil )
+		{
+			usageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+		}
+		else
+		{
+			usageFlags |= vk::ImageUsageFlagBits::eColorAttachment;
+		}
+	}
+
+	if( desc.isUAV )
+		usageFlags |= vk::ImageUsageFlagBits::eStorage;
+
+	if( desc.isShadingRateSurface )
+		usageFlags |= vk::ImageUsageFlagBits::eFragmentShadingRateAttachmentKHR;
+
+	return usageFlags;
+}
+#endif
+
 /*
 ====================
 idImage::idImage
@@ -50,6 +94,12 @@ idImage::idImage
 idImage::idImage( const char* name ) : imgName( name )
 {
 	texture.Reset();
+	
+#if defined( USE_AMD_ALLOCATOR )
+	image = VK_NULL_HANDLE;
+	allocation = NULL;
+#endif
+	
 	generatorFunction = NULL;
 	filter = TF_DEFAULT;
 	repeat = TR_REPEAT;
@@ -485,7 +535,37 @@ void idImage::AllocImage()
 		textureDesc.setArraySize( 1 );
 	}
 
-	texture = deviceManager->GetDevice()->createTexture( textureDesc );
+#if defined( USE_AMD_ALLOCATOR )
+	if( m_VmaAllocator )
+	{
+		VkImageCreateInfo imageCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+		imageCreateInfo.flags = ( opts.textureType == TT_CUBIC ) ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
+		imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageCreateInfo.format = static_cast< VkFormat >( nvrhi::vulkan::convertFormat( format ) );
+		imageCreateInfo.extent.width = scaledWidth;
+		imageCreateInfo.extent.height = scaledHeight;
+		imageCreateInfo.extent.depth = 1;
+		imageCreateInfo.mipLevels = opts.numLevels;
+		imageCreateInfo.arrayLayers = textureDesc.arraySize;
+		imageCreateInfo.samples = static_cast< VkSampleCountFlagBits >( opts.samples );
+		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageCreateInfo.usage = static_cast< VkImageUsageFlags >( pickImageUsage( textureDesc ) );
+		imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		VmaAllocationCreateInfo allocCreateInfo = {};
+		allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+
+		VkResult result = vmaCreateImage( m_VmaAllocator, &imageCreateInfo, &allocCreateInfo, &image, &allocation, NULL );
+		assert( result == VK_SUCCESS );
+
+		texture = deviceManager->GetDevice()->createHandleForNativeTexture( nvrhi::ObjectTypes::VK_Image, image, textureDesc );
+	}
+	else
+#endif
+	{
+		texture = deviceManager->GetDevice()->createTexture( textureDesc );
+	}
 
 	assert( texture );
 }
@@ -498,6 +578,18 @@ idImage::PurgeImage
 void idImage::PurgeImage()
 {
 	texture.Reset();
+
+#if defined( USE_AMD_ALLOCATOR )
+	if( m_VmaAllocator && image != VK_NULL_HANDLE )
+	{
+		imageGarbage[ garbageIndex ].Append( image );
+		allocationGarbage[ garbageIndex ].Append( allocation );
+
+		image = VK_NULL_HANDLE;
+		allocation = NULL;
+	}
+#endif
+
 	sampler.Reset();
 	isLoaded = false;
 	defaulted = false;
@@ -518,3 +610,30 @@ void idImage::Resize( int width, int height )
 	opts.height = height;
 	AllocImage();
 }
+
+#if defined( USE_AMD_ALLOCATOR )
+/*
+====================
+idImage::EmptyGarbage
+====================
+*/
+void idImage::EmptyGarbage()
+{
+	if( m_VmaAllocator )
+	{
+		garbageIndex = ( garbageIndex + 1 ) % NUM_FRAME_DATA;
+
+		idList< VkImage >& imagesToFree = imageGarbage[ garbageIndex ];
+		idList< VmaAllocation >& allocationsToFree = allocationGarbage[ garbageIndex ];
+
+		const int numAllocations = allocationsToFree.Num();
+		for( int i = 0; i < numAllocations; ++i )
+		{
+			vmaDestroyImage( m_VmaAllocator, imagesToFree[ i ], allocationsToFree[ i ] );
+		}
+
+		imagesToFree.Clear();
+		allocationsToFree.Clear();
+	}
+}
+#endif

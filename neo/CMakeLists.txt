@@ -68,6 +68,9 @@ option(USE_DX12
 option(USE_VULKAN
 				"Use Vulkan" ON)
 
+option(USE_AMD_ALLOCATOR
+				"Use VMA allocator instead of the NVRHI builtin one" ON)
+
 set(NVRHI_INSTALL OFF)
 
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
@@ -180,7 +183,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 		# add clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
 		# SRS - Add -Wno-expansion-to-defined to list of warning settings
-		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-expansion-to-defined)
+		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-expansion-to-defined -Wno-nullability-completeness)
 	endif()
 	
 	if(NOT CMAKE_CROSSCOMPILING AND ONATIVE)
@@ -405,6 +408,12 @@ if(USE_VULKAN)
         add_definitions(-DVULKAN_USE_PLATFORM_SDL)
 	elseif(WIN32)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
+	endif()
+
+	# SRS - Add support for vma allocator vs. NVRHI builtin allocator
+	if(USE_AMD_ALLOCATOR)
+		add_definitions(-DUSE_AMD_ALLOCATOR)
+		include_directories("libs/VulkanMemoryAllocator/include")
 	endif()
 else()
 

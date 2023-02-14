@@ -37,6 +37,17 @@
 #endif
 #include <nvrhi/validation.h>
 
+#if defined( USE_AMD_ALLOCATOR )
+#define VMA_IMPLEMENTATION
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
+#include "vk_mem_alloc.h"
+
+VmaAllocator m_VmaAllocator = nullptr;
+
+idCVar r_vkDeviceLocalMemoryMB( "r_vkDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "Size of gpu memory allocation block." );
+#endif
+
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -898,6 +909,23 @@ bool DeviceManager_VK::createDevice()
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );
 
+#if defined( USE_AMD_ALLOCATOR )
+	// SRS - initialize the vma allocator
+	VmaVulkanFunctions vulkanFunctions = {};
+	vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+	vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+
+	VmaAllocatorCreateInfo allocatorCreateInfo = {};
+	allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+	allocatorCreateInfo.physicalDevice = m_VulkanPhysicalDevice;
+	allocatorCreateInfo.device = m_VulkanDevice;
+	allocatorCreateInfo.instance = m_VulkanInstance;
+	allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+	allocatorCreateInfo.flags = bufferAddressSupported ? VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT : 0;
+	allocatorCreateInfo.preferredLargeHeapBlockSize = r_vkDeviceLocalMemoryMB.GetInteger() * 1024 * 1024;
+	vmaCreateAllocator( &allocatorCreateInfo, &m_VmaAllocator );
+#endif
+
 	common->Printf( "Created Vulkan device: %s\n", m_RendererString.c_str() );
 
 	return true;
@@ -1188,6 +1216,19 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 	{
 		m_VulkanInstance.destroyDebugReportCallbackEXT( m_DebugReportCallback );
 	}
+
+#if defined( USE_AMD_ALLOCATOR )
+	if( m_VmaAllocator )
+	{
+		// SRS - make sure image allocation garbage is emptied for all frames
+		for( int i = 0; i < NUM_FRAME_DATA; i++ )
+		{
+			idImage::EmptyGarbage();
+		}
+		vmaDestroyAllocator( m_VmaAllocator );
+		m_VmaAllocator = nullptr;
+	}
+#endif
 
 	if( m_VulkanDevice )
 	{

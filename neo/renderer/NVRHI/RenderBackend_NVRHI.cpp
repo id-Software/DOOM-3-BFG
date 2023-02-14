@@ -1543,6 +1543,10 @@ void idRenderBackend::GL_StartFrame()
 
 	deviceManager->BeginFrame();
 
+#if defined( USE_AMD_ALLOCATOR )
+	idImage::EmptyGarbage();
+#endif
+
 	commandList->open();
 
 	renderLog.StartFrame( commandList );
