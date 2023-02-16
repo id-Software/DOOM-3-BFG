@@ -360,21 +360,15 @@ endmacro()
 if(USE_VULKAN)
 	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
 	# which causes all kinds of weird segmentation faults because struct sizes don't match
- 
-    # SRS - Set default VULKAN_SDK location if environment variable not defined on OSX
-    if(APPLE AND NOT DEFINED ENV{VULKAN_SDK})
-        if(NOT USE_MoltenVK)
-            # SRS - Vulkan SDK installer copies standard vulkan headers and libs to /usr/local on OSX
-            set(ENV{VULKAN_SDK} /usr/local)
-        else()
-            message(FATAL_ERROR "Must define VULKAN_SDK location if USE_MoltenVK option enabled!")
-        endif()
-    endif()
 
 	# Use FindVulkan module added with CMAKE 3.7
 	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
-		message( STATUS "Using module to find Vulkan" )
-		find_package(Vulkan)
+		message( STATUS "Using module to find Vulkan and components" )
+		list(APPEND Vulkan_COMPONENTS dxc)
+	    if(APPLE AND USE_MoltenVK)
+			list(APPEND Vulkan_COMPONENTS MoltenVK)
+    	endif()
+		find_package(Vulkan OPTIONAL_COMPONENTS ${Vulkan_COMPONENTS})
 	endif()
 
 	if(NOT Vulkan_FOUND)
@@ -385,18 +379,24 @@ if(USE_VULKAN)
 		#	message("Using bundled Vulkan library version")
 		#endif()
 	else()
-        include_directories($ENV{VULKAN_SDK}/include)
+		include_directories(${Vulkan_INCLUDE_DIRS})
+
+		if(Vulkan_dxc_exe_FOUND AND NOT DEFINED DXC_SPIRV_EXECUTABLE)
+			set(DXC_SPIRV_EXECUTABLE ${Vulkan_dxc_EXECUTABLE})
+		endif()
 
         if(APPLE)
             # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
             add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-            # SRS - Explicitly define dxc path so find_package(DXCspirv) uses the specified Vulkan SDK location on OSX
-            set(DXC_SPIRV_EXECUTABLE $ENV{VULKAN_SDK}/bin/dxc CACHE FILEPATH "Path to SPIR-V shader compiler." FORCE)
             # SRS - Optionally link directly to MoltenVK headers/library for runtime config functions on OSX
             if(USE_MoltenVK)
-                add_definitions(-DUSE_MoltenVK)
-                include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
-                set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVK.dylib CACHE FILEPATH "Path to MoltenVK library." FORCE)
+            	if(Vulkan_MoltenVK_FOUND)
+					add_definitions(-DUSE_MoltenVK)
+                	include_directories(${Vulkan_MoltenVK_INCLUDE_DIR})
+                	set(Vulkan_LIBRARY ${Vulkan_MoltenVK_LIBRARY} CACHE FILEPATH "Path to MoltenVK library." FORCE)
+                else()
+		            message(FATAL_ERROR "Must define VULKAN_SDK location if USE_MoltenVK option enabled!")
+                endif()
             endif()
 		endif()
 		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
