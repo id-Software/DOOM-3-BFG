@@ -143,17 +143,9 @@ idVertexBuffer::idVertexBuffer
 */
 idVertexBuffer::idVertexBuffer()
 {
-	size = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	bufferHandle.Reset();
-
-#if defined( USE_AMD_ALLOCATOR )
-	vkBuffer = VK_NULL_HANDLE;
-	allocation = NULL;
-	allocationInfo = {};
-#endif
-
+	//SRS - Generic initialization handled by idBufferObject base class
 	SetUnmapped();
+	SetDebugName( "Vertex Buffer" );
 }
 
 /*
@@ -200,7 +192,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 		bufferCreateInfo.size = numBytes;
 		bufferCreateInfo.usage = static_cast< VkBufferUsageFlags >( pickBufferUsage( vertexBufferDesc ) );
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		 
+
 		VmaAllocationCreateInfo allocCreateInfo = {};
 		if( usage == BU_DYNAMIC )
 		{
@@ -215,7 +207,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 		VkResult result = vmaCreateBuffer( m_VmaAllocator, &bufferCreateInfo, &allocCreateInfo, &vkBuffer, &allocation, &allocationInfo );
 		assert( result == VK_SUCCESS );
 
-		bufferHandle = deviceManager->GetDevice()->createHandleForNativeBuffer( nvrhi::ObjectTypes::VK_Buffer, vkBuffer, vertexBufferDesc );		
+		bufferHandle = deviceManager->GetDevice()->createHandleForNativeBuffer( nvrhi::ObjectTypes::VK_Buffer, vkBuffer, vertexBufferDesc );
 	}
 	else
 #endif
@@ -277,8 +269,6 @@ void idVertexBuffer::FreeBufferObject()
 	if( m_VmaAllocator )
 	{
 		vmaDestroyBuffer( m_VmaAllocator, vkBuffer, allocation );
-		allocationInfo = VmaAllocationInfo();
-		allocation = NULL;
 	}
 #endif
 
@@ -305,16 +295,9 @@ void idVertexBuffer::Update( const void* data, int updateSize, int offset, bool 
 
 	if( usage == BU_DYNAMIC )
 	{
-#if defined( USE_AMD_ALLOCATOR )
-		if( m_VmaAllocator )
-		{
-			CopyBuffer( ( byte* )allocationInfo.pMappedData + GetOffset() + offset, ( const byte* )data, numBytes );
-		}
-		else
-#endif
-		{
-			CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
-		}
+		assert( IsMapped() );
+
+		CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
 	}
 	else
 	{
@@ -405,11 +388,8 @@ void idVertexBuffer::ClearWithoutFreeing()
 	bufferHandle.Reset();
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator )
-	{
-		allocationInfo = VmaAllocationInfo();
-		allocation = NULL;
-	}
+	allocation = NULL;
+	allocationInfo = {};
 #endif
 }
 
@@ -428,17 +408,9 @@ idIndexBuffer::idIndexBuffer
 */
 idIndexBuffer::idIndexBuffer()
 {
-	size = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	bufferHandle.Reset();
-	
-#if defined( USE_AMD_ALLOCATOR )
-	vkBuffer = VK_NULL_HANDLE;
-	allocation = NULL;
-	allocationInfo = {};
-#endif
-
+	//SRS - Generic initialization handled by idBufferObject base class
 	SetUnmapped();
+	SetDebugName( "Index Buffer" );
 }
 
 /*
@@ -487,7 +459,7 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 		bufferCreateInfo.size = numBytes;
 		bufferCreateInfo.usage = static_cast< VkBufferUsageFlags >( pickBufferUsage( indexBufferDesc ) );
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		 
+
 		VmaAllocationCreateInfo allocCreateInfo = {};
 		if( usage == BU_DYNAMIC )
 		{
@@ -563,8 +535,6 @@ void idIndexBuffer::FreeBufferObject()
 	if( m_VmaAllocator )
 	{
 		vmaDestroyBuffer( m_VmaAllocator, vkBuffer, allocation );
-		allocationInfo = VmaAllocationInfo();
-		allocation = NULL;
 	}
 #endif
 
@@ -591,16 +561,9 @@ void idIndexBuffer::Update( const void* data, int updateSize, int offset, bool i
 
 	if( usage == BU_DYNAMIC )
 	{
-#if defined( USE_AMD_ALLOCATOR )
-		if( m_VmaAllocator )
-		{
-			CopyBuffer( ( byte* )allocationInfo.pMappedData + GetOffset() + offset, ( const byte* )data, numBytes );
-		}
-		else
-#endif
-		{
-			CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
-		}
+		assert( IsMapped() );
+
+		CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
 	}
 	else
 	{
@@ -692,11 +655,8 @@ void idIndexBuffer::ClearWithoutFreeing()
 	bufferHandle.Reset();
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator )
-	{
-		allocationInfo = VmaAllocationInfo();
-		allocation = NULL;
-	}
+	allocation = NULL;
+	allocationInfo = {};
 #endif
 }
 
@@ -715,16 +675,7 @@ idUniformBuffer::idUniformBuffer
 */
 idUniformBuffer::idUniformBuffer()
 {
-	size = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	bufferHandle.Reset();
-	
-#if defined( USE_AMD_ALLOCATOR )
-	vkBuffer = VK_NULL_HANDLE;
-	allocation = NULL;
-	allocationInfo = {};
-#endif
-
+	//SRS - Generic initialization handled by idBufferObject base class
 	SetUnmapped();
 	SetDebugName( "Uniform Buffer" );
 }
@@ -779,7 +730,7 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 		bufferCreateInfo.size = numBytes;
 		bufferCreateInfo.usage = static_cast< VkBufferUsageFlags >( pickBufferUsage( bufferDesc ) );
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		 
+
 		VmaAllocationCreateInfo allocCreateInfo = {};
 		if( usage == BU_DYNAMIC )
 		{
@@ -856,8 +807,6 @@ void idUniformBuffer::FreeBufferObject()
 	if( m_VmaAllocator )
 	{
 		vmaDestroyBuffer( m_VmaAllocator, vkBuffer, allocation );
-		allocationInfo = VmaAllocationInfo();
-		allocation = NULL;
 	}
 #endif
 
@@ -884,16 +833,9 @@ void idUniformBuffer::Update( const void* data, int updateSize, int offset, bool
 
 	if( usage == BU_DYNAMIC )
 	{
-#if defined( USE_AMD_ALLOCATOR )
-		if( m_VmaAllocator )
-		{
-			CopyBuffer( ( byte* )allocationInfo.pMappedData + GetOffset() + offset, ( const byte* )data, numBytes );
-		}
-		else
-#endif
-		{
-			CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
-		}
+		assert( IsMapped() );
+
+		CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
 	}
 	else
 	{
@@ -984,10 +926,7 @@ void idUniformBuffer::ClearWithoutFreeing()
 	bufferHandle.Reset();
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator )
-	{
-		allocationInfo = VmaAllocationInfo();
-		allocation = NULL;
-	}
+	allocation = NULL;
+	allocationInfo = {};
 #endif
 }

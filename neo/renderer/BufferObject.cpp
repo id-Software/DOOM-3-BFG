@@ -140,6 +140,12 @@ idBufferObject::idBufferObject()
 	inputLayout.Reset();
 	buffer = NULL;
 
+#if defined( USE_AMD_ALLOCATOR )
+	vkBuffer = VK_NULL_HANDLE;
+	allocation = NULL;
+	allocationInfo = {};
+#endif
+
 #else
 	apiObject = NULL;
 	buffer = NULL;
@@ -182,6 +188,8 @@ void idVertexBuffer::Reference( const idVertexBuffer& other )
 	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
+#elif defined( USE_NVRHI ) && defined ( USE_AMD_ALLOCATOR )
+	allocationInfo = other.allocationInfo;
 #endif
 	assert( OwnsBuffer() == false );
 }
@@ -206,6 +214,8 @@ void idVertexBuffer::Reference( const idVertexBuffer& other, int refOffset, int 
 	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
+#elif defined( USE_NVRHI ) && defined ( USE_AMD_ALLOCATOR )
+	allocationInfo = other.allocationInfo;
 #endif
 	assert( OwnsBuffer() == false );
 }
@@ -246,6 +256,8 @@ void idIndexBuffer::Reference( const idIndexBuffer& other )
 	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
+#elif defined( USE_NVRHI ) && defined ( USE_AMD_ALLOCATOR )
+	allocationInfo = other.allocationInfo;
 #endif
 	assert( OwnsBuffer() == false );
 }
@@ -270,6 +282,8 @@ void idIndexBuffer::Reference( const idIndexBuffer& other, int refOffset, int re
 	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
+#elif defined( USE_NVRHI ) && defined ( USE_AMD_ALLOCATOR )
+	allocationInfo = other.allocationInfo;
 #endif
 	assert( OwnsBuffer() == false );
 }
@@ -310,6 +324,8 @@ void idUniformBuffer::Reference( const idUniformBuffer& other )
 	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
+#elif defined( USE_NVRHI ) && defined ( USE_AMD_ALLOCATOR )
+	allocationInfo = other.allocationInfo;
 #endif
 	assert( OwnsBuffer() == false );
 }
@@ -334,6 +350,8 @@ void idUniformBuffer::Reference( const idUniformBuffer& other, int refOffset, in
 	bufferHandle = other.bufferHandle;
 #if defined( USE_VULKAN )
 	allocation = other.allocation;
+#elif defined( USE_NVRHI ) && defined ( USE_AMD_ALLOCATOR )
+	allocationInfo = other.allocationInfo;
 #endif
 	assert( OwnsBuffer() == false );
 }
