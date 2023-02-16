@@ -594,23 +594,25 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 
 	// DG: use readdir_r instead of readdir for thread safety
 	// the following lines are from the readdir_r manpage.. fscking ugly.
-	int nameMax = pathconf( directory, _PC_NAME_MAX );
-	if( nameMax == -1 )
-	{
-		nameMax = 255;
-	}
-	int direntLen = offsetof( struct dirent, d_name ) + nameMax + 1;
+	//int nameMax = pathconf( directory, _PC_NAME_MAX );
+	//if( nameMax == -1 )
+	//{
+	//	nameMax = 255;
+	//}
+	//int direntLen = offsetof( struct dirent, d_name ) + nameMax + 1;
 
-	struct dirent* entry = ( struct dirent* )Mem_Alloc( direntLen, TAG_CRAP );
+	//struct dirent* entry = ( struct dirent* )Mem_Alloc( direntLen, TAG_CRAP );
 
-	if( entry == NULL )
-	{
-		common->Warning( "Sys_ListFiles: Mem_Alloc for entry failed!" );
-		closedir( fdir );
-		return 0;
-	}
+	//if( entry == NULL )
+	//{
+	//	common->Warning( "Sys_ListFiles: Mem_Alloc for entry failed!" );
+	//	closedir( fdir );
+	//	return 0;
+	//}
 
-	while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
+	//while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
+	// SRS - readdir_r() is deprecated on linux, readdir() is thread safe with different dir streams
+	while( ( d = readdir( fdir ) ) != NULL )
 	{
 		// DG end
 		idStr::snPrintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
@@ -640,7 +642,7 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	}
 
 	closedir( fdir );
-	Mem_Free( entry );
+	//Mem_Free( entry );
 
 	if( debug )
 	{

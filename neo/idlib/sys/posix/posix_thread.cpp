@@ -277,11 +277,12 @@ Sys_Yield
 */
 void Sys_Yield()
 {
-#if defined(__ANDROID__) || defined(__APPLE__)
+// SRS - pthread_yield() is deprecated on linux
+//#if defined(__ANDROID__) || defined(__APPLE__)
 	sched_yield();
-#else
-	pthread_yield();
-#endif
+//#else
+//	pthread_yield();
+//#endif
 }
 
 /*
