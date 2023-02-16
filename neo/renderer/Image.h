@@ -288,10 +288,6 @@ typedef void ( *ImageGeneratorFunction )( idImage* image, nvrhi::ICommandList* c
 
 #include "BinaryImage.h"
 
-#if defined( USE_AMD_ALLOCATOR )
-#include "vk_mem_alloc.h"
-#endif
-
 #define	MAX_IMAGE_NAME	256
 
 class idImage
