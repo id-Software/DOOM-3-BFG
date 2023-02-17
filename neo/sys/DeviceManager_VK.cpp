@@ -20,11 +20,9 @@
 * DEALINGS IN THE SOFTWARE.
 */
 
-// SRS - Disable PCH for USE_AMD_ALLOCATOR option, otherwise get Vulkan header mismatch failures
-#if !defined( USE_AMD_ALLOCATOR )
-#include <precompiled.h>
-#pragma hdrstop
-#endif
+// SRS - Disable PCH here, otherwise get Vulkan header mismatch failures with USE_AMD_ALLOCATOR option
+//#include <precompiled.h>
+//#pragma hdrstop
 
 #include <string>
 #include <queue>
