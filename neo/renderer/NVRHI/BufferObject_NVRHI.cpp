@@ -44,7 +44,7 @@ extern DeviceManager* deviceManager;
 
 extern VmaAllocator m_VmaAllocator;
 
-idCVar r_vmaUseForBufferMemory( "r_vmaUseForBufferMemory", "1", CVAR_BOOL | CVAR_INIT, "Use VMA allocator for buffer memory." );
+idCVar r_vmaAllocateBufferMemory( "r_vmaAllocateBufferMemory", "1", CVAR_BOOL | CVAR_INIT, "Use VMA allocator for buffer memory." );
 
 /*
 ========================
@@ -188,7 +188,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	}
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		bufferCreateInfo.size = numBytes;
@@ -268,7 +268,7 @@ void idVertexBuffer::FreeBufferObject()
 	bufferHandle.Reset();
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		vmaDestroyBuffer( m_VmaAllocator, vkBuffer, allocation );
 	}
@@ -328,7 +328,7 @@ void* idVertexBuffer::MapBuffer( bufferMapType_t mapType )
 	assert( IsMapped() == false );
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		buffer = ( byte* )allocationInfo.pMappedData + GetOffset();
 	}
@@ -366,7 +366,7 @@ void idVertexBuffer::UnmapBuffer()
 	assert( IsMapped() );
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( !m_VmaAllocator || !r_vmaUseForBufferMemory.GetBool() )
+	if( !m_VmaAllocator || !r_vmaAllocateBufferMemory.GetBool() )
 #endif
 	{
 		if( deviceManager && deviceManager->GetDevice() )
@@ -455,7 +455,7 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	}
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		bufferCreateInfo.size = numBytes;
@@ -534,7 +534,7 @@ void idIndexBuffer::FreeBufferObject()
 	bufferHandle.Reset();
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		vmaDestroyBuffer( m_VmaAllocator, vkBuffer, allocation );
 	}
@@ -595,7 +595,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType )
 	assert( IsMapped() == false );
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		buffer = ( byte* )allocationInfo.pMappedData + GetOffset();
 	}
@@ -633,7 +633,7 @@ void idIndexBuffer::UnmapBuffer()
 	assert( IsMapped() );
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( !m_VmaAllocator || !r_vmaUseForBufferMemory.GetBool() )
+	if( !m_VmaAllocator || !r_vmaAllocateBufferMemory.GetBool() )
 #endif
 	{
 		if( deviceManager && deviceManager->GetDevice() )
@@ -726,7 +726,7 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	}
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		bufferCreateInfo.size = numBytes;
@@ -806,7 +806,7 @@ void idUniformBuffer::FreeBufferObject()
 	bufferHandle.Reset();
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		vmaDestroyBuffer( m_VmaAllocator, vkBuffer, allocation );
 	}
@@ -866,7 +866,7 @@ void* idUniformBuffer::MapBuffer( bufferMapType_t mapType )
 	assert( IsMapped() == false );
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( m_VmaAllocator && r_vmaUseForBufferMemory.GetBool() )
+	if( m_VmaAllocator && r_vmaAllocateBufferMemory.GetBool() )
 	{
 		buffer = ( byte* )allocationInfo.pMappedData + GetOffset();
 	}
@@ -904,7 +904,7 @@ void idUniformBuffer::UnmapBuffer()
 	assert( IsMapped() );
 
 #if defined( USE_AMD_ALLOCATOR )
-	if( !m_VmaAllocator || !r_vmaUseForBufferMemory.GetBool() )
+	if( !m_VmaAllocator || !r_vmaAllocateBufferMemory.GetBool() )
 #endif
 	{
 		if( deviceManager && deviceManager->GetDevice() )
