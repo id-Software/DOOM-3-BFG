@@ -46,7 +46,7 @@
 
 VmaAllocator m_VmaAllocator = nullptr;
 
-idCVar r_vkDeviceLocalMemoryMB( "r_vkDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "Size of gpu memory allocation block." );
+idCVar r_vmaDeviceLocalMemoryMB( "r_vmaDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "Size of VMA allocation block for gpu memory." );
 #endif
 
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
@@ -923,7 +923,7 @@ bool DeviceManager_VK::createDevice()
 	allocatorCreateInfo.instance = m_VulkanInstance;
 	allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 	allocatorCreateInfo.flags = bufferAddressSupported ? VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT : 0;
-	allocatorCreateInfo.preferredLargeHeapBlockSize = r_vkDeviceLocalMemoryMB.GetInteger() * 1024 * 1024;
+	allocatorCreateInfo.preferredLargeHeapBlockSize = r_vmaDeviceLocalMemoryMB.GetInteger() * 1024 * 1024;
 	vmaCreateAllocator( &allocatorCreateInfo, &m_VmaAllocator );
 #endif
 
