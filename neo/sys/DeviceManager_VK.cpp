@@ -839,6 +839,7 @@ bool DeviceManager_VK::createDevice()
 
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
 						  .setShaderImageGatherExtended( true )
+						  .setShaderStorageImageReadWithoutFormat( true )
 						  .setSamplerAnisotropy( true )
 						  .setTessellationShader( true )
 						  .setTextureCompressionBC( true )
