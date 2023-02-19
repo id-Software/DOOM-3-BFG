@@ -705,8 +705,9 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	// This buffer is a shader resource as opposed to a constant buffer due to
 	// constant buffers not being able to be sub-ranged.
 	nvrhi::BufferDesc bufferDesc;
-	bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
-	bufferDesc.keepInitialState = true;
+	//bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;		// SRS - shouldn't this be initialized to CopyDest?
+	bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+	//bufferDesc.keepInitialState = true;									// SRS - shouldn't this be set for BU_STATIC only?
 	bufferDesc.canHaveTypedViews = true;
 	bufferDesc.canHaveRawViews = true;
 	bufferDesc.byteSize = numBytes;
@@ -715,13 +716,12 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 
 	if( usage == BU_DYNAMIC )
 	{
-		bufferDesc.debugName = "Mapped Constant Buffer";
-		bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+		bufferDesc.debugName = "VertexCache Mapped Joint Buffer";
 		bufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
 	}
 	else
 	{
-		bufferDesc.debugName = "Static Constant Buffer";
+		bufferDesc.debugName = "Static Uniform Buffer";
 		bufferDesc.keepInitialState = true;
 	}
 
