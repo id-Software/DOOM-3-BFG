@@ -56,60 +56,6 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-#if defined(_WIN32)
-	idCVar r_useOpenGL45( "r_useOpenGL45", "1", CVAR_INTEGER, "0 = OpenGL 4.0, 1 = OpenGL 4.5 compatibility profile, 2 = OpenGL 4.5 core profile", 0, 2 );
-#else
-	idCVar r_useOpenGL45( "r_useOpenGL45", "2", CVAR_INTEGER, "0 = OpenGL 4.0, 1 = OpenGL 4.5 compatibility profile, 2 = OpenGL 4.5 core profile", 0, 2 );
-#endif
-
-
-
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-/*
-========================
-GLimp_TestSwapBuffers
-========================
-*/
-void GLimp_TestSwapBuffers( const idCmdArgs& args )
-{
-	idLib::Printf( "GLimp_TimeSwapBuffers\n" );
-	static const int MAX_FRAMES = 5;
-	uint64	timestamps[MAX_FRAMES];
-	glDisable( GL_SCISSOR_TEST );
-
-	int frameMilliseconds = 16;
-	for( int swapInterval = 2 ; swapInterval >= -1 ; swapInterval-- )
-	{
-		wglSwapIntervalEXT( swapInterval );
-		for( int i = 0 ; i < MAX_FRAMES ; i++ )
-		{
-			if( swapInterval == -1 )
-			{
-				Sys_Sleep( frameMilliseconds );
-			}
-			if( i & 1 )
-			{
-				glClearColor( 0, 1, 0, 1 );
-			}
-			else
-			{
-				glClearColor( 1, 0, 0, 1 );
-			}
-			glClear( GL_COLOR_BUFFER_BIT );
-			SwapBuffers( win32.hDC );
-			glFinish();
-			timestamps[i] = Sys_Microseconds();
-		}
-
-		idLib::Printf( "\nswapinterval %i\n", swapInterval );
-		for( int i = 1 ; i < MAX_FRAMES ; i++ )
-		{
-			idLib::Printf( "%i microseconds\n", ( int )( timestamps[i] - timestamps[i - 1] ) );
-		}
-	}
-}
-#endif
-
 /*
 ========================
 GLimp_GetOldGammaRamp
@@ -679,7 +625,7 @@ static idStr GetDeviceName( const int deviceNum )
 	}
 
 	// get the monitor for this display
-	if( !( device.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP ) )
+	if( !( device.StateFlags & ( DISPLAY_DEVICE_ATTACHED_TO_DESKTOP | DISPLAY_DEVICE_PRIMARY_DEVICE ) ) )
 	{
 		return idStr();
 	}
@@ -932,7 +878,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		}
 
 		// get the monitor for this display
-		if( !( device.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP ) )
+		if( !( device.StateFlags & ( DISPLAY_DEVICE_ATTACHED_TO_DESKTOP | DISPLAY_DEVICE_PRIMARY_DEVICE ) ) )
 		{
 			continue;
 		}
@@ -977,7 +923,11 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			{
 				continue;
 			}
-			if( ( devmode.dmDisplayFrequency != 60 ) && ( devmode.dmDisplayFrequency != 120 ) )
+			if( ( devmode.dmDisplayFrequency != 60 ) &&
+					( devmode.dmDisplayFrequency != 120 ) &&
+					( devmode.dmDisplayFrequency != 144 ) &&
+					( devmode.dmDisplayFrequency != 165 ) &&
+					( devmode.dmDisplayFrequency != 240 ) )
 			{
 				continue;
 			}
