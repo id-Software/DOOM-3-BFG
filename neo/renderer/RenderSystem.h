@@ -417,6 +417,7 @@ public:
 	virtual void			TakeScreenshot( int width, int height, const char* fileName, struct renderView_s* ref ) = 0;
 
 	// RB
+	virtual bool			IsTakingScreenshot() = 0;
 	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref ) = 0;
 
 	// the render output can be cropped down to a subset of the real screen, as
