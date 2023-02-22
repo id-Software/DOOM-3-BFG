@@ -255,6 +255,7 @@ void SsaoPass::Render(
 
 		// TODO required and remove this by fixing the shaders
 		renderProgManager.BindShader_TextureVertexColor();
+
 		renderProgManager.CommitConstantBuffer( commandList, true );
 
 		SsaoConstants ssaoConstants = {};

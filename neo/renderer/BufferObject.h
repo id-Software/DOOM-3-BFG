@@ -37,10 +37,10 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( USE_NVRHI )
 	#include <nvrhi/nvrhi.h>
 
-#if defined( USE_AMD_ALLOCATOR )
-	#include <nvrhi/vulkan.h>
-	#include "vk_mem_alloc.h"
-#endif
+	#if defined( USE_AMD_ALLOCATOR )
+		#include <nvrhi/vulkan.h>
+		#include "vk_mem_alloc.h"
+	#endif
 #endif
 
 enum bufferMapType_t
@@ -151,7 +151,7 @@ protected:
 	nvrhi::BufferHandle			bufferHandle;
 	void*						buffer;
 	idStr						debugName;
-	
+
 #if defined( USE_AMD_ALLOCATOR )
 	VkBuffer					vkBuffer;
 	VmaAllocation				allocation;

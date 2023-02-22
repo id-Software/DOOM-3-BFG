@@ -76,35 +76,55 @@ vk::BufferUsageFlags pickBufferUsage( const nvrhi::BufferDesc& desc )
 									  vk::BufferUsageFlagBits::eTransferDst;
 
 	if( desc.isVertexBuffer )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eVertexBuffer;
+	}
 
 	if( desc.isIndexBuffer )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eIndexBuffer;
+	}
 
 	if( desc.isDrawIndirectArgs )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eIndirectBuffer;
+	}
 
 	if( desc.isConstantBuffer )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eUniformBuffer;
+	}
 
 	if( desc.structStride != 0 || desc.canHaveUAVs || desc.canHaveRawViews )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eStorageBuffer;
+	}
 
 	if( desc.canHaveTypedViews )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
+	}
 
 	if( desc.canHaveTypedViews && desc.canHaveUAVs )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
+	}
 
 	if( desc.isAccelStructBuildInput )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;
+	}
 
 	if( desc.isAccelStructStorage )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR;
+	}
 
 	if( deviceManager->IsVulkanDeviceExtensionEnabled( VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME ) )
+	{
 		usageFlags |= vk::BufferUsageFlagBits::eShaderDeviceAddress;
-	
+	}
+
 	return usageFlags;
 }
 #endif

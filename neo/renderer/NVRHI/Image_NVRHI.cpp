@@ -96,10 +96,14 @@ vk::ImageUsageFlags pickImageUsage( const nvrhi::TextureDesc& desc )
 	}
 
 	if( desc.isUAV )
+	{
 		usageFlags |= vk::ImageUsageFlagBits::eStorage;
+	}
 
 	if( desc.isShadingRateSurface )
+	{
 		usageFlags |= vk::ImageUsageFlagBits::eFragmentShadingRateAttachmentKHR;
+	}
 
 	return usageFlags;
 }
@@ -113,12 +117,12 @@ idImage::idImage
 idImage::idImage( const char* name ) : imgName( name )
 {
 	texture.Reset();
-	
+
 #if defined( USE_AMD_ALLOCATOR )
 	image = VK_NULL_HANDLE;
 	allocation = NULL;
 #endif
-	
+
 	generatorFunction = NULL;
 	filter = TF_DEFAULT;
 	repeat = TR_REPEAT;

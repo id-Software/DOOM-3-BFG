@@ -39,14 +39,14 @@
 #include <nvrhi/validation.h>
 
 #if defined( USE_AMD_ALLOCATOR )
-#define VMA_IMPLEMENTATION
-#define VMA_STATIC_VULKAN_FUNCTIONS 0
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
-#include "vk_mem_alloc.h"
+	#define VMA_IMPLEMENTATION
+	#define VMA_STATIC_VULKAN_FUNCTIONS 0
+	#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
+	#include "vk_mem_alloc.h"
 
-VmaAllocator m_VmaAllocator = nullptr;
+	VmaAllocator m_VmaAllocator = nullptr;
 
-idCVar r_vmaDeviceLocalMemoryMB( "r_vmaDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "Size of VMA allocation block for gpu memory." );
+	idCVar r_vmaDeviceLocalMemoryMB( "r_vmaDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "Size of VMA allocation block for gpu memory." );
 #endif
 
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
