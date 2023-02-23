@@ -750,7 +750,8 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			{
 				continue;
 			}
-			if( ( m.refresh_rate != 60 ) && ( m.refresh_rate != 120 ) )
+			if( ( m.refresh_rate != 60 ) && ( m.refresh_rate != 120 ) &&
+			    ( m.refresh_rate != 144 ) && ( m.refresh_rate != 165 ) && ( m.refresh_rate != 240 ) )
 			{
 				continue;
 			}
