@@ -265,8 +265,8 @@ idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_A
 idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "0", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
 
 // RB: shadow mapping parameters
-#if defined( USE_VULKAN )
-	idCVar r_useShadowMapping( "r_useShadowMapping", "0", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC | CVAR_INTEGER, "use shadow mapping instead of stencil shadows" );
+#if 1 //defined( USE_VULKAN )
+	idCVar r_useShadowMapping( "r_useShadowMapping", "1", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC | CVAR_INTEGER, "use shadow mapping instead of stencil shadows" );
 #else
 	idCVar r_useShadowMapping( "r_useShadowMapping", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "use shadow mapping instead of stencil shadows" );
 #endif

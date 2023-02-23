@@ -1360,13 +1360,15 @@ public:
 	public:
 		enum systemSettingFields_t
 		{
+#ifdef _WIN32
+			SYSTEM_FIELD_RENDERAPI, // RB: choose between DX12 and Vulkan on Windows
+#endif
 			SYSTEM_FIELD_FULLSCREEN,
 			SYSTEM_FIELD_FRAMERATE,
 			SYSTEM_FIELD_VSYNC,
 			SYSTEM_FIELD_ANTIALIASING,
 			// RB begin
 			SYSTEM_FIELD_POSTFX,
-			SYSTEM_FIELD_SHADOWMAPPING,
 			SYSTEM_FIELD_SSAO,
 			SYSTEM_FIELD_AMBIENT_BRIGHTNESS,
 			// RB end
@@ -1395,6 +1397,7 @@ public:
 		bool						IsRestartRequired() const;
 
 	private:
+		idStr originalRenderAPI;
 		int originalFramerate;
 		int originalAntialias;
 		int originalVsync;

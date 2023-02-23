@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2023 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
+extern idCVar r_graphicsAPI;
 extern idCVar r_antiAliasing;
 extern idCVar r_useFilmicPostProcessing;
 extern idCVar r_swapInterval;
@@ -72,6 +73,17 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	AddChild( btnBack );
 
 	idMenuWidget_ControlButton* control;
+
+#ifdef _WIN32
+	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	control->SetOptionType( OPTION_SLIDER_TEXT );
+	control->SetLabel( "Render API" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_RENDERAPI );
+	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_RENDERAPI );
+	options->AddChild( control );
+#endif
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "#str_02154" );
@@ -111,14 +123,6 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
-	options->AddChild( control );
-
-	control = new( TAG_SWF ) idMenuWidget_ControlButton();
-	control->SetOptionType( OPTION_SLIDER_TEXT );
-	control->SetLabel( "Soft Shadows" );
-	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
-	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
-	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
 	options->AddChild( control );
 
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
@@ -407,6 +411,7 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 */
 void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData()
 {
+	originalRenderAPI = r_graphicsAPI.GetString();
 	originalFramerate = com_engineHz.GetInteger();
 	originalAntialias = r_antiAliasing.GetInteger();
 	originalVsync = r_swapInterval.GetInteger();
@@ -437,17 +442,25 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestartRequ
 */
 bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestartRequired() const
 {
+	/*
 	if( originalAntialias != r_antiAliasing.GetInteger() )
 	{
 		return true;
 	}
 
-	if( originalFramerate != com_engineHz.GetInteger() )
+	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
 	{
 		return true;
 	}
 
-	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
+	*/
+
+	if( idStr::Icmp( r_graphicsAPI.GetString(), originalRenderAPI ) != 0 )
+	{
+		return true;
+	}
+
+	if( originalFramerate != com_engineHz.GetInteger() )
 	{
 		return true;
 	}
@@ -511,6 +524,36 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 {
 	switch( fieldIndex )
 	{
+#ifdef _WIN32
+		case SYSTEM_FIELD_RENDERAPI:
+		{
+			static const int numValues = 2;
+			static const int values[numValues] = { 0, 1 };
+			int option = 0;
+
+			if( !idStr::Icmp( r_graphicsAPI.GetString(), "vulkan" ) )
+			{
+				option = 1;
+			}
+			else
+			{
+				option = 0;
+			}
+
+			option = AdjustOption( option, values, numValues, adjustAmount );
+
+			if( option == 1 )
+			{
+				r_graphicsAPI.SetString( "vulkan" );
+			}
+			else
+			{
+				r_graphicsAPI.SetString( "dx12" );
+			}
+			break;
+		}
+#endif
+
 		case SYSTEM_FIELD_FRAMERATE:
 		{
 			static const int numValues = 2;
@@ -557,6 +600,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_useFilmicPostProcessing.SetInteger( AdjustOption( r_useFilmicPostProcessing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
+		/*
 		case SYSTEM_FIELD_SHADOWMAPPING:
 		{
 			static const int numValues = 2;
@@ -564,7 +608,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_useShadowMapping.SetInteger( AdjustOption( r_useShadowMapping.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
-		/*case SYSTEM_FIELD_LODBIAS:
+		case SYSTEM_FIELD_LODBIAS:
 		{
 			const float percent = LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
 			const float adjusted = percent + ( float )adjustAmount * 5.0f;
@@ -620,6 +664,20 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 {
 	switch( fieldIndex )
 	{
+#ifdef _WIN32
+		case SYSTEM_FIELD_RENDERAPI:
+		{
+			if( !idStr::Icmp( r_graphicsAPI.GetString(), "vulkan" ) )
+			{
+				return "Vulkan";
+			}
+			else
+			{
+				return "DirectX 12";
+			}
+		}
+#endif
+
 		case SYSTEM_FIELD_FULLSCREEN:
 		{
 			const int fullscreen = r_fullscreen.GetInteger();
@@ -703,6 +761,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 		//return va( "%dx", idMath::IPow( 2, r_motionBlur.GetInteger() ) );
 		// RB begin
 
+		/*
 		case SYSTEM_FIELD_SHADOWMAPPING:
 			if( r_useShadowMapping.GetInteger() == 1 )
 			{
@@ -712,6 +771,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			{
 				return "#str_swf_disabled";
 			}
+		*/
 
 		//case SYSTEM_FIELD_LODBIAS:
 		//	return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
@@ -748,6 +808,11 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataChanged
 */
 bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataChanged() const
 {
+	if( idStr::Icmp( r_graphicsAPI.GetString(), originalRenderAPI ) != 0 )
+	{
+		return true;
+	}
+
 	if( originalFramerate != com_engineHz.GetInteger() )
 	{
 		return true;
