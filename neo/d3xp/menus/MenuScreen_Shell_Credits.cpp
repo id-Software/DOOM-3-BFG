@@ -65,21 +65,23 @@ void idMenuScreen_Shell_Credits::SetupCreditList()
 
 
 	creditList.Clear();
-	creditList.Append( creditInfo_t( 3,	"RBDOOM 3 BFG EDITION"	) );
+	creditList.Append( creditInfo_t( 3,	"RBDOOM 3 BFG EDITION" ) );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t( 1,	"Project Owner"	) );
-	creditList.Append( creditInfo_t( 0,	"Robert Beckebans - Renderer + Engine upgrades, Linux"	) );
+	creditList.Append( creditInfo_t( 0,	"Robert Beckebans - Engine upgrades, Linux, TrenchBroom" ) );
 	creditList.Append( creditInfo_t() );
-	creditList.Append( creditInfo_t( 1,	"Additional Programming"	) );
-	creditList.Append( creditInfo_t( 0,	"Daniel Gibson - Tons of code cleanups, netcode++"	) );
+	creditList.Append( creditInfo_t( 1,	"Additional Programming" ) );
+	creditList.Append( creditInfo_t( 0,	"Daniel Gibson - Tons of code cleanups, netcode++" ) );
 	creditList.Append( creditInfo_t( 0,	"Jonathan Young - Bugfixes, misc improvements" ) );
 	creditList.Append( creditInfo_t( 0,	"Felix Rueegg - Doomclassic Linux support" ) );
 	creditList.Append( creditInfo_t( 0,	"Carl Kenner - Bink video support" ) );
 	creditList.Append( creditInfo_t( 0,	"Pat Raynor - Compiler tools, QOL patches" ) );
 	creditList.Append( creditInfo_t( 0,	"Biel B. de Luna - Intro skipping, QOL patches" ) );
 	creditList.Append( creditInfo_t( 0,	"Dustin Land - Initial Vulkan backend" ) );
-	creditList.Append( creditInfo_t( 0,	"Stephen Saunders - macOS support" ) );
+	creditList.Append( creditInfo_t( 0,	"Stephen Saunders - macOS support, Vulkan bugfixes" ) );
 	creditList.Append( creditInfo_t( 0,	"Justin Marshall - QOL patches from IcedHellFire branch" ) );
+	creditList.Append( creditInfo_t( 0,	"Stephen Pridham - Major work on NVRHI backend" ) );
+	creditList.Append( creditInfo_t( 0,	"Harrie van Ginneken - glTF2 support, IcedHellFire++" ) );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t() );
