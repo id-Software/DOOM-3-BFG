@@ -1076,6 +1076,10 @@ void idRenderSystemLocal::TakeScreenshot( int widthIgnored, int heightIgnored, c
 
 	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+	// SRS - Update finishSyncTime so frame-over-frame timers display correctly for screenshots
+	commonLocal.frameTiming.finishSyncTime = Sys_Microseconds();
+
 	if( ref )
 	{
 		// ref is only used by envShot, Event_camShot, etc to grab screenshots of things in the world,
