@@ -2121,7 +2121,9 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 
 	idStrList filenames;
 	filenames.AddUnique( "all" );
+	filenames.AddUnique( "all-and-models" );
 	filenames.AddUnique( "slim" );
+	filenames.AddUnique( "slim-and-models" );
 	filenames.AddUnique( "multiplayer" );
 
 	idStrList ignoreList;
@@ -2245,7 +2247,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 			}
 
-			if( f > 0 )
+			if( f > 1 )
 			{
 				// ignore entities that begin with those prefices
 
@@ -2278,7 +2280,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 								 idStr::FindText( decl->GetName(), "team_ctf", false ) != -1 ||
 								 idStr::FindText( decl->GetName(), "_coop", false ) != -1 );
 
-			if( f == 2 )
+			if( f == 4 )
 			{
 				if( !multiplayer || genmodel )
 				{
@@ -2292,7 +2294,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					continue;
 				}
 
-				if( f == 1 && genmodel )
+				if( ( f % 2 ) == 0 && genmodel )
 				{
 					continue;
 				}
