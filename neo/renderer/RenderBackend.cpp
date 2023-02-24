@@ -4019,11 +4019,13 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	GL_ViewportAndScissor( 0, 0, r_shadowMapAtlasSize.GetInteger(), r_shadowMapAtlasSize.GetInteger() );
 
+	/*
 	const nvrhi::FramebufferAttachment& attColor = currentFrameBuffer->GetApiObject()->getDesc().colorAttachments[0];
 	if( attColor.texture )
 	{
 		commandList->clearTextureFloat( attColor.texture, nvrhi::AllSubresources, nvrhi::Color( 0.0f ) );
 	}
+	*/
 
 	const nvrhi::FramebufferAttachment& attDepth = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
 	if( attDepth.texture )

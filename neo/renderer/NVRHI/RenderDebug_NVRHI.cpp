@@ -1555,7 +1555,8 @@ void idRenderBackend::DBG_ShowShadowMapLODs()
 		// depth buffered planes
 		if( r_showShadowMapLODs.GetInteger() >= 1 )
 		{
-			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK );
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_DEPTHMASK );
+			//GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK );
 
 			idVec4 c;
 			if( vLight->shadowLOD == 0 )

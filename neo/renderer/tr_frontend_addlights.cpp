@@ -307,7 +307,8 @@ static void R_AddSingleLight( viewLight_t* vLight )
 				flod = 0;
 			}
 
-			flod *= numLods;
+			// +1 allow to be so distant so we turn off shadow mapping
+			flod *= ( numLods + 1 );
 
 			if( flod < 0 )
 			{
@@ -316,10 +317,10 @@ static void R_AddSingleLight( viewLight_t* vLight )
 
 			lod = idMath::Ftoi( flod );
 
-			if( lod >= numLods )
-			{
-				//lod = numLods - 1;
-			}
+			//if( lod >= numLods )
+			//{
+			//	lod = numLods - 1;
+			//}
 
 			lod += r_shadowMapLodBias.GetInteger();
 
@@ -332,8 +333,6 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			{
 				// don't draw any shadow
 				lod = -1;
-
-				//lod = numLods - 1;
 			}
 
 			// 2048^2 ultra quality is only for cascaded shadow mapping with sun lights
