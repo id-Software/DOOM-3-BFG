@@ -271,7 +271,7 @@ idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "0", CVAR_R
 	idCVar r_useShadowMapping( "r_useShadowMapping", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "use shadow mapping instead of stencil shadows" );
 #endif
 idCVar r_useShadowAtlas( "r_useShadowAtlas", "1", CVAR_RENDERER | CVAR_INTEGER, "" );
-idCVar r_shadowMapAtlasSize( "r_shadowMapAtlasSize", "16384", CVAR_RENDERER | CVAR_INTEGER | CVAR_ROM, "size of the shadowmap atlas" );
+idCVar r_shadowMapAtlasSize( "r_shadowMapAtlasSize", "8192", CVAR_RENDERER | CVAR_INTEGER | CVAR_ROM, "size of the shadowmap atlas" );
 idCVar r_shadowMapFrustumFOV( "r_shadowMapFrustumFOV", "92", CVAR_RENDERER | CVAR_FLOAT, "oversize FOV for point light side matching" );
 idCVar r_shadowMapSingleSide( "r_shadowMapSingleSide", "-1", CVAR_RENDERER | CVAR_INTEGER, "only draw a single side (0-5) of point lights" );
 idCVar r_shadowMapImageSize( "r_shadowMapImageSize", "1024", CVAR_RENDERER | CVAR_INTEGER, "", 128, 2048 );

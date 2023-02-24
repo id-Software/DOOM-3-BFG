@@ -1235,7 +1235,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows )
+				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->shadowLOD > -1 )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
@@ -1616,7 +1616,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	bool lightDepthBoundsDisabled = false;
 
 	// RB begin
-	if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() )
+	if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && vLight->shadowLOD > -1 )
 	{
 		const static int JITTER_SIZE = 128;
 
@@ -4019,10 +4019,16 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	GL_ViewportAndScissor( 0, 0, r_shadowMapAtlasSize.GetInteger(), r_shadowMapAtlasSize.GetInteger() );
 
-	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
-	if( att.texture )
+	const nvrhi::FramebufferAttachment& attColor = currentFrameBuffer->GetApiObject()->getDesc().colorAttachments[0];
+	if( attColor.texture )
 	{
-		commandList->clearDepthStencilTexture( att.texture, nvrhi::AllSubresources, true, 1.0f, false, 0x80 );
+		commandList->clearTextureFloat( attColor.texture, nvrhi::AllSubresources, nvrhi::Color( 0.0f ) );
+	}
+
+	const nvrhi::FramebufferAttachment& attDepth = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
+	if( attDepth.texture )
+	{
+		commandList->clearDepthStencilTexture( attDepth.texture, nvrhi::AllSubresources, true, 1.0f, false, 0x80 );
 	}
 
 	//
@@ -4031,7 +4037,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	int				shadowIndex = 0;
 	idList<idVec2i>	inputSizes;
-	//idStrList		inputNames;
+	idStrList		inputNames;
 
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -4047,6 +4053,12 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 		if( vLight->localInteractions == NULL && vLight->globalInteractions == NULL && vLight->translucentInteractions == NULL )
 		{
+			continue;
+		}
+
+		if( vLight->shadowLOD == -1 )
+		{
+			// light doesn't cast shadows
 			continue;
 		}
 
@@ -4080,8 +4092,13 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 		for( ; side < sideStop ; side++ )
 		{
-			inputSizes.Append( idVec2i( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] ) );
-			//inputNames.Append( lightShader->GetName() );
+			idVec2i size( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] );
+			inputSizes.Append( size );
+
+			if( size.x >= 1024 )
+			{
+				inputNames.Append( lightShader->GetName() );
+			}
 
 			shadowIndex++;
 		}
@@ -4179,6 +4196,13 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 		if( vLight->localInteractions == NULL && vLight->globalInteractions == NULL && vLight->translucentInteractions == NULL )
 		{
+			continue;
+		}
+
+		if( vLight->shadowLOD == -1 )
+		{
+			// light doesn't cast shadows
+			vLight->imageSize.x = vLight->imageSize.y = -1;
 			continue;
 		}
 

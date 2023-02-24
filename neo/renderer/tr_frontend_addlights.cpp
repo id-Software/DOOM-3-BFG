@@ -266,7 +266,9 @@ static void R_AddSingleLight( viewLight_t* vLight )
 		vLight->scissorRect.zmax = projected[1][2];
 
 		// RB: calculate shadow LOD similar to Q3A .md3 LOD code
-		vLight->shadowLOD = 0;
+
+		// -1 means no shadows
+		vLight->shadowLOD = -1;
 
 		if( r_useShadowMapping.GetBool() && lightCastsShadows )
 		{
@@ -274,6 +276,8 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			float           projectedRadius;
 			int             lod;
 			int             numLods;
+
+			vLight->shadowLOD = 0;
 
 			numLods = MAX_SHADOWMAP_RESOLUTIONS;
 
@@ -327,9 +331,9 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			if( lod >= numLods )
 			{
 				// don't draw any shadow
-				//lod = -1;
+				lod = -1;
 
-				lod = numLods - 1;
+				//lod = numLods - 1;
 			}
 
 			// 2048^2 ultra quality is only for cascaded shadow mapping with sun lights
