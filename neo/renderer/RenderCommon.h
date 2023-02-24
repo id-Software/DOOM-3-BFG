@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2021 Robert Beckebans
+Copyright (C) 2012-2023 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2022 Stephen Pridham
 
@@ -395,6 +395,7 @@ struct viewLight_t
 	bool					parallel;					// lightCenter gives the direction to the light at infinity
 	idVec3					lightCenter;				// offset the lighting direction for shading and
 	int						shadowLOD;					// level of detail for shadowmap selection
+	float					shadowFadeOut;				// blending from last shadow LOD to invisible
 	idRenderMatrix			shadowV[6];					// shadow depth view matrix for lighting pass
 	idRenderMatrix			shadowP[6];					// shadow depth projection matrix for lighting pass
 	idVec2i					imageSize;
@@ -1260,7 +1261,7 @@ extern idCVar r_shadowMapFrustumFOV;
 extern idCVar r_shadowMapSingleSide;
 extern idCVar r_shadowMapImageSize;
 extern idCVar r_shadowMapJitterScale;
-extern idCVar r_shadowMapBiasScale;
+//extern idCVar r_shadowMapBiasScale;
 extern idCVar r_shadowMapRandomizeJitter;
 extern idCVar r_shadowMapSamples;
 extern idCVar r_shadowMapSplits;

@@ -269,6 +269,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 
 		// -1 means no shadows
 		vLight->shadowLOD = -1;
+		vLight->shadowFadeOut = 0;
 
 		if( r_useShadowMapping.GetBool() && lightCastsShadows )
 		{
@@ -316,12 +317,6 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			}
 
 			lod = idMath::Ftoi( flod );
-
-			//if( lod >= numLods )
-			//{
-			//	lod = numLods - 1;
-			//}
-
 			lod += r_shadowMapLodBias.GetInteger();
 
 			if( lod < 0 )
@@ -333,6 +328,12 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			{
 				// don't draw any shadow
 				lod = -1;
+			}
+
+			if( lod == ( numLods - 1 ) )
+			{
+				// blend shadows smoothly in
+				vLight->shadowFadeOut = idMath::Frac( flod );
 			}
 
 			// 2048^2 ultra quality is only for cascaded shadow mapping with sun lights

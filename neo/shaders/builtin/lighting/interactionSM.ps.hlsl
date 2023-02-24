@@ -455,6 +455,9 @@ void main( PS_IN fragment, out PS_OUT result )
 
 #endif
 
+	// allow shadows to fade out
+	shadow = saturate( max( shadow, rpJitterTexScale.z ) );
+
 	float3 halfAngleVector = normalize( lightVector + viewVector );
 	float hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 

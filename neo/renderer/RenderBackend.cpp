@@ -1663,7 +1663,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			float jitterTexScale[4];
 			jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
 			jitterTexScale[1] = vLight->imageSize.x / float( r_shadowMapAtlasSize.GetInteger() );
-			jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+			jitterTexScale[2] = vLight->shadowFadeOut;
 			jitterTexScale[3] = shadowMapSamples;
 			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
@@ -1691,7 +1691,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			float jitterTexScale[4];
 			jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
 			jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
-			jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+			jitterTexScale[2] = 1;
 			jitterTexScale[3] = shadowMapSamples;
 			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 		}
@@ -1718,7 +1718,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			lightRegs[ lightStage->color.registers[3] ] );
 
 		// apply the world-global overbright and the 2x factor for specular
-		const idVec4 diffuseColor = lightColor;
+		idVec4 diffuseColor = lightColor;
 // jmarshall
 		idVec4 specularColor = lightColor * 2.0f;
 
@@ -1727,6 +1727,11 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			specularColor.Zero();
 		}
 // jmarshall end
+
+		//if( vLight->shadowLOD == 4 )
+		//{
+		//	diffuseColor = colorRed;
+		//}
 
 		float lightTextureMatrix[16];
 		if( lightStage->texture.hasMatrix )
@@ -6037,9 +6042,9 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	const float jitterSampleScale = 1.0f;
 
 	float jitterTexScale[4];
-	jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
+	jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
 	jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
-	jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+	jitterTexScale[2] = 0.0f;
 	jitterTexScale[3] = 0.0f;
 	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
