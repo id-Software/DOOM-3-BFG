@@ -4044,7 +4044,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	int				shadowIndex = 0;
 	idList<idVec2i>	inputSizes;
-	idStrList		inputNames;
+	//idStrList		inputNames;
 
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -4102,10 +4102,10 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			idVec2i size( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] );
 			inputSizes.Append( size );
 
-			if( size.x >= 1024 )
-			{
-				inputNames.Append( lightShader->GetName() );
-			}
+			//if( size.x >= 1024 )
+			//{
+			//	inputNames.Append( lightShader->GetName() );
+			//}
 
 			shadowIndex++;
 		}
