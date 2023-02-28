@@ -43,6 +43,8 @@ using nvrhi::RefCountPtr;
 
 #define HR_RETURN(hr) if(FAILED(hr)) return false
 
+idCVar r_graphicsAdapter( "r_graphicsAdapter", "", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE, "Substring in the name the DXGI graphics adapter to select a certain GPU" );
+
 class DeviceManager_DX12 : public DeviceManager
 {
 	RefCountPtr<ID3D12Device>                   m_Device12;
@@ -202,6 +204,22 @@ void DeviceManager_DX12::ReportLiveObjects()
 	}
 }
 
+std::wstring StrToWS( const std::string& str )
+{
+	int sizeNeeded = MultiByteToWideChar( CP_UTF8, 0, &str[0], ( int )str.size(), NULL, 0 );
+	std::wstring wstrTo( sizeNeeded, 0 );
+	MultiByteToWideChar( CP_UTF8, 0, &str[0], ( int )str.size(), &wstrTo[0], sizeNeeded );
+	return wstrTo;
+}
+
+std::wstring StrToWS( const idStr& str )
+{
+	int sizeNeeded = MultiByteToWideChar( CP_UTF8, 0, str.c_str(), str.Length(), NULL, 0 );
+	std::wstring wstrTo( sizeNeeded, 0 );
+	MultiByteToWideChar( CP_UTF8, 0, str.c_str(), str.Length(), &wstrTo[0], sizeNeeded );
+	return wstrTo;
+}
+
 bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 {
 	RefCountPtr<IDXGIAdapter> targetAdapter;
@@ -212,7 +230,15 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 	}
 	else
 	{
-		targetAdapter = FindAdapter( deviceParms.adapterNameSubstring );
+		idStr adapterName( r_graphicsAdapter.GetString() );
+		if( !adapterName.IsEmpty() )
+		{
+			targetAdapter = FindAdapter( StrToWS( adapterName ) );
+		}
+		else
+		{
+			targetAdapter = FindAdapter( deviceParms.adapterNameSubstring );
+		}
 
 		if( !targetAdapter )
 		{
