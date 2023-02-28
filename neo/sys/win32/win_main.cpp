@@ -1948,6 +1948,19 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// DG: tell Windows 8+ we're high dpi aware, otherwise display scaling screws up the game
 	Sys_SetDPIAwareness();
 
+	// Setting memory allocators
+	OPTICK_SET_MEMORY_ALLOCATOR(
+		[]( size_t size ) -> void* { return operator new( size ); },
+		[]( void* p )
+	{
+		operator delete( p );
+	},
+	[]()
+	{
+		/* Do some TLS initialization here if needed */
+	}
+	);
+
 #if 0
 	DWORD handler = ( DWORD )_except_handler;
 	__asm
@@ -2021,6 +2034,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// main game loop
 	while( 1 )
 	{
+		OPTICK_FRAME( "MainThread" );
 
 		Win_Frame();
 
@@ -2034,6 +2048,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		// run the game
 		common->Frame();
 	}
+
+	OPTICK_SHUTDOWN();
 
 	// never gets here
 	return 0;

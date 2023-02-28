@@ -48,28 +48,31 @@ option(WINDOWS10
 		"Build for Windows 10+" ON)
 		
 option(USE_SYSTEM_ZLIB
-                "Use the system zlib instead of the bundled one" OFF)
+         "Use the system zlib instead of the bundled one" OFF)
 
 option(USE_SYSTEM_LIBPNG
-                "Use the system libpng instead of the bundled one" OFF)
+         "Use the system libpng instead of the bundled one" OFF)
 
 option(USE_SYSTEM_LIBJPEG
-                "Use the system libjpeg instead of the bundled one" OFF)
+         "Use the system libjpeg instead of the bundled one" OFF)
 
 option(USE_SYSTEM_LIBGLEW
-                "Use the system libglew instead of the bundled one" OFF)
+         "Use the system libglew instead of the bundled one" OFF)
 
 option(USE_SYSTEM_RAPIDJSON
-                "Use the system rapidjson instead of the bundled one" OFF)
+         "Use the system rapidjson instead of the bundled one" OFF)
 
 option(USE_DX12
-				"Use DirectX 12" ON)
+		"Use DirectX 12" ON)
 
 option(USE_VULKAN
-				"Use Vulkan" ON)
+		"Use Vulkan" ON)
 
 option(USE_VMA
-				"Use VMA allocator instead of the NVRHI builtin one" ON)
+		"Use VMA allocator instead of the NVRHI builtin one" ON)
+
+option(OPTICK
+		"Enable profiling with Optick" ON)
 
 set(NVRHI_INSTALL OFF)
 
@@ -466,7 +469,7 @@ include_directories(${NVRHI_DIR}/include)
 
 
 if(USE_SYSTEM_RAPIDJSON)
-find_package(rapidjson REQUIRED)
+	find_package(rapidjson REQUIRED)
 endif(USE_SYSTEM_RAPIDJSON)
 
 if (RAPIDJSON_FOUND)
@@ -624,6 +627,16 @@ if(BINKDEC)
 	file(GLOB BINKDEC_SOURCES libs/libbinkdec/src/*.c libs/libbinkdec/src/*.cpp)
 	add_definitions(-DUSE_BINKDEC)
 	include_directories("libs/libbinkdec/include")
+endif()
+
+if(OPTICK)
+	file(GLOB OPTICK_INCLUDES libs/optick/*.h)
+	file(GLOB OPTICK_SOURCES libs/optick/*.cpp)
+	add_definitions(-DUSE_OPTICK)
+	include_directories("libs/optick")
+
+	source_group("libs\\optick" FILES ${OPTICK_INCLUDES})
+	source_group("libs\\optick" FILES ${OPTICK_SOURCES})
 endif()
 
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
@@ -1348,6 +1361,7 @@ set(RBDOOM3_INCLUDES
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES}
 			${OGGVORBIS_INCLUDES}
+			${OPTICK_INCLUDES}
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
 			${COMMON_INCLUDES}
@@ -1397,6 +1411,7 @@ set(RBDOOM3_SOURCES
 			#${FREETYPE_SOURCES}
 			${SOUND_SOURCES}
 			${OGGVORBIS_SOURCES}
+			${OPTICK_SOURCES}
 			${UI_SOURCES}
 			${SWF_SOURCES}
 			${COMMON_SOURCES}
@@ -1556,7 +1571,7 @@ if(MSVC)
 	
 	if(USE_PRECOMPILED_HEADERS) 
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES})
+		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES} ${OPTICK_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
@@ -1698,7 +1713,7 @@ else()
 	
 	if(USE_PRECOMPILED_HEADERS) 	
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES})
+		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES} ${OPTICK_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
