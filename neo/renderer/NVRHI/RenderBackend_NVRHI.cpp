@@ -1597,13 +1597,15 @@ We want to exit this with the GPU idle, right at vsync
 void idRenderBackend::GL_BlockingSwapBuffers()
 {
 	// Make sure that all frames have finished rendering
-	deviceManager->GetDevice()->waitForIdle();
-
-	// Release all in-flight references to the render targets
-	deviceManager->GetDevice()->runGarbageCollection();
+	// SRS - device-level sync kills perf by serializing command queue processing (CPU) and rendering (GPU) 
+	//	   - instead, use alternative sync method (based on command queue event queries) inside Present()
+	//deviceManager->GetDevice()->waitForIdle();
 
 	// Present to the swap chain.
 	deviceManager->Present();
+
+	// Release all in-flight references to the render targets
+	deviceManager->GetDevice()->runGarbageCollection();
 
 	renderLog.EndFrame();
 
