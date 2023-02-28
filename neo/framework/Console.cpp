@@ -301,7 +301,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 	// SRS - Calculate max fps and max frame time based on glConfig.displayFrequency if vsync enabled and lower than engine Hz, otherwise use com_engineHz_latched
 	const int maxFPS = ( r_swapInterval.GetInteger() > 0 && glConfig.displayFrequency > 0 ? std::min( glConfig.displayFrequency, int( com_engineHz_latched ) ) : com_engineHz_latched );
-	const int maxTime = 1000.0 / maxFPS * 1000;
+	const int maxTime = ( 1000.0 / maxFPS ) * 1050; // slight 5% tolerance offset to avoid flickering of the stats
 
 	// SRS - Frame idle and busy time calculations are based on direct frame-over-frame measurement relative to finishSyncTime
 	const int64 frameIdleTime = int64( commonLocal.mainFrameTiming.startGameTime ) - int64( commonLocal.mainFrameTiming.finishSyncTime );
