@@ -144,6 +144,11 @@ else()
 	
 endif()
 	
+if(OPTICK)
+	target_compile_definitions(idlib PUBLIC USE_OPTICK=1)
+else()
+	target_compile_definitions(idlib PUBLIC USE_OPTICK=0)
+endif()
 
 # if(MSVC)
 	# # set_source_files_properties(precompiled.cpp

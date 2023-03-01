@@ -479,11 +479,12 @@ else (RAPIDJSON_FOUND)
 	include_directories("libs/rapidjson/include")
 endif (RAPIDJSON_FOUND)
 
+
+include_directories("libs/optick")
+
 if(OPTICK)
 	file(GLOB OPTICK_INCLUDES libs/optick/*.h)
 	file(GLOB OPTICK_SOURCES libs/optick/*.cpp)
-	add_definitions(-DUSE_OPTICK)
-	include_directories("libs/optick")
 
 	source_group("libs\\optick" FILES ${OPTICK_INCLUDES})
 	source_group("libs\\optick" FILES ${OPTICK_SOURCES})
@@ -1853,6 +1854,11 @@ if(USE_VULKAN)
 	target_link_libraries(RBDoom3BFG nvrhi_vk)
 endif()
 
+if(OPTICK)
+	target_compile_definitions(RBDoom3BFG PUBLIC USE_OPTICK=1)
+else()
+	target_compile_definitions(RBDoom3BFG PUBLIC USE_OPTICK=0)
+endif()
 
 # needs to come after nvrhi_d3d11 etc. for link order
 target_link_libraries(RBDoom3BFG nvrhi)
