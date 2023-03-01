@@ -72,7 +72,7 @@ option(USE_VMA
 		"Use VMA allocator instead of the NVRHI builtin one" ON)
 
 option(OPTICK
-		"Enable profiling with Optick" ON)
+		"Enable profiling with Optick" OFF)
 
 set(NVRHI_INSTALL OFF)
 
@@ -479,6 +479,16 @@ else (RAPIDJSON_FOUND)
 	include_directories("libs/rapidjson/include")
 endif (RAPIDJSON_FOUND)
 
+if(OPTICK)
+	file(GLOB OPTICK_INCLUDES libs/optick/*.h)
+	file(GLOB OPTICK_SOURCES libs/optick/*.cpp)
+	add_definitions(-DUSE_OPTICK)
+	include_directories("libs/optick")
+
+	source_group("libs\\optick" FILES ${OPTICK_INCLUDES})
+	source_group("libs\\optick" FILES ${OPTICK_SOURCES})
+endif()
+
 add_subdirectory(idlib)
 
 file(GLOB NATVIS_SOURCES .natvis)
@@ -627,16 +637,6 @@ if(BINKDEC)
 	file(GLOB BINKDEC_SOURCES libs/libbinkdec/src/*.c libs/libbinkdec/src/*.cpp)
 	add_definitions(-DUSE_BINKDEC)
 	include_directories("libs/libbinkdec/include")
-endif()
-
-if(OPTICK)
-	file(GLOB OPTICK_INCLUDES libs/optick/*.h)
-	file(GLOB OPTICK_SOURCES libs/optick/*.cpp)
-	add_definitions(-DUSE_OPTICK)
-	include_directories("libs/optick")
-
-	source_group("libs\\optick" FILES ${OPTICK_INCLUDES})
-	source_group("libs\\optick" FILES ${OPTICK_SOURCES})
 endif()
 
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
