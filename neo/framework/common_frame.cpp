@@ -90,6 +90,8 @@ be called directly in the foreground thread for comparison.
 */
 int idGameThread::Run()
 {
+	OPTICK_THREAD( "idGameThread" );
+
 	commonLocal.frameTiming.startGameTime = Sys_Microseconds();
 
 	// debugging tool to test frame dropping behavior

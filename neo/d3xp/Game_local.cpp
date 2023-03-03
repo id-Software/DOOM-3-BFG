@@ -2616,6 +2616,8 @@ idGameLocal::RunFrame
 */
 void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 {
+	SCOPED_PROFILE_EVENT( "RunFrame" );
+
 	idEntity* 	ent;
 	int			num;
 	float		ms;

@@ -1145,6 +1145,8 @@ idJobThread::Run
 */
 int idJobThread::Run()
 {
+	OPTICK_THREAD( GetName() );
+
 	threadJobListState_t threadJobListState[MAX_JOBLISTS];
 	int numJobLists = 0;
 	int lastStalledJobList = -1;
