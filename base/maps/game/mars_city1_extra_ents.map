@@ -543,3 +543,15 @@ Version 3
 "light_radius" "740 792 1800"
 "bind" "hanger_fog_mover"
 }
+// entity 1042
+{
+"classname" "light"
+"name" "light_4833"
+"parallel" "1"
+}
+// entity 2022
+{
+"classname" "light"
+"name" "light_5666"
+"parallel" "0"
+}
