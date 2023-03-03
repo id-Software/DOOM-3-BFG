@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __VERTEXCACHE_H__
 #define __VERTEXCACHE_H__
 
-#if 1
+#if 0
 
 	// RB: increased some static memory limits for custom modder content
 

@@ -406,7 +406,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		}
 		else
 		{
-			const uint64 frameNum = jointHandle >> VERTCACHE_FRAME_SHIFT & VERTCACHE_FRAME_MASK;
+			const uint64 frameNum = static_cast<uint64>( jointHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 			if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
 			{
 				idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
