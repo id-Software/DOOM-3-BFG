@@ -507,7 +507,6 @@ idStr idRenderProgManager::StripDeadCode( const idStr& in, const char* name, con
 		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
 
-	if( r_useHDR.GetBool() )
 	{
 		src.AddDefine( "USE_LINEAR_RGB" );
 	}

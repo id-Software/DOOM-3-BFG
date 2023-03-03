@@ -2221,7 +2221,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		if( !r_usePBR.GetBool() )
 		{
 			ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
-			ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+			ambientBoost *= 1.1f;
 		}
 
 		ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
@@ -5771,7 +5771,7 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 
 void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 {
-	if( _viewDef->is2Dgui || !r_useHDR.GetBool() || ( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
+	if( _viewDef->is2Dgui || ( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
 	{
 		return;
 	}
@@ -5807,31 +5807,9 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 
 	GL_SelectTexture( 0 );
 
-	if( r_useHDR.GetBool() )
-	{
-		globalImages->currentRenderHDRImage->Bind();
+	globalImages->currentRenderHDRImage->Bind();
 
-		renderProgManager.BindShader_Brightpass();
-	}
-	else
-	{
-		int x = viewDef->viewport.x1;
-		int y = viewDef->viewport.y1;
-		int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
-		int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
-
-		//RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
-
-		// resolve the screen
-		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
-		commonPasses.BlitTexture(
-			commandList,
-			globalFramebuffers.bloomRenderFBO[0]->GetApiObject(),
-			globalImages->ldrImage->GetTextureHandle(),
-			&bindingCache );
-
-		renderProgManager.BindShader_Brightpass();
-	}
+	renderProgManager.BindShader_Brightpass();
 
 	float screenCorrectionParm[4];
 	screenCorrectionParm[0] = hdrKey;
@@ -5841,7 +5819,6 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 
 	float overbright[4];
-	if( r_useHDR.GetBool() )
 	{
 		if( r_hdrAutoExposure.GetBool() )
 		{
@@ -5852,13 +5829,6 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 			overbright[0] = r_hdrContrastStaticThreshold.GetFloat();
 		}
 		overbright[1] = r_hdrContrastOffset.GetFloat();
-		overbright[2] = 0;
-		overbright[3] = 0;
-	}
-	else
-	{
-		overbright[0] = r_ldrContrastThreshold.GetFloat();
-		overbright[1] = r_ldrContrastOffset.GetFloat();
 		overbright[2] = 0;
 		overbright[3] = 0;
 	}
@@ -6669,7 +6639,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		}
 	}
 
-#if defined( USE_NVRHI )
 	// SP: reset the graphics state for validation layers
 	currentVertexBuffer = nullptr;
 	currentIndexBuffer = nullptr;
@@ -6677,7 +6646,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	currentVertexOffset = 0;
 	currentIndexOffset = 0;
 	currentJointOffset = 0;
-#endif
 
 	//-------------------------------------------------
 	// RB_BeginDrawingView
@@ -6692,7 +6660,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT | GLS_CULL_FRONTSIDED, true );
 
-	bool useHDR = r_useHDR.GetBool() && !_viewDef->is2Dgui;
+	bool useHDR = !_viewDef->is2Dgui;
 	bool clearColor = false;
 
 	if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
@@ -6710,24 +6678,13 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	}
 	else
 	{
-#if defined( USE_NVRHI )
 		globalFramebuffers.ldrFBO->Bind();
-#else
-		Framebuffer::Unbind();
-#endif
 	}
 
 	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
 	GL_Clear( clearColor, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
 
 	// RB end
-
-	//GL_CheckErrors();
-
-#if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
-	// bind one global Vertex Array Object (VAO)
-	glBindVertexArray( glConfig.global_vao );
-#endif
 
 	//------------------------------------
 	// sets variables that can be used by all programs
@@ -6777,13 +6734,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// build hierarchical depth buffer and SSAO render target
 	//-------------------------------------------------
-#if defined( USE_NVRHI )
 	if( r_useNewSsaoPass.GetBool() )
 	{
 		DrawScreenSpaceAmbientOcclusion2( _viewDef );
 	}
 	else
-#endif
 	{
 		DrawScreenSpaceAmbientOcclusion( _viewDef );
 	}
@@ -6802,21 +6757,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// main light renderer
 	//-------------------------------------------------
 	DrawInteractions( _viewDef );
-
-	//-------------------------------------------------
-	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
-	//-------------------------------------------------
-	if( ( r_motionBlur.GetInteger() > 0 ||  r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && !r_useHDR.GetBool() )
-	{
-		const idScreenRect& viewport = viewDef->viewport;
-		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	}
-
-	//-------------------------------------------------
-	// darken the scene using the screen space ambient occlusion
-	//-------------------------------------------------
-	//DrawScreenSpaceAmbientOcclusion( _viewDef );
-	//RB_SSGI( _viewDef );
 
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -6864,10 +6804,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 		// resolve the screen
 #if defined( USE_NVRHI )
-
-
-
-		//if( currentFrameBuffer->GetApiObject()->getDesc().colorAttachments.begin().)
 
 		if( R_GetMSAASamples() > 1 )
 		{
@@ -6941,30 +6877,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// tonemapping: convert back from HDR to LDR range
 	//-------------------------------------------------
 
-#if !defined( USE_VULKAN )
-
-// SRS - For OSX OpenGL record the final portion of GPU time while no other elapsed time query is active (after final passes and before bloom & other post processing)
-#if defined(__APPLE__) && !defined( USE_NVRHI )
-	renderLog.OpenMainBlock( MRB_GPU_TIME );
-#endif
-
 	if( useHDR && !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) && !_viewDef->targetRender )
 	{
-#if !defined( USE_NVRHI )
-		{
-			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrFBO->GetFramebuffer() );
-			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
-			0, 0, 64, 64,
-			GL_COLOR_BUFFER_BIT,
-			GL_LINEAR );
-		}
-#endif
-
-#if 0
-		CalculateAutomaticExposure();
-		Tonemap( _viewDef );
-#else
 		ToneMappingParameters parms;
 		if( R_UseTemporalAA() )
 		{
@@ -6983,13 +6897,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 				toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->currentRenderHDRImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
 			}
 		}
-#endif
 	}
-
-// SRS - This macOS OpenGL-specific CloseMainBlock() must occur before the next OpenMainBlock() is called
-#if defined(__APPLE__) && !defined( USE_NVRHI )
-	renderLog.CloseMainBlock();
-#endif
 
 	//-------------------------------------------------
 	// bloom post processing
@@ -7029,8 +6937,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 	}
-#endif
-
 #endif
 
 	renderLog.CloseBlock();
