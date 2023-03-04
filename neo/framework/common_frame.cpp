@@ -90,7 +90,9 @@ be called directly in the foreground thread for comparison.
 */
 int idGameThread::Run()
 {
+#if USE_OPTICK
 	OPTICK_THREAD( "idGameThread" );
+#endif
 
 	commonLocal.frameTiming.startGameTime = Sys_Microseconds();
 

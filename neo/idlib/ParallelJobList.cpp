@@ -1145,7 +1145,9 @@ idJobThread::Run
 */
 int idJobThread::Run()
 {
+#if USE_OPTICK
 	OPTICK_THREAD( GetName() );
+#endif
 
 	threadJobListState_t threadJobListState[MAX_JOBLISTS];
 	int numJobLists = 0;
