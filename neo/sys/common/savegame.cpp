@@ -746,9 +746,7 @@ idSaveGameThread::Run
 */
 int idSaveGameThread::Run()
 {
-#if USE_OPTICK
 	OPTICK_THREAD( "idSaveGameThread" );
-#endif
 
 	int ret = ERROR_SUCCESS;
 

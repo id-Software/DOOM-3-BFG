@@ -71,9 +71,7 @@ class idSGFcompressThread : public idSysThread
 public:
 	virtual int			Run()
 	{
-#if USE_OPTICK
 		OPTICK_THREAD( "idSGFcompressThread" );
-#endif
 
 		sgf->CompressBlock();
 		return 0;
@@ -85,9 +83,7 @@ class idSGFdecompressThread : public idSysThread
 public:
 	virtual int			Run()
 	{
-#if USE_OPTICK
 		OPTICK_THREAD( "idSGFdecompressThread" );
-#endif
 
 		sgf->DecompressBlock();
 		return 0;
@@ -99,9 +95,7 @@ class idSGFwriteThread : public idSysThread
 public:
 	virtual int			Run()
 	{
-#if USE_OPTICK
 		OPTICK_THREAD( "idSGFwriteThread" );
-#endif
 
 		sgf->WriteBlock();
 		return 0;
@@ -113,9 +107,7 @@ class idSGFreadThread : public idSysThread
 public:
 	virtual int			Run()
 	{
-#if USE_OPTICK
 		OPTICK_THREAD( "idSGFreadThread" );
-#endif
 
 		sgf->ReadBlock();
 		return 0;

@@ -1949,7 +1949,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	Sys_SetDPIAwareness();
 
 	// Setting memory allocators
-#if USE_OPTICK
 	OPTICK_SET_MEMORY_ALLOCATOR(
 		[]( size_t size ) -> void* { return operator new( size ); },
 		[]( void* p )
@@ -1961,7 +1960,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		/* Do some TLS initialization here if needed */
 	}
 	);
-#endif
 
 #if 0
 	DWORD handler = ( DWORD )_except_handler;
@@ -2036,9 +2034,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// main game loop
 	while( 1 )
 	{
-#if USE_OPTICK
 		OPTICK_FRAME( "MainThread" );
-#endif
 
 		Win_Frame();
 
@@ -2053,9 +2049,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		common->Frame();
 	}
 
-#if USE_OPTICK
 	OPTICK_SHUTDOWN();
-#endif
 
 	// never gets here
 	return 0;
