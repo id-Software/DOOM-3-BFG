@@ -18,6 +18,45 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - March 05, 2023
+
+This build improves the performance again and it shows the selected GPU with com_showFPS > 1.
+This is probably the fastest version ever at least with DX12.
+
+Changelog:
+
+* Fixed Optick related compile warnings on Linux #750
+
+* Removed obsolete cvar r_useHDR
+
+* Removed obsolete cvar r_useSeamlessCubeMap
+
+* Went back to 15 bits for VERTCACHE_FRAME_MASK to avoid weird model distortions in a single frame every 68 seconds
+
+* Fixed missing shadows in the kitchen of Mars City 1
+
+* Added PROFILE_EVENT to RunFrame()
+
+* Fixed the CMake option -DOPTICK=ON/OFF
+
+* Display all the common different threads in Optick
+
+* Fixed crash of RBDoom after stopping an Optick capture
+
+* Super basic Optick profiler integration
+
+* Added r_graphicsAdapter to select a specific GPU
+
+* Tweaked DrawFPS maxTime to reduce flickering if V-Sync is on
+
+* Show picked GPU with com_showFPS > 1
+
+* Small performance fix
+
+* Added additional FGDs
+
+
+
 ## .plan - Feb 24, 2023
 
 This build improves the image quality and performance. The SSAO implementation has been updated with the latest code from Nvidia's Donut samples which outperforms the old implementation and also adds better stability on different view angles.

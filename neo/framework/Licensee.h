@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 // RB end
 
 // jmarshall
-#define ENGINE_BRANCH					"NVRHI"
+#define ENGINE_BRANCH					"master"
 // jmarshall end
 
 #define	BASE_GAMEDIR					"base"
