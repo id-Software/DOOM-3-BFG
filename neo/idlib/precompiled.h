@@ -106,9 +106,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #endif
 
 // RB: make Optick profiling available everywhere
-#if defined( USE_OPTICK )
-	#include "../libs/optick/optick.h"
-#endif
+#include "../libs/optick/optick.h"
 
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
