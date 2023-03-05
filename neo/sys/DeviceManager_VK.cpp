@@ -1270,6 +1270,11 @@ void DeviceManager_VK::EndFrame()
 
 void DeviceManager_VK::Present()
 {
+	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
+	m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+	m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
+	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )
@@ -1280,25 +1285,11 @@ void DeviceManager_VK::Present()
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
-	if( deviceParms.enableDebugRuntime )
+	if( deviceParms.enableDebugRuntime || deviceParms.vsyncEnabled )
 	{
 		// according to vulkan-tutorial.com, "the validation layer implementation expects
 		// the application to explicitly synchronize with the GPU"
 		m_PresentQueue.waitIdle();
-	}
-	else
-	{
-		if( deviceParms.vsyncEnabled )
-		{
-			m_PresentQueue.waitIdle();
-		}
-		// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
-		else
-		{
-			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
-			m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
-			m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
-		}
 	}
 }
 

@@ -636,6 +636,11 @@ void DeviceManager_DX12::EndFrame()
 
 void DeviceManager_DX12::Present()
 {
+	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
+	nvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+	nvrhiDevice->resetEventQuery( m_FrameWaitQuery );
+	nvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
 	if( !windowVisible )
 	{
 		return;
@@ -653,11 +658,6 @@ void DeviceManager_DX12::Present()
 
 	// SRS - Don't change deviceParms.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval
 	m_SwapChain->Present( deviceParms.vsyncEnabled && r_swapInterval.GetInteger() == 2 ? 1 : 0, presentFlags );
-
-	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
-	nvrhiDevice->waitEventQuery( m_FrameWaitQuery );
-	nvrhiDevice->resetEventQuery( m_FrameWaitQuery );
-	nvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
 
 	m_FrameFence->SetEventOnCompletion( m_FrameCount, m_FrameFenceEvents[bufferIndex] );
 	m_GraphicsQueue->Signal( m_FrameFence, m_FrameCount );
