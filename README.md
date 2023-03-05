@@ -494,7 +494,7 @@ Recommended in this case is `cmake-vs2019-64bit.bat` or `cmake-vs2019-64bit-no-f
 		
 	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. For debug builds FFmpeg is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.  For release, retail and universal builds FFmpeg is disabled and libbinkdec is enabled by default.
 	
-	The Vulkan SDK must be installed and can be obtained from https://vulkan.lunarg.com/sdk/home#mac
+	The Vulkan SDK 1.3.231.1 or later must be installed and can be obtained from https://vulkan.lunarg.com/sdk/home#mac
 
 3. Generate the Makefiles using CMake:
 
