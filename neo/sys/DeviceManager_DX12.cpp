@@ -61,6 +61,7 @@ class DeviceManager_DX12 : public DeviceManager
 	std::vector<nvrhi::TextureHandle>           m_RhiSwapChainBuffers;
 	RefCountPtr<ID3D12Fence>                    m_FrameFence;
 	std::vector<HANDLE>                         m_FrameFenceEvents;
+	nvrhi::EventQueryHandle						m_FrameWaitQuery;
 
 	UINT64                                      m_FrameCount = 1;
 
@@ -447,6 +448,9 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 		m_FrameFenceEvents.push_back( CreateEvent( nullptr, false, true, NULL ) );
 	}
 
+	m_FrameWaitQuery = nvrhiDevice->createEventQuery();
+	nvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
 	return true;
 }
 
@@ -458,6 +462,8 @@ void DeviceManager_DX12::DestroyDeviceAndSwapChain()
 	ReleaseRenderTargets();
 
 	m_NvrhiDevice = nullptr;
+
+	m_FrameWaitQuery = nullptr;
 
 	for( auto fenceEvent : m_FrameFenceEvents )
 	{
@@ -630,6 +636,11 @@ void DeviceManager_DX12::EndFrame()
 
 void DeviceManager_DX12::Present()
 {
+	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
+	m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+	m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
+	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
 	if( !m_windowVisible )
 	{
 		return;

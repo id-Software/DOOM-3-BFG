@@ -90,8 +90,9 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine
-#if defined(__APPLE__) && ( defined( USE_VULKAN ) || defined( USE_NVRHI ) )
+#if ( defined(__APPLE__) && defined( USE_VULKAN ) ) || defined( USE_NVRHI )
 	// SRS - macOS MoltenVK/Metal needs triple buffering for full screen to work properly
+	// SRS - use triple buffering for NVRHI with command queue event query sync method
 	const uint32 NUM_FRAME_DATA	= 3;
 #else
 	const uint32 NUM_FRAME_DATA = 2;

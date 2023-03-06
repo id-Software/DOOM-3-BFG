@@ -890,7 +890,12 @@ bool R_ReadPixelsRGB8( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrh
 		data[ i * 4 + 3 ] = 0xff;
 	}
 
+	// SRS - Save screen shots to fs_savepath on macOS (i.e. don't save into an app bundle's basepath)
+#if defined(__APPLE__)
+	R_WritePNG( fullname, static_cast<byte*>( pData ), 4, desc.width, desc.height, true, "fs_savepath" );
+#else
 	R_WritePNG( fullname, static_cast<byte*>( pData ), 4, desc.width, desc.height, true, "fs_basepath" );
+#endif
 
 	if( newData )
 	{

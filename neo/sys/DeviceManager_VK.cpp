@@ -272,8 +272,7 @@ private:
 	nvrhi::CommandListHandle m_BarrierCommandList;
 	vk::Semaphore m_PresentSemaphore;
 
-	std::queue<nvrhi::EventQueryHandle> m_FramesInFlight;
-	std::vector<nvrhi::EventQueryHandle> m_QueryPool;
+	nvrhi::EventQueryHandle m_FrameWaitQuery;
 
 	// SRS - flag indicating support for eFifoRelaxed surface presentation (r_swapInterval = 1) mode
 	bool enablePModeFifoRelaxed = false;
@@ -1124,6 +1123,10 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
 
+	// SRS - Enforce synchronous queue submission for vkQueueSubmit() & vkQueuePresentKHR()
+	pConfig.synchronousQueueSubmits = VK_TRUE;
+	vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+
 	// SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
 	if( portabilityFeatures.imageViewFormatSwizzle == VK_FALSE )
 	{
@@ -1182,6 +1185,9 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	m_PresentSemaphore = m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() );
 
+	m_FrameWaitQuery = m_NvrhiDevice->createEventQuery();
+	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
 #undef CHECK
 
 	return true;
@@ -1191,24 +1197,12 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 {
 	destroySwapChain();
 
+	m_FrameWaitQuery = nullptr;
+
 	m_VulkanDevice.destroySemaphore( m_PresentSemaphore );
 	m_PresentSemaphore = vk::Semaphore();
 
 	m_BarrierCommandList = nullptr;
-
-	while( m_FramesInFlight.size() > 0 )
-	{
-		auto query = m_FramesInFlight.front();
-		m_FramesInFlight.pop();
-		query = nullptr;
-	}
-
-	if( !m_QueryPool.empty() )
-	{
-		auto query = m_QueryPool.back();
-		m_QueryPool.pop_back();
-		query = nullptr;
-	}
 
 	m_NvrhiDevice = nullptr;
 	m_ValidationLayer = nullptr;
@@ -1276,6 +1270,11 @@ void DeviceManager_VK::EndFrame()
 
 void DeviceManager_VK::Present()
 {
+	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
+	m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+	m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
+	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )
@@ -1286,45 +1285,11 @@ void DeviceManager_VK::Present()
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
-	if( m_DeviceParams.enableDebugRuntime )
+	if( m_DeviceParms.enableDebugRuntime || deviceParms.vsyncEnabled )
 	{
 		// according to vulkan-tutorial.com, "the validation layer implementation expects
 		// the application to explicitly synchronize with the GPU"
 		m_PresentQueue.waitIdle();
-	}
-	else
-	{
-#ifndef _WIN32
-		if( m_DeviceParams.vsyncEnabled )
-		{
-			m_PresentQueue.waitIdle();
-		}
-#endif
-
-		while( m_FramesInFlight.size() > m_DeviceParams.maxFramesInFlight )
-		{
-			auto query = m_FramesInFlight.front();
-			m_FramesInFlight.pop();
-
-			m_NvrhiDevice->waitEventQuery( query );
-
-			m_QueryPool.push_back( query );
-		}
-
-		nvrhi::EventQueryHandle query;
-		if( !m_QueryPool.empty() )
-		{
-			query = m_QueryPool.back();
-			m_QueryPool.pop_back();
-		}
-		else
-		{
-			query = m_NvrhiDevice->createEventQuery();
-		}
-
-		m_NvrhiDevice->resetEventQuery( query );
-		m_NvrhiDevice->setEventQuery( query, nvrhi::CommandQueue::Graphics );
-		m_FramesInFlight.push( query );
 	}
 }
 

@@ -470,15 +470,24 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 
 	// change settings in that display mode according to parms
 	// FIXME: check if refreshrate, width and height are supported?
-	m.refresh_rate = parms.displayHz;
-	m.w = parms.width;
-	m.h = parms.height;
-
-	// set that displaymode
-	if( SDL_SetWindowDisplayMode( window, &m ) < 0 )
+	if( m.w != parms.width || m.h != parms.height || m.refresh_rate != parms.displayHz )
 	{
-		common->Warning( "Couldn't set window mode for fullscreen, reason: %s", SDL_GetError() );
-		return false;
+		m.w = parms.width;
+		m.h = parms.height;
+		m.refresh_rate = parms.displayHz;
+
+		// if we're already in fullscreen mode, disable it first so resizing works properly
+		if( glConfig.isFullscreen )
+		{
+			SDL_SetWindowFullscreen( window, SDL_FALSE );
+		}
+
+		// set the new displaymode
+		if( SDL_SetWindowDisplayMode( window, &m ) < 0 )
+		{
+			common->Warning( "Couldn't set window mode for fullscreen, reason: %s", SDL_GetError() );
+			return false;
+		}
 	}
 
 	// if we're currently not in fullscreen mode, we need to switch to fullscreen
