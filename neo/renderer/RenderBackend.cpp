@@ -6456,6 +6456,8 @@ smp extensions, or asyncronously by another thread.
 */
 void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 {
+	SCOPED_PROFILE_EVENT( "ExecuteBackEndCommands" );
+
 	// r_debugRenderToTexture
 	int c_draw3d = 0;
 	int c_draw2d = 0;
@@ -7072,6 +7074,8 @@ is 0, so the stereoEye parameter is not always the same as that.
 */
 void idRenderBackend::DrawView( const void* data, const int stereoEye )
 {
+	SCOPED_PROFILE_EVENT( "Backend_DrawView" );
+
 	const drawSurfsCommand_t* cmd = ( const drawSurfsCommand_t* )data;
 
 	viewDef = cmd->viewDef;
