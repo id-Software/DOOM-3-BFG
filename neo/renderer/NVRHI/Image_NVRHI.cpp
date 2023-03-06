@@ -363,7 +363,7 @@ void idImage::AllocImage()
 
 		case FMT_DEPTH_STENCIL:
 			// SRS - Check if D24S8 is supported, otherwise fall back to D32S8
-			if( deviceManager->deviceParms.enableImageFormatD24S8 )
+			if( deviceManager->m_DeviceParams.enableImageFormatD24S8 )
 			{
 				format = nvrhi::Format::D24S8;
 			}

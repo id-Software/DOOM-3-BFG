@@ -30,8 +30,8 @@ DeviceManager* DeviceManager::Create( nvrhi::GraphicsAPI api )
 
 void DeviceManager::GetWindowDimensions( int& width, int& height )
 {
-	width = deviceParms.backBufferWidth;
-	height = deviceParms.backBufferHeight;
+	width = m_DeviceParams.backBufferWidth;
+	height = m_DeviceParams.backBufferHeight;
 }
 
 void DeviceManager::BackBufferResizing()
@@ -49,7 +49,7 @@ void DeviceManager::BackBufferResized()
 
 const DeviceCreationParameters& DeviceManager::GetDeviceParams()
 {
-	return deviceParms;
+	return m_DeviceParams;
 }
 
 nvrhi::IFramebuffer* DeviceManager::GetCurrentFramebuffer()
@@ -65,18 +65,6 @@ nvrhi::IFramebuffer* DeviceManager::GetFramebuffer( uint32_t index )
 	}
 
 	return nullptr;
-}
-
-void DeviceManager::AddRenderPassToBack( IRenderPass* pRenderPass )
-{
-	renderPasses.Remove( pRenderPass );
-	renderPasses.Append( pRenderPass );
-
-	pRenderPass->BackBufferResizing();
-	pRenderPass->BackBufferResized(
-		deviceParms.backBufferWidth,
-		deviceParms.backBufferHeight,
-		deviceParms.swapChainSampleCount );
 }
 
 DeviceManager* DeviceManager::CreateD3D11()

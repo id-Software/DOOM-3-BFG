@@ -1,30 +1,23 @@
 /*
-===========================================================================
-
-Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2022 Stephen Pridham
-
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
-
-Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
-
-If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
-
-===========================================================================
+* Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
 */
 
 #ifndef SYS_DEVICE_MANAGER_H_
@@ -122,7 +115,6 @@ struct DefaultMessageCallback : public nvrhi::IMessageCallback
 	void message( nvrhi::MessageSeverity severity, const char* messageText ) override;
 };
 
-class IRenderPass;
 
 class idRenderBackend;
 
@@ -145,8 +137,8 @@ public:
 	// returns the screen coordinate to pixel coordinate scale factor
 	void GetDPIScaleInfo( float& x, float& y ) const
 	{
-		x = dpiScaleFactorX;
-		y = dpiScaleFactorY;
+		x = m_DPIScaleFactorX;
+		y = m_DPIScaleFactorY;
 	}
 
 	void UpdateWindowSize( const glimpParms_t& params );
@@ -157,18 +149,16 @@ protected:
 
 	void* windowInstance;
 	void* windowHandle;
-	bool windowVisible = false;
+	bool m_windowVisible = false;
 	bool isNvidia = false;
 
-	DeviceCreationParameters deviceParms;
+	DeviceCreationParameters m_DeviceParams;
 
-	float dpiScaleFactorX = 1.f;
-	float dpiScaleFactorY = 1.f;
-	bool requestedVSync = false;
+	float m_DPIScaleFactorX = 1.f;
+	float m_DPIScaleFactorY = 1.f;
+	bool m_RequestedVSync = false;
 
 	uint32_t m_FrameIndex = 0;
-
-	idList<IRenderPass*> renderPasses;
 
 	DeviceManager() = default;
 
@@ -191,7 +181,7 @@ public:
 	const DeviceCreationParameters& GetDeviceParams();
 	virtual void SetVsyncEnabled( bool enabled )
 	{
-		requestedVSync = enabled; /* will be processed later */
+		m_RequestedVSync = enabled; /* will be processed later */
 	}
 	virtual void ReportLiveObjects() {}
 
@@ -207,8 +197,6 @@ public:
 
 	nvrhi::IFramebuffer* GetCurrentFramebuffer();
 	nvrhi::IFramebuffer* GetFramebuffer( uint32_t index );
-
-	void AddRenderPassToBack( IRenderPass* pRenderPass );
 
 	void Shutdown();
 	virtual ~DeviceManager() = default;

@@ -1110,10 +1110,10 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 	}
 
 	// RB
-	deviceParms.backBufferWidth = parms.width;
-	deviceParms.backBufferHeight = parms.height;
-	deviceParms.backBufferSampleCount = parms.multiSamples;
-	deviceParms.vsyncEnabled = requestedVSync;
+	m_DeviceParams.backBufferWidth = parms.width;
+	m_DeviceParams.backBufferHeight = parms.height;
+	m_DeviceParams.backBufferSampleCount = parms.multiSamples;
+	m_DeviceParams.vsyncEnabled = m_RequestedVSync;
 
 	if( !CreateDeviceAndSwapChain() )
 	{
@@ -1128,30 +1128,30 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 
 void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
 {
-	windowVisible = true;
+	m_windowVisible = true;
 
-	if( int( deviceParms.backBufferWidth ) != parms.width ||
-			int( deviceParms.backBufferHeight ) != parms.height ||
+	if( int( m_DeviceParams.backBufferWidth ) != parms.width ||
+			int( m_DeviceParams.backBufferHeight ) != parms.height ||
 #if ID_MSAA
-			int( deviceParms.backBufferSampleCount ) != parms.multiSamples ||
+			int( m_DeviceParams.backBufferSampleCount ) != parms.multiSamples ||
 #endif
-			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
+			( m_DeviceParams.vsyncEnabled != m_RequestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
 	{
 		// window is not minimized, and the size has changed
 
 		BackBufferResizing();
 
-		deviceParms.backBufferWidth = parms.width;
-		deviceParms.backBufferHeight = parms.height;
-		deviceParms.backBufferSampleCount = parms.multiSamples;
-		deviceParms.vsyncEnabled = requestedVSync;
+		m_DeviceParams.backBufferWidth = parms.width;
+		m_DeviceParams.backBufferHeight = parms.height;
+		m_DeviceParams.backBufferSampleCount = parms.multiSamples;
+		m_DeviceParams.vsyncEnabled = m_RequestedVSync;
 
 		ResizeSwapChain();
 		BackBufferResized();
 	}
 	else
 	{
-		deviceParms.vsyncEnabled = requestedVSync;
+		m_DeviceParams.vsyncEnabled = m_RequestedVSync;
 	}
 }
 
