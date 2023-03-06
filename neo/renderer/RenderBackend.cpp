@@ -792,6 +792,8 @@ on the 360.
 */
 void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 {
+	OPTICK_EVENT( "Render_FillDepthBufferFast" );
+
 	if( numDrawSurfs == 0 )
 	{
 		return;
@@ -2091,7 +2093,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 #endif
-
 
 	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS );
 	renderLog.OpenBlock( fillGbuffer ? "Fill_GeometryBuffer" : "Render_AmbientPass", colorBlue );
@@ -4011,6 +4012,8 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		return;
 	}
 
+	OPTICK_EVENT( "Render_ShadowAtlas" );
+
 	renderLog.OpenMainBlock( MRB_SHADOW_ATLAS_PASS );
 	renderLog.OpenBlock( "Render_ShadowAtlas", colorYellow );
 
@@ -4336,6 +4339,8 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 		return;
 	}
 
+	OPTICK_EVENT( "Render_Interactions" );
+
 	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS );
 	renderLog.OpenBlock( "Render_Interactions", colorYellow );
 
@@ -4584,6 +4589,8 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 	{
 		return numDrawSurfs;
 	}
+
+	OPTICK_EVENT( "Render_GenericShaderPasses" );
 
 	renderLog.OpenBlock( "Render_GenericShaderPasses", colorBlue );
 	if( viewDef->targetRender )
@@ -5339,6 +5346,8 @@ void idRenderBackend::FogAllLights()
 		return;
 	}
 
+	//OPTICK_EVENT( "Render_FogAllLights" );
+
 	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS );
 	renderLog.OpenBlock( "Render_FogAllLights", colorBlue );
 
@@ -5507,6 +5516,8 @@ void idRenderBackend::DrawMotionVectors()
 		return;
 	}
 
+	//OPTICK_EVENT( "Render_MotionVectors" );
+
 	renderLog.OpenBlock( "Render_MotionVectors" );
 
 	// clear the alpha buffer and draw only the hands + weapon into it so
@@ -5646,6 +5657,8 @@ void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
 	{
 		return;
 	}
+
+	//OPTICK_EVENT( "Render_TemporalAA" );
 
 	renderLog.OpenMainBlock( MRB_TAA );
 	renderLog.OpenBlock( "Render_TemporalAA" );
@@ -5910,6 +5923,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
+	//OPTICK_EVENT( "Render_SSAO" );
+
 	renderLog.OpenMainBlock( MRB_SSAO_PASS );
 	renderLog.OpenBlock( "Render_SSAO", colorBlue );
 
@@ -6149,6 +6164,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 	{
 		return;
 	}
+
+	//OPTICK_EVENT( "Render_SSAO2" );
 
 	renderLog.OpenMainBlock( MRB_SSAO_PASS );
 	renderLog.OpenBlock( "Render_SSAO2", colorBlue );
@@ -6622,6 +6639,9 @@ idRenderBackend::DrawViewInternal
 */
 void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int stereoEye )
 {
+	OPTICK_EVENT( "Backend_DrawViewInternal" );
+	OPTICK_TAG( "stereoEye", stereoEye );
+
 	renderLog.OpenBlock( "Render_DrawViewInternal", colorRed );
 
 	//-------------------------------------------------
@@ -6731,7 +6751,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//
 	// fill the geometric buffer with normals and roughness
 	//-------------------------------------------------
-	AmbientPass( drawSurfs, numDrawSurfs, true );
+	{
+		OPTICK_EVENT( "Render_GeometryBuffer" );
+
+		AmbientPass( drawSurfs, numDrawSurfs, true );
+	}
 
 	//-------------------------------------------------
 	// build hierarchical depth buffer and SSAO render target
@@ -6748,7 +6772,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// render static lighting and consider SSAO results
 	//-------------------------------------------------
-	AmbientPass( drawSurfs, numDrawSurfs, false );
+	{
+		OPTICK_EVENT( "Render_AmbientPass" );
+
+		AmbientPass( drawSurfs, numDrawSurfs, false );
+	}
 
 	//-------------------------------------------------
 	// render all light <-> geometry interactions to a depth buffer atlas
@@ -7074,7 +7102,7 @@ is 0, so the stereoEye parameter is not always the same as that.
 */
 void idRenderBackend::DrawView( const void* data, const int stereoEye )
 {
-	SCOPED_PROFILE_EVENT( "Backend_DrawView" );
+	//OPTICK_EVENT( "Backend_DrawView" );
 
 	const drawSurfsCommand_t* cmd = ( const drawSurfsCommand_t* )data;
 

@@ -2414,6 +2414,8 @@ void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawS
 		return;
 	}
 
+	OPTICK_EVENT( "Render_DebugTools" );
+
 	renderLog.OpenMainBlock( MRB_DRAW_DEBUG_TOOLS );
 	renderLog.OpenBlock( "Render_DebugTools", colorGreen );
 
