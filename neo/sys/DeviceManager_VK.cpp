@@ -1,5 +1,8 @@
 /*
 * Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
+* Copyright (C) 2022 Stephen Pridham (id Tech 4x integration)
+* Copyright (C) 2023 Stephen Saunders (id Tech 4x integration)
+* Copyright (C) 2023 Robert Beckebans (id Tech 4x integration)
 *
 * Permission is hereby granted, free of charge, to any person obtaining a
 * copy of this software and associated documentation files (the "Software"),
@@ -1285,7 +1288,7 @@ void DeviceManager_VK::Present()
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
-	if( m_DeviceParms.enableDebugRuntime || deviceParms.vsyncEnabled )
+	if( m_DeviceParams.enableDebugRuntime || m_DeviceParams.vsyncEnabled )
 	{
 		// according to vulkan-tutorial.com, "the validation layer implementation expects
 		// the application to explicitly synchronize with the GPU"
