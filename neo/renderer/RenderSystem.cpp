@@ -658,7 +658,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	performanceCounters_t* pc
 )
 {
-	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
+	SCOPED_PROFILE_EVENT( "SwapCommandBuffers_FinishRendering" );
 
 	if( gpuMicroSec != NULL )
 	{
@@ -870,6 +870,8 @@ idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 */
 const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers()
 {
+	OPTICK_EVENT( "SwapCommandBuffers_FinishCommandBuffers" );
+
 	if( !IsInitialized() )
 	{
 		return NULL;
