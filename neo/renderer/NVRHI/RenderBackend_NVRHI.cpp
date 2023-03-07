@@ -1571,7 +1571,10 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
+	uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
+
 	OPTICK_EVENT( "EndFrame" );
+	OPTICK_TAG( "Firing to swapIndex", swapIndex );
 
 	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
@@ -1600,14 +1603,17 @@ We want to exit this with the GPU idle, right at vsync
 */
 void idRenderBackend::GL_BlockingSwapBuffers()
 {
-	OPTICK_EVENT( "BlockingSwapBuffers" );
+	uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
 
-	// Make sure that all frames have finished rendering
+	OPTICK_CATEGORY( "BlockingSwapBuffers", Optick::Category::Wait );
+	//OPTICK_CATEGORY( "BlockingSwapBuffers", Optick::Category::Wait );
+	OPTICK_TAG( "Waiting for swapIndex", swapIndex );
+
 	// SRS - device-level sync kills perf by serializing command queue processing (CPU) and rendering (GPU)
 	//	   - instead, use alternative sync method (based on command queue event queries) inside Present()
 	//deviceManager->GetDevice()->waitForIdle();
 
-	// Present to the swap chain.
+	// Make sure that all frames have finished rendering
 	deviceManager->Present();
 
 	// Release all in-flight references to the render targets

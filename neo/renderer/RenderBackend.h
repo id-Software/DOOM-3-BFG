@@ -46,6 +46,14 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif
 
+
+#if USE_OPTICK
+	#define USE_OPTICK_GPU 0
+#else
+	#define USE_OPTICK_GPU 0
+#endif
+
+// TODO remove
 bool			GL_CheckErrors_( const char* filename, int line );
 #if 1 // !defined(RETAIL)
 	#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)

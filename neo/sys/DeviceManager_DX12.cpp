@@ -454,6 +454,8 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 	m_FrameWaitQuery = m_NvrhiDevice->createEventQuery();
 	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
 
+	OPTICK_GPU_INIT_D3D12( m_Device12, &m_GraphicsQueue, 1 );
+
 	return true;
 }
 
@@ -603,6 +605,9 @@ void DeviceManager_DX12::BeginFrame()
 		}
 	}
 #endif
+
+	OPTICK_CATEGORY( "DX12_BeginFrame", Optick::Category::Wait );
+
 	auto bufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
 	WaitForSingleObject( m_FrameFenceEvents[bufferIndex], INFINITE );
@@ -640,9 +645,13 @@ void DeviceManager_DX12::EndFrame()
 void DeviceManager_DX12::Present()
 {
 	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
-	m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
-	m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
-	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+	{
+		OPTICK_CATEGORY( "DX12_Present", Optick::Category::Wait );
+
+		m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+		m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
+		m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+	}
 
 	if( !m_windowVisible )
 	{
@@ -658,6 +667,9 @@ void DeviceManager_DX12::Present()
 	{
 		presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
 	}
+
+	OPTICK_GPU_FLIP( m_SwapChain.Get() );
+	OPTICK_CATEGORY( "Present", Optick::Category::Wait );
 
 	// SRS - Don't change m_DeviceParams.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval
 	m_SwapChain->Present( m_DeviceParams.vsyncEnabled && r_swapInterval.GetInteger() == 2 ? 1 : 0, presentFlags );

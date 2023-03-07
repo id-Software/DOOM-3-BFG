@@ -672,7 +672,7 @@ void idCommonLocal::Frame()
 
 		{
 
-			OPTICK_EVENT( "Wait for Frame" )
+			OPTICK_CATEGORY( "Wait for Frame", Optick::Category::Wait );
 
 			for( ;; )
 			{
