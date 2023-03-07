@@ -553,5 +553,7 @@ Version 3
 {
 "classname" "light"
 "name" "light_5666"
-"parallel" "0"
+"parallel" "1"
+"light_center" "15 6 38"
+"light_radius" "745 412 833"
 }
