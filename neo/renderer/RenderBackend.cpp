@@ -794,6 +794,11 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 {
 	OPTICK_EVENT( "Render_FillDepthBufferFast" );
 
+#if USE_OPTICK_GPU
+	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "Render_FillDepthBufferFast" );
+#endif
+
 	if( numDrawSurfs == 0 )
 	{
 		return;
@@ -4014,6 +4019,11 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	OPTICK_EVENT( "Render_ShadowAtlas" );
 
+#if USE_OPTICK_GPU
+	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "Render_ShadowAtlas" );
+#endif
+
 	renderLog.OpenMainBlock( MRB_SHADOW_ATLAS_PASS );
 	renderLog.OpenBlock( "Render_ShadowAtlas", colorYellow );
 
@@ -4340,6 +4350,11 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 	}
 
 	OPTICK_EVENT( "Render_Interactions" );
+
+#if USE_OPTICK_GPU
+	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "Render_Interactions" );
+#endif
 
 	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS );
 	renderLog.OpenBlock( "Render_Interactions", colorYellow );
@@ -6641,6 +6656,21 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 {
 	OPTICK_EVENT( "Backend_DrawViewInternal" );
 	OPTICK_TAG( "stereoEye", stereoEye );
+
+	/*
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::D3D12 )
+	{
+	}
+	*/
+
+	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+
+#if USE_OPTICK_GPU
+	//uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
+	//idStr eventLabel;
+	//eventLabel.Format( "DrawView( frameIndex = %i, swapIndex = %i ) ", taaPass->GetFrameIndex(), swapIndex );
+	OPTICK_GPU_EVENT( "DrawView" );
+#endif
 
 	renderLog.OpenBlock( "Render_DrawViewInternal", colorRed );
 

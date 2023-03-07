@@ -144,4 +144,9 @@ public:
 
 	void AdvanceFrame();
 	idVec2 GetCurrentPixelOffset();
+
+	uint32_t GetFrameIndex() const
+	{
+		return m_FrameIndex;
+	}
 };
