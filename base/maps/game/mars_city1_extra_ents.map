@@ -549,11 +549,23 @@ Version 3
 "name" "light_4833"
 "parallel" "1"
 }
-// entity 2022
+// hangar big light
 {
 "classname" "light"
 "name" "light_5666"
 "parallel" "1"
 "light_center" "15 6 38"
 "light_radius" "745 412 833"
+}
+// small floor light at the door
+{
+"classname" "light"
+"name" "light_5262"
+"parallel" "0"
+}
+// small floor light at the door
+{
+"classname" "light"
+"name" "light_5351"
+"parallel" "0"
 }
