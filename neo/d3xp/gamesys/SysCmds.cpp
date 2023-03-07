@@ -2742,6 +2742,10 @@ void Cmd_EditLights_f( const idCmdArgs& args )
 		g_editEntityMode.SetInteger( 0 );
 
 		com_editors &= ~EDITOR_LIGHT;
+
+		// turn off light debug drawing in the render backend
+		r_singleLight.SetInteger( -1 );
+		r_showLights.SetInteger( 0 );
 	}
 }
 // RB end

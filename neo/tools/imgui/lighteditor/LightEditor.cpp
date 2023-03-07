@@ -96,6 +96,8 @@ void LightInfo::DefaultProjected()
 
 void LightInfo::FromDict( const idDict* e )
 {
+	e->GetVector( "origin", "", origin );
+
 	lightRadius.Zero();
 	lightTarget.Zero();
 	lightRight.Zero();
@@ -184,6 +186,8 @@ void LightInfo::FromDict( const idDict* e )
 // and thus will contain pairs with value "" if the key should be removed from entity
 void LightInfo::ToDict( idDict* e )
 {
+	e->SetVector( "origin", origin );
+
 	// idGameEdit::EntityChangeSpawnArgs() will delete key/value from entity,
 	// if value is "" => use DELETE_VAL for readability
 	static const char* DELETE_VAL = "";
@@ -590,6 +594,44 @@ void LightEditor::DrawWindow()
 	if( ImGui::Begin( title, &showWindow ) ) //, ImGuiWindowFlags_ShowBorders ) )
 	{
 		bool changes = false;
+
+		// RB: handle arrow key inputs like in TrenchBroom
+		ImGuiIO& io = ImGui::GetIO();
+
+		// TODO use view direction like just global values
+		if( io.KeysDown[K_LALT] )
+		{
+			if( io.KeysDown[K_UPARROW] )
+			{
+				cur.origin.z += 1;
+				changes = true;
+			}
+			else if( io.KeysDown[K_DOWNARROW] )
+			{
+				cur.origin.z -= 1;
+				changes = true;
+			}
+		}
+		else if( io.KeysDown[K_RIGHTARROW] )
+		{
+			cur.origin.x += 1;
+			changes = true;
+		}
+		else if( io.KeysDown[K_LEFTARROW] )
+		{
+			cur.origin.x -= 1;
+			changes = true;
+		}
+		else if( io.KeysDown[K_UPARROW] )
+		{
+			cur.origin.y += 1;
+			changes = true;
+		}
+		else if( io.KeysDown[K_DOWNARROW] )
+		{
+			cur.origin.y -= 1;
+			changes = true;
+		}
 
 		changes |= ImGui::Checkbox( "Cast Shadows", &cur.castShadows );
 		//ImGui::SameLine();

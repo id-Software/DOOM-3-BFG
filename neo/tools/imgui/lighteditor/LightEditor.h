@@ -55,6 +55,7 @@ public:
 	idVec3		lightTarget;
 	idVec3		lightCenter;
 	idVec3		color;
+	idVec3		origin;
 
 
 #if 0 // FIXME: unused, delete?

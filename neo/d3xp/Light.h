@@ -128,6 +128,11 @@ public:
 
 	virtual void	ShowEditingDialog();
 
+	const renderLight_t& GetRenderLight() const
+	{
+		return renderLight;
+	}
+
 	enum
 	{
 		EVENT_BECOMEBROKEN = idEntity::EVENT_MAXEVENTS,

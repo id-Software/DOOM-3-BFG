@@ -893,17 +893,20 @@ void idRenderBackend::DBG_ShowLights()
 
 	renderProgManager.BindShader_Color();
 
-	common->Printf( "volumes: " );	// FIXME: not in back end!
-
 	int count = 0;
 	for( viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
 		count++;
 
-		// depth buffered planes
-		if( r_showLights.GetInteger() >= 2 )
+		if( r_singleLight.GetInteger() >= 0 && r_singleLight.GetInteger() != vLight->lightDef->index )
 		{
-			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK );
+			continue;
+		}
+
+		// depth buffered planes
+		if( r_showLights.GetInteger() >= 2 && r_singleLight.GetInteger() < 0 )
+		{
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
 
 			// RB: show different light types
 			if( vLight->parallel )
@@ -929,7 +932,7 @@ void idRenderBackend::DBG_ShowLights()
 		// non-hidden lines
 		if( r_showLights.GetInteger() >= 3 )
 		{
-			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_DEPTHMASK );
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
 			GL_Color( 1.0f, 1.0f, 1.0f );
 			idRenderMatrix invProjectMVPMatrix;
 			idRenderMatrix::Multiply( viewDef->worldSpace.mvp, vLight->inverseBaseLightProject, invProjectMVPMatrix );
@@ -937,10 +940,38 @@ void idRenderBackend::DBG_ShowLights()
 			DrawElementsWithCounters( &zeroOneCubeSurface );
 		}
 
-		common->Printf( "%i ", vLight->lightDef->index );
-	}
+		/*
+		if( r_singleLight.GetInteger() > 0 )
+		{
+			// draw line from center to global light origin
+			RB_SetMVP( viewDef->worldSpace.mvp );
 
-	common->Printf( " = %i total\n", count );
+			GL_State( GLS_POLYMODE_LINE | GLS_DEPTHFUNC_ALWAYS );
+
+			idRenderWorldLocal& world = *viewDef->renderWorld;
+
+			fhImmediateMode im( tr.backend.GL_GetCommandList() );
+
+			im.Begin( GFX_LINES );
+			for( ; j < w->GetNumPoints(); j++ )
+			{
+				// draw a triangle for each line
+				if( j >= 1 )
+				{
+					im.Vertex3fv( ( *w )[ j - 1 ].ToFloatPtr() );
+					im.Vertex3fv( ( *w )[ j ].ToFloatPtr() );
+					im.Vertex3fv( ( *w )[ j ].ToFloatPtr() );
+				}
+			}
+
+			im.Vertex3fv( ( *w )[ 0 ].ToFloatPtr() );
+			im.Vertex3fv( ( *w )[ 0 ].ToFloatPtr() );
+			im.Vertex3fv( ( *w )[ j - 1 ].ToFloatPtr() );
+
+			im.End();
+		}
+		*/
+	}
 }
 
 // RB begin
@@ -1540,8 +1571,6 @@ void idRenderBackend::DBG_ShowShadowMapLODs()
 
 	renderProgManager.BindShader_Color();
 
-	common->Printf( "volumes: " );	// FIXME: not in back end!
-
 	int count = 0;
 	for( viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -1607,11 +1636,7 @@ void idRenderBackend::DBG_ShowShadowMapLODs()
 			RB_SetMVP( invProjectMVPMatrix );
 			DrawElementsWithCounters( &zeroOneCubeSurface );
 		}
-
-		common->Printf( "%i ", vLight->lightDef->index );
 	}
-
-	common->Printf( " = %i total\n", count );
 }
 // RB end
 

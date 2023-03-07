@@ -214,6 +214,11 @@ void idLight::UpdateChangeableSpawnArgs( const idDict* source )
 
 	gameEdit->ParseSpawnArgsToRenderLight( source ? source : &spawnArgs, &renderLight );
 
+	// RB: allow the ingame light editor to move the light
+	GetPhysics()->SetOrigin( renderLight.origin );
+	GetPhysics()->SetAxis( renderLight.axis );
+	// RB end
+
 	UpdateVisuals();
 }
 
