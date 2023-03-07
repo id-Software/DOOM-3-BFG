@@ -6657,18 +6657,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	OPTICK_EVENT( "Backend_DrawViewInternal" );
 	OPTICK_TAG( "stereoEye", stereoEye );
 
-	/*
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::D3D12 )
-	{
-	}
-	*/
-
-	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
-
 #if USE_OPTICK_GPU
 	//uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
 	//idStr eventLabel;
 	//eventLabel.Format( "DrawView( frameIndex = %i, swapIndex = %i ) ", taaPass->GetFrameIndex(), swapIndex );
+	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
 	OPTICK_GPU_EVENT( "DrawView" );
 #endif
 
