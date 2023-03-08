@@ -18,6 +18,24 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - March 08, 2023
+
+This build improves the performance again by about 60% through a different V-Sync implementation by Steve Saunders. It seems to require tripple buffering and slightly more memory but elimates the stalls between CPU <-> GPU syncing.
+
+The full discussion was in https://github.com/RobertBeckebans/RBDOOM-3-BFG/pull/750
+
+Changelog:
+
+* Refactored DeviceManager_DX12 members for better diffing with original Donut sample
+
+* Use command queue sync method vs. device sync for higher performance / frame rate
+
+* Fixed fake parallel light in Mars City 1 opening scene
+
+* Tweaked some lights in the hangar
+
+
+
 ## .plan - March 05, 2023
 
 This build improves the performance again and it shows the selected GPU with com_showFPS > 1.
