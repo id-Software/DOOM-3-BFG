@@ -34,6 +34,8 @@ Changelog:
 
 * Tweaked some lights in the hangar
 
+* LightEditor: Draw volume of selected light and move it with arrow keys
+
 
 
 ## .plan - March 05, 2023

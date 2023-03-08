@@ -1166,6 +1166,10 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		}
 	}
 
+	// turn vsync off for faster capturing of the probes
+	int oldVsync = r_swapInterval.GetInteger();
+	r_swapInterval.SetInteger( 0 );
+
 	idLib::Printf( "----------------------------------\n" );
 	idLib::Printf( "Processing %i light probes in %i areas for %i bounces\n", totalProcessedProbes, totalProcessedAreas, bounces );
 	//common->Printf( "ETA %5.1f minutes\n\n", ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
@@ -1465,5 +1469,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	idLib::Printf( "----------------------------------\n" );
 	idLib::Printf( "Processed %i light probes in %i areas\n", totalProcessedProbes, totalProcessedAreas );
 	common->Printf( "Baked light grid irradiance in %5.1f minutes\n\n", ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
+
+	// restore vsync setting
+	r_swapInterval.SetInteger( oldVsync );
 }
 
