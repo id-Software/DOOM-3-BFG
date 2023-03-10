@@ -1527,19 +1527,8 @@ void GfxInfo_f( const idCmdArgs& args )
 		"fullscreen"
 	};
 
-	common->Printf( "\nGL_VENDOR: %s\n", glConfig.vendor_string );
-	common->Printf( "GL_RENDERER: %s\n", glConfig.renderer_string );
-	common->Printf( "GL_VERSION: %s\n", glConfig.version_string );
-	common->Printf( "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-#if !defined( USE_NVRHI )
-	if( glConfig.wgl_extensions_string )
-	{
-		common->Printf( "WGL_EXTENSIONS: %s\n", glConfig.wgl_extensions_string );
-	}
-	common->Printf( "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	common->Printf( "GL_MAX_TEXTURE_COORDS_ARB: %d\n", glConfig.maxTextureCoords );
-	common->Printf( "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits );
-#endif
+	common->Printf( "Graphics API: %s\n", deviceManager->GetDevice()->getGraphicsAPI() == nvrhi::GraphicsAPI::D3D12 ? "DirectX 12 " : "Vulkan" );
+	common->Printf( "Render Device: %s\n", deviceManager->GetRendererString() );
 
 	// print all the display adapters, monitors, and video modes
 	//void DumpAllDisplayDevices();
@@ -1558,10 +1547,7 @@ void GfxInfo_f( const idCmdArgs& args )
 
 	common->Printf( "-------\n" );
 
-	// RB begin
-#if defined(_WIN32) && !defined(USE_VULKAN) && !defined(USE_NVRHI)
-	// WGL_EXT_swap_interval
-	if( r_swapInterval.GetInteger() && wglSwapIntervalEXT != NULL )
+	if( r_swapInterval.GetInteger() )//&& wglSwapIntervalEXT != NULL )
 	{
 		common->Printf( "Forcing swapInterval %i\n", r_swapInterval.GetInteger() );
 	}
@@ -1569,8 +1555,6 @@ void GfxInfo_f( const idCmdArgs& args )
 	{
 		common->Printf( "swapInterval not forced\n" );
 	}
-#endif
-	// RB end
 
 	if( glConfig.stereoPixelFormatAvailable && glConfig.isStereoPixelFormat )
 	{
