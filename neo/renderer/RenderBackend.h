@@ -34,17 +34,14 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderLog.h"
 
-#if defined(USE_NVRHI)
-	#include "Passes/CommonPasses.h"
-	#include "Passes/MipMapGenPass.h"
-	#include "Passes/FowardShadingPass.h"
-	#include "Passes/SsaoPass.h"
-	#include "Passes/TonemapPass.h"
-	#include "Passes/TemporalAntiAliasingPass.h"
+#include "Passes/CommonPasses.h"
+#include "Passes/MipMapGenPass.h"
+#include "Passes/FowardShadingPass.h"
+#include "Passes/SsaoPass.h"
+#include "Passes/TonemapPass.h"
+#include "Passes/TemporalAntiAliasingPass.h"
 
-	#include "PipelineCache.h"
-
-#endif
+#include "PipelineCache.h"
 
 
 #if USE_OPTICK

@@ -1160,15 +1160,12 @@ bool idRenderSystemLocal::UploadImage( const char* imageName, const byte* data, 
 		return false;
 	}
 
-#if defined(USE_NVRHI)
 	commandList->open();
-#endif
 
 	image->UploadScratch( data, width, height, commandList );
 
-#if defined(USE_NVRHI)
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
-#endif
+
 	return true;
 }

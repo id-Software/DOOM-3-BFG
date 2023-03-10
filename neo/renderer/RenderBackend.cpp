@@ -39,14 +39,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "imgui/ImGui_Hooks.h"
 
-#if defined( USE_NVRHI )
-	#include "RenderPass.h"
-	#include <sys/DeviceManager.h>
-	#include <nvrhi/utils.h>
+#include "RenderPass.h"
+#include <sys/DeviceManager.h>
+#include <nvrhi/utils.h>
 
-	idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "1", CVAR_RENDERER | CVAR_BOOL, "use the new SSAO pass from Donut" );
-	extern DeviceManager* deviceManager;
-#endif
+idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "1", CVAR_RENDERER | CVAR_BOOL, "use the new SSAO pass from Donut" );
+extern DeviceManager* deviceManager;
 
 idCVar r_drawEyeColor( "r_drawEyeColor", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a colored box, red = left eye, blue = right eye, grey = non-stereo" );
 idCVar r_motionBlur( "r_motionBlur", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 - 5, log2 of the number of motion blur samples" );
@@ -2100,6 +2098,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		commandList->clearTextureFloat( globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
 	}
 
+	// RB: TODO remove this
 	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
 	{
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
@@ -2118,9 +2117,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 		currentSpace = NULL;
 		auto mvp = renderMatrix_identity;
-#if defined( USE_NVRHI )
 		mvp[1][1] = -mvp[1][1]; // flip y
-#endif
 		RB_SetMVP( mvp );
 
 		renderProgManager.BindShader_Texture();
@@ -5364,10 +5361,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
 
-#if defined( USE_NVRHI )
 	commandList->clearTextureFloat( globalImages->hierarchicalZbufferImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
 	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[0]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
-#endif
 
 	// build hierarchical depth buffer
 	if( r_useHierarchicalDepthBuffer.GetBool() )
@@ -5413,17 +5408,12 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
-#if defined( USE_NVRHI )
 		const nvrhi::FramebufferAttachment& att = globalFramebuffers.ambientOcclusionFBO[0]->GetApiObject()->getDesc().colorAttachments[0];
 
 		if( att.texture )
 		{
 			commandList->clearTextureFloat( att.texture, att.subresources, 0 );
 		}
-#else
-		glClearColor( 0, 0, 0, 0 );
-		glClear( GL_COLOR_BUFFER_BIT );
-#endif
 
 		if( r_ssaoFiltering.GetBool() )
 		{
@@ -5500,9 +5490,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	{
 		float jitterTexScale[4];
 
-#if defined( USE_NVRHI )
 		commandList->clearTextureFloat( globalImages->ambientOcclusionImage[1]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
-#endif
 
 		// AO blur X
 		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
@@ -5614,11 +5602,6 @@ BACKEND COMMANDS
 =========================================================================================================
 */
 
-#if defined( USE_NVRHI )
-	extern DeviceManager* deviceManager;
-#endif
-
-
 /*
 ====================
 RB_ExecuteBackEndCommands
@@ -5658,7 +5641,6 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	void* textureId = globalImages->hierarchicalZbufferImage->GetTextureID();
 	globalImages->LoadDeferredImages( commandList );
 
-#if defined( USE_NVRHI )
 	if( !ssaoPass && r_useNewSsaoPass.GetBool() )
 	{
 		ssaoPass = new SsaoPass(
@@ -5700,7 +5682,6 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		taaPass = new TemporalAntiAliasingPass();
 		taaPass->Init( deviceManager->GetDevice(), &commonPasses, NULL, taaParams );
 	}
-#endif
 
 	uint64 backEndStartTime = Sys_Microseconds();
 
@@ -5997,8 +5978,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		GL_SelectTexture( 0 );
 
 		// resolve the screen
-#if defined( USE_NVRHI )
-
 		if( R_GetMSAASamples() > 1 )
 		{
 			renderLog.OpenBlock( "Resolve to _currentRender" );
@@ -6018,9 +5997,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		}
 
 		renderLog.CloseBlock();
-#else
-		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
-#endif
 
 		currentRenderCopied = true;
 
@@ -6097,26 +6073,21 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// bloom post processing
 	//-------------------------------------------------
 
-	if( !r_skipBloom.GetBool() )
-	{
-		// TODO(Stephen): implement bloom
-#if !defined( USE_NVRHI )
-		Bloom( _viewDef );
-#endif
-	}
-
-#if defined( USE_NVRHI )
-	//TODO(Stephen): Move somewhere else?
-	// RB: this needs to be done after next post processing steps later on
+	// TODO implement bloom
+	//Bloom( _viewDef );
 
 	if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
 	{
+		// copy LDR result to DX12 / Vulkan swapchain image
+
 		// we haven't changed ldrImage so it's basically the previewsRenderLDR
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
 		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+
+		// blit envprobe over it for quick review where we are
 
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->envprobeHDRImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
@@ -6125,13 +6096,14 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	}
 	else
 	{
+		// copy LDR result to DX12 / Vulkan swapchain image
+
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
 		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 	}
-#endif
 
 	renderLog.CloseBlock();
 }

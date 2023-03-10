@@ -37,10 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "CmdlineProgressbar.h"
 #include "../framework/Common_local.h" // commonLocal.WaitGameThread();
 
-#if defined( USE_NVRHI )
-	#include <sys/DeviceManager.h>
-	extern DeviceManager* deviceManager;
-#endif
+#include <sys/DeviceManager.h>
+extern DeviceManager* deviceManager;
 
 /*
 =============
@@ -1127,11 +1125,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 	int	totalEnd = Sys_Milliseconds();
 
-#if defined( USE_NVRHI )
 	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
-
 	commandList->open();
-#endif
 
 	//--------------------------------------------
 	// LOAD CONVOLVED OCTAHEDRONS INTO THE GPU
@@ -1148,10 +1143,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		def->radianceImage->Reload( true, commandList );
 	}
 
-#if defined( USE_NVRHI )
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
-#endif
 
 	idLib::Printf( "----------------------------------\n" );
 	idLib::Printf( "Processed %i light probes\n", totalProcessedProbes );

@@ -268,7 +268,6 @@ struct shaderMacro_t
 	{ }
 };
 
-#if defined( USE_NVRHI )
 struct programInfo_t
 {
 	int bindingLayoutType;
@@ -278,7 +277,6 @@ struct programInfo_t
 	nvrhi::InputLayoutHandle inputLayout;
 	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* bindingLayouts;
 };
-#endif
 
 enum
 {

@@ -576,12 +576,10 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 				opts.numLevels = 1;
 				DeriveOpts();
 
-#if defined( USE_NVRHI )
 				if( !commandList )
 				{
 					return;
 				}
-#endif
 
 				AllocImage();
 
@@ -664,12 +662,10 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 		binaryFileTime = im.WriteGeneratedFile( sourceFileTime );
 	}
 
-#if defined( USE_NVRHI )
 	if( !commandList )
 	{
 		return;
 	}
-#endif
 
 	AllocImage();
 
@@ -896,8 +892,6 @@ idImage::Reload
 */
 void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 {
-#if defined( USE_NVRHI )
-
 	// always regenerate functional images
 	if( generatorFunction )
 	{
@@ -905,24 +899,6 @@ void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 		generatorFunction( this, commandList );
 		return;
 	}
-#else
-	// don't break render targets that have this image attached
-	if( opts.isRenderTarget )
-	{
-		return;
-	}
-
-	// always regenerate functional images
-	if( generatorFunction )
-	{
-		if( force )
-		{
-			common->DPrintf( "regenerating %s.\n", GetName() );
-			generatorFunction( this, commandList );
-		}
-		return;
-	}
-#endif
 
 	// check file times
 	if( !force )
@@ -1233,15 +1209,6 @@ void idImage::UploadScratch( const byte* data, int cols, int rows, nvrhi::IComma
 	else
 	{
 #if defined( USE_NVRHI )
-
-		/*
-		if( opts.textureType != TT_2D )//|| usage != TD_LOOKUP_TABLE_RGBA )
-		{
-			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA, commandList );
-			return;
-		}
-		*/
-
 		if( opts.width != cols || opts.height != rows )
 		{
 			opts.width = cols;

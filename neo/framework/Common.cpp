@@ -37,10 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../sound/sound.h"
 
-#if defined( USE_NVRHI )
-	#include <sys/DeviceManager.h>
-	extern DeviceManager* deviceManager;
-#endif
+#include <sys/DeviceManager.h>
+extern DeviceManager* deviceManager;
 
 // RB begin
 #if defined(USE_DOOMCLASSIC)

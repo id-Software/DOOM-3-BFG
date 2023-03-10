@@ -73,7 +73,6 @@ void R_ReloadImages_f( const idCmdArgs& args )
 		}
 	}
 
-#if defined( USE_NVRHI )
 	tr.commandList->open();
 	globalImages->ReloadImages( all, tr.commandList );
 	tr.commandList->close();
@@ -81,9 +80,6 @@ void R_ReloadImages_f( const idCmdArgs& args )
 
 	// Images (including the framebuffer images) were reloaded, reinitialize the framebuffers.
 	Framebuffer::ResizeFramebuffers();
-#else
-	globalImages->ReloadImages( all );
-#endif
 }
 
 typedef struct
@@ -480,11 +476,7 @@ idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filte
 	image->levelLoadReferenced = true;
 
 	// load it if we aren't in a level preload
-#if defined( USE_NVRHI )
 	if( !insideLevelLoad || preloadingMapImages )
-#else
-	if( ( !insideLevelLoad || preloadingMapImages ) && idLib::IsMainThread() )
-#endif
 	{
 		image->referencedOutsideLevelLoad = ( !insideLevelLoad && !preloadingMapImages );
 		image->FinalizeImage( false, nullptr );
@@ -785,9 +777,7 @@ void idImageManager::Shutdown()
 	imageHash.Clear();
 	deferredImages.DeleteContents( true );
 	deferredImageHash.Clear();
-#if defined( USE_NVRHI )
 	commandList.Reset();
-#endif
 }
 
 /*
@@ -889,7 +879,6 @@ idImageManager::LoadLevelImages
 */
 int idImageManager::LoadLevelImages( bool pacifier )
 {
-#if defined( USE_NVRHI )
 	if( !commandList )
 	{
 		nvrhi::CommandListParameters params = {};
@@ -905,20 +894,11 @@ int idImageManager::LoadLevelImages( bool pacifier )
 	common->UpdateLevelLoadPacifier();
 
 	commandList->open();
-#endif
 
 	int	loadCount = 0;
 	for( int i = 0 ; i < images.Num() ; i++ )
 	{
 		idImage* image = images[ i ];
-
-#if !defined( USE_NVRHI )
-		if( pacifier )
-		{
-			// SP: Cannot update the pacifier because then two command lists would be open at once.
-			common->UpdateLevelLoadPacifier();
-		}
-#endif
 
 		if( image->generatorFunction )
 		{
@@ -932,7 +912,6 @@ int idImageManager::LoadLevelImages( bool pacifier )
 		}
 	}
 
-#if defined( USE_NVRHI )
 	globalImages->LoadDeferredImages( commandList );
 
 	commandList->close();
@@ -940,7 +919,6 @@ int idImageManager::LoadLevelImages( bool pacifier )
 	deviceManager->GetDevice()->executeCommandList( commandList );
 
 	common->UpdateLevelLoadPacifier();
-#endif
 
 	return loadCount;
 }

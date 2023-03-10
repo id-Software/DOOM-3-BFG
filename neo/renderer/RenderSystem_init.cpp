@@ -36,9 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
-#if defined( USE_NVRHI )
-	#include "sys/DeviceManager.h"
-#endif
+#include "sys/DeviceManager.h"
 
 // RB begin
 #if defined(_WIN32)
@@ -65,15 +63,15 @@ glconfig_t	glConfig;
 
 idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDERER, "Ask for a stereo GL pixel format on startup" );
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
-#if defined( USE_NVRHI )
-	#if defined( _WIN32 )
-		idCVar r_graphicsAPI( "r_graphicsAPI", "dx12", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE, "Specifies the graphics api to use (dx12, vulkan)" );
-	#else
-		idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC, "Specifies the graphics api to use (vulkan)" );
-	#endif
 
-	idCVar r_useValidationLayers( "r_useValidationLayers", "1", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
+#if defined( _WIN32 )
+	idCVar r_graphicsAPI( "r_graphicsAPI", "dx12", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE, "Specifies the graphics api to use (dx12, vulkan)" );
+#else
+	idCVar r_graphicsAPI( "r_graphicsAPI", "vulkan", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC, "Specifies the graphics api to use (vulkan)" );
 #endif
+
+idCVar r_useValidationLayers( "r_useValidationLayers", "1", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
+
 // SRS - Added workaround for AMD OSX driver bugs caused by GL_EXT_timer_query when shadow mapping enabled; Intel bugs not present on OSX
 #if defined(__APPLE__)
 	idCVar r_skipIntelWorkarounds( "r_skipIntelWorkarounds", "1", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs" );
@@ -324,9 +322,7 @@ const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
 const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
 
-#if defined( USE_NVRHI )
-	DeviceManager* deviceManager;
-#endif
+DeviceManager* deviceManager;
 
 
 bool R_UseTemporalAA()
@@ -485,7 +481,6 @@ void R_SetNewMode( const bool fullInit )
 		{
 			// create the context as well as setting up the window
 
-#if defined( USE_NVRHI )
 			nvrhi::GraphicsAPI api = nvrhi::GraphicsAPI::D3D12;
 			if( !idStr::Icmp( r_graphicsAPI.GetString(), "vulkan" ) )
 			{
@@ -496,7 +491,6 @@ void R_SetNewMode( const bool fullInit )
 				api = nvrhi::GraphicsAPI::D3D12;
 			}
 			deviceManager = DeviceManager::Create( api );
-#endif
 
 #if defined( VULKAN_USE_PLATFORM_SDL )
 			if( VKimp_Init( parms ) )
@@ -576,19 +570,14 @@ static void R_ReloadSurface_f( const idCmdArgs& args )
 	// reload the decl
 	mt.material->base->Reload();
 
-#if defined( USE_NVRHI )
 	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
-
 	commandList->open();
-#endif
 
 	// reload any images used by the decl
 	mt.material->ReloadImages( false, commandList );
 
-#if defined( USE_NVRHI )
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
-#endif
 }
 
 /*
@@ -2241,9 +2230,7 @@ void idRenderSystemLocal::Shutdown()
 
 	Clear();
 
-#if defined( USE_NVRHI )
 	commandList.Reset();
-#endif
 
 	ShutdownOpenGL();
 
@@ -2290,10 +2277,8 @@ void idRenderSystemLocal::LoadLevelImages()
 {
 	globalImages->LoadLevelImages( false );
 
-#if defined( USE_NVRHI )
 	deviceManager->GetDevice()->waitForIdle();
 	deviceManager->GetDevice()->runGarbageCollection();
-#endif
 }
 
 /*
