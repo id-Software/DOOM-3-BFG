@@ -36,9 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 // RB: define this to use the id Tech 4.5 UI interface for ImGui instead of OpenGL or Vulkan
 // this allows to have the com_showFPS stats in screenshots
 
-//#if defined( USE_VULKAN )
 #define IMGUI_BFGUI 1
-//#endif
 
 /*
 ===============================================================================

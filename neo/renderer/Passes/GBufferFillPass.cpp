@@ -64,13 +64,6 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		return;
 	}
 
-#if defined( USE_VULKAN )
-	if( fillGbuffer )
-	{
-		return;
-	}
-#endif
-
 
 	/*
 	if( !fillGbuffer )

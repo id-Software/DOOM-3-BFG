@@ -354,7 +354,6 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::Begin( "Performance Stats" );
 
-#if defined( USE_NVRHI )
 		static const int gfxNumValues = 3;
 
 		static const char* gfxValues[gfxNumValues] =
@@ -365,12 +364,6 @@ float idConsoleLocal::DrawFPS( float y )
 		};
 
 		const char* API = gfxValues[ int( deviceManager->GetGraphicsAPI() ) ];
-
-#elif defined( USE_VULKAN )
-		const char* API = "Vulkan";
-#else
-		const char* API = "OpenGL";
-#endif
 
 		extern idCVar r_antiAliasing;
 

@@ -93,13 +93,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 // SRS - use triple buffering for NVRHI with command queue event query sync method
 const uint32 NUM_FRAME_DATA	= 3;
 
-#if defined( USE_NVRHI )
-	#include "nvrhi/nvrhi.h"
-#elif defined( USE_VULKAN )
-	#include "../renderer/Vulkan/qvk.h"
-#else
-	#include <GL/glew.h>
-#endif
+#include "nvrhi/nvrhi.h"
 
 // RB: make Optick profiling available everywhere
 #include "../libs/optick/optick.h"

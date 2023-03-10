@@ -656,10 +656,6 @@ void R_SetupProjectionMatrix2( const viewDef_t* viewDef, const float zNear, cons
 		projectionMatrix[1 * 4 + 1] = -viewDef->projectionMatrix[1 * 4 + 1];
 		projectionMatrix[1 * 4 + 3] = -viewDef->projectionMatrix[1 * 4 + 3];
 	}
-
-#if defined(USE_VULKAN)
-	projectionMatrix[1 * 4 + 1] *= -1.0F;
-#endif
 }
 
 /*

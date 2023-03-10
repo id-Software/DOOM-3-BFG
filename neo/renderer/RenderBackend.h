@@ -344,7 +344,6 @@ private:
 	void				SetupShadowMapMatrices( viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix );
 	void				ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_t* vLight, int side, bool atlas );
 	void				ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix );
-	void				ShadowMapPassOld( const drawSurf_t* drawSurfs, viewLight_t* vLight, int side );
 
 	void				ShadowAtlasPass( const viewDef_t* _viewDef );
 
@@ -354,16 +353,11 @@ private:
 	void				DrawMotionVectors();
 	void				TemporalAAPass( const viewDef_t* _viewDef );
 
-	// RB: HDR stuff
-
-	// TODO optimize and replace with compute shader
-	void				CalculateAutomaticExposure();
-	void				Tonemap( const viewDef_t* viewDef );
+	// RB: outdated HDR stuff
 	void				Bloom( const viewDef_t* viewDef );
 
 	void				DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef );
 	void				DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef );
-	void				DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewDef );
 
 	// Experimental feature
 	void				MotionBlur();
