@@ -2191,7 +2191,6 @@ idRenderBackend::idRenderBackend()
 
 	memset( &glConfig, 0, sizeof( glConfig ) );
 
-	glConfig.gpuSkinningAvailable = true;
 	glConfig.uniformBufferOffsetAlignment = 256;
 	glConfig.timerQueryAvailable = true;
 }

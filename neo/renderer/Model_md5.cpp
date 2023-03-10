@@ -530,7 +530,7 @@ void idMD5Mesh::UpdateSurface( const struct renderEntity_s* ent, const idJointMa
 	tri->numVerts = deformInfo->numOutputVerts;
 
 	// RB: added check wether GPU skinning is available at all
-	if( r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable )
+	if( r_useGPUSkinning.GetBool() )
 	{
 		if( tri->verts != NULL && tri->verts != deformInfo->verts )
 		{

@@ -1610,15 +1610,6 @@ void GfxInfo_f( const idCmdArgs& args )
 						renderSystem->GetPhysicalScreenWidthInCentimeters(), renderSystem->GetPhysicalScreenWidthInCentimeters() / 2.54f
 						* sqrt( ( float )( 16 * 16 + 9 * 9 ) ) / 16.0f );
 	}
-
-	if( glConfig.gpuSkinningAvailable )
-	{
-		common->Printf( S_COLOR_GREEN "GPU skeletal animation available\n" );
-	}
-	else
-	{
-		common->Printf( S_COLOR_RED "GPU skeletal animation not available (slower CPU path active)\n" );
-	}
 }
 
 /*

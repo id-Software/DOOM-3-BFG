@@ -585,11 +585,11 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 		builtinShaders[builtins[i].index] = i;
 
-		if( builtins[i].requireGPUSkinningSupport && !glConfig.gpuSkinningAvailable )
-		{
-			// RB: don't try to load shaders that would break the GLSL compiler in the OpenGL driver
-			continue;
-		}
+		//if( builtins[i].requireGPUSkinningSupport && !glConfig.gpuSkinningAvailable )
+		//{
+		// RB: don't try to load shaders that would break the GLSL compiler in the OpenGL driver
+		//	continue;
+		//}
 
 		int vIndex = -1;
 		if( builtins[i].stages & SHADER_STAGE_VERTEX )
@@ -628,7 +628,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 
-	if( glConfig.gpuSkinningAvailable )
 	{
 		renderProgs[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;

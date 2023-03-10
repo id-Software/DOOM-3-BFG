@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2013-2023 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -78,30 +78,12 @@ enum stereoDepthType_t
 	STEREO_DEPTH_TYPE_FAR
 };
 
-
 enum graphicsVendor_t
 {
 	VENDOR_NVIDIA,
 	VENDOR_AMD,
 	VENDOR_INTEL,
 	VENDOR_APPLE                            // SRS - Added support for Apple GPUs
-};
-
-// RB: similar to Q3A - allow separate codepaths between OpenGL 3.x, OpenGL ES versions
-enum graphicsDriverType_t
-{
-	GLDRV_OPENGL3X,							// best for development with legacy OpenGL tools
-	GLDRV_OPENGL32_COMPATIBILITY_PROFILE,
-	GLDRV_OPENGL32_CORE_PROFILE,			// best for shipping to PC
-	GLDRV_OPENGL_ES2,
-	GLDRV_OPENGL_ES3,
-	GLDRV_OPENGL_MESA,						// fear this, it is probably the best to disable GPU skinning and run shaders in GLSL ES 1.0
-	GLDRV_OPENGL_MESA_CORE_PROFILE,
-
-	GLDRV_VULKAN,
-
-	GLDRV_NVRHI_DX12,
-	GLDRV_NVRHI_VULKAN,
 };
 
 #define ID_MSAA 0
@@ -184,19 +166,12 @@ struct glconfig_t
 {
 	graphicsVendor_t	vendor;
 
-	const char* 		renderer_string;
-	const char* 		vendor_string;
-	const char* 		version_string;
-	const char* 		extensions_string;
-
-	int					maxTextureSize;			// queried from GL
-	int					maxTextureCoords;
-	int					maxTextureImageUnits;
+//	int					maxTextureSize;			// TODO
+//	int					maxTextureCoords;		// TODO
+//	int					maxTextureImageUnits;	// TODO
 	int					uniformBufferOffsetAlignment;
-	float				maxTextureAnisotropy;
 
 	bool				timerQueryAvailable;
-	bool				gpuSkinningAvailable;
 
 	stereo3DMode_t		stereo3Dmode;
 	int					nativeScreenWidth; // this is the native screen width resolution of the renderer
@@ -215,56 +190,6 @@ struct glconfig_t
 	float				physicalScreenWidthInCentimeters;
 
 	float				pixelAspect;
-
-#if !defined(USE_NVRHI)
-
-	graphicsDriverType_t driverType;
-
-	const char* 		wgl_extensions_string;
-	const char* 		shading_language_string;
-
-	float				glVersion;				// atof( version_string )
-
-	int					colorBits;
-	int					depthBits;
-	int					stencilBits;
-
-	bool				multitextureAvailable;
-	bool				directStateAccess;
-	bool				textureCompressionAvailable;
-	bool				anisotropicFilterAvailable;
-	bool				textureLODBiasAvailable;
-	bool				seamlessCubeMapAvailable;
-	bool				vertexBufferObjectAvailable;
-	bool				mapBufferRangeAvailable;
-	bool				vertexArrayObjectAvailable;
-	bool				drawElementsBaseVertexAvailable;
-	bool				fragmentProgramAvailable;
-	bool				glslAvailable;
-	bool				uniformBufferAvailable;
-	bool				twoSidedStencilAvailable;
-	bool				depthBoundsTestAvailable;
-	bool				syncAvailable;
-
-	bool				occlusionQueryAvailable;
-	bool				debugOutputAvailable;
-	bool				swapControlTearAvailable;
-
-	bool				gremedyStringMarkerAvailable;
-	bool				khronosDebugAvailable;
-	bool				vertexHalfFloatAvailable;
-
-	bool				framebufferObjectAvailable;
-	int					maxRenderbufferSize;
-	int					maxColorAttachments;
-//	bool				framebufferPackedDepthStencilAvailable;
-	bool				framebufferBlitAvailable;
-
-#if !defined(USE_VULKAN)
-	GLuint				global_vao;
-#endif
-
-#endif
 };
 
 

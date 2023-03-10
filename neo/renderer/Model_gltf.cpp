@@ -1688,7 +1688,7 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 
 	idList<int> jointIds;
 
-	if( r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable )
+	if( r_useGPUSkinning.GetBool() )
 	{
 		if( tri->verts != NULL && tri->verts != verts )
 		{

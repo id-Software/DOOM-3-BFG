@@ -1073,6 +1073,8 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 
 	RenderCommandBuffers( frameData->cmdHead );
 
+	// TODO implement for NVRHI
+
 #if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
 	glReadBuffer( GL_BACK );
 

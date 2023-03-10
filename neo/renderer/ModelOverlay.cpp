@@ -424,7 +424,7 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 		}
 
 		// RB: added check wether GPU skinning is available at all
-		if( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable )
+		if( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() )
 		{
 			R_OverlayPointCullSkinned( cullBits.Ptr(), texCoordS.Ptr(), texCoordT.Ptr(), localTextureAxis, tri->verts, tri->numVerts, tri->staticModelWithJoints->jointsInverted );
 		}
