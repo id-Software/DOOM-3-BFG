@@ -244,10 +244,6 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				WIN_EnableAltTab();
 			}
 
-			// do the OpenGL setup
-			void GLW_WM_CREATE( HWND hWnd );
-			GLW_WM_CREATE( hWnd );
-
 			break;
 
 		case WM_DESTROY:

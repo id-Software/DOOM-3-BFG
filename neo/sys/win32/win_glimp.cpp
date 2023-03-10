@@ -125,406 +125,6 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 }
 
 /*
-=============================================================================
-
-WglExtension Grabbing
-
-This is gross -- creating a window just to get a context to get the wgl extensions
-
-=============================================================================
-*/
-
-/*
-====================
-FakeWndProc
-
-Only used to get wglExtensions
-====================
-*/
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-LONG WINAPI FakeWndProc(
-	HWND    hWnd,
-	UINT    uMsg,
-	WPARAM  wParam,
-	LPARAM  lParam )
-{
-
-	if( uMsg == WM_DESTROY )
-	{
-		PostQuitMessage( 0 );
-	}
-
-	if( uMsg != WM_CREATE )
-	{
-		return DefWindowProc( hWnd, uMsg, wParam, lParam );
-	}
-
-	const static PIXELFORMATDESCRIPTOR pfd =
-	{
-		sizeof( PIXELFORMATDESCRIPTOR ),
-		1,
-		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-		PFD_TYPE_RGBA,
-		24,
-		0, 0, 0, 0, 0, 0,
-		8, 0,
-		0, 0, 0, 0,
-		24, 8,
-		0,
-		PFD_MAIN_PLANE,
-		0,
-		0,
-		0,
-		0,
-	};
-	int		pixelFormat;
-	HDC hDC;
-	HGLRC hGLRC;
-
-	hDC = GetDC( hWnd );
-
-	// Set up OpenGL
-	pixelFormat = ChoosePixelFormat( hDC, &pfd );
-	SetPixelFormat( hDC, pixelFormat, &pfd );
-	hGLRC = wglCreateContext( hDC );
-	wglMakeCurrent( hDC, hGLRC );
-
-	// free things
-	wglMakeCurrent( NULL, NULL );
-	wglDeleteContext( hGLRC );
-	ReleaseDC( hWnd, hDC );
-
-	return DefWindowProc( hWnd, uMsg, wParam, lParam );
-}
-
-/*
-==================
-GLW_GetWGLExtensionsWithFakeWindow
-==================
-*/
-// RB: replaced WGL with GLEW WGL
-void GLW_CheckWGLExtensions( HDC hDC )
-{
-	GLenum glewResult = glewInit();
-	if( GLEW_OK != glewResult )
-	{
-		// glewInit failed, something is seriously wrong
-		common->Printf( "^GLW_CheckWGLExtensions() - GLEW could not load OpenGL subsystem: %s", glewGetErrorString( glewResult ) );
-	}
-	else
-	{
-		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
-	}
-
-	if( WGLEW_ARB_extensions_string )
-	{
-		glConfig.wgl_extensions_string = ( const char* ) wglGetExtensionsStringARB( hDC );
-	}
-	else
-	{
-		glConfig.wgl_extensions_string = "";
-	}
-
-	// WGL_EXT_swap_control
-	//wglSwapIntervalEXT = ( PFNWGLSWAPINTERVALEXTPROC ) GLimp_ExtensionPointer( "wglSwapIntervalEXT" );
-	r_swapInterval.SetModified();	// force a set next frame
-
-	// WGL_EXT_swap_control_tear
-	glConfig.swapControlTearAvailable = WGLEW_EXT_swap_control_tear != 0;
-
-	// FIXME
-	// WGLEW_ARB_pixel_format
-}
-#endif
-
-/*
-==================
-GLW_GetWGLExtensionsWithFakeWindow
-==================
-*/
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-static void GLW_GetWGLExtensionsWithFakeWindow()
-{
-	HWND	hWnd;
-	MSG		msg;
-
-	// Create a window for the sole purpose of getting
-	// a valid context to get the wglextensions
-	hWnd = CreateWindow( WIN32_FAKE_WINDOW_CLASS_NAME, GAME_NAME,
-						 WS_OVERLAPPEDWINDOW,
-						 40, 40,
-						 640,
-						 480,
-						 NULL, NULL, win32.hInstance, NULL );
-	if( !hWnd )
-	{
-		common->FatalError( "GLW_GetWGLExtensionsWithFakeWindow: Couldn't create fake window" );
-	}
-
-	HDC hDC = GetDC( hWnd );
-	HGLRC gRC = wglCreateContext( hDC );
-	wglMakeCurrent( hDC, gRC );
-	GLW_CheckWGLExtensions( hDC );
-	wglDeleteContext( gRC );
-	ReleaseDC( hWnd, hDC );
-
-	DestroyWindow( hWnd );
-	while( GetMessage( &msg, NULL, 0, 0 ) )
-	{
-		TranslateMessage( &msg );
-		DispatchMessage( &msg );
-	}
-}
-#endif
-
-/*
-====================
-GLW_WM_CREATE
-====================
-*/
-void GLW_WM_CREATE( HWND hWnd )
-{
-}
-
-/*
-========================
-CreateOpenGLContextOnDC
-========================
-*/
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
-{
-	int useCoreProfile = r_useOpenGL45.GetInteger();
-	HGLRC m_hrc = NULL;
-
-	// RB: for GLintercept 1.2.0 or otherwise we can't diff the framebuffers using the XML log
-	if( !WGLEW_ARB_create_context || useCoreProfile == 0 )
-	{
-		return wglCreateContext( hdc );
-	}
-	// RB end
-
-	for( int i = 0; i < 2; i++ )
-	{
-		const int glMajorVersion = ( useCoreProfile != 0 ) ? 4 : 4;
-		const int glMinorVersion = ( useCoreProfile != 0 ) ? 5 : 3;
-		const int glDebugFlag = debugContext ? WGL_CONTEXT_DEBUG_BIT_ARB : 0;
-		const int glProfileMask = ( useCoreProfile != 0 ) ? WGL_CONTEXT_PROFILE_MASK_ARB : 0;
-		const int glProfile = ( useCoreProfile == 1 ) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : ( ( useCoreProfile == 2 ) ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : 0 );
-		const int attribs[] =
-		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB,	glMajorVersion,
-			WGL_CONTEXT_MINOR_VERSION_ARB,	glMinorVersion,
-			WGL_CONTEXT_FLAGS_ARB,			glDebugFlag,
-			glProfileMask,					glProfile,
-			0
-		};
-
-		m_hrc = wglCreateContextAttribsARB( hdc, 0, attribs );
-		if( m_hrc != NULL )
-		{
-			idLib::Printf( "created OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
-
-			if( useCoreProfile == 2 )
-			{
-				glConfig.driverType = GLDRV_OPENGL32_CORE_PROFILE;
-			}
-			else if( useCoreProfile == 1 )
-			{
-				glConfig.driverType = GLDRV_OPENGL32_COMPATIBILITY_PROFILE;
-			}
-			else
-			{
-				glConfig.driverType = GLDRV_OPENGL3X;
-			}
-
-			break;
-		}
-
-		idLib::Printf( "failed to create OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
-		useCoreProfile = 0;	// fall back to OpenGL 4.3
-	}
-
-	if( m_hrc == NULL )
-	{
-		int	err = GetLastError();
-		switch( err )
-		{
-			case ERROR_INVALID_VERSION_ARB:
-				idLib::Printf( "ERROR_INVALID_VERSION_ARB\n" );
-				break;
-			case ERROR_INVALID_PROFILE_ARB:
-				idLib::Printf( "ERROR_INVALID_PROFILE_ARB\n" );
-				break;
-			default:
-				idLib::Printf( "unknown error: 0x%x\n", err );
-				break;
-		}
-	}
-
-	return m_hrc;
-}
-
-/*
-====================
-GLW_ChoosePixelFormat
-
-Returns -1 on failure, or a pixel format
-====================
-*/
-static int GLW_ChoosePixelFormat( const HDC hdc, const int multisamples, const bool stereo3D )
-{
-	FLOAT	fAttributes[] = { 0, 0 };
-	int		iAttributes[] =
-	{
-		WGL_SAMPLE_BUFFERS_ARB, ( ( multisamples > 1 ) ? 1 : 0 ),
-		WGL_SAMPLES_ARB, multisamples,
-		WGL_DOUBLE_BUFFER_ARB, TRUE,
-		WGL_STENCIL_BITS_ARB, 8,
-		WGL_DEPTH_BITS_ARB, 24,
-		WGL_RED_BITS_ARB, 8,
-		WGL_BLUE_BITS_ARB, 8,
-		WGL_GREEN_BITS_ARB, 8,
-		WGL_ALPHA_BITS_ARB, 8,
-		WGL_STEREO_ARB, ( stereo3D ? TRUE : FALSE ),
-		0, 0
-	};
-
-	int	pixelFormat;
-	UINT numFormats;
-	if( !wglChoosePixelFormatARB( hdc, iAttributes, fAttributes, 1, &pixelFormat, &numFormats ) )
-	{
-		return -1;
-	}
-	return pixelFormat;
-}
-
-/*
-====================
-GLW_InitDriver
-
-Set the pixelformat for the window before it is
-shown, and create the rendering context
-====================
-*/
-static bool GLW_InitDriver( glimpParms_t parms )
-{
-	PIXELFORMATDESCRIPTOR src =
-	{
-		sizeof( PIXELFORMATDESCRIPTOR ),	// size of this pfd
-		1,								// version number
-		PFD_DRAW_TO_WINDOW |			// support window
-		PFD_SUPPORT_OPENGL |			// support OpenGL
-		PFD_DOUBLEBUFFER,				// double buffered
-		PFD_TYPE_RGBA,					// RGBA type
-		32,								// 32-bit color depth
-		0, 0, 0, 0, 0, 0,				// color bits ignored
-		8,								// 8 bit destination alpha
-		0,								// shift bit ignored
-		0,								// no accumulation buffer
-		0, 0, 0, 0, 					// accum bits ignored
-		24,								// 24-bit z-buffer
-		8,								// 8-bit stencil buffer
-		0,								// no auxiliary buffer
-		PFD_MAIN_PLANE,					// main layer
-		0,								// reserved
-		0, 0, 0							// layer masks ignored
-	};
-
-	common->Printf( "Initializing OpenGL driver\n" );
-
-	//
-	// get a DC for our window if we don't already have one allocated
-	//
-	if( win32.hDC == NULL )
-	{
-		common->Printf( "...getting DC: " );
-
-		if( ( win32.hDC = GetDC( win32.hWnd ) ) == NULL )
-		{
-			common->Printf( "^3failed^0\n" );
-			return false;
-		}
-		common->Printf( "succeeded\n" );
-	}
-
-	// the multisample path uses the wgl
-	if( WGLEW_ARB_pixel_format )
-	{
-		win32.pixelformat = GLW_ChoosePixelFormat( win32.hDC, parms.multiSamples, parms.stereo );
-	}
-	else
-	{
-		// this is the "classic" choose pixel format path
-		common->Printf( "Using classic ChoosePixelFormat\n" );
-
-		// eventually we may need to have more fallbacks, but for
-		// now, ask for everything
-		if( parms.stereo )
-		{
-			common->Printf( "...attempting to use stereo\n" );
-			src.dwFlags |= PFD_STEREO;
-		}
-
-		//
-		// choose, set, and describe our desired pixel format.  If we're
-		// using a minidriver then we need to bypass the GDI functions,
-		// otherwise use the GDI functions.
-		//
-		if( ( win32.pixelformat = ChoosePixelFormat( win32.hDC, &src ) ) == 0 )
-		{
-			common->Printf( "...^3GLW_ChoosePFD failed^0\n" );
-			return false;
-		}
-		common->Printf( "...PIXELFORMAT %d selected\n", win32.pixelformat );
-	}
-
-	// get the full info
-	DescribePixelFormat( win32.hDC, win32.pixelformat, sizeof( win32.pfd ), &win32.pfd );
-	glConfig.colorBits = win32.pfd.cColorBits;
-	glConfig.depthBits = win32.pfd.cDepthBits;
-	glConfig.stencilBits = win32.pfd.cStencilBits;
-
-	// XP seems to set this incorrectly
-	if( !glConfig.stencilBits )
-	{
-		glConfig.stencilBits = 8;
-	}
-
-	// the same SetPixelFormat is used either way
-	if( SetPixelFormat( win32.hDC, win32.pixelformat, &win32.pfd ) == FALSE )
-	{
-		common->Printf( "...^3SetPixelFormat failed^0\n", win32.hDC );
-		return false;
-	}
-
-	//
-	// startup the OpenGL subsystem by creating a context and making it current
-	//
-	common->Printf( "...creating GL context: " );
-	win32.hGLRC = CreateOpenGLContextOnDC( win32.hDC, r_debugContext.GetBool() );
-	if( win32.hGLRC == 0 )
-	{
-		common->Printf( "^3failed^0\n" );
-		return false;
-	}
-	common->Printf( "succeeded\n" );
-
-	common->Printf( "...making context current: " );
-	if( !wglMakeCurrent( win32.hDC, win32.hGLRC ) )
-	{
-		wglDeleteContext( win32.hGLRC );
-		win32.hGLRC = NULL;
-		common->Printf( "^3failed^0\n" );
-		return false;
-	}
-	common->Printf( "succeeded\n" );
-
-	return true;
-}
-#endif
-
-/*
 ====================
 GLW_CreateWindowClasses
 ====================
@@ -559,27 +159,6 @@ static void GLW_CreateWindowClasses()
 		common->FatalError( "GLW_CreateWindow: could not register window class" );
 	}
 	common->Printf( "...registered window class\n" );
-
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-	// now register the fake window class that is only used
-	// to get wgl extensions
-	wc.style         = 0;
-	wc.lpfnWndProc   = ( WNDPROC ) FakeWndProc;
-	wc.cbClsExtra    = 0;
-	wc.cbWndExtra    = 0;
-	wc.hInstance     = win32.hInstance;
-	wc.hIcon         = LoadIcon( win32.hInstance, MAKEINTRESOURCE( IDI_ICON1 ) );
-	wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
-	wc.hbrBackground = ( struct HBRUSH__* )COLOR_GRAYTEXT;
-	wc.lpszMenuName  = 0;
-	wc.lpszClassName = WIN32_FAKE_WINDOW_CLASS_NAME;
-
-	if( !RegisterClass( &wc ) )
-	{
-		common->FatalError( "GLW_CreateWindow: could not register window class" );
-	}
-	common->Printf( "...registered fake window class\n" );
-#endif
 
 	win32.windowClassRegistered = true;
 }
@@ -1213,26 +792,8 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 		return false;
 	}
 
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
-	// so the menu option can be
-	if( GLW_ChoosePixelFormat( win32.hDC, parms.multiSamples, true ) != -1 )
-	{
-		glConfig.stereoPixelFormatAvailable = true;
-	}
-	else
-	{
-		glConfig.stereoPixelFormatAvailable = false;
-	}
-
-	if( !GLW_InitDriver( parms ) )
-	{
-		ShowWindow( win32.hWnd, SW_HIDE );
-		DestroyWindow( win32.hWnd );
-		win32.hWnd = NULL;
-		return false;
-	}
-#endif
+	// TODO
+	glConfig.stereoPixelFormatAvailable = false;
 
 	SetForegroundWindow( win32.hWnd );
 	SetFocus( win32.hWnd );
@@ -1399,13 +960,6 @@ bool GLimp_Init( glimpParms_t parms )
 {
 	HDC		hDC;
 
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-	cmdSystem->AddCommand( "testSwapBuffers", GLimp_TestSwapBuffers, CMD_FL_SYSTEM, "Times swapbuffer options" );
-
-	common->Printf( "Initializing OpenGL subsystem with multisamples:%i stereo:%i fullscreen:%i\n",
-					parms.multiSamples, parms.stereo, parms.fullScreen );
-#endif
-
 	// check our desktop attributes
 	hDC = GetDC( GetDesktopWindow() );
 	win32.desktopBitsPixel = GetDeviceCaps( hDC, BITSPIXEL );
@@ -1427,15 +981,6 @@ bool GLimp_Init( glimpParms_t parms )
 	// create our window classes if we haven't already
 	GLW_CreateWindowClasses();
 
-#if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
-	// this will load the dll and set all our gl* function pointers,
-	// but doesn't create a window
-
-	// getting the wgl extensions involves creating a fake window to get a context,
-	// which is pretty disgusting, and seems to mess with the AGP VAR allocation
-	GLW_GetWGLExtensionsWithFakeWindow();
-#endif
-
 	// Optionally ChangeDisplaySettings to get a different fullscreen resolution.
 	if( !GLW_ChangeDislaySettingsIfNeeded( parms ) )
 	{
@@ -1445,11 +990,7 @@ bool GLimp_Init( glimpParms_t parms )
 
 	// try to create a window with the correct pixel format
 	// and init the renderer context
-#if defined( USE_NVRHI )
 	if( !deviceManager->CreateWindowDeviceAndSwapChain( parms, GAME_NAME ) )
-#else
-	if( !GLW_CreateWindow( parms ) )
-#endif
 	{
 		//deviceManager->Shutdown();
 		GLimp_Shutdown();
@@ -1483,20 +1024,6 @@ bool GLimp_Init( glimpParms_t parms )
 	{
 		glConfig.physicalScreenWidthInCentimeters = 0.1f * mmWide;
 	}
-
-	// RB: we probably have a new OpenGL 3.2 core context so reinitialize GLEW
-#if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
-	GLenum glewResult = glewInit();
-	if( GLEW_OK != glewResult )
-	{
-		// glewInit failed, something is seriously wrong
-		common->Printf( "^3GLimp_Init() - GLEW could not load OpenGL subsystem: %s", glewGetErrorString( glewResult ) );
-	}
-	else
-	{
-		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
-	}
-#endif
 
 	return true;
 }
@@ -1600,98 +1127,11 @@ subsystem.
 */
 void GLimp_Shutdown()
 {
-#if defined( USE_NVRHI )
 	if( deviceManager )
 	{
 		deviceManager->Shutdown();
 	}
-#else
-	const char* success[] = { "failed", "success" };
-	int retVal;
-
-#if defined(USE_VULKAN)
-	// TODO
-#else
-	common->Printf( "Shutting down OpenGL subsystem\n" );
-
-	// set current context to NULL
-	//if( wglMakeCurrent )
-	{
-		retVal = wglMakeCurrent( NULL, NULL ) != 0;
-		common->Printf( "...wglMakeCurrent( NULL, NULL ): %s\n", success[retVal] );
-	}
-
-	// delete HGLRC
-	if( win32.hGLRC )
-	{
-		retVal = wglDeleteContext( win32.hGLRC ) != 0;
-		common->Printf( "...deleting GL context: %s\n", success[retVal] );
-		win32.hGLRC = NULL;
-	}
-#endif
-
-	// release DC
-	if( win32.hDC )
-	{
-		retVal = ReleaseDC( win32.hWnd, win32.hDC ) != 0;
-		common->Printf( "...releasing DC: %s\n", success[retVal] );
-		win32.hDC   = NULL;
-	}
-
-	// destroy window
-	if( win32.hWnd )
-	{
-		common->Printf( "...destroying window\n" );
-		ShowWindow( win32.hWnd, SW_HIDE );
-		DestroyWindow( win32.hWnd );
-		win32.hWnd = NULL;
-	}
-
-	// reset display settings
-	if( win32.cdsFullscreen )
-	{
-		common->Printf( "...resetting display\n" );
-		ChangeDisplaySettings( 0, 0 );
-		win32.cdsFullscreen = 0;
-	}
-
-	// restore gamma
-	GLimp_RestoreGamma();
-#endif
 }
-
-/*
-=====================
-GLimp_SwapBuffers
-=====================
-*/
-// RB: use GLEW for V-Sync
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-void GLimp_SwapBuffers()
-{
-	if( r_swapInterval.IsModified() )
-	{
-		r_swapInterval.ClearModified();
-
-		int interval = 0;
-		if( r_swapInterval.GetInteger() == 1 )
-		{
-			interval = ( glConfig.swapControlTearAvailable ) ? -1 : 1;
-		}
-		else if( r_swapInterval.GetInteger() == 2 )
-		{
-			interval = 1;
-		}
-
-		if( WGLEW_EXT_swap_control )
-		{
-			wglSwapIntervalEXT( interval );
-		}
-	}
-
-	SwapBuffers( win32.hDC );
-}
-#endif
 
 
 
