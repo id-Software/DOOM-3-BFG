@@ -4,7 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2016-2017 Dustin Land
-Copyright (C) 2017-2020 Robert Beckebans
+Copyright (C) 2017-2023 Robert Beckebans
 Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -125,139 +125,6 @@ struct debugPolygon_t
 
 void RB_SetMVP( const idRenderMatrix& mvp );
 void RB_SetVertexColorParms( stageVertexColor_t svc );
-//void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture, float matrix[16] );
-//void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture );
-//void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix );
-
-//bool ChangeDisplaySettingsIfNeeded( gfxImpParms_t parms );
-//bool CreateGameWindow( gfxImpParms_t parms );
-
-#if defined( USE_VULKAN )
-
-// SRS - Generalized Vulkan SDL platform
-#if defined( VULKAN_USE_PLATFORM_SDL )
-	#include <SDL.h>
-	#include <SDL_vulkan.h>
-#endif
-
-struct gpuInfo_t
-{
-	VkPhysicalDevice					device;
-	VkPhysicalDeviceProperties			props;
-	VkPhysicalDeviceMemoryProperties	memProps;
-	VkSurfaceCapabilitiesKHR			surfaceCaps;
-	idList< VkSurfaceFormatKHR >		surfaceFormats;
-	idList< VkPresentModeKHR >			presentModes;
-	idList< VkQueueFamilyProperties >	queueFamilyProps;
-	idList< VkExtensionProperties >		extensionProps;
-};
-
-struct vulkanContext_t
-{
-	// Eric: If on linux, use this to pass SDL_Window pointer to the SDL_Vulkan_* methods not in sdl_vkimp.cpp file.
-// SRS - Generalized Vulkan SDL platform
-#if defined( VULKAN_USE_PLATFORM_SDL )
-	SDL_Window*						sdlWindow = nullptr;
-#endif
-	uint64							frameCounter;
-	uint32							frameParity;
-
-	vertCacheHandle_t				jointCacheHandle;
-
-	VkInstance						instance;
-
-	// selected physical device
-	VkPhysicalDevice				physicalDevice;
-	VkPhysicalDeviceFeatures		physicalDeviceFeatures;
-
-	// logical device
-	VkDevice						device;
-
-	VkQueue							graphicsQueue;
-	VkQueue							presentQueue;
-	int								graphicsFamilyIdx;
-	int								presentFamilyIdx;
-	VkDebugReportCallbackEXT		callback;
-
-	idList< const char* >			instanceExtensions;
-	idList< const char* >			deviceExtensions;
-	idList< const char* >			validationLayers;
-
-	bool							debugMarkerSupportAvailable;
-	bool							debugUtilsSupportAvailable;
-	bool                            deviceProperties2Available;     // SRS - For getting device properties in support of gfxInfo
-
-	// selected GPU
-	gpuInfo_t* 						gpu;
-
-	// all GPUs found on the system
-	idList< gpuInfo_t >				gpus;
-
-	VkCommandPool					commandPool;
-	idArray< VkCommandBuffer, NUM_FRAME_DATA >	commandBuffer;
-	idArray< VkFence, NUM_FRAME_DATA >			commandBufferFences;
-	idArray< bool, NUM_FRAME_DATA >				commandBufferRecorded;
-
-	VkSurfaceKHR					surface;
-	VkPresentModeKHR				presentMode;
-	VkFormat						depthFormat;
-	VkRenderPass					renderPass;
-	VkPipelineCache					pipelineCache;
-	VkSampleCountFlagBits			sampleCount;
-	bool							supersampling;
-
-	int								fullscreen;
-	VkSwapchainKHR					swapchain;
-	VkFormat						swapchainFormat;
-	VkExtent2D						swapchainExtent;
-	uint32							currentSwapIndex;
-	VkImage							msaaImage;
-	VkImageView						msaaImageView;
-#if defined( USE_AMD_ALLOCATOR )
-	VmaAllocation					msaaVmaAllocation;
-	VmaAllocationInfo				msaaAllocation;
-#else
-	vulkanAllocation_t				msaaAllocation;
-#endif
-	idArray< VkImage, NUM_FRAME_DATA >			swapchainImages;
-	idArray< VkImageView, NUM_FRAME_DATA >		swapchainViews;
-
-	idArray< VkFramebuffer, NUM_FRAME_DATA >	frameBuffers;
-	idArray< VkSemaphore, NUM_FRAME_DATA >		acquireSemaphores;
-	idArray< VkSemaphore, NUM_FRAME_DATA >		renderCompleteSemaphores;
-
-	int											currentImageParm;
-	idArray< idImage*, MAX_IMAGE_PARMS >		imageParms;
-
-	//typedef uint32 QueryTuple[2];
-
-	// GPU timestamp queries
-	idArray< uint32, NUM_FRAME_DATA >									queryIndex;
-	idArray< idArray< uint32, MRB_TOTAL_QUERIES >, NUM_FRAME_DATA >		queryAssignedIndex;
-	idArray< idArray< uint64, NUM_TIMESTAMP_QUERIES >, NUM_FRAME_DATA >	queryResults;
-	idArray< VkQueryPool, NUM_FRAME_DATA >		queryPools;
-};
-
-extern vulkanContext_t vkcontext;
-
-#elif !defined( USE_NVRHI )
-
-struct glContext_t
-{
-	uint64		frameCounter;
-	uint32		frameParity;
-
-	tmu_t		tmu[ MAX_MULTITEXTURE_UNITS ];
-	uint64		stencilOperations[ STENCIL_FACE_NUM ];
-
-	// for GL_TIME_ELAPSED_EXT queries
-	GLuint		renderLogMainBlockTimeQueryIds[ NUM_FRAME_DATA ][ MRB_TOTAL_QUERIES ];
-	uint32		renderLogMainBlockTimeQueryIssued[ NUM_FRAME_DATA ][ MRB_TOTAL_QUERIES ];
-};
-
-extern glContext_t glcontext;
-
-#endif
 
 /*
 ===========================================================================
@@ -520,8 +387,6 @@ private:
 	TileMap				tileMap;
 
 private:
-#if defined( USE_NVRHI )
-
 	idScreenRect					stateViewport;
 	idScreenRect					stateScissor;
 
@@ -569,25 +434,6 @@ public:
 	{
 		return commonPasses;
 	}
-#elif !defined( USE_VULKAN )
-	int					currenttmu;
-
-	unsigned int		currentVertexBuffer;
-	unsigned int		currentIndexBuffer;
-	Framebuffer*		currentFramebuffer;		// RB: for offscreen rendering
-
-	vertexLayoutType_t	vertexLayout;
-
-	float				polyOfsScale;
-	float				polyOfsBias;
-
-public:
-	int					GetCurrentTextureUnit() const
-	{
-		return currenttmu;
-	}
-
-#endif // !defined( USE_VULKAN )
 };
 
 #endif

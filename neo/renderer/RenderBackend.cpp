@@ -6288,17 +6288,6 @@ void idRenderBackend::DrawView( const void* data, const int stereoEye )
 		return;
 	}
 
-	// skip render context sets the wgl context to NULL,
-	// which should factor out the API cost, under the assumption
-	// that all gl calls just return if the context isn't valid
-
-	// RB: not really needed
-	//if( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys )
-	//{
-	//	GLimp_DeactivateContext();
-	//}
-	// RB end
-
 	pc.c_surfaces += viewDef->numDrawSurfs;
 
 	DBG_ShowOverdraw();
@@ -6306,7 +6295,9 @@ void idRenderBackend::DrawView( const void* data, const int stereoEye )
 	// render the scene
 	DrawViewInternal( cmd->viewDef, stereoEye );
 
-	MotionBlur();
+	// RB: Support motion blur in the future again?
+	// It is the worst thing next to depth of field
+	//MotionBlur();
 
 	// optionally draw a box colored based on the eye number
 	if( r_drawEyeColor.GetBool() )

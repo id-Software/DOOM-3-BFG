@@ -76,7 +76,6 @@ class idRenderLog
 private:
 	renderLogMainBlock_t mainBlock;
 
-#if defined( USE_NVRHI )
 	nvrhi::CommandListHandle		commandList;
 
 	uint64							frameCounter;
@@ -84,7 +83,6 @@ private:
 
 	idStaticList<nvrhi::TimerQueryHandle, MRB_TOTAL* NUM_FRAME_DATA> timerQueries;
 	idStaticList<bool, MRB_TOTAL* NUM_FRAME_DATA> timerUsed;
-#endif
 
 public:
 	idRenderLog();
