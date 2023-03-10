@@ -1279,14 +1279,10 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							// discard anything currently on the list (this triggers SwapBuffers)
 							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-#if defined( USE_VULKAN )
-							// TODO
-#elif defined( USE_NVRHI )
 							// make sure that all frames have finished rendering
 							//deviceManager->GetDevice()->waitForIdle();
 
 							byte* floatRGB16F = NULL;
-
 #if 0
 							// this probe fails in game/admin.map
 							if( a == 5 && tr.lightGridJobs.Num() == 17 && side == 4 )
@@ -1308,25 +1304,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							}
 #endif
 
-#else
-							int pix = captureSize * captureSize;
-							const int bufferSize = pix * 3 * 2;
-
-							byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
-
-							glFinish();
-
-							glReadBuffer( GL_BACK );
-
-							globalFramebuffers.envprobeFBO->Bind();
-
-							glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
-							glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
-
-							R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
-
-							Framebuffer::Unbind();
-#endif
 							jobParms->radiance[ side ] = floatRGB16F;
 						}
 

@@ -1049,10 +1049,6 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			// discard anything currently on the list (this triggers SwapBuffers)
 			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-#if defined( USE_VULKAN )
-			// TODO
-#elif defined( USE_NVRHI )
-
 			byte* floatRGB16F = NULL;
 
 			R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, &floatRGB16F, captureSize, captureSize );
@@ -1061,27 +1057,6 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			idStr testName;
 			testName.Format( "env/test/envprobe_%i_side_%i.exr", i, j );
 			R_WriteEXR( testName, floatRGB16F, 3, captureSize, captureSize, "fs_basepath" );
-#endif
-
-#else
-			int pix = captureSize * captureSize;
-			const int bufferSize = pix * 3 * 2;
-
-			byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
-
-
-			glFinish();
-
-			glReadBuffer( GL_BACK );
-
-			globalFramebuffers.envprobeFBO->Bind();
-
-			glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
-			glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
-
-			R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
-
-			Framebuffer::Unbind();
 #endif
 			buffers[ j ] = floatRGB16F;
 		}

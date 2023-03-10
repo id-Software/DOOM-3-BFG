@@ -1288,10 +1288,6 @@ extern idCVar r_ldrContrastOffset;
 extern idCVar r_useFilmicPostProcessing;
 extern idCVar r_forceAmbient;
 
-extern idCVar r_useSSGI;
-extern idCVar r_ssgiDebug;
-extern idCVar r_ssgiFiltering;
-
 extern idCVar r_useSSAO;
 extern idCVar r_ssaoDebug;
 extern idCVar r_ssaoFiltering;
