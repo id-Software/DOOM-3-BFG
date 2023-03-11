@@ -1102,16 +1102,6 @@ file(GLOB COMMON_SOURCES sys/common/*.cpp)
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
-if(UNIX)
-    #if(USE_VULKAN)
-		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
-		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
-	#else()
-	#	get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
-	#	list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
-	#endif()
-endif()
-
 source_group("aas" FILES ${AAS_INCLUDES})
 source_group("aas" FILES ${AAS_SOURCES})
 
