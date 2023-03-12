@@ -597,20 +597,6 @@ void idCommonLocal::Frame()
 #endif
 		// RB end
 
-		// save the screenshot and audio from the last draw if needed
-		if( aviCaptureMode )
-		{
-			idStr name;
-			name.Format( "demos/%s/%s_%05i", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, NULL );
-
-			// remove any printed lines at the top before taking the screenshot
-			console->ClearNotifyLines();
-
-			// this will call Draw, possibly multiple times if com_aviDemoSamples is > 1
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, NULL );
-		}
-
 		//--------------------------------------------
 		// wait for the GPU to finish drawing
 		//

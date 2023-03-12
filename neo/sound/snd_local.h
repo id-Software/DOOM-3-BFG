@@ -351,10 +351,6 @@ public:
 
 	virtual int				GetSoundTime();
 
-	// avidump
-	virtual void			AVIOpen( const char* path, const char* name );
-	virtual void			AVIClose();
-
 	// SaveGame Support
 	virtual void			WriteToSaveGame( idFile* savefile );
 	virtual void			ReadFromSaveGame( idFile* savefile );

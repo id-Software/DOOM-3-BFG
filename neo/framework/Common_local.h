@@ -425,8 +425,6 @@ public:	// These are public because they are called directly by static functions
 	void	StopPlayingRenderDemo();
 	void	CompressDemoFile( const char* scheme, const char* name );
 	void	TimeRenderDemo( const char* name, bool twice = false, bool quit = false );
-	void	AVIRenderDemo( const char* name );
-	void	AVIGame( const char* name );
 
 	// localization
 	void	InitLanguageDict();
@@ -557,10 +555,6 @@ private:
 	double				gameTimeResidual;	// left over msec from the last game frame
 	bool				syncNextGameFrame;
 
-	bool				aviCaptureMode;		// if true, screenshots will be taken and sound captured
-	idStr				aviDemoShortName;	//
-	int					aviDemoFrameCount;
-
 	enum timeDemo_t
 	{
 		TD_NO,
@@ -666,9 +660,6 @@ private:
 
 	void	StartMenu( bool playIntro = false );
 	void	GuiFrameEvents();
-
-	void	BeginAVICapture( const char* name );
-	void	EndAVICapture();
 
 	void	AdvanceRenderDemo( bool singleFrameOnly );
 

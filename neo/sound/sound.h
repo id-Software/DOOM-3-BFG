@@ -233,18 +233,6 @@ public:
 	virtual void			UnPause() = 0;
 	virtual bool			IsPaused() = 0;
 
-	// Write the sound output to multiple wav files.  Note that this does not use the
-	// work done by AsyncUpdate, it mixes explicitly in the foreground every PlaceOrigin(),
-	// under the assumption that we are rendering out screenshots and the gameTime is going
-	// much slower than real time.
-	// path should not include an extension, and the generated filenames will be:
-	// <path>_left.raw, <path>_right.raw, or <path>_51left.raw, <path>_51right.raw,
-	// <path>_51center.raw, <path>_51lfe.raw, <path>_51backleft.raw, <path>_51backright.raw,
-	// If only two channel mixing is enabled, the left and right .raw files will also be
-	// combined into a stereo .wav file.
-	virtual void			AVIOpen( const char* path, const char* name ) = 0;
-	virtual void			AVIClose() = 0;
-
 	// SaveGame / demo Support
 	virtual void			WriteToSaveGame( idFile* savefile ) = 0;
 	virtual void			ReadFromSaveGame( idFile* savefile ) = 0;

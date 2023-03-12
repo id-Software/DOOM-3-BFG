@@ -190,7 +190,6 @@ idCommonLocal::idCommonLocal() :
 	mapSpawnData.savegameFile = NULL;
 
 	currentMapName.Clear();
-	aviDemoShortName.Clear();
 
 	renderWorld = NULL;
 	soundWorld = NULL;
@@ -202,7 +201,6 @@ idCommonLocal::idCommonLocal() :
 	gameTimeResidual = 0;
 	syncNextGameFrame = true;
 	mapSpawned = false;
-	aviCaptureMode = false;
 	timeDemo = TD_NO;
 
 	nextSnapshotSendTime = 0;
@@ -1517,12 +1515,6 @@ void idCommonLocal::Shutdown()
 
 	// shutdown the script debugger
 	// DebuggerServerShutdown();
-
-	if( aviCaptureMode )
-	{
-		printf( "EndAVICapture();\n" );
-		EndAVICapture();
-	}
 
 	printf( "Stop();\n" );
 	Stop();

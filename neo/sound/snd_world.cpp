@@ -1048,24 +1048,6 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile* readDemo )
 
 /*
 =================
-idSoundWorldLocal::AVIOpen
-=================
-*/
-void idSoundWorldLocal::AVIOpen( const char*, const char* )
-{
-}
-
-/*
-=================
-idSoundWorldLocal::AVIClose
-=================
-*/
-void idSoundWorldLocal::AVIClose()
-{
-}
-
-/*
-=================
 idSoundWorldLocal::WriteToSaveGame
 =================
 */
