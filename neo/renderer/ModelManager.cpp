@@ -464,7 +464,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 				{
 					idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
 					idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
-					model->WriteBinaryModel( outputFile );
+					model->WriteBinaryModel( outputFile, &sourceTimeStamp );
 				}
 				// RB end
 			} /* else {
