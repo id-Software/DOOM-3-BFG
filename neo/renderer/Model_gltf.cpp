@@ -612,7 +612,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	}
 	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr(), md5joints.Num() );
 
-	model_state = hasAnimations ? DM_CONTINUOUS : DM_STATIC;
+	model_state = hasAnimations ? DM_CACHED : DM_STATIC;
 
 	lastMeshFromFile = this;
 	data = nullptr;
