@@ -1682,7 +1682,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			float jitterTexScale[4];
 			jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
 			jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
-			jitterTexScale[2] = 1;
+			jitterTexScale[2] = vLight->shadowFadeOut;
 			jitterTexScale[3] = shadowMapSamples;
 			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 		}
@@ -3657,7 +3657,7 @@ public:
 
 void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 {
-	if( r_skipShadows.GetBool() || !r_useShadowAtlas.GetBool() || viewDef->viewLights == NULL )
+	if( r_skipShadows.GetBool() || !r_useShadowAtlas.GetBool() || !r_useShadowMapping.GetBool() ||  viewDef->viewLights == NULL )
 	{
 		return;
 	}
@@ -4035,7 +4035,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 		// RB: shadow mapping
 		if( r_useShadowMapping.GetBool() )
 		{
-			if( !r_useShadowAtlas.GetBool() )
+			if( !r_useShadowAtlas.GetBool() && vLight->shadowLOD > -1 )
 			{
 				int	side, sideStop;
 

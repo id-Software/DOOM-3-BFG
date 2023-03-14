@@ -463,14 +463,11 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
-#if 0
-	if( !currentScissor.Equals( stateScissor ) && r_useScissor.GetBool() )
+	if( !context.scissor.Equals( stateScissor ) )
 	{
 		changeState = true;
-
-		stateScissor = currentScissor;
+		stateScissor = context.scissor;
 	}
-#endif
 
 	if( renderProgManager.CommitConstantBuffer( commandList, bindingLayoutType != prevBindingLayoutType ) )
 	{
@@ -1686,6 +1683,7 @@ idRenderBackend::GL_Scissor
 */
 void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
+	//vk::Rect2D;
 	// TODO Check if this is right.
 	context.scissor.Clear();
 	context.scissor.AddPoint( x, y );
