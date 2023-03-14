@@ -1761,7 +1761,6 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 {
 	nvrhi::IFramebuffer* framebuffer = Framebuffer::GetActiveFramebuffer()->GetApiObject();
 
-	// TODO: Do something if there is no depth-stencil attachment.
 	if( color )
 	{
 		nvrhi::utils::ClearColorAttachment( commandList, framebuffer, 0, nvrhi::Color( 0.f ) );
@@ -1774,7 +1773,13 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 
 	if( depth || stencil )
 	{
-		nvrhi::utils::ClearDepthStencilAttachment( commandList, framebuffer, 1.0f, stencilValue );
+		// make sure both depth and stencil are handled
+
+		const nvrhi::FramebufferAttachment& attDepth = framebuffer->getDesc().depthAttachment;
+		if( attDepth.texture )
+		{
+			commandList->clearDepthStencilTexture( attDepth.texture, nvrhi::AllSubresources, depth, 1.0f, stencil, stencilValue );
+		}
 	}
 }
 
@@ -2014,7 +2019,7 @@ extern idCVar r_useStencilShadowPreload;
 
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
-#if 0
+#if 1
 	if( renderZPass )
 	{
 		// Z-pass
@@ -2049,7 +2054,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	}
 	else
 	{
-		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 frameNum = static_cast<uint64>( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
 		{
 			idLib::Warning( "DrawStencilShadowPass, vertexBuffer == NULL" );
@@ -2057,7 +2062,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		}
 		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
 	}
-	const uint vertOffset = ( uint )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	const uint vertOffset = static_cast<uint>( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 
 	bool changeState = false;
 
@@ -2066,13 +2071,15 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		currentVertexOffset = vertOffset;
 	}
 
-	if( currentVertexBuffer != ( nvrhi::IBuffer* )vertexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	if( currentVertexBuffer != vertexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
 		currentVertexBuffer = vertexBuffer->GetAPIObject();
 		changeState = true;
 	}
 
+	//
 	// get index buffer
+	//
 	const vertCacheHandle_t ibHandle = drawSurf->indexCache;
 	idIndexBuffer* indexBuffer;
 	if( vertexCache.CacheIsStatic( ibHandle ) )
@@ -2081,7 +2088,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	}
 	else
 	{
-		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64 frameNum = static_cast<uint64>( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
 		{
 			idLib::Warning( "DrawStencilShadowPass, indexBuffer == NULL" );
@@ -2089,20 +2096,59 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		}
 		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
 	}
-	const uint indexOffset = ( uint )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	const uint indexOffset = static_cast<uint>( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 
 	if( currentIndexOffset != indexOffset )
 	{
 		currentIndexOffset = indexOffset;
 	}
 
-	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	if( currentIndexBuffer != indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
 		currentIndexBuffer = indexBuffer->GetAPIObject();
 		changeState = true;
 	}
 
-	int bindingLayoutType = renderProgManager.BindingLayoutType();
+	//
+	// get GPU Skinning joint buffer
+	//
+	const vertCacheHandle_t jointHandle = drawSurf->jointCache;
+	currentJointBuffer = nullptr;
+	currentJointOffset = 0;
+
+	if( jointHandle )
+	{
+		const idUniformBuffer* jointBuffer = nullptr;
+
+		if( vertexCache.CacheIsStatic( jointHandle ) )
+		{
+			jointBuffer = &vertexCache.staticData.jointBuffer;
+		}
+		else
+		{
+			const uint64 frameNum = static_cast<uint64>( jointHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+			if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+			{
+				idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
+				return;
+			}
+			jointBuffer = &vertexCache.frameData[vertexCache.drawListNum].jointBuffer;
+		}
+
+		uint offset = static_cast<uint>( jointHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		if( currentJointBuffer != jointBuffer->GetAPIObject() || currentJointOffset != offset )
+		{
+			changeState = true;
+		}
+
+		currentJointBuffer = jointBuffer->GetAPIObject();
+		currentJointOffset = offset;
+	}
+
+	//
+	// set up matching binding layout
+	//
+	const int bindingLayoutType = renderProgManager.BindingLayoutType();
 
 	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
 		= renderProgManager.GetBindingLayout( bindingLayoutType );
@@ -2118,11 +2164,9 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		}
 	}
 
-	renderProgManager.CommitConstantBuffer( commandList );
-
-	int program = renderProgManager.CurrentProgram();
-	PipelineKey key{ glStateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
-	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
+	const int program = renderProgManager.CurrentProgram();
+	const PipelineKey key{ glStateBits, program, static_cast<int>( depthBias ), slopeScaleBias, currentFrameBuffer };
+	const auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	if( currentPipeline != pipeline )
 	{
@@ -2130,6 +2174,35 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		changeState = true;
 	}
 
+	if( !currentViewport.Equals( stateViewport ) )
+	{
+		stateViewport = currentViewport;
+		changeState = true;
+	}
+
+#if 0
+	if( !currentScissor.Equals( stateScissor ) && r_useScissor.GetBool() )
+	{
+		changeState = true;
+
+		stateScissor = currentScissor;
+	}
+#endif
+
+	if( renderProgManager.CommitConstantBuffer( commandList, bindingLayoutType != prevBindingLayoutType ) )
+	{
+		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+		{
+			// Reset the graphics state if the constant buffer is written to since
+			// the render pass is ended for vulkan. setGraphicsState will
+			// reinstate the render pass.
+			changeState = true;
+		}
+	}
+
+	//
+	// create new graphics state if necessary
+	//
 	if( changeState )
 	{
 		nvrhi::GraphicsState state;
@@ -2152,14 +2225,17 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 								  currentViewport.zmax };
 		state.viewport.addViewportAndScissorRect( viewport );
 
-		if( !currentScissor.IsEmpty() )
-		{
-			state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
-		}
+		//if( !currentScissor.IsEmpty() )
+		//{
+		//	state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
+		//}
 
 		commandList->setGraphicsState( state );
 	}
 
+	//
+	// draw command
+	//
 	nvrhi::DrawArguments args;
 	if( drawSurf->jointCache )
 	{
@@ -2172,6 +2248,10 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	args.startIndexLocation = currentIndexOffset / sizeof( triIndex_t );
 	args.vertexCount = drawSurf->numIndexes;
 	commandList->drawIndexed( args );
+
+	// keep track of last context to avoid setting up the binding layout and binding set again.
+	prevContext = context;
+	prevBindingLayoutType = bindingLayoutType;
 
 	pc.c_drawElements++;
 	pc.c_drawIndexes += drawSurf->numIndexes;

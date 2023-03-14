@@ -383,18 +383,51 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 		depthStencilState.setStencilWriteMask( 0xFF );
 	}
 
+	nvrhi::DepthStencilState::StencilOpDesc stencilFuncOp;
+	switch( stateBits & GLS_STENCIL_FUNC_BITS )
+	{
+		case GLS_STENCIL_FUNC_NEVER:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::Never );
+			break;
+		case GLS_STENCIL_FUNC_LESS:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::Less );
+			break;
+		case GLS_STENCIL_FUNC_EQUAL:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::Equal );
+			break;
+		case GLS_STENCIL_FUNC_LEQUAL:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::LessOrEqual );
+			break;
+		case GLS_STENCIL_FUNC_GREATER:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::Greater );
+			break;
+		case GLS_STENCIL_FUNC_NOTEQUAL:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::NotEqual );
+			break;
+		case GLS_STENCIL_FUNC_GEQUAL:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::GreaterOrEqual );
+			break;
+		case GLS_STENCIL_FUNC_ALWAYS:
+			stencilFuncOp.setStencilFunc( nvrhi::ComparisonFunc::Always );
+			break;
+	}
+
 	// Carmack's Reverse with GLS_SEPARATE_STENCIL
 	if( stateBits & GLS_SEPARATE_STENCIL )
 	{
 		nvrhi::DepthStencilState::StencilOpDesc frontStencilOp = GetStencilOpState( stateBits & GLS_STENCIL_FRONT_OPS );
+		frontStencilOp.stencilFunc = stencilFuncOp.stencilFunc;
+
 		nvrhi::DepthStencilState::StencilOpDesc backStencilOp = GetStencilOpState( ( stateBits & GLS_STENCIL_BACK_OPS ) >> 12 );
+		backStencilOp.stencilFunc = stencilFuncOp.stencilFunc;
 
 		depthStencilState.setFrontFaceStencil( frontStencilOp );
-		depthStencilState.setFrontFaceStencil( backStencilOp );
+		depthStencilState.setBackFaceStencil( backStencilOp );
 	}
 	else
 	{
 		nvrhi::DepthStencilState::StencilOpDesc stencilOp = GetStencilOpState( stateBits );
+		stencilOp.stencilFunc = stencilFuncOp.stencilFunc;
 
 		depthStencilState.setFrontFaceStencil( stencilOp );
 		depthStencilState.setBackFaceStencil( stencilOp );
@@ -407,34 +440,6 @@ nvrhi::DepthStencilState::StencilOpDesc PipelineCache::GetStencilOpState( uint64
 
 	//if( stateBits & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
 	{
-		switch( stateBits & GLS_STENCIL_FUNC_BITS )
-		{
-			case GLS_STENCIL_FUNC_NEVER:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::Never );
-				break;
-			case GLS_STENCIL_FUNC_LESS:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::Less );
-				break;
-			case GLS_STENCIL_FUNC_EQUAL:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::Equal );
-				break;
-			case GLS_STENCIL_FUNC_LEQUAL:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::LessOrEqual );
-				break;
-			case GLS_STENCIL_FUNC_GREATER:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::Greater );
-				break;
-			case GLS_STENCIL_FUNC_NOTEQUAL:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::NotEqual );
-				break;
-			case GLS_STENCIL_FUNC_GEQUAL:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::GreaterOrEqual );
-				break;
-			case GLS_STENCIL_FUNC_ALWAYS:
-				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::Always );
-				break;
-		}
-
 		switch( stateBits & GLS_STENCIL_OP_FAIL_BITS )
 		{
 			case GLS_STENCIL_OP_FAIL_KEEP:
