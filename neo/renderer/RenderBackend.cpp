@@ -2781,12 +2781,6 @@ void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 	idRenderMatrix::Multiply( viewDef->worldSpace.mvp, vLight->inverseBaseLightProject, invProjectMVPMatrix );
 	RB_SetMVP( invProjectMVPMatrix );
 
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
-	// two-sided stencil test
-	glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_REPLACE, GL_ZERO );
-	glStencilOpSeparate( GL_BACK, GL_KEEP, GL_ZERO, GL_REPLACE );
-#endif
-
 	DrawElementsWithCounters( &zeroOneCubeSurface );
 
 	// reset stencil state

@@ -501,8 +501,8 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 								  ( float )currentViewport.x2,
 								  ( float )currentViewport.y1,
 								  ( float )currentViewport.y2,
-								  currentViewport.zmin,
-								  currentViewport.zmax };
+								  0.0f,
+								  1.0f };
 		state.viewport.addViewport( viewport );
 
 #if 0
@@ -1727,9 +1727,14 @@ void idRenderBackend::GL_DepthBoundsTest( const float zmin, const float zmax )
 
 	if( zmin == 0.0f && zmax == 0.0f )
 	{
+		glStateBits = glStateBits & ~GLS_DEPTH_TEST_MASK;
 	}
 	else
 	{
+		glStateBits |= GLS_DEPTH_TEST_MASK;
+
+		// RB: current viewport should be always [0..1] but we store here the values for depth bounds testing
+		// NVRHI does not support depth bounds testing at this moment
 		currentViewport.zmin = zmin;
 		currentViewport.zmax = zmax;
 	}
@@ -2219,8 +2224,8 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 								  ( float )currentViewport.x2,
 								  ( float )currentViewport.y1,
 								  ( float )currentViewport.y2,
-								  currentViewport.zmin,
-								  currentViewport.zmax };
+								  0.0f,
+								  1.0f };
 		state.viewport.addViewportAndScissorRect( viewport );
 
 		//if( !currentScissor.IsEmpty() )

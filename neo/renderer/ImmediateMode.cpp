@@ -176,8 +176,8 @@ void fhImmediateMode::End()
 								  ( float )tr.backend.currentViewport.x2,
 								  ( float )tr.backend.currentViewport.y1,
 								  ( float )tr.backend.currentViewport.y2,
-								  tr.backend.currentViewport.zmin,
-								  tr.backend.currentViewport.zmax };
+								  0.0f,
+								  1.0f };
 		state.viewport.addViewport( viewport );
 		state.viewport.addScissorRect( nvrhi::Rect( viewport ) );
 
