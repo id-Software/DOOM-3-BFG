@@ -971,11 +971,23 @@ sysEvent_t Sys_GetEvent()
 						int w = ev.window.data1;
 						int h = ev.window.data2;
 
-						// SRS - Only save window resized events when in windowed modes
+						// SRS - Only save window resized events when in windowed mode
 						if( !renderSystem->IsFullScreen() )
 						{
-							r_windowWidth.SetInteger( w );
-							r_windowHeight.SetInteger( h );
+							// SRS - If window was maximized by window manager set to borderless fullscreen mode = -2
+							SDL_Window *window = SDL_GetWindowFromID( ev.window.windowID );
+							if( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED )
+							{
+								SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP );
+
+								glConfig.isFullscreen = -2;
+								cvarSystem->SetCVarInteger( "r_fullscreen", glConfig.isFullscreen );
+							}
+							else
+							{
+								r_windowWidth.SetInteger( w );
+								r_windowHeight.SetInteger( h );
+							}
 						}
 
 						glConfig.nativeScreenWidth = w;
@@ -991,8 +1003,9 @@ sysEvent_t Sys_GetEvent()
 						int x = ev.window.data1;
 						int y = ev.window.data2;
 
-						// SRS - Only save window moved events when in windowed modes
-						if( !renderSystem->IsFullScreen() )
+						// SRS - Only save window moved events when in windowed mode and not maximized by window manager
+						SDL_Window *window = SDL_GetWindowFromID( ev.window.windowID );
+						if( !renderSystem->IsFullScreen() && !( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED ) )
 						{
 							// SRS - take window border into account when when saving window position cvars
 							int topBorder, leftBorder, bottomBorder, rightBorder;
@@ -1066,19 +1079,16 @@ sysEvent_t Sys_GetEvent()
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
 				{
-					/* DG: go to fullscreen on current display, instead of always first display
+					// DG: go to fullscreen on current display, instead of always first display
 					int fullscreen = 0;
-					if( ! renderSystem->IsFullScreen() )
+					if( !renderSystem->IsFullScreen() )
 					{
 						// this will be handled as "fullscreen on current window"
 						// r_fullscreen 1 means "fullscreen on first window" in d3 bfg
 						fullscreen = -2;
 					}
 					cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
-					// DG end */
-					// SRS - Until Borderless Fullscreen is implemented properly, use same implementation as on Windows
-					cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
-					// SRS end
+					// DG end
 					PushConsoleEvent( "vid_restart" );
 					continue; // handle next event
 				}

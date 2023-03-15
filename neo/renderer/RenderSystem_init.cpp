@@ -90,13 +90,10 @@ idCVar r_useValidationLayers( "r_useValidationLayers", "1", CVAR_INTEGER | CVAR_
 // RB end
 idCVar r_vidMode( "r_vidMode", "0", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "fullscreen video mode number" );
 idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_NOCHEAT, "optional display refresh rate option for vid mode", 0.0f, 240.0f );
-#ifdef WIN32
-	idCVar r_fullscreen( "r_fullscreen", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
-#else
-	// DG: add mode -2 for SDL, also defaulting to windowed mode, as that causes less trouble on linux
-	idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-2 = use current monitor, -1 = (reserved), 0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
-	// DG end
-#endif
+// SRS - redefined mode -2 to be borderless fullscreen, implemented borderless modes -2 and -1 for Windows and linux/macOS (SDL)
+// DG: add mode -2 for SDL, also defaulting to windowed mode, as that causes less trouble on linux
+idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-2 = borderless fullscreen, -1 = borderless window, 0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
+// DG end
 idCVar r_customWidth( "r_customWidth", "1280", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen width. set r_vidMode to -1 to activate" );
 idCVar r_customHeight( "r_customHeight", "720", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen height. set r_vidMode to -1 to activate" );
 idCVar r_windowX( "r_windowX", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Non-fullscreen parameter" );
@@ -368,6 +365,7 @@ uint R_GetMSAASamples()
 =============================
 R_SetNewMode
 
+r_fullScreen -2		borderless fullscreen on current monitor at desktop resolution
 r_fullScreen -1		borderless window at exact desktop coordinates
 r_fullScreen 0		bordered window at exact desktop coordinates
 r_fullScreen 1		fullscreen on monitor 1 at r_vidMode
@@ -403,7 +401,7 @@ void R_SetNewMode( const bool fullInit )
 			parms.y = r_windowY.GetInteger();
 			parms.width = r_windowWidth.GetInteger();
 			parms.height = r_windowHeight.GetInteger();
-			// may still be -1 to force a borderless window
+			// may still be -1 or -2 to force a borderless window
 			parms.fullScreen = r_fullscreen.GetInteger();
 			parms.displayHz = 0;		// ignored
 		}
@@ -413,14 +411,14 @@ void R_SetNewMode( const bool fullInit )
 			idList<vidMode_t> modeList;
 			if( !R_GetModeListForDisplay( r_fullscreen.GetInteger() - 1, modeList ) )
 			{
-				idLib::Printf( "r_fullscreen reset from %i to 1 because mode list failed.", r_fullscreen.GetInteger() );
+				idLib::Printf( "r_fullscreen reset from %i to 1 because mode list failed.\n", r_fullscreen.GetInteger() );
 				r_fullscreen.SetInteger( 1 );
 				R_GetModeListForDisplay( r_fullscreen.GetInteger() - 1, modeList );
 			}
 
 			if( modeList.Num() < 1 )
 			{
-				idLib::Printf( "Going to safe mode because mode list failed." );
+				idLib::Printf( "Going to safe mode because mode list failed.\n" );
 				goto safeMode;
 			}
 
@@ -496,7 +494,7 @@ void R_SetNewMode( const bool fullInit )
 			if( GLimp_Init( parms ) )
 #endif
 			{
-				ImGuiHook::Init( parms.width, parms.height );
+				ImGuiHook::Init( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 				break;
 			}
 		}
@@ -511,7 +509,7 @@ void R_SetNewMode( const bool fullInit )
 #endif
 			{
 				Framebuffer::ResizeFramebuffers();
-				ImGuiHook::NotifyDisplaySizeChanged( parms.width, parms.height );
+				ImGuiHook::NotifyDisplaySizeChanged( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 				break;
 			}
 		}

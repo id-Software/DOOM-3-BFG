@@ -545,6 +545,103 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 
 /*
 ====================
+Helper Functions
+====================
+*/
+int DisplayMax()
+{
+	DISPLAY_DEVICE dd;
+	dd.cb = sizeof( DISPLAY_DEVICE );
+
+	int deviceNum = 0;
+	int deviceMax = 0;
+	while( EnumDisplayDevices( NULL, deviceNum, &dd, 0 ) )
+	{
+		if( dd.StateFlags & ( DISPLAY_DEVICE_ATTACHED_TO_DESKTOP | DISPLAY_DEVICE_PRIMARY_DEVICE ) )
+		{
+			DISPLAY_DEVICE monitor = { 0 };
+			monitor.cb = sizeof( DISPLAY_DEVICE );
+			if( EnumDisplayDevices( dd.DeviceName, 0, &monitor, 0 ) )
+			{
+				deviceMax = deviceNum;
+			}
+		}
+		deviceNum++;
+	}
+	return deviceMax;
+}
+
+int DisplayPrimary()
+{
+	DISPLAY_DEVICE dd;
+	dd.cb = sizeof( DISPLAY_DEVICE );
+
+	int deviceNum = 0;
+	while( EnumDisplayDevices( NULL, deviceNum, &dd, 0 ) )
+	{
+		if( dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE )
+		{
+			DISPLAY_DEVICE monitor = { 0 };
+			monitor.cb = sizeof( DISPLAY_DEVICE );
+			if( EnumDisplayDevices( dd.DeviceName, 0, &monitor, 0 ) )
+			{
+				return deviceNum;
+			}
+		}
+		deviceNum++;
+	}
+	return 0;
+}
+
+/*
+====================
+GetDisplayNum
+====================
+*/
+// SRS - Function to get display number for both fullscreen and windowed modes
+static int GetDisplayNum( glimpParms_t parms )
+{
+	int displayNum = -1;
+	int displayMax = DisplayMax();
+
+	if( parms.fullScreen > 0 )
+	{
+		if( parms.fullScreen - 1 <= displayMax )
+		{
+			int x, y, w, h, displayHz = 0;
+			if( GetDisplayCoordinates( parms.fullScreen - 1, x, y, w, h, displayHz ) )
+			{
+				displayNum = parms.fullScreen - 1;		// first display for Windows is 0, in parms it's 1
+			}
+		}
+	}
+	else // 0, -1, -2 == windowed and borderless window modes
+	{
+        // SRS - Find display containing the center of the window, return -1 if not found
+		int windowPosX = parms.x + parms.width / 2;
+		int windowPosY = parms.y + parms.height / 2;
+
+		for( int i = 0 ; i <= displayMax; i++ )
+		{
+			int x, y, w, h, displayHz = 0;
+			if( !GetDisplayCoordinates( i, x, y, w, h, displayHz ) )
+			{
+				continue;
+			}
+
+			if( windowPosX >= x && windowPosX < ( x + w ) && windowPosY >= y && windowPosY < ( y + h ) )
+			{
+				displayNum = i;
+				break;
+			}
+		}
+	}
+
+	return displayNum;
+}
+
+/*
+====================
 GLW_GetWindowDimensions
 ====================
 */
@@ -553,45 +650,64 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	//
 	// compute width and height
 	//
-	if( parms.fullScreen != 0 )
+
+	bool displayNotFound = false;
+
+	// SRS - get the display number from parms.fullScreen / window position
+	int displayNum = GetDisplayNum( parms );
+	if( displayNum < 0 )
 	{
+		displayNotFound = true;
+		displayNum = DisplayPrimary();
+		idLib::Printf( "Can't find display for specified window position, falling back to display %i\n", displayNum + 1 );
+	}
+
+	// get the current monitor position and size on the desktop, assuming
+	// any required ChangeDisplaySettings has already been done
+	int displayHz = 0;
+	if( !GetDisplayCoordinates( displayNum, x, y, w, h, displayHz ) )
+	{
+		return false;
+	}
+
+	// SRS - for windowed modes use specified parms coordinates, otherwise skip and return display coordinates from above
+	if( parms.fullScreen == 0 || parms.fullScreen == -1 )
+	{
+        // If couldn't find display number and center of window is out of bounds for the desktop, center on primary monitor
+		int offsetX = 0, offsetY = 0;
+		if( displayNotFound )
+		{
+			offsetX = ( w - parms.width ) / 2 - parms.x;
+			offsetY = ( h - parms.height ) / 2 - parms.y;
+		}
+
 		if( parms.fullScreen == -1 )
 		{
 			// borderless window at specific location, as for spanning
 			// multiple monitor outputs
-			x = parms.x;
-			y = parms.y;
+			x = parms.x + offsetX;  // SRS - Apply offsets for centering window on primary if requested display not found
+			y = parms.y + offsetY;
 			w = parms.width;
 			h = parms.height;
 		}
-		else
+		else // windowed mode 0
 		{
-			// get the current monitor position and size on the desktop, assuming
-			// any required ChangeDisplaySettings has already been done
-			int displayHz = 0;
-			if( !GetDisplayCoordinates( parms.fullScreen - 1, x, y, w, h, displayHz ) )
-			{
-				return false;
-			}
+			RECT	r;
+
+			// adjust width and height for window border
+			r.bottom = parms.height;
+			r.left = 0;
+			r.top = 0;
+			r.right = parms.width;
+
+			AdjustWindowRect( &r, WINDOW_STYLE | WS_SYSMENU, FALSE );
+
+			w = r.right - r.left;
+			h = r.bottom - r.top;
+
+			x = parms.x + offsetX;  // SRS - Apply offsets for centering window on primary if requested display not found
+			y = parms.y + offsetY;
 		}
-	}
-	else
-	{
-		RECT	r;
-
-		// adjust width and height for window border
-		r.bottom = parms.height;
-		r.left = 0;
-		r.top = 0;
-		r.right = parms.width;
-
-		AdjustWindowRect( &r, WINDOW_STYLE | WS_SYSMENU, FALSE );
-
-		w = r.right - r.left;
-		h = r.bottom - r.top;
-
-		x = parms.x;
-		y = parms.y;
 	}
 
 	return true;
@@ -599,14 +715,14 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 
 static bool GetCenteredWindowDimensions( int& x, int& y, int& w, int& h )
 {
-	// get position and size of default display for windowed mode (parms.fullScreen = 0)
+	// get position and size of primary display for windowed mode (parms.fullScreen = 0)
 	int displayX, displayY, displayW, displayH, displayHz = 0;
-	if( !GetDisplayCoordinates( 0, displayX, displayY, displayW, displayH, displayHz ) )
+	if( !GetDisplayCoordinates( DisplayPrimary(), displayX, displayY, displayW, displayH, displayHz ) )
 	{
 		return false;
 	}
 
-	// find the centered position not exceeding display bounds
+	// find the centered position not exceeding primary display bounds
 	const int centreX = displayX + displayW / 2;
 	const int centreY = displayY + displayH / 2;
 	const int left = centreX - w / 2;
@@ -629,7 +745,7 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 		return false;
 	}
 
-	// SRS - if in windowed mode, start with centered windowed on default display, afterwards use r_windowX / r_windowY
+	// SRS - if in windowed mode, start with centered on primary display, afterwards use r_windowX / r_windowY
 	if( parms.fullScreen == 0 )
 	{
 		if( !GetCenteredWindowDimensions( x, y, w, h ) )
@@ -686,9 +802,20 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 		return false;
 	}
 
+	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
+	if( parms.fullScreen == -2 )
+	{
+		m_DeviceParams.backBufferWidth = w;
+		m_DeviceParams.backBufferHeight = h;
+	}
+	// otherwise use parms
+	else
+	{
+		m_DeviceParams.backBufferWidth = parms.width;
+		m_DeviceParams.backBufferHeight = parms.height;
+	}
+
 	// RB
-	m_DeviceParams.backBufferWidth = parms.width;
-	m_DeviceParams.backBufferHeight = parms.height;
 	m_DeviceParams.backBufferSampleCount = parms.multiSamples;
 	m_DeviceParams.vsyncEnabled = m_RequestedVSync;
 
@@ -855,20 +982,22 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms )
 		Sys_Sleep( 1000 ); // Give the driver some time to think about this change
 	}
 
-	// 0 is dragable mode on desktop, -1 is borderless window on desktop
+	// 0 is dragable mode on desktop, -1 is borderless window on desktop, -2 is fullscreen borderless window on current monitor at desktop resolution
 	if( parms.fullScreen <= 0 )
 	{
+		// SRS - Set zero value to skip next settings reset and enable windowed mode input handling (i.e. mouse, ALT-tab)
+		win32.cdsFullscreen = 0;
 		return true;
 	}
 
-	// if we are already in the right resolution, don't do a ChangeDisplaySettings
+	// if we are already on the right display in the right resolution, don't do a ChangeDisplaySettings
 	int x, y, width, height, displayHz;
 
 	if( !GetDisplayCoordinates( parms.fullScreen - 1, x, y, width, height, displayHz ) )
 	{
 		return false;
 	}
-	if( width == parms.width && height == parms.height && ( displayHz == parms.displayHz || parms.displayHz == 0 ) )
+	if( win32.cdsFullscreen == parms.fullScreen && width == parms.width && height == parms.height && ( displayHz == parms.displayHz || parms.displayHz == 0 ) )
 	{
 		return true;
 	}
@@ -999,8 +1128,25 @@ bool GLimp_Init( glimpParms_t parms )
 
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.isStereoPixelFormat = parms.stereo;
-	glConfig.nativeScreenWidth = parms.width;
-	glConfig.nativeScreenHeight = parms.height;
+	
+	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
+	if( parms.fullScreen == -2 )
+	{
+		int x, y, w, h;
+		if( !GLW_GetWindowDimensions( parms, x, y, w, h ) )
+		{
+			return false;
+		}
+		glConfig.nativeScreenWidth = w;
+		glConfig.nativeScreenHeight = h;
+	}
+	// otherwise use parms
+	else
+	{
+		glConfig.nativeScreenWidth = parms.width;
+		glConfig.nativeScreenHeight = parms.height;
+	}
+	
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
@@ -1072,8 +1218,20 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
 
 	glConfig.isStereoPixelFormat = parms.stereo;
-	glConfig.nativeScreenWidth = parms.width;
-	glConfig.nativeScreenHeight = parms.height;
+
+	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
+	if( parms.fullScreen == -2 )
+	{
+		glConfig.nativeScreenWidth = w;
+		glConfig.nativeScreenHeight = h;
+	}
+	// otherwise use parms
+	else
+	{
+		glConfig.nativeScreenWidth = parms.width;
+		glConfig.nativeScreenHeight = parms.height;
+	}
+
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 

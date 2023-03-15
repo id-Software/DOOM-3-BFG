@@ -626,7 +626,7 @@ private:
 		}
 		bool operator==( const optionData_t& other ) const
 		{
-			return ( fullscreen == other.fullscreen ) && ( ( vidmode == other.vidmode ) || ( fullscreen == 0 ) );
+			return ( fullscreen == other.fullscreen ) && ( ( vidmode == other.vidmode ) || ( fullscreen <= 0 ) );
 		}
 		int fullscreen;
 		int vidmode;

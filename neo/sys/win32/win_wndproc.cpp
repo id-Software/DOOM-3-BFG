@@ -320,7 +320,17 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 		case WM_SYSKEYDOWN:
 			if( wParam == 13 )  	// alt-enter toggles full-screen
 			{
-				cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
+				// SRS - Use same functionality and logic as with SDL on linux and macOS
+				// DG: go to fullscreen on current display, instead of always first display
+				int fullscreen = 0;
+				if( !renderSystem->IsFullScreen() )
+				{
+					// this will be handled as "fullscreen on current window"
+					// r_fullscreen 1 means "fullscreen on first window" in d3 bfg
+					fullscreen = -2;
+				}
+				cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
+				// DG end
 				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "vid_restart\n" );
 				return 0;
 			}
