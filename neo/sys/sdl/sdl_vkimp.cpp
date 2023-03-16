@@ -167,6 +167,45 @@ void VKimp_PreInit() // DG: added this function for SDL compatibility
 	}
 }
 
+/*
+===================
+ Helper functions for VKimp_Init() and VKimp_SetScreenParms()
+===================
+*/
+
+// SRS - Function to get display index for both fullscreen and windowed modes
+static int GetDisplayIndex( glimpParms_t parms )
+{
+	int displayIdx = -1;
+
+	if( parms.fullScreen > 0 )
+	{
+		if( parms.fullScreen <= SDL_GetNumVideoDisplays() )
+		{
+			displayIdx = parms.fullScreen - 1; // first display for SDL is 0, in parms it's 1
+		}
+	}
+	else // 0, -1, -2 == windowed and borderless modes
+	{
+		// SRS - Find display containing the center of the bordered or borderless window, return -1 if not found
+		int windowPosX = parms.x + parms.width / 2;
+		int windowPosY = parms.y + parms.height / 2;
+
+		for( int i = 0; i < SDL_GetNumVideoDisplays(); i++ )
+		{
+			SDL_Rect rect;
+			SDL_GetDisplayBounds( i, &rect );
+			if( windowPosX >= rect.x && windowPosX < ( rect.x + rect.w ) && windowPosY >= rect.y && windowPosY < ( rect.y + rect.h ) )
+			{
+				displayIdx = i;
+				break;
+			}
+		}
+	}
+
+	return displayIdx;
+}
+
 // SRS - Function to get display frequency of monitor hosting the current window
 static int GetDisplayFrequency( glimpParms_t parms )
 {
@@ -204,16 +243,20 @@ bool VKimp_Init( glimpParms_t parms )
 	{
 		if( parms.fullScreen > SDL_GetNumVideoDisplays() )
 		{
-			// if requested display greater than number of displays, center on default display
-			createParms.x = createParms.y = SDL_WINDOWPOS_CENTERED;
-			common->Warning( "Couldn't set display to num %i because we only have %i displays",
+			common->Warning( "Couldn't set display to r_fullscreen = %i because we only have %i display(s)",
 							 parms.fullScreen, SDL_GetNumVideoDisplays() );
+			return false;
 		}
 		else
 		{
 			// -1 because SDL starts counting displays at 0, while parms.fullScreen starts at 1
 			createParms.x = createParms.y = SDL_WINDOWPOS_CENTERED_DISPLAY( ( parms.fullScreen - 1 ) );
 		}
+	}
+	else if( GetDisplayIndex( parms ) < 0 ) // verify window position for -1 and -2 borderless modes
+	{
+		// SRS - window is out of bounds for desktop, startup on default display instead
+		createParms.x = createParms.y = SDL_WINDOWPOS_UNDEFINED;
 	}
 
 	if( !deviceManager->CreateWindowDeviceAndSwapChain( createParms, GAME_NAME ) )
@@ -233,7 +276,7 @@ bool VKimp_Init( glimpParms_t parms )
 			m.refresh_rate = parms.displayHz;
 			if( SDL_SetWindowDisplayMode( window, &m ) < 0 )
 			{
-				common->Warning( "Couldn't set display refresh rate to %i Hz", parms.displayHz );
+				common->Warning( "Couldn't set display refresh rate to %i Hz, reason: %s", parms.displayHz, SDL_GetError() );
 			}
 		}
 
@@ -303,40 +346,38 @@ static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 		SDL_RestoreWindow( window );
 	}
 
-	int displayIdx;
+	int displayIdx = GetDisplayIndex( parms );
+	
 	if( parms.fullScreen > 0 )
 	{
-		if( parms.fullScreen > SDL_GetNumVideoDisplays() )
+		if( displayIdx < 0 )
 		{
-			common->Warning( "Can't set fullscreen mode to display number %i, because SDL2 only knows about %i displays!",
+			common->Warning( "Couldn't set display to r_fullscreen = %i because we only have %i display(s)",
 							 parms.fullScreen, SDL_GetNumVideoDisplays() );
-			return -1;
+			return displayIdx;
 		}
-
-		displayIdx = parms.fullScreen - 1; // first display for SDL is 0, in parms it's 1
 
 		if( parms.fullScreen != glConfig.isFullscreen )
 		{
 			// select display ; SDL_WINDOWPOS_UNDEFINED_DISPLAY() doesn't work.
-			int x = SDL_WINDOWPOS_CENTERED_DISPLAY( displayIdx );
+			int windowPos = SDL_WINDOWPOS_CENTERED_DISPLAY( displayIdx );
 			// move window to the center of selected display
-			SDL_SetWindowPosition( window, x, x );
+			SDL_SetWindowPosition( window, windowPos, windowPos );
 		}
 	}
 	else // -2 == use current display for borderless fullscreen
 	{
-		// move window to the specified desktop position
-		SDL_SetWindowPosition( window, parms.x, parms.y );
-
-		displayIdx = SDL_GetWindowDisplayIndex( window );
-		if( displayIdx < 0 ) // for some reason the display for the window couldn't be detected
+		// SRS - verify window position
+		int windowPosX = parms.x, windowPosY = parms.y;
+		if( displayIdx < 0 )
 		{
+			// SRS - window is out of bounds for desktop, reposition onto default display
+			windowPosX = windowPosY = SDL_WINDOWPOS_UNDEFINED;
 			displayIdx = 0;
-			
-			int x = SDL_WINDOWPOS_CENTERED;
-			// move window to the center of default display
-			SDL_SetWindowPosition( window, x, x );
 		}
+
+		// move window to the specified desktop position
+		SDL_SetWindowPosition( window, windowPosX, windowPosY );
 	}
 	return displayIdx;
 }
@@ -389,9 +430,17 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 
 static bool SetScreenParmsWindowed( glimpParms_t parms )
 {
+	// SRS - verify window position for 0 and -1 windowed modes
+	int windowPosX = parms.x, windowPosY = parms.y;
+	if( GetDisplayIndex( parms ) < 0 )
+	{
+		// SRS - window is out of bounds for desktop, reposition onto default display
+		windowPosX = windowPosY = SDL_WINDOWPOS_UNDEFINED;
+	}
+	
 	// SRS - handle differences in WM behaviour: for macOS set position first, for linux set it last
 #if defined(__APPLE__)
-	SDL_SetWindowPosition( window, parms.x, parms.y );
+	SDL_SetWindowPosition( window, windowPosX, windowPosY );
 #endif
 
 	// if we're currently in fullscreen mode, we need to disable that
@@ -416,7 +465,7 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 	SDL_SetWindowSize( window, parms.width, parms.height );
 
 #if !defined(__APPLE__)
-	SDL_SetWindowPosition( window, parms.x, parms.y );
+	SDL_SetWindowPosition( window, windowPosX, windowPosY );
 #endif
 
 	return true;
