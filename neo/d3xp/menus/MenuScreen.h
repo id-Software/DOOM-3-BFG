@@ -1404,7 +1404,7 @@ public:
 		float originalBrightness;
 		float originalVolume;
 		// RB begin
-		int originalShadowMapping;
+		//int originalShadowMapping; // TODO use for quality of shadowmaps?
 		int originalSSAO;
 		int originalPostProcessing;
 		float originalAmbientBrightness;

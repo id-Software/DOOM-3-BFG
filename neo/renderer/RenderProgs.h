@@ -357,10 +357,6 @@ enum
 
 	BUILTIN_DEPTH,
 	BUILTIN_DEPTH_SKINNED,
-	BUILTIN_SHADOW,
-	BUILTIN_SHADOW_SKINNED,
-	BUILTIN_SHADOW_DEBUG,
-	BUILTIN_SHADOW_DEBUG_SKINNED,
 
 	BUILTIN_BLENDLIGHT,
 	BUILTIN_BLENDLIGHT_SKINNED,
@@ -774,26 +770,6 @@ public:
 	void	BindShader_DepthSkinned()
 	{
 		BindShader_Builtin( BUILTIN_DEPTH_SKINNED );
-	}
-
-	void	BindShader_Shadow()
-	{
-		BindShader_Builtin( BUILTIN_SHADOW );
-	}
-
-	void	BindShader_ShadowSkinned()
-	{
-		BindShader_Builtin( BUILTIN_SHADOW_SKINNED );
-	}
-
-	void	BindShader_ShadowDebug()
-	{
-		BindShader_Builtin( BUILTIN_SHADOW_DEBUG );
-	}
-
-	void	BindShader_ShadowDebugSkinned()
-	{
-		BindShader_Builtin( BUILTIN_SHADOW_DEBUG_SKINNED );
 	}
 
 	void	BindShader_BlendLight()

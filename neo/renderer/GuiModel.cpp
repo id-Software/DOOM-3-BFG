@@ -159,7 +159,6 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 		drawSurf->ambientCache = vertexBlock;
 		// build a vertCacheHandle_t that points inside the allocated block
 		drawSurf->indexCache = indexBlock + ( ( int64 )( guiSurf.firstIndex * sizeof( triIndex_t ) ) << VERTCACHE_OFFSET_SHIFT );
-		drawSurf->shadowCache = 0;
 		drawSurf->jointCache = 0;
 		drawSurf->frontEndGeo = NULL;
 		drawSurf->space = guiSpace;
@@ -171,7 +170,7 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 			drawSurf->scissorRect.Intersect( guiSurf.clipRect );
 		}
 		drawSurf->sort = shader->GetSort();
-		drawSurf->renderZFail = 0;
+
 		// process the shader expressions for conditionals / color / texcoords
 		const float*	constRegs = shader->ConstantRegisters();
 		if( constRegs )

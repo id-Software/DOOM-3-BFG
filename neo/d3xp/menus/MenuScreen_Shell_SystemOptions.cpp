@@ -418,7 +418,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	originalBrightness = r_exposure.GetFloat();
 	originalVolume = s_volume_dB.GetFloat();
 	// RB begin
-	originalShadowMapping = r_useShadowMapping.GetInteger();
+	//originalShadowMapping = r_useShadowMapping.GetInteger();
 	originalSSAO = r_useSSAO.GetInteger();
 	originalAmbientBrightness = r_forceAmbient.GetFloat();
 	originalPostProcessing = r_useFilmicPostProcessing.GetInteger();
@@ -828,10 +828,10 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 		return true;
 	}
 
-	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
-	{
-		return true;
-	}
+	//if( originalShadowMapping != r_useShadowMapping.GetInteger() )
+	//{
+	//	return true;
+	//}
 
 	if( originalSSAO != r_useSSAO.GetInteger() )
 	{

@@ -1679,8 +1679,6 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	tri->mirroredVerts = sourceSurf.geometry->mirroredVerts;
 	tri->numDupVerts = sourceSurf.geometry->numDupVerts;
 	tri->dupVerts = sourceSurf.geometry->dupVerts;
-	tri->numSilEdges = sourceSurf.geometry->numSilEdges;
-	tri->silEdges = sourceSurf.geometry->silEdges;
 
 	tri->indexCache = sourceSurf.geometry->indexCache;
 
@@ -1696,7 +1694,6 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 		}
 		tri->verts = verts;
 		tri->ambientCache = sourceSurf.geometry->ambientCache;
-		tri->shadowCache = sourceSurf.geometry->shadowCache;
 		tri->referencedVerts = true;
 	}
 	else

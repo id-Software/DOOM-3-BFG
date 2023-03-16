@@ -133,6 +133,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		.setOffset( offsetof( idDrawVert, color ) )
 		.setElementStride( sizeof( idDrawVert ) ) );
 
+	/*
 	// === Shadow vertex ===
 
 	vertexLayoutDescs[LAYOUT_DRAW_SHADOW_VERT].Append(
@@ -158,6 +159,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		.setFormat( nvrhi::Format::RGBA8_UNORM )
 		.setOffset( offsetof( idShadowVertSkinned, color ) )
 		.setElementStride( sizeof( idShadowVertSkinned ) ) );
+	*/
 
 	bindingLayouts.SetNum( NUM_BINDING_LAYOUTS );
 
@@ -512,12 +514,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_DEPTH, "builtin/depth", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
 		{ BUILTIN_DEPTH_SKINNED, "builtin/depth", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED },
 
-		{ BUILTIN_SHADOW, "builtin/lighting/shadow", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
-		{ BUILTIN_SHADOW_SKINNED, "builtin/lighting/shadow", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT_SKINNED, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED },
-
-		{ BUILTIN_SHADOW_DEBUG, "builtin/debug/shadowDebug", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "builtin/debug/shadowDebug", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT_SKINNED, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED },
-
 		{ BUILTIN_BLENDLIGHT, "builtin/fog/blendlight", "",  { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLENDLIGHT },
 		{ BUILTIN_BLENDLIGHT_SKINNED, "builtin/fog/blendlight", "_skinned",  { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLENDLIGHT_SKINNED },
 		{ BUILTIN_FOG, "builtin/fog/fog", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_FOG },
@@ -635,8 +631,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		renderProgs[builtinShaders[BUILTIN_ENVIRONMENT_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_BUMPY_ENVIRONMENT_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_DEPTH_SKINNED]].usesJoints = true;
-		renderProgs[builtinShaders[BUILTIN_SHADOW_SKINNED]].usesJoints = true;
-		renderProgs[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
 
 		renderProgs[builtinShaders[BUILTIN_DEBUG_LIGHTGRID_SKINNED]].usesJoints = true;

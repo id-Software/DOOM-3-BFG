@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+#if 0
 /*
 ============
 idShadowVert::CreateShadowCache
@@ -78,3 +79,4 @@ int idShadowVertSkinned::CreateShadowCache( idShadowVertSkinned* vertexCache, co
 	}
 	return numVerts * 2;
 }
+#endif

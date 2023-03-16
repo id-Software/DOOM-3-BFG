@@ -328,6 +328,9 @@ idRenderModel* idRenderWorldLocal::ReadBinaryShadowModel( idFile* fileIn )
 /*
 ================
 idRenderWorldLocal::ParseShadowModel
+
+NOTE: The dmap of RBDOOM-3-BFG won't generate shadowmodels.
+This parsing code only applies to parse correctly legacy .proc files
 ================
 */
 idRenderModel* idRenderWorldLocal::ParseShadowModel( idLexer* src, idFile* fileOut )
@@ -351,33 +354,35 @@ idRenderModel* idRenderWorldLocal::ParseShadowModel( idLexer* src, idFile* fileO
 
 	srfTriangles_t* tri = R_AllocStaticTriSurf();
 
+	// RB: keep compat with vanilla Doom 3 .proc files
 	tri->numVerts = src->ParseInt();
-	tri->numShadowIndexesNoCaps = src->ParseInt();
-	tri->numShadowIndexesNoFrontCaps = src->ParseInt();
+	src->ParseInt(); // tri->numShadowIndexesNoCaps = src->ParseInt();
+	src->ParseInt(); //tri->numShadowIndexesNoFrontCaps = src->ParseInt();
 	tri->numIndexes = src->ParseInt();
-	tri->shadowCapPlaneBits = src->ParseInt();
+	src->ParseInt(); //tri->shadowCapPlaneBits = src->ParseInt();
 
 	assert( ( tri->numVerts & 1 ) == 0 );
 
-	R_AllocStaticTriSurfPreLightShadowVerts( tri, ALIGN( tri->numVerts, 2 ) );
-	tri->bounds.Clear();
+	//R_AllocStaticTriSurfPreLightShadowVerts( tri, ALIGN( tri->numVerts, 2 ) );
+	//tri->bounds.Clear();
 	for( int j = 0; j < tri->numVerts; j++ )
 	{
 		float vec[8];
 
 		src->Parse1DMatrix( 3, vec );
-		tri->preLightShadowVertexes[j].xyzw[0] = vec[0];
-		tri->preLightShadowVertexes[j].xyzw[1] = vec[1];
-		tri->preLightShadowVertexes[j].xyzw[2] = vec[2];
-		tri->preLightShadowVertexes[j].xyzw[3] = 1.0f;		// no homogenous value
+		//tri->preLightShadowVertexes[j].xyzw[0] = vec[0];
+		//tri->preLightShadowVertexes[j].xyzw[1] = vec[1];
+		//tri->preLightShadowVertexes[j].xyzw[2] = vec[2];
+		//tri->preLightShadowVertexes[j].xyzw[3] = 1.0f;		// no homogenous value
 
-		tri->bounds.AddPoint( tri->preLightShadowVertexes[j].xyzw.ToVec3() );
+		//tri->bounds.AddPoint( tri->preLightShadowVertexes[j].xyzw.ToVec3() );
 	}
 	// clear the last vertex if it wasn't stored
-	if( ( tri->numVerts & 1 ) != 0 )
-	{
-		tri->preLightShadowVertexes[ALIGN( tri->numVerts, 2 ) - 1].xyzw.Zero();
-	}
+	//if( ( tri->numVerts & 1 ) != 0 )
+	//{
+	//	tri->preLightShadowVertexes[ALIGN( tri->numVerts, 2 ) - 1].xyzw.Zero();
+	//}
+	// RB end
 
 	// to be consistent set the number of vertices to half the number of shadow vertices
 	tri->numVerts = ALIGN( tri->numVerts, 2 ) / 2;
@@ -927,7 +932,6 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 
 	if( !loaded )
 	{
-
 		src = new( TAG_RENDER ) idLexer( filename, LEXFL_NOSTRINGCONCAT | LEXFL_NODOLLARPRECOMPILE );
 		if( !src->IsLoaded() )
 		{
