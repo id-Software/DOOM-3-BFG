@@ -84,7 +84,7 @@ nvrhi::IFramebuffer* DeviceManager::GetCurrentFramebuffer()
 
 nvrhi::IFramebuffer* DeviceManager::GetFramebuffer( uint32_t index )
 {
-	if( index < globalFramebuffers.swapFramebuffers.Num() )
+	if( index < ( uint32_t )globalFramebuffers.swapFramebuffers.Num() )
 	{
 		return globalFramebuffers.swapFramebuffers[index]->GetApiObject();
 	}

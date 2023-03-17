@@ -321,6 +321,7 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 			break;
 	}
 
+	m_DeviceParams.enableDebugRuntime = r_useValidationLayers.GetInteger() > 1;
 	if( m_DeviceParams.enableDebugRuntime )
 	{
 		RefCountPtr<ID3D12Debug> pDebug;
@@ -431,8 +432,6 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 	m_NvrhiDevice = nvrhi::d3d12::createDevice( deviceDesc );
 
 	m_DeviceParams.enableNvrhiValidationLayer = r_useValidationLayers.GetInteger() > 0;
-	m_DeviceParams.enableDebugRuntime = r_useValidationLayers.GetInteger() > 1;
-
 	if( m_DeviceParams.enableNvrhiValidationLayer )
 	{
 		m_NvrhiDevice = nvrhi::validation::createValidationLayer( m_NvrhiDevice );
