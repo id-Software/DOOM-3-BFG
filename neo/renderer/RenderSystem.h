@@ -138,6 +138,8 @@ struct backEndCounters_t
 	int		c_drawElements;
 	int		c_drawIndexes;
 
+	int		c_shadowAtlasUsage; // allocated pixels in the atlas
+	int		c_shadowViews;
 	int		c_shadowElements;
 	int		c_shadowIndexes;
 

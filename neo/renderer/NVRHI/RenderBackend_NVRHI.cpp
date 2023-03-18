@@ -303,7 +303,7 @@ void idRenderBackend::Shutdown()
 idRenderBackend::DrawElementsWithCounters
 =============
 */
-void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
+void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, bool shadowCounter )
 {
 	//
 	// get vertex buffer
@@ -532,8 +532,16 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	prevContext = context;
 	prevBindingLayoutType = bindingLayoutType;
 
-	pc.c_drawElements++;
-	pc.c_drawIndexes += surf->numIndexes;
+	if( shadowCounter )
+	{
+		pc.c_shadowElements++;
+		pc.c_shadowIndexes += surf->numIndexes;
+	}
+	else
+	{
+		pc.c_drawElements++;
+		pc.c_drawIndexes += surf->numIndexes;
+	}
 }
 
 void idRenderBackend::GetCurrentBindingLayout( int type )

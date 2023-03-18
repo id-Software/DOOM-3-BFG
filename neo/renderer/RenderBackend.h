@@ -162,7 +162,7 @@ public:
 	static void			ImGui_Shutdown();
 	static void			ImGui_RenderDrawLists( ImDrawData* draw_data );
 
-	void				DrawElementsWithCounters( const drawSurf_t* surf );
+	void				DrawElementsWithCounters( const drawSurf_t* surf, bool shadowCounter = false );
 
 private:
 	void				DrawFlickerBox();

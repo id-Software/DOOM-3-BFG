@@ -5,7 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Carl Kenner
 Copyright (C) 2016-2017 Dustin Land
-Copyright (C) 2013-2022 Robert Beckebans
+Copyright (C) 2013-2023 Robert Beckebans
 Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -3111,7 +3111,7 @@ void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int
 				assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 
 				// draw it
-				DrawElementsWithCounters( drawSurf );
+				DrawElementsWithCounters( drawSurf, true );
 
 				// clean up
 				FinishStageTexturing( pStage, drawSurf );
@@ -3135,7 +3135,7 @@ void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int
 				renderProgManager.BindShader_Depth();
 			}
 
-			DrawElementsWithCounters( drawSurf );
+			DrawElementsWithCounters( drawSurf, true );
 		}
 	}
 
@@ -3220,6 +3220,8 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_
 			commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
 		}
 	}
+
+	pc.c_shadowViews++;
 
 	// process the chain of shadows with the current rendering state
 	currentSpace = NULL;
@@ -3315,7 +3317,7 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_
 		assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 
 		// draw it solid
-		DrawElementsWithCounters( drawSurf );
+		DrawElementsWithCounters( drawSurf , true );
 
 		renderLog.CloseBlock();
 	}
@@ -3520,6 +3522,8 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 			outputPositions[ shadowIndex ].x = iPos.x;
 			outputPositions[ shadowIndex ].y = iPos.y;
+
+			pc.c_shadowAtlasUsage += ( imageSize * imageSize );
 		}
 	}
 
