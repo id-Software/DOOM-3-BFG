@@ -311,7 +311,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			break;
 		}
 		case WM_SYSCOMMAND:
-			if( wParam == SC_SCREENSAVE || wParam == SC_KEYMENU )
+			if( wParam == SC_SCREENSAVE || wParam == SC_KEYMENU || wParam == SC_MAXIMIZE )
 			{
 				return 0;
 			}
