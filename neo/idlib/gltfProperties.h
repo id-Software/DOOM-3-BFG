@@ -866,21 +866,25 @@ public:
 		assert( mesh );
 
 		auto& nodeList = scene->nodes;
-		int nodeCnt = 0;
-		for( auto& nodeId : nodeList )
+
+		for( auto& meshIt : meshes )
 		{
-
-			if( nodes[nodeId]->mesh != -1 &&*& meshes[nodes[nodeId]->mesh] == mesh )
+			int nodeCnt = 0;
+			for( auto& nodeId : nodeList )
 			{
-				if( id != nullptr )
+				if( nodes[nodeId]->mesh != -1 && meshes[nodes[nodeId]->mesh] == meshIt )
 				{
-					*id = nodeCnt;
-				}
+					if( id != nullptr )
+					{
+						*id = nodeCnt;
+					}
 
-				return nodes[nodeId];
+					return nodes[nodeId];
+				}
+				nodeCnt++;
 			}
-			nodeCnt++;
 		}
+
 
 		return nullptr;
 	}
@@ -937,6 +941,26 @@ public:
 		return nullptr;
 	}
 
+	gltfNode* GetMeshNode( idStr meshName, int* id = nullptr, bool caseSensitive = false )
+	{
+		int nodeCnt = 0;
+		for( auto* node : nodes )
+		{
+			if( node->mesh != -1 &&
+					( caseSensitive ? node->name.Cmp( meshName ) : node->name.Icmp( meshName ) ) == 0 )
+			{
+				if( id != nullptr )
+				{
+					*id = nodeCnt;
+				}
+
+				return node;
+			}
+			nodeCnt++;
+		}
+
+		return nullptr;
+	}
 
 	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr , bool caseSensitive = false )
 	{
@@ -995,6 +1019,18 @@ public:
 			}
 		}
 		return false;
+	}
+
+	gltfAnimation* GetAnimation( idStr animName )
+	{
+		for( auto* anim : animations )
+		{
+			if( anim->name == animName )
+			{
+				return anim;
+			}
+		}
+		return nullptr;
 	}
 
 	gltfAnimation* GetAnimation( idStr animName, int target )
