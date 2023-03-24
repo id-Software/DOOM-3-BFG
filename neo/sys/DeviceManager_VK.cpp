@@ -1273,11 +1273,6 @@ void DeviceManager_VK::EndFrame()
 
 void DeviceManager_VK::Present()
 {
-	// SRS - Sync on previous frame's command queue completion vs. waitForIdle() on whole device
-	m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
-	m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
-	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
-
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )
@@ -1288,11 +1283,31 @@ void DeviceManager_VK::Present()
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
-	if( m_DeviceParams.enableDebugRuntime || m_DeviceParams.vsyncEnabled )
+#if !defined(__APPLE__) || !defined( USE_MoltenVK )
+	// SRS - validation layer is present only when the vulkan loader + layers are enabled (i.e. not MoltenVK standalone)
+	if( m_DeviceParams.enableDebugRuntime )
 	{
 		// according to vulkan-tutorial.com, "the validation layer implementation expects
 		// the application to explicitly synchronize with the GPU"
 		m_PresentQueue.waitIdle();
+	}
+	else
+#endif
+	{
+		if constexpr( NUM_FRAME_DATA > 2 )
+		{
+			// SRS - For triple buffering, sync on previous frame's command queue completion
+			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+		}
+		
+		m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
+		m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
+
+		if constexpr( NUM_FRAME_DATA < 3 )
+		{
+			// SRS - For double buffering, sync on current frame's command queue completion
+			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
+		}
 	}
 }
 

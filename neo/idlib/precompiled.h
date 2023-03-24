@@ -91,7 +91,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine
 // SRS - use triple buffering for NVRHI with command queue event query sync method
-const uint32 NUM_FRAME_DATA	= 3;
+constexpr uint32 NUM_FRAME_DATA	= 3;
 
 #include "nvrhi/nvrhi.h"
 
