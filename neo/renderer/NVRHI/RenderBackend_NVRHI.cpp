@@ -1836,7 +1836,7 @@ void idRenderBackend::CheckCVars()
 	if( r_swapInterval.IsModified() )
 	{
 		r_swapInterval.ClearModified();
-		deviceManager->SetVsyncEnabled( r_swapInterval.GetBool() );
+		deviceManager->SetVsyncEnabled( r_swapInterval.GetInteger() );
 	}
 
 	// filtering

@@ -662,7 +662,7 @@ void DeviceManager_DX12::Present()
 	UINT presentFlags = 0;
 
 	// SRS - DXGI docs say fullscreen must be disabled for unlocked fps/tear, but this does not seem to be true
-	if( !m_DeviceParams.vsyncEnabled && m_TearingSupported ) //&& !glConfig.isFullscreen )
+	if( m_DeviceParams.vsyncEnabled == 0 && m_TearingSupported ) //&& !glConfig.isFullscreen )
 	{
 		presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
 	}
@@ -671,7 +671,7 @@ void DeviceManager_DX12::Present()
 	OPTICK_CATEGORY( "Present", Optick::Category::Wait );
 
 	// SRS - Don't change m_DeviceParams.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval
-	m_SwapChain->Present( m_DeviceParams.vsyncEnabled && r_swapInterval.GetInteger() == 2 ? 1 : 0, presentFlags );
+	m_SwapChain->Present( m_DeviceParams.vsyncEnabled == 2 ? 1 : 0, presentFlags );
 
 	m_FrameFence->SetEventOnCompletion( m_FrameCount, m_FrameFenceEvents[bufferIndex] );
 	m_GraphicsQueue->Signal( m_FrameFence, m_FrameCount );

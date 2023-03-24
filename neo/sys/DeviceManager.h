@@ -59,7 +59,7 @@ struct DeviceCreationParameters
 	uint32_t swapChainSampleQuality = 0;
 	bool enableDebugRuntime = false;
 	bool enableNvrhiValidationLayer = false;
-	bool vsyncEnabled = false;
+	int vsyncEnabled = 0;
 	bool enableRayTracingExtensions = false; // for vulkan
 	bool enableComputeQueue = false;
 	bool enableCopyQueue = false;
@@ -158,7 +158,7 @@ protected:
 
 	float m_DPIScaleFactorX = 1.f;
 	float m_DPIScaleFactorY = 1.f;
-	bool m_RequestedVSync = false;
+	int m_RequestedVSync = 0;
 
 	uint32_t m_FrameIndex = 0;
 
@@ -181,9 +181,9 @@ public:
 	[[nodiscard]] virtual nvrhi::GraphicsAPI GetGraphicsAPI() const = 0;
 
 	const DeviceCreationParameters& GetDeviceParams();
-	virtual void SetVsyncEnabled( bool enabled )
+	virtual void SetVsyncEnabled( int vsyncMode )
 	{
-		m_RequestedVSync = enabled; /* will be processed later */
+		m_RequestedVSync = vsyncMode; /* will be processed later */
 	}
 	virtual void ReportLiveObjects() {}
 
