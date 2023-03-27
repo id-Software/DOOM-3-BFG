@@ -306,7 +306,7 @@ float idConsoleLocal::DrawFPS( float y )
 	const int64 frameBusyTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startGameTime );
 
 	// SRS - Frame sync time represents swap buffer synchronization + game thread wait + other time spent outside of rendering
-	const int64 frameSyncTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.finishRenderTime );
+	const int64 frameSyncTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startRenderTime ) - int64( rendererBackEndTime );
 
 	// SRS - GPU idle time is simply the difference between measured frame-over-frame time and GPU busy time (directly from GPU timers)
 	const int64 rendererGPUIdleTime = frameBusyTime + frameIdleTime - rendererGPUTime;
