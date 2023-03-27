@@ -273,6 +273,7 @@ private:
 	nvrhi::DeviceHandle m_ValidationLayer;
 
 	nvrhi::CommandListHandle m_BarrierCommandList;
+	std::queue<vk::Semaphore> m_PresentSemaphoreQueue;
 	vk::Semaphore m_PresentSemaphore;
 
 	nvrhi::EventQueryHandle m_FrameWaitQuery;
@@ -1126,8 +1127,8 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
 
-	// SRS - Enforce synchronous queue submission for vkQueueSubmit() & vkQueuePresentKHR()
-	pConfig.synchronousQueueSubmits = VK_TRUE;
+	// SRS - Disable synchronous queue submission for vkQueueSubmit() & vkQueuePresentKHR()
+	pConfig.synchronousQueueSubmits = VK_FALSE;
 	vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
 
 	// SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
@@ -1186,7 +1187,12 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	m_BarrierCommandList = m_NvrhiDevice->createCommandList();
 
-	m_PresentSemaphore = m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() );
+	// SRS - Give each frame its own semaphore in case of overlap (e.g. MoltenVK async queue submit)
+	for( int i = 0; i < NUM_FRAME_DATA; i++ )
+	{
+		m_PresentSemaphoreQueue.push( m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() ) );
+	}
+	m_PresentSemaphore = m_PresentSemaphoreQueue.front();
 
 	m_FrameWaitQuery = m_NvrhiDevice->createEventQuery();
 	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
@@ -1202,7 +1208,11 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 
 	m_FrameWaitQuery = nullptr;
 
-	m_VulkanDevice.destroySemaphore( m_PresentSemaphore );
+	for( int i = 0; i < NUM_FRAME_DATA; i++ )
+	{
+		m_VulkanDevice.destroySemaphore( m_PresentSemaphoreQueue.front() );
+		m_PresentSemaphoreQueue.pop();
+	}
 	m_PresentSemaphore = vk::Semaphore();
 
 	m_BarrierCommandList = nullptr;
@@ -1282,6 +1292,11 @@ void DeviceManager_VK::Present()
 
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
+
+	// SRS - Cycle the semaphore queue and setup m_PresentSemaphore for the next frame
+	m_PresentSemaphoreQueue.pop();
+	m_PresentSemaphoreQueue.push( m_PresentSemaphore );
+	m_PresentSemaphore = m_PresentSemaphoreQueue.front();
 
 #if !defined(__APPLE__) || !defined( USE_MoltenVK )
 	// SRS - validation layer is present only when the vulkan loader + layers are enabled (i.e. not MoltenVK standalone)
