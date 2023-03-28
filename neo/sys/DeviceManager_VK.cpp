@@ -38,6 +38,8 @@
 // SRS - optionally needed for VK_MVK_MOLTENVK_EXTENSION_NAME and MoltenVK runtime config visibility
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	#include <MoltenVK/vk_mvk_moltenvk.h>
+
+	idCVar r_mvkSynchronousQueueSubmits( "r_mvkSynchronousQueueSubmits", "0", CVAR_BOOL | CVAR_INIT, "Use MoltenVK's synchronous queue submit option." );
 #endif
 #include <nvrhi/validation.h>
 
@@ -1127,8 +1129,8 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
 
-	// SRS - Disable synchronous queue submission for vkQueueSubmit() & vkQueuePresentKHR()
-	pConfig.synchronousQueueSubmits = VK_FALSE;
+	// SRS - Set MoltenVK's synchronous queue submit option for vkQueueSubmit() & vkQueuePresentKHR()
+	pConfig.synchronousQueueSubmits = r_mvkSynchronousQueueSubmits.GetBool() ? VK_TRUE : VK_FALSE;
 	vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
 
 	// SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
