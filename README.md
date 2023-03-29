@@ -428,14 +428,14 @@ Existing repositories can be updated manually:
 ---
 # Compiling on Windows <a name="compile_windows"></a>
 
-1. Download and install the Visual Studio 2019 Community Edition.
+1. Download and install the Visual Studio 2022 Community Edition.
 
 2. Download and install the latest CMake and make sure cmake.exe is added to your global or user PATH.
 
-3. Generate the VS2019 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2019-64bit.bat` or `cmake-vs2019-64bit-no-ffmpeg.bat`
+3. Generate the VS2022 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+Recommended in this case is `cmake-vs2022-64bit.bat` or `cmake-vs2022-64bit-no-ffmpeg.bat`
 
-4. Use the VS2019 solution to compile what you need:
+4. Use the VS2022 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
 
@@ -638,7 +638,6 @@ Anyway:
 Name                                   | Description
 :--------------------------------------| :------------------------------------------------
 r_antiAliasing                         | Different Anti-Aliasing modes
-r_useShadowMapping [0 or 1]            | Use soft shadow mapping instead of hard stencil shadows
 r_exposure [0 .. 1]                    | Default 0.5, controls brightness and affects HDR -> sRGB Rec. 709 exposure key. This is what you change in the video brightness options
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene
 r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to mimic a filmic look
@@ -669,8 +668,8 @@ swf_show                               | Cvar: Draws the bounding box of instanc
 ---
 # Known Issues <a name="issues"></a>
 
-* Some lights cause shadow acne with shadow mapping
-* Some shadows might almost disappear due to the shadow filtering or look off ("Peter panning" problem)
+* Some lights cause shadow acne with shadow mapping or look off ("Peter panning" problem).
+* Some shadows in the original campaigns might almost disappear due to bad light properties like light center near outside of the bounding box. This has been partially fixed by patching those light entities.
 
 ---
 # Bug Reports <a name="reports"></a>
@@ -693,14 +692,14 @@ You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Gam
 ---
 # FAQ <a name="faq"></a>
 
-**Q**: Why bother with DOOM-3-BFG in 2023?
-**A**: It is fun, period. Doom 3 is from 2004 but is still an impressive and entertaining game. In 2011 id Software added lot stuff from the development of Rage like its own Flash SWF and ActionScript 2 interpreter, proper support for gamepads and widescreens. It also combines the gamecode for Doom 3 and its missionpacks and runs it in a seperate thread and it has many multithreaded rendering optimizations. 
+**Q**: Why bother with DOOM-3-BFG in 2021?
+**A**: It is fun, period. Doom 3 is from 2004 but it is still an impressive and entertaining game. In 2011 id Software added many results from the development of Rage like its own Flash SWF and ActionScript 2 interpreter, proper support for gamepads and widescreens. It also combines the gamecode for Doom 3 and its missionpacks and runs it in a seperate thread and it has many multithreaded rendering optimizations. 
 DOOM-3 and DOOM-3-BFG are some of the most transparent games available where you can open all files and inspect how the game was built.
 Unlike Quake 1-3, DOOM-3-BFG shipped with all level .map sources for 47 single player maps.
 There is plenty of stuff you can learn from it like solid run & gun core gameplay, AI, animations, client/server multiplayer, level design or simple and elegant engine design.
 
 **Q**: Why bother with DOOM-3-BFG in 2023?
-**A**: The engine compiles faster than opening a project in Unity.
+**A**: The engine compiles faster than opening a project in Unity. Maybe you just appreciate that it doesn't require more than 300 MB of RAM and 1024 MB of VRAM while running a complex game like Doom 3.
 
 **Q**: Can I use this engine to make a commercial game?
 **A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4/5. I am a full time game developer and usually don't have time for any free support. I recommend that you have moderate C++ skills even you are an artist. Technical designers (coders that became artists) might have the most use from this engine.
