@@ -64,7 +64,7 @@ idCVar com_deltaTimeClamp( "com_deltaTimeClamp", "50", CVAR_INTEGER, "don't proc
 
 idCVar com_fixedTic( "com_fixedTic", DEFAULT_FIXED_TIC, CVAR_BOOL, "run a single game frame per render frame" );
 idCVar com_noSleep( "com_noSleep", DEFAULT_NO_SLEEP, CVAR_BOOL, "don't sleep if the game is running too fast" );
-idCVar com_smp( "com_smp", "1", CVAR_INTEGER | CVAR_SYSTEM | CVAR_NOCHEAT, "run the game and draw code in a separate thread" );
+idCVar com_smp( "com_smp", "1", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "run the game and draw code in a separate thread" );
 idCVar com_aviDemoWidth( "com_aviDemoWidth", "256", CVAR_SYSTEM, "" );
 idCVar com_aviDemoHeight( "com_aviDemoHeight", "256", CVAR_SYSTEM, "" );
 idCVar com_skipGameDraw( "com_skipGameDraw", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
@@ -196,7 +196,7 @@ gameReturn_t idGameThread::RunGameAndDraw( int numGameFrames_, idUserCmdMgr& use
 
 	// start the thread going
 	// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
-	if( com_smp.GetInteger() <= 0 || com_editors != 0 )
+	if( !com_smp.GetBool() || com_editors != 0 )
 	{
 		// run it in the main thread so PIX profiling catches everything
 		Run();
@@ -518,6 +518,8 @@ void idCommonLocal::Frame()
 		// This is the only place this is incremented
 		idLib::frameNumber++;
 
+		OPTICK_TAG( "N", idLib::frameNumber );
+
 		// allow changing SIMD usage on the fly
 		if( com_forceGenericSIMD.IsModified() )
 		{
@@ -610,14 +612,9 @@ void idCommonLocal::Frame()
 		const emptyCommand_t* renderCommands = NULL;
 
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
-		if( com_smp.GetInteger() > 0 && com_editors == 0 )
+		if( com_smp.GetBool() && com_editors == 0 )
 		{
 			renderCommands = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
-		}
-		else if( com_smp.GetInteger() < 0 )
-		{
-			// RB: this is the same as Doom 3 renderSystem->BeginFrame()
-			renderCommands = renderSystem->SwapCommandBuffers_FinishCommandBuffers();
 		}
 		else
 		{
@@ -764,11 +761,6 @@ void idCommonLocal::Frame()
 			ExecuteMapChange();
 			mapSpawnData.savegameFile = NULL;
 			mapSpawnData.persistentPlayerInfo.Clear();
-			// SRS - If in Doom 3 mode (com_smp = -1) on map change, must obey fence before returning to avoid command buffer sync issues
-			if( com_smp.GetInteger() < 0 )
-			{
-				renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
-			}
 			return;
 		}
 		else if( session->GetState() != idSession::INGAME && mapSpawned )
@@ -865,10 +857,10 @@ void idCommonLocal::Frame()
 		// start the game / draw command generation thread going in the background
 		gameReturn_t ret = gameThread.RunGameAndDraw( numGameFrames, userCmdMgr, IsClient(), gameFrame - numGameFrames );
 
-		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
-		// SRS - if com_editors is active make sure com_smp != -1, otherwise skip and call SwapCommandBuffers_FinishRendering later
 		frameTiming.startRenderTime = Sys_Microseconds();
-		if( com_smp.GetInteger() == 0 || ( com_smp.GetInteger() > 0 && com_editors != 0 ) )
+
+		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
+		if( !com_smp.GetBool() || com_editors != 0 )
 		{
 			// in non-smp mode, run the commands we just generated, instead of
 			// frame-delayed ones from a background thread
@@ -887,13 +879,7 @@ void idCommonLocal::Frame()
 		}
 		frameTiming.finishRenderTime = Sys_Microseconds();
 
-		// SRS - If in Doom 3 mode (com_smp = -1), must sync after RenderCommandBuffers() otherwise get artifacts due to improper command buffer swap timing
-		if( com_smp.GetInteger() < 0 )
-		{
-			// RB: this is the same as Doom 3 renderSystem->EndFrame()
-			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
-		}
-		// SRS - Use finishSyncTime_EndFrame to record timing after sync for com_smp = -1, and just before gameThread.WaitForThread() for com_smp = 1
+		// SRS - Use finishSyncTime_EndFrame to record timing just before gameThread.WaitForThread() for com_smp = 1
 		frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
 
 		// make sure the game / draw thread has completed

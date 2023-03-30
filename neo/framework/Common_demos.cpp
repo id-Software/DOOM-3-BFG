@@ -55,8 +55,6 @@ static idStr FindUnusedFileName( const char* format )
 	return filename;
 }
 
-//extern idCVar com_smp;            // SRS - No longer require non-smp mode for demos
-
 void WriteDeclCache( idDemoFile* f, int demoCategory, int demoCode, declType_t  declType )
 {
 	f->WriteInt( demoCategory );
@@ -106,8 +104,6 @@ void idCommonLocal::StartRecordingRenderDemo( const char* demoName )
 
 	console->Close();
 
-//  com_smp.SetInteger( 0 );        // SRS - No longer require non-smp mode for demos
-
 	writeDemo = new( TAG_SYSTEM ) idDemoFile;
 	if( !writeDemo->OpenForWriting( demoName ) )
 	{
@@ -146,7 +142,6 @@ void idCommonLocal::StopRecordingRenderDemo()
 	common->Printf( "stopped recording %s.\n", writeDemo->GetName() );
 	delete writeDemo;
 	writeDemo = NULL;
-//	com_smp.SetInteger( 1 ); // motorsep 12-30-2014; turn multithreading back on;  SRS - No longer require non-smp mode for demos
 }
 
 /*
@@ -190,8 +185,6 @@ void idCommonLocal::StopPlayingRenderDemo()
 		}
 		timeDemo = TD_NO;
 	}
-
-//    com_smp.SetInteger( 1 ); // motorsep 12-30-2014; turn multithreading back on;  SRS - No longer require non-smp mode for demos
 }
 
 /*
@@ -224,8 +217,6 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 		common->Printf( "idCommonLocal::StartPlayingRenderDemo: no name specified\n" );
 		return;
 	}
-
-//  com_smp.SetInteger( 0 );        // SRS - No longer require non-smp mode for demos
 
 	// make sure localSound / GUI intro music shuts up
 	soundWorld->StopAllSounds();
@@ -319,8 +310,8 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 	{
 		timeDemo = TD_YES;                      // SRS - Set timeDemo to TD_YES to disable time demo playback pause when window not in focus
 
-		int smp_mode = com_smp.GetInteger();
-		com_smp.SetInteger( 0 );                // SRS - First pass of timedemo is effectively in com_smp == 0 mode, so set this for ImGui timings to be correct
+		bool smp_mode = com_smp.GetBool();
+		com_smp.SetBool( false );                // SRS - First pass of timedemo is effectively in com_smp == 0 mode, so set this for ImGui timings to be correct
 
 		while( readDemo )
 		{
@@ -340,7 +331,7 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 			eventLoop->RunEventLoop( false );   // SRS - Run event loop (with no commands) to allow keyboard escape to cancel first pass of the timedemo
 		}
 
-		com_smp.SetInteger( smp_mode );         // SRS - Restore original com_smp mode before second pass of timedemo which runs within normal rendering loop
+		com_smp.SetBool( smp_mode );         // SRS - Restore original com_smp mode before second pass of timedemo which runs within normal rendering loop
 
 		StartPlayingRenderDemo( demo );
 	}

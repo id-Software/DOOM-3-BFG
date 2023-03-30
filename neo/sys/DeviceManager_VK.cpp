@@ -1316,7 +1316,7 @@ void DeviceManager_VK::Present()
 			// SRS - For triple buffering, sync on previous frame's command queue completion
 			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
 		}
-		
+
 		m_NvrhiDevice->resetEventQuery( m_FrameWaitQuery );
 		m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
 
