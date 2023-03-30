@@ -618,7 +618,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		}
 	}
 
-	r_useHalfLambertLighting.ClearModified();
 	r_usePBR.ClearModified();
 	r_pbrDebug.ClearModified();
 
