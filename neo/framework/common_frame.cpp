@@ -518,7 +518,7 @@ void idCommonLocal::Frame()
 		// This is the only place this is incremented
 		idLib::frameNumber++;
 
-		OPTICK_TAG( "N", idLib::frameNumber );
+		//OPTICK_TAG( "N", idLib::frameNumber );
 
 		// allow changing SIMD usage on the fly
 		if( com_forceGenericSIMD.IsModified() )

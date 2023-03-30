@@ -4843,8 +4843,6 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	// BRIGHTPASS
 	renderLog.OpenBlock( "Brightpass" );
 
-	//GL_CheckErrors();
-
 	//Framebuffer::Unbind();
 	//globalFramebuffers.hdrQuarterFBO->Bind();
 
@@ -5743,9 +5741,6 @@ void idRenderBackend::MotionBlur()
 		return;
 	}
 
-	GL_CheckErrors();
-
-
 	// clear the alpha buffer and draw only the hands + weapon into it so
 	// we can avoid blurring them
 	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
@@ -5830,7 +5825,6 @@ void idRenderBackend::MotionBlur()
 	globalImages->currentDepthImage->Bind();
 
 	DrawElementsWithCounters( &unitSquareSurface );
-	GL_CheckErrors();
 }
 
 /*

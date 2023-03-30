@@ -45,19 +45,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #if USE_OPTICK
-	#define USE_OPTICK_GPU 1
+	#define USE_OPTICK_GPU 0
 #else
 	#define USE_OPTICK_GPU 0
 #endif
-
-// TODO remove
-bool			GL_CheckErrors_( const char* filename, int line );
-#if 1 // !defined(RETAIL)
-	#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
-#else
-	#define         GL_CheckErrors()	false
-#endif
-// RB end
 
 struct tmu_t
 {

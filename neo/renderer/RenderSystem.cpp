@@ -643,8 +643,6 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		return;
 	}
 
-	//GL_CheckErrors();
-
 	// After coming back from an autoswap, we won't have anything to render
 	//if( frameData && frameData->cmdHead->next != NULL )
 
@@ -704,9 +702,6 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 	// RB: resize HDR buffers
 	Framebuffer::CheckFramebuffers();
-
-	// check for errors
-	GL_CheckErrors();
 }
 
 /*

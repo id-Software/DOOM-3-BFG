@@ -135,16 +135,6 @@ bool NvrhiContext::operator!=( NvrhiContext& other ) const
 static NvrhiContext context;
 static NvrhiContext prevContext;
 
-/*
-==================
-GL_CheckErrors
-==================
-*/
-// RB: added filename, line parms
-bool GL_CheckErrors_( const char* filename, int line )
-{
-	return false;
-}
 
 /*
 ==================
@@ -1579,7 +1569,7 @@ void idRenderBackend::GL_EndFrame()
 	uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
 
 	OPTICK_EVENT( "EndFrame" );
-	OPTICK_TAG( "Firing to swapIndex", swapIndex );
+	//OPTICK_TAG( "Firing to swapIndex", swapIndex );
 
 	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
@@ -1611,7 +1601,7 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 	uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
 
 	OPTICK_CATEGORY( "BlockingSwapBuffers", Optick::Category::Wait );
-	OPTICK_TAG( "Waiting for swapIndex", swapIndex );
+	//OPTICK_TAG( "Waiting for swapIndex", swapIndex );
 
 	// SRS - device-level sync kills perf by serializing command queue processing (CPU) and rendering (GPU)
 	//	   - instead, use alternative sync method (based on command queue event queries) inside Present()
