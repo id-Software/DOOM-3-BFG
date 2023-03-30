@@ -1189,8 +1189,8 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	m_BarrierCommandList = m_NvrhiDevice->createCommandList();
 
-	// SRS - Give each frame its own semaphore in case of overlap (e.g. MoltenVK async queue submit)
-	for( int i = 0; i < NUM_FRAME_DATA; i++ )
+	// SRS - Give each swapchain image its own semaphore in case of overlap (e.g. MoltenVK async queue submit)
+	for( int i = 0; i < m_SwapChainImages.size(); i++ )
 	{
 		m_PresentSemaphoreQueue.push( m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() ) );
 	}
@@ -1206,11 +1206,9 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 void DeviceManager_VK::DestroyDeviceAndSwapChain()
 {
-	destroySwapChain();
-
 	m_FrameWaitQuery = nullptr;
 
-	for( int i = 0; i < NUM_FRAME_DATA; i++ )
+	for( int i = 0; i < m_SwapChainImages.size(); i++ )
 	{
 		m_VulkanDevice.destroySemaphore( m_PresentSemaphoreQueue.front() );
 		m_PresentSemaphoreQueue.pop();
@@ -1218,6 +1216,8 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 	m_PresentSemaphore = vk::Semaphore();
 
 	m_BarrierCommandList = nullptr;
+
+	destroySwapChain();
 
 	m_NvrhiDevice = nullptr;
 	m_ValidationLayer = nullptr;
@@ -1295,7 +1295,7 @@ void DeviceManager_VK::Present()
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
 
-	// SRS - Cycle the semaphore queue and setup m_PresentSemaphore for the next frame
+	// SRS - Cycle the semaphore queue and setup m_PresentSemaphore for the next swapchain image
 	m_PresentSemaphoreQueue.pop();
 	m_PresentSemaphoreQueue.push( m_PresentSemaphore );
 	m_PresentSemaphore = m_PresentSemaphoreQueue.front();
