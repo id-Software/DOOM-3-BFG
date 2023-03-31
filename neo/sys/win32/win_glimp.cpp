@@ -617,7 +617,7 @@ static int GetDisplayNum( glimpParms_t parms )
 	}
 	else // 0, -1, -2 == windowed and borderless window modes
 	{
-        // SRS - Find display containing the center of the window, return -1 if not found
+		// SRS - Find display containing the center of the window, return -1 if not found
 		int windowPosX = parms.x + parms.width / 2;
 		int windowPosY = parms.y + parms.height / 2;
 
@@ -673,7 +673,7 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	// SRS - for windowed modes use specified parms coordinates, otherwise skip and return display coordinates from above
 	if( parms.fullScreen == 0 || parms.fullScreen == -1 )
 	{
-        // If couldn't find display number and center of window is out of bounds for the desktop, center on primary monitor
+		// If couldn't find display number and center of window is out of bounds for the desktop, center on primary monitor
 		int offsetX = 0, offsetY = 0;
 		if( displayNotFound )
 		{
@@ -1128,7 +1128,7 @@ bool GLimp_Init( glimpParms_t parms )
 
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.isStereoPixelFormat = parms.stereo;
-	
+
 	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
 	if( parms.fullScreen == -2 )
 	{
@@ -1146,7 +1146,7 @@ bool GLimp_Init( glimpParms_t parms )
 		glConfig.nativeScreenWidth = parms.width;
 		glConfig.nativeScreenHeight = parms.height;
 	}
-	
+
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 

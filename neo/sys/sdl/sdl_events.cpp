@@ -975,7 +975,7 @@ sysEvent_t Sys_GetEvent()
 						if( !renderSystem->IsFullScreen() )
 						{
 							// SRS - If window was maximized by window manager set to borderless fullscreen mode = -2
-							SDL_Window *window = SDL_GetWindowFromID( ev.window.windowID );
+							SDL_Window* window = SDL_GetWindowFromID( ev.window.windowID );
 							if( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED )
 							{
 								SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP );
@@ -1004,7 +1004,7 @@ sysEvent_t Sys_GetEvent()
 						int y = ev.window.data2;
 
 						// SRS - Only save window moved events when in windowed mode and not maximized by window manager
-						SDL_Window *window = SDL_GetWindowFromID( ev.window.windowID );
+						SDL_Window* window = SDL_GetWindowFromID( ev.window.windowID );
 						if( !renderSystem->IsFullScreen() && !( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED ) )
 						{
 							// SRS - take window border into account when when saving window position cvars

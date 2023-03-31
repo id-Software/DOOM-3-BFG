@@ -347,7 +347,7 @@ static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 	}
 
 	int displayIdx = GetDisplayIndex( parms );
-	
+
 	if( parms.fullScreen > 0 )
 	{
 		if( displayIdx < 0 )
@@ -437,7 +437,7 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 		// SRS - window is out of bounds for desktop, reposition onto default display
 		windowPosX = windowPosY = SDL_WINDOWPOS_UNDEFINED;
 	}
-	
+
 	// SRS - handle differences in WM behaviour: for macOS set position first, for linux set it last
 #if defined(__APPLE__)
 	SDL_SetWindowPosition( window, windowPosX, windowPosY );
