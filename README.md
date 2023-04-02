@@ -90,11 +90,10 @@ RBDOOM-3-BFG allows mod editing and has many tiny fixes so custom content can be
 * Wavefront OBJ model support to make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom
 * Added back dmap and aas compilers (mapping tools, thanks to Pat Raynor) and improved them to work with TrenchBroom and Blender
 * Added in-engine Flash debugging tools and new console variables
-* Merged LordHavoc's image compression progress bar which shows up in the map loading screen
-  when loading and compressing new images from mods
 * Added support for Mikkelsen tangent space standard for new assets (thanks to Stephen Pridham)
 * Bumped the static vertex cache limit of 31 MB to roughly ~ 128 MB to help with some custom models and maps by the Doom 3 community
 * com_showFPS bigger than 1 uses ImGui to show more detailed renderer stats like the original console prints with r_speeds
+* Native C++ AI & Weapons framework instead of Doomscript in the IcedHellfire mod by Justin Marshall (mods/icedhellfire branch)
 
 If you want to start mod from a directory, you should first specify your mod directory adding the following command to the launcher:
 
@@ -344,14 +343,14 @@ You can find the customized TrenchBroomBFG version under tools/trenchbroom/.
 
 More information about this custom TrenchBroomBFG and the source code is here:
 
-https://github.com/RobertBeckebans/TrenchBroom
+https://github.com/RobertBeckebans/TrenchBroomBFG
 
 Doom 3 BFG also requires some extensions in order to work with TrenchBroom. 
 The Quake 1/2/3 communities already adopted the Valve 220 .map format in the BSP compilers and I did the same with dmap in RBDOOM-3-BFG.
 
 ### TrenchBroomBFG speficic Changes
 * idMapFile and dmap were changed to support the Valve 220 .map format to aid mapping with TrenchBroom
-* Added exportFGD `[nomodels]` console command which exports all def/*.def entityDef declarations to base/exported/_tb/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
+* Added exportFGD `[nomodels]` console command which exports all def/*.def entityDef declarations to base/_tb/fgd/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
 If the nomodels argument is not given then it will also export all needed models by entity declarations to base/_tb/ as Wavefront OBJ files.
 * Support ***angles*** keyword again for TrenchBroom like in Quake 3
 * Added cmd convertMapToValve220 `<map>`
@@ -370,7 +369,7 @@ RBDOOM-3-BFG/base/              | Doom 3 BFG media directory ( models, textures,
 RBDOOM-3-BFG/neo/               | RBDOOM-3-BFG source code ( renderer, game code for multiple games, OS layer, etc. )
 RBDOOM-3-BFG/build/             | Build folder for CMake
 RBDOOM-3-BFG/tools/blender/     | Blender scripts for level mapping (TBD in release packages)
-RBDOOM-3-BFG/tools/trenchbroom  | TrenchBroom level editor customized for DOOM 3 and RBDOOM-3-BFG
+RBDOOM-3-BFG/tools/trenchbroom  | TrenchBroomBFG level editor customized for DOOM 3 and RBDOOM-3-BFG
 RBDOOM-3-BFG/tools/darkradiant  | DarkRadiant level editor with an additional config for RBDOOM-3-BFG
 RBDOOM-3-BFG/tools/runtimedeps  | Visual Studio C++ Redistributables if you have problems to start the engine or the tools
 RBDOOM-3-BFG/tools/bfgpakexlorer| BFG Resource File Manager by George Kalampokis aka Mr.GK
@@ -394,13 +393,6 @@ any other Steam features.
 
 ## Bink Video playback
 The RBDOOM-3-BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg or libbinkdec.
-
-## Back End Rendering of Stencil Shadows
-The RBOOM-3-BFG Edition GPL Source Code release includes functionality enabling rendering
-of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
-
-This method was patented by Creative Labs and has finally expired on 2019-10-13.
-(see https://patents.google.com/patent/US6384822B1/en for expiration status)
 
 ---
 # License <a name="license"></a>
@@ -433,7 +425,7 @@ Existing repositories can be updated manually:
 2. Download and install the latest CMake and make sure cmake.exe is added to your global or user PATH.
 
 3. Generate the VS2022 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2022-64bit.bat` or `cmake-vs2022-64bit-no-ffmpeg.bat`
+Recommended in this case is `cmake-vs2022-64bit-no-ffmpeg.bat`
 
 4. Use the VS2022 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
@@ -574,7 +566,7 @@ Once Wine is installed and configured on your system install Doom 3 BFG edition 
 
 Once this is complete, by default you can find your Doom 3 BFG "base/" directory at ".wine/drive_c/GOG\ Games/DOOM\ 3\ BFG/base".
 
-Note that you may want to add the following line to the bottom of the default.cfg in whatever "base/" directory you use:
+Note that you may want to create a autoexec.cfg file in whatever "base/" directory you use with the following content:
 
 * set sys_lang "english"
 
@@ -637,9 +629,10 @@ Anyway:
 ## Gaming Related
 Name                                   | Description
 :--------------------------------------| :------------------------------------------------
+r_graphicsAPI                          | Default DX12, can be either DX12 or Vulkan on Windows
 r_antiAliasing                         | Different Anti-Aliasing modes
 r_exposure [0 .. 1]                    | Default 0.5, controls brightness and affects HDR -> sRGB Rec. 709 exposure key. This is what you change in the video brightness options
-r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene
+r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene and give it more depth
 r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to mimic a filmic look
 r_forceAmbient                         | Default 0.5, controls additional brightness by Global Illumination 
 
@@ -657,7 +650,7 @@ exportModelsToTrenchBroom              | Command: Saves all binarized models to 
 convertMapToValve220 `<map>`           | Command: Saves *_valve220.map version of the given map. This makes it editable with TrenchBroomBFG. 
 convertMapQuakeToDoom `<map>`          | Command: Expects a Quake 1 .map in the Valve220 format and does some Doom 3 specific fixes
 makeZooMapForModels                    | Command: Makes a Source engine style zoo map with mapobject/models like .blwo, .base et cetera and saves it to maps/zoomaps/zoo_models.map. This helps mappers to get a good overview of the trememdous amount of custom models available in Doom 3 BFG by sorting them into categories and arranging them in 3D. It also filters models so that only modular models are picked that can be reused in new maps.
-exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender before loading a map.
+exportEntityDefsToBlender              | Command: Exports all entity and model defs to base/_bl/entities.json for usage in Blender before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
 postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
 postLoadExportFlashToSWF               | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
@@ -702,9 +695,9 @@ There is plenty of stuff you can learn from it like solid run & gun core gamepla
 **A**: The engine compiles faster than opening a project in Unity. Maybe you just appreciate that it doesn't require more than 300 MB of RAM and 1024 MB of VRAM while running a complex game like Doom 3.
 
 **Q**: Can I use this engine to make a commercial game?
-**A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4/5. I am a full time game developer and usually don't have time for any free support. I recommend that you have moderate C++ skills even you are an artist. Technical designers (coders that became artists) might have the most use from this engine.
+**A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4/5. I am a full time game developer and usually don't have time for any free support. I recommend that you have moderate C++ skills even if you are an artist. Technical designers (coders who became artists) might benefit most from this engine. Keep in mind that the GPL license will lock you out of the console markets because you can't use proprietary APIs covered by NDAs. However you can sell your game on Steam without problems.
 
-However some people already work on total conversions and there is a community on the id Tech 4 Discord server where you can ask questions and get some support:
+Some people already work on total conversions and there is a community on the id Tech 4 Discord server where you can ask questions and get some support:
 https://discord.gg/Q3E9rUFnnP
 
 **Q**: How do I know what code you've changed?
