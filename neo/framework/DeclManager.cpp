@@ -1975,7 +1975,7 @@ void idDeclManagerLocal::TouchDecl_f( const idCmdArgs& args )
 // RB begin
 void idDeclManagerLocal::ExportDeclsToBlender_f( const idCmdArgs& args )
 {
-	idStr jsonStringsFileName = "exported/entities.json";
+	idStr jsonStringsFileName = "_bl/entities.json";
 	idFileLocal file( fileSystem->OpenFileWrite( jsonStringsFileName, "fs_basepath" ) );
 
 	if( file == NULL )
