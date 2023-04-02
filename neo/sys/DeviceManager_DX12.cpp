@@ -121,11 +121,22 @@ static RefCountPtr<IDXGIAdapter> FindAdapter( const std::wstring& targetName )
 		return targetAdapter;
 	}
 
+	RefCountPtr<IDXGIFactory6> DXGIFactory6;
+
 	unsigned int adapterNo = 0;
 	while( SUCCEEDED( hres ) )
 	{
 		RefCountPtr<IDXGIAdapter> pAdapter;
-		hres = DXGIFactory->EnumAdapters( adapterNo, &pAdapter );
+
+		// Try to use EnumAdapterByGpuPreference method to get the better performing GPU.
+		if( S_OK == DXGIFactory->QueryInterface( IID_PPV_ARGS( &DXGIFactory6 ) ) )
+		{
+			hres = DXGIFactory6->EnumAdapterByGpuPreference( adapterNo, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS( &pAdapter ) );
+		}
+		else
+		{
+			hres = DXGIFactory->EnumAdapters( adapterNo, &pAdapter );
+		}
 
 		if( SUCCEEDED( hres ) )
 		{

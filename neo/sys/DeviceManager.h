@@ -28,6 +28,7 @@
 
 #if USE_DX11 || USE_DX12
 	#include <DXGI.h>
+	#include <dxgi1_6.h>
 #endif
 
 #if USE_DX11
