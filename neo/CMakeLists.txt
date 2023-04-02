@@ -56,9 +56,6 @@ option(USE_SYSTEM_LIBPNG
 option(USE_SYSTEM_LIBJPEG
          "Use the system libjpeg instead of the bundled one" OFF)
 
-option(USE_SYSTEM_LIBGLEW
-         "Use the system libglew instead of the bundled one" OFF)
-
 option(USE_SYSTEM_RAPIDJSON
          "Use the system rapidjson instead of the bundled one" OFF)
 
@@ -418,30 +415,7 @@ if(USE_VULKAN)
 		add_definitions(-DUSE_AMD_ALLOCATOR)
 		include_directories("libs/vma/include")
 	endif()
-else()
 
-	if(USE_SYSTEM_LIBGLEW)
-		find_package(GLEW)
-	endif()
-
-	if(GLEW_FOUND)
-		include_directories(${GLEW_INCLUDE_DIRS})
-		set(GLEW_LIBRARY ${GLEW_LIBRARIES})
-	else()
-		include_directories("libs/glew/include")
-		set(GLEW_LIBRARY "" )
-		add_definitions(-DGLEW_STATIC)
-		
-		set(GLEW_INCLUDES libs/glew/include/GL/glew.h)
-		set(GLEW_SOURCES libs/glew/src/glew.c)
-
-		if(WIN32)
-			set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/wglew.h)
-		else()
-			set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/glxew.h)
-		endif()
-		
-	endif()
 endif()
 
 set(NVRHI_WITH_DX11 "${USE_DX11}" CACHE BOOL "" FORCE)
@@ -1159,9 +1133,6 @@ source_group("libs\\zlib" FILES ${ZLIB_SOURCES})
 source_group("libs\\zlib\\minizip" FILES ${MINIZIP_INCLUDES})
 source_group("libs\\zlib\\minizip" FILES ${MINIZIP_SOURCES})
 
-source_group("libs\\glew" FILES ${GLEW_INCLUDES})
-source_group("libs\\glew" FILES ${GLEW_SOURCES})
-
 source_group("libs\\rapidjson" FILES ${RAPIDJSON_INCLUDES})
 
 source_group("libs\\freetype" FILES ${FREETYPE_SOURCES})
@@ -1327,7 +1298,6 @@ set(RBDOOM3_INCLUDES
 			${ZLIB_INCLUDES}
 			${MINIZIP_INCLUDES}
 			${BINKDEC_INCLUDES}
-			${GLEW_INCLUDES}
 			${RAPIDJSON_INCLUDES}
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES}
@@ -1378,7 +1348,6 @@ set(RBDOOM3_SOURCES
 			${ZLIB_SOURCES}
 			${MINIZIP_SOURCES}
 			${BINKDEC_SOURCES}
-			${GLEW_SOURCES}
 			#${FREETYPE_SOURCES}
 			${SOUND_SOURCES}
 			${OGGVORBIS_SOURCES}
@@ -1542,7 +1511,7 @@ if(MSVC)
 	
 	if(USE_PRECOMPILED_HEADERS) 
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES} ${OPTICK_SOURCES})
+		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES} ${OPTICK_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
@@ -1598,7 +1567,6 @@ if(MSVC)
         ${ZLIB_LIBRARY}
         ${PNG_LIBRARY}
         ${JPEG_LIBRARY}
-        ${GLEW_LIBRARY}
 		${CMAKE_DL_LIBS}
 		)
 		
@@ -1681,7 +1649,7 @@ else()
 	
 	if(USE_PRECOMPILED_HEADERS) 	
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES} ${OPTICK_SOURCES})
+		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES} ${MIKKTSPACE_SOURCES} ${OGGVORBIS_SOURCES} ${OPTICK_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
@@ -1798,7 +1766,6 @@ else()
             ${ZLIB_LIBRARY}
             ${PNG_LIBRARY}
             ${JPEG_LIBRARY}
-            ${GLEW_LIBRARY}
 	    	${CMAKE_DL_LIBS}
 			)
 	endif()
