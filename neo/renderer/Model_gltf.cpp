@@ -269,23 +269,27 @@ static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones )
 	//we need to be _very_ careful with modifying the GLTF data since it is not saved or cached!!!
 	auto& nodeList = data->NodeList();
 	gltfNode* newNode = data->Node();
-	int newIdx = nodeList.Num() - 1;
-	bones.Insert( newIdx, 1 );
+	int newIndex = nodeList.Num() - 1;
+	bones.Insert( newIndex, 1 );
 	newNode->name = "origin";
 
+	gltfNode* root = nodeList[bones[0]];
+
 	//patch children
-	for( int childId : nodeList[bones[0]]->children )
+	for( int childId : root->children )
 	{
 		newNode->children.Alloc() = childId;
 		gltfNode* childNode = nodeList[childId];
 		childNode->parent = newNode;
 	}
 
-	nodeList[bones[0]]->children.Clear();
-	nodeList[bones[0]]->children.Alloc() = newIdx;
-	newNode->parent = nodeList[bones[0]];
+	root->children.Clear();
+	root->children.Alloc() = newIndex;
+	newNode->parent = root;
+
 	common->Warning( "Added origin bone!" );
-	return newIdx;
+
+	return newIndex;
 }
 
 static void RenameNodes( gltfData* data, const idList<idNamePair>& renameList, const idList<int, TAG_MODEL>& boneList )
@@ -426,7 +430,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 				{
 					//armature node is origin bone
 					bones.Append( currentSkin->skeleton );
-					//skeleton bones 
+					//skeleton bones
 					bones.Append( currentSkin->joints );
 					animCount = data->GetAnimationIds( nodes[bones[0]], animIds );
 				}
@@ -440,7 +444,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 					if( localOptions->addOrigin )
 					{
-						
+
 						AddOriginBone( data, bones );
 					}
 
@@ -748,9 +752,11 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 			skin = data->GetSkin( targetNode );
 		}
 		assert( skin );
+
 		//armature node is origin/root bone
 		bones.Append( skin->skeleton );
-		//skeleton bones 
+
+		//skeleton bones
 		bones.Append( skin->joints );
 	}
 	else
@@ -1000,7 +1006,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 
 		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
 	}
-	
+
 	//setup jointinfo's animbits for every joint that is animated
 	int channelCount = 0;
 	for( auto channel : gltfAnim->channels )
@@ -1074,7 +1080,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 			jointInfo[1].parentNum = 0;
 		}
 
-		//patch animbits for added joint when root motion is being transferred 
+		//patch animbits for added joint when root motion is being transferred
 		if( !options->transferRootMotion.IsEmpty() )
 		{
 			jointAnimInfo_t* newJoint = &( jointInfo[0] );

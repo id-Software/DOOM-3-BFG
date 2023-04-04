@@ -889,7 +889,7 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( idStr sceneName,  int id, idStr* name = nullptr )
+	gltfNode* GetNode( const idStr& sceneName,  int id, idStr* name = nullptr )
 	{
 		int sceneId = GetSceneId( sceneName );
 		if( sceneId < 0 || sceneId > scenes.Num() )
@@ -919,7 +919,7 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( idStr name, int* id = nullptr, bool caseSensitive = false )
+	gltfNode* GetNode( const idStr& name, int* id = nullptr, bool caseSensitive = false )
 	{
 		assert( name[0] );
 
@@ -941,7 +941,7 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetMeshNode( idStr meshName, int* id = nullptr, bool caseSensitive = false )
+	gltfNode* GetMeshNode( const idStr& meshName, int* id = nullptr, bool caseSensitive = false )
 	{
 		int nodeCnt = 0;
 		for( auto* node : nodes )
@@ -962,7 +962,7 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr , bool caseSensitive = false )
+	gltfNode* GetNode( const idStr& sceneName, const idStr& name , int* id = nullptr , bool caseSensitive = false )
 	{
 		int sceneId =  GetSceneId( sceneName );
 		if( sceneId < 0 || sceneId > scenes.Num() )
@@ -1021,7 +1021,7 @@ public:
 		return false;
 	}
 
-	gltfAnimation* GetAnimation( idStr animName )
+	gltfAnimation* GetAnimation( const idStr& animName )
 	{
 		for( auto* anim : animations )
 		{
@@ -1033,7 +1033,7 @@ public:
 		return nullptr;
 	}
 
-	gltfAnimation* GetAnimation( idStr animName, int target )
+	gltfAnimation* GetAnimation( const idStr& animName, int target )
 	{
 		for( auto* anim : animations )
 		{
@@ -1057,7 +1057,7 @@ public:
 		return nullptr;
 	}
 
-	int GetSceneId( idStr sceneName , gltfScene* result = nullptr ) const
+	int GetSceneId( const idStr& sceneName , gltfScene* result = nullptr ) const
 	{
 		for( int i = 0; i < scenes.Num(); i++ )
 		{
@@ -1087,7 +1087,7 @@ public:
 		}
 	}
 
-	gltfSkin* GetSkin( idStr name )
+	gltfSkin* GetSkin( const idStr& name )
 	{
 		for( auto skin : skins )
 		{
