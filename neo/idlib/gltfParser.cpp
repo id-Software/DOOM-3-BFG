@@ -2382,6 +2382,7 @@ bool gltfManager::ExtractIdentifier( idStr& filename, int& id, idStr& name )
 	idStr file = filename;
 	file = file.StripFileExtension();
 	file.ExtractFileExtension( targetStr );
+	id = -1;
 
 	if( !extension.Length() )
 	{

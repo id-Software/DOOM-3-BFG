@@ -67,6 +67,7 @@ private:
 	void UpdateMd5Joints();
 
 	const idMD5Joint*			FindMD5Joint( const idStr& name ) const;
+	gltfNode*					FindModelRoot();
 
 	gltfData*	data;
 	gltfNode*	root;
@@ -80,7 +81,7 @@ private:
 	idList<int, TAG_MODEL>			bones;
 	idList<int, TAG_MODEL>			MeshNodeIds;
 	dynamicModel_t					model_state;
-	idStr							meshName;
+	idStr							rootName;
 	idStr							gltfFileName;
 	idStr							commandLine;
 

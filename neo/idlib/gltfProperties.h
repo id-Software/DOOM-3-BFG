@@ -869,8 +869,10 @@ public:
 
 		for( gltfMesh* meshIt : meshes )
 		{
-			if (meshIt != mesh)
+			if( meshIt != mesh )
+			{
 				continue;
+			}
 
 			int nodeCnt = 0;
 			for( auto& nodeId : nodeList )
@@ -890,7 +892,7 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( const idStr& sceneName,  int id, idStr* name = nullptr )
+	gltfNode* GetNode( const idStr& sceneName, int id, idStr* name = nullptr )
 	{
 		int sceneId = GetSceneId( sceneName );
 		if( sceneId < 0 || sceneId > scenes.Num() )
@@ -1138,10 +1140,12 @@ public:
 	idList<int> GetAnimTargets( gltfAnimation* anim ) const
 	{
 		idList<int> result;
+
 		for( auto channel : anim->channels )
 		{
 			result.AddUnique( channel->target.node );
 		}
+
 		return result;
 	}
 
@@ -1149,6 +1153,7 @@ public:
 	{
 		idList<int> result;
 		int channelIdx = 0;
+
 		for( auto channel : anim->channels )
 		{
 			if( channel->target.node >= 0 && nodes[channel->target.node] == node )
@@ -1158,12 +1163,12 @@ public:
 			}
 			channelIdx++;
 		}
+
 		return result;
 	}
 
 	int GetAnimationIds( gltfNode* node , idList<int>& result )
 	{
-
 		int animIdx = 0;
 		for( auto anim : animations )
 		{
@@ -1172,14 +1177,17 @@ public:
 				if( channel->target.node >= 0 && nodes[channel->target.node] == node )
 				{
 					result.AddUnique( animIdx );
+					break;
 				}
 			}
 			animIdx++;
 		}
+
 		for( int nodeId : node->children )
 		{
 			GetAnimationIds( nodes[nodeId], result );
 		}
+
 		return result.Num();
 	}
 
@@ -1219,7 +1227,7 @@ public:
 		return result;
 	}
 
-	//Please note : assumes all nodes are _not_ dirty!
+	// Please note : assumes all nodes are _not_ dirty!
 	idMat4 GetLightMatrix( int lightId ) const
 	{
 		idMat4 result = mat4_identity;
@@ -1256,7 +1264,7 @@ public:
 	//idmath = row major, except mat3
 	//gltf matrices : column-major.
 	//if mat* is valid , it will be multplied by this node's matrix that is resolved in its full hiararchy and stops at root.
-	static void ResolveNodeMatrix( gltfNode* node, idMat4* mat = nullptr , gltfNode* root = nullptr )
+	static void ResolveNodeMatrix( gltfNode* node, idMat4* mat = nullptr, gltfNode* root = nullptr )
 	{
 		if( node->dirty )
 		{

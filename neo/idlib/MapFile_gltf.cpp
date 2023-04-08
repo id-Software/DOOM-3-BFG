@@ -591,7 +591,6 @@ int FindEntities( gltfData* data, idMapEntity::EntityListRef entities, gltfNode*
 				epairs.Set( "bind", bindTarget );
 			}
 		}
-
 	}
 	else
 	{

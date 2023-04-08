@@ -2,8 +2,8 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2022 Harrie van Ginneken
-Copyright (C) 2022 Robert Beckebans
+Copyright (C) 2022-2023 Harrie van Ginneken
+Copyright (C) 2022-2023 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -72,8 +72,9 @@ void idRenderModelGLTF::ProcessNode_r( gltfNode* modelNode, const idMat4& parent
 
 		for( auto prim : targetMesh->primitives )
 		{
-			// ConvertFromMeshGltf should only be used for the map, ConvertGltfMeshToModelsurfaces should be used.
-			auto* mesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, globalTransform * nodeToWorldTransform );
+			// FIXME ConvertFromMeshGltf should only be used for the map
+			// here ConvertGltfMeshToModelsurfaces should be used.
+			MapPolygonMesh* mesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, globalTransform * nodeToWorldTransform );
 			modelSurface_t	surf;
 
 			gltfMaterial* mat = NULL;
@@ -313,6 +314,37 @@ static void RenameNodes( gltfData* data, const idList<idNamePair>& renameList, c
 	}
 }
 
+gltfNode* idRenderModelGLTF::FindModelRoot()
+{
+	root = data->GetMeshNode( rootName, &rootID );
+	if( !root )
+	{
+		// try explicit node which can be an Armature name
+		root = data->GetNode( rootName, &rootID );
+	}
+
+	if( !root )
+	{
+		// try the first mesh from the default scene
+		if( data->MeshList().Num() > 0 )
+		{
+			int sceneId = data->DefaultScene();
+			assert( sceneId >= 0 );
+
+			auto scene = data->SceneList()[sceneId];
+			assert( scene );
+
+			gltfMesh* firstMesh = data->MeshList()[0];
+
+			//fileExclusive = true;
+			root = data->GetNode( scene, firstMesh, &rootID );
+			rootName = root->name;
+		}
+	}
+
+	return root;
+}
+
 // constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
 // override with gltf_ModelSceneName
 // warning : nodeName cannot have dots!
@@ -350,7 +382,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		}
 	}
 
-	gltfManager::ExtractIdentifier( gltfFileName, meshID, meshName );
+	gltfManager::ExtractIdentifier( gltfFileName, meshID, rootName );
 	GLTF_Parser gltf;
 	gltf.Load( gltfFileName );
 
@@ -369,9 +401,10 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	assert( nodes.Num() );
 
 	// determine root node
-	if( !meshName[0] && data->MeshList().Num() )
+	/*
+	if( !rootName[0] && data->MeshList().Num() )
 	{
-		//fixme, the models scene is not used anymore.
+		// FIXME, the models scene is not used anymore.
 		gltfMesh* firstMesh = data->MeshList()[0];
 
 		fileExclusive = true;
@@ -379,22 +412,21 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		if( root )
 		{
 			rootID = data->GetNodeIndex( root );
-			meshName = root->name;
+			rootName = root->name;
 		}
 	}
 	else
+	*/
+
+	if( !rootName[0] )
 	{
-		gltfNode* modelNode = data->GetMeshNode( meshName, &rootID );
-		if( !modelNode )
-		{
-			modelNode = data->GetNode( meshName, &rootID );
-		}
-		if( modelNode )
-		{
-			root = modelNode;
-		}
+		// this is the default
+		rootName = "root";
+
+		fileExclusive = true;
 	}
 
+	root = FindModelRoot();
 	if( !root )
 	{
 		common->Warning( "Couldn't find model: '%s'", name.c_str() );
@@ -408,7 +440,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		return;
 	}
 
-	// get allmeshes in hierachy, starting at root.
+	// get all meshes in hierachy, starting at root.
 	MeshNodeIds.Clear();
 	data->GetAllMeshes( root, MeshNodeIds );
 
@@ -421,7 +453,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		gltfNode* tmpNode = nodes[meshID];
 		int animCount = 0;
 
-		if( tmpNode->skin != -1 && tmpNode->skin != lastSkin )
+		if( tmpNode->skin != -1 && tmpNode->skin != lastSkin ) //&& lastSkin == -1 )
 		{
 			animCount = data->GetAnimationIds( tmpNode, animIds );
 
@@ -451,7 +483,6 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 					if( localOptions->addOrigin )
 					{
-
 						AddOriginBone( data, bones );
 					}
 
@@ -479,8 +510,9 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	hasAnimations = totalAnims > 0;
 	model_state = hasAnimations ? DM_CACHED : DM_STATIC;
-	globalTransform = blenderToDoomTransform;
 
+	// combine all scaling, rotating options into globalTransform
+	globalTransform = blenderToDoomTransform;
 	if( localOptions )
 	{
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
@@ -878,8 +910,7 @@ static int CopyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>
 			bone.parent = nullptr;
 		}
 	}
-	// patch childs!
-	// -> skipping because not used.
+
 	return out.Num();
 }
 
@@ -1215,6 +1246,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 				{
 					idMat4 trans = mat4_identity;
 					gltfData::ResolveNodeMatrix( &tmpNode, &trans );
+
 					tmpNode.matrix *= globalTransform * tmpNode.matrix.Transpose();
 					tmpNode.rotation = ( tmpNode.matrix.ToMat3().ToQuat() );
 					tmpNode.translation = idVec3( trans[0][3], trans[1][3], trans[2][3] );
@@ -1514,7 +1546,7 @@ void idRenderModelGLTF::PurgeModel()
 	bones.Clear();
 	MeshNodeIds.Clear();
 	gltfFileName.Clear();
-	meshName.Clear();
+	rootName.Clear();
 
 	// if no root id was set, it is a generated one.
 	if( rootID == -1 && root )
@@ -1529,10 +1561,10 @@ void idRenderModelGLTF::LoadModel()
 	int			num;
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
-	gltfNode* meshRoot = root;
+	gltfNode* modelRoot = root;
 	if( !fileExclusive )
 	{
-		meshRoot = data->GetMeshNode( meshName );
+		modelRoot = FindModelRoot();
 	}
 
 	gltfSkin* skin = nullptr;
@@ -1547,7 +1579,7 @@ void idRenderModelGLTF::LoadModel()
 		skin = new gltfSkin;
 		skin->joints.AssureSize( 1, rootID );
 		idMat4 trans = mat4_identity;
-		data->ResolveNodeMatrix( meshRoot, &trans );
+		data->ResolveNodeMatrix( modelRoot, &trans );
 	}
 
 	if( skin && skin->skeleton == -1 )
@@ -1755,6 +1787,7 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	}
 	tri->tangentsCalculated = true;
 
+	// calculate bounds
 #if defined(USE_INTRINSICS_SSE)
 	__m128 minX = vector_float_posInfinity;
 	__m128 minY = vector_float_posInfinity;
@@ -1809,7 +1842,6 @@ TransformJoints
 */
 static void TransformJointsFast( idJointMat* __restrict outJoints, const int numJoints, const idJointMat* __restrict inJoints1, const idJointMat* __restrict inJoints2 )
 {
-
 	float* outFloats = outJoints->ToFloatPtr();
 	const float* inFloats1 = inJoints1->ToFloatPtr();
 	const float* inFloats2 = inJoints2->ToFloatPtr();

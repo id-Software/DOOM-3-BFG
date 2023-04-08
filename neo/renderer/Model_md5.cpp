@@ -522,8 +522,6 @@ void idMD5Mesh::UpdateSurface( const struct renderEntity_s* ent, const idJointMa
 	tri->mirroredVerts = deformInfo->mirroredVerts;
 	tri->numDupVerts = deformInfo->numDupVerts;
 	tri->dupVerts = deformInfo->dupVerts;
-	//tri->numSilEdges = deformInfo->numSilEdges;
-	//tri->silEdges = deformInfo->silEdges;
 
 	tri->indexCache = deformInfo->staticIndexCache;
 
