@@ -367,7 +367,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	auto nodes = data->NodeList();
 	assert( nodes.Num() );
 
-	//determine root node
+	// determine root node
 	if( !meshName[0] && data->MeshList().Num() )
 	{
 		gltfMesh* firstMesh = data->MeshList()[0];
@@ -735,7 +735,7 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 {
 	//Gather Bones;
 	bool boneLess = false;
-	int targetNode = lastMeshFromFile->rootID;
+	int targetNode = lastMeshFromFile->GetRootID();
 
 	auto skin = data->GetSkin( gltfAnim );
 	auto targets = data->GetAnimTargets( gltfAnim );

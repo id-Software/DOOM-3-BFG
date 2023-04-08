@@ -54,16 +54,24 @@ public:
 	{
 		return true;
 	}
-	static idFile_Memory* GetAnimBin( const idStr& animName, const ID_TIME_T sourceTimeStamp, const idImportOptions* options );
-	int rootID;
+	static idFile_Memory*		GetAnimBin( const idStr& animName, const ID_TIME_T sourceTimeStamp, const idImportOptions* options );
+
+	int							GetRootID() const
+	{
+		return rootID;
+	}
+
 private:
 	void ProcessNode_r( gltfNode* modelNode, const idMat4& parentTransform, const idMat4& globalTransform, gltfData* data );
 	void UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf, const modelSurface_t& sourceSurf );
 	void UpdateMd5Joints();
 
 	const idMD5Joint*			FindMD5Joint( const idStr& name ) const;
-	gltfData* data;
-	gltfNode* root;
+
+	gltfData*	data;
+	gltfNode*	root;
+	int			rootID;
+
 	bool fileExclusive;
 	bool hasAnimations;
 
