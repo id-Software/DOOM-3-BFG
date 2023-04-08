@@ -90,7 +90,11 @@ be called directly in the foreground thread for comparison.
 */
 int idGameThread::Run()
 {
-	OPTICK_THREAD( "idGameThread" );
+	if( com_smp.GetBool() )
+	{
+		// SRS - label thread in smp mode only, otherwise CPU frame number is missing
+		OPTICK_THREAD( "idGameThread" );
+	}
 
 	commonLocal.frameTiming.startGameTime = Sys_Microseconds();
 

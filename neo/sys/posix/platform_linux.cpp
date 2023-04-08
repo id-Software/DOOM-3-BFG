@@ -521,6 +521,19 @@ int main( int argc, const char** argv )
 	Sys_Printf( "memory consistency checking enabled\n" );
 #endif
 
+	// Setting memory allocators
+	OPTICK_SET_MEMORY_ALLOCATOR(
+		[]( size_t size ) -> void* { return operator new( size ); },
+		[]( void* p )
+	{
+		operator delete( p );
+	},
+	[]()
+	{
+		/* Do some TLS initialization here if needed */
+	}
+	);
+
 	Posix_EarlyInit();
 
 	if( argc > 1 )
@@ -537,6 +550,8 @@ int main( int argc, const char** argv )
 
 	while( 1 )
 	{
+		OPTICK_FRAME( "MainThread" );
+
 		common->Frame();
 	}
 }

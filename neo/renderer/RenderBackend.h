@@ -43,13 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "PipelineCache.h"
 
-
-#if USE_OPTICK
-	#define USE_OPTICK_GPU 0
-#else
-	#define USE_OPTICK_GPU 0
-#endif
-
 struct tmu_t
 {
 	unsigned int	current2DMap;

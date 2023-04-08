@@ -68,7 +68,7 @@
 #if defined(_MSC_VER)
 #define OPTICK_ENABLE_GPU_VULKAN (OPTICK_ENABLE_GPU /*&& 0*/)
 #else
-#define OPTICK_ENABLE_GPU_VULKAN (0)
+#define OPTICK_ENABLE_GPU_VULKAN (OPTICK_ENABLE_GPU /*&& 0*/)
 #endif
 #endif
 

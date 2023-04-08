@@ -792,8 +792,11 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 {
 	OPTICK_EVENT( "Render_FillDepthBufferFast" );
 
-#if USE_OPTICK_GPU
+#if USE_DX12 && OPTICK_ENABLE_GPU_D3D12
 	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "Render_FillDepthBufferFast" );
+#elif USE_VK && OPTICK_ENABLE_GPU_VULKAN
+	OPTICK_GPU_CONTEXT( ( VkCommandBuffer ) commandList->getNativeObject( nvrhi::ObjectTypes::VK_CommandBuffer ) );
 	OPTICK_GPU_EVENT( "Render_FillDepthBufferFast" );
 #endif
 
@@ -3357,8 +3360,11 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	OPTICK_EVENT( "Render_ShadowAtlas" );
 
-#if USE_OPTICK_GPU
+#if USE_DX12 && OPTICK_ENABLE_GPU_D3D12
 	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "Render_ShadowAtlas" );
+#elif USE_VK && OPTICK_ENABLE_GPU_VULKAN
+	OPTICK_GPU_CONTEXT( ( VkCommandBuffer ) commandList->getNativeObject( nvrhi::ObjectTypes::VK_CommandBuffer ) );
 	OPTICK_GPU_EVENT( "Render_ShadowAtlas" );
 #endif
 
@@ -3670,8 +3676,11 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 
 	OPTICK_EVENT( "Render_Interactions" );
 
-#if USE_OPTICK_GPU
+#if USE_DX12 && OPTICK_ENABLE_GPU_D3D12
 	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "Render_Interactions" );
+#elif USE_VK && OPTICK_ENABLE_GPU_VULKAN
+	OPTICK_GPU_CONTEXT( ( VkCommandBuffer ) commandList->getNativeObject( nvrhi::ObjectTypes::VK_CommandBuffer ) );
 	OPTICK_GPU_EVENT( "Render_Interactions" );
 #endif
 
@@ -5389,11 +5398,14 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	OPTICK_EVENT( "Backend_DrawViewInternal" );
 	OPTICK_TAG( "stereoEye", stereoEye );
 
-#if USE_OPTICK_GPU
+#if USE_DX12 && OPTICK_ENABLE_GPU_D3D12
 	//uint32_t swapIndex = deviceManager->GetCurrentBackBufferIndex();
 	//idStr eventLabel;
 	//eventLabel.Format( "DrawView( frameIndex = %i, swapIndex = %i ) ", taaPass->GetFrameIndex(), swapIndex );
 	OPTICK_GPU_CONTEXT( ( ID3D12GraphicsCommandList* ) commandList->getNativeObject( nvrhi::ObjectTypes::D3D12_GraphicsCommandList ) );
+	OPTICK_GPU_EVENT( "DrawView" );
+#elif USE_VK && OPTICK_ENABLE_GPU_VULKAN
+	OPTICK_GPU_CONTEXT( ( VkCommandBuffer ) commandList->getNativeObject( nvrhi::ObjectTypes::VK_CommandBuffer ) );
 	OPTICK_GPU_EVENT( "DrawView" );
 #endif
 

@@ -826,6 +826,9 @@ bool DeviceManager_VK::createDevice()
 
 #if defined(__APPLE__) && defined( VK_KHR_portability_subset )
 	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
+#if USE_OPTICK
+							   .setEvents( true )
+#endif
 							   .setImageViewFormatSwizzle( true );
 
 	void* pNext = &portabilityFeatures;
@@ -863,6 +866,9 @@ bool DeviceManager_VK::createDevice()
 							.setTimelineSemaphore( true )
 							.setShaderSampledImageArrayNonUniformIndexing( true )
 							.setBufferDeviceAddress( bufferAddressSupported )
+#if USE_OPTICK
+							.setHostQueryReset( true )
+#endif
 							.setPNext( pNext );
 
 	auto layerVec = stringSetToVector( enabledExtensions.layers );
@@ -1201,11 +1207,17 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 #undef CHECK
 
+#if OPTICK_ENABLE_GPU_VULKAN
+	OPTICK_GPU_INIT_VULKAN( ( VkDevice* )&m_VulkanDevice, ( VkPhysicalDevice* )&m_VulkanPhysicalDevice, ( VkQueue* )&m_GraphicsQueue, ( uint32_t* )&m_GraphicsQueueFamily, 1, nullptr );
+#endif
+
 	return true;
 }
 
 void DeviceManager_VK::DestroyDeviceAndSwapChain()
 {
+	OPTICK_SHUTDOWN();
+
 	m_FrameWaitQuery = nullptr;
 
 	for( int i = 0; i < m_SwapChainImages.size(); i++ )
@@ -1285,6 +1297,9 @@ void DeviceManager_VK::EndFrame()
 
 void DeviceManager_VK::Present()
 {
+	OPTICK_GPU_FLIP( ( VkSwapchainKHR )m_SwapChain );
+	OPTICK_CATEGORY( "Vulkan_Present", Optick::Category::Wait );
+
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )
@@ -1313,6 +1328,8 @@ void DeviceManager_VK::Present()
 	{
 		if constexpr( NUM_FRAME_DATA > 2 )
 		{
+			OPTICK_CATEGORY( "Vulkan_Sync3", Optick::Category::Wait );
+
 			// SRS - For triple buffering, sync on previous frame's command queue completion
 			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
 		}
@@ -1322,6 +1339,8 @@ void DeviceManager_VK::Present()
 
 		if constexpr( NUM_FRAME_DATA < 3 )
 		{
+			OPTICK_CATEGORY( "Vulkan_Sync2", Optick::Category::Wait );
+
 			// SRS - For double buffering, sync on current frame's command queue completion
 			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
 		}
