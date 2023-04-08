@@ -867,8 +867,11 @@ public:
 
 		auto& nodeList = scene->nodes;
 
-		for( auto& meshIt : meshes )
+		for( gltfMesh* meshIt : meshes )
 		{
+			if (meshIt != mesh)
+				continue;
+
 			int nodeCnt = 0;
 			for( auto& nodeId : nodeList )
 			{
@@ -884,8 +887,6 @@ public:
 				nodeCnt++;
 			}
 		}
-
-
 		return nullptr;
 	}
 
