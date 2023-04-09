@@ -263,21 +263,17 @@ static void RemapNodes( gltfData* data, const idList<idNamePair>& remapList, con
 	}
 }
 
-// first bone is root bone of skeleton
-// armature is root node of skeleton
-static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones )
+static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones, gltfNode* root )
 {
 	//we need to be _very_ careful with modifying the GLTF data since it is not saved or cached!!!
 	auto& nodeList = data->NodeList();
-
-	gltfNode* root = nodeList[bones[0]]->parent;
-
 	gltfNode* newNode = data->Node();
-	int newIndex = nodeList.Num() - 1;
-	bones.Insert( newIndex, 1 );
+	int newIdx = nodeList.Num() - 1;
+	bones.Insert( newIdx );
 	newNode->name = "origin";
 
-	// patch children
+
+	//patch children
 	for( int childId : root->children )
 	{
 		newNode->children.Alloc() = childId;
@@ -286,12 +282,11 @@ static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones )
 	}
 
 	root->children.Clear();
-	root->children.Alloc() = newIndex;
+	root->children.Alloc() = nodeList.Num() - 1;
 	newNode->parent = root;
 
 	common->Warning( "Added origin bone!" );
-
-	return newIndex;
+	return newIdx;
 }
 
 static void RenameNodes( gltfData* data, const idList<idNamePair>& renameList, const idList<int, TAG_MODEL>& boneList )
@@ -487,7 +482,8 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 					if( localOptions->addOrigin )
 					{
-						AddOriginBone( data, bones );
+						gltfNode* armatureNode = nodes[bones[0]]->parent;
+						AddOriginBone( data, bones, armatureNode );
 					}
 
 					if( localOptions->remapjoints.Num() )
@@ -816,7 +812,8 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 
 		if( options->addOrigin )
 		{
-			AddOriginBone( data, bones );
+			gltfNode* armatureNode = data->NodeList()[bones[0]]->parent;
+			AddOriginBone( data, bones, armatureNode );
 		}
 
 		if( options->remapjoints.Num() )
