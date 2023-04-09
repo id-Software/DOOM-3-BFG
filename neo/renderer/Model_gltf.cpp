@@ -845,6 +845,7 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 
 static idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat, const idMat4& globalTransform )
 {
+	// resolve each glTF2 bone to world space and convert to idJointQuat
 	idList<idJointQuat> ret;
 	ret.AssureSize( bones.Num() );
 
@@ -867,12 +868,14 @@ static idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat
 		pose.w = pose.q.CalcW();
 	}
 
+	// calculate the relative transform from each to bone to its parent and store to idJointMat
 	for( int i = 0; i < bones.Num(); i++ )
 	{
 		const gltfNode* joint = &bones[i];
 		idJointQuat* pose = &ret[i];
 		poseMat[i].SetRotation( pose->q.ToMat3() );
 		poseMat[i].SetTranslation( pose->t );
+
 		if( joint->parent )
 		{
 			int parentNum = bones.FindIndex( *joint->parent );
@@ -1183,7 +1186,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	frameRate = gltf_AnimSampleRate.GetInteger();
 	int animLength = ( ( numFrames - 1 ) * 1000 + frameRate - 1 ) / frameRate;
 
-#if 1
+#if 0
 	for( int i = 0; i < jointInfo.Num(); i++ )
 	{
 		jointAnimInfo_t& j = jointInfo[i];
