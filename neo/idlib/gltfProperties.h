@@ -478,7 +478,7 @@ public:
 	idStr		extensions;
 	gltfExtra	extras;
 	//
-	gltfData* parent;
+	gltfData*	parent;
 };
 
 class gltfBuffer
@@ -526,8 +526,8 @@ class gltfSkin
 public:
 	gltfSkin() : inverseBindMatrices( -1 ), skeleton( -1 ), name( "unnamedSkin" ) { };
 	int			inverseBindMatrices;
-	int			skeleton;
-	idList<int>	joints; // integer[1,*]
+	int			skeleton;	// node ID
+	idList<int>	joints;		// integer[1,*]
 	idStr		name;
 	idStr		extensions;
 	gltfExtra	extras;
@@ -1081,7 +1081,7 @@ public:
 	{
 		if( node->mesh != -1 )
 		{
-			meshIds.Append( GetNodeIndex( node ) );
+			meshIds.AddUnique( GetNodeIndex( node ) );
 		}
 
 		for( auto child : node->children )

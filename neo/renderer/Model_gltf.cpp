@@ -269,14 +269,15 @@ static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones )
 {
 	//we need to be _very_ careful with modifying the GLTF data since it is not saved or cached!!!
 	auto& nodeList = data->NodeList();
+
+	gltfNode* root = nodeList[bones[0]]->parent;
+
 	gltfNode* newNode = data->Node();
 	int newIndex = nodeList.Num() - 1;
 	bones.Insert( newIndex, 1 );
 	newNode->name = "origin";
 
-	gltfNode* root = nodeList[bones[0]];
-
-	//patch children
+	// patch children
 	for( int childId : root->children )
 	{
 		newNode->children.Alloc() = childId;
@@ -450,24 +451,27 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	int totalAnims = 0;
 	for( int meshID : MeshNodeIds )
 	{
-		gltfNode* tmpNode = nodes[meshID];
+		gltfNode* meshNode = nodes[meshID];
 		int animCount = 0;
 
-		if( tmpNode->skin != -1 && tmpNode->skin != lastSkin ) //&& lastSkin == -1 )
+		if( meshNode->skin != -1 && meshNode->skin != lastSkin ) //&& lastSkin == -1 )
 		{
-			animCount = data->GetAnimationIds( tmpNode, animIds );
+			animCount = data->GetAnimationIds( meshNode, animIds );
 
 			// check if this model has a skeleton/bones
 			// if not but it has an anim, create a bone from the target mesh-node as origin.
-			if( tmpNode->skin >= 0 )
+			if( meshNode->skin >= 0 )
 			{
-				lastSkin = tmpNode->skin;
-				currentSkin = data->SkinList()[tmpNode->skin];
+				lastSkin = meshNode->skin;
+				currentSkin = data->SkinList()[meshNode->skin];
 				assert( currentSkin );
+
 				if( currentSkin->joints.Num() )
 				{
+					assert( currentSkin->skeleton == rootID );
+
 					// armature node is origin bone
-					bones.Append( currentSkin->skeleton );
+					//bones.Append( currentSkin->skeleton );
 
 					// skeleton bones
 					bones.Append( currentSkin->joints );
@@ -500,7 +504,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 			else
 			{
 				// Boneless TRS animation.
-				animCount = data->GetAnimationIds( tmpNode, animIds );
+				animCount = data->GetAnimationIds( meshNode, animIds );
 				bones.Append( meshID );
 			}
 		}
@@ -543,6 +547,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		return;
 	}
 
+#if 0
 	// patch bone indices;
 	// offset with 1 because armature node is added as root
 	for( auto& surf : surfaces )
@@ -556,6 +561,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 			base.color[3] += 1;
 		}
 	}
+#endif
 
 	if( options )
 	{
@@ -791,7 +797,7 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 		assert( skin );
 
 		// armature node is origin/root bone
-		bones.Append( skin->skeleton );
+		//bones.Append( skin->skeleton );
 
 		// skeleton bones
 		bones.Append( skin->joints );
@@ -822,7 +828,6 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 		{
 			RenameNodes( data, options->renamejoints, bones );
 		}
-
 	}
 
 	// create jointInfo
@@ -833,7 +838,9 @@ static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int,
 	{
 		joint.animBits = ~63;
 		joint.firstComponent = -1;
-		joint.nameIndex = animationLib.JointIndex( nodeList[bones[idx++]]->name );
+
+		const char* name = nodeList[bones[idx++]]->name.c_str();
+		joint.nameIndex = animationLib.JointIndex( name );
 	}
 
 	return boneLess;
@@ -952,7 +959,41 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		}
 
 	}
-	else if( lastMeshFromFile == nullptr || lastGltfFileName != gltfFileName )
+	else if( lastMeshFromFile != nullptr && lastGltfFileName == gltfFileName )
+	{
+		rootID = lastMeshFromFile->rootID;
+		gltfNode* rootNode = nullptr;
+
+		if( rootID != -1 )
+		{
+			rootNode = nodes[rootID];
+		}
+
+		if( rootNode != nullptr )// && nodeRoot->skin > -1 )
+		{
+			// find skin using the child meshes of the armature
+			idList<int, TAG_MODEL> meshNodeIDs;
+			data->GetAllMeshes( rootNode, meshNodeIDs );
+
+			int skinID = -1;
+			for( int meshID : meshNodeIDs )
+			{
+				gltfNode* meshNode = nodes[meshID];
+				if( meshNode->skin >= 0 )
+				{
+					skinID = meshNode->skin;
+					break;
+				}
+			}
+
+			if( skinID != -1 )
+			{
+				skin = data->SkinList()[skinID];
+				//rootID = skin->skeleton;
+			}
+		}
+	}
+	else
 	{
 		// treat the gltf file as one that only has 1 scene and 1 model, aka a fileExclusive model and
 		// try to use node from first model in first scene in gltf file
@@ -969,22 +1010,6 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		if( root )
 		{
 			rootID = data->GetNodeIndex( root );
-		}
-	}
-	else
-	{
-		rootID = lastMeshFromFile->rootID;
-		gltfNode* nodeRoot = nullptr;
-
-		if( rootID != -1 )
-		{
-			nodeRoot = nodes[rootID];
-		}
-
-		if( nodeRoot != nullptr && nodeRoot->skin > -1 )
-		{
-			skin = data->SkinList()[nodeRoot->skin];
-			rootID = skin->skeleton;
 		}
 	}
 
@@ -1076,6 +1101,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		{
 			numFrames = frames;
 		}
+
 		int parentIndex = data->GetNodeIndex( target->parent );
 		newJoint->nameIndex = animationLib.JointIndex( boneLess ? "origin" : target->name );
 		newJoint->parentNum = bones.FindIndex( parentIndex );
@@ -1125,7 +1151,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	{
 		if( options->addOrigin )
 		{
-			//patch jointinfo when origin was inserted
+			// patch jointinfo when origin was inserted
 			jointInfo[1].parentNum = 0;
 		}
 
@@ -1159,6 +1185,19 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	// but keeping it fixed for now.
 	frameRate = gltf_AnimSampleRate.GetInteger();
 	int animLength = ( ( numFrames - 1 ) * 1000 + frameRate - 1 ) / frameRate;
+
+#if 1
+	for( int i = 0; i < jointInfo.Num(); i++ )
+	{
+		jointAnimInfo_t& j = jointInfo[i];
+		idStr jointName = animationLib.JointName( j.nameIndex );
+		if( i == 0 && ( jointName != "origin" ) )
+		{
+			gameLocal.Warning( "Renaming bone 0 from %s to %s \n", jointName.c_str(), "origin" );
+			jointName = "origin";
+		}
+	}
+#endif
 
 	baseFrame.SetGranularity( 1 );
 	baseFrame.SetNum( bones.Num() );
