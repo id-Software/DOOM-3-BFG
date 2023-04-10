@@ -310,17 +310,75 @@ static void RenameNodes( gltfData* data, const idList<idNamePair>& renameList, c
 	}
 }
 
-gltfNode* idRenderModelGLTF::FindModelRoot()
+// return Armature node or parent of first Mesh node
+static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, idStr& rootName, int* rootID )
 {
-	root = data->GetMeshNode( rootName, &rootID );
-	if( !root )
+	// According to CG Dive and the most common workflow getting skeletal models into UE4/5,
+	// we need to look for an Armature that is called "root". Usually everything else is supposed to fail.
+
+	// So the expectations in common .glb files is that the first scene node in the hierarchy is the Armature and the meshes that are skinned
+	// are children.
+
+	// However this code is also used for static models that are made of multiple meshes which aren't merged together.
+
+	// 1. If there was an explicit name given in the identifer try it
+	gltfNode* root = nullptr;
+	auto nodes = data->NodeList();
+
+	if( options != nullptr && !options->armature.IsEmpty() )
+	{
+		common->Printf( "Looking for armature %s\n", options->armature.c_str() );
+
+		auto skin = data->GetSkin( options->armature );
+		if( skin && ( skin->skeleton > -1 && skin->skeleton < nodes.Num() ) )
+		{
+			*rootID = skin->skeleton;
+			root = nodes[skin->skeleton];
+			rootName = options->armature; // because options aren't available in LoadModel()
+		}
+	}
+	else if( !rootName.IsEmpty() )
 	{
 		// try explicit node which can be an Armature name
-		root = data->GetNode( rootName, &rootID );
+		root = data->GetNode( rootName, rootID );
+		if( !root )
+		{
+			root = data->GetMeshNode( rootName, rootID );
+		}
 	}
-
-	if( !root )
+	else
 	{
+		// 2. Find Armature using skin->skeleton using the child meshes of the armature
+
+		// TODO get all mesh IDs without a given root node
+
+		/*
+		idList<int, TAG_MODEL> meshNodeIDs;
+		data->GetAllMeshes( rootNode, meshNodeIDs );
+
+		int skinID = -1;
+		for( int meshID : meshNodeIDs )
+		{
+			gltfNode* meshNode = nodes[meshID];
+			if( meshNode->skin >= 0 )
+			{
+				skinID = meshNode->skin;
+				break;
+			}
+		}
+
+		if( skinID != -1 )
+		{
+			auto skin = data->SkinList()[skinID];
+			*rootID = skin->skeleton;
+			root = nodes[skin->skeleton];
+
+			return root;
+		}
+		*/
+
+		// 3. There was no Armature so far so just try to use the first Mesh from the default scene
+
 		// try the first mesh from the default scene
 		if( data->MeshList().Num() > 0 )
 		{
@@ -333,7 +391,7 @@ gltfNode* idRenderModelGLTF::FindModelRoot()
 			gltfMesh* firstMesh = data->MeshList()[0];
 
 			//fileExclusive = true;
-			root = data->GetNode( scene, firstMesh, &rootID );
+			root = data->GetNode( scene, firstMesh, rootID );
 			rootName = root->name;
 		}
 	}
@@ -397,32 +455,12 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	assert( nodes.Num() );
 
 	// determine root node
-	/*
-	if( !rootName[0] && data->MeshList().Num() )
+	if( ( localOptions != nullptr && options->armature.IsEmpty() ) || rootName.IsEmpty() )
 	{
-		// FIXME, the models scene is not used anymore.
-		gltfMesh* firstMesh = data->MeshList()[0];
-
-		fileExclusive = true;
-		root = data->GetNode( scene, firstMesh, &rootID );
-		if( root )
-		{
-			rootID = data->GetNodeIndex( root );
-			rootName = root->name;
-		}
-	}
-	else
-	*/
-
-	if( !rootName[0] )
-	{
-		// this is the default
-		rootName = "root";
-
 		fileExclusive = true;
 	}
 
-	root = FindModelRoot();
+	root = FindModelRoot( data, localOptions, rootName, &rootID );
 	if( !root )
 	{
 		common->Warning( "Couldn't find model: '%s'", name.c_str() );
@@ -435,6 +473,8 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 		return;
 	}
+
+	// TODO collect all meshes without root
 
 	// get all meshes in hierachy, starting at root.
 	MeshNodeIds.Clear();
@@ -529,7 +569,19 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
 	}
 
-	ProcessNode_r( root, mat4_identity, globalTransform, data );
+	if( rootID != -1 )
+	{
+		ProcessNode_r( root, mat4_identity, globalTransform, data );
+	}
+	else
+	{
+		// rootless mode
+		for( int meshID : MeshNodeIds )
+		{
+			gltfNode* meshNode = nodes[meshID];
+			ProcessNode_r( meshNode, mat4_identity, globalTransform, data );
+		}
+	}
 
 	if( surfaces.Num() <= 0 )
 	{
@@ -772,7 +824,6 @@ void idRenderModelGLTF::DrawJoints( const struct renderEntity_s* ent, const view
 
 static bool GatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, idList<int, TAG_MODEL>& bones, idList<jointAnimInfo_t, TAG_MD5_ANIM>& jointInfo , gltfSkin* skin,  const idImportOptions* options )
 {
-	//Gather Bones;
 	bool boneLess = false;
 	int targetNode = lastMeshFromFile->GetRootID();
 
@@ -858,6 +909,7 @@ static idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat
 
 		if( node->parent == nullptr )
 		{
+			// RB: FIXME double check this. probably needs to be reversed
 			node->matrix *= globalTransform;
 			trans = node->matrix;
 		}
@@ -957,7 +1009,6 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 		{
 			rootID = skin->skeleton;
 		}
-
 	}
 	else if( lastMeshFromFile != nullptr && lastGltfFileName == gltfFileName )
 	{
@@ -1015,7 +1066,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 
 	if( rootID == -1 || !skin || ( skin && !skin->joints.Num() ) )
 	{
-		common->Error( "Could not determine the armatures rootID" );
+		common->Error( "Could not determine the Armature's rootID" );
 		return nullptr;
 	}
 
@@ -1585,7 +1636,9 @@ void idRenderModelGLTF::PurgeModel()
 	bones.Clear();
 	MeshNodeIds.Clear();
 	gltfFileName.Clear();
-	rootName.Clear();
+
+	// RB: keep rootName for reloadModels because we don't have options there
+	//rootName.Clear();
 
 	// if no root id was set, it is a generated one.
 	if( rootID == -1 && root )
@@ -1603,7 +1656,7 @@ void idRenderModelGLTF::LoadModel()
 	gltfNode* modelRoot = root;
 	if( !fileExclusive )
 	{
-		modelRoot = FindModelRoot();
+		root = FindModelRoot( data, nullptr, rootName, nullptr );
 	}
 
 	gltfSkin* skin = nullptr;

@@ -1280,9 +1280,10 @@ public:
 			node->dirty = false;
 		}
 
-		//resolve full hierarchy
+		// resolve full hierarchy
 		if( mat != nullptr )
 		{
+			// collect hierarchy upwards
 			idList<gltfNode*> hierachy( 2 );
 			gltfNode* parent = node;
 			while( parent )
@@ -1295,6 +1296,8 @@ public:
 				}
 				parent = parent->parent;
 			}
+
+			// build world transform from up to down
 			for( int i = hierachy.Num() - 1; i >= 0; i-- )
 			{
 				*mat *= hierachy[i]->matrix;

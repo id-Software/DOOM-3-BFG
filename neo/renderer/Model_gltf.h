@@ -67,7 +67,6 @@ private:
 	void UpdateMd5Joints();
 
 	const idMD5Joint*			FindMD5Joint( const idStr& name ) const;
-	gltfNode*					FindModelRoot();
 
 	gltfData*	data;
 	gltfNode*	root;
