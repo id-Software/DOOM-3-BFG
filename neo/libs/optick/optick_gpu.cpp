@@ -62,10 +62,35 @@ namespace Optick
 	{
 		std::lock_guard<std::recursive_mutex> lock(updateLock);
 		currentState = STATE_OFF;
+
+		// SRS - Resolve delayed GPU frame timestamps before dumping data
+		for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
+		{
+			Node* node = nodes[nodeIndex];
+			
+			uint32_t nextFrameIndex = (frameNumber + 1 - NUM_FRAMES_DELAY) % NUM_FRAMES_DELAY;
+			QueryFrame& nextFrame = node->queryGpuframes[nextFrameIndex];
+
+			while (nextFrame.queryIndexStart != (uint32_t)-1 && nextFrame.queryIndexCount > 0 &&
+				   nextFrameIndex != frameNumber % NUM_FRAMES_DELAY)
+			{
+				WaitForFrame(nodeIndex, nextFrameIndex);
+
+				uint32_t resolveStart = nextFrame.queryIndexStart % MAX_QUERIES_COUNT;
+				uint32_t resolveFinish = resolveStart + nextFrame.queryIndexCount;
+				ResolveTimestamps(nodeIndex, resolveStart, std::min<uint32_t>(resolveFinish, MAX_QUERIES_COUNT) - resolveStart);
+				if (resolveFinish > MAX_QUERIES_COUNT)
+					ResolveTimestamps(nodeIndex, 0, resolveFinish - MAX_QUERIES_COUNT);
+
+				nextFrameIndex = (nextFrameIndex + 1) % NUM_FRAMES_DELAY;
+				nextFrame = node->queryGpuframes[nextFrameIndex];
+			}
+		}
 	}
 
 	void GPUProfiler::Dump(uint32 /*mode*/)
 	{
+		std::lock_guard<std::recursive_mutex> lock(updateLock);
 		for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
 		{
 			Node* node = nodes[nodeIndex];

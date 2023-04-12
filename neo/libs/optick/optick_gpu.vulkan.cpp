@@ -63,9 +63,6 @@ namespace Optick
 		};
 		vector<NodePayload*> nodePayloads;
 
-		void ResolveTimestamps(VkCommandBuffer commandBuffer, uint32_t startIndex, uint32_t count);
-		void WaitForFrame(uint64_t frameNumber);
-
 	public:
 		GPUProfilerVulkan();
 		~GPUProfilerVulkan();
@@ -81,6 +78,10 @@ namespace Optick
 		{
 			QueryTimestamp((VkCommandBuffer)context, outCpuTimestamp);
 		}
+
+		void ResolveTimestamps(uint32_t nodeIndex, uint32_t startIndex, uint32_t count) override;
+
+		void WaitForFrame(uint32_t nodeIndex, uint64_t frameNumber) override;
 
 		void Flip(void* swapChain) override;
 	};
@@ -237,15 +238,15 @@ namespace Optick
 		}
 	}
 
-	void GPUProfilerVulkan::ResolveTimestamps(VkCommandBuffer commandBuffer, uint32_t startIndex, uint32_t count)
+	void GPUProfilerVulkan::ResolveTimestamps(uint32_t nodeIndex, uint32_t startIndex, uint32_t count)
 	{
 		if (count)
 		{
-			Node* node = nodes[currentNode];
+			Node* node = nodes[nodeIndex];
 
-			NodePayload* payload = nodePayloads[currentNode];
+			NodePayload* payload = nodePayloads[nodeIndex];
 
-			OPTICK_VK_CHECK((VkResult)(*vulkanFunctions.vkGetQueryPoolResults)(payload->device, payload->queryPool, startIndex, count, 8 * count, &nodes[currentNode]->queryGpuTimestamps[startIndex], 8, VK_QUERY_RESULT_64_BIT));
+			OPTICK_VK_CHECK((VkResult)(*vulkanFunctions.vkGetQueryPoolResults)(payload->device, payload->queryPool, startIndex, count, 8 * count, &nodes[nodeIndex]->queryGpuTimestamps[startIndex], 8, VK_QUERY_RESULT_64_BIT));
 			(*vulkanFunctions.vkResetQueryPool)(payload->device, payload->queryPool, startIndex, count);
 
 			// Convert GPU timestamps => CPU Timestamps
@@ -254,15 +255,15 @@ namespace Optick
 		}
 	}
 
-	void GPUProfilerVulkan::WaitForFrame(uint64_t frameNumberToWait)
+	void GPUProfilerVulkan::WaitForFrame(uint32_t nodeIndex, uint64_t frameNumberToWait)
 	{
 		OPTICK_EVENT();
 
 		int r = VK_SUCCESS;
 		do
 		{
-			NodePayload& payload = *nodePayloads[currentNode];
-			r = (*vulkanFunctions.vkWaitForFences)(nodePayloads[currentNode]->device, 1, &payload.frames[frameNumberToWait % payload.frames.size()].fence, 1, 1000 * 30);
+			NodePayload& payload = *nodePayloads[nodeIndex];
+			r = (*vulkanFunctions.vkWaitForFences)(nodePayloads[nodeIndex]->device, 1, &payload.frames[frameNumberToWait % payload.frames.size()].fence, 1, 1000 * 30);
 		} while (r != VK_SUCCESS);
 	}
 
@@ -345,12 +346,12 @@ namespace Optick
 
 				if (startIndex < finishIndex)
 				{
-					ResolveTimestamps(commandBuffer, startIndex, finishIndex - startIndex);
+					ResolveTimestamps(currentNode, startIndex, finishIndex - startIndex);
 				}
 				else if (startIndex > finishIndex)
 				{
-					ResolveTimestamps(commandBuffer, startIndex, MAX_QUERIES_COUNT - startIndex);
-					ResolveTimestamps(commandBuffer, 0, finishIndex);
+					ResolveTimestamps(currentNode, startIndex, MAX_QUERIES_COUNT - startIndex);
+					ResolveTimestamps(currentNode, 0, finishIndex);
 				}
 			}
 

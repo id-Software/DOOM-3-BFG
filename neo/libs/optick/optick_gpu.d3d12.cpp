@@ -86,10 +86,6 @@ namespace Optick
 		//void UpdateRange(uint32_t start, uint32_t finish)
 		void InitNodeInternal(const char* nodeName, uint32_t nodeIndex, ID3D12CommandQueue* pCmdQueue);
 
-		void ResolveTimestamps(uint32_t startIndex, uint32_t count);
-
-		void WaitForFrame(uint64_t frameNumber);
-
 	public:
 		GPUProfilerD3D12();
 		~GPUProfilerD3D12();
@@ -108,6 +104,10 @@ namespace Optick
 		{
 			QueryTimestamp((ID3D12GraphicsCommandList*)context, outCpuTimestamp);
 		}
+
+		void ResolveTimestamps(uint32_t nodeIndex, uint32_t startIndex, uint32_t count) override;
+
+		void WaitForFrame(uint32_t nodeIndex, uint64_t frameNumber) override;
 
 		void Flip(void* swapChain) override
 		{
@@ -241,11 +241,11 @@ namespace Optick
 		}
 	}
 
-	void GPUProfilerD3D12::ResolveTimestamps(uint32_t startIndex, uint32_t count)
+	void GPUProfilerD3D12::ResolveTimestamps(uint32_t nodeIndex, uint32_t startIndex, uint32_t count)
 	{
 		if (count)
 		{
-			Node* node = nodes[currentNode];
+			Node* node = nodes[nodeIndex];
 
 			D3D12_RANGE range = { sizeof(uint64_t)*startIndex, sizeof(uint64_t)*(startIndex + count) };
 			void* pData = nullptr;
@@ -259,11 +259,11 @@ namespace Optick
 		}
 	}
 
-	void GPUProfilerD3D12::WaitForFrame(uint64_t frameNumberToWait)
+	void GPUProfilerD3D12::WaitForFrame(uint32_t nodeIndex, uint64_t frameNumberToWait)
 	{
 		OPTICK_EVENT();
 
-		NodePayload* payload = nodePayloads[currentNode];
+		NodePayload* payload = nodePayloads[nodeIndex];
 		while (frameNumberToWait > payload->syncFence->GetCompletedValue())
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -338,13 +338,13 @@ namespace Optick
 			// Try resolve timestamps for the current frame
 			if (frameNumber >= NUM_FRAMES_DELAY && nextFrame.queryIndexCount)
 			{
-				WaitForFrame(frameNumber + 1 - NUM_FRAMES_DELAY);
+				WaitForFrame(currentNode, frameNumber + 1 - NUM_FRAMES_DELAY);
 
 				uint32_t resolveStart = nextFrame.queryIndexStart % MAX_QUERIES_COUNT;
 				uint32_t resolveFinish = resolveStart + nextFrame.queryIndexCount;
-				ResolveTimestamps(resolveStart, std::min<uint32_t>(resolveFinish, MAX_QUERIES_COUNT) - resolveStart);
+				ResolveTimestamps(currentNode, resolveStart, std::min<uint32_t>(resolveFinish, MAX_QUERIES_COUNT) - resolveStart);
 				if (resolveFinish > MAX_QUERIES_COUNT)
-					ResolveTimestamps(0, resolveFinish - MAX_QUERIES_COUNT);
+					ResolveTimestamps(currentNode, 0, resolveFinish - MAX_QUERIES_COUNT);
 			}
 				
 			nextFrame.queryIndexStart = queryEnd;
