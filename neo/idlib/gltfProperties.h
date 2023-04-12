@@ -1090,6 +1090,32 @@ public:
 		}
 	}
 
+	void GetAllSkinnedMeshes( gltfNode* node, idList<int>& meshIds )
+	{
+		if( node->mesh != -1 && node->skin != -1 )
+		{
+			meshIds.AddUnique( GetNodeIndex( node ) );
+		}
+
+		for( auto child : node->children )
+		{
+			GetAllSkinnedMeshes( nodes[child], meshIds );
+		}
+	}
+
+	void GetAllSkinnedMeshes( idList<int>& meshIds )
+	{
+		for( int i = 0; i < nodes.Num(); i++ )
+		{
+			auto* node = nodes[i];
+
+			if( node->mesh != -1 && node->skin != -1 )
+			{
+				meshIds.AddUnique( i );
+			}
+		}
+	}
+
 	gltfSkin* GetSkin( const idStr& name )
 	{
 		for( auto skin : skins )
@@ -1305,7 +1331,7 @@ public:
 		}
 	}
 
-	void Advance( gltfAnimation* anim = nullptr );
+	//void Advance( gltfAnimation* anim = nullptr );
 
 	//this copies the data and view cached on the accessor
 	template <class T>

@@ -310,16 +310,14 @@ static void RenameNodes( gltfData* data, const idList<idNamePair>& renameList, c
 	}
 }
 
-// return Armature node or parent of first Mesh node
-static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, idStr& rootName, int* rootID )
+// return Armature/Rig node
+static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, idStr& rootName, int* rootID, gltfSkin** rootSkin )
 {
-	// According to CG Dive and the most common workflow getting skeletal models into UE4/5,
-	// we need to look for an Armature that is called "root". Usually everything else is supposed to fail.
+	// According to CG Dive is the most common workflow to get skeletal models from Blender into UE4/5
+	// by looking for an Armature that is called "root". Usually everything else is supposed to fail.
 
-	// So the expectations in common .glb files is that the first scene node in the hierarchy is the Armature and the meshes that are skinned
-	// are children.
-
-	// However this code is also used for static models that are made of multiple meshes which aren't merged together.
+	// So the expectations in common .glb files is that the first scene node in the hierarchy is the Armature
+	// and skinned meshes are supposed to be children of the Rig.
 
 	// 1. If there was an explicit name given in the identifer try it
 	gltfNode* root = nullptr;
@@ -327,7 +325,7 @@ static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, 
 
 	if( options != nullptr && !options->armature.IsEmpty() )
 	{
-		common->Printf( "Looking for armature %s\n", options->armature.c_str() );
+		idLib::Printf( "Looking for armature %s\n", options->armature.c_str() );
 
 		auto skin = data->GetSkin( options->armature );
 		if( skin && ( skin->skeleton > -1 && skin->skeleton < nodes.Num() ) )
@@ -335,26 +333,75 @@ static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, 
 			*rootID = skin->skeleton;
 			root = nodes[skin->skeleton];
 			rootName = options->armature; // because options aren't available in LoadModel()
+
+			if( rootSkin )
+			{
+				*rootSkin = skin;
+			}
+
+			idLib::Printf( "Found glTF2 Armature: name = '%s' ID=%i\n", rootName.c_str(), *rootID );
+
+			return root;
 		}
 	}
-	else if( !rootName.IsEmpty() )
+
+	// 2. If an explict root node name is given use that even if it might be not an Armature
+	if( root == nullptr && !rootName.IsEmpty() )
 	{
 		// try explicit node which can be an Armature name
 		root = data->GetNode( rootName, rootID );
+
+		if( root )
+		{
+			idList<int, TAG_MODEL> meshNodeIDs;
+			data->GetAllSkinnedMeshes( root, meshNodeIDs );
+
+			int skinID = -1;
+			for( int meshID : meshNodeIDs )
+			{
+				gltfNode* meshNode = nodes[meshID];
+				if( meshNode->skin >= 0 )
+				{
+					skinID = meshNode->skin;
+					break;
+				}
+			}
+
+			if( skinID != -1 )
+			{
+				auto skin = data->SkinList()[skinID];
+				*rootID = skin->skeleton;
+				root = nodes[skin->skeleton];
+				rootName = nodes[skin->skeleton]->name;
+
+				if( rootSkin )
+				{
+					*rootSkin = skin;
+				}
+
+				idLib::Printf( "Found glTF2 Rig: name = '%s' ID=%i\n", rootName.c_str(), *rootID );
+
+				return root;
+			}
+		}
+
+
+		// Special case where you want multiple hiearchical models in the same .glb that are static models
 		if( !root )
 		{
 			root = data->GetMeshNode( rootName, rootID );
+
+			idLib::Printf( "Found glTF2 Mesh: name = '%s' ID=%i\n", rootName.c_str(), *rootID );
 		}
 	}
-	else
+
+	// 3. Find Armature using skin->skeleton using the child meshes of the armature
+	if( root == nullptr )
 	{
-		// 2. Find Armature using skin->skeleton using the child meshes of the armature
+		// get all skinned mesh IDs without a given root node
 
-		// TODO get all mesh IDs without a given root node
-
-		/*
 		idList<int, TAG_MODEL> meshNodeIDs;
-		data->GetAllMeshes( rootNode, meshNodeIDs );
+		data->GetAllSkinnedMeshes( meshNodeIDs );
 
 		int skinID = -1;
 		for( int meshID : meshNodeIDs )
@@ -372,13 +419,23 @@ static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, 
 			auto skin = data->SkinList()[skinID];
 			*rootID = skin->skeleton;
 			root = nodes[skin->skeleton];
+			rootName = nodes[skin->skeleton]->name;
+
+			if( rootSkin )
+			{
+				*rootSkin = skin;
+			}
+
+			idLib::Printf( "Found glTF2 Rig: name = '%s' ID=%i\n", rootName.c_str(), *rootID );
 
 			return root;
 		}
-		*/
+	}
 
-		// 3. There was no Armature so far so just try to use the first Mesh from the default scene
-
+	// 4. There was no Armature so far so just try to use the first Mesh from the default scene
+	/*
+	if( root == nullptr )
+	{
 		// try the first mesh from the default scene
 		if( data->MeshList().Num() > 0 )
 		{
@@ -392,9 +449,13 @@ static gltfNode* FindModelRoot( gltfData* data, const idImportOptions* options, 
 
 			//fileExclusive = true;
 			root = data->GetNode( scene, firstMesh, rootID );
-			rootName = root->name;
+			if( rootID != nullptr )
+			{
+				rootName = root->name;
+			}
 		}
 	}
+	*/
 
 	return root;
 }
@@ -460,7 +521,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		fileExclusive = true;
 	}
 
-	root = FindModelRoot( data, localOptions, rootName, &rootID );
+	root = FindModelRoot( data, localOptions, rootName, &rootID, nullptr );
 	if( !root )
 	{
 		common->Warning( "Couldn't find model: '%s'", name.c_str() );
@@ -994,75 +1055,16 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 	gltfData* data = gltf.currentAsset;
 	auto& accessors = data->AccessorList();
 	auto& nodes = data->NodeList();
-	int rootID = -1;
 
 	idStr lastGltfFileName = idStr( lastMeshFromFile->name );
 	idStr lastName;
 	gltfManager::ExtractIdentifier( lastGltfFileName, id, lastName );
 	gltfSkin* skin = nullptr;
 
-	if( options != nullptr && !options->armature.IsEmpty() )
-	{
-		gameLocal.Printf( "Looking for armature %s\n", options->armature.c_str() );
-		skin = data->GetSkin( options->armature );
-		if( skin && ( skin->skeleton > -1 && skin->skeleton < nodes.Num() ) )
-		{
-			rootID = skin->skeleton;
-		}
-	}
-	else if( lastMeshFromFile != nullptr && lastGltfFileName == gltfFileName )
-	{
-		rootID = lastMeshFromFile->rootID;
-		gltfNode* rootNode = nullptr;
+	int rootID = -1;
+	idStr rootName;
 
-		if( rootID != -1 )
-		{
-			rootNode = nodes[rootID];
-		}
-
-		if( rootNode != nullptr )// && nodeRoot->skin > -1 )
-		{
-			// find skin using the child meshes of the armature
-			idList<int, TAG_MODEL> meshNodeIDs;
-			data->GetAllMeshes( rootNode, meshNodeIDs );
-
-			int skinID = -1;
-			for( int meshID : meshNodeIDs )
-			{
-				gltfNode* meshNode = nodes[meshID];
-				if( meshNode->skin >= 0 )
-				{
-					skinID = meshNode->skin;
-					break;
-				}
-			}
-
-			if( skinID != -1 )
-			{
-				skin = data->SkinList()[skinID];
-				//rootID = skin->skeleton;
-			}
-		}
-	}
-	else
-	{
-		// treat the gltf file as one that only has 1 scene and 1 model, aka a fileExclusive model and
-		// try to use node from first model in first scene in gltf file
-		common->Warning( "Loading %s as if it was a gltf with only 1 mesh, 1 scene and 1 armature", gltfFileName.c_str() );
-		if( data->MeshList().Num() < 1 || data->SceneList().Num() < 1 )
-		{
-			common->Warning( "Could not determine root" );
-			return nullptr;
-		}
-		gltfMesh* firstMesh = data->MeshList()[0];
-		gltfScene* scenePtr = data->SceneList()[0];
-
-		gltfNode* root = data->GetNode( scenePtr, firstMesh, &rootID );
-		if( root )
-		{
-			rootID = data->GetNodeIndex( root );
-		}
-	}
+	FindModelRoot( data, options, rootName, &rootID, &skin );
 
 	if( rootID == -1 || !skin || ( skin && !skin->joints.Num() ) )
 	{
@@ -1656,7 +1658,7 @@ void idRenderModelGLTF::LoadModel()
 	gltfNode* modelRoot = root;
 	if( !fileExclusive )
 	{
-		root = FindModelRoot( data, nullptr, rootName, nullptr );
+		modelRoot = root = FindModelRoot( data, nullptr, rootName, &rootID, &currentSkin );
 	}
 
 	gltfSkin* skin = nullptr;
