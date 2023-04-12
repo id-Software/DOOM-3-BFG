@@ -499,7 +499,16 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	gltfManager::ExtractIdentifier( gltfFileName, meshID, rootName );
 	GLTF_Parser gltf;
-	gltf.Load( gltfFileName );
+	if( !gltf.Load( gltfFileName ) )
+	{
+		MakeDefaultModel();
+
+		if( localOptions && !options )
+		{
+			delete localOptions;
+		}
+		return;
+	}
 
 	timeStamp = fileSystem->GetTimestamp( gltfFileName );
 	data = gltf.currentAsset;
@@ -521,28 +530,35 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		fileExclusive = true;
 	}
 
-	root = FindModelRoot( data, localOptions, rootName, &rootID, nullptr );
-	if( !root )
+	root = FindModelRoot( data, localOptions, rootName, &rootID, &currentSkin );
+
+	MeshNodeIds.Clear();
+	bones.Clear();
+
+	if( rootID != -1 )
 	{
-		common->Warning( "Couldn't find model: '%s'", name.c_str() );
-		MakeDefaultModel();
+		// get all meshes in hierachy, starting at root
+		data->GetAllMeshes( root, MeshNodeIds );
+	}
+	else
+	{
+		// collect all meshes without root
+		data->GetAllMeshes( MeshNodeIds );
 
-		if( localOptions && !options )
+		if( MeshNodeIds.Num() == 0 )
 		{
-			delete localOptions;
-		}
+			common->Warning( "Can't find meshes in static glTF2 model: '%s'", name.c_str() );
+			MakeDefaultModel();
 
-		return;
+			if( localOptions && !options )
+			{
+				delete localOptions;
+			}
+			return;
+		}
 	}
 
-	// TODO collect all meshes without root
-
-	// get all meshes in hierachy, starting at root.
-	MeshNodeIds.Clear();
-	data->GetAllMeshes( root, MeshNodeIds );
-
 	// find all animations and bones
-	bones.Clear();
 	int lastSkin = -1;
 	int totalAnims = 0;
 	for( int meshID : MeshNodeIds )
@@ -1658,27 +1674,7 @@ void idRenderModelGLTF::LoadModel()
 	gltfNode* modelRoot = root;
 	if( !fileExclusive )
 	{
-		modelRoot = root = FindModelRoot( data, nullptr, rootName, &rootID, &currentSkin );
-	}
-
-	gltfSkin* skin = nullptr;
-	gltfAccessor* acc = nullptr;
-	if( currentSkin != nullptr )
-	{
-		skin = currentSkin;
-		acc = data->AccessorList()[skin->inverseBindMatrices];
-	}
-	else
-	{
-		skin = new gltfSkin;
-		skin->joints.AssureSize( 1, rootID );
-		idMat4 trans = mat4_identity;
-		data->ResolveNodeMatrix( modelRoot, &trans );
-	}
-
-	if( skin && skin->skeleton == -1 )
-	{
-		skin->skeleton = skin->joints[0];
+		modelRoot = root = FindModelRoot( data, nullptr, rootName, &rootID, nullptr );
 	}
 
 	num = bones.Num();
@@ -1717,12 +1713,6 @@ void idRenderModelGLTF::LoadModel()
 	idList<gltfNode> animBones;
 	int totalCopied = CopyBones( data, bones, animBones );
 	defaultPose = GetPose( animBones, poseMat, globalTransform );
-
-	if( !currentSkin )
-	{
-		delete skin;
-		delete acc;
-	}
 
 	//-----------------------------------------
 	// create the inverse of the base pose joints to support tech6 style deformation
