@@ -525,7 +525,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	assert( nodes.Num() );
 
 	// determine root node
-	if( ( localOptions != nullptr && options->armature.IsEmpty() ) || rootName.IsEmpty() )
+	if( ( localOptions != nullptr && localOptions->armature.IsEmpty() ) || rootName.IsEmpty() )
 	{
 		fileExclusive = true;
 	}
@@ -537,8 +537,16 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	if( rootID != -1 )
 	{
-		// get all meshes in hierachy, starting at root
-		data->GetAllMeshes( root, MeshNodeIds );
+		if( currentSkin )
+		{
+			// also collect meshes above armature but they need to be bound to the skeleton
+			data->GetAllSkinnedMeshes( currentSkin, MeshNodeIds );
+		}
+		else
+		{
+			// get all meshes in hierachy, starting at root
+			data->GetAllMeshes( root, MeshNodeIds );
+		}
 	}
 	else
 	{
@@ -558,15 +566,14 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		}
 	}
 
-	// find all animations and bones
-	int lastSkin = -1;
+	// find all animations and bones for the current skin
 	int totalAnims = 0;
 	for( int meshID : MeshNodeIds )
 	{
 		gltfNode* meshNode = nodes[meshID];
 		int animCount = 0;
 
-		if( meshNode->skin != -1 && meshNode->skin != lastSkin ) //&& lastSkin == -1 )
+		if( meshNode->skin != -1 )//&& meshNode->skin != lastSkin ) //&& lastSkin == -1 )
 		{
 			animCount = data->GetAnimationIds( meshNode, animIds );
 
@@ -574,13 +581,13 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 			// if not but it has an anim, create a bone from the target mesh-node as origin.
 			if( meshNode->skin >= 0 )
 			{
-				lastSkin = meshNode->skin;
-				currentSkin = data->SkinList()[meshNode->skin];
-				assert( currentSkin );
+				//lastSkin = meshNode->skin;
+				//currentSkin = data->SkinList()[meshNode->skin];
+				//assert( currentSkin );
 
 				if( currentSkin->joints.Num() )
 				{
-					assert( currentSkin->skeleton == rootID );
+					//assert( currentSkin->skeleton == rootID );
 
 					// armature node is origin bone
 					//bones.Append( currentSkin->skeleton );
@@ -646,11 +653,13 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
 	}
 
+#if 0
 	if( rootID != -1 )
 	{
 		ProcessNode_r( root, mat4_identity, globalTransform, data );
 	}
 	else
+#endif
 	{
 		// rootless mode
 		for( int meshID : MeshNodeIds )

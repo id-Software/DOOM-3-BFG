@@ -1116,6 +1116,24 @@ public:
 		}
 	}
 
+	void GetAllSkinnedMeshes( gltfSkin* skin, idList<int>& meshIds )
+	{
+		for( int i = 0; i < nodes.Num(); i++ )
+		{
+			auto* node = nodes[i];
+
+			if( node->mesh != -1 && node->skin != -1 )
+			{
+				gltfSkin* meshSkin = skins[node->skin];
+
+				if( meshSkin == skin )
+				{
+					meshIds.AddUnique( i );
+				}
+			}
+		}
+	}
+
 	void GetAllSkinnedMeshes( idList<int>& meshIds )
 	{
 		for( int i = 0; i < nodes.Num(); i++ )
