@@ -61,7 +61,8 @@ namespace Optick
 
 			int64_t GetCPUTimestamp(int64_t gpuTimestamp)
 			{
-				return timestampCPU + (gpuTimestamp - timestampGPU) * frequencyCPU / frequencyGPU;
+				// SRS - Improve accuracy of GPU to CPU timestamp conversion by using floating point doubles
+				return timestampCPU + std::llround(double(gpuTimestamp - timestampGPU) * (double)frequencyCPU / (double)frequencyGPU);
 			}
 
 			ClockSynchronization() : frequencyCPU(0), frequencyGPU(0), timestampCPU(0), timestampGPU(0) {}
