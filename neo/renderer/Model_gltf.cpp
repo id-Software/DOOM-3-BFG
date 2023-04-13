@@ -568,12 +568,13 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 
 	// find all animations and bones for the current skin
 	int totalAnims = 0;
+	int lastSkin = -1;
 	for( int meshID : MeshNodeIds )
 	{
 		gltfNode* meshNode = nodes[meshID];
 		int animCount = 0;
 
-		if( meshNode->skin != -1 )//&& meshNode->skin != lastSkin ) //&& lastSkin == -1 )
+		if( meshNode->skin != -1 && meshNode->skin != lastSkin && lastSkin == -1 )
 		{
 			animCount = data->GetAnimationIds( meshNode, animIds );
 
@@ -581,7 +582,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 			// if not but it has an anim, create a bone from the target mesh-node as origin.
 			if( meshNode->skin >= 0 )
 			{
-				//lastSkin = meshNode->skin;
+				lastSkin = meshNode->skin;
 				//currentSkin = data->SkinList()[meshNode->skin];
 				//assert( currentSkin );
 
@@ -640,17 +641,21 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	if( localOptions )
 	{
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
-		idMat3 reOrientationMat = blenderToDoomRotation;
+		idMat3 rotationMat = blenderToDoomRotation;
 
 		if( localOptions->reOrient != ang_zero )
 		{
-			reOrientationMat = localOptions->reOrient.ToMat3();
+			rotationMat = localOptions->reOrient.ToMat3();
+		}
+		else if( localOptions->rotate != 0 )
+		{
+			rotationMat = idAngles( 0.0f, localOptions->rotate, 90 ).ToMat3();
 		}
 
 		float scale = localOptions->scale;
 		idMat3 scaleMat( scale, 0, 0, 0, scale, 0, 0, 0, scale );
 
-		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
+		globalTransform = idMat4( rotationMat * scaleMat, vec3_origin );
 	}
 
 #if 0
@@ -1135,18 +1140,23 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 
 			rootMotionCopyTargetId = data->GetNodeIndex( target );
 		}
+
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
-		idMat3 reOrientationMat = blenderToDoomRotation;
+		idMat3 rotationMat = blenderToDoomRotation;
 
 		if( options->reOrient != ang_zero )
 		{
-			reOrientationMat = options->reOrient.ToMat3();
+			rotationMat = options->reOrient.ToMat3();
+		}
+		else if( options->rotate != 0 )
+		{
+			rotationMat = idAngles( 0.0f, options->rotate, 90 ).ToMat3();
 		}
 
 		float scale = options->scale;
 		idMat3 scaleMat( scale, 0, 0, 0, scale, 0, 0, 0, scale );
 
-		globalTransform = idMat4( reOrientationMat * scaleMat, vec3_origin );
+		globalTransform = idMat4( rotationMat * scaleMat, vec3_origin );
 	}
 
 	// setup jointinfo's animbits for every joint that is animated

@@ -1317,7 +1317,7 @@ void idImportOptions::Init( const char* commandline, const char* ospath )
 			{
 				// parse angle rotation
 				token	= tokens.NextToken( "Missing value for -rotate.  Usage: -rotate [yaw]" );
-				rotate	= -atof( token );
+				rotate	= atof( token );
 
 			}
 			else if( token == "nomesh" )
