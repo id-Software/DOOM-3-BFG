@@ -12,7 +12,7 @@ if(CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER_EQUAL 6)
 endif()
 	
 option(STANDALONE
-		"Skip DOOM-3-BFG base/ folder and use assets/ instead" OFF)
+		"Skip DOOM-3-BFG base/ folder and use content/ instead" OFF)
 
 option(DOOM_CLASSIC
 		"Build with Doom 1 & 2" ON)
