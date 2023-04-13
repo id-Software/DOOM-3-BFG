@@ -90,6 +90,7 @@ public:
 	int						cycleStart;
 	idAngles				reOrient;
 	idStr					armature;
+	bool					noMikktspace;
 
 	void Init( const char* commandline, const char* ospath );
 

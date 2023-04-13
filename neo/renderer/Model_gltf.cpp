@@ -636,6 +636,8 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 	hasAnimations = totalAnims > 0;
 	model_state = hasAnimations ? DM_CACHED : DM_STATIC;
 
+	bool useMikktspace = true;
+
 	// combine all scaling, rotating options into globalTransform
 	globalTransform = blenderToDoomTransform;
 	if( localOptions )
@@ -656,6 +658,11 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		idMat3 scaleMat( scale, 0, 0, 0, scale, 0, 0, 0, scale );
 
 		globalTransform = idMat4( rotationMat * scaleMat, vec3_origin );
+
+		if( localOptions->noMikktspace )
+		{
+			useMikktspace = false;
+		}
 	}
 
 #if 0
@@ -722,7 +729,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName, const idImportOption
 		}
 	}
 	// derive mikktspace tangents from normals
-	FinishSurfaces( true );
+	FinishSurfaces( useMikktspace );
 
 	LoadModel();
 
