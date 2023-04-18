@@ -18,6 +18,75 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.5.0
 _______________________________
 
+## .plan - April 18, 2023
+
+Stephen Saunders contributed support for borderlesss fullscreen mode which can also be set by commandline with r_fullscreen -2. It's enabled automatically if you switch from windowed mode to fullscreen by using Alt + Enter. You can’t tell the difference visually. However, stick to borderless mode over fullscreen mode if you use multiple monitors. 
+You can access your displays and launch various apps while your game or work stays on the main display.
+
+This has the advantage that you can better run RBDOOM-3-BFG simultanously along with TrenchBroomBFG, Blender, Krita or any other gamedev weapon of choice.
+
+But, there is a downside to borderless mode, depending on your device. 
+Most operating systems like Windows, for example, will continue dedicating resources to all background processes. 
+This means you might get less performance and experience input lag if you’re running a game or a demanding app. 
+If you need to squeeze some extra FPS, go back to real fullscreen mode to see if it makes a difference.
+
+The glTF2 importer has been rewritten to make it more robust. The -transermotion option might not work.
+The importer has still some bugs left like -scale only works on certain models.
+It is not necessary anymore to specify the name of the armature node. 
+It will automatically find the rig node but the exported .glb model should have only one skeleton.
+
+The rest was cleaning up the code and removing unused OpenGL and Vulkan code.
+
+Changelog:
+
+* Support Borderless Fullscreen and Borderless Window modes for Win32 and SDL platforms
+
+* Fixed recursive mesh adding in findEntities for glTF2 scenes
+
+* Changed animated glTF2 models to be cached like MD5 meshes so model overlays work on them
+
+* Store glTF2 source timestamp in .bglb binary cache file
+
+* Fixed loading glTF2 models with multiple skinned meshes
+
+* Added -rotate [yaw] glTF2 import option
+
+* Added glTF2 import option -nomikktspace
+
+* If -DSTANDALONE=ON option is set filesystem will look for content/ instead of base/
+
+* Removed stencil shadow volumes with additional fixes by icecoldduke
+
+* Reverted com_smp back to CVAR_BOOL
+
+* Removed unused cvar r_useHalfLambert
+
+* Update README for VS 2022
+
+* Fix Vulkan Vsync mode and handle NUM_FRAME_DATA = 2 or 3
+
+* Fix Vsync mode switching to support all modes: 0 (off), 1 (smart), 2 (on)
+
+* Show shadow atlas stats with com_showFPS 3
+
+* Enable D3D12 Debug Layer with r_useValidationLayers 2
+
+* Removed broken aviDemo code. External tools do a better job on this
+
+* Removed obsolete sdl_glimp.cpp
+
+* Removed many obsolete #if defined( USE_NVRHI )
+
+* Removed renderprogs/ legacy HLSL shaders that were translated to GLSL
+
+* Removed OpenGL code from win_glimp.cpp
+
+* Killed entire HLSL -> GLSL conversion code
+
+* Removed more obsolete Vulkan & OpenGL code
+
+
+
 ## .plan - March 08, 2023
 
 This build improves the performance again by about 60% through a different V-Sync implementation by Steve Saunders. It seems to require tripple buffering and slightly more memory but elimates the stalls between CPU <-> GPU syncing.
