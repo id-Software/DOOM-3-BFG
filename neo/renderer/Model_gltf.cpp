@@ -231,7 +231,7 @@ static gltfNode* GetBoneNode( gltfData* data, const idList<int, TAG_MODEL>& bone
 	for( int boneId : boneList )
 	{
 		gltfNode* boneNode = nodelist[boneId];
-		if( boneNode->name == name )
+		if( idStr::Icmp( boneNode->name, name ) == 0 )
 		{
 			return boneNode;
 		}
@@ -265,7 +265,7 @@ static void RemapNodes( gltfData* data, const idList<idNamePair>& remapList, con
 
 static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones, gltfNode* root )
 {
-	//we need to be _very_ careful with modifying the GLTF data since it is not saved or cached!!!
+	// we need to be _very_ careful with modifying the GLTF data since it is not saved or cached!!!
 	auto& nodeList = data->NodeList();
 	gltfNode* newNode = data->Node();
 	int newIdx = nodeList.Num() - 1;
@@ -273,7 +273,7 @@ static int AddOriginBone( gltfData* data, idList<int, TAG_MODEL>& bones, gltfNod
 	newNode->name = "origin";
 
 
-	//patch children
+	// patch children
 	for( int childId : root->children )
 	{
 		newNode->children.Alloc() = childId;
@@ -1145,7 +1145,16 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( const idStr& animName, const ID_TI
 				common->Warning( "Target bone to copy root motion from is not found" );
 			}
 
-			rootMotionCopyTargetId = data->GetNodeIndex( target );
+			//rootMotionCopyTargetId = data->GetNodeIndex( target );
+
+			auto& nodeList = data->NodeList();
+			for( auto nodeId : bones )
+			{
+				if( idStr::Icmp( nodeList[nodeId]->name, options->transferRootMotion ) == 0 )
+				{
+					rootMotionCopyTargetId = nodeId;
+				}
+			}
 		}
 
 		const auto blenderToDoomRotation = idAngles( 0.0f, 0.0f, 90 ).ToMat3();
