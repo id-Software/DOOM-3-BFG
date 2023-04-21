@@ -6,4 +6,5 @@ set filename=RBDOOM-3-BFG-1.5.0.x-lite-win64-yyyymmdd-git-xxxxxxx.7z
 7z a %filename% -r base/renderprogs2/spirv/*.bin
 7z a %filename% base/_tb/fgd/*.fgd
 7z a %filename% tools/trenchbroom -xr!TrenchBroom-nomanual* -xr!TrenchBroom.pdb
+7z a %filename% tools/optick-profiler
 pause

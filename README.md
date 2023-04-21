@@ -61,7 +61,7 @@ I started this project in 2012 and focused on making this code being future proo
 * True internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
 * Temporal Antialiasing (TAA) as a cheap alternative for MSAA and that works well with HDR and also improves PBR lighting
 * Filmic post process effects like Chromatic Aberration and Dithering
-* Screen Space Ambient Occlusion http://graphics.cs.williams.edu/papers/SAOHPG12/ used to only dim down the Global Illumination contribution like in the Frostbite engine
+* Screen Space Ambient Occlusion used to only dim down the Global Illumination contribution like in the Frostbite engine
 * Bink video playback through libbinkdec (thanks to Daniel Gibson) or FFmpeg (thanks to Carl Kenner)
 * Cinematic sequences can be skipped (thanks to Biel Bestué de Luna)
 * Netcode fixes to allow multiplayer sessions to friends with +connect <ip of friend> (manual port forwarding required)
