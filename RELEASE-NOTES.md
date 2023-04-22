@@ -15,7 +15,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-22 April 2023 - RBDOOM-3-BFG 1.5.0
+29 April 2023 - RBDOOM-3-BFG 1.5.0
 _______________________________
 
 # RBDOOM-3-BFG 1.5.0 adds DX12, Vulkan and glTF 2 Support
@@ -143,13 +143,21 @@ Data: Custom Properties On
 Animation: Animation On, Shape Keys Off, Skinning On
 ```
 
+On top of that you can also use glTF 2 for new camera animations but that needs to be covered in an upcoming tutorial.
+
 ## glTF 2 dmap Support and Blender Mapping Workflow
 
 I rewrote dmap 8 years ago to compile a BSP from a polygon based map format instead of brushes. 
 Now, Harrie van Ginneken has extended it so we can compile glTF 2 files.
 The trick is to use custom properties in Blender and they can be passed to the engine like it would be a .map file.
 
-There is too much to explain here and this needs to be covered in a tutorial along with a new Blender addon for editing the entities. But this is quite cool. You can now make maps without TrenchBroomBFG or a Radiant based editor.
+Harrie managed to port entire asset packs with animations and hundreds of meshes by using a few clever Python scripts within Blender.
+
+Here is a small demo of his WIP game which shows GPU skinning using Mixamo animations and a working BSP with typical Doom 3 style portal culling:
+
+[![WIP Space Game](https://img.youtube.com/vi/KdwInY0A_qs/0.jpg)](https://www.youtube.com/watch?v=KdwInY0A_qs)
+
+There is too much to explain here and this needs to be covered in a tutorial series along with a new Blender addon for editing the entities. But this is quite cool. You can now make maps without TrenchBroomBFG or a Radiant based editor.
 
 Just save your map as .glb file and compile it like:
 
@@ -161,7 +169,7 @@ Here is an example map by Dmitri Engman that was done completely in Blender. Kud
 
 [![STACK ROCK DUNGEON](https://img.youtube.com/vi/8t7rzVGQScY/0.jpg)](https://www.youtube.com/watch?v=8t7rzVGQScY)
 
-He also wrote a Tutorial here: https://modwiki.dhewm3.org/RBDoom3BFG-Blender-Mapping#2-BLENDER-SET-UP
+He also wrote a tutorial here: https://modwiki.dhewm3.org/RBDoom3BFG-Blender-Mapping#2-BLENDER-SET-UP
 
 ## Imgui Articulated Figure Editor
 
