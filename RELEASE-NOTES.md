@@ -74,6 +74,7 @@ MSAA/SMAA have been replaced with a Temporal Anti Aliasing solution by Nvidia. T
 
 The SSAO implementation has been updated with the latest code from Nvidia's Donut samples which outperforms the old implementation and also adds better stability on different view angles.
 The old SSAO in 1.4.0 also lacked filtering and looked very noisy. The TAA would help but now it's really fixed and better.
+It's hard to tell in these screenshots but the new SSAO gives most scenes a lot more depth.
 
 <img src="https://imgur.com/GaUE8VM.jpg" width="384"> <img src="https://imgur.com/9UMVoY3.jpg" width="384"> 
 
@@ -216,9 +217,12 @@ If you need to squeeze some extra FPS, go back to real fullscreen mode to see if
 
 ## TrenchBroomBFG
 
-The custom TrenchBroom build has been renamed to TrenchBroomBFG. This avoids conflicts with the original program like config files that are saved in the user directory. 
-The new version has been updated to TrenchBroom 2023.1. The icon size option also affects the entity inspector now which helps with high resolutions.
-The command exportFGD was changed so you have multiple variations of FGD files.
+The custom TrenchBroom build has been renamed to TrenchBroomBFG. This avoids conflicts with the original program like config files that are saved in the user directory. It also ignores all the other unsupported game profiles.
+The new version has been updated to TrenchBroom 2023.1. It also supports the glTF 2 formats through the Assimp library but in this version the material loader has been tweaked to work directly with Doom 3 .mtr materials.
+The icon size option also affects the entity inspector now which helps with high resolutions.
+
+
+The engine command exportFGD was changed so it generates more variations of FGD files:
 
 ```
 DOOM-3-all-and-models.fgd
