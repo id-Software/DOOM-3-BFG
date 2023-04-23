@@ -425,7 +425,7 @@ void idCameraAnim::LoadAnim()
 	ID_TIME_T sourceTimeStamp = currentTimeStamp;
 
 
-	if( ( generatedTimeStamp != FILE_NOT_FOUND_TIMESTAMP ) && ( sourceTimeStamp != 0 ) && ( sourceTimeStamp != generatedTimeStamp ) )
+	if( ( generatedTimeStamp != FILE_NOT_FOUND_TIMESTAMP ) && ( sourceTimeStamp != 0 ) && ( sourceTimeStamp < generatedTimeStamp ) )
 	{
 		idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 		LoadBinaryCamAnim( file, currentTimeStamp );
@@ -755,11 +755,9 @@ void idCameraAnim::Event_Activate( idEntity* _activator )
 
 void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 {
-	// we dont want to load the gltb all the time. write custom binary format !
 	GLTF_Parser gltf;
 	if( gltf.Load( gltfFileName ) )
 	{
-		ID_TIME_T timeStamp = fileSystem->GetTimestamp( gltfFileName );
 		gltfData* data = gltf.currentAsset;
 		auto& accessors = data->AccessorList();
 		auto& nodes = data->NodeList();
@@ -791,7 +789,7 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 			if( !camera.Num() )
 			{
 				cameraFrame_t t;
-				t.fov = 90;
+				t.fov = data->CameraList()[target->camera]->perspective.yfov * 100.0f;
 				t.q = mat3_identity.ToCQuat();
 				t.t = vec3_origin;
 				for( int i = 0; i < frames; i++ )
@@ -800,11 +798,12 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 				}
 			}
 			//This has to be replaced for correct interpolation between frames
+			// but, if exported with frame sampling set to 1, were all good :D
 			for( int i = 0; i < frames; i++ )
 			{
 				cameraFrame_t& cameraFrame = camera[i];
 
-				cameraFrame.fov = 90.0f;
+				cameraFrame.fov = data->CameraList()[target->camera]->perspective.yfov * 100.0f;
 				switch( channel->target.TRS )
 				{
 					default:
@@ -816,7 +815,6 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 						idList<idQuat*>& values = data->GetAccessorView<idQuat>( output );
 						if( values.Num() > i )
 						{
-
 							idQuat q = ( *values[i] );
 							q = idAngles( 90.0f, 0.0, -90.0f ).ToQuat()
 								* q.Inverse()
