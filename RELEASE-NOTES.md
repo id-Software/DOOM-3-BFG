@@ -59,7 +59,7 @@ There are also some immediate advantages for RBDOOM-3-BFG besides the smaller re
 
 ### DX12 is faster than OpenGL
 
-This is a worse case scene in Doom 3 with many shadow casting point lights. DX12 is now almost twice as fast as OpenGL. Vulkan is still lacking behind but DX12 is the primary API for Windows users which are the vast majority.
+This is actually one of the most demananding scenes in Doom 3 with many shadow casting point lights. DX12 is now almost twice as fast as OpenGL. Vulkan is still lacking behind but DX12 is the primary API for Windows users which are the vast majority.
 Stephen Saunders also provided triple buffering with NVRHI wich leads to a higher parallelization between the CPU and graphics card.
 
 <img src="https://imgur.com/WWLN49t.jpg" width="384"> <img src="https://imgur.com/KrjppYU.jpg" width="384"> 
