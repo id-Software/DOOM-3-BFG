@@ -93,6 +93,9 @@ The basic idea about the glTF 2 `loader` is to make it easier getting models int
 So all normalmaps baked in Blender or Substance Painter using the Mikktspace algorithm would look wrong.
 glTF 2 fixes this problem and it not only has support for normals but also tangents and those have to be calculated the Mikkelsen way so that's a perfect fit.
 
+You can also use .glb files for static models without a skeleton just like with the original 3ds Max .ase and Lightwave .lwo files.
+On top of that you can also use glTF 2 for new camera animations but that needs to be covered in an upcoming tutorial.
+
 I also want to go back and keep things simple so I don't want to import and configure a model like in Unity or Unreal. I just want to load models and use them and the maximum should be to specify which frame plays a foot sound or which bone needs to be used to attach an item to it.
 
 However it might be the case that someone exports a model from Blender and in a team environment someone else needs an option to load it differently. E.g. the front in Blender is -Y and forward in Doom is +X. So we need to rotate a model by 90 degrees around Z axis. All these things did the Maya .mb -> .md5mesh converter plugin for Doom 3 and we allow similar options in model declarations.
@@ -144,9 +147,6 @@ Compression: Off
 Data: Custom Properties On
 Animation: Animation On, Shape Keys Off, Skinning On
 ```
-
-You can also use .glb files for static models without a skeleton just like the legacy 3ds Max .ase and Lightwave .lwo files.
-On top of that you can also use glTF 2 for new camera animations but that needs to be covered in an upcoming tutorial.
 
 ## glTF 2 dmap Support and Blender Mapping Workflow
 
