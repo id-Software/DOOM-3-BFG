@@ -218,6 +218,7 @@ public:
 	const char* 	ParseBracedSection( idStr& out );
 	// parse a braced section into a string, maintaining indents and newlines
 	const char* 	ParseBracedSectionExact( idStr& out, int tabs = -1 );
+	const char* 	ParseBracketSectionExact( idStr& out, int tabs = -1 );
 	// parse the rest of the line
 	const char* 	ParseRestOfLine( idStr& out );
 	// pulls the entire line, including the \n at the end

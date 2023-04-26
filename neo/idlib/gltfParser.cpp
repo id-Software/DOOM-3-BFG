@@ -163,7 +163,6 @@ gltf_accessor_component::Type GetComponentTypeEnum( int id  , uint* sizeInBytes 
 
 idList<gltfData*>	gltfData::dataList;
 idHashIndex			gltfData::fileDataHash;
-gltfItemArray*		gltfItem_Extra::items = new gltfItemArray();
 
 //Helper macros for gltf data deserialize
 //NOTE: gltfItems that deviate from the default SET(T*) function cannot be handled with itemref macro.
@@ -300,14 +299,20 @@ int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 	idToken token;
 	bool parsing = true;
 	int parseCount = 0;
-	lexer->ExpectTokenString( "{" );
+	lexer->ReadToken( &token );
 	while( parsing && !lexer->PeekTokenString( "}" ) && lexer->ExpectAnyToken( &token ) )
 	{
 		lexer->ExpectTokenString( ":" );
 		idStr key = token;
 		idStr value;
 		key.StripTrailingWhitespace();
-		if( lexer->PeekTokenString( "{" ) )
+		if( lexer->PeekTokenString( "[" ) )
+		{
+			lexer->ParseBracketSectionExact( value );
+			value.StripTrailingWhitespace();
+			strPairs->Set( key, value );
+		}
+		else if( lexer->PeekTokenString( "{" ) )
 		{
 			lexer->ParseBracedSectionExact( value );
 			value.StripTrailingWhitespace();
@@ -338,6 +343,7 @@ int gltfItemArray::Parse( idLexer* lexer, bool forwardLexer/* = false*/ )
 	idToken token;
 	bool parsing = true;
 	int parseCount = 0;
+
 	lexer->ExpectTokenString( "{" );
 	while( parsing && !lexer->PeekTokenString( "}" ) && lexer->ExpectAnyToken( &token ) )
 	{
@@ -362,7 +368,7 @@ int gltfItemArray::Parse( idLexer* lexer, bool forwardLexer/* = false*/ )
 		}
 		if( !parsed )
 		{
-			lexer->SkipBracedSection();
+			lexer->SkipBracedSection( true, lexer->PeekTokenString( "{" ) ? BRSKIP_BRACES : BRSKIP_BRACKET );
 		}
 		else
 		{
@@ -452,23 +458,16 @@ void gltfItem_Extra::parse( idToken& token )
 {
 	parser->UnreadToken( &token );
 	parser->ParseBracedSectionExact( item->json );
-
+	gltfItemArray items;
 	idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
 	lexer.LoadMemory( item->json, item->json.Size(), "gltfItem_Extra", 0 );
-	items->Fill( &lexer, &item->strPairs );
+	items.Fill( &lexer, &item->strPairs );
 	lexer.Reset();
-	items->Parse( &lexer , true );
 
 	if( gltf_parseVerbose.GetBool() )
 	{
 		common->Printf( "%s", item->json.c_str() );
 	}
-}
-
-void gltfItem_Extra::Register( parsable* extra )
-{
-	common->DPrintf( "...Registering gltf Extra \"%s\" total(%i)\n", extra->Name().c_str(), items->Num() );
-	items->AddItemDef( extra );
 }
 
 void gltfItem_animation_sampler::parse( idToken& token )
@@ -692,7 +691,6 @@ void gltfItem_number_array::parse( idToken& token )
 
 void gltfItem_vec4::parse( idToken& token )
 {
-
 	auto* numbers = new gltfItem_number_array( "" );
 	idList<double> numberarray;
 	numbers->Set( &numberarray, parser );
@@ -704,6 +702,7 @@ void gltfItem_vec4::parse( idToken& token )
 
 	double* val = numbers->item->Ptr();
 	*item = idVec4( val[0], val[1], val[2], val[3] );
+	delete numbers;
 }
 
 void gltfItem_vec3::parse( idToken& token )
@@ -719,6 +718,7 @@ void gltfItem_vec3::parse( idToken& token )
 
 	double* val = numbers->item->Ptr();
 	*item = idVec3( val[0], val[1], val[2] );
+	delete numbers;
 }
 
 void gltfItem_vec2::parse( idToken& token )
@@ -734,6 +734,7 @@ void gltfItem_vec2::parse( idToken& token )
 
 	double* val = numbers->item->Ptr();
 	*item = idVec2( val[0], val[1] );
+	delete numbers;
 }
 
 void gltfItem_quat::parse( idToken& token )
@@ -749,6 +750,7 @@ void gltfItem_quat::parse( idToken& token )
 
 	double* val = numbers->item->Ptr();
 	*item = idQuat( val[0] , val[1] , val[2] , val[3] );
+	delete numbers;
 }
 
 void gltfItem_mat4::parse( idToken& token )
@@ -769,6 +771,7 @@ void gltfItem_mat4::parse( idToken& token )
 				val[8], val[9], val[10], val[11],
 				val[12], val[13], val[14], val[15]
 			);
+	delete numbers;
 }
 
 void gltfItem_accessor_sparse::parse( idToken& token )

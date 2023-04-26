@@ -1917,6 +1917,92 @@ const char* idLexer::ParseBracedSectionExact( idStr& out, int tabs )
 
 /*
 =================
+idParser::ParseBracedSection
+
+The next token should be an open brace.
+Parses until a matching close brace is found.
+Maintains exact characters between braces.
+
+  FIXME: this should use ReadToken and replace the token white space with correct indents and newlines
+=================
+*/
+const char* idLexer::ParseBracketSectionExact( idStr& out, int tabs )
+{
+	int		depth;
+	bool	doTabs;
+	bool	skipWhite;
+
+	out.Empty();
+
+	if( !idLexer::ExpectTokenString( "[" ) )
+	{
+		return out.c_str();
+	}
+
+	out = "[";
+	depth = 1;
+	skipWhite = false;
+	doTabs = tabs >= 0;
+
+	while( depth && *idLexer::script_p )
+	{
+		char c = *( idLexer::script_p++ );
+
+		switch( c )
+		{
+			case '\t':
+			case ' ':
+			{
+				if( skipWhite )
+				{
+					continue;
+				}
+				break;
+			}
+			case '\n':
+			{
+				if( doTabs )
+				{
+					skipWhite = true;
+					out += c;
+					continue;
+				}
+				break;
+			}
+			case '[':
+			{
+				depth++;
+				tabs++;
+				break;
+			}
+			case ']':
+			{
+				depth--;
+				tabs--;
+				break;
+			}
+		}
+
+		if( skipWhite )
+		{
+			int i = tabs;
+			if( c == '[' )
+			{
+				i--;
+			}
+			skipWhite = false;
+			for( ; i > 0; i-- )
+			{
+				out += '\t';
+			}
+		}
+		out += c;
+	}
+	return out.c_str();
+}
+
+/*
+=================
 idLexer::ParseBracedSection
 
 The next token should be an open brace.

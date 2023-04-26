@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Game_local.h"
 #include "gltfParser.h"
+#include "gltfExtras.h"
 
 
 static const byte BCANIM_VERSION = 100;
@@ -771,7 +772,7 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 		{
 			gameLocal.Error( "Missing 'anim.%s' on '%s'", animName.c_str(), gltfFileName.c_str() );
 		}
-
+		//check for
 		cameraCuts.Clear();
 		cameraCuts.SetGranularity( 1 );
 		camera.Clear();
@@ -853,13 +854,41 @@ void idCameraAnim::gltfLoadAnim( idStr gltfFileName, idStr animName )
 					}
 					break;
 					case gltfAnimation_Channel_Target::scale:
+					{
 						idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
 						if( values.Num() > i )
 						{
 							gameLocal.Printf( "^5Frame: ^7%i ignored scale on /%s \n\n\n", i, anim->name.c_str() );
 						}
-						break;
+					}
+					break;
 				}
+			}
+		}
+
+		//check for extra anim data
+		if( anim->extras.json.Length() )
+		{
+			gltfItemArray animExtras;
+			GLTFARRAYITEM( animExtras, CameraLensFrames, gltfExtra_CameraLensFrames );
+			idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+			lexer.LoadMemory( anim->extras.json, anim->extras.json.Size(), "idCameraAnim_gltfExtra", 0 );
+			animExtras.Parse( &lexer , true );
+
+			if( CameraLensFrames->item )
+			{
+				auto* lensFrameValues = ( idList<double, TAG_IDLIB_LIST>* )CameraLensFrames->item;
+
+				if( lensFrameValues )
+				{
+					assert( lensFrameValues->Num() == camera.Num() );
+					for( int i = 0; i < lensFrameValues->Num(); i++ )
+					{
+						camera[i].fov = ( float )( *lensFrameValues )[i];
+					}
+				}
+				//Dont forget to free! normally a gltfPropertyArray destructor frees the itemdata
+				delete CameraLensFrames->item;
 			}
 		}
 	}

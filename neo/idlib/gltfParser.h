@@ -52,9 +52,6 @@ public:
 	{
 		item = type;
 	}
-	virtual ~parseType()
-	{
-	}
 	T* item;
 };
 
@@ -97,7 +94,6 @@ private:
 	idStr object;
 };
 
-class gltfItemArray;
 class gltfItem_Extra : public parsable, public parseType<gltfExtra>
 {
 public:
@@ -120,7 +116,6 @@ private:
 	idStr name;
 	gltfData* data;
 	idLexer* parser;
-	static gltfItemArray* items;
 };
 
 class gltfItem_uri : public parsable, public parseType<idStr>

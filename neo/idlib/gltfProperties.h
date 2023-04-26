@@ -92,8 +92,6 @@ public:
 	idStr json;
 	//str:str pairs of each item
 	idDict strPairs;
-	//specialized parsers
-	idList<gltfExtra*> extras;
 };
 
 class gltfExt_KHR_lights_punctual;
