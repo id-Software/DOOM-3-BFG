@@ -161,7 +161,7 @@ Here is an example map by Dmitri Engman that was done completely in Blender. Kud
 
 [![STACK ROCK DUNGEON](https://img.youtube.com/vi/8t7rzVGQScY/0.jpg)](https://www.youtube.com/watch?v=8t7rzVGQScY)
 
-He also wrote a Tutorial here: https://modwiki.dhewm3.org/RBDoom3BFG-Blender-Mapping#2-BLENDER-SET-UP
+He also wrote a tutorial here: https://modwiki.dhewm3.org/RBDoom3BFG-Blender-Mapping#2-BLENDER-SET-UP
 
 ## Imgui Articulated Figure Editor
 
