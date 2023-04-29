@@ -15,7 +15,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-22 April 2023 - RBDOOM-3-BFG 1.5.0
+29 April 2023 - RBDOOM-3-BFG 1.5.0
 _______________________________
 
 # RBDOOM-3-BFG 1.5.0 adds DX12, Vulkan and glTF 2 Support
@@ -33,7 +33,7 @@ OpenGL is dead and won't be further developed. OpenGL was holding back the devel
 I was excited when Vulkan was announced but it wasn't fun at all to work with because it is way too verbose and difficult to work with even after 17 years of OpenGL experience. It was even annoying to just render anything offscreen like shadow maps. Right now, Vulkan offers many extensions to make those tasks simpler but if you are using modern Vulkan then it is already so different that people demand to make a new Vulkan 2 API.
 Vulkan became immediatly the extension hell OpenGL was and all I wanted was a nice and simple API like OpenGL ES 3 but with proper error feedback and more speed.
 
-I was looking for several years for a good abstraction layer of modern graphics APIs like DX12 / Vulkan. I considered The-Forge, Dilligent Engine, Tiny Renderers (Google) and BGFX for reducing the maintencance costs of the RBDOOM-3-BFG renderer.
+I was looking for several years for a good abstraction layer of modern graphics APIs like DX12 and Vulkan. I considered The-Forge, Dilligent Engine, Tiny Renderers (Google) or BGFX for reducing the maintencance costs of the RBDOOM-3-BFG renderer.
 
 Then I stumbled over an excellent article by Alexey Panteleev about [Writing Portable Rendering Code with NVRHI](https://developer.nvidia.com/blog/writing-portable-rendering-code-with-nvrhi/).
 
@@ -46,7 +46,7 @@ It also changed my plans for 2022 and ruined many weekends by fixing renderer re
 However I want to continue to work on this project in my spare time for the next 10 years so the effort was worth it. In the end it turned out that NVRHI is as easy to use as OpenGL with the Donut samples provided.
 There is definitely some lack of documentation but now you have a former AAA game rendered with NVRHI as an example.
 RBDOOM-3-BFG has a similar renderer complexity to older Call of Duty titles or the Source engine.
-The implementation is not optimal and very close to the original rendering architecture of Doom 3 BFG.
+The implementation is not optimal in terms of performance and very close to the original rendering architecture of Doom 3 BFG.
 However it is nice and simple that way.
 
 Stephen Pridham did the major porting effort and was a big help when addressing certain difficult issues.
@@ -59,14 +59,14 @@ There are also some immediate advantages for RBDOOM-3-BFG besides the smaller re
 
 ### DX12 is faster than OpenGL
 
-This is a worse case scenerio in Doom 3 with many shadow casting point lights. DX12 is now almost twice as fast as OpenGL. Vulkan is still lacking behind but DX12 is the primary API for Windows users which are the vast majority.
+This is actually one of the most demananding scenes in Doom 3 with many shadow casting point lights. DX12 is now almost twice as fast as OpenGL. Vulkan is still lacking behind but DX12 is the primary API for Windows users which are the vast majority.
 Stephen Saunders also provided triple buffering with NVRHI wich leads to a higher parallelization between the CPU and graphics card.
 
 <img src="https://imgur.com/WWLN49t.jpg" width="384"> <img src="https://imgur.com/KrjppYU.jpg" width="384"> 
 
 ### Temporal Anti Aliasing
 
-MSAA/SMAA have been replaced with a Temporal Anti Aliasing solution by Nvidia. This not only fixes geometric aliasing at the edges but also shader based aliasing within the shapes like extreme specular highlights caused by the new PBR shaders.
+MSAA/SMAA have been replaced with a Temporal Anti Aliasing solution by Nvidia. This not only fixes geometric aliasing at the edges but also shader based aliasing within the geometries like extreme specular highlights caused by the new PBR shaders.
 
 <img src="https://imgur.com/kQ5L37H.jpg" width="384"> <img src="https://imgur.com/bbRLVHg.jpg" width="384"> 
 
@@ -74,6 +74,7 @@ MSAA/SMAA have been replaced with a Temporal Anti Aliasing solution by Nvidia. T
 
 The SSAO implementation has been updated with the latest code from Nvidia's Donut samples which outperforms the old implementation and also adds better stability on different view angles.
 The old SSAO in 1.4.0 also lacked filtering and looked very noisy. The TAA would help but now it's really fixed and better.
+It's hard to tell in these screenshots but the new SSAO gives most scenes a lot more depth.
 
 <img src="https://imgur.com/GaUE8VM.jpg" width="384"> <img src="https://imgur.com/9UMVoY3.jpg" width="384"> 
 
@@ -84,7 +85,7 @@ The old SSAO in 1.4.0 also lacked filtering and looked very noisy. The TAA would
 Harrie van Ginneken contributed a new glTF 2 loader written from scratch using the awesome id Tech 4 idlib framework.
 Also a big thanks here because this is huge and took a lot of time to develop.
 
-The importer is not designed to work with all glTF 2 models you can find on the internet but as a solid import facility from Blender. It can read ASCII .gltf and binary .glb models. It is recommend to use .glb for faster load times.
+The importer is not designed to work with all glTF 2 models you can find on the internet but it serves as a solid import facility from Blender. It can read ASCII .gltf and binary .glb models. It is recommend to use .glb for faster load times.
 Models imported as .glb will be cached as .bglb models in the generated folder like all other model formats.
 Cool about the current implementation is that animations are converted straight to the .bMD5Anim binary format of the Doom 3 BFG edition. This makes it a very tight integration into the existing architecture.
 
@@ -92,14 +93,18 @@ The basic idea about the glTF 2 `loader` is to make it easier getting models int
 So all normalmaps baked in Blender or Substance Painter using the Mikktspace algorithm would look wrong.
 glTF 2 fixes this problem and it not only has support for normals but also tangents and those have to be calculated the Mikkelsen way so that's a perfect fit.
 
+You can also use .glb files for static models without a skeleton just like with the original 3ds Max .ase and Lightwave .lwo files.
+On top of that you can also use glTF 2 for new camera animations but that needs to be covered in an upcoming tutorial.
+
 I also want to go back and keep things simple so I don't want to import and configure a model like in Unity or Unreal. I just want to load models and use them and the maximum should be to specify which frame plays a foot sound or which bone needs to be used to attach an item to it.
 
-However it might be the case that someone exports a model from Blender and in a team environment someone else needs an option to load it differently. E.g. the front in Blender is -Y and forward in Doom is +X. So we need to rotate a model by 90 degrees around Z axis. All these things did the Maya .mb -> .md5mesh converter Plugin for Doom 3 and we added similar options straight into modelDef.
+However it might be the case that someone exports a model from Blender and in a team environment someone else needs an option to load it differently. E.g. the front in Blender is -Y and forward in Doom is +X. So we need to rotate a model by 90 degrees around Z axis. All these things did the Maya .mb -> .md5mesh converter plugin for Doom 3 and we allow similar options in model declarations.
 
 ```
 model character_mcneil
 {
-  // scale from meters to Doom units (inches)
+  // scale from meters to Doom units (inches), add an "origin" bone from rig origin to pelvis and 
+  // build automatically a root motion from the pelvis bone
 	options -scale 39.37 -addorigin -transfermotion "pelvis"
 	
 	mesh models/characters/mcneil/mcneil.glb
@@ -147,9 +152,9 @@ Animation: Animation On, Shape Keys Off, Skinning On
 
 I rewrote dmap 8 years ago to compile a BSP from a polygon based map format instead of brushes. 
 Now, Harrie van Ginneken has extended it so we can compile glTF 2 files.
-The trick is to use custom properties in Blender and they can be passed to the engine like it would be a .map file.
+The trick is to use custom properties in Blender and the engine treats the .glb file like a .map file.
 
-There is too much to explain here and this needs to be covered in a tutorial along with a new Blender addon for editing the entities. But this is quite cool. You can now make maps without TrenchBroomBFG or a Radiant based editor.
+There is too much to explain here and this needs to be covered in a tutorial series along with a new Blender addon for editing the entities. But this is quite cool. You can now make maps without TrenchBroom or a Radiant based editor. Theoretically it is possible to use any 3D modelling package as a level editor now.
 
 Just save your map as .glb file and compile it like:
 
@@ -157,7 +162,13 @@ Just save your map as .glb file and compile it like:
 dmap mymap.glb
 ```
 
-Here is an example map by Dmitri Engman that was done completely in Blender. Kudos to him for pulling this off without documentation.
+Harrie managed to port entire asset packs with animations and hundreds of meshes by using a few clever Python scripts within Blender.
+
+Here is a small demo of his WIP game which shows GPU skinning using Mixamo animations and a working BSP with typical Doom 3 style portal culling:
+
+[![WIP Space Game](https://img.youtube.com/vi/KdwInY0A_qs/0.jpg)](https://www.youtube.com/watch?v=KdwInY0A_qs)
+
+Here is an another example map by Dmitri Engman that was done entirely in Blender. Kudos to him for pulling this off without documentation.
 
 [![STACK ROCK DUNGEON](https://img.youtube.com/vi/8t7rzVGQScY/0.jpg)](https://www.youtube.com/watch?v=8t7rzVGQScY)
 
@@ -165,13 +176,13 @@ He also wrote a tutorial here: https://modwiki.dhewm3.org/RBDoom3BFG-Blender-Map
 
 ## Imgui Articulated Figure Editor
 
-Stephen Pridham added a new Imgui based Articulated Figure editor
+Stephen Pridham added a new Imgui based Articulated Figure editor.
 
 <img src="https://imgur.com/atETc0r.jpg" width="576">
 
 ## Imgui Light Editor
 
-The ImGui light editor which you can spawn with editLights has been slightly improved.
+The ImGui light editor, which you can spawn with editLights, has been slightly improved.
 It shows the bounding boxes of the lights and you can move the lights with the arrow keys similar to TrenchBroom.
 
 <img src="https://imgur.com/iYFLd2o.jpg" width="576">
@@ -188,14 +199,30 @@ There is an example in mod_alternativequakemusic/sound/_rbdoom_aqm_tracks.sndshd
 ## Optick Profiler
 
 The super lightweight C++ profiler Optick has been integrated. You need to recompile the engine with the CMake option -DOPTICK=ON but then you can run the profiler along with RBDOOM-3-BFG and make detailed captures about what is going on.
+It's also very useful if you want to understand the multithreaded architecture of the BFG edition.
 
 <img src="https://imgur.com/3OEbO0M.jpg" width="576">
 
+## Borderless Fullscreen
+
+Stephen Saunders contributed support for borderlesss fullscreen mode which can also be set by commandline with r_fullscreen -2. It's enabled automatically if you switch from windowed mode to fullscreen by using Alt + Enter. You can’t tell the difference visually. However, stick to borderless mode over fullscreen mode if you use multiple monitors. 
+You can access your displays and launch various apps while your game or work stays on the main display.
+
+This has the advantage that you can run RBDOOM-3-BFG simultanously along with TrenchBroomBFG, Blender, Krita or any other gamedev weapon of choice and it makes it easier to to switch between the applications.
+
+But, there is a downside to borderless mode, depending on your device. 
+Most operating systems like Windows, for example, will continue dedicating resources to all background processes. 
+This means you might get less performance and experience input lag.
+If you need to squeeze some extra FPS, go back to real fullscreen mode to see if it makes a difference.
+
 ## TrenchBroomBFG
 
-Besides that the custom TrenchBroom build has been renamed to TrenchBroomBFG. This avoids conflicts with the original program like config files that are saved in the user directory. 
-The new version has been updated to TrenchBroom 2023.1. The icon size option also affects the entity inspector now which helps with high resolutions.
-The command exportFGD was changed so you have multiple variations of FGD files.
+The custom TrenchBroom build has been renamed to TrenchBroomBFG. This avoids conflicts with the original program like config files that are saved in the user directory. It also ignores all the other unsupported game profiles.
+The new version has been updated to TrenchBroom 2023.1. It also supports the glTF 2 formats through the Assimp library but in this version the material loader has been tweaked to work directly with Doom 3 .mtr materials.
+The icon size option also affects the entity inspector now which helps with high resolutions.
+
+
+The engine command exportFGD was changed so it generates more variations of FGD files:
 
 ```
 DOOM-3-all-and-models.fgd
@@ -310,13 +337,17 @@ If you switch to one of those with the additional autogenerated model entities t
 
 * LightEditor: Draw volume of selected light and move it with arrow keys
 
+* Support Borderless Fullscreen and Borderless Window modes for Win32 and SDL platforms
+
+* Fixed crash when executing extract_resources.cfg on Linux
+
 [TRENCHBROOMBFG]
 
 * Renamed custom TrenchBroom fork to TrenchBroomBFG
 
 * Change TrenchBroomBFG to only load Doom 3 related game profiles as it breaks compatibility to other Quake based games
 
-* TrenchBroomBFG was updated with the latest TrenchBroom/master code which involves a couple of bugfixes for linked groups (instancing)
+* TrenchBroomBFG code was updated with the stable TrenchBroom 2023.1 release which contains tons of bugfixes and improvements
 
 * If you turn off certain brushes like visportals in the View Options you won't accidently select by clicking to brushes behind them
 
@@ -324,569 +355,15 @@ If you switch to one of those with the additional autogenerated model entities t
 
 * func_door FGD fix
 
-* Use Icon size preferences in entity browser
+* Use Icon size preferences not only in the textures browser but also in the entity browser
 
 * FGD proxymodel evaluation fix #4052
 
 * Use fixed size (-8 -8 0, 8 8 16) bounds for all model based entities
 
+* Fixed missing support for the basecolormap keyword in .mtr files
 
 
-
-# Old Discord builds
-
-## .plan - April 18, 2023
-
-Stephen Saunders contributed support for borderlesss fullscreen mode which can also be set by commandline with r_fullscreen -2. It's enabled automatically if you switch from windowed mode to fullscreen by using Alt + Enter. You can’t tell the difference visually. However, stick to borderless mode over fullscreen mode if you use multiple monitors. 
-You can access your displays and launch various apps while your game or work stays on the main display.
-
-This has the advantage that you can better run RBDOOM-3-BFG simultanously along with TrenchBroomBFG, Blender, Krita or any other gamedev weapon of choice.
-
-But, there is a downside to borderless mode, depending on your device. 
-Most operating systems like Windows, for example, will continue dedicating resources to all background processes. 
-This means you might get less performance and experience input lag if you’re running a game or a demanding app. 
-If you need to squeeze some extra FPS, go back to real fullscreen mode to see if it makes a difference.
-
-The glTF2 importer has been rewritten to make it more robust. The -transermotion option might not work.
-The importer has still some bugs left like -scale only works on certain models.
-It is not necessary anymore to specify the name of the armature node. 
-It will automatically find the rig node but the exported .glb model should have only one skeleton.
-
-The rest was cleaning up the code and removing unused OpenGL and Vulkan code.
-
-Changelog:
-
-* Support Borderless Fullscreen and Borderless Window modes for Win32 and SDL platforms
-
-* Fixed recursive mesh adding in findEntities for glTF2 scenes
-
-* Changed animated glTF2 models to be cached like MD5 meshes so model overlays work on them
-
-* Store glTF2 source timestamp in .bglb binary cache file
-
-* Fixed loading glTF2 models with multiple skinned meshes
-
-* Added -rotate [yaw] glTF2 import option
-
-* Added glTF2 import option -nomikktspace
-
-* If -DSTANDALONE=ON option is set filesystem will look for content/ instead of base/
-
-* Removed stencil shadow volumes with additional fixes by icecoldduke
-
-* Reverted com_smp back to CVAR_BOOL
-
-* Removed unused cvar r_useHalfLambert
-
-* Update README for VS 2022
-
-* Fix Vulkan Vsync mode and handle NUM_FRAME_DATA = 2 or 3
-
-* Fix Vsync mode switching to support all modes: 0 (off), 1 (smart), 2 (on)
-
-* Show shadow atlas stats with com_showFPS 3
-
-* Enable D3D12 Debug Layer with r_useValidationLayers 2
-
-* Removed broken aviDemo code. External tools do a better job on this
-
-* Removed obsolete sdl_glimp.cpp
-
-* Removed many obsolete #if defined( USE_NVRHI )
-
-* Removed renderprogs/ legacy HLSL shaders that were translated to GLSL
-
-* Removed OpenGL code from win_glimp.cpp
-
-* Killed entire HLSL -> GLSL conversion code
-
-* Removed more obsolete Vulkan & OpenGL code
-
----
-
-## .plan - March 08, 2023
-
-This build improves the performance again by about 60% through a different V-Sync implementation by Steve Saunders. It seems to require tripple buffering and slightly more memory but elimates the stalls between CPU <-> GPU syncing.
-
-The full discussion was in https://github.com/RobertBeckebans/RBDOOM-3-BFG/pull/750
-
-Changelog:
-
-* Refactored DeviceManager_DX12 members for better diffing with original Donut sample
-
-* Use command queue sync method vs. device sync for higher performance / frame rate
-
-* Fixed fake parallel light in Mars City 1 opening scene
-
-* Tweaked some lights in the hangar
-
-* LightEditor: Draw volume of selected light and move it with arrow keys
-
-
----
-## .plan - March 05, 2023
-
-This build improves the performance again and it shows the selected GPU with com_showFPS > 1.
-This is probably the fastest version ever at least with DX12.
-
-Changelog:
-
-* Fixed Optick related compile warnings on Linux #750
-
-* Removed obsolete cvar r_useHDR
-
-* Removed obsolete cvar r_useSeamlessCubeMap
-
-* Went back to 15 bits for VERTCACHE_FRAME_MASK to avoid weird model distortions in a single frame every 68 seconds
-
-* Fixed missing shadows in the kitchen of Mars City 1
-
-* Added PROFILE_EVENT to RunFrame()
-
-* Fixed the CMake option -DOPTICK=ON/OFF
-
-* Display all the common different threads in Optick
-
-* Fixed crash of RBDoom after stopping an Optick capture
-
-* Super basic Optick profiler integration
-
-* Added r_graphicsAdapter to select a specific GPU
-
-* Tweaked DrawFPS maxTime to reduce flickering if V-Sync is on
-
-* Show picked GPU with com_showFPS > 1
-
-* Small performance fix
-
-* Added additional FGDs
-
-
----
-## .plan - Feb 24, 2023
-
-This build improves the image quality and performance. The SSAO implementation has been updated with the latest code from Nvidia's Donut samples which outperforms the old implementation and also adds better stability on different view angles.
-
-Special thanks to Stephen Saunders for fixing various Linux issues and improving the Vulkan implementation using AMD's Vulkan Memory Allocator (VMA). This allows to run RBDOOM-3-BFG on AMD GPUs on Windows.
-
-There are also many smaller bugfixes listed below.
-
-Changelog:
-
-* Tweaked exportFGD to output more FGDs with autogenerated model definitions
-
-* Blend shadowmaps smoothly in for small distant lights #746
-
-* Skip shadowmaps for small distant lights #746
-
-* Don't allocate non shadow casting lights into the shadow atlas #746
-
-* Added menu option to choose between DX12 and Vulkan
-
-* Fix frame-over-frame timers for F12 screenshots
-
-* Detect displays that only support 144, 165 and 240 Hz
-
-* Define r_vmaAllocateBufferMemory cvar to control if VMA is used for buffer memory allocation
-
-* Add NVIDIA copyright notices to borrowed code in BufferObject_NVRHI.cpp and Image_NVRHI.cpp
-
-* Improve Vulkan SDK component detection (dxc & MoltenVK) using FindVulkan.cmake module
-
-* Set NVRHI upload buffer size to avoid Vulkan staging buffer fragmentation
-
-* Integrate the AMD's VMA allocator for images and buffer objects
-
-* Simplified old SSAO backend code
-
-* Fix AmbientOcclusion_blur.ps.hlsl shader for legacy r_ssaoFiltering option
-
-* Restore bounded array in mipmapgen.cs.hlsl for DXIL UAV binding
-
-* Fix legacy SSAO for NVRHI Vulkan and enable Donut's SSAO compute shader alternative
-
-* Fix ImGui include path handling to be consistent with other external libs
-
-* Applied MD3 crashfix by Daniel Gibson
-
-* Restore support for FFMPEG legacy channel_layout & channels fields, remove self-assignment in idSoundDecoder_Vorbis::Open()
-
-* Update FFMPEG deprecated calls to use supported ch_layout structure
-
-* R_TestVideo_f command fixes and Cinematics startup fix for NVRHI (BinkDec green frame)
-
-* Add s_playCinematicAudio cvar to enable/disable cinematic audio playback
-
-* Support mp4/webm/mkv cinematics for mods, fix duration calculation, fix testVideo shutdown on exit
-
----
-## .plan - Dec 22, 2022
-
-This build adds several glTF2 importer options so you can use typical rigs like for UE4/Mixamo or Unity.
-
-Special thanks to Harrie van Ginneken for the new options.
-
-Here is an example model definition:
-
-```
-model character_mcneil
-{
-	options -scale 39.37 -addorigin -transfermotion "pelvis"
-	
-	mesh models/characters/mcneil/mcneil.root.glb
-	
-	channel legs ( origin *pelvis *foot_l *foot_r)
-	
-	anim walk models/characters/mcneil/mcneil.Walk.glb
-	anim idle models/characters/mcneil/mcneil.Idle.glb
-}
-```
-
-Changelog:
-
-* Added -reorient <angles> option to gltf model import
-
-* Added -addorigin option to gltf model import
-
-* Added -transfermotion option to gltf model import
-
-* Added -armature <name> option to gltf model import for the case if your model is not directly parented to an armature
-
-* Fixed loading animations when the armatures option is not used
-
-* Fixes loading animations from different GLTF files
-
-* Fixes regenerating bMD5Anim from GLTF animation when source is newer than binary
-
-* Allowing binding of asset library instances in gltf scenes.
-
-* Don't crash when trying to load an animation from and GLB does not match last loaded model glb
-
-* Root motion transfer fixes.
-
-* Make missing joints on player model non-fatal in the game code
-
-* Make CheckModelHierachy non-fatal in the game code
-
----
-## .plan - Nov 20, 2022
-
-This build based on the 635-nvrhi5 branch allows to play the game with the NVRHI Vulkan backend.
-You can switch to Vulkan by starting the engine with +set r_graphicsAPI vulkan.
-
-Also this build is for testing Vulkan it seems that the current changes make RBDOOM-3-BFG the fastest version ever with DX12.
-
-Special thanks to Steven Pridham and Steve Saunders to get this running on Linux and macOS.
-
-For the overall NVRHI state see the task board: https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects/8
-
-Besides that TrenchBroomBFG comes with a few fixes. The icon size option also affects the entity inspector now which helps with high resolutions.
-Also the DOOM-3-all.fgd contains all generated static meshes so you can drag n drop meshes into your map without the models zoomap.
-
-Changelog:
-
-* Write constant buffers if changed or layout changed
-
-* Move nvrhi::Device->waitForIdle() back to GL_BlockingSwapBuffers()
-
-* Always write the constant buffer -> BAD but works
-
-* Update the render state whenever the constant buffer is written to
-
-* Invalid binding set cache if either vertex data or joint data changes
-
-* Update NVRHI submodule
-
-* Update map buffer calls
-
-* Update to make it easier to switch constant buffer usage
-
-* Allow buffer ranges for constant buffers
-
-* Fix VK descriptor set slot for motionBlur shader
-
-* Replaced std::min/max with Min/Max
-
-* Merge branch '721-gltf2-cameras' into 705-gltf2-import-options
-
-* Added idMat4::GetTranslation() and some comments
-
-* HarrievG: [glTF2] Corrected Spot light transforms
-
-* HarrievG: [glTF2] Fixed runtime reloading for gltf models
-
-* Passed idImportOptions along the animations loader code
-
-* Apply import options to glTF2 models (WIP)
-
-* Little cleanup of the glTF2 code
-
-* Use fixed size (-8 -8 0, 8 8 16) bounds for all model based entities for TB
-
-* Added TrenchBroom FGD files
-
-* exportFGD proxymodel fix
-
-
-TrenchBroomBFG Changelog:
-
-* Updated DOOM-3-all.fgd to contain all genmodel entities generated from static meshes
-
-* func_door FGD fix
-
-* Use Icon size preferences in entity browser
-
-* FGD proxymodel evaluation fix #4052
-
-
----
-## .plan - Oct 29, 2022
-
-This build based on the 635-nvrhi3 branch fixes several issues with the dmap glTF2 workflow and updates TrenchBroomBFG to the latest TrenchBroom 2022.2 RC2 candidate code.
-
-Changelog:
-
-* Inline support for gltf maps; Add "inline" "0" property to a func_static to not inlude it in the map BSP. Defaults to 1 if not set.
-
-* Recursive Entity/Collection support for glTF2 maps
-
-* KHR_lights_punctual point & spot light support
-
-TrenchBroomBFG Changelog:
-
-* Fixed missing support for the basecolormap shortcut in .mtr files
-
-Changelog (since TrenchBroom 2022.1)
-Features
-
-    #3449, #2628, #719: Add support for modern model formats via the assimp library (@EludeQ)
-
-Enhancements
-
-    #4078: Allow texture reset shortcut in 2D views
-    #4059: Allow texture nudging etc. on a shift-clicked face while in vertex, edge or face mode
-
-Bug fixes
-
-    #4045: Don't crash when showing a file dialog on Linux
-    #4038: Repair model expressions that reference a non-existing spawnflags property
-    #4051: Disallow adding entity property if it leads to inconsistent linked group updates
-    #4059: Don't crash if linked groups temporarily exceed world bounds during update
-    #4089: Fix shortcuts sometimes not working
-    #4113: Don't move unrelated objects when creating a point entity
-    #4125: Don't render hidden patches
-    #4100: Don't hang if a brush cannot be loaded
-
-
-
----
-## .plan - Oct 20, 2022
-
-This build based on the 635-nvrhi3 branch fixes several issues in the AAS builder with the dmap glTF2 workflow.
-
-Changelog:
-
-* Removal of backface generation in idAASBuild for polygon meshes
-
-* Fixed dmap crash while trying to merge leaf nodes
-
-* Add move semantics to idList and idStr (thanks Admer)
-	* idListArrayResize uses std::move
-	* idStr implements move constructor
-	* and move operator
-	* mpMap_t also implements a move operator
-
-* Fix snprintf() buffer length issues for Doom Classic on Linux with GCC 12 compiler
-
-
-
----
-## .plan - Oct 1, 2022
-
-This build based on the 635-nvrhi3 branch repairs the loading of animated glTF2 models (thanks to Harrie van Ginneken) and an updated version of TrenchBroom.
-All models need to be reexported by Blender using the enabled +Y Up option.
-
-Models are expected to be exported by Blender with the following settings:
-
-```
-Format: glTF Binary (.glb)
-Transform: +Y Up On
-Materials: Export
-Images: None
-Compression: Off
-Data: Custom Properties On
-Animation: Animation On, Shape Keys On, Skinning On
-```
-
-Changelog:
-
-* Added new Imgui Aritulated Figure editor by Stephen Pridham (forgot to mention this in the last Changelog)
-
-* Fixed math problem and transposed idMat4::ToMat3()
-
-* Repaired glTF2 skeletal animations for the Y-Up case
-
-* Fixed glTF2 boneless TRS animations
-
-* Fixed dmap .glb world+entity geom for the Y-Up case
-
-* Renormalize normals & tangents from dmap .glb import
-
-* Fixed random Unknown punctuation error while loading a glTF2 model
-
-* Transform entity geometry for dmap -glview .obj output into world space
-
-* Moved BSP visualization into separate dmap -asciiTree option
-
-* Renamed custom TrenchBroom fork to TrenchBroomBFG
-
-* Change TrenchBroomBFG to only load Doom 3 related game profiles as it breaks compatibility to other Quake based games
-
-* TrenchBroomBFG was updated with the latest TrenchBroom/master code which involves a couple of bugfixes for linked groups (instancing)
-
-* If you turn off certain brushes like visportals in the View Options you won't accidently select by clicking to brushes behind them
-
-
----
-## .plan - Sep 25, 2022
-
-This build based on the 635-nvrhi3 branch improves the glTF2 support for mapping with Blender and adds back OGG Vorbis support for custom soundtracks.
-
-Models are expected to be exported by Blender with the following settings:
-
-Format: glTF Binary (.glb)
-Transform: +Y Up Off <-- BIG CHANGE: it was On last time
-Materials: Export
-Images: None
-Compression: Off
-Data: Custom Properties On
-
-Similar to modern Quake sourceports users can now just throw their favorite soundtrack into base/music/ like base/music/aqm/*.ogg or into a modfolder/music/ path.
-The game will play automatically it in the background as a looping track until the end of the map.
-Each map will pick a different track but mappers can also define a "music" track in the worldspawn entity.
-You can also fine tune the volume of each track if you write a sound shader for your files.
-
-There is an example in mod_alternativequakemusic/sound/_rbdoom_aqm_tracks.sndshd for the Alternative Quake Music sound track.
-
-Changelog:
-
-* Improved Quake .map converter to get Makkon's samplemaps working
-
-* Tweaked dmap -glview option to dump an .obj next to the .proc file with similar content and to print an ASCII art BSP tree in the proc file
-
-* Bumped the required C++ standard to C++14
-
-* TrenchBroom's  glTF2 support was changed to properly display models that were exported from Blender with the +Y-Up option ticked OFF
-
-* Added ancient oggvorbis code from vanilla Doom 3
-
-* Merged Ogg Vorbis support from DNF id Tech 4 branch (thanks to Justin Marshall for making .ogg working with the BFG sound engine)
-
-* Scan for music/*.ogg files and play a different track for each map
-
-* You can start the Vulkan backend with +set r_graphicsAPI Vulkan
-
-* Fixed several Vulkan related bugs like the swapchain problem. It is not playable yet
-
-* The Icedhellfire mod contains AAS files for the ROE maps
-
----
-## .plan - Sep 04, 2022
-
-This build based on the 635-nvrhi3 branch adds glTF2 support to RBDOOM-3-BFG and TrenchBroom.
-Big thanks to Harrie van Ginneken (VrKnight) for contributing this major feature.
-The glTF2 support doesn't rely on thirdparty loaders and is a native id Tech 4x implementation.
-
-Material names in Blender need to be 1:1 the material names defined in the corresponding materials/*.mtr files.
-
-Models are expected to be exported by Blender with the following settings:
-
-Format: glTF Binary (.glb)
-Transform: +Y Up
-Materials: Export
-Images: None
-Compression: Off
-Data: Custom Properties On
-
-Changelog:
-
-* Added glTF2 model loader for static and animated models
-
-* Changed dmap to support compiling maps from gtTF2 .glb models instead of .map files
-
-* Added support for MapPolygonMeshes to the AAS compiler
-
-* TrenchBroom uses Assimp for glTF2 support and is based on branch doom3-support9 using TB/master from Jul 06, 2022
-
-This build also gives a preview of the Iced Hellfire Mod by Justin Marshall (icecoldduke):
-It features native weapon and monster AI implementations in C++ and Quake 3 multiplayer bots.
-I added a couple of bugfixes and compiled the deathmatch maps with runAAS so you can try the multiplayer bots with the "fillbots" command.
-
-The directory "mod_icedhellfire" contains the necessary updated AAS files for the multiplayer maps.
-In order to play the mod you only need to start DoomIcedHellfire.exe without extra parameters.
-
----
-## .plan - Jul 03, 2022
-
-This build targets several problems when using the bakeEnvironmentProbes and bakeLightGrid commands using the NVRHI/DX12 backend.
-So the commands are producing the same results as the OpenGL backend now.
-
-* Don't use TAA jitter when capturing env probes!
-
-* Always clear the envprobe FBO for lightgrid capturing
-
-* Print engine version when starting to write a qconsole.log
-
-* Fixed window icon by adding the missing doom.rc
-
----
-## .plan - Jun 27, 2022
-
-This build targets several problems when compiling maps with dmap and it adds GPU Skinning to the DX12 backend.
-
-* Merged GPU skinning code by SP and did additional refactoring
-
-* Don't generate collision models for every rendermodel in advance. Restored vanilla Doom 3 behaviour.
-
-* Dmap: always write a .cm file, especially when overwriting from a mod dir
-
-* Support the Valve 220 texture projection in MapPolygonMesh::ConvertFromBrush()
-
-* Automatically remove map collision .cm, .bcm files before running dmap
-
-* Crashfix: Don't refesh the screen using prints during engine shutdown
-
----
-## .plan - Jun 5, 2022
-
-This build targets the NVRHI/DX12 crash problems that have been reported since the last build.
-
-* Fixed rendering of FFmpeg, Binkdec videos and Doomclassic modes #648 677
-
-* Separate bind set for material textures in the light passes to avoid allocation problems #676
-
-* Fixed chromatic aberration on right/bottom screen corners
-
----
-## .plan - May 29, 2022
-
-This version replaces OpenGL with DX12 using the NVRHI API.
-
-NVRHI (NVIDIA Rendering Hardware Interface) is a library that implements a common abstraction layer over multiple graphics APIs (GAPIs): Direct3D 11, Direct3D 12, and Vulkan 1.2. It works on Windows (x64 only) and Linux (x64 and ARM64).
-
-The initial port to NVRHI and major work was done by Stephen Pridham. Big thanks for that!
-
-* Renderer uses DX12 instead of OpenGL. Vulkan isn't supported yet
-
-* SMAA has been replaced with a Temporal Anti Aliasing solution by Nvidia. This not only fixes geometric aliasing but also shader based aliasing like extreme specular highlights by the PBR shaders.
-
-* The MSAA option is gone for the moment
-
-* Shadow mapping uses a fat shadowmap atlas instead of switching between shadowmap buffers and the HDR render target for each light
-
-* Shaders are not compiled at runtime anymore. They are compiled in advance by CMake using the DXC shader compiler and distributed in binary form under base/renderprogs2/dxil/*.bin
-
-* All shaders have been rewritten to proper HLSL
 
 
 

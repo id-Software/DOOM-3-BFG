@@ -1406,6 +1406,13 @@ int idFile_Permanent::Write( const void* buffer, int len )
 		return 0;
 	}
 
+	// Chillax
+	if( buf == NULL )
+	{
+		common->Printf( "idFile_Permanent::Write: buffer is null, 0 bytes written to %s\n", name.c_str() );
+		return 0;
+	}
+
 	buf = ( byte* )buffer;
 
 	remaining = len;
