@@ -144,9 +144,9 @@ namespace Optick
 		return event;
 	}
 
-	EventData& GPUProfiler::AddVSyncEvent()
+	EventData& GPUProfiler::AddVSyncEvent(const char *eventName)
 	{
-		static const EventDescription* VSyncDescription = EventDescription::Create("VSync", __FILE__, __LINE__);
+		static const EventDescription* VSyncDescription = EventDescription::Create(eventName, __FILE__, __LINE__);
 		EventData& event = nodes[currentNode]->gpuEventStorage[GPU_QUEUE_VSYNC]->eventBuffer.Add();
 		event.description = VSyncDescription;
 		event.start = EventTime::INVALID_TIMESTAMP;
@@ -161,6 +161,16 @@ namespace Optick
 		tag.description = FrameTagDescription;
 		tag.timestamp = EventTime::INVALID_TIMESTAMP;
 		tag.data = Core::Get().GetCurrentFrame(FrameType::CPU);
+		return tag;
+	}
+
+	TagData<uint32>& GPUProfiler::AddVSyncTag()
+	{
+		static const EventDescription* VSyncTagDescription = EventDescription::CreateShared("Frame");
+		TagData<uint32>& tag = nodes[currentNode]->gpuEventStorage[GPU_QUEUE_VSYNC]->tagU32Buffer.Add();
+		tag.description = VSyncTagDescription;
+		tag.timestamp = EventTime::INVALID_TIMESTAMP;
+		tag.data = 0;
 		return tag;
 	}
 

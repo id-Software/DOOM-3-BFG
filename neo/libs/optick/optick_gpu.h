@@ -123,8 +123,9 @@ namespace Optick
 		void Reset();
 
 		EventData& AddFrameEvent();
-		EventData& AddVSyncEvent();
+		EventData& AddVSyncEvent(const char *eventName = "VSync");
 		TagData<uint32>& AddFrameTag();
+		TagData<uint32>& AddVSyncTag();
 
 	public:
 		GPUProfiler();

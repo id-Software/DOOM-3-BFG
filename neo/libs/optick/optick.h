@@ -149,6 +149,7 @@ typedef void (VKAPI_PTR *PFN_vkDestroyQueryPool_)(VkDevice device, VkQueryPool q
 typedef void (VKAPI_PTR *PFN_vkDestroyEvent_)(VkDevice device, VkEvent event, const VkAllocationCallbacks* pAllocator);
 typedef void (VKAPI_PTR *PFN_vkDestroyFence_)(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
 typedef void (VKAPI_PTR *PFN_vkFreeCommandBuffers_)(VkDevice device, VkCommandPool commandPool, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
+typedef int32_t (VKAPI_PTR *PFN_vkGetPastPresentationTimingGOOGLE_)(VkDevice device, void* swapchain, uint32_t* pPresentationTimingCount, void* pPresentationTimings);
 
 #if OPTICK_VKAPI_PTR_DEFINED
 #undef VKAPI_PTR
@@ -188,6 +189,7 @@ namespace Optick
 		PFN_vkDestroyEvent_ vkDestroyEvent;
 		PFN_vkDestroyFence_ vkDestroyFence;
 		PFN_vkFreeCommandBuffers_ vkFreeCommandBuffers;
+		PFN_vkGetPastPresentationTimingGOOGLE_ vkGetPastPresentationTimingGOOGLE;
 	};
 
 	// Source: http://msdn.microsoft.com/en-us/library/system.windows.media.colors(v=vs.110).aspx

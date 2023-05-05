@@ -58,6 +58,9 @@ namespace Optick
 
 			array<Frame, NUM_FRAMES_DELAY> frames;
 
+			uint64_t			presentTime;
+			uint32_t			presentID;
+
 			NodePayload() : vulkanFunctions(), device(VK_NULL_HANDLE), physicalDevice(VK_NULL_HANDLE), queue(VK_NULL_HANDLE), queryPool(VK_NULL_HANDLE), commandPool(VK_NULL_HANDLE), event(VK_NULL_HANDLE) {}
 			~NodePayload();
 		};
@@ -130,6 +133,7 @@ namespace Optick
 				vkDestroyEvent,
 				vkDestroyFence,
 				vkFreeCommandBuffers,
+				nullptr, // dynamically define vkGetPastPresentationTimingGOOGLE if VK_GOOGLE_display_timing extension available
 			};
 		}
 
@@ -163,6 +167,7 @@ namespace Optick
 			NodePayload* nodePayload = Memory::New<NodePayload>();
 			nodePayloads[i] = nodePayload;
 			nodePayload->vulkanFunctions = &vulkanFunctions;
+			nodePayload->vulkanFunctions->vkGetPastPresentationTimingGOOGLE = (PFN_vkGetPastPresentationTimingGOOGLE_)vkGetDeviceProcAddr(devices[i], "vkGetPastPresentationTimingGOOGLE");
 			nodePayload->device = devices[i];
 			nodePayload->physicalDevice = physicalDevices[i];
 			nodePayload->queue = cmdQueues[i];
@@ -267,7 +272,7 @@ namespace Optick
 		} while (r != VK_SUCCESS);
 	}
 
-	void GPUProfilerVulkan::Flip(void* /*swapChain*/)
+	void GPUProfilerVulkan::Flip(void* swapChain)
 	{
 		OPTICK_CATEGORY("GPUProfilerVulkan::Flip", Category::Debug);
 
@@ -335,6 +340,8 @@ namespace Optick
 			{
 				currentFrame.queryIndexStart = 0;
 				currentFrame.queryIndexCount = queryEnd;
+				payload.presentTime = 0;
+				payload.presentID = 0;
 			}
 
 			// Preparing Next Frame
@@ -352,6 +359,38 @@ namespace Optick
 				{
 					ResolveTimestamps(currentNode, startIndex, MAX_QUERIES_COUNT - startIndex);
 					ResolveTimestamps(currentNode, 0, finishIndex);
+				}
+
+				// SRS - Add Vulkan presentation / vsync timing if VK_GOOGLE_display_timing extension available
+				if (vulkanFunctions.vkGetPastPresentationTimingGOOGLE)
+				{
+					uint32_t queryPresentTimingCount = 0;
+					(*vulkanFunctions.vkGetPastPresentationTimingGOOGLE)(device, swapChain, &queryPresentTimingCount, nullptr);
+					if (queryPresentTimingCount > 0)
+					{
+						// Query Presentation Timing / VSync
+						vector<VkPastPresentationTimingGOOGLE> queryPresentTimings;
+						queryPresentTimings.resize(queryPresentTimingCount);
+						(*vulkanFunctions.vkGetPastPresentationTimingGOOGLE)(device, swapChain, &queryPresentTimingCount, &queryPresentTimings[0]);
+						for (uint32_t presentIndex = 0; presentIndex < queryPresentTimingCount; presentIndex++)
+						{
+							// Process Presentation Timing / VSync if swap image was actually presented (i.e. not dropped)
+							VkPastPresentationTimingGOOGLE presentTiming = queryPresentTimings[presentIndex];
+							if (presentTiming.actualPresentTime > payload.presentTime)
+							{
+								EventData& data = AddVSyncEvent("Present");
+								data.start = payload.presentTime;
+								data.finish = presentTiming.actualPresentTime;
+
+								TagData<uint32>& tag = AddVSyncTag();
+								tag.timestamp = payload.presentTime;
+								tag.data = payload.presentID;
+
+								payload.presentTime = presentTiming.actualPresentTime;
+								payload.presentID = presentTiming.presentID;
+							}
+						}
+					}
 				}
 			}
 
