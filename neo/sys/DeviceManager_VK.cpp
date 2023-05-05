@@ -227,6 +227,9 @@ private:
 			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 			VK_NV_MESH_SHADER_EXTENSION_NAME,
 			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+#if USE_OPTICK
+			VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
+#endif
 			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
 	};
@@ -283,6 +286,8 @@ private:
 	// SRS - flag indicating support for eFifoRelaxed surface presentation (r_swapInterval = 1) mode
 	bool enablePModeFifoRelaxed = false;
 
+	// SRS - flag indicating support for swap image presentID via VK_GOOGLE_display_timing extension
+	bool presentIdEnabled = false;
 
 private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL vulkanDebugCallback(
@@ -776,6 +781,10 @@ bool DeviceManager_VK::createDevice()
 		{
 			sync2Supported = true;
 		}
+		else if( ext == VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME )
+		{
+			presentIdEnabled = true;
+		}
 	}
 
 	std::unordered_set<int> uniqueQueueFamilies =
@@ -824,6 +833,9 @@ bool DeviceManager_VK::createDevice()
 	auto sync2Features = vk::PhysicalDeviceSynchronization2FeaturesKHR()
 						 .setSynchronization2( true );
 
+	auto presentIdFeatures = vk::PhysicalDevicePresentIdFeaturesKHR()
+							 .setPresentId( true );
+	
 #if defined(__APPLE__) && defined( VK_KHR_portability_subset )
 	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
 #if USE_OPTICK
@@ -843,6 +855,7 @@ bool DeviceManager_VK::createDevice()
 	APPEND_EXTENSION( meshletsSupported, meshletFeatures )
 	APPEND_EXTENSION( vrsSupported, vrsFeatures )
 	APPEND_EXTENSION( sync2Supported, sync2Features )
+	APPEND_EXTENSION( presentIdEnabled, presentIdFeatures )
 #undef APPEND_EXTENSION
 
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
@@ -1300,12 +1313,27 @@ void DeviceManager_VK::Present()
 	OPTICK_GPU_FLIP( ( VkSwapchainKHR )m_SwapChain );
 	OPTICK_CATEGORY( "Vulkan_Present", Optick::Category::Wait );
 
+	void* pNext = nullptr;
+#if USE_OPTICK
+	// SRS - if enabled, define the swap image's presentID for labeling the Optick GPU VSync / Present queue
+	vk::PresentTimeGOOGLE presentTime = vk::PresentTimeGOOGLE()
+										.setPresentID( idLib::frameNumber - 1 );
+	vk::PresentTimesInfoGOOGLE presentTimesInfo = vk::PresentTimesInfoGOOGLE()
+												  .setSwapchainCount( 1 )
+												  .setPTimes( &presentTime );
+	if( presentIdEnabled )
+	{
+		pNext = &presentTimesInfo;
+	}
+#endif
+
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )
 							  .setSwapchainCount( 1 )
 							  .setPSwapchains( &m_SwapChain )
-							  .setPImageIndices( &m_SwapChainIndex );
+							  .setPImageIndices( &m_SwapChainIndex )
+							  .setPNext( pNext );
 
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
