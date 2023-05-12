@@ -452,9 +452,7 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 	m_FrameWaitQuery = m_NvrhiDevice->createEventQuery();
 	m_NvrhiDevice->setEventQuery( m_FrameWaitQuery, nvrhi::CommandQueue::Graphics );
 
-#if OPTICK_ENABLE_GPU_D3D12
 	OPTICK_GPU_INIT_D3D12( m_Device12, &m_GraphicsQueue, 1 );
-#endif
 
 	return true;
 }

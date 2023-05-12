@@ -1220,9 +1220,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 #undef CHECK
 
-#if OPTICK_ENABLE_GPU_VULKAN
 	OPTICK_GPU_INIT_VULKAN( ( VkDevice* )&m_VulkanDevice, ( VkPhysicalDevice* )&m_VulkanPhysicalDevice, ( VkQueue* )&m_GraphicsQueue, ( uint32_t* )&m_GraphicsQueueFamily, 1, nullptr );
-#endif
 
 	return true;
 }
