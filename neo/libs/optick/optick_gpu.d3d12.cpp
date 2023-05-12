@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include <thread>
+#include <queue>
 
 #include <d3d12.h>
 #include <dxgi.h>
@@ -72,6 +73,9 @@ namespace Optick
 			ID3D12Fence* syncFence;
 			array<Frame, NUM_FRAMES_DELAY> frames;
 
+			std::queue<uint32_t> presentIDs;
+			std::queue<uint32_t> frameIDs;
+
 			NodePayload() : commandQueue(nullptr), queryHeap(nullptr), syncFence(nullptr) {}
 			~NodePayload();
 		};
@@ -82,6 +86,7 @@ namespace Optick
 
 		// VSync Stats
 		DXGI_FRAME_STATISTICS prevFrameStatistics;
+		UINT swapChainLatency;
 
 		//void UpdateRange(uint32_t start, uint32_t finish)
 		void InitNodeInternal(const char* nodeName, uint32_t nodeIndex, ID3D12CommandQueue* pCmdQueue);
@@ -281,6 +286,9 @@ namespace Optick
 
 		if (currentState == STATE_RUNNING)
 		{
+			UINT currentPresentID;
+			swapChain->GetLastPresentCount(&currentPresentID);
+
 			Node& node = *nodes[currentNode];
 			NodePayload& payload = *nodePayloads[currentNode];
 
@@ -328,17 +336,70 @@ namespace Optick
 					commandList->ResolveQueryData(payload.queryHeap, D3D12_QUERY_TYPE_TIMESTAMP, 0, finishIndex, queryBuffer, 0);
 				}
 			}
+			else
+			{
+				DXGI_SWAP_CHAIN_DESC swapChainDesc;
+				swapChain->GetDesc(&swapChainDesc);
+
+				IDXGISwapChain2* swapChain2;
+				swapChain->QueryInterface(IID_PPV_ARGS(&swapChain2));
+				HRESULT result = swapChain2->GetMaximumFrameLatency(&swapChainLatency);
+				if (result == S_OK)
+					swapChainLatency = std::min(swapChainLatency, swapChainDesc.BufferCount + 1);
+				else
+					swapChainLatency = swapChainDesc.BufferCount + 1;
+
+				while (!payload.presentIDs.empty())
+				{
+					payload.presentIDs.pop();
+					payload.frameIDs.pop();
+				}
+
+				prevFrameStatistics = { 0 };
+				swapChain->GetFrameStatistics(&prevFrameStatistics);
+			}
 
 			commandList->Close();
 
 			payload.commandQueue->ExecuteCommandLists(1, (ID3D12CommandList*const*)&commandList);
 			payload.commandQueue->Signal(payload.syncFence, frameNumber);
 
+			payload.presentIDs.push(currentPresentID + 1 + swapChainLatency);
+			payload.frameIDs.push(Core::Get().GetCurrentFrame(FrameType::CPU));
+
+			// Process VSync
+			DXGI_FRAME_STATISTICS currentFrameStatistics = { 0 };
+			HRESULT result = swapChain->GetFrameStatistics(&currentFrameStatistics);
+			if ((result == S_OK) && (prevFrameStatistics.PresentCount < currentFrameStatistics.PresentCount))
+			{
+				EventData& data = AddVSyncEvent("Present");
+				data.start = prevFrameStatistics.SyncQPCTime.QuadPart;
+				data.finish = currentFrameStatistics.SyncQPCTime.QuadPart;
+
+				uint32_t droppedFrames = 0;
+				while (!payload.presentIDs.empty() && payload.presentIDs.front() <= prevFrameStatistics.PresentCount)
+				{
+					if (payload.presentIDs.front() == prevFrameStatistics.PresentCount)
+					{
+						TagData<uint32>& tag = AddVSyncTag();
+						tag.timestamp = prevFrameStatistics.SyncQPCTime.QuadPart;
+						tag.data = payload.frameIDs.front() + currentPresentID - currentFrameStatistics.PresentCount + droppedFrames;
+					}
+					else
+						droppedFrames++;
+
+					payload.presentIDs.pop();
+					payload.frameIDs.pop();
+				}
+	
+				prevFrameStatistics = currentFrameStatistics;
+			}
+
 			// Preparing Next Frame
 			// Try resolve timestamps for the current frame
 			if (frameNumber >= NUM_FRAMES_DELAY && nextFrame.queryIndexCount)
 			{
-				WaitForFrame(currentNode, frameNumber + 1 - NUM_FRAMES_DELAY);
+				WaitForFrame(currentNode, (uint64_t)frameNumber + 1 - NUM_FRAMES_DELAY);
 
 				uint32_t resolveStart = nextFrame.queryIndexStart % MAX_QUERIES_COUNT;
 				uint32_t resolveFinish = resolveStart + nextFrame.queryIndexCount;
@@ -349,17 +410,6 @@ namespace Optick
 				
 			nextFrame.queryIndexStart = queryEnd;
 			nextFrame.queryIndexCount = 0;
-
-			// Process VSync
-			DXGI_FRAME_STATISTICS currentFrameStatistics = { 0 };
-			HRESULT result = swapChain->GetFrameStatistics(&currentFrameStatistics);
-			if ((result == S_OK) && (prevFrameStatistics.PresentCount + 1 == currentFrameStatistics.PresentCount))
-			{
-				EventData& data = AddVSyncEvent();
-				data.start = prevFrameStatistics.SyncQPCTime.QuadPart;
-				data.finish = currentFrameStatistics.SyncQPCTime.QuadPart;
-			}
-			prevFrameStatistics = currentFrameStatistics;
 		}
 
 		++frameNumber;
