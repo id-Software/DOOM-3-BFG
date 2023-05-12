@@ -796,6 +796,12 @@ struct OPTICK_API GPUContextScope
 		prevContext = SetGpuContext(GPUContext(cmdBuffer, queue, node));
 	}
 
+	// SRS - add typeless void* commandHandle prototype to support runtime selection of graphics API
+	GPUContextScope(void* commandHandle, GPUQueueType queue = GPU_QUEUE_GRAPHICS, int node = 0)
+	{
+		prevContext = SetGpuContext(GPUContext(commandHandle, queue, node));
+	}
+
 	~GPUContextScope()
 	{
 		SetGpuContext(prevContext);
