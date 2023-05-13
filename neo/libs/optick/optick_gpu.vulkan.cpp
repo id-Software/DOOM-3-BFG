@@ -452,7 +452,7 @@ namespace Optick
 		clock.frequencyCPU = GetHighPrecisionFrequency();
 		VkPhysicalDeviceProperties Properties;
 		(*vulkanFunctions.vkGetPhysicalDeviceProperties)(nodePayloads[nodeIndex]->physicalDevice, &Properties);
-		clock.frequencyGPU = std::llround(1000000000.0 / (double)Properties.limits.timestampPeriod);
+		clock.frequencyGPU = (int64_t)(1000000000.0 / (double)Properties.limits.timestampPeriod);
 
 		// SRS - Reset entire query pool to clear clock sync query + any leftover queries from previous run
 		(*vulkanFunctions.vkBeginCommandBuffer)(CB, &commandBufferBeginInfo);
