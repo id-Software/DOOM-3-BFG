@@ -35,7 +35,7 @@
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
-// SRS - optionally needed for VK_MVK_MOLTENVK_EXTENSION_NAME and MoltenVK runtime config visibility
+// SRS - optionally needed for MoltenVK runtime config visibility
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	#include <MoltenVK/vk_mvk_moltenvk.h>
 
@@ -179,10 +179,6 @@ private:
 	{
 		// instance
 		{
-#if defined(__APPLE__) && defined( USE_MoltenVK )
-			// SRS - needed for using MoltenVK configuration on macOS (if USE_MoltenVK defined)
-			VK_MVK_MOLTENVK_EXTENSION_NAME,
-#endif
 			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 		},
 		// layers
@@ -191,12 +187,9 @@ private:
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-#if defined(__APPLE__)
-#if defined( VK_KHR_portability_subset )
-			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
-#endif
-			VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
-			VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+#if defined(__APPLE__) && defined( VK_KHR_portability_subset )
+			// SRS - This is required for using the MoltenVK portability subset implementation on macOS
+			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 #endif
 		},
 	};
@@ -286,8 +279,8 @@ private:
 	// SRS - flag indicating support for eFifoRelaxed surface presentation (r_swapInterval = 1) mode
 	bool enablePModeFifoRelaxed = false;
 
-	// SRS - flag indicating support for swap image presentID via VK_GOOGLE_display_timing extension
-	bool presentIdEnabled = false;
+	// SRS - flag indicating support for presentation timing via VK_GOOGLE_display_timing extension
+	bool displayTimingEnabled = false;
 
 private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL vulkanDebugCallback(
@@ -783,7 +776,7 @@ bool DeviceManager_VK::createDevice()
 		}
 		else if( ext == VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME )
 		{
-			presentIdEnabled = true;
+			displayTimingEnabled = true;
 		}
 	}
 
@@ -833,9 +826,6 @@ bool DeviceManager_VK::createDevice()
 	auto sync2Features = vk::PhysicalDeviceSynchronization2FeaturesKHR()
 						 .setSynchronization2( true );
 
-	auto presentIdFeatures = vk::PhysicalDevicePresentIdFeaturesKHR()
-							 .setPresentId( true );
-	
 #if defined(__APPLE__) && defined( VK_KHR_portability_subset )
 	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
 #if USE_OPTICK
@@ -855,7 +845,6 @@ bool DeviceManager_VK::createDevice()
 	APPEND_EXTENSION( meshletsSupported, meshletFeatures )
 	APPEND_EXTENSION( vrsSupported, vrsFeatures )
 	APPEND_EXTENSION( sync2Supported, sync2Features )
-	APPEND_EXTENSION( presentIdEnabled, presentIdFeatures )
 #undef APPEND_EXTENSION
 
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
@@ -1313,13 +1302,13 @@ void DeviceManager_VK::Present()
 
 	void* pNext = nullptr;
 #if USE_OPTICK
-	// SRS - if enabled, define the swap image's presentID for labeling the Optick GPU VSync / Present queue
+	// SRS - if display timing enabled, define the presentID for labeling the Optick GPU VSync / Present queue
 	vk::PresentTimeGOOGLE presentTime = vk::PresentTimeGOOGLE()
 										.setPresentID( idLib::frameNumber - 1 );
 	vk::PresentTimesInfoGOOGLE presentTimesInfo = vk::PresentTimesInfoGOOGLE()
 												  .setSwapchainCount( 1 )
 												  .setPTimes( &presentTime );
-	if( presentIdEnabled )
+	if( displayTimingEnabled )
 	{
 		pNext = &presentTimesInfo;
 	}
