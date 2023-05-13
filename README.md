@@ -447,7 +447,7 @@ Recommended in this case is `cmake-vs2022-64bit-no-ffmpeg.bat`
 
 	On Debian or Ubuntu:
 
-		> apt-get install cmake libsdl2-dev libopenal-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
+		> apt-get install cmake libsdl2-dev libopenal-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libvulkan-dev
 	
 	On Fedora
 		
