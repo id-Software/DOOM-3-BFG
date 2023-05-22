@@ -15,6 +15,23 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
+TDB - RBDOOM-3-BFG 1.5.1
+_______________________________
+
+## .plan - Mai 22, 2023
+
+This is just a bugfix build that addresses several crashes and minor changes
+
+Changelog:
+
+* Bumped version to 1.5.1
+
+* Fixed "Failed to create a graphics pipeline state object" error in the Erebus 3 map. #770
+
+* Disable DXGI automatic display mode switching for alt-enter borderless fullscreen
+
+_______________________________________
+
 29 April 2023 - RBDOOM-3-BFG 1.5.0
 _______________________________
 
