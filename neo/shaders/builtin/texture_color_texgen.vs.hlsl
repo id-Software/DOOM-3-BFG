@@ -40,10 +40,10 @@ struct VS_IN
 	float4 color2	: COLOR1;
 };
 
-struct VS_OUT 
+struct VS_OUT
 {
-	float4 position : POSITION;
-	float4 texcoord0 : TEXCOORD0;
+	float4 position : SV_Position;
+	float4 texcoord0 : TEXCOORD0_centroid;
 	float4 color : COLOR0;
 };
 // *INDENT-ON*
