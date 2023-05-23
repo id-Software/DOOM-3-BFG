@@ -20,7 +20,16 @@ _______________________________
 
 # RBDOOM-3-BFG 1.5.1 Hotfix Patch
 
-This is just a bugfix build that addresses several crashes and minor changes
+This is just a bugfix build that addresses several crashes and minor changes.
+
+## Quick Installation Guide for Beginners
+
+1. Make a new DoomBFG folder
+2. Copy base/ from your Steam Doom 3 BFG folder into DoomBFG
+3. Download the RBDOOM-3-BFG 1.3.0 full package from the [RBDOOM-3-BFG ModDB page](https://www.moddb.com/mods/rbdoom-3-bfg) and extract it over DoomBFG.
+4. Do the same with the 1.5.1 patch.
+
+If you already have a version of RBDOOM-3-BFG then you can just unpack this patch over it.
 
 Changelog:
 
