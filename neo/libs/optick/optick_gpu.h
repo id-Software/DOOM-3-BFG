@@ -145,7 +145,7 @@ namespace Optick
 		virtual void QueryTimestamp(void* context, int64_t* cpuTimestampOut) = 0;
 		virtual void ResolveTimestamps(uint32_t nodeIndex, uint32_t startIndex, uint32_t count) = 0;
 		virtual void WaitForFrame(uint32_t nodeIndex, uint64_t frameNumber) = 0;
-		virtual void Flip(void* swapChain) = 0;
+		virtual void Flip(void* swapChain, uint32_t frameID) = 0;
 
 		virtual ~GPUProfiler();
 	};

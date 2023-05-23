@@ -779,7 +779,7 @@ struct OPTICK_API GPUContext
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 OPTICK_API void InitGpuD3D12(ID3D12Device* device, ID3D12CommandQueue** cmdQueues, uint32_t numQueues);
 OPTICK_API void InitGpuVulkan(VkDevice* vkDevices, VkPhysicalDevice* vkPhysicalDevices, VkQueue* vkQueues, uint32_t* cmdQueuesFamily, uint32_t numQueues, const VulkanFunctions* functions);
-OPTICK_API void GpuFlip(void* swapChain);
+OPTICK_API void GpuFlip(void* swapChain, uint32_t frameID = 0);
 OPTICK_API GPUContext SetGpuContext(GPUContext context);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct OPTICK_API GPUContextScope
@@ -1063,7 +1063,7 @@ struct OptickApp
 									 if (OPTICK_CONCAT(gpu_autogen_description_, __LINE__) == nullptr) OPTICK_CONCAT(gpu_autogen_description_, __LINE__) = ::Optick::EventDescription::Create( NAME, __FILE__, __LINE__ ); \
 									 ::Optick::GPUEvent OPTICK_CONCAT(gpu_autogen_event_, __LINE__)( *(OPTICK_CONCAT(gpu_autogen_description_, __LINE__)) ); \
 
-#define OPTICK_GPU_FLIP(SWAP_CHAIN)		::Optick::GpuFlip(SWAP_CHAIN);
+#define OPTICK_GPU_FLIP(...)		::Optick::GpuFlip(__VA_ARGS__);
 
 /////////////////////////////////////////////////////////////////////////////////
 // [Automation][Startup]
@@ -1124,7 +1124,7 @@ struct OptickApp
 #define OPTICK_GPU_INIT_VULKAN(DEVICES, PHYSICAL_DEVICES, CMD_QUEUES, CMD_QUEUES_FAMILY, NUM_CMD_QUEUS, FUNCTIONS)
 #define OPTICK_GPU_CONTEXT(...)
 #define OPTICK_GPU_EVENT(NAME)
-#define OPTICK_GPU_FLIP(SWAP_CHAIN)
+#define OPTICK_GPU_FLIP(...)
 #define OPTICK_UPDATE()
 #define OPTICK_FRAME_FLIP(...)
 #define OPTICK_FRAME_EVENT(FRAME_TYPE, ...)

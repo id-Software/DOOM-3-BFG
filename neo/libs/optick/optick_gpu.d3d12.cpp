@@ -73,9 +73,6 @@ namespace Optick
 			ID3D12Fence* syncFence;
 			array<Frame, NUM_FRAMES_DELAY> frames;
 
-			std::queue<uint32_t> presentIDs;
-			std::queue<uint32_t> frameIDs;
-
 			NodePayload() : commandQueue(nullptr), queryHeap(nullptr), syncFence(nullptr) {}
 			~NodePayload();
 		};
@@ -84,9 +81,10 @@ namespace Optick
 		ID3D12Resource* queryBuffer;
 		ID3D12Device* device;
 
-		// VSync Stats
+		// VSync / Present Stats
 		DXGI_FRAME_STATISTICS prevFrameStatistics;
-		UINT swapChainLatency;
+		std::queue<UINT> presentIdQueue;
+		std::queue<uint32_t> frameIdQueue;
 
 		//void UpdateRange(uint32_t start, uint32_t finish)
 		void InitNodeInternal(const char* nodeName, uint32_t nodeIndex, ID3D12CommandQueue* pCmdQueue);
@@ -99,7 +97,7 @@ namespace Optick
 
 		void QueryTimestamp(ID3D12GraphicsCommandList* context, int64_t* outCpuTimestamp);
 
-		void Flip(IDXGISwapChain* swapChain);
+		void Flip(IDXGISwapChain* swapChain, uint32_t frameID);
 
 
 		// Interface implementation
@@ -114,9 +112,9 @@ namespace Optick
 
 		void WaitForFrame(uint32_t nodeIndex, uint64_t frameNumber) override;
 
-		void Flip(void* swapChain) override
+		void Flip(void* swapChain, uint32_t frameID) override
 		{
-			Flip(static_cast<IDXGISwapChain*>(swapChain));
+			Flip(static_cast<IDXGISwapChain*>(swapChain), frameID);
 		}
 	};
 
@@ -275,7 +273,7 @@ namespace Optick
 		}
 	}
 
-	void GPUProfilerD3D12::Flip(IDXGISwapChain* swapChain)
+	void GPUProfilerD3D12::Flip(IDXGISwapChain* swapChain, uint32_t frameID)
 	{
 		OPTICK_CATEGORY("GPUProfilerD3D12::Flip", Category::Debug);
 
@@ -286,9 +284,6 @@ namespace Optick
 
 		if (currentState == STATE_RUNNING)
 		{
-			UINT currentPresentID;
-			swapChain->GetLastPresentCount(&currentPresentID);
-
 			Node& node = *nodes[currentNode];
 			NodePayload& payload = *nodePayloads[currentNode];
 
@@ -338,25 +333,15 @@ namespace Optick
 			}
 			else
 			{
-				DXGI_SWAP_CHAIN_DESC swapChainDesc;
-				swapChain->GetDesc(&swapChainDesc);
-
-				IDXGISwapChain2* swapChain2;
-				swapChain->QueryInterface(IID_PPV_ARGS(&swapChain2));
-				HRESULT result = swapChain2->GetMaximumFrameLatency(&swapChainLatency);
-				if (result == S_OK)
-					swapChainLatency = std::min(swapChainLatency, swapChainDesc.BufferCount + 1);
-				else
-					swapChainLatency = swapChainDesc.BufferCount + 1;
-
-				while (!payload.presentIDs.empty())
-				{
-					payload.presentIDs.pop();
-					payload.frameIDs.pop();
-				}
-
+				// Initialize present / frame statistics
 				prevFrameStatistics = { 0 };
 				swapChain->GetFrameStatistics(&prevFrameStatistics);
+
+				while (!presentIdQueue.empty())
+				{
+					presentIdQueue.pop();
+					frameIdQueue.pop();
+				}
 			}
 
 			commandList->Close();
@@ -364,32 +349,38 @@ namespace Optick
 			payload.commandQueue->ExecuteCommandLists(1, (ID3D12CommandList*const*)&commandList);
 			payload.commandQueue->Signal(payload.syncFence, frameNumber);
 
-			payload.presentIDs.push(currentPresentID + 1 + swapChainLatency);
-			payload.frameIDs.push(Core::Get().GetCurrentFrame(FrameType::CPU));
+			// Save presentID to frameID correlation for the next present's vsync tag
+			if (frameID > 0)
+			{
+				UINT prevPresentID = 0;
+				HRESULT result = swapChain->GetLastPresentCount(&prevPresentID);
+				if (result == S_OK)
+				{
+					presentIdQueue.push(prevPresentID + 1);
+					frameIdQueue.push(frameID);
+				}
+			}
 
-			// Process VSync
+			// Process VSync / Presentation timing
 			DXGI_FRAME_STATISTICS currentFrameStatistics = { 0 };
 			HRESULT result = swapChain->GetFrameStatistics(&currentFrameStatistics);
-			if ((result == S_OK) && (prevFrameStatistics.PresentCount < currentFrameStatistics.PresentCount))
+			if ((result == S_OK) && (currentFrameStatistics.SyncQPCTime.QuadPart > prevFrameStatistics.SyncQPCTime.QuadPart))
 			{
 				EventData& data = AddVSyncEvent("Present");
 				data.start = prevFrameStatistics.SyncQPCTime.QuadPart;
 				data.finish = currentFrameStatistics.SyncQPCTime.QuadPart;
 
-				uint32_t droppedFrames = 0;
-				while (!payload.presentIDs.empty() && payload.presentIDs.front() <= prevFrameStatistics.PresentCount)
+				while (!presentIdQueue.empty() && presentIdQueue.front() <= prevFrameStatistics.PresentCount)
 				{
-					if (payload.presentIDs.front() == prevFrameStatistics.PresentCount)
+					if (presentIdQueue.front() == prevFrameStatistics.PresentCount)
 					{
 						TagData<uint32>& tag = AddVSyncTag();
 						tag.timestamp = prevFrameStatistics.SyncQPCTime.QuadPart;
-						tag.data = payload.frameIDs.front() + currentPresentID - currentFrameStatistics.PresentCount + droppedFrames;
+						tag.data = frameIdQueue.front();
 					}
-					else
-						droppedFrames++;
 
-					payload.presentIDs.pop();
-					payload.frameIDs.pop();
+					presentIdQueue.pop();
+					frameIdQueue.pop();
 				}
 	
 				prevFrameStatistics = currentFrameStatistics;

@@ -58,13 +58,14 @@ namespace Optick
 
 			array<Frame, NUM_FRAMES_DELAY> frames;
 
-			uint64_t			presentTime;
-			uint32_t			presentID;
-
 			NodePayload() : vulkanFunctions(), device(VK_NULL_HANDLE), physicalDevice(VK_NULL_HANDLE), queue(VK_NULL_HANDLE), queryPool(VK_NULL_HANDLE), commandPool(VK_NULL_HANDLE), event(VK_NULL_HANDLE) {}
 			~NodePayload();
 		};
 		vector<NodePayload*> nodePayloads;
+
+		// VSync / Present Stats
+		uint64_t prevPresentTime;
+		uint32_t prevPresentID;
 
 	public:
 		GPUProfilerVulkan();
@@ -72,6 +73,7 @@ namespace Optick
 
 		void InitDevice(VkDevice* devices, VkPhysicalDevice* physicalDevices, VkQueue* cmdQueues, uint32_t* cmdQueuesFamily, uint32_t nodeCount, const VulkanFunctions* functions);
 		void QueryTimestamp(VkCommandBuffer commandBuffer, int64_t* outCpuTimestamp);
+		void Flip(VkSwapchainKHR swapChain);
 
 
 		// Interface implementation
@@ -86,7 +88,10 @@ namespace Optick
 
 		void WaitForFrame(uint32_t nodeIndex, uint64_t frameNumber) override;
 
-		void Flip(void* swapChain) override;
+		void Flip(void* swapChain, uint32_t frameID) override
+		{
+			Flip(static_cast<VkSwapchainKHR>(swapChain));
+		}
 	};
 
 	void InitGpuVulkan(VkDevice* vkDevices, VkPhysicalDevice* vkPhysicalDevices, VkQueue* vkQueues, uint32_t* cmdQueuesFamily, uint32_t numQueues, const VulkanFunctions* functions)
@@ -98,6 +103,8 @@ namespace Optick
 
 	GPUProfilerVulkan::GPUProfilerVulkan()
 	{
+		prevPresentTime = 0;
+		prevPresentID = 0;
 	}
 
 	void GPUProfilerVulkan::InitDevice(VkDevice* devices, VkPhysicalDevice* physicalDevices, VkQueue* cmdQueues, uint32_t* cmdQueuesFamily, uint32_t nodeCount, const VulkanFunctions* functions)
@@ -251,7 +258,7 @@ namespace Optick
 
 			NodePayload* payload = nodePayloads[nodeIndex];
 
-			OPTICK_VK_CHECK((VkResult)(*vulkanFunctions.vkGetQueryPoolResults)(payload->device, payload->queryPool, startIndex, count, 8 * count, &nodes[nodeIndex]->queryGpuTimestamps[startIndex], 8, VK_QUERY_RESULT_64_BIT));
+			OPTICK_VK_CHECK((VkResult)(*vulkanFunctions.vkGetQueryPoolResults)(payload->device, payload->queryPool, startIndex, count, 8 * (size_t)count, &nodes[nodeIndex]->queryGpuTimestamps[startIndex], 8, VK_QUERY_RESULT_64_BIT));
 			(*vulkanFunctions.vkResetQueryPool)(payload->device, payload->queryPool, startIndex, count);
 
 			// Convert GPU timestamps => CPU Timestamps
@@ -272,7 +279,7 @@ namespace Optick
 		} while (r != VK_SUCCESS);
 	}
 
-	void GPUProfilerVulkan::Flip(void* swapChain)
+	void GPUProfilerVulkan::Flip(VkSwapchainKHR swapChain)
 	{
 		OPTICK_CATEGORY("GPUProfilerVulkan::Flip", Category::Debug);
 
@@ -340,8 +347,8 @@ namespace Optick
 			{
 				currentFrame.queryIndexStart = 0;
 				currentFrame.queryIndexCount = queryEnd;
-				payload.presentTime = 0;
-				payload.presentID = 0;
+				prevPresentTime = 0;
+				prevPresentID = 0;
 			}
 
 			// Preparing Next Frame
@@ -376,18 +383,18 @@ namespace Optick
 						{
 							// Process Presentation Timing / VSync if swap image was actually presented (i.e. not dropped)
 							VkPastPresentationTimingGOOGLE presentTiming = queryPresentTimings[presentIndex];
-							if (presentTiming.actualPresentTime > payload.presentTime)
+							if (presentTiming.actualPresentTime > prevPresentTime)
 							{
 								EventData& data = AddVSyncEvent("Present");
-								data.start = payload.presentTime;
+								data.start = prevPresentTime;
 								data.finish = presentTiming.actualPresentTime;
 
 								TagData<uint32>& tag = AddVSyncTag();
-								tag.timestamp = payload.presentTime;
-								tag.data = payload.presentID;
+								tag.timestamp = prevPresentTime;
+								tag.data = prevPresentID;
 
-								payload.presentTime = presentTiming.actualPresentTime;
-								payload.presentID = presentTiming.presentID;
+								prevPresentTime = presentTiming.actualPresentTime;
+								prevPresentID = presentTiming.presentID;
 							}
 						}
 					}
