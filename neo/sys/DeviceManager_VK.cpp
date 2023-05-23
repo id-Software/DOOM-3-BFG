@@ -1297,7 +1297,7 @@ void DeviceManager_VK::EndFrame()
 
 void DeviceManager_VK::Present()
 {
-	OPTICK_GPU_FLIP( ( VkSwapchainKHR )m_SwapChain );
+	OPTICK_GPU_FLIP( m_SwapChain );
 	OPTICK_CATEGORY( "Vulkan_Present", Optick::Category::Wait );
 
 	void* pNext = nullptr;
