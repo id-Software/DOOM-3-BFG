@@ -98,10 +98,9 @@ if(UNIX)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
     #     - Also disable precompiled headers when using the Ninja Multi-Config generator on linux or macOS
-    #	  - Also disable precompiled headers when using the Optick profiler on linux or macOS
     if((CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64" ) OR
        (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64") OR
-       (CMAKE_GENERATOR MATCHES "Ninja Multi-Config") OR OPTICK)
+       (CMAKE_GENERATOR MATCHES "Ninja Multi-Config"))
         set(USE_PRECOMPILED_HEADERS OFF)
     endif()
     
@@ -1686,6 +1685,11 @@ else()
 		# we need to recreate the precompiled header for RBDoom3BFG 
 		# (i.e. can't use the one created for idlib before)
 		# because some definitions (e.g. -D__IDLIB__ -D__DOOM_DLL__) differ
+		if(OPTICK)
+			LIST(APPEND _compiler_FLAGS -DUSE_OPTICK=1)
+		else()
+			LIST(APPEND _compiler_FLAGS -DUSE_OPTICK=0)
+		endif()
 		add_custom_target(precomp_header_rbdoom3bfg ALL
 				COMMAND ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -x c++-header idlib/precompiled.h -o idlib/precompiled.h.gch
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
