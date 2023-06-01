@@ -1218,6 +1218,8 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 {
 	OPTICK_SHUTDOWN();
 
+	m_VulkanDevice.waitIdle();
+
 	m_FrameWaitQuery = nullptr;
 
 	for( int i = 0; i < m_SwapChainImages.size(); i++ )
