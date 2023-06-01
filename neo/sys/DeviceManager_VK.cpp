@@ -54,6 +54,8 @@
 	idCVar r_vmaDeviceLocalMemoryMB( "r_vmaDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "Size of VMA allocation block for gpu memory." );
 #endif
 
+idCVar r_preferFastSync( "r_preferFastSync", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "Prefer Fast Sync/no-tearing in place of VSync off/tearing (Vulkan only)" );
+
 // Define the Vulkan dynamic dispatcher - this needs to occur in exactly one cpp file in the program.
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -280,8 +282,10 @@ private:
 
 	nvrhi::EventQueryHandle m_FrameWaitQuery;
 
-	// SRS - flag indicating support for eFifoRelaxed surface presentation (r_swapInterval = 1) mode
-	bool enablePModeFifoRelaxed = false;
+	// SRS - flags indicating support for various Vulkan surface presentation modes
+	bool enablePModeMailbox = false;		// r_swapInterval = 0 (defaults to eImmediate if not available)
+	bool enablePModeImmediate = false;		// r_swapInterval = 0 (defaults to eFifo if not available)
+	bool enablePModeFifoRelaxed = false;	// r_swapInterval = 1 (defaults to eFifo if not available)
 
 
 private:
@@ -592,11 +596,10 @@ bool DeviceManager_VK::pickPhysicalDevice()
 			deviceIsGood = false;
 		}
 
-		if( ( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eImmediate ) == surfacePModes.end() ) ||
-				( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifo ) == surfacePModes.end() ) )
+		if( find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifo ) == surfacePModes.end() )
 		{
-			// can't find the required surface present modes
-			errorStream << std::endl << "  - does not support the requested surface present modes";
+			// this should never happen since eFifo is mandatory according to the Vulkan spec
+			errorStream << std::endl << "  - does not support the required surface present modes";
 			deviceIsGood = false;
 		}
 
@@ -904,8 +907,10 @@ bool DeviceManager_VK::createDevice()
 						   &imageFormatProperties );
 	m_DeviceParams.enableImageFormatD24S8 = ( ret == vk::Result::eSuccess );
 
-	// SRS - Determine if "smart" (r_swapInterval = 1) vsync mode eFifoRelaxed is supported by device and surface
+	// SRS/rg3 - Determine which Vulkan surface present modes are supported by device and surface
 	auto surfacePModes = m_VulkanPhysicalDevice.getSurfacePresentModesKHR( m_WindowSurface );
+	enablePModeMailbox = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eMailbox ) != surfacePModes.end();
+	enablePModeImmediate = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eImmediate ) != surfacePModes.end();
 	enablePModeFifoRelaxed = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifoRelaxed ) != surfacePModes.end();
 
 	// stash the renderer string
@@ -1006,6 +1011,22 @@ bool DeviceManager_VK::createSwapChain()
 
 	const bool enableSwapChainSharing = queues.size() > 1;
 
+	// SRS/rg3 - set up Vulkan present mode based on vsync setting and available surface features
+	vk::PresentModeKHR presentMode;
+	switch( m_DeviceParams.vsyncEnabled )
+	{
+		case 0:
+			presentMode = enablePModeMailbox && r_preferFastSync.GetBool() ? vk::PresentModeKHR::eMailbox :
+							( enablePModeImmediate ? vk::PresentModeKHR::eImmediate : vk::PresentModeKHR::eFifo );
+			break;
+		case 1:
+			presentMode = enablePModeFifoRelaxed ? vk::PresentModeKHR::eFifoRelaxed : vk::PresentModeKHR::eFifo;
+			break;
+		case 2:
+		default:
+			presentMode = vk::PresentModeKHR::eFifo;	// eFifo always supported according to Vulkan spec
+	}
+
 	auto desc = vk::SwapchainCreateInfoKHR()
 				.setSurface( m_WindowSurface )
 				.setMinImageCount( m_DeviceParams.swapChainBufferCount )
@@ -1019,7 +1040,7 @@ bool DeviceManager_VK::createSwapChain()
 				.setPQueueFamilyIndices( enableSwapChainSharing ? queues.data() : nullptr )
 				.setPreTransform( vk::SurfaceTransformFlagBitsKHR::eIdentity )
 				.setCompositeAlpha( vk::CompositeAlphaFlagBitsKHR::eOpaque )
-				.setPresentMode( m_DeviceParams.vsyncEnabled > 0 ? ( m_DeviceParams.vsyncEnabled == 2 || !enablePModeFifoRelaxed ? vk::PresentModeKHR::eFifo : vk::PresentModeKHR::eFifoRelaxed ) : vk::PresentModeKHR::eImmediate )
+				.setPresentMode( presentMode )
 				.setClipped( true )
 				.setOldSwapchain( nullptr );
 
