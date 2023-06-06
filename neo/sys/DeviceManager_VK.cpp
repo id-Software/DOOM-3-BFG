@@ -559,13 +559,9 @@ bool DeviceManager_VK::pickPhysicalDevice()
 		auto surfaceFmts = dev.getSurfaceFormatsKHR( m_WindowSurface );
 		auto surfacePModes = dev.getSurfacePresentModesKHR( m_WindowSurface );
 
-		if( surfaceCaps.minImageCount > m_DeviceParams.swapChainBufferCount ||
-				( surfaceCaps.maxImageCount < m_DeviceParams.swapChainBufferCount && surfaceCaps.maxImageCount > 0 ) )
-		{
-			errorStream << std::endl << "  - cannot support the requested swap chain image count:";
-			errorStream << " requested " << m_DeviceParams.swapChainBufferCount << ", available " << surfaceCaps.minImageCount << " - " << surfaceCaps.maxImageCount;
-			deviceIsGood = false;
-		}
+		// SRS/Ricardo Garcia rg3 - clamp swapChainBufferCount to the min/max capabilities of the surface
+		m_DeviceParams.swapChainBufferCount = Max( surfaceCaps.minImageCount, m_DeviceParams.swapChainBufferCount );
+		m_DeviceParams.swapChainBufferCount = surfaceCaps.maxImageCount > 0 ? Min( m_DeviceParams.swapChainBufferCount, surfaceCaps.maxImageCount ) : m_DeviceParams.swapChainBufferCount;
 
 		if( surfaceCaps.minImageExtent.width > requestedExtent.width ||
 				surfaceCaps.minImageExtent.height > requestedExtent.height ||
