@@ -659,7 +659,7 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	{
 		displayNotFound = true;
 		displayNum = DisplayPrimary();
-		idLib::Printf( "Can't find display for specified window position, falling back to display %i\n", displayNum + 1 );
+		common->Warning( "Window position out of bounds, falling back to primary display" );
 	}
 
 	// get the current monitor position and size on the desktop, assuming
@@ -802,18 +802,16 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 		return false;
 	}
 
-	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
-	if( parms.fullScreen == -2 )
+	// SRS - Get window's client area dimensions to set initial swapchain size
+	RECT rect;
+	if( !GetClientRect( win32.hWnd, &rect ) )
 	{
-		m_DeviceParams.backBufferWidth = w;
-		m_DeviceParams.backBufferHeight = h;
+		common->Printf( "^3GLW_CreateWindow() - GetClientRect() failed^0\n" );
+		return false;
 	}
-	// otherwise use parms
-	else
-	{
-		m_DeviceParams.backBufferWidth = parms.width;
-		m_DeviceParams.backBufferHeight = parms.height;
-	}
+
+	m_DeviceParams.backBufferWidth = rect.right - rect.left;
+	m_DeviceParams.backBufferHeight = rect.bottom - rect.top;
 
 	// RB
 	m_DeviceParams.backBufferSampleCount = parms.multiSamples;
@@ -851,6 +849,10 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
 		m_DeviceParams.vsyncEnabled = m_RequestedVSync;
 
 		ResizeSwapChain();
+
+		// SRS - Get actual swapchain dimensions to set new render size
+		deviceManager->GetWindowDimensions( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+
 		BackBufferResized();
 	}
 	else
@@ -1129,22 +1131,23 @@ bool GLimp_Init( glimpParms_t parms )
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.isStereoPixelFormat = parms.stereo;
 
-	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
-	if( parms.fullScreen == -2 )
+	if( parms.fullScreen )
 	{
-		int x, y, w, h;
-		if( !GLW_GetWindowDimensions( parms, x, y, w, h ) )
+		// SRS - Get window's client area dimensions to set initial render size for fullscreen modes
+		RECT rect;
+		if( !GetClientRect( win32.hWnd, &rect ) )
 		{
+			common->Printf( "^3GLimp_Init() - GetClientRect() failed^0\n" );
 			return false;
 		}
-		glConfig.nativeScreenWidth = w;
-		glConfig.nativeScreenHeight = h;
+
+		glConfig.nativeScreenWidth = rect.right - rect.left;
+		glConfig.nativeScreenHeight = rect.bottom - rect.top;
 	}
-	// otherwise use parms
 	else
 	{
-		glConfig.nativeScreenWidth = parms.width;
-		glConfig.nativeScreenHeight = parms.height;
+		// SRS - Get actual swapchain dimensions to set initial render size for windowed mode
+		deviceManager->GetWindowDimensions( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	}
 
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
@@ -1219,18 +1222,16 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 
 	glConfig.isStereoPixelFormat = parms.stereo;
 
-	// SRS - For fullscreen borderless windowed mode == -2 need to use actual display dimensions
-	if( parms.fullScreen == -2 )
+	// SRS - Get window's client area dimensions to set new render size
+	RECT rect;
+	if( !GetClientRect( win32.hWnd, &rect ) )
 	{
-		glConfig.nativeScreenWidth = w;
-		glConfig.nativeScreenHeight = h;
+		common->Printf( "^3GLimp_SetScreenParms() - GetClientRect() failed^0\n" );
+		return false;
 	}
-	// otherwise use parms
-	else
-	{
-		glConfig.nativeScreenWidth = parms.width;
-		glConfig.nativeScreenHeight = parms.height;
-	}
+
+	glConfig.nativeScreenWidth = rect.right - rect.left;
+	glConfig.nativeScreenHeight = rect.bottom - rect.top;
 
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;

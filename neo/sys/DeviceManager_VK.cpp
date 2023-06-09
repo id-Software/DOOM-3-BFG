@@ -567,6 +567,8 @@ bool DeviceManager_VK::pickPhysicalDevice()
 		m_DeviceParams.swapChainBufferCount = Max( surfaceCaps.minImageCount, m_DeviceParams.swapChainBufferCount );
 		m_DeviceParams.swapChainBufferCount = surfaceCaps.maxImageCount > 0 ? Min( m_DeviceParams.swapChainBufferCount, surfaceCaps.maxImageCount ) : m_DeviceParams.swapChainBufferCount;
 
+		/* SRS - Don't check extent here since window manager surfaceCaps may restrict extent to something smaller than requested
+			   - Instead, check and clamp extent to window manager surfaceCaps during swap chain creation inside createSwapChain()
 		if( surfaceCaps.minImageExtent.width > requestedExtent.width ||
 				surfaceCaps.minImageExtent.height > requestedExtent.height ||
 				surfaceCaps.maxImageExtent.width < requestedExtent.width ||
@@ -578,6 +580,7 @@ bool DeviceManager_VK::pickPhysicalDevice()
 			errorStream << " - " << surfaceCaps.maxImageExtent.width << "x" << surfaceCaps.maxImageExtent.height;
 			deviceIsGood = false;
 		}
+		*/
 
 		bool surfaceFormatPresent = false;
 		for( const vk::SurfaceFormatKHR& surfaceFmt : surfaceFmts )
@@ -998,6 +1001,11 @@ bool DeviceManager_VK::createSwapChain()
 		vk::Format( nvrhi::vulkan::convertFormat( m_DeviceParams.swapChainFormat ) ),
 		vk::ColorSpaceKHR::eSrgbNonlinear
 	};
+
+	// SRS - Clamp swap chain extent within the range supported by the device / window surface
+	auto surfaceCaps = m_VulkanPhysicalDevice.getSurfaceCapabilitiesKHR( m_WindowSurface );
+	m_DeviceParams.backBufferWidth = idMath::ClampInt( surfaceCaps.minImageExtent.width, surfaceCaps.maxImageExtent.width, m_DeviceParams.backBufferWidth );
+	m_DeviceParams.backBufferHeight = idMath::ClampInt( surfaceCaps.minImageExtent.height, surfaceCaps.maxImageExtent.height, m_DeviceParams.backBufferHeight );
 
 	vk::Extent2D extent = vk::Extent2D( m_DeviceParams.backBufferWidth, m_DeviceParams.backBufferHeight );
 
