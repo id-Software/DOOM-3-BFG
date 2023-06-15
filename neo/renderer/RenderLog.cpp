@@ -127,6 +127,8 @@ void idRenderLog::Init()
 
 void idRenderLog::Shutdown()
 {
+	commandList = nullptr;
+
 	for( int i = 0; i < MRB_TOTAL * NUM_FRAME_DATA; i++ )
 	{
 		timerQueries[i].Reset();
