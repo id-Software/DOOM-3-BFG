@@ -646,7 +646,7 @@ struct jpeg_error_mgr
 	/* Routine that actually outputs a trace or error message */
 	JMETHOD( void, output_message, ( j_common_ptr cinfo ) );
 	/* Format a message string for the most recent JPEG error or message */
-	JMETHOD( void, format_message, ( j_common_ptr cinfo, char* buffer ) );
+	JMETHOD( void, format_message, ( j_common_ptr cinfo, char* buffer, int bufsize ) );
 #define JMSG_LENGTH_MAX  200	/* recommended size of format_message buffer */
 	/* Reset error state variables at start of a new image */
 	JMETHOD( void, reset_error_mgr, ( j_common_ptr cinfo ) );
