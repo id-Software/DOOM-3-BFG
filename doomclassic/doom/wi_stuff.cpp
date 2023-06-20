@@ -1720,7 +1720,7 @@ void WI_loadData( void )
 		::g->lnames = ( patch_t** ) DoomLib::Z_Malloc( sizeof( patch_t* ) * ( NUMMAPS ), PU_LEVEL_SHARED, 0 );
 		for( i = 0 ; i < NUMMAPS ; i++ )
 		{
-			sprintf( name, "WILV%d%d", ::g->wbs->epsd, i );
+			idStr::snPrintf( name, sizeof( name ), "WILV%d%d", ::g->wbs->epsd, i );
 			::g->lnames[i] = ( patch_t* )W_CacheLumpName( name, PU_LEVEL_SHARED );
 		}
 
@@ -1763,7 +1763,7 @@ void WI_loadData( void )
 	for( i = 0; i < 10; i++ )
 	{
 		// numbers 0-9
-		sprintf( name, "WINUM%d", i );
+		idStr::snPrintf( name, sizeof( name ), "WINUM%d", i );
 		::g->num[i] = ( patch_t* )W_CacheLumpName( name, PU_LEVEL_SHARED );
 	}
 
@@ -1820,11 +1820,11 @@ void WI_loadData( void )
 	for( i = 0 ; i < MAXPLAYERS ; i++ )
 	{
 		// "1,2,3,4"
-		sprintf( name, "STPB%d", i );
+		idStr::snPrintf( name, sizeof( name ), "STPB%d", i );
 		::g->wistuff_p[i] = ( patch_t* )W_CacheLumpName( name, PU_LEVEL_SHARED );
 
 		// "1,2,3,4"
-		sprintf( name, "WIBP%d", i + 1 );
+		idStr::snPrintf( name, sizeof( name ), "WIBP%d", i + 1 );
 		::g->wistuff_bp[i] = ( patch_t* )W_CacheLumpName( name, PU_LEVEL_SHARED );
 	}
 

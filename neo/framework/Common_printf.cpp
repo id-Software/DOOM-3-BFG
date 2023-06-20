@@ -125,11 +125,11 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 		int	t = Sys_Milliseconds();
 		if( com_timestampPrints.GetInteger() == 1 )
 		{
-			sprintf( msg, "[%5.2f]", t * 0.001f );
+			idStr::snPrintf( msg, sizeof( msg ), "[%5.2f]", t * 0.001f );
 		}
 		else
 		{
-			sprintf( msg, "[%i]", t );
+			idStr::snPrintf( msg, sizeof( msg ), "[%i]", t );
 		}
 	}
 	timeLength = strlen( msg );

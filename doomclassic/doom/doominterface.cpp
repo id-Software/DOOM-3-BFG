@@ -327,7 +327,7 @@ void DoomInterface::SetMultiplayerPlayers( int localPlayerIndex, int playerCount
 	strcpy( mpArgV[localPlayerIndex][2], "1" );
 	strcpy( mpArgV[localPlayerIndex][3], "-net" );
 
-	sprintf( mpArgV[localPlayerIndex][4], "%d", localPlayer );
+	idStr::snPrintf( mpArgV[localPlayerIndex][4], sizeof( mpArgV[localPlayerIndex][4] ), "%d", localPlayer );
 	strcpy( mpArgV[localPlayerIndex][5], playerAddresses[localPlayer].c_str() );
 
 	int currentArg = 6;

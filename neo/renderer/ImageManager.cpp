@@ -685,7 +685,7 @@ void R_CombineCubeImages_f( const idCmdArgs& args )
 		int		orderRemap[6] = { 1, 3, 4, 2, 5, 6 };
 		for( side = 0 ; side < 6 ; side++ )
 		{
-			sprintf( filename, "%s%i%04i.tga", baseName.c_str(), orderRemap[side], frameNum );
+			idStr::snPrintf( filename, sizeof( filename ), "%s%i%04i.tga", baseName.c_str(), orderRemap[side], frameNum );
 
 			idLib::Printf( "reading %s\n", filename );
 			R_LoadImage( filename, &pics[side], &width, &height, NULL, true, NULL );
@@ -738,7 +738,7 @@ void R_CombineCubeImages_f( const idCmdArgs& args )
 			memcpy( combined + width * height * 4 * side, pics[side], width * height * 4 );
 			Mem_Free( pics[side] );
 		}
-		sprintf( filename, "%sCM%04i.tga", baseName.c_str(), frameNum );
+		idStr::snPrintf( filename, sizeof( filename ), "%sCM%04i.tga", baseName.c_str(), frameNum );
 
 		idLib::Printf( "writing %s\n", filename );
 		R_WriteTGA( filename, combined, width, height * 6 );

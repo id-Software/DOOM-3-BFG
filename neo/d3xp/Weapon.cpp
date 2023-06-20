@@ -3052,7 +3052,7 @@ const char* idWeapon::GetAmmoNameForNum( ammo_t ammonum )
 		return NULL;
 	}
 
-	sprintf( text, "%d", ammonum );
+	idStr::snPrintf( text, sizeof( text ), "%d", ammonum );
 
 	num = ammoDict->GetNumKeyVals();
 	for( i = 0; i < num; i++ )

@@ -367,7 +367,7 @@ void idParser::Error( const char* str, ... ) const
 	va_list ap;
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	idStr::vsnPrintf( text, sizeof( text ), str, ap );
 	va_end( ap );
 	if( idParser::scriptstack )
 	{
@@ -386,7 +386,7 @@ void idParser::Warning( const char* str, ... ) const
 	va_list ap;
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	idStr::vsnPrintf( text, sizeof( text ), str, ap );
 	va_end( ap );
 	if( idParser::scriptstack )
 	{
@@ -836,7 +836,7 @@ int idParser::ExpandBuiltinDefine( idToken* deftoken, define_t* define, idToken*
 	{
 		case BUILTIN_LINE:
 		{
-			sprintf( buf, "%d", deftoken->line );
+			idStr::snPrintf( buf, sizeof( buf ), "%d", deftoken->line );
 			( *token ) = buf;
 			token->intvalue = deftoken->line;
 			token->floatvalue = deftoken->line;
@@ -2680,7 +2680,7 @@ int idParser::Directive_eval()
 	token.whiteSpaceEnd_p = NULL;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf( buf, "%d", abs( value ) );
+	idStr::snPrintf( buf, sizeof( buf ), "%d", abs( value ) );
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
@@ -2713,7 +2713,7 @@ int idParser::Directive_evalfloat()
 	token.whiteSpaceEnd_p = NULL;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf( buf, "%1.2f", idMath::Fabs( value ) );
+	idStr::snPrintf( buf, sizeof( buf ), "%1.2f", idMath::Fabs( value ) );
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
@@ -2850,7 +2850,7 @@ int idParser::DollarDirective_evalint()
 	token.whiteSpaceEnd_p = NULL;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf( buf, "%d", abs( value ) );
+	idStr::snPrintf( buf, sizeof( buf ), "%d", abs( value ) );
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL | TT_VALUESVALID;
@@ -2885,7 +2885,7 @@ int idParser::DollarDirective_evalfloat()
 	token.whiteSpaceEnd_p = NULL;
 	token.linesCrossed = 0;
 	token.flags = 0;
-	sprintf( buf, "%1.2f", fabs( value ) );
+	idStr::snPrintf( buf, sizeof( buf ), "%1.2f", fabs( value ) );
 	token = buf;
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL | TT_VALUESVALID;

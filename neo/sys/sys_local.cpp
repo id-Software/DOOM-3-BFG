@@ -248,15 +248,15 @@ const char* Sys_SecToStr( int sec )
 
 	if( weeks > 0 )
 	{
-		sprintf( timeString, "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec );
+		idStr::snPrintf( timeString, sizeof( timeString ), "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec );
 	}
 	else if( days > 0 )
 	{
-		sprintf( timeString, "%dd, %d:%02d:%02d", days, hours, min, sec );
+		idStr::snPrintf( timeString, sizeof( timeString ), "%dd, %d:%02d:%02d", days, hours, min, sec );
 	}
 	else
 	{
-		sprintf( timeString, "%d:%02d:%02d", hours, min, sec );
+		idStr::snPrintf( timeString, sizeof( timeString ), "%d:%02d:%02d", hours, min, sec );
 	}
 
 	return timeString;

@@ -1757,7 +1757,7 @@ void idDeclManagerLocal::WritePrecacheCommands( idFile* f )
 			}
 
 			char	str[1024];
-			sprintf( str, "touch %s %s\n", declTypes[i]->typeName.c_str(), decl->GetName() );
+			idStr::snPrintf( str, sizeof( str ), "touch %s %s\n", declTypes[i]->typeName.c_str(), decl->GetName() );
 			common->Printf( "%s", str );
 			f->Printf( "%s", str );
 		}

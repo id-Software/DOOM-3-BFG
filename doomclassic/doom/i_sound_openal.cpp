@@ -163,7 +163,7 @@ void* getsfx( const char* sfxname, int* len )
 	//float               scale = 1.0f;
 
 	// Get the sound data from the WAD
-	sprintf( name, "ds%s", sfxname );
+	idStr::snPrintf( name, sizeof( name ), "ds%s", sfxname );
 
 	// Scale down the plasma gun, it clips
 	//if ( strcmp( sfxname, "plasma" ) == 0 ) {
@@ -243,7 +243,7 @@ I_GetSfxLumpNum
 int I_GetSfxLumpNum( sfxinfo_t* sfx )
 {
 	char namebuf[9];
-	sprintf( namebuf, "ds%s", sfx->name );
+	idStr::snPrintf( namebuf, sizeof( namebuf ), "ds%s", sfx->name );
 	return W_GetNumForName( namebuf );
 }
 

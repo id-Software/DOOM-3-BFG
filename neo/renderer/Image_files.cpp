@@ -73,7 +73,7 @@ void jpg_Error( const char* fmt, ... )
 	char		msg[2048];
 
 	va_start( argptr, fmt );
-	vsprintf( msg, fmt, argptr );
+	idStr::vsnPrintf( msg, sizeof( msg ), fmt, argptr );
 	va_end( argptr );
 
 	common->FatalError( "%s", msg );
@@ -85,7 +85,7 @@ void jpg_Printf( const char* fmt, ... )
 	char		msg[2048];
 
 	va_start( argptr, fmt );
-	vsprintf( msg, fmt, argptr );
+	idStr::vsnPrintf( msg, sizeof( msg ), fmt, argptr );
 	va_end( argptr );
 
 	common->Printf( "%s", msg );

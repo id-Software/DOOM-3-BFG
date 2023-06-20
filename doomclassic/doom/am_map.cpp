@@ -429,7 +429,7 @@ void AM_loadPics( void )
 
 	for( i = 0; i < 10; i++ )
 	{
-		sprintf( namebuf, "AMMNUM%d", i );
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "AMMNUM%d", i );
 		::g->marknums[i] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
 	}
 
@@ -635,7 +635,7 @@ AM_Responder
 				::g->amap_plr->message = ::g->grid ? AMSTR_GRIDON : AMSTR_GRIDOFF;
 				break;
 			case AM_MARKKEY:
-				sprintf( ::g->buffer, "%s %d", AMSTR_MARKEDSPOT, ::g->markpointnum );
+				idStr::snPrintf( ::g->buffer, sizeof( ::g->buffer ), "%s %d", AMSTR_MARKEDSPOT, ::g->markpointnum );
 				::g->amap_plr->message = ::g->buffer;
 				AM_addMark();
 				break;

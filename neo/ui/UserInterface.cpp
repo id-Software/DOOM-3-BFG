@@ -110,7 +110,7 @@ void idUserInterfaceManagerLocal::WritePrecacheCommands( idFile* f )
 	for( int i = 0; i < c; i++ )
 	{
 		char	str[1024];
-		sprintf( str, "touchGui %s\n", guis[i]->Name() );
+		idStr::snPrintf( str, sizeof( str ), "touchGui %s\n", guis[i]->Name() );
 		common->Printf( "%s", str );
 		f->Printf( "%s", str );
 	}
