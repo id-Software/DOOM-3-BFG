@@ -312,13 +312,11 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 		while( readDemo )
 		{
 			BusyWait();                         // SRS - BusyWait() calls UpdateScreen() which draws and renders out-of-sequence but still supports frame timing
-			commonLocal.frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
 			commonLocal.mainFrameTiming = commonLocal.frameTiming;
 			// ** End of current logical frame **
 
 			// ** Start of next logical frame **
-			commonLocal.frameTiming.startSyncTime = Sys_Microseconds();
-			commonLocal.frameTiming.finishSyncTime = commonLocal.frameTiming.startSyncTime;
+			commonLocal.frameTiming.finishSyncTime = Sys_Microseconds();
 			commonLocal.frameTiming.startGameTime = commonLocal.frameTiming.finishSyncTime;
 
 			AdvanceRenderDemo( true );          // SRS - Advance demo commands to manually run the next game frame during first pass of the timedemo
