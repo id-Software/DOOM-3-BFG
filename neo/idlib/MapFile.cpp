@@ -2777,7 +2777,7 @@ void MapPolygonMesh::SetContents()
 
 unsigned int MapPolygonMesh::GetGeometryCRC() const
 {
-	unsigned int i;
+	int i;
 	unsigned int crc = 0;
 	for( i = 0; i < verts.Num(); i++ )
 	{

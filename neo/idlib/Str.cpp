@@ -1917,7 +1917,8 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 		return;
 	}
 
-	strncpy( dest, src, destsize - 1 );
+	// SRS - added size_t cast for 64-bit type consistency
+	strncpy( dest, src, (size_t)destsize - 1 );
 	dest[destsize - 1] = 0;
 }
 
@@ -2285,7 +2286,8 @@ int idStr::vsnPrintf( char* dest, int size, const char* fmt, va_list argptr )
 // RB begin
 #ifdef _WIN32
 #undef _vsnprintf
-	ret = _vsnprintf( dest, size - 1, fmt, argptr );
+	// SRS - added size_t cast for 64-bit type consistency
+	ret = _vsnprintf( dest, (size_t)size - 1, fmt, argptr );
 #define _vsnprintf	use_idStr_vsnPrintf
 #else
 #undef vsnprintf

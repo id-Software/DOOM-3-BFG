@@ -67,6 +67,10 @@ void* 		Mem_ClearedAlloc( const size_t size, const memTag_t tag );
 char* 		Mem_CopyString( const char* in );
 // RB end
 
+#ifdef _MSC_VER						// SRS: #pragma warning is MSVC specific
+#pragma warning( push )
+#pragma warning( disable : 4595 )	// C4595: non-member operator new or delete functions may not be declared inline
+#endif
 ID_INLINE void* operator new( size_t s )
 {
 	return Mem_Alloc( s, TAG_NEW );
@@ -87,6 +91,9 @@ ID_INLINE void operator delete[]( void* p ) noexcept
 {
 	Mem_Free( p );
 }
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
 
 ID_INLINE void* operator new( size_t s, memTag_t tag )
 {

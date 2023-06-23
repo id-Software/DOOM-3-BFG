@@ -65,7 +65,8 @@ void VLC_InitTable(VLCtable &table, uint32_t maxLength, uint32_t size, const uin
 
 uint32_t VLC_GetSize(VLCtable &table)
 {
-	return table.size();
+	// SRS - added uint32_t cast for type consistency
+	return (uint32_t)table.size();
 }
 
 } // close namespace BinkCommon

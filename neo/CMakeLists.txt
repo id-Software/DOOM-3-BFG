@@ -1539,6 +1539,15 @@ if(MSVC)
 		)
 	endif()
 	
+	# SRS - disable certain MSVC-specific warnings for select third-party source libraries, consider updating versions in the future?
+	set_source_files_properties(
+			${JPEG_SOURCES}
+			${PNG_SOURCES}
+			${OGGVORBIS_SOURCES}
+			PROPERTIES
+			COMPILE_FLAGS "/wd4101 /wd4267"	# C4101: unreferenced local variable, C4267: type conversion with possible loss of data
+		)
+	
 	list(APPEND RBDOOM3_SOURCES ${WIN32_RESOURCES})
 	
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})

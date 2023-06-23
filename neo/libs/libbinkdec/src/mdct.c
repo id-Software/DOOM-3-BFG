@@ -84,10 +84,11 @@ av_cold int ff_mdct_init(FFTContext *s, int nbits, int inverse, double scale)
 
     theta = 1.0 / 8.0 + (scale < 0 ? n4 : 0);
     scale = sqrt(fabs(scale));
+	// SRS - added FFTSample casts for type consistency
     for(i=0;i<n4;i++) {
         alpha = 2 * M_PI * (i + theta) / n;
-        s->tcos[i*tstep] = FIX15(-cos(alpha) * scale);
-        s->tsin[i*tstep] = FIX15(-sin(alpha) * scale);
+        s->tcos[i*tstep] = (FFTSample)FIX15(-cos(alpha) * scale);
+        s->tsin[i*tstep] = (FFTSample)FIX15(-sin(alpha) * scale);
     }
     return 0;
  fail:
