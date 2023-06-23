@@ -840,7 +840,8 @@ void Core::DumpProgressFormatted(const char* format, ...)
 #ifdef OPTICK_MSVC
 	vsprintf_s(buffer, format, arglist);
 #else
-	vsprintf(buffer, format, arglist);
+	// SRS - use vsnprintf() for buffer security and to eliminate warning
+	vsnprintf(buffer, sizeof(buffer), format, arglist);
 #endif
 	va_end(arglist);
 	DumpProgress(buffer);
