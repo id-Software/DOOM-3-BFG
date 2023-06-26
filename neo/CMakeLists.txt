@@ -314,33 +314,10 @@ if(STANDALONE)
 	set(DOOM_CLASSIC OFF)
 endif()
 
-if (USE_SYSTEM_ZLIB)
-  find_package(ZLIB REQUIRED)
-endif(USE_SYSTEM_ZLIB)
-
-if (ZLIB_FOUND)
-    include_directories(${ZLIB_INCLUDE_DIRS})
-    set(ZLIB_LIBRARY ${ZLIB_LIBRARIES})
-else (ZLIB_FOUND)
-    include_directories("libs/zlib")
-    set(ZLIB_LIBRARY "" )
-endif (ZLIB_FOUND)
-
-if(USE_SYSTEM_LIBPNG)
-	find_package(PNG REQUIRED)
-endif (USE_SYSTEM_LIBPNG)
-
-if (PNG_FOUND)
-    include_directories(${PNG_INCLUDE_DIRS})
-    set(PNG_LIBRARY ${PNG_LIBRARIES})
-else (PNG_FOUND)
-    include_directories("libs/png")
-    set(PNG_LIBRARY "" )
-endif (PNG_FOUND)
-
-if(USE_SYSTEM_LIBJPEG)
-	find_package(JPEG REQUIRED)
-endif(USE_SYSTEM_LIBJPEG)
+# SRS - set libjpeg as first include path to prioritize bundled format_message() fix
+if (USE_SYSTEM_LIBJPEG)
+	find_package(JPEG)
+endif (USE_SYSTEM_LIBJPEG)
 
 if (JPEG_FOUND)
     include_directories(${JPEG_INCLUDE_DIRS})
@@ -350,6 +327,44 @@ else (JPEG_FOUND)
     include_directories("libs/jpeg-6")
     set(JPEG_LIBRARY "" )
 endif (JPEG_FOUND)
+
+if (USE_SYSTEM_LIBPNG)
+	find_package(PNG)
+endif (USE_SYSTEM_LIBPNG)
+
+# SRS - if system libpng was found, then system zlib was also found via cmake dependency
+if (PNG_FOUND)
+    include_directories(${PNG_INCLUDE_DIRS})
+    set(PNG_LIBRARY ${PNG_LIBRARIES})
+else (PNG_FOUND)
+    include_directories("libs/png")
+    set(PNG_LIBRARY "" )
+
+	# SRS - search for system zlib only if we have not already searched via system libpng
+	if (USE_SYSTEM_ZLIB AND NOT USE_SYSTEM_LIBPNG)
+	  find_package(ZLIB)
+	endif (USE_SYSTEM_ZLIB AND NOT USE_SYSTEM_LIBPNG)
+
+	if (USE_SYSTEM_ZLIB AND ZLIB_FOUND)
+		include_directories(${ZLIB_INCLUDE_DIRS})
+		set(ZLIB_LIBRARY ${ZLIB_LIBRARIES})
+	else (USE_SYSTEM_ZLIB AND ZLIB_FOUND)
+		include_directories("libs/zlib")
+		set(ZLIB_LIBRARY "" )
+	endif (USE_SYSTEM_ZLIB AND ZLIB_FOUND)
+endif (PNG_FOUND)
+
+#SRS - move rapidjson before vulkan and other includes to prioritize bundled iterator fixes
+if (USE_SYSTEM_RAPIDJSON)
+	find_package(rapidjson)
+endif (USE_SYSTEM_RAPIDJSON)
+
+if (RAPIDJSON_FOUND)
+	include_directories("${RAPIDJSON_INCLUDE_DIRS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAPIDJSON_CXX_FLAGS}")
+else (RAPIDJSON_FOUND)
+	include_directories("libs/rapidjson/include")
+endif (RAPIDJSON_FOUND)
 
 include_directories("libs/imgui")
 
@@ -440,19 +455,6 @@ if(USE_VULKAN)
 endif()
 
 include_directories(${NVRHI_DIR}/include)
-
-
-if(USE_SYSTEM_RAPIDJSON)
-	find_package(rapidjson REQUIRED)
-endif(USE_SYSTEM_RAPIDJSON)
-
-if (RAPIDJSON_FOUND)
-	include_directories("${RAPIDJSON_INCLUDE_DIRS}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAPIDJSON_CXX_FLAGS}")
-else (RAPIDJSON_FOUND)
-	include_directories("libs/rapidjson/include")
-endif (RAPIDJSON_FOUND)
-
 
 include_directories("libs/optick")
 
@@ -1539,14 +1541,14 @@ if(MSVC)
 		)
 	endif()
 	
-	# SRS - disable certain MSVC-specific warnings for select third-party source libraries, consider updating versions in the future?
+	# SRS - disable certain MSVC warnings for select third-party source libraries, consider updating versions in the future?
 	set_source_files_properties(
 			${JPEG_SOURCES}
 			${PNG_SOURCES}
 			${OGGVORBIS_SOURCES}
 			PROPERTIES
 			COMPILE_FLAGS "/wd4101 /wd4267"	# C4101: unreferenced local variable, C4267: type conversion with possible loss of data
-		)
+			)
 	
 	list(APPEND RBDOOM3_SOURCES ${WIN32_RESOURCES})
 	
@@ -1685,6 +1687,15 @@ else()
 			LIST(APPEND _compiler_FLAGS " -I${item}")
 		ENDFOREACH(item)
 	endif()
+
+	# SRS - disable certain gcc/clang warnings for select third-party source libraries, consider updating versions in the future?
+	set_source_files_properties(
+			${JPEG_SOURCES}
+			${ZLIB_SOURCES}
+			${MINIZIP_SOURCES}
+			PROPERTIES
+			COMPILE_FLAGS "-Wno-stringop-overread -Wno-deprecated-non-prototype"
+			)
 		
 	GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
 	LIST(APPEND _compiler_FLAGS ${_directory_flags})
