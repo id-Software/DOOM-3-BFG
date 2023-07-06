@@ -64,7 +64,7 @@ namespace Optick
 		currentState = STATE_OFF;
 
 		// SRS - Resolve delayed GPU frame timestamps before dumping data
-		for (size_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
+		for (uint32_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
 		{
 			Node* node = nodes[nodeIndex];
 			
@@ -74,7 +74,7 @@ namespace Optick
 			while (nextFrame.queryIndexStart != (uint32_t)-1 && nextFrame.queryIndexCount > 0 &&
 				   nextFrameIndex != frameNumber % NUM_FRAMES_DELAY)
 			{
-				WaitForFrame(nodeIndex, nextFrameIndex);
+				WaitForFrame(nodeIndex, (uint64_t)nextFrameIndex);
 
 				uint32_t resolveStart = nextFrame.queryIndexStart % MAX_QUERIES_COUNT;
 				uint32_t resolveFinish = resolveStart + nextFrame.queryIndexCount;
