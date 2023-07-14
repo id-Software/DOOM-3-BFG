@@ -310,14 +310,14 @@ int Sys_FPU_PrintStateFlags( char* buf, int bufsize, int ctrl, int stat, int tag
 	int i, length = 0;
 
 	length += idStr::snPrintf( buf + length, bufsize - length,	"CTRL = %08x\n"
-					   "STAT = %08x\n"
-					   "TAGS = %08x\n"
-					   "INOF = %08x\n"
-					   "INSE = %08x\n"
-					   "OPOF = %08x\n"
-					   "OPSE = %08x\n"
-					   "\n",
-					   ctrl, stat, tags, inof, inse, opof, opse );
+							   "STAT = %08x\n"
+							   "TAGS = %08x\n"
+							   "INOF = %08x\n"
+							   "INSE = %08x\n"
+							   "OPOF = %08x\n"
+							   "OPSE = %08x\n"
+							   "\n",
+							   ctrl, stat, tags, inof, inse, opof, opse );
 
 	length += idStr::snPrintf( buf + length, bufsize - length, "Control Word:\n" );
 	for( i = 0; controlWordFlags[i].name[0]; i++ )

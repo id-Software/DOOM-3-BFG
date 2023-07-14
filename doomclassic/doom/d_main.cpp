@@ -613,38 +613,38 @@ void D_DoomMain( void )
 	{
 		case retail:
 			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
-					 "                         "
-					 "The Ultimate DOOM Startup v%i.%i"
-					 "                           ",
-					 VERSION / 100, VERSION % 100 );
+							 "                         "
+							 "The Ultimate DOOM Startup v%i.%i"
+							 "                           ",
+							 VERSION / 100, VERSION % 100 );
 			break;
 		case shareware:
 			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
-					 "                            "
-					 "DOOM Shareware Startup v%i.%i"
-					 "                           ",
-					 VERSION / 100, VERSION % 100 );
+							 "                            "
+							 "DOOM Shareware Startup v%i.%i"
+							 "                           ",
+							 VERSION / 100, VERSION % 100 );
 			break;
 		case registered:
 			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
-					 "                            "
-					 "DOOM Registered Startup v%i.%i"
-					 "                           ",
-					 VERSION / 100, VERSION % 100 );
+							 "                            "
+							 "DOOM Registered Startup v%i.%i"
+							 "                           ",
+							 VERSION / 100, VERSION % 100 );
 			break;
 		case commercial:
 			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
-					 "                         "
-					 "DOOM 2: Hell on Earth v%i.%i"
-					 "                           ",
-					 VERSION / 100, VERSION % 100 );
+							 "                         "
+							 "DOOM 2: Hell on Earth v%i.%i"
+							 "                           ",
+							 VERSION / 100, VERSION % 100 );
 			break;
 		default:
 			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
-					 "                     "
-					 "Public DOOM - v%i.%i"
-					 "                           ",
-					 VERSION / 100, VERSION % 100 );
+							 "                     "
+							 "Public DOOM - v%i.%i"
+							 "                           ",
+							 VERSION / 100, VERSION % 100 );
 			break;
 	}
 

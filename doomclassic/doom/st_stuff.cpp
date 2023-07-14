@@ -541,9 +541,9 @@ ST_Responder( event_t* ev )
 			{
 				static char	buf[ST_MSGWIDTH];
 				idStr::snPrintf( buf, sizeof( buf ), "ang=0x%x;x,y=(0x%x,0x%x)",
-						 ::g->players[::g->consoleplayer].mo->angle,
-						 ::g->players[::g->consoleplayer].mo->x,
-						 ::g->players[::g->consoleplayer].mo->y );
+								 ::g->players[::g->consoleplayer].mo->angle,
+								 ::g->players[::g->consoleplayer].mo->x,
+								 ::g->players[::g->consoleplayer].mo->y );
 				::g->plyr->message = buf;
 			}
 		}
@@ -1517,9 +1517,9 @@ CONSOLE_COMMAND_SHIP( idmypos, "for player position", 0 )
 
 	static char	buf[ST_MSGWIDTH];
 	idStr::snPrintf( buf, sizeof( buf ), "ang=0x%x;x,y=(0x%x,0x%x)",
-			 ::g->players[::g->consoleplayer].mo->angle,
-			 ::g->players[::g->consoleplayer].mo->x,
-			 ::g->players[::g->consoleplayer].mo->y );
+					 ::g->players[::g->consoleplayer].mo->angle,
+					 ::g->players[::g->consoleplayer].mo->x,
+					 ::g->players[::g->consoleplayer].mo->y );
 	::g->plyr->message = buf;
 
 	DoomLib::SetPlayer( oldPlayer );
