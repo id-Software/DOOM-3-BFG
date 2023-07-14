@@ -135,6 +135,10 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& parms )
 		m_DeviceParams.vsyncEnabled = m_RequestedVSync;
 
 		ResizeSwapChain();
+
+		// SRS - Get actual swapchain dimensions to set new render size
+		deviceManager->GetWindowDimensions( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+
 		BackBufferResized();
 	}
 	else
@@ -195,7 +199,8 @@ static int GetDisplayIndex( glimpParms_t parms )
 		{
 			SDL_Rect rect;
 			SDL_GetDisplayBounds( i, &rect );
-			if( windowPosX >= rect.x && windowPosX < ( rect.x + rect.w ) && windowPosY >= rect.y && windowPosY < ( rect.y + rect.h ) )
+			if( ( windowPosX >= rect.x && windowPosX < ( rect.x + rect.w ) && windowPosY >= rect.y && windowPosY < ( rect.y + rect.h ) ) ||
+				( parms.x == SDL_WINDOWPOS_CENTERED_DISPLAY( i ) && parms.y == SDL_WINDOWPOS_CENTERED_DISPLAY( i ) ) )
 			{
 				displayIdx = i;
 				break;
@@ -206,11 +211,18 @@ static int GetDisplayIndex( glimpParms_t parms )
 	return displayIdx;
 }
 
-// SRS - Function to get display frequency of monitor hosting the current window
+// SRS - Function to get display frequency of monitor corresponding to the window position
 static int GetDisplayFrequency( glimpParms_t parms )
 {
+	int displayIndex = GetDisplayIndex( parms );
+	if( displayIndex < 0 )
+	{
+		// SRS - window is out of bounds for desktop, fall back to primary display
+		displayIndex = 0;
+	}
+
 	SDL_DisplayMode m = {0};
-	if( SDL_GetWindowDisplayMode( window, &m ) < 0 )
+	if( SDL_GetCurrentDisplayMode( displayIndex, &m ) )
 	{
 		common->Warning( "Couldn't get display refresh rate, reason: %s", SDL_GetError() );
 		return parms.displayHz;
@@ -255,8 +267,9 @@ bool VKimp_Init( glimpParms_t parms )
 	}
 	else if( GetDisplayIndex( parms ) < 0 ) // verify window position for -1 and -2 borderless modes
 	{
-		// SRS - window is out of bounds for desktop, startup on default display instead
-		createParms.x = createParms.y = SDL_WINDOWPOS_UNDEFINED;
+		// SRS - window is out of bounds for desktop, startup on primary display instead
+		createParms.x = createParms.y = SDL_WINDOWPOS_CENTERED;
+		common->Warning( "Window position out of bounds, falling back to primary display" );
 	}
 
 	if( !deviceManager->CreateWindowDeviceAndSwapChain( createParms, GAME_NAME ) )
@@ -280,7 +293,7 @@ bool VKimp_Init( glimpParms_t parms )
 			}
 		}
 
-		// SRS - Move to fullscreen mode after window creation to avoid SDL platform differences
+		// SRS - Switch into fullscreen mode after window creation to avoid SDL platform differences
 		if( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN ) < 0 )
 		{
 			common->Warning( "Couldn't switch to fullscreen mode, reason: %s", SDL_GetError() );
@@ -288,16 +301,28 @@ bool VKimp_Init( glimpParms_t parms )
 	}
 	else if( parms.fullScreen == -2 )
 	{
-		// SRS - Move to borderless fullscreen mode after window creation
+		// SRS - Switch into borderless fullscreen mode after window creation
 		if( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP ) < 0 )
 		{
 			common->Warning( "Couldn't switch to borderless fullscreen mode, reason: %s", SDL_GetError() );
 		}
 	}
+	else if( parms.fullScreen == -1 )
+	{
+		// SRS - Make sure custom borderless window is in position after window creation
+		SDL_SetWindowPosition( window, createParms.x, createParms.y );
+	}
 
-	// RB begin
-	SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
-	// RB end
+	if( parms.fullScreen )
+	{
+		// SRS - Get window's client area dimensions to set initial render size for fullscreen modes
+		SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
+	}
+	else
+	{
+		// SRS - Get actual swapchain dimensions to set initial render size for windowed mode
+		deviceManager->GetWindowDimensions( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+	}
 
 	// SRS - Detect and save actual fullscreen state supporting all modes (-2, -1, 0, 1, ...)
 	glConfig.isFullscreen = ( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN ) || ( parms.fullScreen == -1 ) ? parms.fullScreen : 0;
@@ -371,9 +396,10 @@ static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 		int windowPosX = parms.x, windowPosY = parms.y;
 		if( displayIdx < 0 )
 		{
-			// SRS - window is out of bounds for desktop, reposition onto default display
-			windowPosX = windowPosY = SDL_WINDOWPOS_UNDEFINED;
+			// SRS - window is out of bounds for desktop, reposition onto primary display
 			displayIdx = 0;
+			windowPosX = windowPosY = SDL_WINDOWPOS_CENTERED;
+			common->Warning( "Window position out of bounds, falling back to primary display" );
 		}
 
 		// move window to the specified desktop position
@@ -434,8 +460,9 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 	int windowPosX = parms.x, windowPosY = parms.y;
 	if( GetDisplayIndex( parms ) < 0 )
 	{
-		// SRS - window is out of bounds for desktop, reposition onto default display
-		windowPosX = windowPosY = SDL_WINDOWPOS_UNDEFINED;
+		// SRS - window is out of bounds for desktop, reposition onto primary display
+		windowPosX = windowPosY = SDL_WINDOWPOS_CENTERED;
+		common->Warning( "Window position out of bounds, falling back to primary display" );
 	}
 
 	// SRS - handle differences in WM behaviour: for macOS set position first, for linux set it last
@@ -496,8 +523,10 @@ bool VKimp_SetScreenParms( glimpParms_t parms )
 
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.isStereoPixelFormat = parms.stereo;
-	glConfig.nativeScreenWidth = parms.width;
-	glConfig.nativeScreenHeight = parms.height;
+
+	// SRS - Get window's client area dimensions to set new render size
+	SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
+
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
 	glConfig.multisamples = parms.multiSamples;
 
