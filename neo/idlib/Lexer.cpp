@@ -247,7 +247,7 @@ void idLexer::Error( const char* str, ... )
 	}
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	idStr::vsnPrintf( text, sizeof( text ), str, ap );
 	va_end( ap );
 
 	if( idLexer::flags & LEXFL_NOFATALERRORS )
@@ -276,7 +276,7 @@ void idLexer::Warning( const char* str, ... )
 	}
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	idStr::vsnPrintf( text, sizeof( text ), str, ap );
 	va_end( ap );
 	idLib::common->Warning( "file %s, line %d: %s", idLexer::filename.c_str(), idLexer::line, text );
 }

@@ -612,35 +612,35 @@ void D_DoomMain( void )
 	switch( ::g->gamemode )
 	{
 		case retail:
-			sprintf( ::g->title,
+			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
 					 "                         "
 					 "The Ultimate DOOM Startup v%i.%i"
 					 "                           ",
 					 VERSION / 100, VERSION % 100 );
 			break;
 		case shareware:
-			sprintf( ::g->title,
+			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
 					 "                            "
 					 "DOOM Shareware Startup v%i.%i"
 					 "                           ",
 					 VERSION / 100, VERSION % 100 );
 			break;
 		case registered:
-			sprintf( ::g->title,
+			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
 					 "                            "
 					 "DOOM Registered Startup v%i.%i"
 					 "                           ",
 					 VERSION / 100, VERSION % 100 );
 			break;
 		case commercial:
-			sprintf( ::g->title,
+			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
 					 "                         "
 					 "DOOM 2: Hell on Earth v%i.%i"
 					 "                           ",
 					 VERSION / 100, VERSION % 100 );
 			break;
 		default:
-			sprintf( ::g->title,
+			idStr::snPrintf( ::g->title, sizeof( ::g->title ),
 					 "                     "
 					 "Public DOOM - v%i.%i"
 					 "                           ",
@@ -686,7 +686,7 @@ void D_DoomMain( void )
 
 	if( p && p < ::g->myargc - 1 )
 	{
-		sprintf( file, "d:\\%s.lmp", ::g->myargv[p + 1] );
+		idStr::snPrintf( file, sizeof( file ), "d:\\%s.lmp", ::g->myargv[p + 1] );
 		D_AddFile( file );
 		I_Printf( "Playing demo %s.lmp.\n", ::g->myargv[p + 1] );
 	}
@@ -918,11 +918,11 @@ bool D_DoomMainPoll( void )
 	{
 		if( M_CheckParm( "-cdrom" ) )
 		{
-			sprintf( file, "c:\\doomdata\\" SAVEGAMENAME "%c.dsg", ::g->myargv[p + 1][0] );
+			idStr::snPrintf( file, sizeof( file ), "c:\\doomdata\\" SAVEGAMENAME "%c.dsg", ::g->myargv[p + 1][0] );
 		}
 		else
 		{
-			sprintf( file, SAVEGAMENAME "%c.dsg", ::g->myargv[p + 1][0] );
+			idStr::snPrintf( file, sizeof( file ), SAVEGAMENAME "%c.dsg", ::g->myargv[p + 1][0] );
 		}
 		G_LoadGame( file );
 	}

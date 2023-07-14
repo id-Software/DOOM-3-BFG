@@ -10520,7 +10520,8 @@ for( ; im <= iM; im++ )
 			unsigned int* p = pl->p;
 			pl->p = new unsigned int[pl->lit];
 
-			for( int i = 0; i < pl->lit - 1; ++i )
+			// SRS - changed to unsigned int for type consistency
+			for( unsigned int i = 0; i < pl->lit - 1; ++i )
 			{
 				pl->p[i] = p[i];
 			}
@@ -10824,7 +10825,8 @@ while( in < ie )
 			// Search long code
 			//
 
-			int j;
+			// SRS - changed to unsigned int for type consistency
+			unsigned int j;
 
 			for( j = 0; j < pl.lit; j++ )
 			{

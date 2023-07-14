@@ -225,7 +225,7 @@ void P_DeathThink( player_t* player )
 
 		delta = angle - player->mo->angle;
 
-		if( delta < ANG5 || delta > ( unsigned ) - ANG5 )
+		if( delta < ANG5 || delta > UINT_MAX - ANG5 + 1 )	// SRS - make uint math explicit
 		{
 			// Looking at killer,
 			//  so fade damage flash down.

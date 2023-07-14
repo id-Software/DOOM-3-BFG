@@ -95,7 +95,8 @@ typedef struct
 
 static WinConData s_wcd;
 
-static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+// SRS - use LRESULT vs LONG for type consistency with 64-bit and 32-bit
+static LRESULT WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	char* cmdString;
 	static bool s_timePolarity;
@@ -124,7 +125,8 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			{
 				SetBkColor( ( HDC ) wParam, RGB( 0x00, 0x00, 0x80 ) );
 				SetTextColor( ( HDC ) wParam, RGB( 0xff, 0xff, 0x00 ) );
-				return ( long ) s_wcd.hbrEditBackground;
+				// SRS - use LRESULT vs long for type consistency with 64-bit and 32-bit
+				return ( LRESULT ) s_wcd.hbrEditBackground;
 			}
 			else if( ( HWND ) lParam == s_wcd.hwndErrorBox )
 			{
@@ -138,7 +140,8 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
 					SetTextColor( ( HDC ) wParam, RGB( 0x00, 0x0, 0x00 ) );
 				}
-				return ( long ) s_wcd.hbrErrorBackground;
+				// SRS - use LRESULT vs long for type consistency with 64-bit and 32-bit
+				return ( LRESULT ) s_wcd.hbrErrorBackground;
 			}
 			break;
 		case WM_SYSCOMMAND:
@@ -212,7 +215,8 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
-LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+// SRS - use LRESULT vs LONG for type consistency with 64-bit and 32-bit
+LRESULT WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	int key, cursor;
 	switch( uMsg )
@@ -426,9 +430,9 @@ void Sys_CreateConsole()
 									 win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
-	// RB begin
+	// RB begin, SRS - use SetWindowLongPtr() for 64-bit
 #if defined(_WIN64)
-	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWLP_WNDPROC, ( LONG_PTR ) InputLineWndProc );
+	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLongPtr( s_wcd.hwndInputLine, GWLP_WNDPROC, ( LONG_PTR ) InputLineWndProc );
 #else
 	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( LONG ) InputLineWndProc );
 #endif

@@ -618,7 +618,7 @@ extern "C" {
 								 ::g->linetarget->x, ::g->linetarget->y );
 		if( angle - player->mo->angle > ANG180 )
 		{
-			if( angle - player->mo->angle < -ANG90 / 20 )
+			if( angle - player->mo->angle < UINT_MAX - ANG90 / 20 + 1 )	// SRS - make uint math explicit
 			{
 				player->mo->angle = angle + ANG90 / 21;
 			}

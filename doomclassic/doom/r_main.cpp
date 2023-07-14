@@ -331,7 +331,7 @@ R_PointToAngle
 			if( x > y )
 			{
 				// octant 8
-				return -tantoangle[SlopeDiv( y, x )]; // // ALANHACK UNSIGNED
+				return UINT_MAX - tantoangle[SlopeDiv( y, x )] + 1; // ALANHACK UNSIGNED, SRS - make uint math explicit
 			}
 			else
 			{

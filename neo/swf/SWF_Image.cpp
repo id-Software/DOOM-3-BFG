@@ -43,13 +43,25 @@ These are the static callback functions the jpeg library calls
 void swf_jpeg_error_exit( jpeg_common_struct* cinfo )
 {
 	char buffer[JMSG_LENGTH_MAX] = {0};
+#ifdef USE_NEWER_JPEG
+	// SRS - use system jpeg lib with standard format_message() API
 	( *cinfo->err->format_message )( cinfo, buffer );
+#else
+	// SRS - use bundled jpeg lib with secure format_message() API
+	( *cinfo->err->format_message )( cinfo, buffer, sizeof( buffer ) );
+#endif
 	throw idException( buffer );
 }
 void swf_jpeg_output_message( jpeg_common_struct* cinfo )
 {
 	char buffer[JMSG_LENGTH_MAX] = {0};
+#ifdef USE_NEWER_JPEG
+	// SRS - use system jpeg lib with standard format_message() API
 	( *cinfo->err->format_message )( cinfo, buffer );
+#else
+	// SRS - use bundled jpeg lib with secure format_message() API
+	( *cinfo->err->format_message )( cinfo, buffer, sizeof( buffer ) );
+#endif
 	idLib::Printf( "%s\n", buffer );
 }
 void swf_jpeg_init_source( jpeg_decompress_struct* cinfo )

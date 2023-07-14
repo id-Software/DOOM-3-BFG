@@ -1587,7 +1587,7 @@ qboolean G_DoLoadGame()
 
 	// skip the description field
 	memset( vcheck, 0, sizeof( vcheck ) );
-	sprintf( vcheck, "version %i", VERSION );
+	idStr::snPrintf( vcheck, sizeof( vcheck ), "version %i", VERSION );
 	if( strcmp( ( char* )::g->save_p, vcheck ) )
 	{
 		loadingGame = false;
@@ -1679,17 +1679,17 @@ qboolean G_DoSaveGame( void )
 
 	if( common->GetCurrentGame() == DOOM_CLASSIC )
 	{
-		sprintf( name, "DOOM\\%s%d.dsg", SAVEGAMENAME, ::g->savegameslot );
+		idStr::snPrintf( name, sizeof( name ), "DOOM\\%s%d.dsg", SAVEGAMENAME, ::g->savegameslot );
 	}
 	else
 	{
 		if( DoomLib::expansionSelected == doom2 )
 		{
-			sprintf( name, "DOOM2\\%s%d.dsg", SAVEGAMENAME, ::g->savegameslot );
+			idStr::snPrintf( name, sizeof( name ), "DOOM2\\%s%d.dsg", SAVEGAMENAME, ::g->savegameslot );
 		}
 		else
 		{
-			sprintf( name, "DOOM2_NRFTL\\%s%d.dsg", SAVEGAMENAME, ::g->savegameslot );
+			idStr::snPrintf( name, sizeof( name ), "DOOM2_NRFTL\\%s%d.dsg", SAVEGAMENAME, ::g->savegameslot );
 		}
 
 	}
@@ -1700,7 +1700,7 @@ qboolean G_DoSaveGame( void )
 	::g->save_p += SAVESTRINGSIZE;
 
 	memset( name2, 0, sizeof( name2 ) );
-	sprintf( name2, "version %i", VERSION );
+	idStr::snPrintf( name2, sizeof( name2 ), "version %i", VERSION );
 	memcpy( ::g->save_p, name2, VERSIONSIZE );
 	::g->save_p += VERSIONSIZE;
 

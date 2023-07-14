@@ -687,11 +687,11 @@ P_SetupLevel
 	{
 		if( map < 10 )
 		{
-			sprintf( lumpname, "map0%i", map % 100 );
+			idStr::snPrintf( lumpname, sizeof( lumpname ), "map0%i", map % 100 );
 		}
 		else
 		{
-			sprintf( lumpname, "map%i", map % 100 );
+			idStr::snPrintf( lumpname, sizeof( lumpname ), "map%i", map % 100 );
 		}
 	}
 	else

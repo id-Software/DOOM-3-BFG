@@ -734,11 +734,11 @@ void idStr::Format( const char* fmt, ... )
 	char text[MAX_PRINT_MSG];
 
 	va_start( argptr, fmt );
-	int len = idStr::vsnPrintf( text, sizeof( text ) - 1, fmt, argptr );
+	// SRS - using idStr::vsnPrintf() guarantees size and null termination
+	int len = idStr::vsnPrintf( text, sizeof( text ), fmt, argptr );
 	va_end( argptr );
-	text[ sizeof( text ) - 1 ] = '\0';
 
-	if( ( size_t )len >= sizeof( text ) - 1 )
+	if( len < 0 )
 	{
 		idLib::common->FatalError( "Tried to set a large buffer using %s", fmt );
 	}
@@ -1917,7 +1917,8 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 		return;
 	}
 
-	strncpy( dest, src, destsize - 1 );
+	// SRS - added size_t cast for 64-bit type consistency
+	strncpy( dest, src, (size_t)destsize - 1 );
 	dest[destsize - 1] = 0;
 }
 
@@ -2247,21 +2248,16 @@ int idStr::snPrintf( char* dest, int size, const char* fmt, ... )
 {
 	int len;
 	va_list argptr;
-	char buffer[32000];	// big, but small enough to fit in PPC stack
 
 	va_start( argptr, fmt );
-	len = vsprintf( buffer, fmt, argptr );
+	// SRS - using idStr::vsnPrintf() guarantees size and null termination
+	len = idStr::vsnPrintf( dest, size, fmt, argptr );
 	va_end( argptr );
-	if( len >= sizeof( buffer ) )
+	if( len < 0 )
 	{
-		idLib::common->Error( "idStr::snPrintf: overflowed buffer" );
+		idLib::common->Warning( "idStr::snPrintf: overflow of %i in %i\n", len, size - 1 );
+		len = size - 1;
 	}
-	if( len >= size )
-	{
-		idLib::common->Warning( "idStr::snPrintf: overflow of %i in %i\n", len, size );
-		len = size;
-	}
-	idStr::Copynz( dest, buffer, size );
 	return len;
 }
 
@@ -2290,7 +2286,8 @@ int idStr::vsnPrintf( char* dest, int size, const char* fmt, va_list argptr )
 // RB begin
 #ifdef _WIN32
 #undef _vsnprintf
-	ret = _vsnprintf( dest, size - 1, fmt, argptr );
+	// SRS - added size_t cast for 64-bit type consistency
+	ret = _vsnprintf( dest, (size_t)size - 1, fmt, argptr );
 #define _vsnprintf	use_idStr_vsnPrintf
 #else
 #undef vsnprintf
@@ -2321,9 +2318,13 @@ int sprintf( idStr& string, const char* fmt, ... )
 	char buffer[32000];
 
 	va_start( argptr, fmt );
-	l = idStr::vsnPrintf( buffer, sizeof( buffer ) - 1, fmt, argptr );
+	// SRS - using idStr::vsnPrintf() guarantees size and null termination
+	l = idStr::vsnPrintf( buffer, sizeof( buffer ), fmt, argptr );
 	va_end( argptr );
-	buffer[sizeof( buffer ) - 1] = '\0';
+	if( l < 0 )
+	{
+		l = sizeof( buffer ) - 1;
+	}
 
 	string = buffer;
 	return l;
@@ -2341,8 +2342,12 @@ int vsprintf( idStr& string, const char* fmt, va_list argptr )
 	int l;
 	char buffer[32000];
 
-	l = idStr::vsnPrintf( buffer, sizeof( buffer ) - 1, fmt, argptr );
-	buffer[sizeof( buffer ) - 1] = '\0';
+	// SRS - using idStr::vsnPrintf() guarantees size and null termination
+	l = idStr::vsnPrintf( buffer, sizeof( buffer ), fmt, argptr );
+	if( l < 0 )
+	{
+		l = sizeof( buffer ) - 1;
+	}
 
 	string = buffer;
 	return l;
@@ -2364,11 +2369,13 @@ char* va( const char* fmt, ... )
 	char* buf;
 
 	buf = string[index];
-	index = ( index + 1 ) & 3;
 
 	va_start( argptr, fmt );
-	vsprintf( buf, fmt, argptr );
+	// SRS - using idStr::vsnPrintf() guarantees size and null termination
+	idStr::vsnPrintf( buf, sizeof( string[index] ), fmt, argptr );
 	va_end( argptr );
+
+	index = ( index + 1 ) & 3;
 
 	return buf;
 }

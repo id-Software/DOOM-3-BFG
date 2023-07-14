@@ -308,7 +308,7 @@ void R_AddLine( seg_t*	line )
 		{
 			return;
 		}
-		angle2 = -::g->clipangle; // ALANHACK UNSIGNED
+		angle2 = UINT_MAX - ::g->clipangle + 1; // ALANHACK UNSIGNED, SRS - make uint math explicit
 	}
 
 	// The seg is in the view range,
@@ -477,7 +477,7 @@ qboolean R_CheckBBox( fixed_t*	bspcoord )
 			return false;
 		}
 
-		angle2 = -::g->clipangle;// ALANHACK UNSIGNED
+		angle2 = UINT_MAX - ::g->clipangle + 1;	// ALANHACK UNSIGNED, SRS - make uint math explicit
 	}
 
 

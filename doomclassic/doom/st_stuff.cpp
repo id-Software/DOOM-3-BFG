@@ -540,7 +540,7 @@ ST_Responder( event_t* ev )
 			else if( cht_CheckCheat( &cheat_mypos, ev->data1 ) )
 			{
 				static char	buf[ST_MSGWIDTH];
-				sprintf( buf, "ang=0x%x;x,y=(0x%x,0x%x)",
+				idStr::snPrintf( buf, sizeof( buf ), "ang=0x%x;x,y=(0x%x,0x%x)",
 						 ::g->players[::g->consoleplayer].mo->angle,
 						 ::g->players[::g->consoleplayer].mo->x,
 						 ::g->players[::g->consoleplayer].mo->y );
@@ -1069,7 +1069,7 @@ void ST_loadGraphics( void )
 	// key cards
 	for( i = 0; i < NUMCARDS; i++ )
 	{
-		sprintf( namebuf, "STKEYS%d", i );
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STKEYS%d", i );
 		::g->keys[i] = ( patch_t* ) W_CacheLumpName( namebuf, PU_STATIC_SHARED );
 	}
 
@@ -1079,7 +1079,7 @@ void ST_loadGraphics( void )
 	// ::g->arms ownership widgets
 	for( i = 0; i < 6; i++ )
 	{
-		sprintf( namebuf, "STGNUM%d", i + 2 );
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STGNUM%d", i + 2 );
 
 		// gray #
 		::g->arms[i][0] = ( patch_t* ) W_CacheLumpName( namebuf, PU_STATIC_SHARED );
@@ -1089,7 +1089,7 @@ void ST_loadGraphics( void )
 	}
 
 	// face backgrounds for different color ::g->players
-	sprintf( namebuf, "STFB%d", ::g->consoleplayer );
+	idStr::snPrintf( namebuf, sizeof( namebuf ), "STFB%d", ::g->consoleplayer );
 	::g->faceback = ( patch_t* ) W_CacheLumpName( namebuf, PU_STATIC_SHARED );
 
 	// status bar background bits
@@ -1101,18 +1101,18 @@ void ST_loadGraphics( void )
 	{
 		for( j = 0; j < ST_NUMSTRAIGHTFACES; j++ )
 		{
-			sprintf( namebuf, "STFST%d%d", i, j );
+			idStr::snPrintf( namebuf, sizeof( namebuf ), "STFST%d%d", i, j );
 			::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
 		}
-		sprintf( namebuf, "STFTR%d0", i );	// turn right
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STFTR%d0", i );	// turn right
 		::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
-		sprintf( namebuf, "STFTL%d0", i );	// turn left
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STFTL%d0", i );	// turn left
 		::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
-		sprintf( namebuf, "STFOUCH%d", i );	// ouch!
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STFOUCH%d", i );	// ouch!
 		::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
-		sprintf( namebuf, "STFEVL%d", i );	// evil grin ;)
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STFEVL%d", i );	// evil grin ;)
 		::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
-		sprintf( namebuf, "STFKILL%d", i );	// pissed off
+		idStr::snPrintf( namebuf, sizeof( namebuf ), "STFKILL%d", i );	// pissed off
 		::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( namebuf, PU_STATIC_SHARED );
 	}
 	::g->faces[facenum++] = ( patch_t* )W_CacheLumpName( "STFGOD0", PU_STATIC_SHARED );
@@ -1516,7 +1516,7 @@ CONSOLE_COMMAND_SHIP( idmypos, "for player position", 0 )
 	}
 
 	static char	buf[ST_MSGWIDTH];
-	sprintf( buf, "ang=0x%x;x,y=(0x%x,0x%x)",
+	idStr::snPrintf( buf, sizeof( buf ), "ang=0x%x;x,y=(0x%x,0x%x)",
 			 ::g->players[::g->consoleplayer].mo->angle,
 			 ::g->players[::g->consoleplayer].mo->x,
 			 ::g->players[::g->consoleplayer].mo->y );

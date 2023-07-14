@@ -280,9 +280,10 @@ void BinkDecoder::DecodeAudioBlock(uint32_t trackIndex, BinkCommon::BitReader &b
             width = bits.GetBits(4);
             if (width == 0) 
 			{
-                memset(coeffs + i, 0, (j - i) * sizeof(*coeffs));
+				// SRS - added size_t and uint32_t casts for type consistency
+                memset(coeffs + i, 0, ((size_t)j - i) * sizeof(*coeffs));
                 i = j;
-                while (track->bands[k] < i)
+                while (track->bands[k] < (uint32_t)i)
                     q = quant[k++];
             }
 			else
@@ -317,7 +318,8 @@ void BinkDecoder::DecodeAudioBlock(uint32_t trackIndex, BinkCommon::BitReader &b
 			coeffs[0] /= 0.5f;
 			track->trans.dct.dct_calc(&track->trans.dct,  coeffs);
 
-			float mul = track->frameLength;
+			// SRS - added float cast for type consistency
+			float mul = (float)track->frameLength;
 
 			// vector_fmul_scalar()
 			for (int i = 0; i < track->frameLength; i++)
@@ -342,7 +344,8 @@ void BinkDecoder::DecodeAudioBlock(uint32_t trackIndex, BinkCommon::BitReader &b
 
 uint32_t BinkDecoder::GetNumAudioTracks()
 {
-	return audioTracks.size();
+	// SRS - added uint32_t cast for type consistency
+	return (uint32_t)audioTracks.size();
 }
 
 AudioInfo BinkDecoder::GetAudioTrackDetails(uint32_t trackIndex)

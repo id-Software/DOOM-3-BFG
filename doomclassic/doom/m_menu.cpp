@@ -261,17 +261,17 @@ void M_ReadSaveStrings( void )
 	{
 		if( common->GetCurrentGame() == DOOM_CLASSIC )
 		{
-			sprintf( name, "DOOM\\%s%d.dsg",  SAVEGAMENAME, i );
+			idStr::snPrintf( name, sizeof( name ), "DOOM\\%s%d.dsg",  SAVEGAMENAME, i );
 		}
 		else
 		{
 			if( DoomLib::idealExpansion == doom2 )
 			{
-				sprintf( name, "DOOM2\\%s%d.dsg",  SAVEGAMENAME, i );
+				idStr::snPrintf( name, sizeof( name ), "DOOM2\\%s%d.dsg",  SAVEGAMENAME, i );
 			}
 			else
 			{
-				sprintf( name, "DOOM2_NRFTL\\%s%d.dsg",  SAVEGAMENAME, i );
+				idStr::snPrintf( name, sizeof( name ), "DOOM2_NRFTL\\%s%d.dsg",  SAVEGAMENAME, i );
 			}
 
 		}
@@ -520,7 +520,7 @@ void M_QuickSave( void )
 		::g->quickSaveSlot = -2;	// means to pick a slot now
 		return;
 	}
-	sprintf( ::g->tempstring, QSPROMPT, ::g->savegamestrings[::g->quickSaveSlot] );
+	idStr::snPrintf( ::g->tempstring, sizeof( ::g->tempstring ), QSPROMPT, ::g->savegamestrings[::g->quickSaveSlot] );
 	M_StartMessage( ::g->tempstring, M_QuickSaveResponse, true );
 }
 
@@ -552,7 +552,7 @@ void M_QuickLoad( void )
 		M_StartMessage( QSAVESPOT, NULL, false );
 		return;
 	}
-	sprintf( ::g->tempstring, QLPROMPT, ::g->savegamestrings[::g->quickSaveSlot] );
+	idStr::snPrintf( ::g->tempstring, sizeof( ::g->tempstring ), QLPROMPT, ::g->savegamestrings[::g->quickSaveSlot] );
 	M_StartMessage( ::g->tempstring, M_QuickLoadResponse, true );
 }
 

@@ -1437,7 +1437,7 @@ static void PrintFloat( float f )
 	char buf[128];
 	int i;
 
-	for( i = sprintf( buf, "%3.2f", f ); i < 7; i++ )
+	for( i = idStr::snPrintf( buf, sizeof( buf ), "%3.2f", f ); i < 7; i++ )
 	{
 		buf[i] = ' ';
 	}

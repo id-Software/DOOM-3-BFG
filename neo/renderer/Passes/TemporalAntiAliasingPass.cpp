@@ -112,6 +112,9 @@ void TemporalAntiAliasingPass::Init(
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			break;
 		}
+#elif defined( _MSC_VER )			// SRS: #pragma warning is MSVC specific
+#pragma warning( push )
+#pragma warning( disable : 4065 )	// C4065: switch statement contains 'default' but no 'case'
 #endif
 
 		default:
@@ -121,6 +124,9 @@ void TemporalAntiAliasingPass::Init(
 			break;
 		}
 	}
+#if !ID_MSAA && defined( _MSC_VER )
+#pragma warning( pop )
+#endif
 
 	nvrhi::SamplerDesc samplerDesc;
 	samplerDesc.addressU = samplerDesc.addressV = samplerDesc.addressW = nvrhi::SamplerAddressMode::Border;

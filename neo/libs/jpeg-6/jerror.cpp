@@ -68,7 +68,7 @@ error_exit( j_common_ptr cinfo )
 	char buffer[JMSG_LENGTH_MAX];
 
 	/* Create the message */
-	( *cinfo->err->format_message )( cinfo, buffer );
+	( *cinfo->err->format_message )( cinfo, buffer, sizeof( buffer ) );
 
 	/* Let the memory manager delete any temp files before we die */
 	jpeg_destroy( cinfo );
@@ -89,7 +89,7 @@ output_message( j_common_ptr cinfo )
 	char buffer[JMSG_LENGTH_MAX];
 
 	/* Create the message */
-	( *cinfo->err->format_message )( cinfo, buffer );
+	( *cinfo->err->format_message )( cinfo, buffer, sizeof( buffer ) );
 
 	/* Send it to stderr, adding a newline */
 	jpg_Printf( "%s\n", buffer );
@@ -144,7 +144,7 @@ emit_message( j_common_ptr cinfo, int msg_level )
  */
 
 METHODDEF void
-format_message( j_common_ptr cinfo, char* buffer )
+format_message( j_common_ptr cinfo, char* buffer, int bufsize )
 {
 	struct jpeg_error_mgr* err = cinfo->err;
 	int msg_code = err->msg_code;
@@ -190,11 +190,11 @@ format_message( j_common_ptr cinfo, char* buffer )
 	/* Format the message into the passed buffer */
 	if( isstring )
 	{
-		sprintf( buffer, msgtext, err->msg_parm.s );
+		snprintf( buffer, bufsize, msgtext, err->msg_parm.s );
 	}
 	else
 	{
-		sprintf( buffer, msgtext,
+		snprintf( buffer, bufsize, msgtext,
 				 err->msg_parm.i[0], err->msg_parm.i[1],
 				 err->msg_parm.i[2], err->msg_parm.i[3],
 				 err->msg_parm.i[4], err->msg_parm.i[5],

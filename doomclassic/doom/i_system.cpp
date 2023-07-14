@@ -135,7 +135,7 @@ void I_Printf( const char* msg, ... )
 	if( debugOutput )
 	{
 		va_start( argptr, msg );
-		vsprintf( pmsg, msg, argptr );
+		idStr::vsnPrintf( pmsg, sizeof( pmsg ), msg, argptr );
 
 		safeOutputDebug( pmsg );
 
@@ -153,7 +153,7 @@ void I_PrintfE( const char* msg, ... )
 	if( debugOutput )
 	{
 		va_start( argptr, msg );
-		vsprintf( pmsg, msg, argptr );
+		idStr::vsnPrintf( pmsg, sizeof( pmsg ), msg, argptr );
 
 		safeOutputDebug( "ERROR: " );
 		safeOutputDebug( pmsg );

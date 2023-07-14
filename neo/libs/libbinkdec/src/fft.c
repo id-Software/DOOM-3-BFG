@@ -96,8 +96,9 @@ av_cold void ff_init_ff_cos_tabs(int index)
     int m = 1<<index;
     double freq = 2*M_PI/m;
     FFTSample *tab = FFT_NAME(ff_cos_tabs)[index];
+	// SRS - added FFTSample cast for type consistency
     for(i=0; i<=m/4; i++)
-        tab[i] = FIX15(cos(i*freq));
+        tab[i] = (FFTSample)FIX15(cos(i*freq));
     for(i=1; i<m/4; i++)
         tab[m/2-i] = tab[i];
 #endif

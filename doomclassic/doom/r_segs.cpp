@@ -638,7 +638,7 @@ R_StoreWallRange
 
 		if( offsetangle > ANG180 )
 		{
-			offsetangle = -offsetangle;    // ALANHACK UNSIGNED
+			offsetangle = UINT_MAX - offsetangle + 1;	// ALANHACK UNSIGNED, SRS - make uint math explicit
 		}
 
 		if( offsetangle > ANG90 )

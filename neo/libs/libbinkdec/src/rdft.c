@@ -107,7 +107,8 @@ av_cold int ff_rdft_init(RDFTContext *s, int nbits, enum RDFTransformType trans)
 {
     int n = 1 << nbits;
     int i;
-    const double theta = (trans == DFT_R2C || trans == DFT_C2R ? -1 : 1)*2*M_PI/n;
+    // SRS - added double cast for type consistency
+    const double theta = (double)(trans == DFT_R2C || trans == DFT_C2R ? -1 : 1)*2*M_PI/n;
 
     s->nbits           = nbits;
     s->inverse         = trans == IDFT_C2R || trans == DFT_C2R;
@@ -121,10 +122,12 @@ av_cold int ff_rdft_init(RDFTContext *s, int nbits, enum RDFTransformType trans)
 
     ff_init_ff_cos_tabs(nbits);
     s->tcos = ff_cos_tabs[nbits];
-    s->tsin = ff_sin_tabs[nbits]+(trans == DFT_R2C || trans == DFT_C2R)*(n>>2);
+    // SRS - added size_t cast for 64-bit handling without overflow
+    s->tsin = ff_sin_tabs[nbits]+(size_t)(trans == DFT_R2C || trans == DFT_C2R)*(n>>2);
 #if !CONFIG_HARDCODED_TABLES
+	// SRS - added FFTSample cast for type consistency
     for (i = 0; i < (n>>2); i++) {
-        s->tsin[i] = sin(i*theta);
+        s->tsin[i] = (FFTSample)sin(i*theta);
     }
 #endif
     s->rdft_calc   = ff_rdft_calc_c;

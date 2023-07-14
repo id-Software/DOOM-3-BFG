@@ -55,7 +55,7 @@ void DisplayRealTimeString( const char* string, ... )
 	if( time > lastUpdateTime + OUTPUT_UPDATE_TIME )
 	{
 		va_start( argPtr, string );
-		vsprintf( buf, string, argPtr );
+		idStr::vsnPrintf( buf, sizeof( buf ), string, argPtr );
 		va_end( argPtr );
 		common->Printf( buf );
 		lastUpdateTime = time;

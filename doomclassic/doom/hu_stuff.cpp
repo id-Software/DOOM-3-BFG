@@ -328,7 +328,7 @@ void HU_Init( void )
 	j = HU_FONTSTART;
 	for( i = 0; i < HU_FONTSIZE; i++ )
 	{
-		snprintf( buffer, buffer_len, "STCFN%03d", j++ );
+		idStr::snPrintf( buffer, buffer_len, "STCFN%03d", j++ );
 		::g->hu_font[i] = ( patch_t* ) W_CacheLumpName( buffer, PU_STATIC_SHARED );
 	}
 
