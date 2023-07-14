@@ -200,7 +200,7 @@ static int GetDisplayIndex( glimpParms_t parms )
 			SDL_Rect rect;
 			SDL_GetDisplayBounds( i, &rect );
 			if( ( windowPosX >= rect.x && windowPosX < ( rect.x + rect.w ) && windowPosY >= rect.y && windowPosY < ( rect.y + rect.h ) ) ||
-				( parms.x == SDL_WINDOWPOS_CENTERED_DISPLAY( i ) && parms.y == SDL_WINDOWPOS_CENTERED_DISPLAY( i ) ) )
+					( parms.x == SDL_WINDOWPOS_CENTERED_DISPLAY( i ) && parms.y == SDL_WINDOWPOS_CENTERED_DISPLAY( i ) ) )
 			{
 				displayIdx = i;
 				break;

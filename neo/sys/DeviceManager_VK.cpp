@@ -1025,7 +1025,7 @@ bool DeviceManager_VK::createSwapChain()
 	{
 		case 0:
 			presentMode = enablePModeMailbox && r_preferFastSync.GetBool() ? vk::PresentModeKHR::eMailbox :
-							( enablePModeImmediate ? vk::PresentModeKHR::eImmediate : vk::PresentModeKHR::eFifo );
+						  ( enablePModeImmediate ? vk::PresentModeKHR::eImmediate : vk::PresentModeKHR::eFifo );
 			break;
 		case 1:
 			presentMode = enablePModeFifoRelaxed ? vk::PresentModeKHR::eFifoRelaxed : vk::PresentModeKHR::eFifo;
