@@ -35,7 +35,7 @@
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
-// SRS - optionally needed for VK_MVK_MOLTENVK_EXTENSION_NAME and MoltenVK runtime config visibility
+// SRS - optionally needed for MoltenVK runtime config visibility
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	#include <MoltenVK/vk_mvk_moltenvk.h>
 
@@ -181,10 +181,6 @@ private:
 	{
 		// instance
 		{
-#if defined(__APPLE__) && defined( USE_MoltenVK )
-			// SRS - needed for using MoltenVK configuration on macOS (if USE_MoltenVK defined)
-			VK_MVK_MOLTENVK_EXTENSION_NAME,
-#endif
 			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 		},
 		// layers
@@ -193,12 +189,9 @@ private:
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-#if defined(__APPLE__)
-#if defined( VK_KHR_portability_subset )
-			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
-#endif
-			VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
-			VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+#if defined(__APPLE__) && defined( VK_KHR_portability_subset )
+			// SRS - This is required for using the MoltenVK portability subset implementation on macOS
+			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 #endif
 		},
 	};
@@ -229,6 +222,9 @@ private:
 			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
 			VK_NV_MESH_SHADER_EXTENSION_NAME,
 			VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+#if USE_OPTICK
+			VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
+#endif
 			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
 	};
@@ -287,6 +283,8 @@ private:
 	bool enablePModeImmediate = false;		// r_swapInterval = 0 (defaults to eFifo if not available)
 	bool enablePModeFifoRelaxed = false;	// r_swapInterval = 1 (defaults to eFifo if not available)
 
+	// SRS - flag indicating support for presentation timing via VK_GOOGLE_display_timing extension
+	bool displayTimingEnabled = false;
 
 private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL vulkanDebugCallback(
@@ -778,6 +776,10 @@ bool DeviceManager_VK::createDevice()
 		{
 			sync2Supported = true;
 		}
+		else if( ext == VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME )
+		{
+			displayTimingEnabled = true;
+		}
 	}
 
 	std::unordered_set<int> uniqueQueueFamilies =
@@ -828,6 +830,9 @@ bool DeviceManager_VK::createDevice()
 
 #if defined(__APPLE__) && defined( VK_KHR_portability_subset )
 	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
+#if USE_OPTICK
+							   .setEvents( true )
+#endif
 							   .setImageViewFormatSwizzle( true );
 
 	void* pNext = &portabilityFeatures;
@@ -865,6 +870,9 @@ bool DeviceManager_VK::createDevice()
 							.setTimelineSemaphore( true )
 							.setShaderSampledImageArrayNonUniformIndexing( true )
 							.setBufferDeviceAddress( bufferAddressSupported )
+#if USE_OPTICK
+							.setHostQueryReset( true )
+#endif
 							.setPNext( pNext );
 
 	auto layerVec = stringSetToVector( enabledExtensions.layers );
@@ -1226,11 +1234,17 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 #undef CHECK
 
+	OPTICK_GPU_INIT_VULKAN( ( VkDevice* )&m_VulkanDevice, ( VkPhysicalDevice* )&m_VulkanPhysicalDevice, ( VkQueue* )&m_GraphicsQueue, ( uint32_t* )&m_GraphicsQueueFamily, 1, nullptr );
+
 	return true;
 }
 
 void DeviceManager_VK::DestroyDeviceAndSwapChain()
 {
+	OPTICK_SHUTDOWN();
+
+	m_VulkanDevice.waitIdle();
+
 	m_FrameWaitQuery = nullptr;
 
 	for( int i = 0; i < m_SwapChainImages.size(); i++ )
@@ -1310,12 +1324,30 @@ void DeviceManager_VK::EndFrame()
 
 void DeviceManager_VK::Present()
 {
+	OPTICK_GPU_FLIP( m_SwapChain );
+	OPTICK_CATEGORY( "Vulkan_Present", Optick::Category::Wait );
+
+	void* pNext = nullptr;
+#if USE_OPTICK
+	// SRS - if display timing enabled, define the presentID for labeling the Optick GPU VSync / Present queue
+	vk::PresentTimeGOOGLE presentTime = vk::PresentTimeGOOGLE()
+										.setPresentID( idLib::frameNumber - 1 );
+	vk::PresentTimesInfoGOOGLE presentTimesInfo = vk::PresentTimesInfoGOOGLE()
+												  .setSwapchainCount( 1 )
+												  .setPTimes( &presentTime );
+	if( displayTimingEnabled )
+	{
+		pNext = &presentTimesInfo;
+	}
+#endif
+
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
 							  .setPWaitSemaphores( &m_PresentSemaphore )
 							  .setSwapchainCount( 1 )
 							  .setPSwapchains( &m_SwapChain )
-							  .setPImageIndices( &m_SwapChainIndex );
+							  .setPImageIndices( &m_SwapChainIndex )
+							  .setPNext( pNext );
 
 	const vk::Result res = m_PresentQueue.presentKHR( &info );
 	assert( res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR );
@@ -1338,6 +1370,8 @@ void DeviceManager_VK::Present()
 	{
 		if constexpr( NUM_FRAME_DATA > 2 )
 		{
+			OPTICK_CATEGORY( "Vulkan_Sync3", Optick::Category::Wait );
+
 			// SRS - For triple buffering, sync on previous frame's command queue completion
 			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
 		}
@@ -1347,6 +1381,8 @@ void DeviceManager_VK::Present()
 
 		if constexpr( NUM_FRAME_DATA < 3 )
 		{
+			OPTICK_CATEGORY( "Vulkan_Sync2", Optick::Category::Wait );
+
 			// SRS - For double buffering, sync on current frame's command queue completion
 			m_NvrhiDevice->waitEventQuery( m_FrameWaitQuery );
 		}

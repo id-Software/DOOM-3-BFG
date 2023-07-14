@@ -459,6 +459,8 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 
 void DeviceManager_DX12::DestroyDeviceAndSwapChain()
 {
+	OPTICK_SHUTDOWN();
+
 	m_RhiSwapChainBuffers.clear();
 	m_RendererString.clear();
 
@@ -610,7 +612,7 @@ void DeviceManager_DX12::Present()
 		presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
 	}
 
-	OPTICK_GPU_FLIP( m_SwapChain.Get() );
+	OPTICK_GPU_FLIP( m_SwapChain.Get(), idLib::frameNumber - 1 );
 	OPTICK_CATEGORY( "DX12_Present", Optick::Category::Wait );
 
 	// SRS - Don't change m_DeviceParams.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval

@@ -2051,8 +2051,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		common->Frame();
 	}
 
-	OPTICK_SHUTDOWN();
-
 	// never gets here
 	return 0;
 }

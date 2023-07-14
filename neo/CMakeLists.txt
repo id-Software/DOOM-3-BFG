@@ -1677,6 +1677,15 @@ else()
 		ENDFOREACH(item)
 	endif()
 		
+	# SRS - if using gcc compiler enable gnu extensions for ##__VA_ARGS__ support within optick profiler (i.e. __STRICT_ANSI__ not set)
+	if(CMAKE_COMPILER_IS_GNUCC)
+		set_source_files_properties(
+				${OPTICK_SOURCES}
+				PROPERTIES
+				COMPILE_FLAGS "-std=gnu++${CMAKE_CXX_STANDARD}"
+				)
+	endif()
+	
 	GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
 	LIST(APPEND _compiler_FLAGS ${_directory_flags})
 	SEPARATE_ARGUMENTS(_compiler_FLAGS)
@@ -1685,6 +1694,11 @@ else()
 		# we need to recreate the precompiled header for RBDoom3BFG 
 		# (i.e. can't use the one created for idlib before)
 		# because some definitions (e.g. -D__IDLIB__ -D__DOOM_DLL__) differ
+		if(OPTICK)
+			LIST(APPEND _compiler_FLAGS -DUSE_OPTICK=1)
+		else()
+			LIST(APPEND _compiler_FLAGS -DUSE_OPTICK=0)
+		endif()
 		add_custom_target(precomp_header_rbdoom3bfg ALL
 				COMMAND ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -x c++-header idlib/precompiled.h -o idlib/precompiled.h.gch
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

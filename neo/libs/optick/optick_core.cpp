@@ -1801,10 +1801,10 @@ OPTICK_API EventStorage* RegisterStorage(const char* name, uint64_t threadID, Th
 	return entry ? &entry->storage : nullptr;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-OPTICK_API void GpuFlip(void* swapChain)
+OPTICK_API void GpuFlip(void* swapChain, uint32_t frameID)
 {
 	if (GPUProfiler* gpuProfiler = Core::Get().gpuProfiler)
-		gpuProfiler->Flip(swapChain);
+		gpuProfiler->Flip(swapChain, frameID);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 OPTICK_API GPUContext SetGpuContext(GPUContext context)

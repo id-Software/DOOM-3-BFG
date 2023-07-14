@@ -61,7 +61,7 @@ namespace Optick
 	int64 Platform::GetTime()
 	{
 		struct timespec ts;
-		clock_gettime(CLOCK_REALTIME, &ts);
+		clock_gettime(CLOCK_MONOTONIC, &ts);
 		return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 	}
 }

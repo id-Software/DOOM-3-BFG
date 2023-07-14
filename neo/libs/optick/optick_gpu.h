@@ -61,7 +61,8 @@ namespace Optick
 
 			int64_t GetCPUTimestamp(int64_t gpuTimestamp)
 			{
-				return timestampCPU + (gpuTimestamp - timestampGPU) * frequencyCPU / frequencyGPU;
+				// SRS - Improve accuracy of GPU to CPU timestamp conversion by using floating point doubles
+				return timestampCPU + (int64_t)(double(gpuTimestamp - timestampGPU) * (double)frequencyCPU / (double)frequencyGPU);
 			}
 
 			ClockSynchronization() : frequencyCPU(0), frequencyGPU(0), timestampCPU(0), timestampGPU(0) {}
@@ -122,8 +123,9 @@ namespace Optick
 		void Reset();
 
 		EventData& AddFrameEvent();
-		EventData& AddVSyncEvent();
+		EventData& AddVSyncEvent(const char *eventName = "VSync");
 		TagData<uint32>& AddFrameTag();
+		TagData<uint32>& AddVSyncTag();
 
 	public:
 		GPUProfiler();
@@ -141,7 +143,9 @@ namespace Optick
 		// Interface to implement
 		virtual ClockSynchronization GetClockSynchronization(uint32_t nodeIndex) = 0;
 		virtual void QueryTimestamp(void* context, int64_t* cpuTimestampOut) = 0;
-		virtual void Flip(void* swapChain) = 0;
+		virtual void ResolveTimestamps(uint32_t nodeIndex, uint32_t startIndex, uint32_t count) = 0;
+		virtual void WaitForFrame(uint32_t nodeIndex, uint64_t frameNumber) = 0;
+		virtual void Flip(void* swapChain, uint32_t frameID) = 0;
 
 		virtual ~GPUProfiler();
 	};
