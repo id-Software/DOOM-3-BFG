@@ -1333,8 +1333,8 @@ void DeviceManager_VK::Present()
 	vk::PresentTimeGOOGLE presentTime = vk::PresentTimeGOOGLE()
 										.setPresentID( idLib::frameNumber - 1 );
 	vk::PresentTimesInfoGOOGLE presentTimesInfo = vk::PresentTimesInfoGOOGLE()
-												  .setSwapchainCount( 1 )
-												  .setPTimes( &presentTime );
+			.setSwapchainCount( 1 )
+			.setPTimes( &presentTime );
 	if( displayTimingEnabled )
 	{
 		pNext = &presentTimesInfo;
