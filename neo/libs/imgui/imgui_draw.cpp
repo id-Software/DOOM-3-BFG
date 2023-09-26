@@ -1,4 +1,4 @@
-// dear imgui, v1.88
+// dear imgui, v1.89.9
 // (drawing and font code)
 
 /*
@@ -26,38 +26,24 @@ Index of this file:
 	#define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "imgui.h"
-#ifndef IMGUI_DISABLE
-
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 	#define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 
+#include "imgui.h"
+#ifndef IMGUI_DISABLE
 #include "imgui_internal.h"
 #ifdef IMGUI_ENABLE_FREETYPE
 	#include "misc/freetype/imgui_freetype.h"
 #endif
 
 #include <stdio.h>      // vsnprintf, sscanf, printf
-#if !defined(alloca)
-	#if defined(__GLIBC__) || defined(__sun) || defined(__APPLE__) || defined(__NEWLIB__)
-		#include <alloca.h>     // alloca (glibc uses <alloca.h>. Note that Cygwin may have _WIN32 defined, so the order matters here)
-	#elif defined(_WIN32)
-		#include <malloc.h>     // alloca
-		#if !defined(alloca)
-			#define alloca _alloca  // for clang with MS Codegen
-		#endif
-	#else
-		#include <stdlib.h>     // alloca
-	#endif
-#endif
 
 // Visual Studio warnings
 #ifdef _MSC_VER
 	#pragma warning (disable: 4127)     // condition expression is constant
 	#pragma warning (disable: 4505)     // unreferenced local function has been removed (stb stuff)
 	#pragma warning (disable: 4996)     // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
-	#pragma warning (disable: 6255)     // [Static Analyzer] _alloca indicates failure by raising a stack overflow exception.  Consider using _malloca instead.
 	#pragma warning (disable: 26451)    // [Static Analyzer] Arithmetic overflow : Using operator 'xxx' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator 'xxx' to avoid overflow(io.2).
 	#pragma warning (disable: 26812)    // [Static Analyzer] The enum type 'xxx' is unscoped. Prefer 'enum class' over 'enum' (Enum.3). [MSVC Static Analyzer)
 #endif
@@ -66,9 +52,6 @@ Index of this file:
 #if defined(__clang__)
 	#if __has_warning("-Wunknown-warning-option")
 		#pragma clang diagnostic ignored "-Wunknown-warning-option"         // warning: unknown warning group 'xxx'                      // not all warnings are known by all Clang versions and they tend to be rename-happy.. so ignoring warnings triggers new warnings on some configuration. Great!
-	#endif
-	#if __has_warning("-Walloca")
-		#pragma clang diagnostic ignored "-Walloca"                         // warning: use of function '__builtin_alloca' is discouraged
 	#endif
 	#pragma clang diagnostic ignored "-Wunknown-pragmas"                // warning: unknown warning group 'xxx'
 	#pragma clang diagnostic ignored "-Wold-style-cast"                 // warning: use of old-style cast                            // yes, they are more terse.
@@ -80,6 +63,7 @@ Index of this file:
 	#pragma clang diagnostic ignored "-Wreserved-id-macro"              // warning: macro name is a reserved identifier
 	#pragma clang diagnostic ignored "-Wdouble-promotion"               // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is a misery with this as C++ va_arg ellipsis changes float to double.
 	#pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"  // warning: implicit conversion from 'xxx' to 'float' may lose precision
+	#pragma clang diagnostic ignored "-Wreserved-identifier"            // warning: identifier '_Xxx' is reserved because it starts with '_' followed by a capital letter
 #elif defined(__GNUC__)
 	#pragma GCC diagnostic ignored "-Wpragmas"                  // warning: unknown option after '#pragma GCC diagnostic' kind
 	#pragma GCC diagnostic ignored "-Wunused-function"          // warning: 'xxxx' defined but not used
@@ -230,6 +214,8 @@ void ImGui::StyleColorsDark( ImGuiStyle* dst )
 	colors[ImGuiCol_TabActive]              = ImLerp( colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f );
 	colors[ImGuiCol_TabUnfocused]           = ImLerp( colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f );
 	colors[ImGuiCol_TabUnfocusedActive]     = ImLerp( colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f );
+	colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_HeaderActive] * ImVec4( 1.0f, 1.0f, 1.0f, 0.7f );
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
 	colors[ImGuiCol_PlotLines]              = ImVec4( 0.61f, 0.61f, 0.61f, 1.00f );
 	colors[ImGuiCol_PlotLinesHovered]       = ImVec4( 1.00f, 0.43f, 0.35f, 1.00f );
 	colors[ImGuiCol_PlotHistogram]          = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
@@ -290,6 +276,8 @@ void ImGui::StyleColorsClassic( ImGuiStyle* dst )
 	colors[ImGuiCol_TabActive]              = ImLerp( colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f );
 	colors[ImGuiCol_TabUnfocused]           = ImLerp( colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f );
 	colors[ImGuiCol_TabUnfocusedActive]     = ImLerp( colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f );
+	colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_Header] * ImVec4( 1.0f, 1.0f, 1.0f, 0.7f );
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
 	colors[ImGuiCol_PlotLines]              = ImVec4( 1.00f, 1.00f, 1.00f, 1.00f );
 	colors[ImGuiCol_PlotLinesHovered]       = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
 	colors[ImGuiCol_PlotHistogram]          = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
@@ -351,6 +339,8 @@ void ImGui::StyleColorsLight( ImGuiStyle* dst )
 	colors[ImGuiCol_TabActive]              = ImLerp( colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f );
 	colors[ImGuiCol_TabUnfocused]           = ImLerp( colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f );
 	colors[ImGuiCol_TabUnfocusedActive]     = ImLerp( colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f );
+	colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_Header] * ImVec4( 1.0f, 1.0f, 1.0f, 0.7f );
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
 	colors[ImGuiCol_PlotLines]              = ImVec4( 0.39f, 0.39f, 0.39f, 1.00f );
 	colors[ImGuiCol_PlotLinesHovered]       = ImVec4( 1.00f, 0.43f, 0.35f, 1.00f );
 	colors[ImGuiCol_PlotHistogram]          = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
@@ -407,6 +397,10 @@ void ImDrawList::_ResetForNewFrame()
 	IM_STATIC_ASSERT( IM_OFFSETOF( ImDrawCmd, ClipRect ) == 0 );
 	IM_STATIC_ASSERT( IM_OFFSETOF( ImDrawCmd, TextureId ) == sizeof( ImVec4 ) );
 	IM_STATIC_ASSERT( IM_OFFSETOF( ImDrawCmd, VtxOffset ) == sizeof( ImVec4 ) + sizeof( ImTextureID ) );
+	if( _Splitter._Count > 1 )
+	{
+		_Splitter.Merge( this );
+	}
 
 	CmdBuffer.resize( 0 );
 	IdxBuffer.resize( 0 );
@@ -465,13 +459,13 @@ void ImDrawList::AddDrawCmd()
 // Note that this leaves the ImDrawList in a state unfit for further commands, as most code assume that CmdBuffer.Size > 0 && CmdBuffer.back().UserCallback == NULL
 void ImDrawList::_PopUnusedDrawCmd()
 {
-	if( CmdBuffer.Size == 0 )
+	while( CmdBuffer.Size > 0 )
 	{
-		return;
-	}
-	ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
-	if( curr_cmd->ElemCount == 0 && curr_cmd->UserCallback == NULL )
-	{
+		ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+		if( curr_cmd->ElemCount != 0 || curr_cmd->UserCallback != NULL )
+		{
+			return;    // break;
+		}
 		CmdBuffer.pop_back();
 	}
 }
@@ -579,7 +573,7 @@ int ImDrawList::_CalcCircleAutoSegmentCount( float radius ) const
 {
 	// Automatic segment count
 	const int radius_idx = ( int )( radius + 0.999999f ); // ceil to never reduce accuracy
-	if( radius_idx < IM_ARRAYSIZE( _Data->CircleSegmentCounts ) )
+	if( radius_idx >= 0 && radius_idx < IM_ARRAYSIZE( _Data->CircleSegmentCounts ) )
 	{
 		return _Data->CircleSegmentCounts[radius_idx];    // Use cached value
 	}
@@ -778,7 +772,7 @@ void ImDrawList::PrimQuadUV( const ImVec2& a, const ImVec2& b, const ImVec2& c, 
 // We avoid using the ImVec2 math operators here to reduce cost to a minimum for debug/non-inlined builds.
 void ImDrawList::AddPolyline( const ImVec2* points, const int points_count, ImU32 col, ImDrawFlags flags, float thickness )
 {
-	if( points_count < 2 )
+	if( points_count < 2 || ( col & IM_COL32_A_MASK ) == 0 )
 	{
 		return;
 	}
@@ -813,7 +807,8 @@ void ImDrawList::AddPolyline( const ImVec2* points, const int points_count, ImU3
 
 		// Temporary buffer
 		// The first <points_count> items are normals at each line point, then after that there are either 2 or 4 temp points for each line point
-		ImVec2* temp_normals = ( ImVec2* )alloca( points_count * ( ( use_texture || !thick_line ) ? 3 : 5 ) * sizeof( ImVec2 ) ); //-V630
+		_Data->TempBuffer.reserve_discard( points_count * ( ( use_texture || !thick_line ) ? 3 : 5 ) );
+		ImVec2* temp_normals = _Data->TempBuffer.Data;
 		ImVec2* temp_points = temp_normals + points_count;
 
 		// Calculate normals (tangents) for each line segment
@@ -1097,7 +1092,7 @@ void ImDrawList::AddPolyline( const ImVec2* points, const int points_count, ImU3
 // - Filled shapes must always use clockwise winding order. The anti-aliasing fringe depends on it. Counter-clockwise shapes will have "inward" anti-aliasing.
 void ImDrawList::AddConvexPolyFilled( const ImVec2* points, const int points_count, ImU32 col )
 {
-	if( points_count < 3 )
+	if( points_count < 3 || ( col & IM_COL32_A_MASK ) == 0 )
 	{
 		return;
 	}
@@ -1125,7 +1120,8 @@ void ImDrawList::AddConvexPolyFilled( const ImVec2* points, const int points_cou
 		}
 
 		// Compute normals
-		ImVec2* temp_normals = ( ImVec2* )alloca( points_count * sizeof( ImVec2 ) ); //-V630
+		_Data->TempBuffer.reserve_discard( points_count );
+		ImVec2* temp_normals = _Data->TempBuffer.Data;
 		for( int i0 = points_count - 1, i1 = 0; i1 < points_count; i0 = i1++ )
 		{
 			const ImVec2& p0 = points[i0];
@@ -1451,6 +1447,7 @@ void ImDrawList::PathBezierCubicCurveTo( const ImVec2& p2, const ImVec2& p3, con
 	ImVec2 p1 = _Path.back();
 	if( num_segments == 0 )
 	{
+		IM_ASSERT( _Data->CurveTessellationTol > 0.0f );
 		PathBezierCubicCurveToCasteljau( &_Path, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, _Data->CurveTessellationTol, 0 ); // Auto-tessellated
 	}
 	else
@@ -1468,6 +1465,7 @@ void ImDrawList::PathBezierQuadraticCurveTo( const ImVec2& p2, const ImVec2& p3,
 	ImVec2 p1 = _Path.back();
 	if( num_segments == 0 )
 	{
+		IM_ASSERT( _Data->CurveTessellationTol > 0.0f );
 		PathBezierQuadraticCurveToCasteljau( &_Path, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, _Data->CurveTessellationTol, 0 ); // Auto-tessellated
 	}
 	else
@@ -1484,6 +1482,7 @@ IM_STATIC_ASSERT( ImDrawFlags_RoundCornersTopLeft == ( 1 << 4 ) );
 static inline ImDrawFlags FixRectCornerFlags( ImDrawFlags flags )
 {
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+	// Obsoleted in 1.82 (from February 2021)
 	// Legacy Support for hard coded ~0 (used to be a suggested equivalent to ImDrawCornerFlags_All)
 	//   ~0   --> ImDrawFlags_RoundCornersAll or 0
 	if( flags == ~0 )
@@ -1522,10 +1521,12 @@ static inline ImDrawFlags FixRectCornerFlags( ImDrawFlags flags )
 
 void ImDrawList::PathRect( const ImVec2& a, const ImVec2& b, float rounding, ImDrawFlags flags )
 {
-	flags = FixRectCornerFlags( flags );
-	rounding = ImMin( rounding, ImFabs( b.x - a.x ) * ( ( ( flags & ImDrawFlags_RoundCornersTop )  == ImDrawFlags_RoundCornersTop )  || ( ( flags & ImDrawFlags_RoundCornersBottom ) == ImDrawFlags_RoundCornersBottom ) ? 0.5f : 1.0f ) - 1.0f );
-	rounding = ImMin( rounding, ImFabs( b.y - a.y ) * ( ( ( flags & ImDrawFlags_RoundCornersLeft ) == ImDrawFlags_RoundCornersLeft ) || ( ( flags & ImDrawFlags_RoundCornersRight )  == ImDrawFlags_RoundCornersRight )  ? 0.5f : 1.0f ) - 1.0f );
-
+	if( rounding >= 0.5f )
+	{
+		flags = FixRectCornerFlags( flags );
+		rounding = ImMin( rounding, ImFabs( b.x - a.x ) * ( ( ( flags & ImDrawFlags_RoundCornersTop ) == ImDrawFlags_RoundCornersTop ) || ( ( flags & ImDrawFlags_RoundCornersBottom ) == ImDrawFlags_RoundCornersBottom ) ? 0.5f : 1.0f ) - 1.0f );
+		rounding = ImMin( rounding, ImFabs( b.y - a.y ) * ( ( ( flags & ImDrawFlags_RoundCornersLeft ) == ImDrawFlags_RoundCornersLeft ) || ( ( flags & ImDrawFlags_RoundCornersRight ) == ImDrawFlags_RoundCornersRight ) ? 0.5f : 1.0f ) - 1.0f );
+	}
 	if( rounding < 0.5f || ( flags & ImDrawFlags_RoundCornersMask_ ) == ImDrawFlags_RoundCornersNone )
 	{
 		PathLineTo( a );
@@ -2076,6 +2077,71 @@ void ImDrawListSplitter::SetCurrentChannel( ImDrawList* draw_list, int idx )
 // [SECTION] ImDrawData
 //-----------------------------------------------------------------------------
 
+void ImDrawData::Clear()
+{
+	Valid = false;
+	CmdListsCount = TotalIdxCount = TotalVtxCount = 0;
+	CmdLists.resize( 0 ); // The ImDrawList are NOT owned by ImDrawData but e.g. by ImGuiContext, so we don't clear them.
+	DisplayPos = DisplaySize = FramebufferScale = ImVec2( 0.0f, 0.0f );
+	OwnerViewport = NULL;
+}
+
+// Important: 'out_list' is generally going to be draw_data->CmdLists, but may be another temporary list
+// as long at it is expected that the result will be later merged into draw_data->CmdLists[].
+void ImGui::AddDrawListToDrawDataEx( ImDrawData* draw_data, ImVector<ImDrawList*>* out_list, ImDrawList* draw_list )
+{
+	if( draw_list->CmdBuffer.Size == 0 )
+	{
+		return;
+	}
+	if( draw_list->CmdBuffer.Size == 1 && draw_list->CmdBuffer[0].ElemCount == 0 && draw_list->CmdBuffer[0].UserCallback == NULL )
+	{
+		return;
+	}
+
+	// Draw list sanity check. Detect mismatch between PrimReserve() calls and incrementing _VtxCurrentIdx, _VtxWritePtr etc.
+	// May trigger for you if you are using PrimXXX functions incorrectly.
+	IM_ASSERT( draw_list->VtxBuffer.Size == 0 || draw_list->_VtxWritePtr == draw_list->VtxBuffer.Data + draw_list->VtxBuffer.Size );
+	IM_ASSERT( draw_list->IdxBuffer.Size == 0 || draw_list->_IdxWritePtr == draw_list->IdxBuffer.Data + draw_list->IdxBuffer.Size );
+	if( !( draw_list->Flags & ImDrawListFlags_AllowVtxOffset ) )
+	{
+		IM_ASSERT( ( int )draw_list->_VtxCurrentIdx == draw_list->VtxBuffer.Size );
+	}
+
+	// Check that draw_list doesn't use more vertices than indexable (default ImDrawIdx = unsigned short = 2 bytes = 64K vertices per ImDrawList = per window)
+	// If this assert triggers because you are drawing lots of stuff manually:
+	// - First, make sure you are coarse clipping yourself and not trying to draw many things outside visible bounds.
+	//   Be mindful that the lower-level ImDrawList API doesn't filter vertices. Use the Metrics/Debugger window to inspect draw list contents.
+	// - If you want large meshes with more than 64K vertices, you can either:
+	//   (A) Handle the ImDrawCmd::VtxOffset value in your renderer backend, and set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset'.
+	//       Most example backends already support this from 1.71. Pre-1.71 backends won't.
+	//       Some graphics API such as GL ES 1/2 don't have a way to offset the starting vertex so it is not supported for them.
+	//   (B) Or handle 32-bit indices in your renderer backend, and uncomment '#define ImDrawIdx unsigned int' line in imconfig.h.
+	//       Most example backends already support this. For example, the OpenGL example code detect index size at compile-time:
+	//         glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer_offset);
+	//       Your own engine or render API may use different parameters or function calls to specify index sizes.
+	//       2 and 4 bytes indices are generally supported by most graphics API.
+	// - If for some reason neither of those solutions works for you, a workaround is to call BeginChild()/EndChild() before reaching
+	//   the 64K limit to split your draw commands in multiple draw lists.
+	if( sizeof( ImDrawIdx ) == 2 )
+	{
+		IM_ASSERT( draw_list->_VtxCurrentIdx < ( 1 << 16 ) && "Too many vertices in ImDrawList using 16-bit indices. Read comment above" );
+	}
+
+	// Add to output list + records state in ImDrawData
+	out_list->push_back( draw_list );
+	draw_data->CmdListsCount++;
+	draw_data->TotalVtxCount += draw_list->VtxBuffer.Size;
+	draw_data->TotalIdxCount += draw_list->IdxBuffer.Size;
+}
+
+void ImDrawData::AddDrawList( ImDrawList* draw_list )
+{
+	IM_ASSERT( CmdLists.Size == CmdListsCount );
+	draw_list->_PopUnusedDrawCmd();
+	ImGui::AddDrawListToDrawDataEx( this, &CmdLists, draw_list );
+}
+
 // For backward compatibility: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
 void ImDrawData::DeIndexAllBuffers()
 {
@@ -2104,15 +2170,11 @@ void ImDrawData::DeIndexAllBuffers()
 // or if there is a difference between your window resolution and framebuffer resolution.
 void ImDrawData::ScaleClipRects( const ImVec2& fb_scale )
 {
-	for( int i = 0; i < CmdListsCount; i++ )
-	{
-		ImDrawList* cmd_list = CmdLists[i];
-		for( int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++ )
+	for( ImDrawList* draw_list : CmdLists )
+		for( ImDrawCmd& cmd : draw_list->CmdBuffer )
 		{
-			ImDrawCmd* cmd = &cmd_list->CmdBuffer[cmd_i];
-			cmd->ClipRect = ImVec4( cmd->ClipRect.x * fb_scale.x, cmd->ClipRect.y * fb_scale.y, cmd->ClipRect.z * fb_scale.x, cmd->ClipRect.w * fb_scale.y );
+			cmd.ClipRect = ImVec4( cmd.ClipRect.x * fb_scale.x, cmd.ClipRect.y * fb_scale.y, cmd.ClipRect.z * fb_scale.x, cmd.ClipRect.w * fb_scale.y );
 		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2180,7 +2242,7 @@ ImFontConfig::ImFontConfig()
 {
 	memset( this, 0, sizeof( *this ) );
 	FontDataOwnedByAtlas = true;
-	OversampleH = 3; // FIXME: 2 may be a better default?
+	OversampleH = 2;
 	OversampleV = 1;
 	GlyphMaxAdvanceX = FLT_MAX;
 	RasterizerMultiply = 1.0f;
@@ -2257,19 +2319,19 @@ ImFontAtlas::~ImFontAtlas()
 void    ImFontAtlas::ClearInputData()
 {
 	IM_ASSERT( !Locked && "Cannot modify a locked ImFontAtlas between NewFrame() and EndFrame/Render()!" );
-	for( int i = 0; i < ConfigData.Size; i++ )
-		if( ConfigData[i].FontData && ConfigData[i].FontDataOwnedByAtlas )
+	for( ImFontConfig& font_cfg : ConfigData )
+		if( font_cfg.FontData && font_cfg.FontDataOwnedByAtlas )
 		{
-			IM_FREE( ConfigData[i].FontData );
-			ConfigData[i].FontData = NULL;
+			IM_FREE( font_cfg.FontData );
+			font_cfg.FontData = NULL;
 		}
 
 	// When clearing this we lose access to the font name and other information used to build the font.
-	for( int i = 0; i < Fonts.Size; i++ )
-		if( Fonts[i]->ConfigData >= ConfigData.Data && Fonts[i]->ConfigData < ConfigData.Data + ConfigData.Size )
+	for( ImFont* font : Fonts )
+		if( font->ConfigData >= ConfigData.Data && font->ConfigData < ConfigData.Data + ConfigData.Size )
 		{
-			Fonts[i]->ConfigData = NULL;
-			Fonts[i]->ConfigDataCount = 0;
+			font->ConfigData = NULL;
+			font->ConfigDataCount = 0;
 		}
 	ConfigData.clear();
 	CustomRects.clear();
@@ -2618,11 +2680,12 @@ void    ImFontAtlasBuildMultiplyCalcLookupTable( unsigned char out_table[256], f
 
 void    ImFontAtlasBuildMultiplyRectAlpha8( const unsigned char table[256], unsigned char* pixels, int x, int y, int w, int h, int stride )
 {
+	IM_ASSERT_PARANOID( w <= stride );
 	unsigned char* data = pixels + x + y * stride;
-	for( int j = h; j > 0; j--, data += stride )
-		for( int i = 0; i < w; i++ )
+	for( int j = h; j > 0; j--, data += stride - w )
+		for( int i = w; i > 0; i--, data++ )
 		{
-			data[i] = table[data[i]];
+			*data = table[*data];
 		}
 }
 
@@ -2640,7 +2703,7 @@ struct ImFontBuildSrcData
 	int                 GlyphsHighest;      // Highest requested codepoint
 	int                 GlyphsCount;        // Glyph count (excluding missing glyphs and glyphs already set by an earlier source font)
 	ImBitVector         GlyphsSet;          // Glyph bit map (random access, 1-bit per codepoint. This will be a maximum of 8KB)
-	ImVector<int>       GlyphsList;         // Glyph codepoints list (flattened version of GlyphsMap)
+	ImVector<int>       GlyphsList;         // Glyph codepoints list (flattened version of GlyphsSet)
 };
 
 // Temporary data for one destination ImFont* (multiple source fonts can be merged into one destination ImFont)
@@ -2719,6 +2782,9 @@ static bool ImFontAtlasBuildWithStbTruetype( ImFontAtlas* atlas )
 		src_tmp.SrcRanges = cfg.GlyphRanges ? cfg.GlyphRanges : atlas->GetGlyphRangesDefault();
 		for( const ImWchar* src_range = src_tmp.SrcRanges; src_range[0] && src_range[1]; src_range += 2 )
 		{
+			// Check for valid range. This may also help detect *some* dangling pointers, because a common
+			// user error is to setup ImFontConfig::GlyphRanges with a pointer to data that isn't persistent.
+			IM_ASSERT( src_range[0] <= src_range[1] );
 			src_tmp.GlyphsHighest = ImMax( src_tmp.GlyphsHighest, ( int )src_range[1] );
 		}
 		dst_tmp.SrcCount++;
@@ -2907,15 +2973,10 @@ static bool ImFontAtlasBuildWithStbTruetype( ImFontAtlas* atlas )
 	// 9. Setup ImFont and glyphs for runtime
 	for( int src_i = 0; src_i < src_tmp_array.Size; src_i++ )
 	{
-		ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];
-		if( src_tmp.GlyphsCount == 0 )
-		{
-			continue;
-		}
-
 		// When merging fonts with MergeMode=true:
 		// - We can have multiple input fonts writing into a same destination font.
 		// - dst_font->ConfigData is != from cfg which is our source configuration.
+		ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];
 		ImFontConfig& cfg = atlas->ConfigData[src_i];
 		ImFont* dst_font = cfg.DstFont;
 
@@ -2979,6 +3040,12 @@ void ImFontAtlasBuildPackCustomRects( ImFontAtlas* atlas, void* stbrp_context_op
 
 	ImVector<ImFontAtlasCustomRect>& user_rects = atlas->CustomRects;
 	IM_ASSERT( user_rects.Size >= 1 ); // We expect at least the default custom rects to be registered, else something went wrong.
+#ifdef __GNUC__
+	if( user_rects.Size < 1 )
+	{
+		__builtin_unreachable();    // Workaround for GCC bug if IM_ASSERT() is defined to conditionally throw (see #5343)
+	}
+#endif
 
 	ImVector<stbrp_rect> pack_rects;
 	pack_rects.resize( user_rects.Size );
@@ -3180,10 +3247,10 @@ void ImFontAtlasBuildFinish( ImFontAtlas* atlas )
 	}
 
 	// Build all fonts lookup tables
-	for( int i = 0; i < atlas->Fonts.Size; i++ )
-		if( atlas->Fonts[i]->DirtyLookupTables )
+	for( ImFont* font : atlas->Fonts )
+		if( font->DirtyLookupTables )
 		{
-			atlas->Fonts[i]->BuildLookupTable();
+			font->BuildLookupTable();
 		}
 
 	atlas->TexReady = true;
@@ -3195,6 +3262,17 @@ const ImWchar*   ImFontAtlas::GetGlyphRangesDefault()
 	static const ImWchar ranges[] =
 	{
 		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0,
+	};
+	return &ranges[0];
+}
+
+const ImWchar*   ImFontAtlas::GetGlyphRangesGreek()
+{
+	static const ImWchar ranges[] =
+	{
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0370, 0x03FF, // Greek and Coptic
 		0,
 	};
 	return &ranges[0];
@@ -3316,19 +3394,19 @@ const ImWchar*  ImFontAtlas::GetGlyphRangesJapanese()
 	// 2999 ideograms code points for Japanese
 	// - 2136 Joyo (meaning "for regular use" or "for common use") Kanji code points
 	// - 863 Jinmeiyo (meaning "for personal name") Kanji code points
-	// - Sourced from the character information database of the Information-technology Promotion Agency, Japan
-	//   - https://mojikiban.ipa.go.jp/mji/
-	//   - Available under the terms of the Creative Commons Attribution-ShareAlike 2.1 Japan (CC BY-SA 2.1 JP).
-	//     - https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en
-	//     - https://creativecommons.org/licenses/by-sa/2.1/jp/legalcode
-	//   - You can generate this code by the script at:
-	//     - https://github.com/vaiorabbit/everyday_use_kanji
+	// - Sourced from official information provided by the government agencies of Japan:
+	//   - List of Joyo Kanji by the Agency for Cultural Affairs
+	//     - https://www.bunka.go.jp/kokugo_nihongo/sisaku/joho/joho/kijun/naikaku/kanji/
+	//   - List of Jinmeiyo Kanji by the Ministry of Justice
+	//     - http://www.moj.go.jp/MINJI/minji86.html
+	//   - Available under the terms of the Creative Commons Attribution 4.0 International (CC BY 4.0).
+	//     - https://creativecommons.org/licenses/by/4.0/legalcode
+	// - You can generate this code by the script at:
+	//   - https://github.com/vaiorabbit/everyday_use_kanji
 	// - References:
 	//   - List of Joyo Kanji
-	//     - (Official list by the Agency for Cultural Affairs) https://www.bunka.go.jp/kokugo_nihongo/sisaku/joho/joho/kakuki/14/tosin02/index.html
 	//     - (Wikipedia) https://en.wikipedia.org/wiki/List_of_j%C5%8Dy%C5%8D_kanji
 	//   - List of Jinmeiyo Kanji
-	//     - (Official list by the Ministry of Justice) http://www.moj.go.jp/MINJI/minji86.html
 	//     - (Wikipedia) https://en.wikipedia.org/wiki/Jinmeiy%C5%8D_kanji
 	// - Missing 1 Joyo Kanji: U+20B9F (Kun'yomi: Shikaru, On'yomi: Shitsu,shichi), see https://github.com/ocornut/imgui/pull/3627 for details.
 	// You can use ImFontGlyphRangesBuilder to create your own ranges derived from this, by merging existing ranges or adding new characters.
@@ -3497,7 +3575,8 @@ ImFont::ImFont()
 	FallbackAdvanceX = 0.0f;
 	FallbackChar = ( ImWchar ) - 1;
 	EllipsisChar = ( ImWchar ) - 1;
-	DotChar = ( ImWchar ) - 1;
+	EllipsisWidth = EllipsisCharStep = 0.0f;
+	EllipsisCharCount = 0;
 	FallbackGlyph = NULL;
 	ContainerAtlas = NULL;
 	ConfigData = NULL;
@@ -3584,21 +3663,7 @@ void ImFont::BuildLookupTable()
 	SetGlyphVisible( ( ImWchar )' ', false );
 	SetGlyphVisible( ( ImWchar )'\t', false );
 
-	// Ellipsis character is required for rendering elided text. We prefer using U+2026 (horizontal ellipsis).
-	// However some old fonts may contain ellipsis at U+0085. Here we auto-detect most suitable ellipsis character.
-	// FIXME: Note that 0x2026 is rarely included in our font ranges. Because of this we are more likely to use three individual dots.
-	const ImWchar ellipsis_chars[] = { ( ImWchar )0x2026, ( ImWchar )0x0085 };
-	const ImWchar dots_chars[] = { ( ImWchar )'.', ( ImWchar )0xFF0E };
-	if( EllipsisChar == ( ImWchar ) - 1 )
-	{
-		EllipsisChar = FindFirstExistingGlyph( this, ellipsis_chars, IM_ARRAYSIZE( ellipsis_chars ) );
-	}
-	if( DotChar == ( ImWchar ) - 1 )
-	{
-		DotChar = FindFirstExistingGlyph( this, dots_chars, IM_ARRAYSIZE( dots_chars ) );
-	}
-
-	// Setup fallback character
+	// Setup Fallback character
 	const ImWchar fallback_chars[] = { ( ImWchar )IM_UNICODE_CODEPOINT_INVALID, ( ImWchar )'?', ( ImWchar )' ' };
 	FallbackGlyph = FindGlyphNoFallback( FallbackChar );
 	if( FallbackGlyph == NULL )
@@ -3611,13 +3676,36 @@ void ImFont::BuildLookupTable()
 			FallbackChar = ( ImWchar )FallbackGlyph->Codepoint;
 		}
 	}
-
 	FallbackAdvanceX = FallbackGlyph->AdvanceX;
 	for( int i = 0; i < max_codepoint + 1; i++ )
 		if( IndexAdvanceX[i] < 0.0f )
 		{
 			IndexAdvanceX[i] = FallbackAdvanceX;
 		}
+
+	// Setup Ellipsis character. It is required for rendering elided text. We prefer using U+2026 (horizontal ellipsis).
+	// However some old fonts may contain ellipsis at U+0085. Here we auto-detect most suitable ellipsis character.
+	// FIXME: Note that 0x2026 is rarely included in our font ranges. Because of this we are more likely to use three individual dots.
+	const ImWchar ellipsis_chars[] = { ( ImWchar )0x2026, ( ImWchar )0x0085 };
+	const ImWchar dots_chars[] = { ( ImWchar )'.', ( ImWchar )0xFF0E };
+	if( EllipsisChar == ( ImWchar ) - 1 )
+	{
+		EllipsisChar = FindFirstExistingGlyph( this, ellipsis_chars, IM_ARRAYSIZE( ellipsis_chars ) );
+	}
+	const ImWchar dot_char = FindFirstExistingGlyph( this, dots_chars, IM_ARRAYSIZE( dots_chars ) );
+	if( EllipsisChar != ( ImWchar ) - 1 )
+	{
+		EllipsisCharCount = 1;
+		EllipsisWidth = EllipsisCharStep = FindGlyph( EllipsisChar )->X1;
+	}
+	else if( dot_char != ( ImWchar ) - 1 )
+	{
+		const ImFontGlyph* glyph = FindGlyph( dot_char );
+		EllipsisChar = dot_char;
+		EllipsisCharCount = 3;
+		EllipsisCharStep = ( glyph->X1 - glyph->X0 ) + 1.0f;
+		EllipsisWidth = EllipsisCharStep * 3.0f - 1.0f;
+	}
 }
 
 // API is designed this way to avoid exposing the 4K page size
@@ -3750,11 +3838,25 @@ const ImFontGlyph* ImFont::FindGlyphNoFallback( ImWchar c ) const
 	return &Glyphs.Data[i];
 }
 
+// Wrapping skips upcoming blanks
+static inline const char* CalcWordWrapNextLineStartA( const char* text, const char* text_end )
+{
+	while( text < text_end && ImCharIsBlankA( *text ) )
+	{
+		text++;
+	}
+	if( *text == '\n' )
+	{
+		text++;
+	}
+	return text;
+}
+
+// Simple word-wrapping for English, not full-featured. Please submit failing cases!
+// This will return the next location to wrap from. If no wrapping if necessary, this will fast-forward to e.g. text_end.
+// FIXME: Much possible improvements (don't cut things like "word !", "word!!!" but cut within "word,,,,", more sensible support for punctuations, support for Unicode punctuations, etc.)
 const char* ImFont::CalcWordWrapPositionA( float scale, const char* text, const char* text_end, float wrap_width ) const
 {
-	// Simple word-wrapping for English, not full-featured. Please submit failing cases!
-	// FIXME: Much possible improvements (don't cut things like "word !", "word!!!" but cut within "word,,,,", more sensible support for punctuations, support for Unicode punctuations, etc.)
-
 	// For references, possible wrap point marked with ^
 	//  "aaa bbb, ccc,ddd. eee   fff. ggg!"
 	//      ^    ^    ^   ^   ^__    ^    ^
@@ -3766,7 +3868,6 @@ const char* ImFont::CalcWordWrapPositionA( float scale, const char* text, const 
 
 	// Cut words that cannot possibly fit within one line.
 	// e.g.: "The tropical fish" with ~5 characters worth of width --> "The tr" "opical" "fish"
-
 	float line_width = 0.0f;
 	float word_width = 0.0f;
 	float blank_width = 0.0f;
@@ -3777,6 +3878,7 @@ const char* ImFont::CalcWordWrapPositionA( float scale, const char* text, const 
 	bool inside_word = true;
 
 	const char* s = text;
+	IM_ASSERT( text_end != NULL );
 	while( s < text_end )
 	{
 		unsigned int c = ( unsigned int ) * s;
@@ -3788,10 +3890,6 @@ const char* ImFont::CalcWordWrapPositionA( float scale, const char* text, const 
 		else
 		{
 			next_s = s + ImTextCharFromUtf8( &c, s, text_end );
-		}
-		if( c == 0 )
-		{
-			break;
 		}
 
 		if( c < 32 )
@@ -3854,6 +3952,12 @@ const char* ImFont::CalcWordWrapPositionA( float scale, const char* text, const 
 		s = next_s;
 	}
 
+	// Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
+	// +1 may not be a character start point in UTF-8 but it's ok because caller loops use (text >= word_wrap_eol).
+	if( s == text && text < text_end )
+	{
+		return s + 1;
+	}
 	return s;
 }
 
@@ -3882,10 +3986,6 @@ ImVec2 ImFont::CalcTextSizeA( float size, float max_width, float wrap_width, con
 			if( !word_wrap_eol )
 			{
 				word_wrap_eol = CalcWordWrapPositionA( scale, s, text_end, wrap_width - line_width );
-				if( word_wrap_eol == s ) // Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
-				{
-					word_wrap_eol++;    // +1 may not be a character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
-				}
 			}
 
 			if( s >= word_wrap_eol )
@@ -3897,25 +3997,7 @@ ImVec2 ImFont::CalcTextSizeA( float size, float max_width, float wrap_width, con
 				text_size.y += line_height;
 				line_width = 0.0f;
 				word_wrap_eol = NULL;
-
-				// Wrapping skips upcoming blanks
-				while( s < text_end )
-				{
-					const char c = *s;
-					if( ImCharIsBlankA( c ) )
-					{
-						s++;
-					}
-					else if( c == '\n' )
-					{
-						s++;
-						break;
-					}
-					else
-					{
-						break;
-					}
-				}
+				s = CalcWordWrapNextLineStartA( s, text_end ); // Wrapping skips upcoming blanks
 				continue;
 			}
 		}
@@ -3930,10 +4012,6 @@ ImVec2 ImFont::CalcTextSizeA( float size, float max_width, float wrap_width, con
 		else
 		{
 			s += ImTextCharFromUtf8( &c, s, text_end );
-			if( c == 0 ) // Malformed UTF-8?
-			{
-				break;
-			}
 		}
 
 		if( c < 32 )
@@ -4018,15 +4096,25 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 	const float scale = size / FontSize;
 	const float line_height = FontSize * scale;
 	const bool word_wrap_enabled = ( wrap_width > 0.0f );
-	const char* word_wrap_eol = NULL;
 
 	// Fast-forward to first visible line
 	const char* s = text_begin;
-	if( y + line_height < clip_rect.y && !word_wrap_enabled )
+	if( y + line_height < clip_rect.y )
 		while( y + line_height < clip_rect.y && s < text_end )
 		{
-			s = ( const char* )memchr( s, '\n', text_end - s );
-			s = s ? s + 1 : text_end;
+			const char* line_end = ( const char* )memchr( s, '\n', text_end - s );
+			if( word_wrap_enabled )
+			{
+				// FIXME-OPT: This is not optimal as do first do a search for \n before calling CalcWordWrapPositionA().
+				// If the specs for CalcWordWrapPositionA() were reworked to optionally return on \n we could combine both.
+				// However it is still better than nothing performing the fast-forward!
+				s = CalcWordWrapPositionA( scale, s, line_end ? line_end : text_end, wrap_width );
+				s = CalcWordWrapNextLineStartA( s, text_end );
+			}
+			else
+			{
+				s = line_end ? line_end + 1 : text_end;
+			}
 			y += line_height;
 		}
 
@@ -4054,12 +4142,12 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 	const int idx_count_max = ( int )( text_end - s ) * 6;
 	const int idx_expected_size = draw_list->IdxBuffer.Size + idx_count_max;
 	draw_list->PrimReserve( idx_count_max, vtx_count_max );
-
-	ImDrawVert* vtx_write = draw_list->_VtxWritePtr;
-	ImDrawIdx* idx_write = draw_list->_IdxWritePtr;
-	unsigned int vtx_current_idx = draw_list->_VtxCurrentIdx;
+	ImDrawVert*  vtx_write = draw_list->_VtxWritePtr;
+	ImDrawIdx*   idx_write = draw_list->_IdxWritePtr;
+	unsigned int vtx_index = draw_list->_VtxCurrentIdx;
 
 	const ImU32 col_untinted = col | ~IM_COL32_A_MASK;
+	const char* word_wrap_eol = NULL;
 
 	while( s < text_end )
 	{
@@ -4069,10 +4157,6 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 			if( !word_wrap_eol )
 			{
 				word_wrap_eol = CalcWordWrapPositionA( scale, s, text_end, wrap_width - ( x - start_x ) );
-				if( word_wrap_eol == s ) // Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
-				{
-					word_wrap_eol++;    // +1 may not be a character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
-				}
 			}
 
 			if( s >= word_wrap_eol )
@@ -4080,25 +4164,7 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 				x = start_x;
 				y += line_height;
 				word_wrap_eol = NULL;
-
-				// Wrapping skips upcoming blanks
-				while( s < text_end )
-				{
-					const char c = *s;
-					if( ImCharIsBlankA( c ) )
-					{
-						s++;
-					}
-					else if( c == '\n' )
-					{
-						s++;
-						break;
-					}
-					else
-					{
-						break;
-					}
-				}
+				s = CalcWordWrapNextLineStartA( s, text_end ); // Wrapping skips upcoming blanks
 				continue;
 			}
 		}
@@ -4112,10 +4178,6 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 		else
 		{
 			s += ImTextCharFromUtf8( &c, s, text_end );
-			if( c == 0 ) // Malformed UTF-8?
-			{
-				break;
-			}
 		}
 
 		if( c < 32 )
@@ -4193,12 +4255,6 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 
 				// We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
 				{
-					idx_write[0] = ( ImDrawIdx )( vtx_current_idx );
-					idx_write[1] = ( ImDrawIdx )( vtx_current_idx + 1 );
-					idx_write[2] = ( ImDrawIdx )( vtx_current_idx + 2 );
-					idx_write[3] = ( ImDrawIdx )( vtx_current_idx );
-					idx_write[4] = ( ImDrawIdx )( vtx_current_idx + 2 );
-					idx_write[5] = ( ImDrawIdx )( vtx_current_idx + 3 );
 					vtx_write[0].pos.x = x1;
 					vtx_write[0].pos.y = y1;
 					vtx_write[0].col = glyph_col;
@@ -4219,8 +4275,14 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 					vtx_write[3].col = glyph_col;
 					vtx_write[3].uv.x = u1;
 					vtx_write[3].uv.y = v2;
+					idx_write[0] = ( ImDrawIdx )( vtx_index );
+					idx_write[1] = ( ImDrawIdx )( vtx_index + 1 );
+					idx_write[2] = ( ImDrawIdx )( vtx_index + 2 );
+					idx_write[3] = ( ImDrawIdx )( vtx_index );
+					idx_write[4] = ( ImDrawIdx )( vtx_index + 2 );
+					idx_write[5] = ( ImDrawIdx )( vtx_index + 3 );
 					vtx_write += 4;
-					vtx_current_idx += 4;
+					vtx_index += 4;
 					idx_write += 6;
 				}
 			}
@@ -4234,7 +4296,7 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 	draw_list->CmdBuffer[draw_list->CmdBuffer.Size - 1].ElemCount -= ( idx_expected_size - draw_list->IdxBuffer.Size );
 	draw_list->_VtxWritePtr = vtx_write;
 	draw_list->_IdxWritePtr = idx_write;
-	draw_list->_VtxCurrentIdx = vtx_current_idx;
+	draw_list->_VtxCurrentIdx = vtx_index;
 }
 
 //-----------------------------------------------------------------------------
@@ -4244,6 +4306,7 @@ void ImFont::RenderText( ImDrawList* draw_list, float size, const ImVec2& pos, I
 // - RenderArrow()
 // - RenderBullet()
 // - RenderCheckMark()
+// - RenderArrowDockMenu()
 // - RenderArrowPointingAt()
 // - RenderRectFilledRangeH()
 // - RenderRectFilledWithHole()
@@ -4292,6 +4355,7 @@ void ImGui::RenderArrow( ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir 
 
 void ImGui::RenderBullet( ImDrawList* draw_list, ImVec2 pos, ImU32 col )
 {
+	// FIXME-OPT: This should be baked in font.
 	draw_list->AddCircleFilled( pos, draw_list->_Data->FontSize * 0.20f, col, 8 );
 }
 
@@ -4331,6 +4395,14 @@ void ImGui::RenderArrowPointingAt( ImDrawList* draw_list, ImVec2 pos, ImVec2 hal
 		case ImGuiDir_COUNT:
 			break; // Fix warnings
 	}
+}
+
+// This is less wide than RenderArrow() and we use in dock nodes instead of the regular RenderArrow() to denote a change of functionality,
+// and because the saved space means that the left-most tab label can stay at exactly the same position as the label of a loose window.
+void ImGui::RenderArrowDockMenu( ImDrawList* draw_list, ImVec2 p_min, float sz, ImU32 col )
+{
+	draw_list->AddRectFilled( p_min + ImVec2( sz * 0.20f, sz * 0.15f ), p_min + ImVec2( sz * 0.80f, sz * 0.30f ), col );
+	RenderArrowPointingAt( draw_list, p_min + ImVec2( sz * 0.50f, sz * 0.85f ), ImVec2( sz * 0.30f, sz * 0.40f ), ImGuiDir_Down, col );
 }
 
 static inline float ImAcos01( float x )
@@ -4450,6 +4522,17 @@ void ImGui::RenderRectFilledWithHole( ImDrawList* draw_list, const ImRect& outer
 	{
 		draw_list->AddRectFilled( ImVec2( inner.Max.x, inner.Max.y ), ImVec2( outer.Max.x, outer.Max.y ), col, rounding, ImDrawFlags_RoundCornersBottomRight );
 	}
+}
+
+ImDrawFlags ImGui::CalcRoundingFlagsForRectInRect( const ImRect& r_in, const ImRect& r_outer, float threshold )
+{
+	bool round_l = r_in.Min.x <= r_outer.Min.x + threshold;
+	bool round_r = r_in.Max.x >= r_outer.Max.x - threshold;
+	bool round_t = r_in.Min.y <= r_outer.Min.y + threshold;
+	bool round_b = r_in.Max.y >= r_outer.Max.y - threshold;
+	return ImDrawFlags_RoundCornersNone
+		   | ( ( round_t&& round_l ) ? ImDrawFlags_RoundCornersTopLeft : 0 ) | ( ( round_t&& round_r ) ? ImDrawFlags_RoundCornersTopRight : 0 )
+		   | ( ( round_b && round_l ) ? ImDrawFlags_RoundCornersBottomLeft : 0 ) | ( ( round_b && round_r ) ? ImDrawFlags_RoundCornersBottomRight : 0 );
 }
 
 // Helper for ColorPicker4()

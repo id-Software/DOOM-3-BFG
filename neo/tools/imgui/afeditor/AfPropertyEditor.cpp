@@ -71,13 +71,13 @@ bool AfPropertyEditor::Do()
 	if( ImGui::CollapsingHeader( "Default Collision Detection" ) )
 	{
 		ImGui::Checkbox( "Self Collision", &decl->selfCollision );
-		ImGui::ListBoxHeader( "Contents" );
+		ImGui::BeginListBox( "Contents" );
 		changed = DoMultiSelect( &contentWidget, &decl->contents ) || changed;
-		ImGui::ListBoxFooter();
+		ImGui::EndListBox();
 
-		ImGui::ListBoxHeader( "Clip Mask" );
+		ImGui::BeginListBox( "Clip Mask" );
 		changed = DoMultiSelect( &clipMaskWidget, &decl->clipMask ) || changed;
-		ImGui::ListBoxFooter();
+		ImGui::EndListBox();
 	}
 
 	if( ImGui::CollapsingHeader( "Default Friction" ) )

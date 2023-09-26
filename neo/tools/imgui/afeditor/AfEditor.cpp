@@ -253,7 +253,7 @@ void AfEditor::Draw()
 				fileSystem->FreeFileList( files );
 			}
 
-			ImGui::ListBoxHeader( "##afFileSelect" );
+			ImGui::BeginListBox( "##afFileSelect" );
 			for( int i = 0; i < afFiles.Num(); i++ )
 			{
 				if( ImGui::ListBox( "Files", &fileSelection, StringListItemGetter, &afFiles, afFiles.Num() ) )
@@ -261,7 +261,7 @@ void AfEditor::Draw()
 					fileName = afFiles[fileSelection];
 				}
 			}
-			ImGui::ListBoxFooter();
+			ImGui::EndListBox();
 
 			ImGui::SameLine();
 			ImGui::SmallButton( "New File" );
