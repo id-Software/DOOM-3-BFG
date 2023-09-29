@@ -1615,10 +1615,8 @@ void R_InitMaterials()
 	// RB: create implicit material
 	tr.imgGuiMaterial = declManager->FindMaterial( "_imguiFont", true );
 
-#if IMGUI_BFGUI
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->TexID = ( void* )( intptr_t )tr.imgGuiMaterial;
-#endif
 }
 
 

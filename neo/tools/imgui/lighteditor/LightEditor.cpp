@@ -753,11 +753,7 @@ void LightEditor::DrawWindow()
 		{
 			ImVec2 size( currentTexture->GetUploadWidth(), currentTexture->GetUploadHeight() );
 
-#if !IMGUI_BFGUI
-			ImGui::Image( ( void* )currentTexture->GetImGuiTextureID(), size, ImVec2( 0, 0 ), ImVec2( 1, 1 ),
-#else
 			ImGui::Image( ( void* )currentTextureMaterial, size, ImVec2( 0, 0 ), ImVec2( 1, 1 ),
-#endif
 						  ImColor( 255, 255, 255, 255 ), ImColor( 255, 255, 255, 128 ) );
 		}
 

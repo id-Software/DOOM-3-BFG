@@ -650,11 +650,6 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// and only update the screen when we update the progress bar in the console
 	if( !omitSwapBuffers )
 	{
-
-#if !IMGUI_BFGUI
-		ImGuiHook::Render();
-#endif
-
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
 		backend.GL_BlockingSwapBuffers();
@@ -717,12 +712,6 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	{
 		return NULL;
 	}
-
-	// RB: general GUI system path to treat ImGui surfaces in the renderer frontend like SWF
-	// this calls io.RenderDrawListsFn
-#if IMGUI_BFGUI
-	ImGuiHook::Render();
-#endif
 
 	// close any gui drawing
 	guiModel->EmitFullScreen();

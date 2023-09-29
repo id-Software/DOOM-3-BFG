@@ -394,6 +394,9 @@ void idCommonLocal::Draw()
 	{
 		SCOPED_PROFILE_EVENT( "Post-Draw" );
 
+		// draw Imgui before the console
+		ImGuiHook::Render();
+
 		// draw the wipe material on top of this if it hasn't completed yet
 		DrawWipeModel();
 

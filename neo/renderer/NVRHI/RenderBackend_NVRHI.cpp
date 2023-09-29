@@ -2063,9 +2063,7 @@ void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
 		return;
 	}
 
-#if IMGUI_BFGUI
 	tr.guiModel->EmitImGui( draw_data );
-#endif
 }
 
 /*
