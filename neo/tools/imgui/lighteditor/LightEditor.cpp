@@ -4,7 +4,7 @@
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015 Daniel Gibson
-Copyright (C) 2020-2021 Robert Beckebans
+Copyright (C) 2020-2023 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -290,23 +290,18 @@ LightInfo::LightInfo()
 
 // ########### LightEditor #############
 
-// static
-LightEditor LightEditor::TheLightEditor;
+LightEditor& LightEditor::Instance()
+{
+	static LightEditor instance;
+	return instance;
+}
 
-// static
-bool LightEditor::showIt = false;
 
 // static
 void LightEditor::ReInit( const idDict* dict, idEntity* light )
 {
 	// TODO: if the lighteditor is currently shown, show a warning first about saving current changes to the last light?
-	TheLightEditor.Init( dict, light );
-}
-
-// static
-void LightEditor::Draw()
-{
-	TheLightEditor.DrawWindow();
+	Instance().Init( dict, light );
 }
 
 void LightEditor::Init( const idDict* dict, idEntity* light )
@@ -588,10 +583,10 @@ static float* vecToArr( idVec3& v )
 	return &v.x;
 }
 
-void LightEditor::DrawWindow()
+void LightEditor::Draw()
 {
-	bool showWindow = showIt;
-	if( ImGui::Begin( title, &showWindow ) ) //, ImGuiWindowFlags_ShowBorders ) )
+	bool showTool = isShown;
+	if( ImGui::Begin( title, &showTool ) ) //, ImGuiWindowFlags_ShowBorders ) )
 	{
 		bool changes = false;
 
@@ -766,12 +761,12 @@ void LightEditor::DrawWindow()
 		if( ImGui::Button( "Save to .map" ) )
 		{
 			SaveChanges();
-			showWindow = false;
+			showTool = false;
 		}
 		else if( ImGui::SameLine(), ImGui::Button( "Cancel" ) )
 		{
 			CancelChanges();
-			showWindow = false;
+			showTool = false;
 		}
 		else if( changes )
 		{
@@ -780,10 +775,10 @@ void LightEditor::DrawWindow()
 	}
 	ImGui::End();
 
-	if( showIt && !showWindow )
+	if( isShown && !showTool )
 	{
 		// TODO: do the same as when pressing cancel?
-		showIt = showWindow;
+		isShown = showTool;
 		impl::SetReleaseToolMouse( false );
 	}
 }

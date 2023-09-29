@@ -4,6 +4,7 @@
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015 Daniel Gibson
+Copyright (C) 2016-2023 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -57,12 +58,6 @@ public:
 	idVec3		color;
 	idVec3		origin;
 
-
-#if 0 // FIXME: unused, delete?
-	bool		fog;
-	idVec4		fogDensity;
-#endif // 0
-
 	idVec3		lightRadius;
 	bool		castShadows;
 	bool		castSpecular;
@@ -82,55 +77,65 @@ public:
 class LightEditor
 {
 private:
-	idStr	title;
-	idStr	entityName;
-	idVec3	entityPos;
+	bool				isShown;
 
-	LightInfo original;
-	LightInfo cur; // current status of the light
+	idStr				title;
+	idStr				entityName;
+	idVec3				entityPos;
 
-	idEntity* lightEntity;
+	LightInfo			original;
+	LightInfo			cur; // current status of the light
 
-	idList<idStr> textureNames;
-	int currentTextureIndex;
-	idImage* currentTexture;
-	const idMaterial* currentTextureMaterial;
+	idEntity*			lightEntity;
+
+	idList<idStr>		textureNames;
+	int					currentTextureIndex;
+	idImage*			currentTexture;
+	const idMaterial*	currentTextureMaterial;
 
 	// RB: light style support
-	idList<idStr> styleNames;
-	int currentStyleIndex;
+	idList<idStr>		styleNames;
+	int					currentStyleIndex;
 
-	void LoadLightStyles();
-	static bool StyleItemsGetter( void* data, int idx, const char** out_text );
+	void				LoadLightStyles();
+	static bool			StyleItemsGetter( void* data, int idx, const char** out_text );
 
-	void Init( const idDict* dict, idEntity* light );
-	void Reset();
+	void				Init( const idDict* dict, idEntity* light );
+	void				Reset();
 
-	void LoadLightTextures();
-	static bool TextureItemsGetter( void* data, int idx, const char** out_text );
-	void LoadCurrentTexture();
+	void				LoadLightTextures();
+	static bool			TextureItemsGetter( void* data, int idx, const char** out_text );
+	void				LoadCurrentTexture();
 
-	void DrawWindow();
-
-	void TempApplyChanges();
-	void SaveChanges();
-	void CancelChanges();
+	void				TempApplyChanges();
+	void				SaveChanges();
+	void				CancelChanges();
 
 	LightEditor()
 	{
+		isShown = false;
+
 		Reset();
 	}
 
-	static LightEditor TheLightEditor; // FIXME: maybe at some point we could allow more than one..
-
 public:
-	static void ReInit( const idDict* dict, idEntity* light );
 
-	static void Draw();
+	static LightEditor&	Instance();
+	static void			ReInit( const idDict* dict, idEntity* light );
 
-	static bool showIt;
+	inline void			ShowIt( bool show )
+	{
+		isShown = show;
+	}
+
+	inline bool			IsShown() const
+	{
+		return isShown;
+	}
+
+	void				Draw();
 };
 
 } //namespace ImGuiTools
 
-#endif /* NEO_TOOLS_EDITORS_LIGHTEDITOR_H_ */
+#endif
