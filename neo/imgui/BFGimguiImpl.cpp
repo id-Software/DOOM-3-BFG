@@ -5,6 +5,7 @@
  *
  * Doom3-specific Code (and ImGui::DragXYZ(), based on ImGui::DragFloatN())
  *  Copyright (C) 2015 Daniel Gibson
+ *  Copyright (C) 2016-2023 Robert Beckebans
  *
  * This file is under MIT License, like the original code from ImGui.
  */
@@ -217,6 +218,7 @@ bool UseInput()
 void StyleGruvboxDark()
 {
 	auto& style = ImGui::GetStyle();
+#if 0
 	style.ChildRounding = 0;
 	style.GrabRounding = 0;
 	style.FrameRounding = 0;
@@ -225,7 +227,7 @@ void StyleGruvboxDark()
 	style.TabRounding = 0;
 	style.WindowRounding = 0;
 	style.FramePadding = {4, 4};
-
+#endif
 	style.WindowTitleAlign = {0.5, 0.5};
 
 	ImVec4* colors = ImGui::GetStyle().Colors;
@@ -286,6 +288,353 @@ void StyleGruvboxDark()
 	colors[ImGuiCol_ModalWindowDimBg] = ImColor{IM_COL32( 0x1d, 0x20, 0x21, 0x59 )};
 }
 
+void StyleJungle()
+{
+	// based on BlackDevil style by Naeemullah1 from ImThemes
+
+	ImVec4* colors = ImGui::GetStyle().Colors;
+	colors[ImGuiCol_Text]                   = ImVec4( 0.78f, 0.78f, 0.78f, 1.00f );
+	colors[ImGuiCol_TextDisabled]           = ImVec4( 0.44f, 0.41f, 0.31f, 1.00f );
+	colors[ImGuiCol_WindowBg]               = ImVec4( 0.12f, 0.14f, 0.16f, 0.87f );
+	colors[ImGuiCol_ChildBg]                = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_PopupBg]                = ImVec4( 0.08f, 0.08f, 0.08f, 0.78f );
+	//colors[ImGuiCol_Border]                 = ImVec4(0.39f, 0.00f, 0.00f, 0.78f); the red is a bit too aggressive
+	colors[ImGuiCol_Border]                 = ImVec4( 0.24f, 0.27f, 0.32f, 0.78f );
+	colors[ImGuiCol_BorderShadow]           = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
+	colors[ImGuiCol_FrameBg]                = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_FrameBgHovered]         = ImVec4( 0.12f, 0.24f, 0.35f, 0.78f );
+	colors[ImGuiCol_FrameBgActive]          = ImVec4( 0.35f, 0.35f, 0.12f, 0.78f );
+	colors[ImGuiCol_TitleBg]                = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_TitleBgActive]          = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4( 0.06f, 0.12f, 0.16f, 0.20f );
+	colors[ImGuiCol_MenuBarBg]              = ImVec4( 0.08f, 0.08f, 0.08f, 0.78f );
+	colors[ImGuiCol_ScrollbarBg]            = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_ScrollbarGrab]          = ImVec4( 0.12f, 0.35f, 0.24f, 0.78f );
+	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4( 0.12f, 0.35f, 0.35f, 0.78f );
+	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4( 0.12f, 0.59f, 0.24f, 0.78f );
+	colors[ImGuiCol_CheckMark]              = ImVec4( 0.12f, 0.59f, 0.24f, 0.78f );
+	colors[ImGuiCol_SliderGrab]             = ImVec4( 0.12f, 0.35f, 0.24f, 0.78f );
+	colors[ImGuiCol_SliderGrabActive]       = ImVec4( 0.12f, 0.59f, 0.24f, 0.78f );
+	colors[ImGuiCol_Button]                 = ImVec4( 0.35f, 0.35f, 0.12f, 0.78f );
+	colors[ImGuiCol_ButtonHovered]          = ImVec4( 0.35f, 0.47f, 0.24f, 0.78f );
+	colors[ImGuiCol_ButtonActive]           = ImVec4( 0.59f, 0.35f, 0.24f, 0.78f );
+	colors[ImGuiCol_Header]                 = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_HeaderHovered]          = ImVec4( 0.12f, 0.35f, 0.35f, 0.78f );
+	colors[ImGuiCol_HeaderActive]           = ImVec4( 0.12f, 0.59f, 0.24f, 0.78f );
+	colors[ImGuiCol_Separator]              = ImVec4( 0.35f, 0.35f, 0.24f, 0.78f );
+	colors[ImGuiCol_SeparatorHovered]       = ImVec4( 0.12f, 0.35f, 0.35f, 0.78f );
+	colors[ImGuiCol_SeparatorActive]        = ImVec4( 0.59f, 0.35f, 0.24f, 0.78f );
+	colors[ImGuiCol_ResizeGrip]             = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_ResizeGripHovered]      = ImVec4( 0.59f, 0.35f, 0.35f, 0.78f );
+	colors[ImGuiCol_ResizeGripActive]       = ImVec4( 0.59f, 0.24f, 0.24f, 0.78f );
+	colors[ImGuiCol_Tab]                    = ImVec4( 0.35f, 0.35f, 0.12f, 0.78f );
+	colors[ImGuiCol_TabHovered]             = ImVec4( 0.35f, 0.47f, 0.24f, 0.78f );
+	colors[ImGuiCol_TabActive]              = ImVec4( 0.59f, 0.35f, 0.24f, 0.78f );
+	colors[ImGuiCol_TabUnfocused]           = ImVec4( 0.06f, 0.12f, 0.16f, 0.78f );
+	colors[ImGuiCol_TabUnfocusedActive]     = ImVec4( 0.59f, 0.35f, 0.35f, 0.78f );
+	colors[ImGuiCol_DockingPreview]         = ImVec4( 0.26f, 0.59f, 0.98f, 0.70f );
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
+	colors[ImGuiCol_PlotLines]              = ImVec4( 0.39f, 0.78f, 0.39f, 0.78f );
+	colors[ImGuiCol_PlotLinesHovered]       = ImVec4( 1.00f, 0.43f, 0.35f, 0.78f );
+	colors[ImGuiCol_PlotHistogram]          = ImVec4( 0.00f, 0.35f, 0.39f, 0.78f );
+	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4( 0.20f, 0.59f, 0.59f, 0.78f );
+	colors[ImGuiCol_TableHeaderBg]          = ImVec4( 0.19f, 0.19f, 0.20f, 0.78f );
+	colors[ImGuiCol_TableBorderStrong]      = ImVec4( 0.31f, 0.31f, 0.35f, 0.78f );
+	colors[ImGuiCol_TableBorderLight]       = ImVec4( 0.23f, 0.23f, 0.25f, 0.78f );
+	colors[ImGuiCol_TableRowBg]             = ImVec4( 0.00f, 0.00f, 0.00f, 0.78f );
+	colors[ImGuiCol_TableRowBgAlt]          = ImVec4( 1.00f, 1.00f, 1.00f, 0.06f );
+	colors[ImGuiCol_TextSelectedBg]         = ImVec4( 0.39f, 0.35f, 0.39f, 0.39f );
+	colors[ImGuiCol_DragDropTarget]         = ImVec4( 1.00f, 1.00f, 0.00f, 0.90f );
+	colors[ImGuiCol_NavHighlight]           = ImVec4( 0.26f, 0.59f, 0.98f, 1.00f );
+	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4( 1.00f, 1.00f, 1.00f, 0.70f );
+	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4( 0.80f, 0.80f, 0.80f, 0.20f );
+	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4( 0.80f, 0.80f, 0.80f, 0.35f );
+}
+
+void StyleBioshock()
+{
+	// based on my UE5 Military theme
+	auto& style = ImGui::GetStyle();
+	style.ChildRounding = 4.0f;
+	style.FrameRounding = 4.0f;
+	style.ScrollbarRounding = 4.0f;
+	style.GrabRounding = 4.0f;
+	style.FrameBorderSize = 1.0f;
+
+	ImVec4* colors = ImGui::GetStyle().Colors;
+	colors[ImGuiCol_Text]                   = ImVec4( 0.75f, 0.75f, 0.75f, 1.00f );
+	colors[ImGuiCol_TextDisabled]           = ImVec4( 0.59f, 0.70f, 0.74f, 1.00f );
+	colors[ImGuiCol_WindowBg]               = ImVec4( 0.14f, 0.16f, 0.18f, 0.94f );
+	colors[ImGuiCol_ChildBg]                = ImVec4( 0.17f, 0.17f, 0.21f, 1.00f );
+	colors[ImGuiCol_PopupBg]                = ImVec4( 0.52f, 0.52f, 0.42f, 1.00f );
+	colors[ImGuiCol_Border]                 = ImVec4( 0.52f, 0.52f, 0.42f, 1.00f );
+	colors[ImGuiCol_BorderShadow]           = ImVec4( 0.12f, 0.12f, 0.15f, 1.00f );
+	colors[ImGuiCol_FrameBg]                = ImVec4( 0.12f, 0.13f, 0.15f, 1.00f );
+	colors[ImGuiCol_FrameBgHovered]         = ImVec4( 0.57f, 0.52f, 0.45f, 1.00f );
+	colors[ImGuiCol_FrameBgActive]          = ImVec4( 0.82f, 0.78f, 0.66f, 1.00f );
+	colors[ImGuiCol_TitleBg]                = ImVec4( 0.14f, 0.16f, 0.18f, 1.00f );
+	colors[ImGuiCol_TitleBgActive]          = ImVec4( 0.00f, 0.47f, 0.84f, 1.00f );
+	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4( 0.12f, 0.12f, 0.15f, 0.51f );
+	colors[ImGuiCol_MenuBarBg]              = ImVec4( 0.14f, 0.16f, 0.18f, 1.00f );
+	colors[ImGuiCol_ScrollbarBg]            = ImVec4( 0.17f, 0.17f, 0.21f, 1.00f );
+	colors[ImGuiCol_ScrollbarGrab]          = ImVec4( 0.57f, 0.52f, 0.45f, 1.00f );
+	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4( 0.82f, 0.78f, 0.66f, 1.00f );
+	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4( 0.82f, 0.78f, 0.66f, 1.00f );
+	colors[ImGuiCol_CheckMark]              = ImVec4( 0.17f, 0.73f, 1.00f, 1.00f );
+	colors[ImGuiCol_SliderGrab]             = ImVec4( 0.38f, 0.35f, 0.30f, 1.00f );
+	colors[ImGuiCol_SliderGrabActive]       = ImVec4( 0.17f, 0.73f, 1.00f, 1.00f );
+	colors[ImGuiCol_Button]                 = ImVec4( 0.38f, 0.37f, 0.30f, 1.00f );
+	colors[ImGuiCol_ButtonHovered]          = ImVec4( 0.57f, 0.52f, 0.45f, 1.00f );
+	colors[ImGuiCol_ButtonActive]           = ImVec4( 0.17f, 0.73f, 1.00f, 1.00f );
+	colors[ImGuiCol_Header]                 = ImVec4( 0.26f, 0.25f, 0.21f, 1.00f );
+	colors[ImGuiCol_HeaderHovered]          = ImVec4( 0.33f, 0.32f, 0.26f, 1.00f );
+	colors[ImGuiCol_HeaderActive]           = ImVec4( 0.33f, 0.32f, 0.26f, 1.00f );
+	colors[ImGuiCol_Separator]              = ImVec4( 0.17f, 0.17f, 0.21f, 1.00f );
+	colors[ImGuiCol_SeparatorHovered]       = ImVec4( 0.17f, 0.17f, 0.21f, 1.00f );
+	colors[ImGuiCol_SeparatorActive]        = ImVec4( 0.17f, 0.17f, 0.21f, 1.00f );
+	colors[ImGuiCol_ResizeGrip]             = ImVec4( 0.26f, 0.59f, 0.98f, 0.20f );
+	colors[ImGuiCol_ResizeGripHovered]      = ImVec4( 0.26f, 0.59f, 0.98f, 0.67f );
+	colors[ImGuiCol_ResizeGripActive]       = ImVec4( 0.26f, 0.59f, 0.98f, 0.95f );
+	colors[ImGuiCol_Tab]                    = ImVec4( 0.05f, 0.43f, 0.71f, 1.00f );
+	colors[ImGuiCol_TabHovered]             = ImVec4( 0.33f, 0.32f, 0.26f, 1.00f );
+	colors[ImGuiCol_TabActive]              = ImVec4( 0.13f, 0.41f, 0.61f, 1.00f );
+	colors[ImGuiCol_TabUnfocused]           = ImVec4( 0.12f, 0.21f, 0.29f, 1.00f );
+	colors[ImGuiCol_TabUnfocusedActive]     = ImVec4( 0.14f, 0.31f, 0.44f, 1.00f );
+	colors[ImGuiCol_DockingPreview]         = ImVec4( 0.33f, 0.32f, 0.26f, 0.70f );
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
+	colors[ImGuiCol_PlotLines]              = ImVec4( 0.61f, 0.61f, 0.61f, 1.00f );
+	colors[ImGuiCol_PlotLinesHovered]       = ImVec4( 1.00f, 0.43f, 0.35f, 1.00f );
+	colors[ImGuiCol_PlotHistogram]          = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
+	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4( 1.00f, 0.60f, 0.00f, 1.00f );
+	colors[ImGuiCol_TableHeaderBg]          = ImVec4( 0.19f, 0.19f, 0.20f, 1.00f );
+	colors[ImGuiCol_TableBorderStrong]      = ImVec4( 0.31f, 0.31f, 0.35f, 1.00f );
+	colors[ImGuiCol_TableBorderLight]       = ImVec4( 0.23f, 0.23f, 0.25f, 1.00f );
+	colors[ImGuiCol_TableRowBg]             = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
+	colors[ImGuiCol_TableRowBgAlt]          = ImVec4( 1.00f, 1.00f, 1.00f, 0.06f );
+	colors[ImGuiCol_TextSelectedBg]         = ImVec4( 0.26f, 0.59f, 0.98f, 0.35f );
+	colors[ImGuiCol_DragDropTarget]         = ImVec4( 1.00f, 1.00f, 0.00f, 0.90f );
+	colors[ImGuiCol_NavHighlight]           = ImVec4( 0.26f, 0.59f, 0.98f, 1.00f );
+	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4( 1.00f, 1.00f, 1.00f, 0.70f );
+	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4( 0.80f, 0.80f, 0.80f, 0.20f );
+	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4( 0.80f, 0.80f, 0.80f, 0.35f );
+}
+
+using namespace rapidjson;
+
+ImColor ParseColor( const Value& dColors, const char* colorName )
+{
+	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+
+	idStr str = dColors[colorName].GetString();
+	src.LoadMemory( str, str.Length(), "UE5 Theme Color" );
+
+	ImColor color = ImColor{IM_COL32( 0xFF, 0x0, 0x0, 0xFF )};
+
+	if( !src.ExpectTokenString( "(" ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "R" ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "=" ) )
+	{
+		return color;
+	}
+
+	color.Value.x = src.ParseFloat();
+
+	if( !src.ExpectTokenString( "," ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "G" ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "=" ) )
+	{
+		return color;
+	}
+
+	color.Value.y = src.ParseFloat();
+
+	if( !src.ExpectTokenString( "," ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "B" ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "=" ) )
+	{
+		return color;
+	}
+
+	color.Value.z = src.ParseFloat();
+
+	if( !src.ExpectTokenString( "," ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "A" ) )
+	{
+		return color;
+	}
+
+	if( !src.ExpectTokenString( "=" ) )
+	{
+		return color;
+	}
+
+	color.Value.w = src.ParseFloat();
+
+	if( !src.ExpectTokenString( ")" ) )
+	{
+		return color;
+	}
+
+	// convert from linear RGB to sRGB
+	float gamma = 1.0f / 2.2f;
+	color.Value.x = idMath::Pow( color.Value.x, gamma );
+	color.Value.y = idMath::Pow( color.Value.y, gamma );
+	color.Value.z = idMath::Pow( color.Value.z, gamma );
+
+	return color;
+}
+
+static inline ImVec4 ImLerp( const ImVec4& a, const ImVec4& b, float t )
+{
+	return ImVec4( a.x + ( b.x - a.x ) * t, a.y + ( b.y - a.y ) * t, a.z + ( b.z - a.z ) * t, a.w + ( b.w - a.w ) * t );
+}
+
+static inline ImVec4 operator*( const ImVec4& lhs, const ImVec4& rhs )
+{
+	return ImVec4( lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w );
+}
+
+static inline ImVec4  operator+( const ImVec4& lhs, const ImVec4& rhs )
+{
+	return ImVec4( lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w );
+}
+
+void StyleUE5EditorTheme( const char* themeName )
+{
+	idFile* f = fileSystem->OpenFileReadMemory( themeName );
+	if( f == NULL || f->Length() <= 0 )
+	{
+		return;
+	}
+
+	int fileLength = f->Length();
+	const char* fileData = ( const char* )Mem_Alloc( fileLength, TAG_SWF );
+	size_t fileSize = f->Read( ( byte* ) fileData, fileLength );
+	delete f;
+
+	rapidjson::Document d;
+	d.Parse( fileData );
+
+	auto& style = ImGui::GetStyle();
+
+	//style.WindowRounding = 9.0f;
+	style.ChildRounding = 4.0f;
+	style.FrameRounding = 4.0f;
+	style.ScrollbarRounding = 4.0f;
+	style.GrabRounding = 4.0f;
+	style.FrameBorderSize = 1.0f;
+
+	//rapidjson::Document d;
+	//d.Parse( MilitaryUE5Theme );
+
+	assert( d.IsObject() );
+
+	if( d.HasMember( "Version" ) )
+	{
+		Value& s = d["Version"];
+		int version = s.GetInt();
+
+		idLib::Printf( "version = %i", version );
+	}
+
+	Value& dColors = d["Colors"];
+
+	ImVec4* colors = ImGui::GetStyle().Colors;
+
+	colors[ImGuiCol_Text]					= ParseColor( dColors, "EStyleColor::Foreground" );
+	colors[ImGuiCol_TextDisabled]			= ParseColor( dColors, "EStyleColor::SelectInactive" );
+	colors[ImGuiCol_WindowBg]				= ParseColor( dColors, "EStyleColor::Background" ) * ImVec4( 1.0f, 1.0f, 1.0f, 0.94f );
+	colors[ImGuiCol_ChildBg]				= ParseColor( dColors, "EStyleColor::Recessed" );
+	colors[ImGuiCol_PopupBg]				= ParseColor( dColors, "EStyleColor::Notifications" );
+	colors[ImGuiCol_Border]					= ParseColor( dColors, "EStyleColor::Notifications" );
+	colors[ImGuiCol_BorderShadow]			= ParseColor( dColors, "EStyleColor::WindowBorder" );
+
+	colors[ImGuiCol_FrameBg]				= ParseColor( dColors, "EStyleColor::Input" );
+	colors[ImGuiCol_FrameBgHovered]			= ParseColor( dColors, "EStyleColor::Hover" );
+	colors[ImGuiCol_FrameBgActive]			= ParseColor( dColors, "EStyleColor::Hover2" );
+
+	colors[ImGuiCol_TitleBg]				= ParseColor( dColors, "EStyleColor::Title" );
+	colors[ImGuiCol_TitleBgActive]			= ParseColor( dColors, "EStyleColor::Highlight" );
+	colors[ImGuiCol_TitleBgCollapsed]		= ParseColor( dColors, "EStyleColor::Foldout" ) * ImVec4( 1.0f, 1.0f, 1.0f, 0.51f );
+
+	colors[ImGuiCol_MenuBarBg]				= ParseColor( dColors, "EStyleColor::Title" );
+
+	colors[ImGuiCol_ScrollbarBg]			= ParseColor( dColors, "EStyleColor::Recessed" );
+	colors[ImGuiCol_ScrollbarGrab]			= ParseColor( dColors, "EStyleColor::Hover" );
+	colors[ImGuiCol_ScrollbarGrabHovered]	= ParseColor( dColors, "EStyleColor::Hover2" );
+
+	colors[ImGuiCol_ScrollbarGrabActive]	= colors[ImGuiCol_ScrollbarGrabHovered];
+	colors[ImGuiCol_CheckMark]				= ParseColor( dColors, "EStyleColor::AccentBlue" );
+	colors[ImGuiCol_SliderGrab]				= ParseColor( dColors, "EStyleColor::Dropdown" );
+	colors[ImGuiCol_SliderGrabActive]		= ParseColor( dColors, "EStyleColor::Primary" );
+
+	colors[ImGuiCol_Button]					= ParseColor( dColors, "EStyleColor::Secondary" );
+	colors[ImGuiCol_ButtonHovered]			= ParseColor( dColors, "EStyleColor::Hover" );
+	colors[ImGuiCol_ButtonActive]			= ParseColor( dColors, "EStyleColor::Primary" );
+
+	colors[ImGuiCol_Header]					= ParseColor( dColors, "EStyleColor::Panel" );
+	colors[ImGuiCol_HeaderHovered]			= ParseColor( dColors, "EStyleColor::Header" );
+	colors[ImGuiCol_HeaderActive]			= ParseColor( dColors, "EStyleColor::Header" );
+
+	colors[ImGuiCol_Separator]				= ParseColor( dColors, "EStyleColor::Recessed" );
+	colors[ImGuiCol_SeparatorHovered]		= ParseColor( dColors, "EStyleColor::Recessed" );
+	colors[ImGuiCol_SeparatorActive]		= ParseColor( dColors, "EStyleColor::Recessed" );
+
+	colors[ImGuiCol_ResizeGrip]             = ImVec4( 0.26f, 0.59f, 0.98f, 0.20f );
+	colors[ImGuiCol_ResizeGripHovered]      = ImVec4( 0.26f, 0.59f, 0.98f, 0.67f );
+	colors[ImGuiCol_ResizeGripActive]       = ImVec4( 0.26f, 0.59f, 0.98f, 0.95f );
+	colors[ImGuiCol_Tab]                    = ImLerp( colors[ImGuiCol_Header],       colors[ImGuiCol_TitleBgActive], 0.80f );
+	colors[ImGuiCol_TabHovered]             = colors[ImGuiCol_HeaderHovered];
+	colors[ImGuiCol_TabActive]              = ImLerp( colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f );
+	colors[ImGuiCol_TabUnfocused]           = ImLerp( colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f );
+	colors[ImGuiCol_TabUnfocusedActive]     = ImLerp( colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f );
+	colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_HeaderActive] * ImVec4( 1.0f, 1.0f, 1.0f, 0.7f );
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
+	colors[ImGuiCol_PlotLines]              = ImVec4( 0.61f, 0.61f, 0.61f, 1.00f );
+	colors[ImGuiCol_PlotLinesHovered]       = ImVec4( 1.00f, 0.43f, 0.35f, 1.00f );
+	colors[ImGuiCol_PlotHistogram]          = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
+	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4( 1.00f, 0.60f, 0.00f, 1.00f );
+	colors[ImGuiCol_TableHeaderBg]          = ImVec4( 0.19f, 0.19f, 0.20f, 1.00f );
+	colors[ImGuiCol_TableBorderStrong]      = ImVec4( 0.31f, 0.31f, 0.35f, 1.00f ); // Prefer using Alpha=1.0 here
+	colors[ImGuiCol_TableBorderLight]       = ImVec4( 0.23f, 0.23f, 0.25f, 1.00f ); // Prefer using Alpha=1.0 here
+	colors[ImGuiCol_TableRowBg]             = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
+	colors[ImGuiCol_TableRowBgAlt]          = ImVec4( 1.00f, 1.00f, 1.00f, 0.06f );
+	colors[ImGuiCol_TextSelectedBg]         = ImVec4( 0.26f, 0.59f, 0.98f, 0.35f );
+	colors[ImGuiCol_DragDropTarget]         = ImVec4( 1.00f, 1.00f, 0.00f, 0.90f );
+	colors[ImGuiCol_NavHighlight]           = ImVec4( 0.26f, 0.59f, 0.98f, 1.00f );
+	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4( 1.00f, 1.00f, 1.00f, 0.70f );
+	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4( 0.80f, 0.80f, 0.80f, 0.20f );
+	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4( 0.80f, 0.80f, 0.80f, 0.35f );
+}
+
 } //anon namespace
 
 bool Init( int windowWidth, int windowHeight )
@@ -334,17 +683,24 @@ bool Init( int windowWidth, int windowHeight )
 	io.IniFilename = BFG_IniFilename;
 
 	// make it a bit prettier with rounded edges
-	//ImGuiStyle& style = ImGui::GetStyle();
-	//style.ChildWindowRounding = 9.0f;
-	//style.FrameRounding = 4.0f;
-	//style.ScrollbarRounding = 4.0f;
-	//style.GrabRounding = 4.0f;
+	ImGuiStyle& style = ImGui::GetStyle();
+
+#if 1
+	style.ChildRounding = 4.0f;
+	style.FrameRounding = 4.0f;
+	style.ScrollbarRounding = 4.0f;
+	style.GrabRounding = 4.0f;
+	style.FrameBorderSize = 1.0f;
+#endif
 
 	// Setup style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 	//ImGui::StyleColorsLight();
 	//StyleGruvboxDark();
+	StyleJungle();
+	//StyleBioshock();
+	//StyleUE5EditorTheme( "themes/military1.json" );
 
 	g_IsInit = true;
 
