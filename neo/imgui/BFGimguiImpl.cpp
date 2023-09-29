@@ -750,9 +750,13 @@ bool InjectSysEvent( const sysEvent_t* event )
 				return HandleKeyEvent( ev );
 
 			case SE_MOUSE_ABSOLUTE:
+				// RB: still allow mouse movement if right mouse button is pressed
+				//if( !g_MousePressed[1] )
+			{
 				g_MousePos.x = ev.evValue;
 				g_MousePos.y = ev.evValue2;
 				return true;
+			}
 
 			case SE_CHAR:
 				if( ev.evValue < 0x10000 )

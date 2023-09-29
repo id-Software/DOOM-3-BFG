@@ -41,11 +41,18 @@ If you have questions concerning this license or the applicable additional terms
 namespace ImGuiTools
 {
 
+enum ELightType
+{
+	LIGHT_POINT,
+	LIGHT_SPOT,
+	LIGHT_SUN
+};
+
 class LightInfo
 {
 public:
-	bool		pointLight;
-	float		fallOff;
+	ELightType	lightType;
+
 	idStr		strTexture;
 	bool		equalRadius;
 	bool		explicitStartEnd;
@@ -60,16 +67,16 @@ public:
 
 	idVec3		lightRadius;
 	bool		castShadows;
-	bool		castSpecular;
+	bool		skipSpecular;
 	bool		hasCenter;
-	bool		isParallel;
 	int			lightStyle;
 
 	LightInfo();
 
 	void		Defaults();
-	void		DefaultProjected();
 	void		DefaultPoint();
+	void		DefaultProjected();
+	void		DefaultSun();
 	void		FromDict( const idDict* e );
 	void		ToDict( idDict* e );
 };

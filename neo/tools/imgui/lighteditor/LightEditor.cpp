@@ -43,8 +43,8 @@ namespace ImGuiTools
 
 void LightInfo::Defaults()
 {
-	pointLight = true;
-	fallOff = 1.0f;
+	lightType = LIGHT_POINT;
+
 	strTexture = "";
 	equalRadius = true;
 	explicitStartEnd = false;
@@ -56,21 +56,10 @@ void LightInfo::Defaults()
 	lightCenter.Zero();
 	color[0] = color[1] = color[2] = 1.0f;
 
-#if 0 // FIXME: unused, delete?
-	fog = false;
-	fogDensity.Zero();
-
-	strobe = false;
-	strobeSpeed = 0.0f;
-	rotate = false;
-	rotateSpeed = 0.0f;
-#endif // 0
-
 	lightRadius.Zero();
 	castShadows = true;
-	castSpecular = true;
+	skipSpecular = false;
 	hasCenter = false;
-	isParallel = false;
 	lightStyle = -1;
 }
 
@@ -80,7 +69,9 @@ void LightInfo::DefaultPoint()
 	idVec3 oldColor = color;
 	Defaults();
 	color = oldColor;
-	pointLight = true;
+	lightType = LIGHT_POINT;
+	lightRadius[0] = lightRadius[1] = lightRadius[2] = 300;
+	equalRadius = true;
 }
 
 void LightInfo::DefaultProjected()
@@ -88,10 +79,22 @@ void LightInfo::DefaultProjected()
 	idVec3 oldColor = color;
 	Defaults();
 	color = oldColor;
-	pointLight = false;
+	lightType = LIGHT_SPOT;
 	lightTarget[2] = -256;
 	lightUp[1] = -128;
 	lightRight[0] = -128;
+}
+
+void LightInfo::DefaultSun()
+{
+	idVec3 oldColor = color;
+	Defaults();
+	color = oldColor;
+	lightType = LIGHT_SUN;
+	lightCenter.Set( 4, 4, 32 );
+	lightRadius[0] = lightRadius[1] = 2048;
+	lightRadius[2] = 1024;
+	equalRadius = false;
 }
 
 void LightInfo::FromDict( const idDict* e )
@@ -107,11 +110,11 @@ void LightInfo::FromDict( const idDict* e )
 	lightCenter.Zero();
 
 	castShadows = !e->GetBool( "noshadows" );
-	castSpecular = !e->GetBool( "nospecular" );
-	fallOff = e->GetFloat( "falloff" );
+	skipSpecular = e->GetBool( "nospecular" );
+
 	strTexture = e->GetString( "texture" );
 
-	isParallel = e->GetBool( "parallel" );
+	bool isParallel = e->GetBool( "parallel" );
 
 	if( !e->GetVector( "_color", "", color ) )
 	{
@@ -120,21 +123,10 @@ void LightInfo::FromDict( const idDict* e )
 		//       even though it displays them as 0 to 255
 	}
 
-#if 0 // FIXME: unused, delete?
-	if( e->GetVec4( "fog", "", fogDensity ) )
-	{
-		fog = true;
-	}
-	else
-	{
-		fog = false;
-	}
-#endif // 0
-
 	if( e->GetVector( "light_right", "", lightRight ) )
 	{
 		// projected light
-		pointLight = false;
+		lightType = LIGHT_SPOT;
 		e->GetVector( "light_target", "", lightTarget );
 		e->GetVector( "light_up", "", lightUp );
 		if( e->GetVector( "light_start", "", lightStart ) )
@@ -157,7 +149,8 @@ void LightInfo::FromDict( const idDict* e )
 	}
 	else
 	{
-		pointLight = true;
+		lightType = isParallel ? LIGHT_SUN : LIGHT_POINT;
+
 		if( e->GetVector( "light_radius", "", lightRadius ) )
 		{
 			equalRadius = ( lightRadius.x == lightRadius.y && lightRadius.x == lightRadius.z );
@@ -195,9 +188,7 @@ void LightInfo::ToDict( idDict* e )
 	e->Set( "light", DELETE_VAL ); // we always use "light_radius" instead
 
 	e->Set( "noshadows", ( !castShadows ) ? "1" : "0" );
-	e->Set( "nospecular", ( !castSpecular ) ? "1" : "0" );
-
-	e->SetFloat( "falloff", fallOff );
+	e->Set( "nospecular", ( skipSpecular ) ? "1" : "0" );
 
 	if( strTexture.Length() > 0 )
 	{
@@ -208,18 +199,10 @@ void LightInfo::ToDict( idDict* e )
 		e->Set( "texture", DELETE_VAL );
 	}
 
-	e->Set( "_color", color.ToString( 4 ) ); // NOTE: e->SetVector() uses precision of 2, not enough for color
+	// NOTE: e->SetVector() uses precision of 2, not enough for color
+	e->Set( "_color", color.ToString( 4 ) );
 
-#if 0 // DG: I think this isn't used
-	if( fog )
-	{
-		idVec4 tmp( fogDensity );
-		tmp *= 1.0f / 255.0f; // TODO: why not just make fogdensity values between 0 and 1 to start with?
-		e->SetVec4( "fog", tmp );
-	}
-#endif // 0
-
-	if( pointLight )
+	if( lightType == LIGHT_POINT || lightType == LIGHT_SUN )
 	{
 		if( !equalRadius )
 		{
@@ -240,7 +223,11 @@ void LightInfo::ToDict( idDict* e )
 			e->Set( "light_center", DELETE_VAL );
 		}
 
-		e->Set( "parallel", isParallel ? "1" : DELETE_VAL );
+		if( lightType == LIGHT_SUN )
+		{
+			e->Set( "parallel", "1" );
+			e->Set( "style", DELETE_VAL );
+		}
 
 		// get rid of all the projected light specific stuff
 		e->Set( "light_target", DELETE_VAL );
@@ -272,7 +259,7 @@ void LightInfo::ToDict( idDict* e )
 	}
 
 	// RB: Quake 1 light styles
-	if( lightStyle != -1 )
+	if( lightStyle != -1 && lightType != LIGHT_SUN )
 	{
 		e->SetInt( "style", lightStyle );
 	}
@@ -325,6 +312,7 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 
 		gameEdit->EntityGetOrigin( light, entityPos );
 
+		/*
 		const char* name = dict->GetString( "name", NULL );
 		if( name )
 		{
@@ -337,6 +325,9 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 			entityName = ""; // TODO: generate name or handle gracefully or something?
 			title.Format( "Light Editor: <unnamed> light at (%s)", entityPos.ToString() );
 		}
+		*/
+
+		title = "Light Editor";
 
 		currentTextureIndex = 0;
 		currentTexture = NULL;
@@ -593,6 +584,12 @@ void LightEditor::Draw()
 		// RB: handle arrow key inputs like in TrenchBroom
 		ImGuiIO& io = ImGui::GetIO();
 
+		if( io.KeysDown[K_ESCAPE] )
+		{
+			CancelChanges();
+			showTool = false;
+		}
+
 		// TODO use view direction like just global values
 		if( io.KeysDown[K_LALT] )
 		{
@@ -628,32 +625,35 @@ void LightEditor::Draw()
 			changes = true;
 		}
 
-		changes |= ImGui::Checkbox( "Cast Shadows", &cur.castShadows );
-		//ImGui::SameLine();
-		changes |= ImGui::Checkbox( "Cast Specular", &cur.castSpecular );
+		ImGui::SeparatorText( "Light Volume" );
 
 		ImGui::Spacing();
 
-		changes |= ImGui::ColorEdit3( "Color", vecToArr( cur.color ) );
-
-		// TODO: fog, fogDensity - probably unused!
-
-		ImGui::Spacing();
-
-		int lightSelectionRadioBtn = cur.pointLight ? 0 : 1;
+		int lightSelectionRadioBtn = cur.lightType;
 
 		changes |= ImGui::RadioButton( "Point Light", &lightSelectionRadioBtn, 0 );
 		ImGui::SameLine();
-		changes |= ImGui::RadioButton( "Projected Light", &lightSelectionRadioBtn, 1 );
-
-		cur.pointLight = ( lightSelectionRadioBtn == 0 );
+		changes |= ImGui::RadioButton( "Spot Light", &lightSelectionRadioBtn, 1 );
+		ImGui::SameLine();
+		changes |= ImGui::RadioButton( "Sun Light", &lightSelectionRadioBtn, 2 );
 
 		ImGui::Indent();
 
 		ImGui::Spacing();
 
-		if( lightSelectionRadioBtn == 0 )
+		if( lightSelectionRadioBtn == LIGHT_POINT || lightSelectionRadioBtn == LIGHT_SUN )
 		{
+			if( lightSelectionRadioBtn == LIGHT_POINT && lightSelectionRadioBtn != cur.lightType )
+			{
+				cur.DefaultPoint();
+				changes = true;
+			}
+			else if( lightSelectionRadioBtn == LIGHT_SUN && lightSelectionRadioBtn != cur.lightType )
+			{
+				cur.DefaultSun();
+				changes = true;
+			}
+
 			ImGui::PushItemWidth( -1.0f ); // align end of Drag* with right window border
 
 			changes |= ImGui::Checkbox( "Equilateral Radius", &cur.equalRadius );
@@ -675,26 +675,9 @@ void LightEditor::Draw()
 
 			ImGui::Spacing();
 
-			// TODO: this could as well be a slider or something, if 0/0.5/1 is too restricting
+			//changes |= ImGui::Checkbox( "Parallel", &cur.isParallel );
 
-			ImGui::Text( "Fall-off:" );
-			ImGui::SameLine();
-#if 0
-			ImGui::RadioButton( "0.0", &fallOffRadio, 0 );
-			ImGui::SameLine();
-			ImGui::RadioButton( "0.5", &fallOffRadio, 1 );
-			ImGui::SameLine();
-			ImGui::RadioButton( "1.0", &fallOffRadio, 2 );
-#endif // 0
-
-			// a slider is easier than radiobuttons.. does it really have to be radiobuttons?
-			changes |= ImGui::SliderFloat( "##FallOff", &cur.fallOff, 0.0f, 1.0f, "%.1f" );
-
-			ImGui::Spacing();
-
-			changes |= ImGui::Checkbox( "Parallel", &cur.isParallel );
-
-			ImGui::Spacing();
+			//ImGui::Spacing();
 
 			changes |= ImGui::Checkbox( "Center", &cur.hasCenter );
 			if( cur.hasCenter )
@@ -705,8 +688,14 @@ void LightEditor::Draw()
 			}
 			ImGui::PopItemWidth(); // back to default alignment on right side
 		}
-		else if( lightSelectionRadioBtn == 1 )
+		else if( lightSelectionRadioBtn == LIGHT_SPOT )
 		{
+			if( cur.lightType != lightSelectionRadioBtn )
+			{
+				cur.DefaultProjected();
+				changes = true;
+			}
+
 			changes |= ImGui::DragVec3( "Target", cur.lightTarget, 1.0f, 0.0f, 0.0f, "%.1f" );
 			changes |= ImGui::DragVec3( "Right", cur.lightRight, 1.0f, 0.0f, 0.0f, "%.1f" );
 			changes |= ImGui::DragVec3( "Up", cur.lightUp, 1.0f, 0.0f, 0.0f, "%.1f" );
@@ -723,15 +712,13 @@ void LightEditor::Draw()
 			}
 		}
 
+		cur.lightType = ELightType( lightSelectionRadioBtn );
+
 		ImGui::Unindent();
 
-		if( ImGui::Combo( "Style", &currentStyleIndex, StyleItemsGetter, this, styleNames.Num() + 1 ) )
-		{
-			changes = true;
+		ImGui::SeparatorText( "Color & Texturing" );
 
-			// -1 because 0 is "<No Lightstyle>"
-			cur.lightStyle = ( currentStyleIndex > 0 ) ? currentStyleIndex - 1 : -1;
-		}
+		changes |= ImGui::ColorEdit3( "Color", vecToArr( cur.color ) );
 
 		ImGui::Spacing();
 
@@ -751,6 +738,21 @@ void LightEditor::Draw()
 			ImGui::Image( ( void* )currentTextureMaterial, size, ImVec2( 0, 0 ), ImVec2( 1, 1 ),
 						  ImColor( 255, 255, 255, 255 ), ImColor( 255, 255, 255, 128 ) );
 		}
+
+		ImGui::SeparatorText( "Flicker Style" );
+
+		if( ImGui::Combo( "Style", &currentStyleIndex, StyleItemsGetter, this, styleNames.Num() + 1 ) )
+		{
+			changes = true;
+
+			// -1 because 0 is "<No Lightstyle>"
+			cur.lightStyle = ( currentStyleIndex > 0 ) ? currentStyleIndex - 1 : -1;
+		}
+
+		ImGui::SeparatorText( "Misc Options" );
+
+		changes |= ImGui::Checkbox( "Cast Shadows", &cur.castShadows );
+		changes |= ImGui::Checkbox( "Skip Specular", &cur.skipSpecular );
 
 		// TODO: allow multiple lights selected at the same time + "apply different" button?
 		//       then only the changed attribute (e.g. color) would be set to all lights,
@@ -777,7 +779,6 @@ void LightEditor::Draw()
 
 	if( isShown && !showTool )
 	{
-		// TODO: do the same as when pressing cancel?
 		isShown = showTool;
 		impl::SetReleaseToolMouse( false );
 	}
