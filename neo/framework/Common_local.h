@@ -380,14 +380,15 @@ public:
 	// RB end
 
 	// SRS start
-	uint64      GetRendererStartFrameSyncMicroseconds() const
+	void		SetRendererMvkEncodeMicroseconds( uint64 mvkEncodeMicroSeconds )
 	{
-		return mainFrameTiming.finishSyncTime - mainFrameTiming.startSyncTime;
+		mvkEncodeMicroSec = mvkEncodeMicroSeconds;
+		return;
 	}
 
-	uint64      GetRendererEndFrameSyncMicroseconds() const
+	uint64		GetRendererMvkEncodeMicroseconds() const
 	{
-		return mainFrameTiming.finishSyncTime_EndFrame - mainFrameTiming.startRenderTime;
+		return mvkEncodeMicroSec;
 	}
 	// SRS end
 
@@ -603,6 +604,8 @@ private:
 	// RB: r_speeds counters
 	backEndCounters_t		stats_backend;
 	performanceCounters_t	stats_frontend;
+	// SRS - MoltenVK's Vulkan to Metal command buffer encoding time, set default to 0 for non-macOS platforms (Windows and Linux)
+	uint64					mvkEncodeMicroSec = 0;
 
 	// Used during loading screens
 	int					lastPacifierSessionTime;

@@ -38,7 +38,7 @@
 // SRS - optionally needed for MoltenVK runtime config visibility
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	#include <MoltenVK/vk_mvk_moltenvk.h>
-
+	#include "framework/Common_local.h"
 	idCVar r_mvkSynchronousQueueSubmits( "r_mvkSynchronousQueueSubmits", "0", CVAR_BOOL | CVAR_INIT, "Use MoltenVK's synchronous queue submit option." );
 #endif
 #include <nvrhi/validation.h>
@@ -210,8 +210,8 @@ private:
 		},
 		// layers
 		{
-#if defined(__APPLE__)
-			// SRS - synchronization2 not supported natively on MoltenVK, use layer implementation instead
+#if defined(__APPLE__) && !defined( USE_MoltenVK )
+			// SRS - Enable synchronization2 layer when using Vulkan loader and MoltenVK version unknown
 			"VK_LAYER_KHRONOS_synchronization2"
 #endif
 		},
@@ -1157,30 +1157,42 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	deviceFeatures2.setPNext( &portabilityFeatures );
 	m_VulkanPhysicalDevice.getFeatures2( &deviceFeatures2 );
 
-	MVKConfiguration    pConfig;
-	size_t              pConfigSize = sizeof( pConfig );
+	MVKConfiguration    mvkConfig;
+	size_t              mvkConfigSize = sizeof( mvkConfig );
 
-	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+	vkGetMoltenVKConfigurationMVK( m_VulkanInstance, &mvkConfig, &mvkConfigSize );
 
 	// SRS - Set MoltenVK's synchronous queue submit option for vkQueueSubmit() & vkQueuePresentKHR()
-	pConfig.synchronousQueueSubmits = r_mvkSynchronousQueueSubmits.GetBool() ? VK_TRUE : VK_FALSE;
-	vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+	if( mvkConfig.synchronousQueueSubmits == VK_TRUE && !r_mvkSynchronousQueueSubmits.GetBool() )
+	{
+		idLib::Printf( "Disabled MoltenVK's synchronous queue submits...\n" );
+		mvkConfig.synchronousQueueSubmits = VK_FALSE;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &mvkConfig, &mvkConfigSize );
+	}
 
 	// SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
 	if( portabilityFeatures.imageViewFormatSwizzle == VK_FALSE )
 	{
-		idLib::Printf( "Enabling MoltenVK's image view swizzle...\n" );
-		pConfig.fullImageViewSwizzle = VK_TRUE;
-		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+		idLib::Printf( "Enabled MoltenVK's image view swizzle...\n" );
+		mvkConfig.fullImageViewSwizzle = VK_TRUE;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &mvkConfig, &mvkConfigSize );
 	}
 
 	// SRS - Turn MoltenVK's Metal argument buffer feature on for descriptor indexing only
-	if( pConfig.useMetalArgumentBuffers == MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_NEVER )
+	if( mvkConfig.useMetalArgumentBuffers == MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_NEVER )
 	{
-		idLib::Printf( "Enabling MoltenVK's Metal argument buffers for descriptor indexing...\n" );
-		pConfig.useMetalArgumentBuffers = MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_DESCRIPTOR_INDEXING;
-		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &pConfig, &pConfigSize );
+		idLib::Printf( "Enabled MoltenVK's Metal argument buffers for descriptor indexing...\n" );
+		mvkConfig.useMetalArgumentBuffers = MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_DESCRIPTOR_INDEXING;
+		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &mvkConfig, &mvkConfigSize );
 	}
+
+#if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
+	// SRS - Disable MoltenVK's timestampPeriod filter for HUD / Optick profiler timing calibration
+	mvkConfig.timestampPeriodLowPassAlpha = 1.0;
+	// SRS - Enable MoltenVK's performance tracking for display of Metal encoding timer on macOS
+	mvkConfig.performanceTracking = VK_TRUE;
+	vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &mvkConfig, &mvkConfigSize );
+#endif
 #endif
 
 	CHECK( createDevice() );
@@ -1305,6 +1317,16 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 
 void DeviceManager_VK::BeginFrame()
 {
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+#if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
+	// SRS - fetch MoltenVK's Vulkan to Metal encoding time for the previous frame
+	MVKPerformanceStatistics mvkPerfStats;
+	size_t mvkPerfStatsSize = sizeof( mvkPerfStats );
+	vkGetPerformanceStatisticsMVK( m_VulkanDevice, &mvkPerfStats, &mvkPerfStatsSize );
+	commonLocal.SetRendererMvkEncodeMicroseconds( uint64( Max( 0.0, mvkPerfStats.queue.submitCommandBuffers.latest - mvkPerfStats.queue.retrieveCAMetalDrawable.latest ) * 1000.0 ) );
+#endif
+#endif
+
 	const vk::Result res = m_VulkanDevice.acquireNextImageKHR( m_SwapChain,
 						   std::numeric_limits<uint64_t>::max(), // timeout
 						   m_PresentSemaphore,
