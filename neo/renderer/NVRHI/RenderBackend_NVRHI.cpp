@@ -1597,10 +1597,10 @@ void idRenderBackend::GL_EndFrame()
 
 	commandList->close();
 
-	deviceManager->GetDevice()->executeCommandList( commandList );
-
 	// required for Vulkan: transition our swap image to present
 	deviceManager->EndFrame();
+
+	deviceManager->GetDevice()->executeCommandList( commandList );
 
 	// update jitter for perspective matrix
 	taaPass->AdvanceFrame();

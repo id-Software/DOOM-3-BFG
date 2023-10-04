@@ -5382,11 +5382,11 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 
 	DrawFlickerBox();
 
-	GL_EndFrame();
-
 	// stop rendering on this thread
 	uint64 backEndFinishTime = Sys_Microseconds();
 	pc.cpuTotalMicroSec = backEndFinishTime - backEndStartTime;
+
+	GL_EndFrame();
 
 	if( r_debugRenderToTexture.GetInteger() == 1 )
 	{

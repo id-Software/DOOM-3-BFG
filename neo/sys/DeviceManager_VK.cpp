@@ -272,7 +272,7 @@ private:
 	nvrhi::vulkan::DeviceHandle m_NvrhiDevice;
 	nvrhi::DeviceHandle m_ValidationLayer;
 
-	nvrhi::CommandListHandle m_BarrierCommandList;
+	//nvrhi::CommandListHandle m_BarrierCommandList;		// SRS - no longer needed
 	std::queue<vk::Semaphore> m_PresentSemaphoreQueue;
 	vk::Semaphore m_PresentSemaphore;
 
@@ -1220,7 +1220,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	CHECK( createSwapChain() );
 
-	m_BarrierCommandList = m_NvrhiDevice->createCommandList();
+	//m_BarrierCommandList = m_NvrhiDevice->createCommandList();		// SRS - no longer needed
 
 	// SRS - Give each swapchain image its own semaphore in case of overlap (e.g. MoltenVK async queue submit)
 	for( int i = 0; i < m_SwapChainImages.size(); i++ )
@@ -1257,7 +1257,7 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 	}
 	m_PresentSemaphore = vk::Semaphore();
 
-	m_BarrierCommandList = nullptr;
+	//m_BarrierCommandList = nullptr;		// SRS - no longer needed
 
 	destroySwapChain();
 
@@ -1320,9 +1320,10 @@ void DeviceManager_VK::EndFrame()
 {
 	m_NvrhiDevice->queueSignalSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 
-	m_BarrierCommandList->open(); // umm...
-	m_BarrierCommandList->close();
-	m_NvrhiDevice->executeCommandList( m_BarrierCommandList );
+	// SRS - Don't need barrier commandlist if EndFrame() is called before executeCommandList() in idRenderBackend::GL_EndFrame()
+	//m_BarrierCommandList->open(); // umm...
+	//m_BarrierCommandList->close();
+	//m_NvrhiDevice->executeCommandList( m_BarrierCommandList );
 }
 
 void DeviceManager_VK::Present()
