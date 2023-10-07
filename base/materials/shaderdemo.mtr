@@ -1032,39 +1032,41 @@ particle heatHazeWithMaskAndVertex {
 
 //==============================================
 
-shaderDemos/bumpyReflect
-{
-	{
-		vertexProgram	bumpyEnvironment.vfp
-		vertexParm		0		1	// color modulation
-		fragmentProgram	bumpyEnvironment.vfp
-		fragmentMap		0		cubeMap env/soulz
+// RB: commented out because it breaks exportMaterials
+//shaderDemos/bumpyReflect
+//{
+//	{
+//		vertexProgram	bumpyEnvironment.vfp
+//		vertexParm		0		1	// color modulation
+//		fragmentProgram	bumpyEnvironment.vfp
+//		fragmentMap		0		cubeMap env/soulz
 //		fragmentMap		1		addnormals( models/monsters/pinky/pinky_local.tga, heightmap( models/monsters/pinky/pinky_b.tga, 9 ) )
-		fragmentMap		1		models/monsters/pinky/pinky_local.tga
-	}
-}
+//		fragmentMap		1		models/monsters/pinky/pinky_local.tga
+//	}
+//}
 
-skin bumpyReflect {
+//skin bumpyReflect {
 //	models/monsters/pinky/pinky_metal	shaderDemos/bumpyReflect
-	* shaderDemos/bumpyReflect
-}
+//	* shaderDemos/bumpyReflect
+//}
 
 
 //==============================================
 
-shaderDemos/pinch
-{
-	{
-		vertexProgram	pinch.cg
-		vertexParm		0		sinTable[ time * 0.1 ]	// pinch factorcolor modulation
-		fragmentProgram	pinch.cg
-		fragmentMap		0		_currentRender
-	}
-}
+// RB: commented out because it breaks exportMaterials as the shader is not available
+//shaderDemos/pinch
+//{
+//	{
+//		vertexProgram	pinch.cg
+//		vertexParm		0		sinTable[ time * 0.1 ]	// pinch factorcolor modulation
+//		fragmentProgram	pinch.cg
+//		fragmentMap		0		_currentRender
+//	}
+//}
 
-skin pinch {
-	* shaderDemos/pinch
-}
+//skin pinch {
+//	* shaderDemos/pinch
+//}
 
 //==============================================
 

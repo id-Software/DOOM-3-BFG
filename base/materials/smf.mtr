@@ -113,28 +113,21 @@ textures/smf/chiglass1blue2
 	}
 }
 
-textures/smf/chiglass1blue
-{
-	translucent
-//	polygonOffset
-	{
-		privatePolygonOffset
-		Program					heatHaze_smf.vfp
-		fragmentProgram			heatHaze_smf.vfp
-	}
-}
+// RB: commented out because it breaks exportMaterials as the shader is not available
+//textures/smf/chiglass1blue
+//{
+//	translucent
+//	{
+//		privatePolygonOffset
+//		Program					heatHaze_smf.vfp
+//		fragmentProgram			heatHaze_smf.vfp
+//	}
+//}
 
 /*
 textures/smf/chiglass1blue
 {
-//	noshadows
-//	translucent
-//	twoSided
-//	sort nearest
-//	glass
-//	polygonOffset
 	{
-//		privatePolygonOffset
 		Program					heatHaze_smf.vfp
 		vertexParm				0       0.5 + time*0.1, 0.12 // texture scrolling
 		vertexParm				1       3        // magnitude of the distortion
@@ -145,20 +138,21 @@ textures/smf/chiglass1blue
 }
 */
 
-textures/smf/window_scratch2
-{
-	noshadows
-	translucent
-	twoSided
+// RB: commented out because it breaks exportMaterials as the shader is not available
+//textures/smf/window_scratch2
+//{
+//	noshadows
+//	translucent
+//	twoSided
 //	polygonOffset
-	{
-		Program				xray.vfp
-		vertexParm			0       0.5 + time*0.1, 0.12					// texture scrolling
-		vertexParm			1       3										// magnitude of the distortion
-		fragmentProgram		xray.vfp
-		fragmentMap			0       _scratch2
-	}
-}
+//	{
+//		Program				xray.vfp
+//		vertexParm			0       0.5 + time*0.1, 0.12					// texture scrolling
+//		vertexParm			1       3										// magnitude of the distortion
+//		fragmentProgram		xray.vfp
+//		fragmentMap			0       _scratch2
+//	}
+//}
 
 textures/smf/window_scratch
 {
@@ -625,7 +619,8 @@ textures/decals/berserk2
 
 
 
-
+// RB: commented out because it breaks exportMaterials as the shader is not available
+/*
 textures/smf/bloodorb1
 {
 	{
@@ -667,6 +662,7 @@ textures/smf/bloodorb2_init
 		fragmentMap             2       clamp textures/smf/bloodorb2.tga
 	}
 }
+*/
 
 textures/smf/bloodorb3_preblend
 {
@@ -676,6 +672,9 @@ textures/smf/bloodorb3_preblend
 		map						textures/smf/bloodorb2.tga
 	}
 }
+
+// RB: commented out because it breaks exportMaterials as the shader is not available
+/*
 textures/smf/bloodorb3
 {
 	{
@@ -696,7 +695,7 @@ textures/smf/bloodorb3_init
 		fragmentMap             2       clamp _scratch2
 	}
 }
-
+*/
 
 
 
@@ -1133,36 +1132,35 @@ textures/smf/basic/green
 	}
 }
 
-textures/smf/basic/tester
-{
-	{
-		// vprog
-		vertexProgram			tester.vfp
-		vertexParm				0				0
-		vertexParm				1				0, sintable[time*0.2], sintable[(time+3.14159)*0.2]
+// RB: commented out because it breaks exportMaterials as the shader is not available
+//textures/smf/basic/tester
+//{
+//	{
+//		// vprog
+//		vertexProgram			tester.vfp
+//		vertexParm				0				0
+//		vertexParm				1				0, sintable[time*0.2], sintable[(time+3.14159)*0.2]
 
 		// fprog
-		fragmentProgram			tester.vfp
-		fragmentMap				0				_currentRender
-		fragmentMap				1				textures/sfx/monitor_glass2.tga
-	}
-}
+//		fragmentProgram			tester.vfp
+//		fragmentMap				0				_currentRender
+//		fragmentMap				1				textures/sfx/monitor_glass2.tga
+//	}
+//}
 
 // ==============
 // MOTION BLUR
 // ==============
-textures/smf/motionblur
-{
-	{
-		vertexProgram           motionblur.vfp
-		vertexParm				0				0
-		vertexParm				1				sintable[time*0.3+0.5]*0.5+0.5, sintable[time*0.3+0.5]*0.5+0.5, 0
-
-
-		fragmentProgram			motionblur.vfp
-		fragmentMap             0       _currentRender
-	}
-}
+//textures/smf/motionblur
+//{
+//	{
+//		vertexProgram           motionblur.vfp
+//		vertexParm				0				0
+//		vertexParm				1				sintable[time*0.3+0.5]*0.5+0.5, sintable[time*0.3+0.5]*0.5+0.5, 0
+//		fragmentProgram			motionblur.vfp
+//		fragmentMap             0       _currentRender
+//	}
+//}
 
 // ==============
 // ANAMORPHIC FLARES
@@ -1210,21 +1208,22 @@ textures/smf/flares/illumination
 	}
 }
 
-textures/smf/flares/glass
-{
-	twoSided
+// RB: commented out because it breaks exportMaterials as the shader is not available
+//textures/smf/flares/glass
+//{
+//	twoSided
+//
+//	{
+//		vertexProgram           flare.vfp
+//		vertexParm				0				0
+//		vertexParm				1				1
 
-	{
-		vertexProgram           flare.vfp
-		vertexParm				0				0
-		vertexParm				1				1
-
-		fragmentProgram			flare.vfp
-		fragmentMap				0				_currentRender
-		fragmentMap				1				_scratch
-		fragmentMap				2				textures/smf/flare/test.tga
-	}
-}
+//		fragmentProgram			flare.vfp
+//		fragmentMap				0				_currentRender
+//		fragmentMap				1				_scratch
+//		fragmentMap				2				textures/smf/flare/test.tga
+//	}
+//}
 
 
 
