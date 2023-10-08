@@ -2052,6 +2052,14 @@ void idDeclManagerLocal::ExportMaterialsToBlender_f( const idCmdArgs& args )
 	{
 		const idMaterial* material = static_cast< const idMaterial* >( declManagerLocal.FindType( DECL_MATERIAL, declManagerLocal.linearLists[ DECL_MATERIAL ][ i ]->GetName(), false ) );
 
+#if 0
+		const char* matName = material->GetName();
+		if( idStr::FindText( matName, "textures/base_floor/ghotile3", false ) != -1 )
+		{
+			totalMaterialsCount++;
+		}
+#endif
+
 		material->ExportJSON( file, i == ( count - 1 ) );
 
 		totalMaterialsCount++;

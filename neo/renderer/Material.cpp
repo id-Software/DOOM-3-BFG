@@ -260,7 +260,7 @@ idImage* idMaterial::GetEditorImage() const
 
 		// look for the diffusemap alternative like TrenchBroom does
 		// this is required to have the texture dimensions for the convertMapToValve220 cmd
-		if( editorImage && editorImage->IsLoaded() && editorImage->IsDefaulted() )
+		if( editorImage && /*editorImage->IsLoaded() &&*/ editorImage->IsDefaulted() )
 		{
 			// _D3XP :: First check for a diffuse image, then use the first
 			if( numStages && stages )
