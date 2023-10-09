@@ -442,6 +442,10 @@ Recommended in this case is `cmake-vs2022-64bit-no-ffmpeg.bat`
 # Compiling on Linux <a name="compile_linux"></a>
 
 1. Go to https://github.com/microsoft/DirectXShaderCompiler and download the DXC binaries for Linux and put them into your local PATH.
+    E.g. Unpack dxc-artifacts.tar.gz to your home directory and add this to your ~/.profile
+
+		> # DXC compiler
+		> PATH="~/dxc-artifacts/bin:$PATH"
 
 2. You need the following dependencies in order to compile RBDoom3BFG with all features:
 
