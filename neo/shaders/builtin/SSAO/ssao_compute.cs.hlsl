@@ -104,7 +104,7 @@ static const float g_RandomValues[16] =
 // over the diagonals in the octahedral map
 float2 octWrap( float2 v )
 {
-	return ( 1.f - abs( v.yx ) ) * ( v.xy >= 0.f ? 1.f : -1.f );
+	return ( 1.f - abs( v.yx ) ) * select( v.xy >= 0.f, 1.f, -1.f );
 }
 
 /**********************/
@@ -116,7 +116,7 @@ float2 ndirToOctSigned( float3 n )
 {
 	// Project the sphere onto the octahedron (|x|+|y|+|z| = 1) and then onto the xy-plane
 	float2 p = n.xy * ( 1.f / ( abs( n.x ) + abs( n.y ) + abs( n.z ) ) );
-	return ( n.z < 0.f ) ? octWrap( p ) : p;
+	return select( n.z < 0.f, octWrap( p ), p );
 }
 
 // Converts a point in the octahedral map to a normalized direction (non-equal area, signed)
@@ -127,7 +127,7 @@ float3 octToNdirSigned( float2 p )
 	// https://twitter.com/Stubbesaurus/status/937994790553227264
 	float3 n = float3( p.x, p.y, 1.0 - abs( p.x ) - abs( p.y ) );
 	float t = max( 0, -n.z );
-	n.xy += n.xy >= 0.0 ? -t : t;
+	n.xy += select( n.xy >= 0.0, -t, t );
 	return normalize( n );
 }
 
