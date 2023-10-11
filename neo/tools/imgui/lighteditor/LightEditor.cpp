@@ -576,38 +576,6 @@ static float* vecToArr( idVec3& v )
 }
 
 
-void Frustum( float left, float right, float bottom, float top, float znear, float zfar, float* m16 )
-{
-	float temp, temp2, temp3, temp4;
-	temp = 2.0f * znear;
-	temp2 = right - left;
-	temp3 = top - bottom;
-	temp4 = zfar - znear;
-	m16[0] = temp / temp2;
-	m16[1] = 0.0;
-	m16[2] = 0.0;
-	m16[3] = 0.0;
-	m16[4] = 0.0;
-	m16[5] = temp / temp3;
-	m16[6] = 0.0;
-	m16[7] = 0.0;
-	m16[8] = ( right + left ) / temp2;
-	m16[9] = ( top + bottom ) / temp3;
-	m16[10] = ( -zfar - znear ) / temp4;
-	m16[11] = -1.0f;
-	m16[12] = 0.0;
-	m16[13] = 0.0;
-	m16[14] = ( -temp * zfar ) / temp4;
-	m16[15] = 0.0;
-}
-
-void Perspective( float fovyInDegrees, float aspectRatio, float znear, float zfar, float* m16 )
-{
-	float ymax, xmax;
-	ymax = znear * tanf( fovyInDegrees * 3.141592f / 180.0f );
-	xmax = ymax * aspectRatio;
-	Frustum( -xmax, xmax, -ymax, ymax, znear, zfar, m16 );
-}
 
 void LightEditor::Draw()
 {
@@ -619,6 +587,7 @@ void LightEditor::Draw()
 		// RB: handle arrow key inputs like in TrenchBroom
 		ImGuiIO& io = ImGui::GetIO();
 
+		// FIXME
 		if( io.KeysDown[K_ESCAPE] )
 		{
 			CancelChanges();
@@ -818,6 +787,9 @@ void LightEditor::Draw()
 		ImGuizmo::SetOrthographic( false );
 		ImGuizmo::SetDrawlist();
 
+		ImGuizmo::SetID( 0 );
+
+
 		viewDef_t viewDef;
 		if( gameEdit->PlayerGetRenderView( viewDef.renderView ) )
 		{
@@ -828,31 +800,56 @@ void LightEditor::Draw()
 			float* cameraView = viewDef.worldSpace.modelViewMatrix;
 			float* cameraProjection = viewDef.unjitteredProjectionMatrix;
 #else
-			float cameraView[16];
-			//memcpy( cameraView, viewDef.worldSpace.modelViewMatrix, sizeof( cameraView ) );
+			float* cameraView = viewDef.worldSpace.modelViewMatrix;
 
-			R_AxisToModelMatrix( viewDef.renderView.viewaxis, viewDef.renderView.vieworg, viewDef.worldSpace.modelViewMatrix );
-			R_MatrixTranspose( viewDef.worldSpace.modelViewMatrix, cameraView );
+			//float cameraView[16];
+			//R_AxisToModelMatrix( viewDef.renderView.viewaxis, viewDef.renderView.vieworg, viewDef.worldSpace.modelViewMatrix );
+			//R_MatrixTranspose( viewDef.worldSpace.modelViewMatrix, cameraView );
 
-			float aspectRatio = io.DisplaySize.x / io.DisplaySize.y;
+			float aspectRatio = io.DisplaySize.y / io.DisplaySize.x;
 
-			//float cameraProjection[16];
-			//Perspective( viewDef.renderView.fov_y, aspectRatio, viewDef.renderView.cramZNear, 16000.0f, cameraProjection );
+			float cameraProjection[16];
+			Perspective( viewDef.renderView.fov_y, aspectRatio, 1.0f, 16000.0f, cameraProjection );
 
-			float* cameraProjection = viewDef.unjitteredProjectionMatrix;
+			//float* cameraProjection = viewDef.unjitteredProjectionMatrix;
 #endif
 
-
-			ImGuizmo::DrawGrid( cameraView, cameraProjection, mat4_identity.ToFloatPtr(), 100.f );
-
+			idAngles angles( 0, 0, 90 );
+			idMat3 rotate = angles.ToMat3();
 			idMat3 scaleMatrix = mat3_identity;
-			scaleMatrix[0][0] = 10;
-			scaleMatrix[1][1] = 10;
-			scaleMatrix[2][2] = 10;
-			idMat4 objectMatrix( scaleMatrix, cur.origin );
-			ImGuizmo::DrawCubes( cameraView, cameraProjection, mat4_identity.ToFloatPtr(), 1 );
+			scaleMatrix[0][0] = 4;
+			scaleMatrix[1][1] = 4;
+			scaleMatrix[2][2] = 4;
+
+			//idMat4 gridMatrix( scaleMatrix * rotate, vec3_origin );
+			//ImGuizmo::DrawGrid( cameraView, cameraProjection, gridMatrix.ToFloatPtr(), 100.f );
+
+			//idMat3 scaleMatrix = mat3_identity;
+			scaleMatrix[0][0] = 1;
+			scaleMatrix[1][1] = 1;
+			scaleMatrix[2][2] = 1;
+
+			idMat4 objectMatrix( scaleMatrix,  cur.origin );
+			//idMat4 objectMatrix( scaleMatrix, cur.origin );
+			//ImGuizmo::DrawCubes( cameraView, cameraProjection, objectMatrix.Transpose().ToFloatPtr(), 1 );
 
 			ImGuizmo::OPERATION mCurrentGizmoOperation( ImGuizmo::TRANSLATE );
+
+			if( io.KeysDown[K_G] )
+			{
+				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			}
+
+			if( io.KeysDown[K_R] )
+			{
+				mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			}
+
+			//if( ImGui::IsKeyPressed( ImGuiKey_S ) )
+			//{
+			//	mCurrentGizmoOperation = ImGuizmo::SCALE;
+			//}
+
 			ImGuizmo::MODE mCurrentGizmoMode( ImGuizmo::LOCAL );
 			bool useSnap = false;
 			float snap[3] = { 1.f, 1.f, 1.f };
@@ -861,10 +858,37 @@ void LightEditor::Draw()
 			bool boundSizing = false;
 			bool boundSizingSnap = false;
 
-			ImGuizmo::DrawCubes( cameraView, cameraProjection, &objectMatrix[0][0], 1 );
-			ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, objectMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
+			idMat4 manipMatrix = objectMatrix.Transpose();
+			ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, manipMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
 
-			//ImGuizmo::ViewManipulate( cameraView, camDistance, ImVec2( viewManipulateRight - 128, viewManipulateTop ), ImVec2( 128, 128 ), 0x10101010 );
+			if( ImGuizmo::IsUsing() )
+			{
+				cur.origin.x = manipMatrix[3].x;
+				cur.origin.y = manipMatrix[3].y;
+				cur.origin.z = manipMatrix[3].z;
+			}
+
+			//float camDistance = 8.f;
+			//float viewManipulateRight = io.DisplaySize.x;
+			//float viewManipulateTop = 0;
+
+			ImGui::Separator();
+
+			ImGui::Text( "X: %f Y: %f", io.MousePos.x, io.MousePos.y );
+			if( ImGuizmo::IsUsing() )
+			{
+				ImGui::Text( "Using gizmo" );
+			}
+			else
+			{
+				ImGui::Text( ImGuizmo::IsOver() ? "Over gizmo" : "" );
+				ImGui::SameLine();
+				ImGui::Text( ImGuizmo::IsOver( ImGuizmo::TRANSLATE ) ? "Over translate gizmo" : "" );
+				ImGui::SameLine();
+				ImGui::Text( ImGuizmo::IsOver( ImGuizmo::ROTATE ) ? "Over rotate gizmo" : "" );
+				ImGui::SameLine();
+				ImGui::Text( ImGuizmo::IsOver( ImGuizmo::SCALE ) ? "Over scale gizmo" : "" );
+			}
 		}
 	}
 	ImGui::End();
