@@ -711,7 +711,7 @@ void idEditEntities::DisplayEntities()
 			// RB: use renderer backend to display light properties
 			if( ent->fl.selected )
 			{
-				drawArrows = true;
+				//drawArrows = true;
 
 				idLight* light = static_cast<idLight*>( ent );
 
@@ -1159,6 +1159,18 @@ void idGameEdit::PlayerGetEyePosition( idVec3& org ) const
 	org = gameLocal.GetLocalPlayer()->GetEyePosition();
 }
 
+// RB
+bool idGameEdit::PlayerGetRenderView( renderView_t& rv ) const
+{
+	renderView_t* view = gameLocal.GetLocalPlayer()->GetRenderView();
+	if( view )
+	{
+		rv = *view;
+		return true;
+	}
+
+	return false;
+}
 
 /*
 ================

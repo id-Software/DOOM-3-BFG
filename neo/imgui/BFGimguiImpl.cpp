@@ -14,6 +14,7 @@
 #pragma hdrstop
 
 #include "BFGimgui.h"
+#include "ImGuizmo.h"
 #include "renderer/RenderCommon.h"
 #include "renderer/RenderBackend.h"
 
@@ -829,6 +830,8 @@ void NewFrame()
 
 		// Start the frame
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
+
 		g_haveNewFrame = true;
 	}
 }

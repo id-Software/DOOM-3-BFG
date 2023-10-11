@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "LightEditor.h"
 
 #include "../imgui/BFGimgui.h"
+#include "../imgui/ImGuizmo.h"
 
 #include "renderer/Material.h"
 #include "renderer/Image.h"
@@ -574,6 +575,40 @@ static float* vecToArr( idVec3& v )
 	return &v.x;
 }
 
+
+void Frustum( float left, float right, float bottom, float top, float znear, float zfar, float* m16 )
+{
+	float temp, temp2, temp3, temp4;
+	temp = 2.0f * znear;
+	temp2 = right - left;
+	temp3 = top - bottom;
+	temp4 = zfar - znear;
+	m16[0] = temp / temp2;
+	m16[1] = 0.0;
+	m16[2] = 0.0;
+	m16[3] = 0.0;
+	m16[4] = 0.0;
+	m16[5] = temp / temp3;
+	m16[6] = 0.0;
+	m16[7] = 0.0;
+	m16[8] = ( right + left ) / temp2;
+	m16[9] = ( top + bottom ) / temp3;
+	m16[10] = ( -zfar - znear ) / temp4;
+	m16[11] = -1.0f;
+	m16[12] = 0.0;
+	m16[13] = 0.0;
+	m16[14] = ( -temp * zfar ) / temp4;
+	m16[15] = 0.0;
+}
+
+void Perspective( float fovyInDegrees, float aspectRatio, float znear, float zfar, float* m16 )
+{
+	float ymax, xmax;
+	ymax = znear * tanf( fovyInDegrees * 3.141592f / 180.0f );
+	xmax = ymax * aspectRatio;
+	Frustum( -xmax, xmax, -ymax, ymax, znear, zfar, m16 );
+}
+
 void LightEditor::Draw()
 {
 	bool showTool = isShown;
@@ -773,6 +808,63 @@ void LightEditor::Draw()
 		else if( changes )
 		{
 			TempApplyChanges();
+		}
+
+		//
+		// GIZMO
+		//
+		//ImGuiIO& io = ImGui::GetIO();
+		ImGuizmo::SetRect( 0, 0, io.DisplaySize.x, io.DisplaySize.y );
+		ImGuizmo::SetOrthographic( false );
+		ImGuizmo::SetDrawlist();
+
+		viewDef_t viewDef;
+		if( gameEdit->PlayerGetRenderView( viewDef.renderView ) )
+		{
+			R_SetupViewMatrix( &viewDef );
+			R_SetupProjectionMatrix( &viewDef, false );
+
+#if 1
+			float* cameraView = viewDef.worldSpace.modelViewMatrix;
+			float* cameraProjection = viewDef.unjitteredProjectionMatrix;
+#else
+			float cameraView[16];
+			//memcpy( cameraView, viewDef.worldSpace.modelViewMatrix, sizeof( cameraView ) );
+
+			R_AxisToModelMatrix( viewDef.renderView.viewaxis, viewDef.renderView.vieworg, viewDef.worldSpace.modelViewMatrix );
+			R_MatrixTranspose( viewDef.worldSpace.modelViewMatrix, cameraView );
+
+			float aspectRatio = io.DisplaySize.x / io.DisplaySize.y;
+
+			//float cameraProjection[16];
+			//Perspective( viewDef.renderView.fov_y, aspectRatio, viewDef.renderView.cramZNear, 16000.0f, cameraProjection );
+
+			float* cameraProjection = viewDef.unjitteredProjectionMatrix;
+#endif
+
+
+			ImGuizmo::DrawGrid( cameraView, cameraProjection, mat4_identity.ToFloatPtr(), 100.f );
+
+			idMat3 scaleMatrix = mat3_identity;
+			scaleMatrix[0][0] = 10;
+			scaleMatrix[1][1] = 10;
+			scaleMatrix[2][2] = 10;
+			idMat4 objectMatrix( scaleMatrix, cur.origin );
+			ImGuizmo::DrawCubes( cameraView, cameraProjection, mat4_identity.ToFloatPtr(), 1 );
+
+			ImGuizmo::OPERATION mCurrentGizmoOperation( ImGuizmo::TRANSLATE );
+			ImGuizmo::MODE mCurrentGizmoMode( ImGuizmo::LOCAL );
+			bool useSnap = false;
+			float snap[3] = { 1.f, 1.f, 1.f };
+			float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+			float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+			bool boundSizing = false;
+			bool boundSizingSnap = false;
+
+			ImGuizmo::DrawCubes( cameraView, cameraProjection, &objectMatrix[0][0], 1 );
+			ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, objectMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
+
+			//ImGuizmo::ViewManipulate( cameraView, camDistance, ImVec2( viewManipulateRight - 128, viewManipulateTop ), ImVec2( 128, 128 ), 0x10101010 );
 		}
 	}
 	ImGui::End();
