@@ -1776,7 +1776,8 @@ else()
 		# delete precompiled header file after executable is compiled: IDE build case (e.g. Xcode)
 		else()
 			add_custom_command(TARGET RBDoom3BFG POST_BUILD
-					COMMAND ${remove_command} "idlib/precompiled.h.gch"
+					# SRS - added wildcards to remove tmp files from cmake ZERO_CHECK regeneration
+					COMMAND ${remove_command} "idlib/precompiled.h*.gch*"
 					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 					COMMENT "remove idlib/precompiled.h.gch"
 			)
