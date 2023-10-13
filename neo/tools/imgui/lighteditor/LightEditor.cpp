@@ -579,11 +579,36 @@ static float* vecToArr( idVec3& v )
 
 void LightEditor::Draw()
 {
-	bool showTool = isShown;
-	if( ImGui::Begin( title, &showTool ) ) //, ImGuiWindowFlags_ShowBorders ) )
-	{
-		bool changes = false;
 
+#if 0
+	if( ImGui::BeginMainMenuBar() )
+	{
+		if( ImGui::BeginMenu( "File" ) )
+		{
+			//ShowExampleMenuFile();
+			ImGui::EndMenu();
+		}
+		if( ImGui::BeginMenu( "Edit" ) )
+		{
+			if( ImGui::MenuItem( "Undo", "CTRL+Z" ) ) {}
+			if( ImGui::MenuItem( "Redo", "CTRL+Y", false, false ) ) {} // Disabled item
+			ImGui::Separator();
+			if( ImGui::MenuItem( "Cut", "CTRL+X" ) ) {}
+			if( ImGui::MenuItem( "Copy", "CTRL+C" ) ) {}
+			if( ImGui::MenuItem( "Paste", "CTRL+V" ) ) {}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+#endif
+
+	bool changes = false;
+
+	bool showTool = isShown;
+
+	bool isOpen;
+	if( ImGui::Begin( title, &isOpen ) )
+	{
 		// RB: handle arrow key inputs like in TrenchBroom
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -774,101 +799,10 @@ void LightEditor::Draw()
 			CancelChanges();
 			showTool = false;
 		}
-		else if( changes )
-		{
-			TempApplyChanges();
-		}
-
-		//
-		// GIZMO
-		//
-		//ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect( 0, 0, io.DisplaySize.x, io.DisplaySize.y );
-		ImGuizmo::SetOrthographic( false );
-		ImGuizmo::SetDrawlist();
-
-		ImGuizmo::SetID( 0 );
-
 
 		viewDef_t viewDef;
 		if( gameEdit->PlayerGetRenderView( viewDef.renderView ) )
 		{
-			R_SetupViewMatrix( &viewDef );
-			R_SetupProjectionMatrix( &viewDef, false );
-
-#if 1
-			float* cameraView = viewDef.worldSpace.modelViewMatrix;
-			float* cameraProjection = viewDef.unjitteredProjectionMatrix;
-#else
-			float* cameraView = viewDef.worldSpace.modelViewMatrix;
-
-			//float cameraView[16];
-			//R_AxisToModelMatrix( viewDef.renderView.viewaxis, viewDef.renderView.vieworg, viewDef.worldSpace.modelViewMatrix );
-			//R_MatrixTranspose( viewDef.worldSpace.modelViewMatrix, cameraView );
-
-			float aspectRatio = io.DisplaySize.y / io.DisplaySize.x;
-
-			float cameraProjection[16];
-			Perspective( viewDef.renderView.fov_y, aspectRatio, 1.0f, 16000.0f, cameraProjection );
-
-			//float* cameraProjection = viewDef.unjitteredProjectionMatrix;
-#endif
-
-			idAngles angles( 0, 0, 90 );
-			idMat3 rotate = angles.ToMat3();
-			idMat3 scaleMatrix = mat3_identity;
-			scaleMatrix[0][0] = 16;
-			scaleMatrix[1][1] = 16;
-			scaleMatrix[2][2] = 16;
-
-			idMat4 gridMatrix( scaleMatrix * rotate, vec3_origin );
-			ImGuizmo::DrawGrid( cameraView, cameraProjection, gridMatrix.ToFloatPtr(), 100.f );
-
-			//idMat3 scaleMatrix = mat3_identity;
-			idMat4 objectMatrix( scaleMatrix,  cur.origin );
-			//idMat4 objectMatrix( scaleMatrix, cur.origin );
-			ImGuizmo::DrawCubes( cameraView, cameraProjection, objectMatrix.Transpose().ToFloatPtr(), 1 );
-
-			ImGuizmo::OPERATION mCurrentGizmoOperation( ImGuizmo::TRANSLATE );
-
-			if( io.KeysDown[K_G] )
-			{
-				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-			}
-
-			if( io.KeysDown[K_R] )
-			{
-				mCurrentGizmoOperation = ImGuizmo::ROTATE;
-			}
-
-			//if( ImGui::IsKeyPressed( ImGuiKey_S ) )
-			if( io.KeysDown[K_S] )
-			{
-				mCurrentGizmoOperation = ImGuizmo::SCALE;
-			}
-
-			ImGuizmo::MODE mCurrentGizmoMode( ImGuizmo::LOCAL );
-			bool useSnap = false;
-			float snap[3] = { 1.f, 1.f, 1.f };
-			float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-			float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-			bool boundSizing = false;
-			bool boundSizingSnap = false;
-
-			scaleMatrix[0][0] = 16;
-			scaleMatrix[1][1] = 16;
-			scaleMatrix[2][2] = 16;
-			idMat4 gizmoMatrix( scaleMatrix,  cur.origin );
-			idMat4 manipMatrix = gizmoMatrix.Transpose();
-			ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, manipMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
-
-			if( ImGuizmo::IsUsing() )
-			{
-				cur.origin.x = manipMatrix[3].x;
-				cur.origin.y = manipMatrix[3].y;
-				cur.origin.z = manipMatrix[3].z;
-			}
-
 			ImGui::Separator();
 
 			ImGui::Text( "X: %f Y: %f", io.MousePos.x, io.MousePos.y );
@@ -887,8 +821,108 @@ void LightEditor::Draw()
 				ImGui::Text( ImGuizmo::IsOver( ImGuizmo::SCALE ) ? "Over scale gizmo" : "" );
 			}
 		}
+
+		static bool use_work_area = true;
+		static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
+										| ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoInputs;// | ImGuiWindowFlags_MenuBar;
+
+		// We demonstrate using the full viewport area or the work area (without menu-bars, task-bars etc.)
+		// Based on your use case you may want one or the other.
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos( use_work_area ? viewport->WorkPos : viewport->Pos );
+		ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
+
+		if( ImGui::Begin( "Example: Fullscreen window", &showTool, flags ) )
+		{
+			//
+			// GIZMO
+			//
+
+			//ImGui::Separator();
+
+			//ImGuiIO& io = ImGui::GetIO();
+			ImGuizmo::SetRect( 0, 0, io.DisplaySize.x, io.DisplaySize.y );
+			ImGuizmo::SetOrthographic( false );
+			ImGuizmo::SetDrawlist();
+
+			ImGuizmo::SetID( 0 );
+
+
+			//viewDef_t viewDef;
+			//if( gameEdit->PlayerGetRenderView( viewDef.renderView ) )
+			{
+				R_SetupViewMatrix( &viewDef );
+				R_SetupProjectionMatrix( &viewDef, false );
+
+				float* cameraView = viewDef.worldSpace.modelViewMatrix;
+				float* cameraProjection = viewDef.unjitteredProjectionMatrix;
+
+				idAngles angles( 0, 0, 90 );
+				idMat3 rotate = angles.ToMat3();
+				idMat3 scaleMatrix = mat3_identity;
+				scaleMatrix[0][0] = 16;
+				scaleMatrix[1][1] = 16;
+				scaleMatrix[2][2] = 16;
+
+				idMat4 gridMatrix( scaleMatrix * rotate, vec3_origin );
+				//ImGuizmo::DrawGrid( cameraView, cameraProjection, gridMatrix.ToFloatPtr(), 100.f );
+
+				//idMat3 scaleMatrix = mat3_identity;
+				idMat4 objectMatrix( scaleMatrix,  cur.origin );
+				//idMat4 objectMatrix( scaleMatrix, cur.origin );
+				ImGuizmo::DrawCubes( cameraView, cameraProjection, objectMatrix.Transpose().ToFloatPtr(), 1 );
+
+				ImGuizmo::OPERATION mCurrentGizmoOperation( ImGuizmo::TRANSLATE );
+
+				if( io.KeysDown[K_G] )
+				{
+					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+				}
+
+				if( io.KeysDown[K_R] )
+				{
+					mCurrentGizmoOperation = ImGuizmo::ROTATE;
+				}
+
+				//if( ImGui::IsKeyPressed( ImGuiKey_S ) )
+				if( io.KeysDown[K_S] )
+				{
+					mCurrentGizmoOperation = ImGuizmo::SCALE;
+				}
+
+				ImGuizmo::MODE mCurrentGizmoMode( ImGuizmo::LOCAL );
+				bool useSnap = false;
+				float snap[3] = { 1.f, 1.f, 1.f };
+				float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+				float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+				bool boundSizing = false;
+				bool boundSizingSnap = false;
+
+				scaleMatrix[0][0] = 16;
+				scaleMatrix[1][1] = 16;
+				scaleMatrix[2][2] = 16;
+				idMat4 gizmoMatrix( scaleMatrix,  cur.origin );
+				idMat4 manipMatrix = gizmoMatrix.Transpose();
+				ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, manipMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
+
+				if( ImGuizmo::IsUsing() )
+				{
+					cur.origin.x = manipMatrix[3].x;
+					cur.origin.y = manipMatrix[3].y;
+					cur.origin.z = manipMatrix[3].z;
+
+					changes = true;
+				}
+			}
+		}
+		ImGui::End();
 	}
 	ImGui::End();
+
+	if( changes )
+	{
+		TempApplyChanges();
+	}
 
 	if( isShown && !showTool )
 	{
