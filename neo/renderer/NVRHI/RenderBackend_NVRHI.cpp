@@ -495,13 +495,11 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, bool sha
 								  1.0f };
 		state.viewport.addViewport( viewport );
 
-#if 0
 		if( !context.scissor.IsEmpty() )
 		{
 			state.viewport.addScissorRect( nvrhi::Rect( context.scissor.x1, context.scissor.x2, context.scissor.y1, context.scissor.y2 ) );
 		}
 		else
-#endif
 		{
 			state.viewport.addScissorRect( nvrhi::Rect( viewport ) );
 		}
@@ -1681,7 +1679,6 @@ idRenderBackend::GL_Scissor
 */
 void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
-	// TODO Check if this is right.
 	context.scissor.Clear();
 	context.scissor.AddPoint( x, y );
 	context.scissor.AddPoint( x + w, y + h );

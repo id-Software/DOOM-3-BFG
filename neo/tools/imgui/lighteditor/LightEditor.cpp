@@ -817,21 +817,17 @@ void LightEditor::Draw()
 			idAngles angles( 0, 0, 90 );
 			idMat3 rotate = angles.ToMat3();
 			idMat3 scaleMatrix = mat3_identity;
-			scaleMatrix[0][0] = 4;
-			scaleMatrix[1][1] = 4;
-			scaleMatrix[2][2] = 4;
+			scaleMatrix[0][0] = 16;
+			scaleMatrix[1][1] = 16;
+			scaleMatrix[2][2] = 16;
 
-			//idMat4 gridMatrix( scaleMatrix * rotate, vec3_origin );
-			//ImGuizmo::DrawGrid( cameraView, cameraProjection, gridMatrix.ToFloatPtr(), 100.f );
+			idMat4 gridMatrix( scaleMatrix * rotate, vec3_origin );
+			ImGuizmo::DrawGrid( cameraView, cameraProjection, gridMatrix.ToFloatPtr(), 100.f );
 
 			//idMat3 scaleMatrix = mat3_identity;
-			scaleMatrix[0][0] = 1;
-			scaleMatrix[1][1] = 1;
-			scaleMatrix[2][2] = 1;
-
 			idMat4 objectMatrix( scaleMatrix,  cur.origin );
 			//idMat4 objectMatrix( scaleMatrix, cur.origin );
-			//ImGuizmo::DrawCubes( cameraView, cameraProjection, objectMatrix.Transpose().ToFloatPtr(), 1 );
+			ImGuizmo::DrawCubes( cameraView, cameraProjection, objectMatrix.Transpose().ToFloatPtr(), 1 );
 
 			ImGuizmo::OPERATION mCurrentGizmoOperation( ImGuizmo::TRANSLATE );
 
@@ -846,9 +842,10 @@ void LightEditor::Draw()
 			}
 
 			//if( ImGui::IsKeyPressed( ImGuiKey_S ) )
-			//{
-			//	mCurrentGizmoOperation = ImGuizmo::SCALE;
-			//}
+			if( io.KeysDown[K_S] )
+			{
+				mCurrentGizmoOperation = ImGuizmo::SCALE;
+			}
 
 			ImGuizmo::MODE mCurrentGizmoMode( ImGuizmo::LOCAL );
 			bool useSnap = false;
@@ -858,7 +855,11 @@ void LightEditor::Draw()
 			bool boundSizing = false;
 			bool boundSizingSnap = false;
 
-			idMat4 manipMatrix = objectMatrix.Transpose();
+			scaleMatrix[0][0] = 16;
+			scaleMatrix[1][1] = 16;
+			scaleMatrix[2][2] = 16;
+			idMat4 gizmoMatrix( scaleMatrix,  cur.origin );
+			idMat4 manipMatrix = gizmoMatrix.Transpose();
 			ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, manipMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
 
 			if( ImGuizmo::IsUsing() )
@@ -867,10 +868,6 @@ void LightEditor::Draw()
 				cur.origin.y = manipMatrix[3].y;
 				cur.origin.z = manipMatrix[3].z;
 			}
-
-			//float camDistance = 8.f;
-			//float viewManipulateRight = io.DisplaySize.x;
-			//float viewManipulateTop = 0;
 
 			ImGui::Separator();
 

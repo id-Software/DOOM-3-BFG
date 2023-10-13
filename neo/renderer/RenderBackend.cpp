@@ -545,8 +545,11 @@ void idRenderBackend::ResetViewportAndScissorToDefaultCamera( const viewDef_t* _
 				 _viewDef->viewport.y2 + 1 - _viewDef->viewport.y1 );
 
 	// the scissor may be smaller than the viewport for subviews
+
+	// RB: (0, 0) starts in the upper left corner compared to OpenGL!
+	// convert light scissor to from GL coordinates to DX
 	GL_Scissor( viewDef->viewport.x1 + _viewDef->scissor.x1,
-				viewDef->viewport.y1 + _viewDef->scissor.y1,
+				viewDef->viewport.y2 - _viewDef->scissor.y2,
 				_viewDef->scissor.x2 + 1 - _viewDef->scissor.x1,
 				_viewDef->scissor.y2 + 1 - _viewDef->scissor.y1 );
 
@@ -1525,8 +1528,10 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	// change the scissor if needed, it will be constant across all the surfaces lit by the light
 	if( !currentScissor.Equals( vLight->scissorRect ) && r_useScissor.GetBool() )
 	{
+		// RB: (0, 0) starts in the upper left corner compared to OpenGL!
+		// convert light scissor to from GL coordinates to DX
 		GL_Scissor( viewDef->viewport.x1 + vLight->scissorRect.x1,
-					viewDef->viewport.y1 + vLight->scissorRect.y1,
+					viewDef->viewport.y2 - vLight->scissorRect.y2,
 					vLight->scissorRect.x2 + 1 - vLight->scissorRect.x1,
 					vLight->scissorRect.y2 + 1 - vLight->scissorRect.y1 );
 
@@ -3971,6 +3976,8 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		// change the scissor if needed
 		if( !currentScissor.Equals( surf->scissorRect ) && r_useScissor.GetBool() )
 		{
+			// RB: (0, 0) starts in the upper left corner compared to GL!
+			// this is only used by the Imgui scissors which start at the top left corner
 			GL_Scissor( viewDef->viewport.x1 + surf->scissorRect.x1,
 						viewDef->viewport.y1 + surf->scissorRect.y1,
 						surf->scissorRect.x2 + 1 - surf->scissorRect.x1,
@@ -4328,9 +4335,10 @@ void idRenderBackend::T_BlendLight( const drawSurf_t* drawSurfs, const viewLight
 
 		if( !currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 		{
-			// change the scissor
+			// RB: (0, 0) starts in the upper left corner compared to OpenGL!
+			// convert light scissor to from GL coordinates to DX
 			GL_Scissor( viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-						viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+						viewDef->viewport.y2 - drawSurf->scissorRect.y2,
 						drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 						drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
 
@@ -4457,9 +4465,10 @@ void idRenderBackend::T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fog
 
 		if( !currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 		{
-			// change the scissor
+			// RB: (0, 0) starts in the upper left corner compared to OpenGL!
+			// convert light scissor to from GL coordinates to DX
 			GL_Scissor( viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-						viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+						viewDef->viewport.y2 - drawSurf->scissorRect.y2,
 						drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 						drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
 
