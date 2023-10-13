@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Passes/CommonPasses.h"
 #include "Passes/MipMapGenPass.h"
-#include "Passes/FowardShadingPass.h"
 #include "Passes/SsaoPass.h"
 #include "Passes/TonemapPass.h"
 #include "Passes/TemporalAntiAliasingPass.h"

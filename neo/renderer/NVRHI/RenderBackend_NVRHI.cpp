@@ -57,9 +57,8 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 idCVar r_uploadBufferSizeMB( "r_uploadBufferSizeMB", "64", CVAR_INTEGER | CVAR_INIT, "Size of gpu upload buffer (Vulkan only)" );
 
-// SRS - What is GLimp_SwapBuffers() used for?  Disable for now
-//void GLimp_SwapBuffers();
-void RB_SetMVP( const idRenderMatrix& mvp );
+
+constexpr std::size_t MAX_IMAGE_PARMS = 16;
 
 class NvrhiContext
 {
