@@ -34,7 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "LightEditor.h"
 
 #include "../imgui/BFGimgui.h"
-#include "../imgui/ImGuizmo.h"
 
 #include "renderer/Material.h"
 #include "renderer/Image.h"
@@ -62,6 +61,9 @@ void LightInfo::Defaults()
 	skipSpecular = false;
 	hasCenter = false;
 	lightStyle = -1;
+
+	angles.Zero();
+	scale.Set( 1, 1, 1 );
 }
 
 
@@ -174,6 +176,42 @@ void LightInfo::FromDict( const idDict* e )
 
 	// RB: Quake 1 light styles
 	lightStyle = e->GetInt( "style", -1 );
+
+	// get the rotation matrix in either full form, or single angle form
+	idMat3 axis;
+
+	if( !e->GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", axis ) )
+	{
+		// RB: TrenchBroom interop
+		// support "angles" like in Quake 3
+
+		if( e->GetAngles( "angles", "0 0 0", angles ) )
+		{
+			if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
+			{
+				axis = angles.ToMat3();
+			}
+			else
+			{
+				axis.Identity();
+			}
+		}
+		else
+		{
+			float angle = e->GetFloat( "angle" );
+			if( angle != 0.0f )
+			{
+				axis = idAngles( 0.0f, angle, 0.0f ).ToMat3();
+			}
+			else
+			{
+				axis.Identity();
+			}
+		}
+	}
+
+	angles = axis.ToAngles();
+	scale.Set( 1, 1, 1 );
 }
 
 // the returned idDict is supposed to be used by idGameEdit::EntityChangeSpawnArgs()
@@ -268,6 +306,12 @@ void LightInfo::ToDict( idDict* e )
 	{
 		e->Set( "style", DELETE_VAL );
 	}
+
+	e->Set( "rotation", DELETE_VAL );
+	//if( angles.yaw != 0.0f || angles.pitch != 0.0f || angles.roll != 0.0f )
+	{
+		e->SetAngles( "angles", angles );
+	}
 }
 
 LightInfo::LightInfo()
@@ -313,20 +357,19 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 
 		gameEdit->EntityGetOrigin( light, entityPos );
 
-		/*
 		const char* name = dict->GetString( "name", NULL );
 		if( name )
 		{
 			entityName = name;
-			title.Format( "Light Editor: %s at (%s)", name, entityPos.ToString() );
+			//title.Format( "Light Editor: %s at (%s)", name, entityPos.ToString() );
 		}
 		else
 		{
 			//idassert( 0 && "LightEditor::Init(): Given entity has no 'name' property?!" );
-			entityName = ""; // TODO: generate name or handle gracefully or something?
-			title.Format( "Light Editor: <unnamed> light at (%s)", entityPos.ToString() );
+			entityName = gameEdit->GetUniqueEntityName( "light" );
+
+			//title.Format( "Light Editor: <unnamed> light at (%s)", entityPos.ToString() );
 		}
-		*/
 
 		title = "Light Editor";
 
@@ -371,6 +414,16 @@ void LightEditor::Reset()
 	currentTexture = NULL;
 	currentTextureMaterial = NULL;
 	currentStyleIndex = 0;
+
+	mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+	mCurrentGizmoMode = ImGuizmo::WORLD;
+
+	useSnap = false;
+	//snap = { 1.f, 1.f, 1.f };
+	//bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+	//boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+	boundSizing = false;
+	boundSizingSnap = false;
 }
 
 namespace
@@ -397,7 +450,7 @@ void LightEditor::LoadLightTextures()
 		const idMaterial* mat = declManager->MaterialByIndex( i, false );
 
 		idStr matName = mat->GetName();
-		matName.ToLower(); // FIXME: why? (this is from old doom3 code)
+		matName.ToLower();
 
 		if( matName.Icmpn( "lights/", strlen( "lights/" ) ) == 0 || matName.Icmpn( "fogs/", strlen( "fogs/" ) ) == 0 )
 		{
@@ -603,10 +656,11 @@ void LightEditor::Draw()
 #endif
 
 	bool changes = false;
-
 	bool showTool = isShown;
-
 	bool isOpen;
+
+
+
 	if( ImGui::Begin( title, &isOpen ) )
 	{
 		// RB: handle arrow key inputs like in TrenchBroom
@@ -622,7 +676,13 @@ void LightEditor::Draw()
 		// TODO use view direction like just global values
 		if( io.KeysDown[K_LALT] )
 		{
-			if( io.KeysDown[K_UPARROW] )
+			if( io.KeysDown[K_R] )
+			{
+				// reset rotation like in Blender
+				cur.angles.Zero();
+				changes = true;
+			}
+			else if( io.KeysDown[K_UPARROW] )
 			{
 				cur.origin.z += 1;
 				changes = true;
@@ -652,6 +712,11 @@ void LightEditor::Draw()
 		{
 			cur.origin.y -= 1;
 			changes = true;
+		}
+
+		if( !entityName.IsEmpty() )
+		{
+			ImGui::SeparatorText( entityName.c_str() );
 		}
 
 		ImGui::SeparatorText( "Light Volume" );
@@ -745,6 +810,97 @@ void LightEditor::Draw()
 
 		ImGui::Unindent();
 
+		ImGui::SeparatorText( "Transform" );
+
+		if( io.KeysDown[K_G] )
+		{
+			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+		}
+
+		if( io.KeysDown[K_R] )
+		{
+			mCurrentGizmoOperation = ImGuizmo::ROTATE;
+		}
+
+		//if( ImGui::IsKeyPressed( ImGuiKey_S ) )
+		if( io.KeysDown[K_S] )
+		{
+			mCurrentGizmoOperation = ImGuizmo::SCALE;
+		}
+
+		if( mCurrentGizmoOperation != ImGuizmo::SCALE )
+		{
+			if( ImGui::RadioButton( "Local", mCurrentGizmoMode == ImGuizmo::LOCAL ) )
+			{
+				mCurrentGizmoMode = ImGuizmo::LOCAL;
+			}
+			ImGui::SameLine();
+			if( ImGui::RadioButton( "World", mCurrentGizmoMode == ImGuizmo::WORLD ) )
+			{
+				mCurrentGizmoMode = ImGuizmo::WORLD;
+			}
+		}
+		else
+		{
+			mCurrentGizmoMode = ImGuizmo::LOCAL;
+		}
+
+		if( ImGui::RadioButton( "Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE ) )
+		{
+			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+		}
+		ImGui::SameLine();
+		if( ImGui::RadioButton( "Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE ) )
+		{
+			mCurrentGizmoOperation = ImGuizmo::ROTATE;
+		}
+		ImGui::SameLine();
+		if( ImGui::RadioButton( "Scale", mCurrentGizmoOperation == ImGuizmo::SCALE ) )
+		{
+			mCurrentGizmoOperation = ImGuizmo::SCALE;
+		}
+		//if( ImGui::RadioButton( "Universal", mCurrentGizmoOperation == ImGuizmo::UNIVERSAL ) )
+		//{
+		//	mCurrentGizmoOperation = ImGuizmo::UNIVERSAL;
+		//}
+
+		changes |= ImGui::DragVec3( "Origin", cur.origin, 1.0f, 0.0f, 0.0f, "%.1f" );
+		changes |= ImGui::InputFloat3( "Angles", cur.angles.ToFloatPtr() );
+		//changes |= ImGui::DragVec3( "Angles", cur.origin, 1.0f, 0.0f, 0.0f, "%.1f" );
+
+		ImGui::SeparatorText( "Snapping" );
+
+		ImGui::Checkbox( "Use Snapping", &useSnap );
+		//ImGui::SameLine();
+
+		if( useSnap )
+		{
+			switch( mCurrentGizmoOperation )
+			{
+				case ImGuizmo::TRANSLATE:
+					ImGui::InputFloat3( "Grid Snap", &gridSnap[0] );
+					break;
+				case ImGuizmo::ROTATE:
+					ImGui::InputFloat( "Angle Snap", &angleSnap );
+					break;
+				case ImGuizmo::SCALE:
+					ImGui::InputFloat( "Scale Snap", &scaleSnap );
+					break;
+			}
+		}
+
+#if 0
+		ImGui::Checkbox( "Bound Sizing", &boundSizing );
+		if( boundSizing )
+		{
+			ImGui::PushID( 3 );
+			ImGui::Checkbox( "##BoundSizing", &boundSizingSnap );
+			ImGui::SameLine();
+			ImGui::InputFloat3( "Snap", boundsSnap );
+			ImGui::PopID();
+		}
+#endif
+
 		ImGui::SeparatorText( "Color & Texturing" );
 
 		changes |= ImGui::ColorEdit3( "Color", vecToArr( cur.color ) );
@@ -834,11 +990,15 @@ void LightEditor::Draw()
 
 		if( ImGui::Begin( "Example: Fullscreen window", &showTool, flags ) )
 		{
+			// backup state before moving the light
+			if( !ImGuizmo::IsUsing() )
+			{
+				curNotMoving = cur;
+			}
+
 			//
 			// GIZMO
 			//
-
-			//ImGui::Separator();
 
 			//ImGuiIO& io = ImGui::GetIO();
 			ImGuizmo::SetRect( 0, 0, io.DisplaySize.x, io.DisplaySize.y );
@@ -857,61 +1017,92 @@ void LightEditor::Draw()
 				float* cameraView = viewDef.worldSpace.modelViewMatrix;
 				float* cameraProjection = viewDef.unjitteredProjectionMatrix;
 
-				idAngles angles( 0, 0, 90 );
-				idMat3 rotate = angles.ToMat3();
+				idMat3 rotateMatrix = cur.angles.ToMat3();
 				idMat3 scaleMatrix = mat3_identity;
 				scaleMatrix[0][0] = 16;
 				scaleMatrix[1][1] = 16;
 				scaleMatrix[2][2] = 16;
 
-				idMat4 gridMatrix( scaleMatrix * rotate, vec3_origin );
-				//ImGuizmo::DrawGrid( cameraView, cameraProjection, gridMatrix.ToFloatPtr(), 100.f );
-
-				//idMat3 scaleMatrix = mat3_identity;
-				idMat4 objectMatrix( scaleMatrix,  cur.origin );
-				//idMat4 objectMatrix( scaleMatrix, cur.origin );
+				idMat4 objectMatrix( scaleMatrix * rotateMatrix,  cur.origin );
 				ImGuizmo::DrawCubes( cameraView, cameraProjection, objectMatrix.Transpose().ToFloatPtr(), 1 );
 
-				ImGuizmo::OPERATION mCurrentGizmoOperation( ImGuizmo::TRANSLATE );
+				scaleMatrix[0][0] = 1;
+				scaleMatrix[1][1] = 1;
+				scaleMatrix[2][2] = 1;
 
-				if( io.KeysDown[K_G] )
-				{
-					mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-				}
-
-				if( io.KeysDown[K_R] )
-				{
-					mCurrentGizmoOperation = ImGuizmo::ROTATE;
-				}
-
-				//if( ImGui::IsKeyPressed( ImGuiKey_S ) )
-				if( io.KeysDown[K_S] )
-				{
-					mCurrentGizmoOperation = ImGuizmo::SCALE;
-				}
-
-				ImGuizmo::MODE mCurrentGizmoMode( ImGuizmo::LOCAL );
-				bool useSnap = false;
-				float snap[3] = { 1.f, 1.f, 1.f };
-				float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-				float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-				bool boundSizing = false;
-				bool boundSizingSnap = false;
-
-				scaleMatrix[0][0] = 16;
-				scaleMatrix[1][1] = 16;
-				scaleMatrix[2][2] = 16;
-				idMat4 gizmoMatrix( scaleMatrix,  cur.origin );
+				idMat4 gizmoMatrix( scaleMatrix * rotateMatrix,  cur.origin );
 				idMat4 manipMatrix = gizmoMatrix.Transpose();
-				ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, manipMatrix.ToFloatPtr(), NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
+
+				const float* snap = NULL;
+				if( useSnap )
+				{
+					switch( mCurrentGizmoOperation )
+					{
+						case ImGuizmo::TRANSLATE:
+							snap = &gridSnap[0];
+							break;
+						case ImGuizmo::ROTATE:
+							snap = &angleSnap;
+							break;
+						case ImGuizmo::SCALE:
+							snap = &scaleSnap;
+							break;
+					}
+				}
+
+				ImGuizmo::Manipulate( cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, manipMatrix.ToFloatPtr(), NULL, useSnap ? snap : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL );
 
 				if( ImGuizmo::IsUsing() )
 				{
-					cur.origin.x = manipMatrix[3].x;
-					cur.origin.y = manipMatrix[3].y;
-					cur.origin.z = manipMatrix[3].z;
+					//if( mCurrentGizmoOperation == ImGuizmo::TRANSLATE )
+					{
+						gizmoMatrix = manipMatrix.Transpose();
+						cur.origin = gizmoMatrix.GetTranslation();
 
-					changes = true;
+						changes = true;
+					}
+
+					if( ( mCurrentGizmoOperation & ImGuizmo::SCALE ) == 0 )
+					{
+						idMat3 axis = gizmoMatrix.ToMat3();
+						cur.angles = axis.ToAngles();
+
+						changes = true;
+					}
+
+					if( mCurrentGizmoOperation == ImGuizmo::SCALE )
+					{
+						// Use DecomposeMatrixToComponents just for the scaling
+						float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+						ImGuizmo::DecomposeMatrixToComponents( &manipMatrix[0][0], matrixTranslation, matrixRotation, matrixScale );
+
+						cur.scale.x = matrixScale[0];
+						cur.scale.y = matrixScale[1];
+						cur.scale.z = matrixScale[2];
+
+						if( matrixScale[0] != 1.0f || matrixScale[1] != 1.0f || matrixScale[2] != 1.0f )
+						{
+							if( cur.lightType == LIGHT_SPOT )
+							{
+								cur.lightRight = curNotMoving.lightRight * matrixScale[0];
+								cur.lightUp = curNotMoving.lightUp * matrixScale[1];
+								cur.lightTarget = curNotMoving.lightTarget * matrixScale[2];
+							}
+							else //if( cur.lightType == LIGHT_POINT )
+							{
+								cur.lightRadius.x = curNotMoving.lightRadius.x * matrixScale[0];
+								cur.lightRadius.y = curNotMoving.lightRadius.y * matrixScale[1];
+								cur.lightRadius.z = curNotMoving.lightRadius.z * matrixScale[2];
+
+								if( matrixScale[0] != matrixScale[1] || matrixScale[1] != matrixScale[2] )
+								{
+									cur.equalRadius = false;
+								}
+							}
+
+							changes = true;
+						}
+					}
 				}
 			}
 		}

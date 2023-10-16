@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <idlib/Dict.h>
 #include "../../edit_public.h"
 
+#include "../imgui/BFGimgui.h"
+#include "../imgui/ImGuizmo.h"
 
 namespace ImGuiTools
 {
@@ -63,13 +65,16 @@ public:
 	idVec3		lightTarget;
 	idVec3		lightCenter;
 	idVec3		color;
+
 	idVec3		origin;
+	idAngles	angles;			// RBDOOM specific, saved to map as "angles"
+	idVec3		scale;			// not saved to .map
 
 	idVec3		lightRadius;
 	bool		castShadows;
 	bool		skipSpecular;
 	bool		hasCenter;
-	int			lightStyle;
+	int			lightStyle;		// RBDOOM specific, saved to map as "style"
 
 	LightInfo();
 
@@ -92,6 +97,7 @@ private:
 
 	LightInfo			original;
 	LightInfo			cur; // current status of the light
+	LightInfo			curNotMoving;
 
 	idEntity*			lightEntity;
 
@@ -103,6 +109,18 @@ private:
 	// RB: light style support
 	idList<idStr>		styleNames;
 	int					currentStyleIndex;
+
+	ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+	ImGuizmo::MODE		mCurrentGizmoMode = ImGuizmo::WORLD;
+
+	bool				useSnap = false;
+	float				gridSnap[3] = { 4.0f, 4.0f, 4.0f };
+	float				angleSnap = 15.0f;
+	float				scaleSnap = 0.1f;
+	float				bounds[6] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+	float				boundsSnap[3] = { 0.1f, 0.1f, 0.1f };
+	bool				boundSizing = false;
+	bool				boundSizingSnap = false;
 
 	void				LoadLightStyles();
 	static bool			StyleItemsGetter( void* data, int idx, const char** out_text );
