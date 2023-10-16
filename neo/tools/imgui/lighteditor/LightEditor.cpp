@@ -332,7 +332,6 @@ LightEditor& LightEditor::Instance()
 // static
 void LightEditor::ReInit( const idDict* dict, idEntity* light )
 {
-	// TODO: if the lighteditor is currently shown, show a warning first about saving current changes to the last light?
 	Instance().Init( dict, light );
 }
 
@@ -590,7 +589,7 @@ void LightEditor::TempApplyChanges()
 	}
 }
 
-void LightEditor::SaveChanges()
+void LightEditor::SaveChanges( bool saveMap )
 {
 	idDict d;
 	cur.ToDict( &d );
@@ -607,7 +606,10 @@ void LightEditor::SaveChanges()
 		gameEdit->MapCopyDictToEntityAtOrigin( entityPos, &d );
 	}
 
-	gameEdit->MapSave();
+	if( saveMap )
+	{
+		gameEdit->MapSave();
+	}
 }
 
 void LightEditor::CancelChanges()
@@ -622,6 +624,32 @@ void LightEditor::CancelChanges()
 	}
 }
 
+void LightEditor::DuplicateLight()
+{
+	if( lightEntity != NULL )
+	{
+		// store current light properties to game idMapFile
+		SaveChanges( false );
+
+		// spawn the new light
+		idDict d;
+		cur.ToDict( &d );
+
+		entityName = gameEdit->GetUniqueEntityName( "light" );
+		d.Set( "name", entityName );
+		d.Set( "classname", "light" );
+
+		idEntity* light = NULL;
+		gameEdit->SpawnEntityDef( d, &light );
+
+		if( light )
+		{
+			gameEdit->MapAddEntity( &d );
+			Init( &d, light );
+		}
+	}
+}
+
 // a kinda ugly hack to get a float* (as used by imgui) from idVec3
 static float* vecToArr( idVec3& v )
 {
@@ -632,41 +660,16 @@ static float* vecToArr( idVec3& v )
 
 void LightEditor::Draw()
 {
-
-#if 0
-	if( ImGui::BeginMainMenuBar() )
-	{
-		if( ImGui::BeginMenu( "File" ) )
-		{
-			//ShowExampleMenuFile();
-			ImGui::EndMenu();
-		}
-		if( ImGui::BeginMenu( "Edit" ) )
-		{
-			if( ImGui::MenuItem( "Undo", "CTRL+Z" ) ) {}
-			if( ImGui::MenuItem( "Redo", "CTRL+Y", false, false ) ) {} // Disabled item
-			ImGui::Separator();
-			if( ImGui::MenuItem( "Cut", "CTRL+X" ) ) {}
-			if( ImGui::MenuItem( "Copy", "CTRL+C" ) ) {}
-			if( ImGui::MenuItem( "Paste", "CTRL+V" ) ) {}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
-#endif
-
 	bool changes = false;
 	bool showTool = isShown;
 	bool isOpen;
-
-
 
 	if( ImGui::Begin( title, &isOpen ) )
 	{
 		// RB: handle arrow key inputs like in TrenchBroom
 		ImGuiIO& io = ImGui::GetIO();
 
-		// FIXME
+		// FIXME, escape does not work
 		if( io.KeysDown[K_ESCAPE] )
 		{
 			CancelChanges();
@@ -674,7 +677,18 @@ void LightEditor::Draw()
 		}
 
 		// TODO use view direction like just global values
-		if( io.KeysDown[K_LALT] )
+		if( io.KeyCtrl )
+		{
+			if( io.KeysDown[K_S] )
+			{
+				SaveChanges( true );
+			}
+			else if( io.KeysDown[K_D] )
+			{
+				DuplicateLight();
+			}
+		}
+		else if( io.KeyAlt )
 		{
 			if( io.KeysDown[K_R] )
 			{
@@ -947,7 +961,7 @@ void LightEditor::Draw()
 
 		if( ImGui::Button( "Save to .map" ) )
 		{
-			SaveChanges();
+			SaveChanges( true );
 			showTool = false;
 		}
 		else if( ImGui::SameLine(), ImGui::Button( "Cancel" ) )
@@ -990,6 +1004,37 @@ void LightEditor::Draw()
 
 		if( ImGui::Begin( "Example: Fullscreen window", &showTool, flags ) )
 		{
+			if( ImGui::BeginMainMenuBar() )
+			{
+				if( ImGui::BeginMenu( "File" ) )
+				{
+					//ShowExampleMenuFile();
+					if( ImGui::MenuItem( "Save Map", "Ctrl+S" ) )
+					{
+						SaveChanges( true );
+					}
+					ImGui::EndMenu();
+				}
+				if( ImGui::BeginMenu( "Edit" ) )
+				{
+					//if( ImGui::MenuItem( "Undo", "CTRL+Z" ) ) {}
+					//if( ImGui::MenuItem( "Redo", "CTRL+Y", false, false ) ) {} // Disabled item
+
+					//ImGui::Separator();
+
+					//if( ImGui::MenuItem( "Cut", "CTRL+X" ) ) {}
+					//if( ImGui::MenuItem( "Copy", "CTRL+C" ) ) {}
+					//if( ImGui::MenuItem( "Paste", "CTRL+V" ) ) {}
+
+					if( ImGui::MenuItem( "Duplicate", "CTRL+D" ) )
+					{
+						DuplicateLight();
+					}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMainMenuBar();
+			}
+
 			// backup state before moving the light
 			if( !ImGuizmo::IsUsing() )
 			{

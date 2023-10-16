@@ -133,8 +133,10 @@ private:
 	void				LoadCurrentTexture();
 
 	void				TempApplyChanges();
-	void				SaveChanges();
+	void				SaveChanges( bool saveMap );
 	void				CancelChanges();
+
+	void				DuplicateLight();
 
 	LightEditor()
 	{
