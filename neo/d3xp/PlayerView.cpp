@@ -1075,8 +1075,8 @@ void FullscreenFX_Helltime::AccumPass( const renderView_t* view )
 
 	renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f );
 
-	float t0 = 1.0f;
-	float t1 = 0.0f;
+	float t0 = 0.0f;
+	float t1 = 1.0f;
 
 	// capture pass
 	if( clearAccumBuffer )
@@ -1097,8 +1097,8 @@ FullscreenFX_Helltime::HighQuality
 */
 void FullscreenFX_Helltime::HighQuality()
 {
-	float t0 = 1.0f;
-	float t1 = 0.0f;
+	float t0 = 0.0f;
+	float t1 = 1.0f;
 
 	renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f );
 	renderSystem->DrawStretchPic( 0.0f, 0.0f, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), 0.0f, t0, 1.0f, t1, drawMaterial );
@@ -1200,8 +1200,8 @@ void FullscreenFX_Multiplayer::AccumPass( const renderView_t* view )
 {
 	renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f );
 
-	float t0 = 1.0f;
-	float t1 = 0.0f;
+	float t0 = 0.0f;
+	float t1 = 1.0f;
 
 	// capture pass
 	if( clearAccumBuffer )
@@ -1222,8 +1222,8 @@ FullscreenFX_Multiplayer::HighQuality
 */
 void FullscreenFX_Multiplayer::HighQuality()
 {
-	float t0 = 1.0f;
-	float t1 = 0.0f;
+	float t0 = 0.0f;
+	float t1 = 1.0f;
 
 	renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f );
 	renderSystem->DrawStretchPic( 0.0f, 0.0f, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), 0.0f, t0, 1.0f, t1, drawMaterial );
@@ -1439,9 +1439,9 @@ void FullscreenFX_EnviroSuit::HighQuality()
 {
 	renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f );
 	float s0 = 0.0f;
-	float t0 = 1.0f;
+	float t0 = 0.0f;
 	float s1 = 1.0f;
-	float t1 = 0.0f;
+	float t1 = 1.0f;
 	renderSystem->DrawStretchPic( 0.0f, 0.0f, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), s0, t0, s1, t1, material );
 }
 
@@ -1527,9 +1527,9 @@ void FullscreenFX_DoubleVision::HighQuality()
 
 	// uv coordinates
 	float s0 = shift;
-	float t0 = 1.0f;
+	float t0 = 0.0f;
 	float s1 = 1.0f;
-	float t1 = 0.0f;
+	float t1 = 1.0f;
 
 
 	renderSystem->SetColor4( color.x, color.y, color.z, 1.0f );
@@ -1537,9 +1537,9 @@ void FullscreenFX_DoubleVision::HighQuality()
 
 	renderSystem->SetColor4( color.x, color.y, color.z, 0.5f );
 	s0 = 0.0f;
-	t0 = 1.0f;
+	t0 = 0.0f;
 	s1 = ( 1.0 - shift );
-	t1 = 0.0f;
+	t1 = 1.0f;
 
 	renderSystem->DrawStretchPic( 0.0f, 0.0f, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), s0, t0, s1, t1, material );
 }
@@ -1884,9 +1884,9 @@ void FullscreenFXManager::Blendback( float alpha )
 	{
 		renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, 1.0f - alpha );
 		float s0 = 0.0f;
-		float t0 = 1.0f;
+		float t0 = 0.0f;
 		float s1 = 1.0f;
-		float t1 = 0.0f;
+		float t1 = 1.0f;
 		renderSystem->DrawStretchPic( 0.0f, 0.0f, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), s0, t0, s1, t1, blendBackMaterial );
 	}
 }
@@ -1947,9 +1947,6 @@ void FullscreenFXManager::Process( const renderView_t* view )
 		return;
 	}
 
-// RB: skip for now so the game is playable. These old effects really suck with modern APIs
-#if !defined( USE_NVRHI )
-
 	// do the process
 	for( int i = 0; i < fx.Num(); i++ )
 	{
@@ -1977,9 +1974,10 @@ void FullscreenFXManager::Process( const renderView_t* view )
 			// handle the accum pass if we have one
 			if( pfx->HasAccum() )
 			{
-				// we need to crop the accum pass
-				renderSystem->CropRenderSize( 512, 512 );
 				pfx->AccumPass( view );
+				// we need to crop the accum pass
+				//
+				renderSystem->CropRenderSize( 512, 512 );
 				renderSystem->CaptureRenderToImage( "_accum" );
 				renderSystem->UnCrop();
 			}
@@ -1991,7 +1989,6 @@ void FullscreenFXManager::Process( const renderView_t* view )
 			Blendback( pfx->GetFadeAlpha() );
 		}
 	}
-#endif
 }
 
 

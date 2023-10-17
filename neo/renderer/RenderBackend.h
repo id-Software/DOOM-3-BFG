@@ -344,6 +344,8 @@ public:
 	float				slopeScaleBias;
 	float				depthBias;
 
+	CommonRenderPasses	commonPasses;
+
 private:
 	uint64				glStateBits;
 
@@ -387,7 +389,6 @@ private:
 	Framebuffer*					currentFrameBuffer;
 	Framebuffer*					lastFrameBuffer;
 	nvrhi::CommandListHandle		commandList;
-	CommonRenderPasses				commonPasses;
 	SsaoPass*						ssaoPass;
 	MipMapGenPass*					hiZGenPass;
 	TonemapPass*					toneMapPass;

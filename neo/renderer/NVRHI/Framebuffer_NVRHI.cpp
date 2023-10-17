@@ -210,6 +210,10 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 			.addColorAttachment( globalImages->guiEdit->texture )
 			.setDepthAttachment( globalImages->guiEditDepthStencilImage->texture ) );
 
+	globalFramebuffers.accumFBO = new Framebuffer( "_accum",
+			nvrhi::FramebufferDesc()
+			.addColorAttachment( globalImages->accumImage->texture ) );
+
 	Framebuffer::Unbind();
 }
 
@@ -243,6 +247,7 @@ void Framebuffer::ReloadImages()
 		globalImages->bloomRenderImage[i]->Reload( false, tr.backend.commandList );
 	}
 	globalImages->guiEdit->Reload( false, tr.backend.commandList );
+	globalImages->accumImage->Reload( false, tr.backend.commandList );
 	tr.backend.commandList->close();
 	deviceManager->GetDevice()->executeCommandList( tr.backend.commandList );
 }

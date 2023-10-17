@@ -219,6 +219,11 @@ static void R_RGBA8Image( idImage* image, nvrhi::ICommandList* commandList )
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_LOOKUP_TABLE_RGBA, commandList );
 }
 
+static void R_RGBA8Image_RT( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( nullptr, 512, 512, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true, false, 1 );
+}
+
 static void R_RGBA8LinearImage( idImage* image, nvrhi::ICommandList* commandList )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
@@ -1116,8 +1121,8 @@ void idImageManager::CreateIntrinsicImages()
 	// scratchImage is used for screen wipes/doublevision etc..
 	scratchImage = ImageFromFunction( "_scratch", R_RGBA8Image );
 	scratchImage2 = ImageFromFunction( "_scratch2", R_RGBA8Image );
-	accumImage = ImageFromFunction( "_accum", R_RGBA8Image );
-	currentRenderImage = ImageFromFunction( "_currentRender", R_HDR_RGBA16FImage_ResNative );
+	accumImage = ImageFromFunction( "_accum", R_RGBA8Image_RT );
+	currentRenderImage = globalImages->ImageFromFunction( "_currentRender", R_LdrNativeImage );;
 	currentDepthImage = ImageFromFunction( "_currentDepth", R_DepthImage );
 
 	// save a copy of this for material comparison, because currentRenderImage may get
