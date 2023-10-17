@@ -225,6 +225,7 @@ private:
 #if USE_OPTICK
 			VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
 #endif
+			VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME,
 			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
 	};
@@ -849,9 +850,12 @@ bool DeviceManager_VK::createDevice()
 	APPEND_EXTENSION( sync2Supported, sync2Features )
 #undef APPEND_EXTENSION
 
+	vk::PhysicalDeviceFeatures actualDeviceFeatures;
+	m_VulkanPhysicalDevice.getFeatures( &actualDeviceFeatures );
+
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
 						  .setShaderImageGatherExtended( true )
-						  .setShaderStorageImageReadWithoutFormat( true )
+						  .setShaderStorageImageReadWithoutFormat( actualDeviceFeatures.shaderStorageImageReadWithoutFormat )
 						  .setSamplerAnisotropy( true )
 						  .setTessellationShader( true )
 						  .setTextureCompressionBC( true )
