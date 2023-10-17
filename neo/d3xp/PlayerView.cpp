@@ -1323,27 +1323,27 @@ void FullscreenFX_Warp::DrawWarp( WarpPolygon_t wp, float interp )
 	drawPts[0].Set( trans.outer1.x, trans.outer1.y );
 	drawPts[1].Set( mid2.x, mid2.y );
 	drawPts[2].Set( mid1.x, mid1.y );
-	drawPts[3].Set( trans.outer1.z, trans.outer1.w );
-	drawPts[4].Set( mid2_uv.z, mid2_uv.w );
-	drawPts[5].Set( mid1_uv.z, mid1_uv.w );
+	drawPts[3].Set( trans.outer1.z, 1 - trans.outer1.w );
+	drawPts[4].Set( mid2_uv.z, 1 - mid2_uv.w );
+	drawPts[5].Set( mid1_uv.z, 1 - mid1_uv.w );
 	renderSystem->DrawStretchTri( drawPts[0], drawPts[1], drawPts[2], drawPts[3], drawPts[4], drawPts[5], material );
 
 	// draw [outer1, outer2, mid2]
 	drawPts[0].Set( trans.outer1.x, trans.outer1.y );
 	drawPts[1].Set( trans.outer2.x, trans.outer2.y );
 	drawPts[2].Set( mid2.x, mid2.y );
-	drawPts[3].Set( trans.outer1.z, trans.outer1.w );
-	drawPts[4].Set( trans.outer2.z, trans.outer2.w );
-	drawPts[5].Set( mid2_uv.z, mid2_uv.w );
+	drawPts[3].Set( trans.outer1.z, 1 - trans.outer1.w );
+	drawPts[4].Set( trans.outer2.z, 1 - trans.outer2.w );
+	drawPts[5].Set( mid2_uv.z, 1 - mid2_uv.w );
 	renderSystem->DrawStretchTri( drawPts[0], drawPts[1], drawPts[2], drawPts[3], drawPts[4], drawPts[5], material );
 
 	// draw [mid1, mid2, center]
 	drawPts[0].Set( mid1.x, mid1.y );
 	drawPts[1].Set( mid2.x, mid2.y );
 	drawPts[2].Set( trans.center.x, trans.center.y );
-	drawPts[3].Set( mid1_uv.z, mid1_uv.w );
-	drawPts[4].Set( mid2_uv.z, mid2_uv.w );
-	drawPts[5].Set( trans.center.z, trans.center.w );
+	drawPts[3].Set( mid1_uv.z, 1 - mid1_uv.w );
+	drawPts[4].Set( mid2_uv.z, 1 - mid2_uv.w );
+	drawPts[5].Set( trans.center.z, 1 - trans.center.w );
 	renderSystem->DrawStretchTri( drawPts[0], drawPts[1], drawPts[2], drawPts[3], drawPts[4], drawPts[5], material );
 }
 
