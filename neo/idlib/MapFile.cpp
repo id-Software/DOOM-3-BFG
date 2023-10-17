@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015-2022 Robert Beckebans
+Copyright (C) 2015-2023 Robert Beckebans
 Copyright (C) 2020 Admer (id Tech Fox)
 Copyright (C) 2022 Harrie van Ginneken
 
@@ -943,6 +943,8 @@ bool idMapBrush::WriteValve220( idFile* fp, int primitiveNum, const idVec3& orig
 	return true;
 }
 
+
+
 /*
 ===============
 idMapBrush::GetGeometryCRC
@@ -1151,7 +1153,11 @@ bool idMapEntity::Write( idFile* fp, int entityNum, bool valve220 ) const
 		fp->WriteFloatString( "\"%s\" \"%s\"\n", epairs.GetKeyVal( i )->GetKey().c_str(), epairs.GetKeyVal( i )->GetValue().c_str() );
 	}
 
-	epairs.GetVector( "origin", "0 0 0", origin );
+	// RB: the "origin" key might have been replaced by the origin brush
+	if( !epairs.GetVector( "origin", "0 0 0", origin ) )
+	{
+		origin += originOffset;
+	}
 
 	// write pritimives
 	for( i = 0; i < GetNumPrimitives(); i++ )
@@ -2970,6 +2976,7 @@ bool idMapFile::ConvertToValve220Format()
 			// is this oldschool brushes & patches?
 			if( ent->GetNumPrimitives() > 0 )
 			{
+				bool removedOrigin = false;
 #if 1
 				if( !transform.IsIdentity() &&
 						idStr::Icmp( classname, "func_static" ) != 0 &&
@@ -2979,6 +2986,8 @@ bool idMapFile::ConvertToValve220Format()
 					ent->epairs.Delete( "rotation" );
 					ent->epairs.Delete( "angles" );
 					ent->epairs.Delete( "angle" );
+
+					removedOrigin = true;
 				}
 #endif
 
@@ -3007,6 +3016,16 @@ bool idMapFile::ConvertToValve220Format()
 						idMapPatch* patch = static_cast<idMapPatch*>( mapPrim );
 						idMapFile::AddMaterialToCollection( patch->GetMaterial(), textureCollections );
 					}
+				}
+
+				// add origin brush as a replacement for the removed "origin" key
+				if( removedOrigin && ( origin != vec3_origin ) )
+				{
+					idMapBrush* originBrush = idMapBrush::MakeOriginBrush( origin, vec3_one );
+					ent->AddPrimitive( originBrush );
+
+					//ent->CalculateBrushOrigin();
+					ent->originOffset = origin;
 				}
 
 				// collect some statistics
@@ -3058,17 +3077,6 @@ bool idMapFile::ConvertToValve220Format()
 					idAngles angles = rot.ToAngles();
 					ent->epairs.SetAngles( "angles", angles );
 				}
-
-				// TODO use angles instead of angle
-#if 0
-				if( ent->epairs.FindKey( "angle" ) )
-				{
-					ent->epairs.Delete( "angle" );
-
-					idAngles angles = rot.ToAngles();
-					ent->epairs.SetAngles( "angles", angles );
-				}
-#endif
 
 				const idKeyValue* kv = classTypeOverview.FindKey( classname );
 				if( kv && kv->GetValue().Length() )
@@ -3310,5 +3318,65 @@ void idMapFile::WadTextureToMaterial( const char* material, idStr& matName )
 	matName = material;
 }
 
+
+/*
+============
+RB idMapBrush::MakeOriginBrush
+
+moved it here so Astyle won't mess up this file
+============
+*/
+idMapBrush* idMapBrush::MakeOriginBrush( const idVec3& origin, const idVec3& scale )
+{
+	/*
+	TrenchBroom
+
+	// brush 0
+	{
+	( -1 -64 -16 ) ( -1 -63 -16 ) ( -1 -64 -15 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( -64 -1 -16 ) ( -64 -1 -15 ) ( -63 -1 -16 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( -64 -64 -1 ) ( -63 -64 -1 ) ( -64 -63 -1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 64 64 1 ) ( 64 65 1 ) ( 65 64 1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 64 1 16 ) ( 65 1 16 ) ( 64 1 17 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( 1 64 16 ) ( 1 64 17 ) ( 1 65 16 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	}
+	*/
+
+	const char* tbUnitBrush = R"(
+( -1 -64 -16 ) ( -1 -63 -16 ) ( -1 -64 -15 ) common/origin [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( -64 -1 -16 ) ( -64 -1 -15 ) ( -63 -1 -16 ) common/origin [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( -64 -64 -1 ) ( -63 -64 -1 ) ( -64 -63 -1 ) common/origin [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 64 64 1 ) ( 64 65 1 ) ( 65 64 1 ) common/origin [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 64 1 16 ) ( 65 1 16 ) ( 64 1 17 ) common/origin [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 1 64 16 ) ( 1 64 17 ) ( 1 65 16 ) common/origin [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+}
+}
+)";
+
+	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+
+	src.LoadMemory( tbUnitBrush, strlen( tbUnitBrush), "Origin Brush" );
+	idMapBrush* brush = idMapBrush::ParseValve220( src, origin );
+
+	idMat3 axis;
+	axis.Identity();
+
+	axis[0][0] = scale.x;
+	axis[1][1] = scale.y;
+	axis[2][2] = scale.z;
+
+	idMat4 transform( axis, origin );
+
+	for( int i = 0; i < brush->GetNumSides(); i++ )
+	{
+		auto side = brush->GetSide( i );
+
+		side->planepts[0] *= transform;
+		side->planepts[1] *= transform;
+		side->planepts[2] *= transform;
+	}
+
+	return brush;
+}
 
 // RB end

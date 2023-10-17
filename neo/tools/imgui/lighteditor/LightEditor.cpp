@@ -1030,6 +1030,12 @@ void LightEditor::Draw()
 					{
 						DuplicateLight();
 					}
+
+					if( ImGui::MenuItem( "Delete", "Backspace" ) )
+					{
+						// TODO
+						goto exitLightEditor;
+					}
 					ImGui::EndMenu();
 				}
 				ImGui::EndMainMenuBar();
@@ -1159,6 +1165,8 @@ void LightEditor::Draw()
 	{
 		TempApplyChanges();
 	}
+
+exitLightEditor:
 
 	if( isShown && !showTool )
 	{

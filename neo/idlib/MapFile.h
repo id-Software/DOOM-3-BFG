@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015-2021 Robert Beckebans
+Copyright (C) 2015-2023 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -187,6 +187,11 @@ public:
 	static idMapBrush* 		ParseValve220( idLexer& src, const idVec3& origin ); // RB
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
 	bool					WriteValve220( idFile* fp, int primitiveNum, const idVec3& origin ) const; // RB
+
+	// returns an origin brush with the size of (2, 2, 2) by default
+	// so we can center the brush on a grid size of 1 in TrenchBroom
+	static idMapBrush*		MakeOriginBrush( const idVec3& origin, const idVec3& scale = vec3_one );
+
 	int						GetNumSides() const
 	{
 		return sides.Num();
