@@ -164,10 +164,6 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 			.addColorAttachment( globalImages->envprobeHDRImage->texture )
 			.setDepthAttachment( globalImages->envprobeDepthImage->texture ) );
 
-	globalFramebuffers.hdr64FBO = new Framebuffer( "_hdr64",
-			nvrhi::FramebufferDesc()
-			.addColorAttachment( globalImages->currentRenderHDRImage64->texture ) );
-
 	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
 	{
 		globalFramebuffers.ambientOcclusionFBO[i] = new Framebuffer( va( "_aoRender%i", i ),
@@ -224,7 +220,6 @@ void Framebuffer::ReloadImages()
 	globalImages->currentRenderImage->Reload( false, tr.backend.commandList );
 	globalImages->currentDepthImage->Reload( false, tr.backend.commandList );
 	globalImages->currentRenderHDRImage->Reload( false, tr.backend.commandList );
-	globalImages->currentRenderHDRImage64->Reload( false, tr.backend.commandList );
 	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
 	{
 		globalImages->ambientOcclusionImage[i]->Reload( false, tr.backend.commandList );

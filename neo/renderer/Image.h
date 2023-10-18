@@ -627,7 +627,6 @@ public:
 	idImage*			randomImage256;
 	idImage*			blueNoiseImage256;
 	idImage*			currentRenderHDRImage;
-	idImage*			currentRenderHDRImage64;
 	idImage*			ldrImage;						// tonemapped result which can be used for further post processing
 	idImage*			taaMotionVectorsImage;			// motion vectors for TAA projection
 	idImage*			taaResolvedImage;
@@ -661,7 +660,7 @@ public:
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;
 	idImage* 			accumImage;
-	idImage* 			currentRenderImage;				// for SS_POST_PROCESS shaders, Doom 3 legacy but in HDR now
+	idImage* 			currentRenderImage;				// for 3D scene SS_POST_PROCESS shaders for effects like heatHaze, in HDR now
 	idImage* 			currentDepthImage;				// for motion blur, SSAO and everything that requires depth to world pos reconstruction
 	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
 	idImage* 			loadingIconImage;				// loading icon must exist always

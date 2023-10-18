@@ -144,10 +144,9 @@ struct globalFramebuffers_t
 	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS][6];
 	Framebuffer*				hdrFBO;
 	Framebuffer*				ldrFBO;
-	Framebuffer*				postProcFBO; // HDR16
+	Framebuffer*				postProcFBO; // HDR16 used by 3D effects like heatHaze
 	Framebuffer*				taaMotionVectorsFBO;
 	Framebuffer*				taaResolvedFBO;
-	Framebuffer*				hdr64FBO;		// TODO remove, not needed with new NVRHI tonemapping anymore
 	Framebuffer*				envprobeFBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
 	Framebuffer*				glowFBO[MAX_GLOW_BUFFERS];	// unused
