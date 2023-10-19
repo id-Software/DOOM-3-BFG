@@ -225,7 +225,9 @@ private:
 #if USE_OPTICK
 			VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
 #endif
+#if defined( VK_KHR_format_feature_flags2 )
 			VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME,
+#endif
 			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
 	};
@@ -821,10 +823,17 @@ bool DeviceManager_VK::createDevice()
 	auto meshletFeatures = vk::PhysicalDeviceMeshShaderFeaturesNV()
 						   .setTaskShader( true )
 						   .setMeshShader( true );
+
+	// SRS - get/set shading rate features which are detected individually by nvrhi (not just at extension level)
+	vk::PhysicalDeviceFeatures2 actualDeviceFeatures2;
+	vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragmentShadingRateFeatures;
+	actualDeviceFeatures2.pNext = &fragmentShadingRateFeatures;
+	m_VulkanPhysicalDevice.getFeatures2( &actualDeviceFeatures2 );
+
 	auto vrsFeatures = vk::PhysicalDeviceFragmentShadingRateFeaturesKHR()
-					   .setPipelineFragmentShadingRate( true )
-					   .setPrimitiveFragmentShadingRate( true )
-					   .setAttachmentFragmentShadingRate( true );
+					   .setPipelineFragmentShadingRate( fragmentShadingRateFeatures.pipelineFragmentShadingRate )
+					   .setPrimitiveFragmentShadingRate( fragmentShadingRateFeatures.primitiveFragmentShadingRate )
+					   .setAttachmentFragmentShadingRate( fragmentShadingRateFeatures.attachmentFragmentShadingRate );
 
 	auto sync2Features = vk::PhysicalDeviceSynchronization2FeaturesKHR()
 						 .setSynchronization2( true );
@@ -850,12 +859,9 @@ bool DeviceManager_VK::createDevice()
 	APPEND_EXTENSION( sync2Supported, sync2Features )
 #undef APPEND_EXTENSION
 
-	vk::PhysicalDeviceFeatures actualDeviceFeatures;
-	m_VulkanPhysicalDevice.getFeatures( &actualDeviceFeatures );
-
 	auto deviceFeatures = vk::PhysicalDeviceFeatures()
 						  .setShaderImageGatherExtended( true )
-						  .setShaderStorageImageReadWithoutFormat( actualDeviceFeatures.shaderStorageImageReadWithoutFormat )
+						  .setShaderStorageImageReadWithoutFormat( actualDeviceFeatures2.features.shaderStorageImageReadWithoutFormat )
 						  .setSamplerAnisotropy( true )
 						  .setTessellationShader( true )
 						  .setTextureCompressionBC( true )
