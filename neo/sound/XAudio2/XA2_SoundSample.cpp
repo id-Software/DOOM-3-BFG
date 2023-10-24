@@ -200,6 +200,13 @@ void idSoundSample_XAudio2::LoadResource()
 		return;
 	}
 
+#if 0
+	if( idStr::FindText( GetName(), "marine1_sitting_1_1", 8 ) > -1 )
+	{
+		loaded = false;
+	}
+#endif
+
 	loaded = false;
 
 	for( int i = 0; i < 2; i++ )
@@ -223,8 +230,9 @@ void idSoundSample_XAudio2::LoadResource()
 			}
 			generatedName.Append( ".idwav" );
 		}
-		loaded = LoadGeneratedSample( generatedName ) || LoadWav( sampleName );
 
+		// try .wav and .ogg first
+		loaded = LoadWav( sampleName );
 		if( !loaded && s_useCompression.GetBool() )
 		{
 			sampleName.SetFileExtension( "wav" );
@@ -235,6 +243,11 @@ void idSoundSample_XAudio2::LoadResource()
 		{
 			sampleName.SetFileExtension( "ogg" );
 			loaded = LoadOgg( sampleName );
+		}
+
+		if( !loaded )
+		{
+			loaded = LoadGeneratedSample( generatedName );
 		}
 
 		if( loaded )
