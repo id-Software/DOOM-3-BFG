@@ -10,12 +10,39 @@ entityDef misc_model
 	"editor_usage1"				"Use it to place all kinds of models"
 }
 
+entityDef func_bobbing_model
+{
+	"inherit"					"func_bobbing"
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"editor_usage"				"Inherits from a func_bobbing but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"editor_usage1"				"Use it to place all kinds of models"
+}
+
 entityDef func_door_model
 {
 	"inherit"					"func_door"
 	"editor_mins"				"-8 -8 0"
 	"editor_maxs"				"8 8 16"
 	"editor_usage"				"Inherits from a func_door but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"editor_usage1"				"Use it to place all kinds of models"
+}
+
+entityDef func_elevator_model
+{
+	"inherit"					"func_elevator"
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"editor_usage"				"Inherits from a func_elevator but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"editor_usage1"				"Use it to place all kinds of models"
+}
+
+entityDef func_mover_model
+{
+	"inherit"					"func_mover"
+	"editor_mins"				"-8 -8 0"
+	"editor_maxs"				"8 8 16"
+	"editor_usage"				"Inherits from a func_mover but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
 	"editor_usage1"				"Use it to place all kinds of models"
 }
 

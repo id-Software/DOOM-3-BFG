@@ -2225,20 +2225,30 @@ void idDeclManagerLocal::ExportEntityDefsToTrenchBroom_f( const idCmdArgs& args 
 
 	idStrList solidClassNames;
 	solidClassNames.AddUnique( "worldspawn" );
+
 	solidClassNames.AddUnique( "func_aas_obstacle" );
 	solidClassNames.AddUnique( "func_aas_portal" );
+
 	solidClassNames.AddUnique( "func_clipmodel" );
+	solidClassNames.AddUnique( "func_damagable" );
 	solidClassNames.AddUnique( "func_forcefield" );
 	solidClassNames.AddUnique( "func_fracture" );
 	solidClassNames.AddUnique( "func_liquid" );
-	solidClassNames.AddUnique( "func_plat" );
-	solidClassNames.AddUnique( "func_rotating" );
 	solidClassNames.AddUnique( "func_splinemover" );
-	solidClassNames.AddUnique( "func_static" );
-	solidClassNames.AddUnique( "func_mover" );
-	solidClassNames.AddUnique( "func_door" );
-	solidClassNames.AddUnique( "moveable_base" );
+	solidClassNames.AddUnique( "func_pendulum" );
+	solidClassNames.AddUnique( "func_plat" );
+
+	solidClassNames.AddUnique( "moveable_base_brick" );
+	solidClassNames.AddUnique( "moveable_guardian_brick" );
+
 	solidClassNames.AddUnique( "trigger_" );
+
+	// mixed classes that need extra _model pendants
+	solidClassNames.AddUnique( "func_door" );
+	solidClassNames.AddUnique( "func_mover" );
+	solidClassNames.AddUnique( "func_rotating" );
+
+	solidClassNames.AddUnique( "func_static" ); // misc_model
 
 	for( int f = 0; f < filenames.Num(); f++ )
 	{
@@ -2515,7 +2525,9 @@ void idDeclManagerLocal::ExportEntityDefsToTrenchBroom_f( const idCmdArgs& args 
 
 			if( idStr::Icmp( decl->GetName(), "light" ) == 0 ||
 					idStr::Icmp( decl->GetName(), "misc_model" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_bobbing_model" ) == 0 ||
 					idStr::Icmp( decl->GetName(), "func_door_model" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_mover_model" ) == 0 ||
 					idStr::Icmp( decl->GetName(), "func_mover_amodel" ) == 0 ||
 					idStr::Icmp( decl->GetName(), "func_plat_model" ) == 0 ||
 					idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
@@ -2604,7 +2616,10 @@ void idDeclManagerLocal::ExportEntityDefsToTrenchBroom_f( const idCmdArgs& args 
 
 			if( idStr::Icmp( decl->GetName(), "light" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "misc_model" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_bobbing_model" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "func_door_model" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_elevator_model" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_mover_model" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "func_mover_amodel" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "func_plat_model" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "func_rotating_model" ) != 0 )
@@ -2649,7 +2664,10 @@ void idDeclManagerLocal::ExportEntityDefsToTrenchBroom_f( const idCmdArgs& args 
 				file->Printf( "model({ \"path\": \"%s\" }) ", exportedModelFileName.c_str() );
 			}
 			else if( idStr::Icmp( decl->GetName(), "misc_model" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_bobbing_model" ) == 0 ||
 					 idStr::Icmp( decl->GetName(), "func_door_model" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_elevator_model" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_mover_model" ) == 0 ||
 					 idStr::Icmp( decl->GetName(), "func_mover_amodel" ) == 0 ||
 					 idStr::Icmp( decl->GetName(), "func_plat_model" ) == 0 ||
 					 idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
@@ -2660,7 +2678,9 @@ void idDeclManagerLocal::ExportEntityDefsToTrenchBroom_f( const idCmdArgs& args 
 			else if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
 			{
 				// default light sprite for TB editor sprites branch
-				file->Printf( "model({ \"path\": \"sprites/light-bulb.png\", \"scale\": 0.03125 }) " );
+				//file->Printf( "model({ \"path\": \"sprites/light-bulb.png\", \"scale\": 0.03125 }) " );
+
+				file->Printf( "model({{\n\tproxymodel -> { \"path\": proxymodel },\n\t{ \"path\": \"sprites/light-bulb.png\", \"scale\": 0.03125 }\n}})" );
 			}
 			else if( idStr::Icmp( decl->GetName(), "speaker" ) == 0 )
 			{
@@ -3149,7 +3169,7 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 		// make an OBJ version of the model for TrenchBroom
 		idRenderModel* renderModel = renderModelManager->FindModel( modelName );
 
-#if 1
+#if 0
 		if( idStr::Icmpn( modelName, "models/mapobjects", 17 ) != 0 )
 		{
 			continue;

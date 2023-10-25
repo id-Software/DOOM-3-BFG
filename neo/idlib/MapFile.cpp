@@ -2973,13 +2973,17 @@ bool idMapFile::ConvertToValve220Format()
 				ent->epairs.Set( "proxymodel", model );
 			}
 #endif
+
+			// TODO if light purge flare patches
+
+			bool isBrushModel = ( ent->GetNumPrimitives() > 0 ) && ( idStr::Icmp( model.c_str(), name.c_str() ) == 0 );
+
 			// is this oldschool brushes & patches?
-			if( ent->GetNumPrimitives() > 0 )
+			if( isBrushModel )
 			{
 				bool removedOrigin = false;
-#if 1
 				if( !transform.IsIdentity() &&
-						idStr::Icmp( classname, "func_static" ) != 0 &&
+						//idStr::Icmp( classname, "func_static" ) != 0 &&
 						idStr::Icmp( classname, "light" ) != 0 )
 				{
 					ent->epairs.Delete( "origin" );
@@ -2988,12 +2992,6 @@ bool idMapFile::ConvertToValve220Format()
 					ent->epairs.Delete( "angle" );
 
 					removedOrigin = true;
-				}
-#endif
-
-				if( idStr::Icmp( classname, "func_static" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) == 0 )
-				{
-					ent->epairs.Delete( "model" );
 				}
 
 				// convert brushes
@@ -3052,9 +3050,17 @@ bool idMapFile::ConvertToValve220Format()
 				{
 					ent->epairs.Set( "classname", "misc_model" );
 				}
+				else if( idStr::Icmp( classname, "func_bobbing" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					ent->epairs.Set( "classname", "func_bobbing_model" );
+				}
 				else if( idStr::Icmp( classname, "func_door" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
 				{
 					ent->epairs.Set( "classname", "func_door_model" );
+				}
+				else if( idStr::Icmp( classname, "func_elevator" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					ent->epairs.Set( "classname", "func_elevator_model" );
 				}
 				else if( idStr::Icmp( classname, "func_mover" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
 				{
@@ -3152,6 +3158,57 @@ bool idMapFile::ConvertToValve220Format()
 	return true;
 }
 
+void idMapFile::ClassifyEntitiesForTrenchBroom( idDict& classTypeOverview )
+{
+	int count = GetNumEntities();
+	for( int j = 0; j < count; j++ )
+	{
+		idMapEntity* ent = GetEntity( j );
+		if( ent )
+		{
+			idStr classname = ent->epairs.GetString( "classname" );
+			idStr name = ent->epairs.GetString( "name" );
+
+			const idKeyValue* modelPair = ent->epairs.FindKey( "model" );
+			idStr model = ent->epairs.GetString( "model" );
+
+			bool isBrushModel = ( ent->GetNumPrimitives() > 0 ) && ( idStr::Icmp( model.c_str(), name.c_str() ) == 0 );
+
+			// is this oldschool brushes & patches?
+			if( isBrushModel )
+			{
+				const idKeyValue* kv = classTypeOverview.FindKey( classname );
+				if( kv && kv->GetValue().Length() )
+				{
+					if( idStr::Icmp( kv->GetValue().c_str(), "PointClass" ) == 0 && idStr::Icmp( kv->GetValue().c_str(), "Mixed" ) != 0 )
+					{
+						classTypeOverview.Set( classname, "Mixed" );
+					}
+				}
+				else
+				{
+					classTypeOverview.Set( classname, "BrushClass" );
+				}
+			}
+			else
+			{
+				const idKeyValue* kv = classTypeOverview.FindKey( classname );
+				if( kv && kv->GetValue().Length() )
+				{
+					if( idStr::Icmp( kv->GetValue().c_str(), "BrushClass" ) == 0 && idStr::Icmp( kv->GetValue().c_str(), "Mixed" ) != 0 )
+					{
+						classTypeOverview.Set( classname, "Mixed" );
+					}
+				}
+				else
+				{
+					classTypeOverview.Set( classname, "PointClass" );
+				}
+			}
+		}
+	}
+}
+
 bool idMapFile::ConvertQuakeToDoom()
 {
 	idDict classTypeOverview;
@@ -3234,8 +3291,11 @@ bool idMapFile::ConvertQuakeToDoom()
 
 			if( ent->GetNumPrimitives() > 0 )
 			{
-				const idKeyValue* namePair = ent->epairs.FindKey( "name" );
-				ent->epairs.Set( "model", namePair->GetValue() );
+				if( j > 0 )
+				{
+					const idKeyValue* namePair = ent->epairs.FindKey( "name" );
+					ent->epairs.Set( "model", namePair->GetValue() );
+				}
 
 				// map Wad brushes names to proper Doom 3 compatible material names
 				for( int i = 0; i < ent->GetNumPrimitives(); i++ )

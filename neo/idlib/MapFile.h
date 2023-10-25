@@ -504,6 +504,8 @@ public:
 	bool					ConvertToPolygonMeshFormat();
 	bool					ConvertToValve220Format();
 
+	void					ClassifyEntitiesForTrenchBroom( idDict& classTypeOverview );
+
 	// converts Wad texture names to valid Doom 3 materials and gives every entity a unique name
 	bool					ConvertQuakeToDoom();
 	// RB end

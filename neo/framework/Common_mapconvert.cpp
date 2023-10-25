@@ -739,6 +739,65 @@ CONSOLE_COMMAND( convertMapToValve220, "Convert .map file to the Valve 220 map f
 	common->SetRefreshOnPrint( false );
 }
 
+CONSOLE_COMMAND( checkMapsForBrushEntities, "List all brush entities in all .map files", idCmdSystem::ArgCompletion_MapNameNoJson )
+{
+	//int totalImagesCount = 0;
+
+	idFileList* files = fileSystem->ListFilesTree( "maps/game", ".map", true, true );
+
+	idDict classTypeOverview;
+
+	for( int f = 0; f < files->GetList().Num(); f++ )
+	{
+		idStr mapName = files->GetList()[ f ];
+
+		idMapFile map;
+		if( map.Parse( mapName, true, false ) )
+		{
+			map.ClassifyEntitiesForTrenchBroom( classTypeOverview );
+		}
+	}
+
+	fileSystem->FreeFileList( files );
+
+	int n = classTypeOverview.GetNumKeyVals();
+
+	idLib::Printf( "BrushClasses:\n" );
+	for( int i = 0; i < n; i++ )
+	{
+		const idKeyValue* kv = classTypeOverview.GetKeyVal( i );
+
+		if( kv->GetValue() == "BrushClass" )
+		{
+			idLib::Printf( "'%s'\n", kv->GetKey().c_str() );
+		}
+	}
+
+	/*
+	idLib::Printf( "\nPointClasses:\n" );
+	for( int i = 0; i < n; i++ )
+	{
+		const idKeyValue* kv = classTypeOverview.GetKeyVal( i );
+
+		if( kv->GetValue() == "PointClass" )
+		{
+			idLib::Printf( "'%s'\n", kv->GetKey().c_str() );
+		}
+	}
+	*/
+
+	idLib::Printf( "\nMixedClasses:\n" );
+	for( int i = 0; i < n; i++ )
+	{
+		const idKeyValue* kv = classTypeOverview.GetKeyVal( i );
+
+		if( kv->GetValue() == "Mixed" )
+		{
+			idLib::Printf( "'%s'\n", kv->GetKey().c_str() );
+		}
+	}
+}
+
 
 CONSOLE_COMMAND( convertMapQuakeToDoom, "Convert Quake .map in Valve 220 map format for Doom 3 BFG", idCmdSystem::ArgCompletion_MapNameNoJson )
 {
