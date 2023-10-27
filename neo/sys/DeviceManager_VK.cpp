@@ -209,12 +209,7 @@ private:
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 		},
 		// layers
-		{
-#if defined(__APPLE__) && !defined( USE_MoltenVK )
-			// SRS - Enable synchronization2 layer when using Vulkan loader and MoltenVK version unknown
-			"VK_LAYER_KHRONOS_synchronization2"
-#endif
-		},
+		{ },
 		// device
 		{
 			VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
@@ -436,6 +431,13 @@ bool DeviceManager_VK::createInstance()
 		{
 			enabledExtensions.layers.insert( name );
 		}
+#if defined(__APPLE__)
+		// SRS - Vulkan SDK < 1.3.268.1 does not have native VK_KHR_synchronization2 support on macOS, add Khronos layer to emulate
+		else if( name == "VK_LAYER_KHRONOS_synchronization2" && VK_HEADER_VERSION_COMPLETE < VK_MAKE_API_VERSION( 0, 1, 3, 268 ) )
+		{
+			enabledExtensions.layers.insert( name );
+		}
+#endif
 
 		requiredLayers.erase( name );
 	}
@@ -937,6 +939,12 @@ bool DeviceManager_VK::createDevice()
 	// stash the renderer string
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );
+
+	// SRS - Determine maxPushConstantSize for Vulkan device
+	if( r_useVulkanPushConstants.GetBool() )
+	{
+		m_DeviceParams.maxPushConstantSize = Min( prop.limits.maxPushConstantsSize, nvrhi::c_MaxPushConstantSize );
+	}
 
 #if defined( USE_AMD_ALLOCATOR )
 	// SRS - initialize the vma allocator
