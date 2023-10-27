@@ -2381,7 +2381,7 @@ trigger will toggle the activator on and off.  Activator will disable itself whe
 	width(string) : "Width of the beam."
 ]
 
-@PointClass color(0 127 204) = func_bobbing : "Generic bobbing entity.  It will bob on the Z axis by default.
+@SolidClass color(0 127 204) = func_bobbing : "Generic bobbing entity.  It will bob on the Z axis by default.
 "
 [
 	spawnclass(string) : "" : "idBobber"
@@ -2518,7 +2518,7 @@ Use it to place all kinds of models
 	triggered(string) : "waits to be triggered before quaking"
 ]
 
-@PointClass color(0 127 204) = func_elevator : "Elevators move to predefined floors and activate door teams based on floor number.
+@SolidClass color(0 127 204) = func_elevator : "Elevators move to predefined floors and activate door teams based on floor number.
 Use the default elevator gui to control them
 Repeat floor1_ height and door info with floor2_ etc.. for as many floors as you want.
 "

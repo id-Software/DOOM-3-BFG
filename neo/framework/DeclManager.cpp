@@ -2245,8 +2245,10 @@ void idDeclManagerLocal::ExportEntityDefsToTrenchBroom_f( const idCmdArgs& args 
 
 	// mixed classes that need extra _model pendants
 	solidClassNames.AddUnique( "func_door" );
+	solidClassNames.AddUnique( "func_bobbing" );
 	solidClassNames.AddUnique( "func_mover" );
 	solidClassNames.AddUnique( "func_rotating" );
+	solidClassNames.AddUnique( "func_elevator" );
 
 	solidClassNames.AddUnique( "func_static" ); // misc_model
 

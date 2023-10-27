@@ -15,6 +15,93 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
+TBD - RBDOOM-3-BFG 1.6.0
+_______________________________
+
+
+## .plan - October 27, 2023
+
+This is a preview build of the new WIP ingame Light Editor with some important bugfixes in the convertMapToValve220 command.
+
+The Light editor can be opened using the `editLights` command in the console. Just bind F1 editLights.
+
+It docked into certain screen areas.
+It features a gizmos for translation, rotation and scaling lights and a experimental menu bar.
+Light transforms can also be edited directly. 
+Gizmos can use snapping with defaults: 4 units for grid snapping, 15 degrees for angle snapping and 10% for scale snapping.
+
+It also provides a few keyboard shortcuts:
+
+G: Change to the translation gizmo
+R: Change to rotation gizmo
+Alt + R: Reset the current rotation
+s: Change to scaling gizmo
+
+Ctrl + S - Save all changed lights
+Ctrl + D - Duplicate the existing light (Should not be used yet beause it adds a light every frame. It is better to add lights in TrenchBroom)
+
+Steven Pridham also fixed the game related post-processing fullscreen FX effects.
+Steven Saunders fixed many Linux/macOS specific compiler warnings and extended the renderer to support the Optick profiler using the Vulkan backend.
+That feature is for coders and not part of the binary.
+
+Changelog:
+
+* Added new helper entityDefs like func_elevator_model in base/def/_tb_helpers.def for TrenchBroomBFG
+
+* Prioritize .wav and .ogg files over shipped .idwav files so overriding existing sounds works better
+
+* Fixed some critical bugs in the convertMapToValve220 command. Added origin brushes
+
+* Light editor can use the rotation/scale gizmos
+
+* Light editor can use the translation gizmo
+
+* Fixed Imgui and light scissor clipping issues. Closes #651
+
+* Wrote simple exportMaterialsToBlender command which saves all materials to base/_bl/materials.json
+
+* Started to simplify the light editor
+
+* Use same Instance pattern of AF editor for light editor
+
+* Always draw the console after Imgui
+
+* Added code to load UE5 editor themes into Imgui
+
+* Imgui ingame tools can use the docking feature now
+
+* Updated Imgui to newest docking release v1.89.9
+
+* Fix fullscreen warp FX for grabber and various effects like Berserker (Thanks Steven Pridham)
+
+* Fixed HLSL code to compile with newer versions of DXC
+
+* Fix system vs. bundled library logic, suppress gcc/clang warnings for some third party source libs (jpeg, zlib, minizip)
+
+* Fix MSVC warnings, suppress for some third party source libs (jpeg, png, oggvorbis)
+
+* Update CMakeLists to add clang -Wno-shorten-64-to-32 flag to suppress flood of int conversion warnings
+
+* Update rapidjson lib to remove deprecated std::iterator template and replace with required iterator types
+
+* Update jpeglib's format_message() error routine to use snprintf() for buffer security
+
+* Replace sprintf() / vsprintf() with idStr::snPrintf() / idStr::vsnPrintf() for buffer security
+
+* BFG Resource File Manager under tools/bfgpakexplorer has been updated
+
+
+Changelog TrenchBroomBFG:
+
+* Updated FGDs exported from the engine which can be found in base/_tb/fgd/*
+
+* Bezier patches can be duplicated and copy pasted within a map and copied from another TrenchBroomBFG instance
+
+* the DOOM-3-models.fgd has been restored
+
+
+_______________________________________
+
 23 May 2023 - RBDOOM-3-BFG 1.5.1
 _______________________________
 

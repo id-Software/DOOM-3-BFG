@@ -2381,7 +2381,7 @@ trigger will toggle the activator on and off.  Activator will disable itself whe
 	width(string) : "Width of the beam."
 ]
 
-@PointClass color(0 127 204) = func_bobbing : "Generic bobbing entity.  It will bob on the Z axis by default.
+@SolidClass color(0 127 204) = func_bobbing : "Generic bobbing entity.  It will bob on the Z axis by default.
 "
 [
 	spawnclass(string) : "" : "idBobber"
@@ -2518,7 +2518,7 @@ Use it to place all kinds of models
 	triggered(string) : "waits to be triggered before quaking"
 ]
 
-@PointClass color(0 127 204) = func_elevator : "Elevators move to predefined floors and activate door teams based on floor number.
+@SolidClass color(0 127 204) = func_elevator : "Elevators move to predefined floors and activate door teams based on floor number.
 Use the default elevator gui to control them
 Repeat floor1_ height and door info with floor2_ etc.. for as many floors as you want.
 "
@@ -2916,6 +2916,336 @@ When triggered, toggles between visible and hidden (see hide).  Entity is non-so
 "
 [
 	spawnclass(string) : "" : "idTarget_WaitForButton"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/characters/player_character/helmet/d3xp_cine_helmet_lo.obj" }) = genmodel_characters_player_character_helmet_d3xp_cine_helmet_lo : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/characters/player_character/helmet/d3xp_cine_helmet_lo.obj"
+	model(string) : "" : "models/characters/player_character/helmet/d3xp_cine_helmet_lo.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/characters/sarge2/w_helmet.obj" }) = genmodel_characters_sarge2_w_helmet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/characters/sarge2/w_helmet.obj"
+	model(string) : "" : "models/characters/sarge2/w_helmet.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/blue_flagstand.obj" }) = genmodel_ctf_blue_flagstand : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/blue_flagstand.obj"
+	model(string) : "" : "models/ctf/blue_flagstand.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/ctf_flag.obj" }) = genmodel_ctf_ctf_flag : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/ctf_flag.obj"
+	model(string) : "" : "models/ctf/ctf_flag.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/d3ctf2/rockface.obj" }) = genmodel_ctf_d3ctf2_rockface : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/d3ctf2/rockface.obj"
+	model(string) : "" : "models/ctf/d3ctf2/rockface.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/d3ctf3/hpm.obj" }) = genmodel_ctf_d3ctf3_hpm : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/d3ctf3/hpm.obj"
+	model(string) : "" : "models/ctf/d3ctf3/hpm.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/d3ctf3/hpm_arm1.obj" }) = genmodel_ctf_d3ctf3_hpm_arm1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/d3ctf3/hpm_arm1.obj"
+	model(string) : "" : "models/ctf/d3ctf3/hpm_arm1.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/d3ctf3/hpm_arm2.obj" }) = genmodel_ctf_d3ctf3_hpm_arm2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/d3ctf3/hpm_arm2.obj"
+	model(string) : "" : "models/ctf/d3ctf3/hpm_arm2.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/d3ctf3/hpm_arm3.obj" }) = genmodel_ctf_d3ctf3_hpm_arm3 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/d3ctf3/hpm_arm3.obj"
+	model(string) : "" : "models/ctf/d3ctf3/hpm_arm3.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/d3ctf3/spotlight.obj" }) = genmodel_ctf_d3ctf3_spotlight : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/d3ctf3/spotlight.obj"
+	model(string) : "" : "models/ctf/d3ctf3/spotlight.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/logos/bolt_3d.obj" }) = genmodel_ctf_logos_bolt_3d : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/logos/bolt_3d.obj"
+	model(string) : "" : "models/ctf/logos/bolt_3d.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/logos/hammer_3d.obj" }) = genmodel_ctf_logos_hammer_3d : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/logos/hammer_3d.obj"
+	model(string) : "" : "models/ctf/logos/hammer_3d.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ctf/red_flagstand.obj" }) = genmodel_ctf_red_flagstand : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ctf/red_flagstand.obj"
+	model(string) : "" : "models/ctf/red_flagstand.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/cav_arc.obj" }) = genmodel_david_cav_arc : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/cav_arc.obj"
+	model(string) : "" : "models/david/cav_arc.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/cav_arc_c.obj" }) = genmodel_david_cav_arc_c : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/cav_arc_c.obj"
+	model(string) : "" : "models/david/cav_arc_c.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/cav_arc_s.obj" }) = genmodel_david_cav_arc_s : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/cav_arc_s.obj"
+	model(string) : "" : "models/david/cav_arc_s.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/cav_archbar.obj" }) = genmodel_david_cav_archbar : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/cav_archbar.obj"
+	model(string) : "" : "models/david/cav_archbar.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/cav_archhalf.obj" }) = genmodel_david_cav_archhalf : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/cav_archhalf.obj"
+	model(string) : "" : "models/david/cav_archhalf.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/cav_archshort.obj" }) = genmodel_david_cav_archshort : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/cav_archshort.obj"
+	model(string) : "" : "models/david/cav_archshort.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/d3xp_shrine_arch.obj" }) = genmodel_david_d3xp_shrine_arch : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/d3xp_shrine_arch.obj"
+	model(string) : "" : "models/david/d3xp_shrine_arch.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_arch.obj" }) = genmodel_david_erebus_arch : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_arch.obj"
+	model(string) : "" : "models/david/erebus_arch.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_arch_c.obj" }) = genmodel_david_erebus_arch_c : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_arch_c.obj"
+	model(string) : "" : "models/david/erebus_arch_c.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_arcleft.obj" }) = genmodel_david_erebus_arcleft : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_arcleft.obj"
+	model(string) : "" : "models/david/erebus_arcleft.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_arcright.obj" }) = genmodel_david_erebus_arcright : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_arcright.obj"
+	model(string) : "" : "models/david/erebus_arcright.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_cav4.obj" }) = genmodel_david_erebus_cav4 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_cav4.obj"
+	model(string) : "" : "models/david/erebus_cav4.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_cols.obj" }) = genmodel_david_erebus_cols : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_cols.obj"
+	model(string) : "" : "models/david/erebus_cols.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_cols2.obj" }) = genmodel_david_erebus_cols2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_cols2.obj"
+	model(string) : "" : "models/david/erebus_cols2.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_pipes1a.obj" }) = genmodel_david_erebus_pipes1a : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_pipes1a.obj"
+	model(string) : "" : "models/david/erebus_pipes1a.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_pipes1d.obj" }) = genmodel_david_erebus_pipes1d : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_pipes1d.obj"
+	model(string) : "" : "models/david/erebus_pipes1d.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/david/erebus_stairsleft.obj" }) = genmodel_david_erebus_stairsleft : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/david/erebus_stairsleft.obj"
+	model(string) : "" : "models/david/erebus_stairsleft.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/brain_2x.obj" }) = genmodel_gibs_brain_2x : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/brain_2x.obj"
+	model(string) : "" : "models/gibs/brain_2x.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/brain_2xb.obj" }) = genmodel_gibs_brain_2xb : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/brain_2xb.obj"
+	model(string) : "" : "models/gibs/brain_2xb.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/gib_left_arm.obj" }) = genmodel_gibs_gib_left_arm : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/gib_left_arm.obj"
+	model(string) : "" : "models/gibs/gib_left_arm.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/gib_left_leg.obj" }) = genmodel_gibs_gib_left_leg : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/gib_left_leg.obj"
+	model(string) : "" : "models/gibs/gib_left_leg.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/gib_right_foot.obj" }) = genmodel_gibs_gib_right_foot : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/gib_right_foot.obj"
+	model(string) : "" : "models/gibs/gib_right_foot.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/gib_right_knee.obj" }) = genmodel_gibs_gib_right_knee : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/gib_right_knee.obj"
+	model(string) : "" : "models/gibs/gib_right_knee.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/gib_torso.obj" }) = genmodel_gibs_gib_torso : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/gib_torso.obj"
+	model(string) : "" : "models/gibs/gib_torso.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/head_pork.obj" }) = genmodel_gibs_head_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/head_pork.obj"
+	model(string) : "" : "models/gibs/head_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/heart_2x.obj" }) = genmodel_gibs_heart_2x : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/heart_2x.obj"
+	model(string) : "" : "models/gibs/heart_2x.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/left_waist_pork.obj" }) = genmodel_gibs_left_waist_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/left_waist_pork.obj"
+	model(string) : "" : "models/gibs/left_waist_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/lup_leg_pork.obj" }) = genmodel_gibs_lup_leg_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/lup_leg_pork.obj"
+	model(string) : "" : "models/gibs/lup_leg_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/pelvis_pork.obj" }) = genmodel_gibs_pelvis_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/pelvis_pork.obj"
+	model(string) : "" : "models/gibs/pelvis_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/rup2_leg_pork.obj" }) = genmodel_gibs_rup2_leg_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/rup2_leg_pork.obj"
+	model(string) : "" : "models/gibs/rup2_leg_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/rup_arm_pork.obj" }) = genmodel_gibs_rup_arm_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/rup_arm_pork.obj"
+	model(string) : "" : "models/gibs/rup_arm_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/rup_leg_pork.obj" }) = genmodel_gibs_rup_leg_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/rup_leg_pork.obj"
+	model(string) : "" : "models/gibs/rup_leg_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/skull_pork.obj" }) = genmodel_gibs_skull_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/skull_pork.obj"
+	model(string) : "" : "models/gibs/skull_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/gibs/torso_pork.obj" }) = genmodel_gibs_torso_pork : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/gibs/torso_pork.obj"
+	model(string) : "" : "models/gibs/torso_pork.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/cavecorner1.obj" }) = genmodel_mal_cavecorner1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/cavecorner1.obj"
+	model(string) : "" : "models/mal/cavecorner1.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/cavecorner2.obj" }) = genmodel_mal_cavecorner2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/cavecorner2.obj"
+	model(string) : "" : "models/mal/cavecorner2.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/cavesupport.obj" }) = genmodel_mal_cavesupport : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/cavesupport.obj"
+	model(string) : "" : "models/mal/cavesupport.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/floorplate.obj" }) = genmodel_mal_floorplate : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/floorplate.obj"
+	model(string) : "" : "models/mal/floorplate.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/telebase.obj" }) = genmodel_mal_telebase : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/telebase.obj"
+	model(string) : "" : "models/mal/telebase.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/utlamp_lights.obj" }) = genmodel_mal_utlamp_lights : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/utlamp_lights.obj"
+	model(string) : "" : "models/mal/utlamp_lights.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/utlamp_pole.obj" }) = genmodel_mal_utlamp_pole : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/utlamp_pole.obj"
+	model(string) : "" : "models/mal/utlamp_pole.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/mal/y_utilitylamp.obj" }) = genmodel_mal_y_utilitylamp : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/mal/y_utilitylamp.obj"
+	model(string) : "" : "models/mal/y_utilitylamp.lwo"
 ]
 
 @PointClass base(misc_model) model({ "path": "_tb/models/mapobjects/airlock/airlockbrace.obj" }) = genmodel_mapobjects_airlock_airlockbrace : "No description"
@@ -8400,6 +8730,1644 @@ When triggered, toggles between visible and hidden (see hide).  Entity is non-so
 [
 	proxymodel(string) : "" : "_tb/models/mapobjects/webs/square.obj"
 	model(string) : "" : "models/mapobjects/webs/square.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/goggles.obj" }) = genmodel_md5_characters_npcs_heads_goggles : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/goggles.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/goggles.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/h1.obj" }) = genmodel_md5_characters_npcs_heads_h1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/h1.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/h1.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/h2.obj" }) = genmodel_md5_characters_npcs_heads_h2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/h2.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/h2.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/h3.obj" }) = genmodel_md5_characters_npcs_heads_h3 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/h3.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/h3.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/h4.obj" }) = genmodel_md5_characters_npcs_heads_h4 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/h4.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/h4.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/h5.obj" }) = genmodel_md5_characters_npcs_heads_h5 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/h5.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/h5.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/h6.obj" }) = genmodel_md5_characters_npcs_heads_h6 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/h6.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/h6.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/hxp1.obj" }) = genmodel_md5_characters_npcs_heads_hxp1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/hxp1.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/hxp1.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/hxp_helmet.obj" }) = genmodel_md5_characters_npcs_heads_hxp_helmet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/hxp_helmet.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/hxp_helmet.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/mhelmet.obj" }) = genmodel_md5_characters_npcs_heads_mhelmet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/mhelmet.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/mhelmet.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/heads/shelmet.obj" }) = genmodel_md5_characters_npcs_heads_shelmet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/heads/shelmet.obj"
+	model(string) : "" : "models/md5/characters/npcs/heads/shelmet.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/lanternlabcoatbody.obj" }) = genmodel_md5_characters_npcs_lanternlabcoatbody : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/lanternlabcoatbody.obj"
+	model(string) : "" : "models/md5/characters/npcs/lanternlabcoatbody.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/lanternskeleton.obj" }) = genmodel_md5_characters_npcs_lanternskeleton : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/lanternskeleton.obj"
+	model(string) : "" : "models/md5/characters/npcs/lanternskeleton.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/playermoves/spplayer.obj" }) = genmodel_md5_characters_npcs_playermoves_spplayer : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/playermoves/spplayer.obj"
+	model(string) : "" : "models/md5/characters/npcs/playermoves/spplayer.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/skull.obj" }) = genmodel_md5_characters_npcs_zheads_skull : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/skull.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/skull.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z1.obj" }) = genmodel_md5_characters_npcs_zheads_z1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z1.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z1.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z2.obj" }) = genmodel_md5_characters_npcs_zheads_z2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z2.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z2.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z3.obj" }) = genmodel_md5_characters_npcs_zheads_z3 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z3.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z3.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z4.obj" }) = genmodel_md5_characters_npcs_zheads_z4 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z4.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z4.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z5.obj" }) = genmodel_md5_characters_npcs_zheads_z5 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z5.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z5.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z6.obj" }) = genmodel_md5_characters_npcs_zheads_z6 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z6.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z6.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/npcs/zheads/z7.obj" }) = genmodel_md5_characters_npcs_zheads_z7 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/npcs/zheads/z7.obj"
+	model(string) : "" : "models/md5/characters/npcs/zheads/z7.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/player/d3xp_spplayer.obj" }) = genmodel_md5_characters_player_d3xp_spplayer : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/player/d3xp_spplayer.obj"
+	model(string) : "" : "models/md5/characters/player/d3xp_spplayer.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/player/head/d3xp_head.obj" }) = genmodel_md5_characters_player_head_d3xp_head : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/player/head/d3xp_head.obj"
+	model(string) : "" : "models/md5/characters/player/head/d3xp_head.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/player/mocap/mgplayer.obj" }) = genmodel_md5_characters_player_mocap_mgplayer : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/player/mocap/mgplayer.obj"
+	model(string) : "" : "models/md5/characters/player/mocap/mgplayer.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/player/mocap/player.obj" }) = genmodel_md5_characters_player_mocap_player : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/player/mocap/player.obj"
+	model(string) : "" : "models/md5/characters/player/mocap/player.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/player/mocap/wepplayer.obj" }) = genmodel_md5_characters_player_mocap_wepplayer : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/player/mocap/wepplayer.obj"
+	model(string) : "" : "models/md5/characters/player/mocap/wepplayer.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/characters/poppy/poppy.obj" }) = genmodel_md5_characters_poppy_poppy : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/characters/poppy/poppy.obj"
+	model(string) : "" : "models/md5/characters/poppy/poppy.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/campbell/campbell.obj" }) = genmodel_md5_chars_campbell_campbell : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/campbell/campbell.obj"
+	model(string) : "" : "models/md5/chars/campbell/campbell.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/erebus2/spooked.obj" }) = genmodel_md5_chars_erebus2_spooked : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/erebus2/spooked.obj"
+	model(string) : "" : "models/md5/chars/erebus2/spooked.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/hazmat.obj" }) = genmodel_md5_chars_hazmat : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/hazmat.obj"
+	model(string) : "" : "models/md5/chars/hazmat.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/jumpsuit.obj" }) = genmodel_md5_chars_jumpsuit : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/jumpsuit.obj"
+	model(string) : "" : "models/md5/chars/jumpsuit.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/labcoat.obj" }) = genmodel_md5_chars_labcoat : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/labcoat.obj"
+	model(string) : "" : "models/md5/chars/labcoat.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/marine.obj" }) = genmodel_md5_chars_marine : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/marine.obj"
+	model(string) : "" : "models/md5/chars/marine.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/marine_w_mgun.obj" }) = genmodel_md5_chars_marine_w_mgun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/marine_w_mgun.obj"
+	model(string) : "" : "models/md5/chars/marine_w_mgun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/mcneil/phobos2_mcneil_typing_loopmesh.obj" }) = genmodel_md5_chars_mcneil_phobos2_mcneil_typing_loopmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/mcneil/phobos2_mcneil_typing_loopmesh.obj"
+	model(string) : "" : "models/md5/chars/mcneil/phobos2_mcneil_typing_loopmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/receptionist/marscity/receptioncin1_dufflebag.obj" }) = genmodel_md5_chars_receptionist_marscity_receptioncin1_dufflebag : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/receptionist/marscity/receptioncin1_dufflebag.obj"
+	model(string) : "" : "models/md5/chars/receptionist/marscity/receptioncin1_dufflebag.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/receptionist/marscity/receptioncin1_smallpda.obj" }) = genmodel_md5_chars_receptionist_marscity_receptioncin1_smallpda : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/receptionist/marscity/receptioncin1_smallpda.obj"
+	model(string) : "" : "models/md5/chars/receptionist/marscity/receptioncin1_smallpda.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/security.obj" }) = genmodel_md5_chars_security : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/security.obj"
+	model(string) : "" : "models/md5/chars/security.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/skeleton.obj" }) = genmodel_md5_chars_skeleton : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/skeleton.obj"
+	model(string) : "" : "models/md5/chars/skeleton.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/skeleton_w_mgun.obj" }) = genmodel_md5_chars_skeleton_w_mgun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/skeleton_w_mgun.obj"
+	model(string) : "" : "models/md5/chars/skeleton_w_mgun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/suit.obj" }) = genmodel_md5_chars_suit : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/suit.obj"
+	model(string) : "" : "models/md5/chars/suit.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/chars/tshirt.obj" }) = genmodel_md5_chars_tshirt : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/chars/tshirt.obj"
+	model(string) : "" : "models/md5/chars/tshirt.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/admin/overhearcaseontable.obj" }) = genmodel_md5_cinematics_admin_overhearcaseontable : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/admin/overhearcaseontable.obj"
+	model(string) : "" : "models/md5/cinematics/admin/overhearcaseontable.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/alphalabs1/helldoll.obj" }) = genmodel_md5_cinematics_alphalabs1_helldoll : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/alphalabs1/helldoll.obj"
+	model(string) : "" : "models/md5/cinematics/alphalabs1/helldoll.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/caverns2/hkwallmesh.obj" }) = genmodel_md5_cinematics_caverns2_hkwallmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/caverns2/hkwallmesh.obj"
+	model(string) : "" : "models/md5/cinematics/caverns2/hkwallmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/comm1/sentry_loader.obj" }) = genmodel_md5_cinematics_comm1_sentry_loader : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/comm1/sentry_loader.obj"
+	model(string) : "" : "models/md5/cinematics/comm1/sentry_loader.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/commoutside/goo.obj" }) = genmodel_md5_cinematics_commoutside_goo : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/commoutside/goo.obj"
+	model(string) : "" : "models/md5/cinematics/commoutside/goo.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/commoutside/rover.obj" }) = genmodel_md5_cinematics_commoutside_rover : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/commoutside/rover.obj"
+	model(string) : "" : "models/md5/cinematics/commoutside/rover.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta1/scipull_mesh.obj" }) = genmodel_md5_cinematics_delta1_scipull_mesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta1/scipull_mesh.obj"
+	model(string) : "" : "models/md5/cinematics/delta1/scipull_mesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta2a/teleporter.obj" }) = genmodel_md5_cinematics_delta2a_teleporter : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta2a/teleporter.obj"
+	model(string) : "" : "models/md5/cinematics/delta2a/teleporter.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta2b/impwires.obj" }) = genmodel_md5_cinematics_delta2b_impwires : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta2b/impwires.obj"
+	model(string) : "" : "models/md5/cinematics/delta2b/impwires.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta2b/revenant.obj" }) = genmodel_md5_cinematics_delta2b_revenant : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta2b/revenant.obj"
+	model(string) : "" : "models/md5/cinematics/delta2b/revenant.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta2b/revwires.obj" }) = genmodel_md5_cinematics_delta2b_revwires : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta2b/revwires.obj"
+	model(string) : "" : "models/md5/cinematics/delta2b/revwires.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta2b/waterwires.obj" }) = genmodel_md5_cinematics_delta2b_waterwires : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta2b/waterwires.obj"
+	model(string) : "" : "models/md5/cinematics/delta2b/waterwires.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/delta4/hkintro_teleporter.obj" }) = genmodel_md5_cinematics_delta4_hkintro_teleporter : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/delta4/hkintro_teleporter.obj"
+	model(string) : "" : "models/md5/cinematics/delta4/hkintro_teleporter.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/enpro/chair_lostintro.obj" }) = genmodel_md5_cinematics_enpro_chair_lostintro : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/enpro/chair_lostintro.obj"
+	model(string) : "" : "models/md5/cinematics/enpro/chair_lostintro.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/enpro/exithelmet.obj" }) = genmodel_md5_cinematics_enpro_exithelmet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/enpro/exithelmet.obj"
+	model(string) : "" : "models/md5/cinematics/enpro/exithelmet.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/enpro/lostintro_spine.obj" }) = genmodel_md5_cinematics_enpro_lostintro_spine : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/enpro/lostintro_spine.obj"
+	model(string) : "" : "models/md5/cinematics/enpro/lostintro_spine.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/enpro/lostsoul_mesh.obj" }) = genmodel_md5_cinematics_enpro_lostsoul_mesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/enpro/lostsoul_mesh.obj"
+	model(string) : "" : "models/md5/cinematics/enpro/lostsoul_mesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/enpro/wounded_keycard.obj" }) = genmodel_md5_cinematics_enpro_wounded_keycard : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/enpro/wounded_keycard.obj"
+	model(string) : "" : "models/md5/cinematics/enpro/wounded_keycard.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus2/player_grabber.obj" }) = genmodel_md5_cinematics_erebus2_player_grabber : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus2/player_grabber.obj"
+	model(string) : "" : "models/md5/cinematics/erebus2/player_grabber.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus2/player_orb.obj" }) = genmodel_md5_cinematics_erebus2_player_orb : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus2/player_orb.obj"
+	model(string) : "" : "models/md5/cinematics/erebus2/player_orb.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus2/player_vulgarintro.obj" }) = genmodel_md5_cinematics_erebus2_player_vulgarintro : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus2/player_vulgarintro.obj"
+	model(string) : "" : "models/md5/cinematics/erebus2/player_vulgarintro.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus5/e5_cloud.obj" }) = genmodel_md5_cinematics_erebus5_e5_cloud : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus5/e5_cloud.obj"
+	model(string) : "" : "models/md5/cinematics/erebus5/e5_cloud.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus5/e5_player.obj" }) = genmodel_md5_cinematics_erebus5_e5_player : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus5/e5_player.obj"
+	model(string) : "" : "models/md5/cinematics/erebus5/e5_player.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus5/envirosuit_on.obj" }) = genmodel_md5_cinematics_erebus5_envirosuit_on : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus5/envirosuit_on.obj"
+	model(string) : "" : "models/md5/cinematics/erebus5/envirosuit_on.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus6/player.obj" }) = genmodel_md5_cinematics_erebus6_player : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus6/player.obj"
+	model(string) : "" : "models/md5/cinematics/erebus6/player.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus6/player_outro.obj" }) = genmodel_md5_cinematics_erebus6_player_outro : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus6/player_outro.obj"
+	model(string) : "" : "models/md5/cinematics/erebus6/player_outro.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/erebus6/wallmesh.obj" }) = genmodel_md5_cinematics_erebus6_wallmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/erebus6/wallmesh.obj"
+	model(string) : "" : "models/md5/cinematics/erebus6/wallmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/gravgun_intro/marine_gravmesh.obj" }) = genmodel_md5_cinematics_gravgun_intro_marine_gravmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/gravgun_intro/marine_gravmesh.obj"
+	model(string) : "" : "models/md5/cinematics/gravgun_intro/marine_gravmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hell1/guardianintro_soulcube.obj" }) = genmodel_md5_cinematics_hell1_guardianintro_soulcube : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hell1/guardianintro_soulcube.obj"
+	model(string) : "" : "models/md5/cinematics/hell1/guardianintro_soulcube.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hell1/lstep.obj" }) = genmodel_md5_cinematics_hell1_lstep : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hell1/lstep.obj"
+	model(string) : "" : "models/md5/cinematics/hell1/lstep.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hell1/rstep.obj" }) = genmodel_md5_cinematics_hell1_rstep : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hell1/rstep.obj"
+	model(string) : "" : "models/md5/cinematics/hell1/rstep.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hell/maledict_intro/maledict_hell_intro.obj" }) = genmodel_md5_cinematics_hell_maledict_intro_maledict_hell_intro : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hell/maledict_intro/maledict_hell_intro.obj"
+	model(string) : "" : "models/md5/cinematics/hell/maledict_intro/maledict_hell_intro.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hell/maledict_intro/player_maledict_intro.obj" }) = genmodel_md5_cinematics_hell_maledict_intro_player_maledict_intro : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hell/maledict_intro/player_maledict_intro.obj"
+	model(string) : "" : "models/md5/cinematics/hell/maledict_intro/player_maledict_intro.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hellhole/cyberdeath_cyberdemon.obj" }) = genmodel_md5_cinematics_hellhole_cyberdeath_cyberdemon : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hellhole/cyberdeath_cyberdemon.obj"
+	model(string) : "" : "models/md5/cinematics/hellhole/cyberdeath_cyberdemon.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/hellhole/cyberrocks.obj" }) = genmodel_md5_cinematics_hellhole_cyberrocks : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/hellhole/cyberrocks.obj"
+	model(string) : "" : "models/md5/cinematics/hellhole/cyberrocks.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro_eric/intro_wall_rocks.obj" }) = genmodel_md5_cinematics_intro_eric_intro_wall_rocks : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro_eric/intro_wall_rocks.obj"
+	model(string) : "" : "models/md5/cinematics/intro_eric/intro_wall_rocks.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/imp.obj" }) = genmodel_md5_cinematics_intro_imp : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/imp.obj"
+	model(string) : "" : "models/md5/cinematics/intro/imp.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/marine.obj" }) = genmodel_md5_cinematics_intro_marine : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/marine.obj"
+	model(string) : "" : "models/md5/cinematics/intro/marine.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/mcneil.obj" }) = genmodel_md5_cinematics_intro_mcneil : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/mcneil.obj"
+	model(string) : "" : "models/md5/cinematics/intro/mcneil.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/player_heartartifact.obj" }) = genmodel_md5_cinematics_intro_player_heartartifact : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/player_heartartifact.obj"
+	model(string) : "" : "models/md5/cinematics/intro/player_heartartifact.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/player_helmet.obj" }) = genmodel_md5_cinematics_intro_player_helmet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/player_helmet.obj"
+	model(string) : "" : "models/md5/cinematics/intro/player_helmet.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/stock_marine.obj" }) = genmodel_md5_cinematics_intro_stock_marine : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/stock_marine.obj"
+	model(string) : "" : "models/md5/cinematics/intro/stock_marine.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/stock_marine_detonator.obj" }) = genmodel_md5_cinematics_intro_stock_marine_detonator : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/stock_marine_detonator.obj"
+	model(string) : "" : "models/md5/cinematics/intro/stock_marine_detonator.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/stock_marine_flashlight.obj" }) = genmodel_md5_cinematics_intro_stock_marine_flashlight : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/stock_marine_flashlight.obj"
+	model(string) : "" : "models/md5/cinematics/intro/stock_marine_flashlight.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/stock_marine_gravitygun.obj" }) = genmodel_md5_cinematics_intro_stock_marine_gravitygun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/stock_marine_gravitygun.obj"
+	model(string) : "" : "models/md5/cinematics/intro/stock_marine_gravitygun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/intro/stock_marine_pda.obj" }) = genmodel_md5_cinematics_intro_stock_marine_pda : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/intro/stock_marine_pda.obj"
+	model(string) : "" : "models/md5/cinematics/intro/stock_marine_pda.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/le_hell_post/guardian_cinematic_mesh.obj" }) = genmodel_md5_cinematics_le_hell_post_guardian_cinematic_mesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/le_hell_post/guardian_cinematic_mesh.obj"
+	model(string) : "" : "models/md5/cinematics/le_hell_post/guardian_cinematic_mesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/le_hell_post/marine_mesh.obj" }) = genmodel_md5_cinematics_le_hell_post_marine_mesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/le_hell_post/marine_mesh.obj"
+	model(string) : "" : "models/md5/cinematics/le_hell_post/marine_mesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/le_hell_post/meyers_mesh.obj" }) = genmodel_md5_cinematics_le_hell_post_meyers_mesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/le_hell_post/meyers_mesh.obj"
+	model(string) : "" : "models/md5/cinematics/le_hell_post/meyers_mesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/maledict_death/maledict.obj" }) = genmodel_md5_cinematics_maledict_death_maledict : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/maledict_death/maledict.obj"
+	model(string) : "" : "models/md5/cinematics/maledict_death/maledict.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/maledict_death/player_heartartifact_end.obj" }) = genmodel_md5_cinematics_maledict_death_player_heartartifact_end : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/maledict_death/player_heartartifact_end.obj"
+	model(string) : "" : "models/md5/cinematics/maledict_death/player_heartartifact_end.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/maledict_death/player_rocketlauncher_end.obj" }) = genmodel_md5_cinematics_maledict_death_player_rocketlauncher_end : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/maledict_death/player_rocketlauncher_end.obj"
+	model(string) : "" : "models/md5/cinematics/maledict_death/player_rocketlauncher_end.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/maledict_death/player_turnrun_end.obj" }) = genmodel_md5_cinematics_maledict_death_player_turnrun_end : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/maledict_death/player_turnrun_end.obj"
+	model(string) : "" : "models/md5/cinematics/maledict_death/player_turnrun_end.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/maledict_death/skull.obj" }) = genmodel_md5_cinematics_maledict_death_skull : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/maledict_death/skull.obj"
+	model(string) : "" : "models/md5/cinematics/maledict_death/skull.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/maledict_intro/maledict.obj" }) = genmodel_md5_cinematics_maledict_intro_maledict : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/maledict_intro/maledict.obj"
+	model(string) : "" : "models/md5/cinematics/maledict_intro/maledict.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/monorail/crash_debris.obj" }) = genmodel_md5_cinematics_monorail_crash_debris : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/monorail/crash_debris.obj"
+	model(string) : "" : "models/md5/cinematics/monorail/crash_debris.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/phobos2/ai_dummy_deathmesh.obj" }) = genmodel_md5_cinematics_phobos2_ai_dummy_deathmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/phobos2/ai_dummy_deathmesh.obj"
+	model(string) : "" : "models/md5/cinematics/phobos2/ai_dummy_deathmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/phobos2/phobos2_mcneil_chair.obj" }) = genmodel_md5_cinematics_phobos2_phobos2_mcneil_chair : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/phobos2/phobos2_mcneil_chair.obj"
+	model(string) : "" : "models/md5/cinematics/phobos2/phobos2_mcneil_chair.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/phobos2/player.obj" }) = genmodel_md5_cinematics_phobos2_player : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/phobos2/player.obj"
+	model(string) : "" : "models/md5/cinematics/phobos2/player.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/phobos2/playeroutro.obj" }) = genmodel_md5_cinematics_phobos2_playeroutro : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/phobos2/playeroutro.obj"
+	model(string) : "" : "models/md5/cinematics/phobos2/playeroutro.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/recycling1/skybridge.obj" }) = genmodel_md5_cinematics_recycling1_skybridge : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/recycling1/skybridge.obj"
+	model(string) : "" : "models/md5/cinematics/recycling1/skybridge.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/recycling2/mancintro_pipes.obj" }) = genmodel_md5_cinematics_recycling2_mancintro_pipes : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/recycling2/mancintro_pipes.obj"
+	model(string) : "" : "models/md5/cinematics/recycling2/mancintro_pipes.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/revenant/revintro_impact.obj" }) = genmodel_md5_cinematics_revenant_revintro_impact : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/revenant/revintro_impact.obj"
+	model(string) : "" : "models/md5/cinematics/revenant/revintro_impact.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/revenant/revintro_player2.obj" }) = genmodel_md5_cinematics_revenant_revintro_player2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/revenant/revintro_player2.obj"
+	model(string) : "" : "models/md5/cinematics/revenant/revintro_player2.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/site3/floor_floor.obj" }) = genmodel_md5_cinematics_site3_floor_floor : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/site3/floor_floor.obj"
+	model(string) : "" : "models/md5/cinematics/site3/floor_floor.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/underground/chestskull.obj" }) = genmodel_md5_cinematics_underground_chestskull : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/underground/chestskull.obj"
+	model(string) : "" : "models/md5/cinematics/underground/chestskull.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/underground/impstairs.obj" }) = genmodel_md5_cinematics_underground_impstairs : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/underground/impstairs.obj"
+	model(string) : "" : "models/md5/cinematics/underground/impstairs.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/underground/littleskull.obj" }) = genmodel_md5_cinematics_underground_littleskull : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/underground/littleskull.obj"
+	model(string) : "" : "models/md5/cinematics/underground/littleskull.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/cinematics/underground/underground_impcrawl_door.obj" }) = genmodel_md5_cinematics_underground_underground_impcrawl_door : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/cinematics/underground/underground_impcrawl_door.obj"
+	model(string) : "" : "models/md5/cinematics/underground/underground_impcrawl_door.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/enviroments/ai_dummy/ai_dummy.obj" }) = genmodel_md5_enviroments_ai_dummy_ai_dummy : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/enviroments/ai_dummy/ai_dummy.obj"
+	model(string) : "" : "models/md5/enviroments/ai_dummy/ai_dummy.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/airlockdoor.obj" }) = genmodel_md5_environments_airlockdoor : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/airlockdoor.obj"
+	model(string) : "" : "models/md5/environments/airlockdoor.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/cage_corpse.obj" }) = genmodel_md5_environments_cage_corpse : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/cage_corpse.obj"
+	model(string) : "" : "models/md5/environments/cage_corpse.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/crane.obj" }) = genmodel_md5_environments_crane : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/crane.obj"
+	model(string) : "" : "models/md5/environments/crane.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/env_swinglight_sl128.obj" }) = genmodel_md5_environments_env_swinglight_sl128 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/env_swinglight_sl128.obj"
+	model(string) : "" : "models/md5/environments/env_swinglight_sl128.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/env_swinglight_sl64.obj" }) = genmodel_md5_environments_env_swinglight_sl64 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/env_swinglight_sl64.obj"
+	model(string) : "" : "models/md5/environments/env_swinglight_sl64.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/env_xianbutton_1.obj" }) = genmodel_md5_environments_env_xianbutton_1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/env_xianbutton_1.obj"
+	model(string) : "" : "models/md5/environments/env_xianbutton_1.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/evilmeat.obj" }) = genmodel_md5_environments_evilmeat : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/evilmeat.obj"
+	model(string) : "" : "models/md5/environments/evilmeat.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/hellchain.obj" }) = genmodel_md5_environments_hellchain : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/hellchain.obj"
+	model(string) : "" : "models/md5/environments/hellchain.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/impdoorbreak.obj" }) = genmodel_md5_environments_impdoorbreak : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/impdoorbreak.obj"
+	model(string) : "" : "models/md5/environments/impdoorbreak.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/inviso.obj" }) = genmodel_md5_environments_inviso : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/inviso.obj"
+	model(string) : "" : "models/md5/environments/inviso.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/mcuplatform.obj" }) = genmodel_md5_environments_mcuplatform : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/mcuplatform.obj"
+	model(string) : "" : "models/md5/environments/mcuplatform.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/mummy.obj" }) = genmodel_md5_environments_mummy : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/mummy.obj"
+	model(string) : "" : "models/md5/environments/mummy.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/pcellgen/pcellgen.obj" }) = genmodel_md5_environments_pcellgen_pcellgen : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/pcellgen/pcellgen.obj"
+	model(string) : "" : "models/md5/environments/pcellgen/pcellgen.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/pcellgen_single/pcellgen_single.obj" }) = genmodel_md5_environments_pcellgen_single_pcellgen_single : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/pcellgen_single/pcellgen_single.obj"
+	model(string) : "" : "models/md5/environments/pcellgen_single/pcellgen_single.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/platform.obj" }) = genmodel_md5_environments_platform : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/platform.obj"
+	model(string) : "" : "models/md5/environments/platform.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/railing.obj" }) = genmodel_md5_environments_railing : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/railing.obj"
+	model(string) : "" : "models/md5/environments/railing.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/storagecabinet.obj" }) = genmodel_md5_environments_storagecabinet : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/storagecabinet.obj"
+	model(string) : "" : "models/md5/environments/storagecabinet.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/storagecabinet2.obj" }) = genmodel_md5_environments_storagecabinet2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/storagecabinet2.obj"
+	model(string) : "" : "models/md5/environments/storagecabinet2.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/swinglight_long_wbulbs.obj" }) = genmodel_md5_environments_swinglight_long_wbulbs : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/swinglight_long_wbulbs.obj"
+	model(string) : "" : "models/md5/environments/swinglight_long_wbulbs.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/swinglight_long_wbulbs_128.obj" }) = genmodel_md5_environments_swinglight_long_wbulbs_128 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/swinglight_long_wbulbs_128.obj"
+	model(string) : "" : "models/md5/environments/swinglight_long_wbulbs_128.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/swinglight_long_wbulbs_192.obj" }) = genmodel_md5_environments_swinglight_long_wbulbs_192 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/swinglight_long_wbulbs_192.obj"
+	model(string) : "" : "models/md5/environments/swinglight_long_wbulbs_192.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/swinglight_long_wbulbs_32.obj" }) = genmodel_md5_environments_swinglight_long_wbulbs_32 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/swinglight_long_wbulbs_32.obj"
+	model(string) : "" : "models/md5/environments/swinglight_long_wbulbs_32.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/swinglight_round.obj" }) = genmodel_md5_environments_swinglight_round : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/swinglight_round.obj"
+	model(string) : "" : "models/md5/environments/swinglight_round.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/environments/turret/turretmesh.obj" }) = genmodel_md5_environments_turret_turretmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/environments/turret/turretmesh.obj"
+	model(string) : "" : "models/md5/environments/turret/turretmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/leftarmgib.obj" }) = genmodel_md5_gibs_leftarmgib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/leftarmgib.obj"
+	model(string) : "" : "models/md5/gibs/leftarmgib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/leftleggib.obj" }) = genmodel_md5_gibs_leftleggib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/leftleggib.obj"
+	model(string) : "" : "models/md5/gibs/leftleggib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/rtlolegstumpgib.obj" }) = genmodel_md5_gibs_rtlolegstumpgib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/rtlolegstumpgib.obj"
+	model(string) : "" : "models/md5/gibs/rtlolegstumpgib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/rtuplegstumpgib.obj" }) = genmodel_md5_gibs_rtuplegstumpgib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/rtuplegstumpgib.obj"
+	model(string) : "" : "models/md5/gibs/rtuplegstumpgib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/ruparmstubgib.obj" }) = genmodel_md5_gibs_ruparmstubgib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/ruparmstubgib.obj"
+	model(string) : "" : "models/md5/gibs/ruparmstubgib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/spinegib.obj" }) = genmodel_md5_gibs_spinegib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/spinegib.obj"
+	model(string) : "" : "models/md5/gibs/spinegib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/gibs/torsogib.obj" }) = genmodel_md5_gibs_torsogib : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/gibs/torsogib.obj"
+	model(string) : "" : "models/md5/gibs/torsogib.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/betruger/betruger.obj" }) = genmodel_md5_heads_betruger_betruger : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/betruger/betruger.obj"
+	model(string) : "" : "models/md5/heads/betruger/betruger.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/campbell/campbell.obj" }) = genmodel_md5_heads_campbell_campbell : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/campbell/campbell.obj"
+	model(string) : "" : "models/md5/heads/campbell/campbell.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/head02young/h2_cinematic.obj" }) = genmodel_md5_heads_head02young_h2_cinematic : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/head02young/h2_cinematic.obj"
+	model(string) : "" : "models/md5/heads/head02young/h2_cinematic.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/player/player.obj" }) = genmodel_md5_heads_player_player : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/player/player.obj"
+	model(string) : "" : "models/md5/heads/player/player.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/sarge/sarge.obj" }) = genmodel_md5_heads_sarge_sarge : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/sarge/sarge.obj"
+	model(string) : "" : "models/md5/heads/sarge/sarge.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/security_goggles/goggles.obj" }) = genmodel_md5_heads_security_goggles_goggles : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/security_goggles/goggles.obj"
+	model(string) : "" : "models/md5/heads/security_goggles/goggles.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/heads/swann/swann.obj" }) = genmodel_md5_heads_swann_swann : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/heads/swann/swann.obj"
+	model(string) : "" : "models/md5/heads/swann/swann.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/items/bfgcase/bfgcase.obj" }) = genmodel_md5_items_bfgcase_bfgcase : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/items/bfgcase/bfgcase.obj"
+	model(string) : "" : "models/md5/items/bfgcase/bfgcase.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/items/flashlight_view/viewflashlight.obj" }) = genmodel_md5_items_flashlight_view_viewflashlight : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/items/flashlight_view/viewflashlight.obj"
+	model(string) : "" : "models/md5/items/flashlight_view/viewflashlight.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/items/flashlight_world/worldflashlight.obj" }) = genmodel_md5_items_flashlight_world_worldflashlight : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/items/flashlight_world/worldflashlight.obj"
+	model(string) : "" : "models/md5/items/flashlight_world/worldflashlight.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/items/pda_view/idle.obj" }) = genmodel_md5_items_pda_view_idle : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/items/pda_view/idle.obj"
+	model(string) : "" : "models/md5/items/pda_view/idle.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/items/pda_world/worldpda.obj" }) = genmodel_md5_items_pda_world_worldpda : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/items/pda_world/worldpda.obj"
+	model(string) : "" : "models/md5/items/pda_world/worldpda.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/items/turret1/turret.obj" }) = genmodel_md5_items_turret1_turret : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/items/turret1/turret.obj"
+	model(string) : "" : "models/md5/items/turret1/turret.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/archvile/archvile.obj" }) = genmodel_md5_monsters_archvile_archvile : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/archvile/archvile.obj"
+	model(string) : "" : "models/md5/monsters/archvile/archvile.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/cacodemon/cacodemon.obj" }) = genmodel_md5_monsters_cacodemon_cacodemon : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/cacodemon/cacodemon.obj"
+	model(string) : "" : "models/md5/monsters/cacodemon/cacodemon.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/cherub/cherub.obj" }) = genmodel_md5_monsters_cherub_cherub : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/cherub/cherub.obj"
+	model(string) : "" : "models/md5/monsters/cherub/cherub.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/cyberdemon/cyberdemon.obj" }) = genmodel_md5_monsters_cyberdemon_cyberdemon : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/cyberdemon/cyberdemon.obj"
+	model(string) : "" : "models/md5/monsters/cyberdemon/cyberdemon.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/d3xp_bruiser/d3xp_bruiser.obj" }) = genmodel_md5_monsters_d3xp_bruiser_d3xp_bruiser : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/d3xp_bruiser/d3xp_bruiser.obj"
+	model(string) : "" : "models/md5/monsters/d3xp_bruiser/d3xp_bruiser.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/d3xp_invul/d3xp_invul.obj" }) = genmodel_md5_monsters_d3xp_invul_d3xp_invul : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/d3xp_invul/d3xp_invul.obj"
+	model(string) : "" : "models/md5/monsters/d3xp_invul/d3xp_invul.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/d3xp_maledict/maledict.obj" }) = genmodel_md5_monsters_d3xp_maledict_maledict : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/d3xp_maledict/maledict.obj"
+	model(string) : "" : "models/md5/monsters/d3xp_maledict/maledict.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/forgotten2/forgotten2.obj" }) = genmodel_md5_monsters_forgotten2_forgotten2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/forgotten2/forgotten2.obj"
+	model(string) : "" : "models/md5/monsters/forgotten2/forgotten2.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/forgotten/forgotten.obj" }) = genmodel_md5_monsters_forgotten_forgotten : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/forgotten/forgotten.obj"
+	model(string) : "" : "models/md5/monsters/forgotten/forgotten.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/gseeker/gseeker.obj" }) = genmodel_md5_monsters_gseeker_gseeker : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/gseeker/gseeker.obj"
+	model(string) : "" : "models/md5/monsters/gseeker/gseeker.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/guardian/guardian.obj" }) = genmodel_md5_monsters_guardian_guardian : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/guardian/guardian.obj"
+	model(string) : "" : "models/md5/monsters/guardian/guardian.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/hellknight/hellknight.obj" }) = genmodel_md5_monsters_hellknight_hellknight : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/hellknight/hellknight.obj"
+	model(string) : "" : "models/md5/monsters/hellknight/hellknight.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/hunter_berzerk/berzerk_makemesh.obj" }) = genmodel_md5_monsters_hunter_berzerk_berzerk_makemesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/hunter_berzerk/berzerk_makemesh.obj"
+	model(string) : "" : "models/md5/monsters/hunter_berzerk/berzerk_makemesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/hunter_berzerk/idle.obj" }) = genmodel_md5_monsters_hunter_berzerk_idle : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/hunter_berzerk/idle.obj"
+	model(string) : "" : "models/md5/monsters/hunter_berzerk/idle.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/hunter_helltime/helltime.obj" }) = genmodel_md5_monsters_hunter_helltime_helltime : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/hunter_helltime/helltime.obj"
+	model(string) : "" : "models/md5/monsters/hunter_helltime/helltime.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/imp/imp.obj" }) = genmodel_md5_monsters_imp_imp : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/imp/imp.obj"
+	model(string) : "" : "models/md5/monsters/imp/imp.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/lostsoul/lostsoul.obj" }) = genmodel_md5_monsters_lostsoul_lostsoul : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/lostsoul/lostsoul.obj"
+	model(string) : "" : "models/md5/monsters/lostsoul/lostsoul.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/maggot3/maggot3.obj" }) = genmodel_md5_monsters_maggot3_maggot3 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/maggot3/maggot3.obj"
+	model(string) : "" : "models/md5/monsters/maggot3/maggot3.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/maledict/debris.obj" }) = genmodel_md5_monsters_maledict_debris : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/maledict/debris.obj"
+	model(string) : "" : "models/md5/monsters/maledict/debris.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/maledict/maledict.obj" }) = genmodel_md5_monsters_maledict_maledict : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/maledict/maledict.obj"
+	model(string) : "" : "models/md5/monsters/maledict/maledict.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/mancubus/james/mancubus.obj" }) = genmodel_md5_monsters_mancubus_james_mancubus : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/mancubus/james/mancubus.obj"
+	model(string) : "" : "models/md5/monsters/mancubus/james/mancubus.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/pinky/pinky.obj" }) = genmodel_md5_monsters_pinky_pinky : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/pinky/pinky.obj"
+	model(string) : "" : "models/md5/monsters/pinky/pinky.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/revenant/james/revenant.obj" }) = genmodel_md5_monsters_revenant_james_revenant : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/revenant/james/revenant.obj"
+	model(string) : "" : "models/md5/monsters/revenant/james/revenant.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/sabaoth/sabaoth.obj" }) = genmodel_md5_monsters_sabaoth_sabaoth : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/sabaoth/sabaoth.obj"
+	model(string) : "" : "models/md5/monsters/sabaoth/sabaoth.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/sentry/sentry.obj" }) = genmodel_md5_monsters_sentry_sentry : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/sentry/sentry.obj"
+	model(string) : "" : "models/md5/monsters/sentry/sentry.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/skeleton/skeleton.obj" }) = genmodel_md5_monsters_skeleton_skeleton : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/skeleton/skeleton.obj"
+	model(string) : "" : "models/md5/monsters/skeleton/skeleton.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/tick/tick.obj" }) = genmodel_md5_monsters_tick_tick : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/tick/tick.obj"
+	model(string) : "" : "models/md5/monsters/tick/tick.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/trite/trite.obj" }) = genmodel_md5_monsters_trite_trite : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/trite/trite.obj"
+	model(string) : "" : "models/md5/monsters/trite/trite.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/vagary/vagary.obj" }) = genmodel_md5_monsters_vagary_vagary : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/vagary/vagary.obj"
+	model(string) : "" : "models/md5/monsters/vagary/vagary.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/vulgar/vulgar.obj" }) = genmodel_md5_monsters_vulgar_vulgar : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/vulgar/vulgar.obj"
+	model(string) : "" : "models/md5/monsters/vulgar/vulgar.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/wraith/wraith.obj" }) = genmodel_md5_monsters_wraith_wraith : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/wraith/wraith.obj"
+	model(string) : "" : "models/md5/monsters/wraith/wraith.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zcc/zcc.obj" }) = genmodel_md5_monsters_zcc_zcc : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zcc/zcc.obj"
+	model(string) : "" : "models/md5/monsters/zcc/zcc.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zct/zct.obj" }) = genmodel_md5_monsters_zct_zct : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zct/zct.obj"
+	model(string) : "" : "models/md5/monsters/zct/zct.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zfat/zfat.obj" }) = genmodel_md5_monsters_zfat_zfat : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zfat/zfat.obj"
+	model(string) : "" : "models/md5/monsters/zfat/zfat.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/bernie/bernie.obj" }) = genmodel_md5_monsters_zombies_bernie_bernie : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/bernie/bernie.obj"
+	model(string) : "" : "models/md5/monsters/zombies/bernie/bernie.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/boney/boney.obj" }) = genmodel_md5_monsters_zombies_boney_boney : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/boney/boney.obj"
+	model(string) : "" : "models/md5/monsters/zombies/boney/boney.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/hazmat_zombie/hazmat_zombie.obj" }) = genmodel_md5_monsters_zombies_hazmat_zombie_hazmat_zombie : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/hazmat_zombie/hazmat_zombie.obj"
+	model(string) : "" : "models/md5/monsters/zombies/hazmat_zombie/hazmat_zombie.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/jumpsuitzombie.obj" }) = genmodel_md5_monsters_zombies_jumpsuitzombie : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/jumpsuitzombie.obj"
+	model(string) : "" : "models/md5/monsters/zombies/jumpsuitzombie.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/labcoatzombie.obj" }) = genmodel_md5_monsters_zombies_labcoatzombie : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/labcoatzombie.obj"
+	model(string) : "" : "models/md5/monsters/zombies/labcoatzombie.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/morgue/morgue.obj" }) = genmodel_md5_monsters_zombies_morgue_morgue : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/morgue/morgue.obj"
+	model(string) : "" : "models/md5/monsters/zombies/morgue/morgue.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/sawyer/sawyer.obj" }) = genmodel_md5_monsters_zombies_sawyer_sawyer : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/sawyer/sawyer.obj"
+	model(string) : "" : "models/md5/monsters/zombies/sawyer/sawyer.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/suitzombie.obj" }) = genmodel_md5_monsters_zombies_suitzombie : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/suitzombie.obj"
+	model(string) : "" : "models/md5/monsters/zombies/suitzombie.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/tshirtzombie.obj" }) = genmodel_md5_monsters_zombies_tshirtzombie : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/tshirtzombie.obj"
+	model(string) : "" : "models/md5/monsters/zombies/tshirtzombie.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/zmaint/zmaint.obj" }) = genmodel_md5_monsters_zombies_zmaint_zmaint : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/zmaint/zmaint.obj"
+	model(string) : "" : "models/md5/monsters/zombies/zmaint/zmaint.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/zsec_machinegun/zsecmachinegun.obj" }) = genmodel_md5_monsters_zombies_zsec_machinegun_zsecmachinegun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/zsec_machinegun/zsecmachinegun.obj"
+	model(string) : "" : "models/md5/monsters/zombies/zsec_machinegun/zsecmachinegun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/zsec_pistol/zsecpistol.obj" }) = genmodel_md5_monsters_zombies_zsec_pistol_zsecpistol : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/zsec_pistol/zsecpistol.obj"
+	model(string) : "" : "models/md5/monsters/zombies/zsec_pistol/zsecpistol.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/monsters/zombies/zsec_shotgun/zsecshotgun.obj" }) = genmodel_md5_monsters_zombies_zsec_shotgun_zsecshotgun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/monsters/zombies/zsec_shotgun/zsecshotgun.obj"
+	model(string) : "" : "models/md5/monsters/zombies/zsec_shotgun/zsecshotgun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/phobos2/tram.obj" }) = genmodel_md5_phobos2_tram : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/phobos2/tram.obj"
+	model(string) : "" : "models/md5/phobos2/tram.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/adrenaline.obj" }) = genmodel_md5_props_adrenaline : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/adrenaline.obj"
+	model(string) : "" : "models/md5/props/adrenaline.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/dufflebag.obj" }) = genmodel_md5_props_dufflebag : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/dufflebag.obj"
+	model(string) : "" : "models/md5/props/dufflebag.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/foamcup.obj" }) = genmodel_md5_props_foamcup : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/foamcup.obj"
+	model(string) : "" : "models/md5/props/foamcup.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/leftflashlight.obj" }) = genmodel_md5_props_leftflashlight : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/leftflashlight.obj"
+	model(string) : "" : "models/md5/props/leftflashlight.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/machinegun.obj" }) = genmodel_md5_props_machinegun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/machinegun.obj"
+	model(string) : "" : "models/md5/props/machinegun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/metal_lounge_chair.obj" }) = genmodel_md5_props_metal_lounge_chair : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/metal_lounge_chair.obj"
+	model(string) : "" : "models/md5/props/metal_lounge_chair.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/pistol.obj" }) = genmodel_md5_props_pistol : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/pistol.obj"
+	model(string) : "" : "models/md5/props/pistol.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/soft_desk_chair2.obj" }) = genmodel_md5_props_soft_desk_chair2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/soft_desk_chair2.obj"
+	model(string) : "" : "models/md5/props/soft_desk_chair2.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/props/wrench.obj" }) = genmodel_md5_props_wrench : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/props/wrench.obj"
+	model(string) : "" : "models/md5/props/wrench.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/artifact_world/artifactworld.obj" }) = genmodel_md5_weapons_artifact_world_artifactworld : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/artifact_world/artifactworld.obj"
+	model(string) : "" : "models/md5/weapons/artifact_world/artifactworld.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/bfg_view/viewbfg.obj" }) = genmodel_md5_weapons_bfg_view_viewbfg : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/bfg_view/viewbfg.obj"
+	model(string) : "" : "models/md5/weapons/bfg_view/viewbfg.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/bfg_world/worldbfg.obj" }) = genmodel_md5_weapons_bfg_world_worldbfg : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/bfg_world/worldbfg.obj"
+	model(string) : "" : "models/md5/weapons/bfg_world/worldbfg.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/blood_orb_view/new/bloodorb.obj" }) = genmodel_md5_weapons_blood_orb_view_new_bloodorb : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/blood_orb_view/new/bloodorb.obj"
+	model(string) : "" : "models/md5/weapons/blood_orb_view/new/bloodorb.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/chaingun_view/viewchaingun.obj" }) = genmodel_md5_weapons_chaingun_view_viewchaingun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/chaingun_view/viewchaingun.obj"
+	model(string) : "" : "models/md5/weapons/chaingun_view/viewchaingun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/chaingun_world/worldchaingun.obj" }) = genmodel_md5_weapons_chaingun_world_worldchaingun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/chaingun_world/worldchaingun.obj"
+	model(string) : "" : "models/md5/weapons/chaingun_world/worldchaingun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/chainsaw_view/viewchainsaw.obj" }) = genmodel_md5_weapons_chainsaw_view_viewchainsaw : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/chainsaw_view/viewchainsaw.obj"
+	model(string) : "" : "models/md5/weapons/chainsaw_view/viewchainsaw.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/chainsaw_world/worldchainsaw.obj" }) = genmodel_md5_weapons_chainsaw_world_worldchainsaw : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/chainsaw_world/worldchainsaw.obj"
+	model(string) : "" : "models/md5/weapons/chainsaw_world/worldchainsaw.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/doublebarrel_view/new/dbviewmesh.obj" }) = genmodel_md5_weapons_doublebarrel_view_new_dbviewmesh : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/doublebarrel_view/new/dbviewmesh.obj"
+	model(string) : "" : "models/md5/weapons/doublebarrel_view/new/dbviewmesh.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/fists_view/fists.obj" }) = genmodel_md5_weapons_fists_view_fists : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/fists_view/fists.obj"
+	model(string) : "" : "models/md5/weapons/fists_view/fists.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/grabber_view/idleopen.obj" }) = genmodel_md5_weapons_grabber_view_idleopen : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/grabber_view/idleopen.obj"
+	model(string) : "" : "models/md5/weapons/grabber_view/idleopen.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/grabber_world/worldgrabber.obj" }) = genmodel_md5_weapons_grabber_world_worldgrabber : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/grabber_world/worldgrabber.obj"
+	model(string) : "" : "models/md5/weapons/grabber_world/worldgrabber.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/grenade_view/viewgrenade.obj" }) = genmodel_md5_weapons_grenade_view_viewgrenade : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/grenade_view/viewgrenade.obj"
+	model(string) : "" : "models/md5/weapons/grenade_view/viewgrenade.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/grenade_world/worldgrenade.obj" }) = genmodel_md5_weapons_grenade_world_worldgrenade : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/grenade_world/worldgrenade.obj"
+	model(string) : "" : "models/md5/weapons/grenade_world/worldgrenade.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/machinegun_view/viewmachinegun.obj" }) = genmodel_md5_weapons_machinegun_view_viewmachinegun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/machinegun_view/viewmachinegun.obj"
+	model(string) : "" : "models/md5/weapons/machinegun_view/viewmachinegun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/machinegun_world/worldmachinegun.obj" }) = genmodel_md5_weapons_machinegun_world_worldmachinegun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/machinegun_world/worldmachinegun.obj"
+	model(string) : "" : "models/md5/weapons/machinegun_world/worldmachinegun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/pistol_view/viewpistol.obj" }) = genmodel_md5_weapons_pistol_view_viewpistol : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/pistol_view/viewpistol.obj"
+	model(string) : "" : "models/md5/weapons/pistol_view/viewpistol.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/pistol_world/worldpistol.obj" }) = genmodel_md5_weapons_pistol_world_worldpistol : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/pistol_world/worldpistol.obj"
+	model(string) : "" : "models/md5/weapons/pistol_world/worldpistol.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/plasmagun_view/viewplasmagun.obj" }) = genmodel_md5_weapons_plasmagun_view_viewplasmagun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/plasmagun_view/viewplasmagun.obj"
+	model(string) : "" : "models/md5/weapons/plasmagun_view/viewplasmagun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/plasmagun_world/worldplasmagun.obj" }) = genmodel_md5_weapons_plasmagun_world_worldplasmagun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/plasmagun_world/worldplasmagun.obj"
+	model(string) : "" : "models/md5/weapons/plasmagun_world/worldplasmagun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/rocketlauncher_view/viewrocketlauncher.obj" }) = genmodel_md5_weapons_rocketlauncher_view_viewrocketlauncher : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/rocketlauncher_view/viewrocketlauncher.obj"
+	model(string) : "" : "models/md5/weapons/rocketlauncher_view/viewrocketlauncher.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/rocketlauncher_world/worldrocketlauncher.obj" }) = genmodel_md5_weapons_rocketlauncher_world_worldrocketlauncher : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/rocketlauncher_world/worldrocketlauncher.obj"
+	model(string) : "" : "models/md5/weapons/rocketlauncher_world/worldrocketlauncher.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/shotgun_double_world/worlddbshotgun.obj" }) = genmodel_md5_weapons_shotgun_double_world_worlddbshotgun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/shotgun_double_world/worlddbshotgun.obj"
+	model(string) : "" : "models/md5/weapons/shotgun_double_world/worlddbshotgun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/shotgun_view/viewshotgun.obj" }) = genmodel_md5_weapons_shotgun_view_viewshotgun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/shotgun_view/viewshotgun.obj"
+	model(string) : "" : "models/md5/weapons/shotgun_view/viewshotgun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/shotgun_world/worldshotgun.obj" }) = genmodel_md5_weapons_shotgun_world_worldshotgun : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/shotgun_world/worldshotgun.obj"
+	model(string) : "" : "models/md5/weapons/shotgun_world/worldshotgun.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/soulcube_view/soulcube.obj" }) = genmodel_md5_weapons_soulcube_view_soulcube : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/soulcube_view/soulcube.obj"
+	model(string) : "" : "models/md5/weapons/soulcube_view/soulcube.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/md5/weapons/soulcube_world/worldsoulcube.obj" }) = genmodel_md5_weapons_soulcube_world_worldsoulcube : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/md5/weapons/soulcube_world/worldsoulcube.obj"
+	model(string) : "" : "models/md5/weapons/soulcube_world/worldsoulcube.md5mesh"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/monsters/cyberdemon/cdrocket.obj" }) = genmodel_monsters_cyberdemon_cdrocket : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/monsters/cyberdemon/cdrocket.obj"
+	model(string) : "" : "models/monsters/cyberdemon/cdrocket.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/monsters/gseeker/gseeker_flare_on_orig.obj" }) = genmodel_monsters_gseeker_gseeker_flare_on_orig : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/monsters/gseeker/gseeker_flare_on_orig.obj"
+	model(string) : "" : "models/monsters/gseeker/gseeker_flare_on_orig.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/monsters/spawn/redspawn.obj" }) = genmodel_monsters_spawn_redspawn : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/monsters/spawn/redspawn.obj"
+	model(string) : "" : "models/monsters/spawn/redspawn.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/monsters/spawn/spawn.obj" }) = genmodel_monsters_spawn_spawn : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/monsters/spawn/spawn.obj"
+	model(string) : "" : "models/monsters/spawn/spawn.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/monsters/spawn/spawnlightning.obj" }) = genmodel_monsters_spawn_spawnlightning : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/monsters/spawn/spawnlightning.obj"
+	model(string) : "" : "models/monsters/spawn/spawnlightning.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/monsters/zsecurity/zsheild.obj" }) = genmodel_monsters_zsecurity_zsheild : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/monsters/zsecurity/zsheild.obj"
+	model(string) : "" : "models/monsters/zsecurity/zsheild.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/alphalabs2/alphalabs2_outside.obj" }) = genmodel_outdoors_alphalabs2_alphalabs2_outside : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/alphalabs2/alphalabs2_outside.obj"
+	model(string) : "" : "models/outdoors/alphalabs2/alphalabs2_outside.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/d3dm4/d3dm4_b.obj" }) = genmodel_outdoors_d3dm4_d3dm4_b : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/d3dm4/d3dm4_b.obj"
+	model(string) : "" : "models/outdoors/d3dm4/d3dm4_b.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/d3dm4/d3dm4_c.obj" }) = genmodel_outdoors_d3dm4_d3dm4_c : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/d3dm4/d3dm4_c.obj"
+	model(string) : "" : "models/outdoors/d3dm4/d3dm4_c.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/dm/dm_outside.obj" }) = genmodel_outdoors_dm_dm_outside : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/dm/dm_outside.obj"
+	model(string) : "" : "models/outdoors/dm/dm_outside.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/dm/terrain_d3dm2_small_sd.obj" }) = genmodel_outdoors_dm_terrain_d3dm2_small_sd : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/dm/terrain_d3dm2_small_sd.obj"
+	model(string) : "" : "models/outdoors/dm/terrain_d3dm2_small_sd.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/tram/haha.obj" }) = genmodel_outdoors_tram_haha : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/tram/haha.obj"
+	model(string) : "" : "models/outdoors/tram/haha.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/tram/test.obj" }) = genmodel_outdoors_tram_test : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/tram/test.obj"
+	model(string) : "" : "models/outdoors/tram/test.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/tram/tram_brokentrack.obj" }) = genmodel_outdoors_tram_tram_brokentrack : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/tram/tram_brokentrack.obj"
+	model(string) : "" : "models/outdoors/tram/tram_brokentrack.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/tram/tram_door2.obj" }) = genmodel_outdoors_tram_tram_door2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/tram/tram_door2.obj"
+	model(string) : "" : "models/outdoors/tram/tram_door2.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/tram/tram_door3.obj" }) = genmodel_outdoors_tram_tram_door3 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/tram/tram_door3.obj"
+	model(string) : "" : "models/outdoors/tram/tram_door3.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/outdoors/tram/tram_door_noglass.obj" }) = genmodel_outdoors_tram_tram_door_noglass : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/outdoors/tram/tram_door_noglass.obj"
+	model(string) : "" : "models/outdoors/tram/tram_door_noglass.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/patj/hell_vortex.obj" }) = genmodel_patj_hell_vortex : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/patj/hell_vortex.obj"
+	model(string) : "" : "models/patj/hell_vortex.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/patj/meteor1.obj" }) = genmodel_patj_meteor1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/patj/meteor1.obj"
+	model(string) : "" : "models/patj/meteor1.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/patj/meteor2.obj" }) = genmodel_patj_meteor2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/patj/meteor2.obj"
+	model(string) : "" : "models/patj/meteor2.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/patj/meteor3.obj" }) = genmodel_patj_meteor3 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/patj/meteor3.obj"
+	model(string) : "" : "models/patj/meteor3.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/patj/meteor_huge.obj" }) = genmodel_patj_meteor_huge : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/patj/meteor_huge.obj"
+	model(string) : "" : "models/patj/meteor_huge.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/patj/wallmonitor1.obj" }) = genmodel_patj_wallmonitor1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/patj/wallmonitor1.obj"
+	model(string) : "" : "models/patj/wallmonitor1.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/reactor/reactorlaser1.obj" }) = genmodel_seneca_reactor_reactorlaser1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/reactor/reactorlaser1.obj"
+	model(string) : "" : "models/seneca/reactor/reactorlaser1.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/reactor/reactorspinner.obj" }) = genmodel_seneca_reactor_reactorspinner : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/reactor/reactorspinner.obj"
+	model(string) : "" : "models/seneca/reactor/reactorspinner.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/reactor/reactortube.obj" }) = genmodel_seneca_reactor_reactortube : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/reactor/reactortube.obj"
+	model(string) : "" : "models/seneca/reactor/reactortube.ase"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/xianroom/xbridge1.obj" }) = genmodel_seneca_xianroom_xbridge1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/xianroom/xbridge1.obj"
+	model(string) : "" : "models/seneca/xianroom/xbridge1.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/xianroom/xbridge2.obj" }) = genmodel_seneca_xianroom_xbridge2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/xianroom/xbridge2.obj"
+	model(string) : "" : "models/seneca/xianroom/xbridge2.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/xianroom/xbridge3a.obj" }) = genmodel_seneca_xianroom_xbridge3a : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/xianroom/xbridge3a.obj"
+	model(string) : "" : "models/seneca/xianroom/xbridge3a.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/xianroom/xbridge3a2.obj" }) = genmodel_seneca_xianroom_xbridge3a2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/xianroom/xbridge3a2.obj"
+	model(string) : "" : "models/seneca/xianroom/xbridge3a2.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/seneca/xianroom/xianroom1.obj" }) = genmodel_seneca_xianroom_xianroom1 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/seneca/xianroom/xianroom1.obj"
+	model(string) : "" : "models/seneca/xianroom/xianroom1.lwo"
+]
+
+@PointClass base(misc_model) model({ "path": "_tb/models/ted/erebus2/erebus_deb2.obj" }) = genmodel_ted_erebus2_erebus_deb2 : "No description"
+[
+	proxymodel(string) : "" : "_tb/models/ted/erebus2/erebus_deb2.obj"
+	model(string) : "" : "models/ted/erebus2/erebus_deb2.ase"
 ]
 
 @PointClass base(func_shockwave) = harvest_shockwave : "No description"
