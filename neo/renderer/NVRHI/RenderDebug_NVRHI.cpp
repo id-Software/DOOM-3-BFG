@@ -92,7 +92,7 @@ void idRenderBackend::DBG_SimpleSurfaceSetup( const drawSurf_t* drawSurf )
 	if( !currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 	{
 		GL_Scissor( viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-					viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+					viewDef->viewport.y2 - drawSurf->scissorRect.y2,
 					drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 					drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
 
@@ -113,8 +113,9 @@ void idRenderBackend::DBG_SimpleWorldSetup()
 	RB_SetMVP( viewDef->worldSpace.mvp );
 	// RB end
 
+	// RB: (0, 0) starts in the upper left corner compared to OpenGL!
 	GL_Scissor( viewDef->viewport.x1 + viewDef->scissor.x1,
-				viewDef->viewport.y1 + viewDef->scissor.y1,
+				viewDef->viewport.y2 - viewDef->scissor.y2,
 				viewDef->scissor.x2 + 1 - viewDef->scissor.x1,
 				viewDef->scissor.y2 + 1 - viewDef->scissor.y1 );
 
@@ -433,7 +434,7 @@ void idRenderBackend::DBG_RenderDrawSurfListWithFunction( drawSurf_t** drawSurfs
 			currentScissor = drawSurf->scissorRect;
 
 			GL_Scissor( viewDef->viewport.x1 + currentScissor.x1,
-						viewDef->viewport.y1 + currentScissor.y1,
+						viewDef->viewport.y2 - currentScissor.y2,
 						currentScissor.x2 + 1 - currentScissor.x1,
 						currentScissor.y2 + 1 - currentScissor.y1 );
 		}

@@ -3976,10 +3976,9 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		// change the scissor if needed
 		if( !currentScissor.Equals( surf->scissorRect ) && r_useScissor.GetBool() )
 		{
-			// RB: (0, 0) starts in the upper left corner compared to GL!
-			// this is only used by the Imgui scissors which start at the top left corner
+			// RB: (0, 0) starts in the upper left corner compared to OpenGL!
 			GL_Scissor( viewDef->viewport.x1 + surf->scissorRect.x1,
-						viewDef->viewport.y1 + surf->scissorRect.y1,
+						viewDef->viewport.y2 - surf->scissorRect.y2,
 						surf->scissorRect.x2 + 1 - surf->scissorRect.x1,
 						surf->scissorRect.y2 + 1 - surf->scissorRect.y1 );
 

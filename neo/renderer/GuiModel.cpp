@@ -369,6 +369,8 @@ void idGuiModel::EmitImGui( ImDrawData* drawData )
 
 	idVec2 scaleToVirtual( ( float )renderSystem->GetVirtualWidth() / sysWidth, ( float )renderSystem->GetVirtualHeight() / sysHeight );
 
+	ImGuiIO& io = ImGui::GetIO();
+
 	for( int a = 0; a < drawData->CmdListsCount; a++ )
 	{
 		const ImDrawList* cmd_list = drawData->CmdLists[a];
@@ -389,8 +391,16 @@ void idGuiModel::EmitImGui( ImDrawData* drawData )
 				mat = ( const idMaterial* )pcmd->TextureId;
 			}
 
-			// RB: (0, 0) starts in the upper left corner compared to GL!
-			idScreenRect clipRect = { static_cast<short>( pcmd->ClipRect.x ), static_cast<short>( pcmd->ClipRect.y ), static_cast<short>( pcmd->ClipRect.z ), static_cast<short>( pcmd->ClipRect.w ), 0.0f, 1.0f };
+			// RB: convert from upper left corner to bottom left (0, 0) like in GL!
+			idScreenRect clipRect =
+			{
+				static_cast<short>( pcmd->ClipRect.x ),
+				io.DisplaySize.y - static_cast<short>( pcmd->ClipRect.w ),
+				static_cast<short>( pcmd->ClipRect.z ),
+				io.DisplaySize.y - static_cast<short>( pcmd->ClipRect.y ),
+				0.0f,
+				1.0f
+			};
 
 			idDrawVert* verts = AllocTris( numVerts, indexBufferOffset, numIndexes, mat, tr.currentGLState, STEREO_DEPTH_TYPE_NONE, clipRect );
 			if( verts == NULL )
