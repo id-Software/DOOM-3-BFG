@@ -244,6 +244,7 @@ void idRenderModelManagerLocal::Init()
 	if( !commandList )
 	{
 		nvrhi::CommandListParameters params = {};
+		params.enableImmediateExecution = false;
 		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 		{
 			// SRS - set upload buffer size to avoid Vulkan staging buffer fragmentation
