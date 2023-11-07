@@ -2974,8 +2974,6 @@ bool idMapFile::ConvertToValve220Format()
 			}
 #endif
 
-			// TODO if light purge flare patches
-
 			bool isBrushModel = ( ent->GetNumPrimitives() > 0 ) && ( idStr::Icmp( model.c_str(), name.c_str() ) == 0 );
 
 			// is this oldschool brushes & patches?
@@ -2992,6 +2990,13 @@ bool idMapFile::ConvertToValve220Format()
 					ent->epairs.Delete( "angle" );
 
 					removedOrigin = true;
+				}
+
+				// purge flare patches from lights because we can't select lights in TrenchBroom
+				// that still have primitives
+				if( idStr::Icmp( classname, "light" ) == 0 )
+				{
+					ent->RemovePrimitiveData();
 				}
 
 				// convert brushes
