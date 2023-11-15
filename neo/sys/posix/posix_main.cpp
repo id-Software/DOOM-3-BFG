@@ -100,7 +100,7 @@ const char* Sys_DefaultSavePath()
 	char* base_path = SDL_GetPrefPath( "", "RBDOOM-3-BFG" );
 	if( base_path )
 	{
-		savepath = SDL_strdup( base_path );
+		savepath = base_path;
 		savepath.StripTrailing( '/' );
 		SDL_free( base_path );
 	}

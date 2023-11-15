@@ -175,6 +175,8 @@ BinkDecoder::~BinkDecoder()
 		delete[] planes[i].last;
 	}
 
+	FreeBundles();
+
 	for (uint32_t i = 0; i < audioTracks.size(); i++)
 	{
 		delete[] audioTracks[i]->buffer;

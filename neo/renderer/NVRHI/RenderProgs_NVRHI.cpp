@@ -160,6 +160,9 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 									   ( constants.Num() > 0 ) ? &constants[0] : shaderConstant, uint32_t( constants.Num() ) );
 
 	shader.handle = shaderHandle;
+	
+	// SRS - Free the shader blob data, otherwise a leak will occur
+	Mem_Free( shaderBlob.data );
 }
 
 /*

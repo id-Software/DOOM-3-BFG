@@ -920,6 +920,7 @@ void idCommonLocal::RenderBink( const char* path )
 	materialText.Format( "{ translucent { videoMap %s } }", path );
 
 	idMaterial* material = const_cast<idMaterial*>( declManager->FindMaterial( "splashbink" ) );
+	material->FreeData();	// SRS - always free data before parsing, otherwise leaks occur
 	material->Parse( materialText.c_str(), materialText.Length(), false );
 	material->ResetCinematicTime( Sys_Milliseconds() );
 

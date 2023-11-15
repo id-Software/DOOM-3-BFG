@@ -525,6 +525,7 @@ int idSaveGameThread::Enumerate()
 				// DG: just use the idFile object's timestamp - the windows code gets file attributes and
 				//  other complicated stuff like that.. I'm wonderin what that was good for.. this seems to work.
 				details->date = file->Timestamp();
+				delete file;
 #endif // DG end
 			}
 			else

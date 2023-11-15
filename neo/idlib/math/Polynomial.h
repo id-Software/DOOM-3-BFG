@@ -190,6 +190,8 @@ ID_INLINE idPolynomial idPolynomial::operator-() const
 
 ID_INLINE idPolynomial& idPolynomial::operator=( const idPolynomial& p )
 {
+	allocated = p.allocated;
+	coefficient = p.coefficient;
 	Resize( p.degree, false );
 	for( int i = 0; i <= degree; i++ )
 	{
