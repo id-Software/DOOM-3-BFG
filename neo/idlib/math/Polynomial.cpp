@@ -231,7 +231,6 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 
 	p = idPolynomial( -5.0f, 4.0f, 3.0f );
 	num = p.GetRoots( roots );
@@ -240,7 +239,6 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 
 	p = idPolynomial( 1.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( roots );
@@ -249,7 +247,6 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 
 	p = idPolynomial( 5.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( roots );
@@ -258,7 +255,6 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 
 	p = idPolynomial( -5.0f, 4.0f, 3.0f, 2.0f, 1.0f );
 	num = p.GetRoots( roots );
@@ -267,7 +263,6 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 
 	p = idPolynomial( 1.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( complexRoots );
@@ -276,7 +271,6 @@ void idPolynomial::Test()
 		complexValue = p.GetValue( complexRoots[i] );
 		assert( idMath::Fabs( complexValue.r ) < 1e-4f && idMath::Fabs( complexValue.i ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 
 	p = idPolynomial( 5.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( complexRoots );
@@ -285,5 +279,4 @@ void idPolynomial::Test()
 		complexValue = p.GetValue( complexRoots[i] );
 		assert( idMath::Fabs( complexValue.r ) < 1e-4f && idMath::Fabs( complexValue.i ) < 1e-4f );
 	}
-	Mem_Free16( p.coefficient );
 }
