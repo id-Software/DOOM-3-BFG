@@ -164,6 +164,9 @@ void idCommonLocal::StopPlayingRenderDemo()
 
 	readDemo->Close();
 
+	// SRS - free entity joints allocated by demo playback, otherwise will leak
+	R_FreeDerivedData();
+
 	soundWorld->StopAllSounds();
 	soundSystem->SetPlayingSoundWorld( menuSoundWorld );
 
