@@ -58,7 +58,7 @@ public:
 	}
 
 private:
-	int refCount;
+	std::atomic<int> refCount;
 };
 
 /*

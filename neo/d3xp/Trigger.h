@@ -272,6 +272,7 @@ private:
 class idTrigger_Touch : public idTrigger
 {
 public:
+	~idTrigger_Touch();
 
 	CLASS_PROTOTYPE( idTrigger_Touch );
 

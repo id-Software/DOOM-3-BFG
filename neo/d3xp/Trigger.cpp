@@ -1292,6 +1292,17 @@ idTrigger_Touch::idTrigger_Touch()
 
 /*
 ================
+idTrigger_Touch::~idTrigger_Touch
+================
+*/
+idTrigger_Touch::~idTrigger_Touch()
+{
+	// SRS - Delete clipModel on cleanup, otherwise will leak
+	delete clipModel;
+}
+
+/*
+================
 idTrigger_Touch::Spawn
 ================
 */

@@ -86,6 +86,14 @@ idFont::~idFont
 */
 idFont::~idFont()
 {
+	// SRS - Free glyph data before deleting fontInfo, otherwise will leak
+	if( fontInfo )
+	{
+		Mem_Free( fontInfo->glyphData );
+		fontInfo->glyphData = NULL;
+		Mem_Free( fontInfo->charIndex );
+		fontInfo->charIndex = NULL;
+	}
 	delete fontInfo;
 }
 

@@ -184,7 +184,7 @@ public:
 	void					PrintToConsole() const;
 
 private:
-	int refCount;
+	std::atomic<int> refCount;
 	bool noAutoDelete;
 
 	enum swfNamedVarFlags_t
