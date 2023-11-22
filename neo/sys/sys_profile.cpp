@@ -342,7 +342,15 @@ bool idSaveGameProcessorSaveProfile::InitSaveProfile( idPlayerProfile* profile_,
 	// Serialize the profile and pass a file to the processor
 	profileFile = new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_PROFILE_FILENAME, SAVEGAMEFILE_BINARY | SAVEGAMEFILE_AUTO_DELETE );
 	profileFile->MakeWritable();
-	profileFile->SetMaxLength( MAX_PROFILE_SIZE );
+	// SRS - Use SetLength()/TruncateData() vs. SetMaxLength() to avoid setting maxSize to non-zero value
+	//	   - maxSize seems to have overloaded semantics that implies an externally-managed buffer: see
+	//	     	a) idFile_Memory::idFile_Memory( const char* name, char* data, int length ), and
+	//			b) idFile_Memory::~idFile_Memory()
+	//	   - This change avoids a leak caused by skipping internally-managed file memory cleanup in the
+	//		 idFile_Memory::~idFile_Memory() destructor (on write completion) when maxSize is non-zero
+	//	   - Note the serializer already enforces MAX_PROFILE_SIZE so file system enforcement not needed
+	profileFile->SetLength( MAX_PROFILE_SIZE );
+	profileFile->TruncateData( 0 );
 
 	// Create a serialization object and let the game serialize the settings into the buffer
 	const int serializeSize = MAX_PROFILE_SIZE - 8;	// -8 for checksum (all platforms) and length (on 360)
