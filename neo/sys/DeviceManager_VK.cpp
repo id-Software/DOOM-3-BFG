@@ -32,13 +32,13 @@
 #include <unordered_set>
 
 #include "renderer/RenderCommon.h"
+#include "framework/Common_local.h"
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
 // SRS - optionally needed for MoltenVK runtime config visibility
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	#include <MoltenVK/vk_mvk_moltenvk.h>
-	#include "framework/Common_local.h"
 	idCVar r_mvkSynchronousQueueSubmits( "r_mvkSynchronousQueueSubmits", "0", CVAR_BOOL | CVAR_INIT, "Use MoltenVK's synchronous queue submit option." );
 #endif
 #include <nvrhi/validation.h>
@@ -222,6 +222,9 @@ private:
 #endif
 #if defined( VK_KHR_format_feature_flags2 )
 			VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME,
+#endif
+#if defined( VK_EXT_memory_budget )
+			VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
 #endif
 			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
 		},
@@ -1335,14 +1338,30 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 
 void DeviceManager_VK::BeginFrame()
 {
+	OPTICK_CATEGORY( "Vulkan_BeginFrame", Optick::Category::Wait );
+
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 #if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
-	// SRS - fetch MoltenVK's Vulkan to Metal encoding time for the previous frame
+	// SRS - get MoltenVK's Metal encoding time and GPU memory usage for display in statistics overlay HUD
 	MVKPerformanceStatistics mvkPerfStats;
 	size_t mvkPerfStatsSize = sizeof( mvkPerfStats );
 	vkGetPerformanceStatisticsMVK( m_VulkanDevice, &mvkPerfStats, &mvkPerfStatsSize );
 	commonLocal.SetRendererMvkEncodeMicroseconds( uint64( Max( 0.0, mvkPerfStats.queue.submitCommandBuffers.latest - mvkPerfStats.queue.retrieveCAMetalDrawable.latest ) * 1000.0 ) );
+	commonLocal.SetRendererGpuMemoryMB( int( mvkPerfStats.device.gpuMemoryAllocated.latest / 1024.0 ) );
 #endif
+#elif defined( VK_EXT_memory_budget )
+	// SRS - get Vulkan GPU memory usage for display in statistics overlay HUD
+	vk::PhysicalDeviceMemoryProperties2 memoryProperties2;
+	vk::PhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
+	memoryProperties2.pNext = &memoryBudget;
+	m_VulkanPhysicalDevice.getMemoryProperties2( &memoryProperties2 );
+
+	VkDeviceSize gpuMemoryAllocated = 0;
+	for( uint32_t i = 0; i < memoryProperties2.memoryProperties.memoryHeapCount; i++ )
+	{
+		gpuMemoryAllocated += memoryBudget.heapUsage[i];
+	}
+	commonLocal.SetRendererGpuMemoryMB( int( gpuMemoryAllocated / 1024 / 1024 ) );
 #endif
 
 	const vk::Result res = m_VulkanDevice.acquireNextImageKHR( m_SwapChain,

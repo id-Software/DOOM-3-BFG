@@ -225,8 +225,10 @@ float idConsoleLocal::DrawFPS( float y )
 	extern idCVar r_swapInterval;
 
 	static float previousTimes[FPS_FRAMES];
+	static float previousCpuUsage[FPS_FRAMES] = {};
+	static float previousGpuUsage[FPS_FRAMES] = {};
 	static float previousTimesNormalized[FPS_FRAMES_HISTORY];
-	static int index;
+	static int index = 0;
 	static int previous;
 	static int valuesOffset = 0;
 
@@ -239,6 +241,8 @@ float idConsoleLocal::DrawFPS( float y )
 	previous = t;
 
 	int fps = 0;
+	float cpuUsage = 0.0;
+	float gpuUsage = 0.0;
 
 	const float milliSecondsPerFrame = 1000.0f / com_engineHz_latched;
 
@@ -253,6 +257,8 @@ float idConsoleLocal::DrawFPS( float y )
 		for( int i = 0 ; i < FPS_FRAMES ; i++ )
 		{
 			total += previousTimes[i];
+			cpuUsage += previousCpuUsage[i];
+			gpuUsage += previousGpuUsage[i];
 		}
 		if( !total )
 		{
@@ -260,6 +266,8 @@ float idConsoleLocal::DrawFPS( float y )
 		}
 		fps = 1000000 * FPS_FRAMES / total;
 		fps = ( fps + 500 ) / 1000;
+		cpuUsage /= FPS_FRAMES;
+		gpuUsage /= FPS_FRAMES;
 
 		const char* s = va( "%ifps", fps );
 		int w = strlen( s ) * BIGCHAR_WIDTH;
@@ -315,6 +323,10 @@ float idConsoleLocal::DrawFPS( float y )
 
 	// SRS - GPU idle time is simply the difference between measured frame-over-frame time and GPU busy time (directly from GPU timers)
 	const int64 rendererGPUIdleTime = frameBusyTime + frameIdleTime - rendererGPUTime;
+
+	// SRS - Save current CPU and GPU usage factors in ring buffer to calculate smoothed averages for future frames
+	previousCpuUsage[(index - 1) % FPS_FRAMES] = float( frameBusyTime - frameSyncTime ) / float( frameBusyTime + frameIdleTime ) * 100.0;
+	previousGpuUsage[(index - 1) % FPS_FRAMES] = float( rendererGPUTime ) / float( rendererGPUTime + rendererGPUIdleTime ) * 100.0;
 
 #if 1
 
@@ -428,7 +440,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::TextColored( colorCyan, "API: %s, AA[%i, %i]: %s, %s", API, width, height, aaMode, resolutionText.c_str() );
 
-		ImGui::TextColored( colorGold, "Device: %s", deviceManager->GetRendererString() );
+		ImGui::TextColored( colorGold, "Device: %s, Memory: %i MB", deviceManager->GetRendererString(), commonLocal.GetRendererGpuMemoryMB() );
 
 		ImGui::TextColored( colorLtGrey, "GENERAL: views:%i draws:%i tris:%i",
 							commonLocal.stats_frontend.c_numViews,
@@ -478,7 +490,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
-			const char* overlay = va( "Average FPS %i", fps );
+			const char* overlay = va( "Average FPS %-4i", fps );
 
 			ImGui::PlotLines( "Relative\nFrametime ms", previousTimesNormalized, FPS_FRAMES_HISTORY, valuesOffset, overlay, -10.0f, 10.0f, ImVec2( 0, 50 ) );
 		}
@@ -508,7 +520,7 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( frameBusyTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite, "Total:   %5lld us   Total:        %5lld us", frameBusyTime, rendererGPUTime );
 		ImGui::TextColored( colorWhite,														"Idle:    %5lld us   Idle:         %5lld us", frameIdleTime, rendererGPUIdleTime );
 		// SRS - Show CPU and GPU overall usage statistics
-		ImGui::TextColored( colorWhite,														"Usage:     %3.0f %%    Usage:          %3.0f %%", float( frameBusyTime - frameSyncTime ) / float( frameBusyTime + frameIdleTime ) * 100.0, float( rendererGPUTime ) / float( rendererGPUTime + rendererGPUIdleTime ) * 100.0 );
+		ImGui::TextColored( colorWhite,														"Usage:     %3.0f %%    Usage:          %3.0f %%", cpuUsage, gpuUsage );
 
 		ImGui::End();
 	}

@@ -429,6 +429,8 @@ if(USE_VULKAN)
 	if(USE_VMA)
 		add_definitions(-DUSE_AMD_ALLOCATOR)
 		include_directories("libs/vma/include")
+		file(GLOB VMA_INCLUDES libs/vma/include/*.h)
+		source_group("libs\\vma" FILES ${VMA_INCLUDES})
 	endif()
 
 endif()
@@ -1304,6 +1306,7 @@ set(RBDOOM3_INCLUDES
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES}
 			${OGGVORBIS_INCLUDES}
+			${VMA_INCLUDES}
 			${OPTICK_INCLUDES}
 			${UI_INCLUDES}
 			${SWF_INCLUDES}

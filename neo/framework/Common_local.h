@@ -382,13 +382,24 @@ public:
 	// SRS start
 	void		SetRendererMvkEncodeMicroseconds( uint64 mvkEncodeMicroSeconds )
 	{
-		mvkEncodeMicroSec = mvkEncodeMicroSeconds;
+		metal_encode = mvkEncodeMicroSeconds;
 		return;
 	}
 
 	uint64		GetRendererMvkEncodeMicroseconds() const
 	{
-		return mvkEncodeMicroSec;
+		return metal_encode;
+	}
+
+	void		SetRendererGpuMemoryMB( int gpuMemoryMB )
+	{
+		gpu_memory = gpuMemoryMB;
+		return;
+	}
+
+	int			GetRendererGpuMemoryMB() const
+	{
+		return gpu_memory;
 	}
 	// SRS end
 
@@ -604,8 +615,11 @@ private:
 	// RB: r_speeds counters
 	backEndCounters_t		stats_backend;
 	performanceCounters_t	stats_frontend;
+
 	// SRS - MoltenVK's Vulkan to Metal command buffer encoding time, set default to 0 for non-macOS platforms (Windows and Linux)
-	uint64					mvkEncodeMicroSec = 0;
+	uint64					metal_encode = 0;
+	// SRS - Cross-platform GPU Memory usage counter, set default to 0 in case platform or graphics API does not support queries
+	int						gpu_memory = 0;
 
 	// Used during loading screens
 	int					lastPacifierSessionTime;
