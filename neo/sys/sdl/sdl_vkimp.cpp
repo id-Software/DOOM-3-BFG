@@ -558,6 +558,10 @@ void VKimp_Shutdown()
 		window = nullptr;
 	}
 
+	if( SDL_WasInit( 0 ) )
+	{
+		SDL_Quit();
+	}
 }
 
 /* Eric: Is this needed/used for Vulkan?
