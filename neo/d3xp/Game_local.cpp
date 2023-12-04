@@ -4312,7 +4312,21 @@ idEntity* idGameLocal::FindTraceEntity( idVec3 start, idVec3 end, const idTypeIn
 	bestScale = 1.0f;
 	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
 	{
-		if( ent->IsType( c ) && ent != skip )
+		// RB: use edit origin for lights
+		if( ent->IsType( idLight::Type ) && ent->IsType( c ) && ent != skip )
+		{
+			b[0] = b[1] = ent->GetEditOrigin();
+			b = b.Expand( 16 );
+			if( b.RayIntersection( start, end - start, scale ) )
+			{
+				if( scale >= 0.0f && scale < bestScale )
+				{
+					bestEnt = ent;
+					bestScale = scale;
+				}
+			}
+		}
+		else if( ent->IsType( c ) && ent != skip )
 		{
 			b = ent->GetPhysics()->GetAbsBounds().Expand( 16 );
 			if( b.RayIntersection( start, end - start, scale ) )

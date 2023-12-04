@@ -66,6 +66,7 @@ public:
 	idVec3		lightCenter;
 	idVec3		color;
 
+	bool		hasLightOrigin;
 	idVec3		origin;
 	idAngles	angles;			// RBDOOM specific, saved to map as "angles"
 	idVec3		scale;			// not saved to .map

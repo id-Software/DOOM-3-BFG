@@ -62,6 +62,7 @@ void LightInfo::Defaults()
 	hasCenter = false;
 	lightStyle = -1;
 
+	hasLightOrigin = false;
 	angles.Zero();
 	scale.Set( 1, 1, 1 );
 }
@@ -70,8 +71,11 @@ void LightInfo::Defaults()
 void LightInfo::DefaultPoint()
 {
 	idVec3 oldColor = color;
+	bool oldHasLightOrigin = hasLightOrigin;
 	Defaults();
 	color = oldColor;
+	hasLightOrigin = oldHasLightOrigin;
+
 	lightType = LIGHT_POINT;
 	lightRadius[0] = lightRadius[1] = lightRadius[2] = 300;
 	equalRadius = true;
@@ -80,8 +84,11 @@ void LightInfo::DefaultPoint()
 void LightInfo::DefaultProjected()
 {
 	idVec3 oldColor = color;
+	bool oldHasLightOrigin = hasLightOrigin;
 	Defaults();
 	color = oldColor;
+	hasLightOrigin = oldHasLightOrigin;
+
 	lightType = LIGHT_SPOT;
 	lightTarget[2] = -256;
 	lightUp[1] = -128;
@@ -91,8 +98,11 @@ void LightInfo::DefaultProjected()
 void LightInfo::DefaultSun()
 {
 	idVec3 oldColor = color;
+	bool oldHasLightOrigin = hasLightOrigin;
 	Defaults();
 	color = oldColor;
+	hasLightOrigin = oldHasLightOrigin;
+
 	lightType = LIGHT_SUN;
 	lightCenter.Set( 4, 4, 32 );
 	lightRadius[0] = lightRadius[1] = 2048;
@@ -102,7 +112,14 @@ void LightInfo::DefaultSun()
 
 void LightInfo::FromDict( const idDict* e )
 {
-	e->GetVector( "origin", "", origin );
+	if( e->GetVector( "light_origin", "", origin ) )
+	{
+		hasLightOrigin = true;
+	}
+	else
+	{
+		e->GetVector( "origin", "", origin );
+	}
 
 	lightRadius.Zero();
 	lightTarget.Zero();
@@ -121,9 +138,9 @@ void LightInfo::FromDict( const idDict* e )
 
 	if( !e->GetVector( "_color", "", color ) )
 	{
-		color[0] = color[1] = color[2] = 1.0f;
 		// NOTE: like the game, imgui uses color values between 0.0 and 1.0
 		//       even though it displays them as 0 to 255
+		color[0] = color[1] = color[2] = 1.0f;
 	}
 
 	if( e->GetVector( "light_right", "", lightRight ) )
@@ -145,6 +162,7 @@ void LightInfo::FromDict( const idDict* e )
 		else
 		{
 			explicitStartEnd = false;
+
 			// create a start a quarter of the way to the target
 			lightStart = lightTarget * 0.25;
 			lightEnd = lightTarget;
@@ -168,6 +186,7 @@ void LightInfo::FromDict( const idDict* e )
 			lightRadius[0] = lightRadius[1] = lightRadius[2] = radius;
 			equalRadius = true;
 		}
+
 		if( e->GetVector( "light_center", "", lightCenter ) )
 		{
 			hasCenter = true;
@@ -180,35 +199,38 @@ void LightInfo::FromDict( const idDict* e )
 	// get the rotation matrix in either full form, or single angle form
 	idMat3 axis;
 
-	if( !e->GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", axis ) )
+	if( !e->GetMatrix( "light_rotation", "1 0 0 0 1 0 0 0 1", axis ) )
 	{
-		// RB: TrenchBroom interop
-		// support "angles" like in Quake 3
-
-		if( e->GetAngles( "angles", "0 0 0", angles ) )
+		if( !e->GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", axis ) )
 		{
-			if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
+			// RB: TrenchBroom interop
+			// support "angles" like in Quake 3
+
+			if( e->GetAngles( "angles", "0 0 0", angles ) )
 			{
+				angles[ 0 ] = idMath::AngleNormalize360( angles[ 0 ] );
+				angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
+				angles[ 2 ] = idMath::AngleNormalize360( angles[ 2 ] );
+
 				axis = angles.ToMat3();
 			}
 			else
 			{
-				axis.Identity();
-			}
-		}
-		else
-		{
-			float angle = e->GetFloat( "angle" );
-			if( angle != 0.0f )
-			{
-				axis = idAngles( 0.0f, angle, 0.0f ).ToMat3();
-			}
-			else
-			{
-				axis.Identity();
+				e->GetFloat( "angle", "0", angles[ 1 ] );
+
+				angles[ 0 ] = 0;
+				angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
+				angles[ 2 ] = 0;
+
+				axis = angles.ToMat3();
 			}
 		}
 	}
+
+	// fix degenerate identity matrices
+	axis[0].FixDegenerateNormal();
+	axis[1].FixDegenerateNormal();
+	axis[2].FixDegenerateNormal();
 
 	angles = axis.ToAngles();
 	scale.Set( 1, 1, 1 );
@@ -218,7 +240,14 @@ void LightInfo::FromDict( const idDict* e )
 // and thus will contain pairs with value "" if the key should be removed from entity
 void LightInfo::ToDict( idDict* e )
 {
-	e->SetVector( "origin", origin );
+	if( hasLightOrigin )
+	{
+		e->SetVector( "light_origin", origin );
+	}
+	else
+	{
+		e->SetVector( "origin", origin );
+	}
 
 	// idGameEdit::EntityChangeSpawnArgs() will delete key/value from entity,
 	// if value is "" => use DELETE_VAL for readability
@@ -308,7 +337,14 @@ void LightInfo::ToDict( idDict* e )
 	}
 
 	e->Set( "rotation", DELETE_VAL );
-	//if( angles.yaw != 0.0f || angles.pitch != 0.0f || angles.roll != 0.0f )
+	e->Set( "light_rotation", DELETE_VAL );
+
+	if( hasLightOrigin )
+	{
+		e->SetAngles( "light_angles", angles );
+	}
+	else
+		//if( angles.yaw != 0.0f || angles.pitch != 0.0f || angles.roll != 0.0f )
 	{
 		e->SetAngles( "angles", angles );
 	}

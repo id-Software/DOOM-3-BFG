@@ -55,7 +55,6 @@ public:
 	virtual void	Think();
 	virtual void	ClientThink( const int curTime, const float fraction, const bool predict );
 	virtual void	FreeEnvprobeDef();
-	virtual bool	GetPhysicsToSoundTransform( idVec3& origin, idMat3& axis );
 	void			Present();
 
 	void			SaveState( idDict* args );

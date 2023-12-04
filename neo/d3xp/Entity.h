@@ -346,58 +346,83 @@ public:
 	// physics
 	// set a new physics object to be used by this entity
 	void					SetPhysics( idPhysics* phys );
+
 	// get the physics object used by this entity
 	idPhysics* 				GetPhysics() const;
+
 	// restore physics pointer for save games
 	void					RestorePhysics( idPhysics* phys );
+
 	// run the physics for this entity
 	bool					RunPhysics();
+
 	// Interpolates the physics, used on MP clients.
 	void					InterpolatePhysics( const float fraction );
+
 	// InterpolatePhysics actually calls evaluate, this version doesn't.
 	void					InterpolatePhysicsOnly( const float fraction, bool updateTeam = false );
+
 	// set the origin of the physics object (relative to bindMaster if not NULL)
 	void					SetOrigin( const idVec3& org );
+
 	// set the axis of the physics object (relative to bindMaster if not NULL)
 	void					SetAxis( const idMat3& axis );
+
 	// use angles to set the axis of the physics object (relative to bindMaster if not NULL)
 	void					SetAngles( const idAngles& ang );
+
 	// get the floor position underneath the physics object
 	bool					GetFloorPos( float max_dist, idVec3& floorpos ) const;
+
 	// retrieves the transformation going from the physics origin/axis to the visual origin/axis
 	virtual bool			GetPhysicsToVisualTransform( idVec3& origin, idMat3& axis );
+
 	// retrieves the transformation going from the physics origin/axis to the sound origin/axis
 	virtual bool			GetPhysicsToSoundTransform( idVec3& origin, idMat3& axis );
+
 	// called from the physics object when colliding, should return true if the physics simulation should stop
 	virtual bool			Collide( const trace_t& collision, const idVec3& velocity );
+
 	// retrieves impact information, 'ent' is the entity retrieving the info
 	virtual void			GetImpactInfo( idEntity* ent, int id, const idVec3& point, impactInfo_t* info );
+
 	// apply an impulse to the physics object, 'ent' is the entity applying the impulse
 	virtual void			ApplyImpulse( idEntity* ent, int id, const idVec3& point, const idVec3& impulse );
+
 	// add a force to the physics object, 'ent' is the entity adding the force
 	virtual void			AddForce( idEntity* ent, int id, const idVec3& point, const idVec3& force );
+
 	// activate the physics object, 'ent' is the entity activating this entity
 	virtual void			ActivatePhysics( idEntity* ent );
+
 	// returns true if the physics object is at rest
 	virtual bool			IsAtRest() const;
+
 	// returns the time the physics object came to rest
 	virtual int				GetRestStartTime() const;
+
 	// add a contact entity
 	virtual void			AddContactEntity( idEntity* ent );
+
 	// remove a touching entity
 	virtual void			RemoveContactEntity( idEntity* ent );
 
 	// damage
 	// returns true if this entity can be damaged from the given origin
 	virtual bool			CanDamage( const idVec3& origin, idVec3& damagePoint ) const;
+
 	// applies damage to this entity
 	virtual	void			Damage( idEntity* inflictor, idEntity* attacker, const idVec3& dir, const char* damageDefName, const float damageScale, const int location );
+
 	// adds a damage effect like overlays, blood, sparks, debris etc.
 	virtual void			AddDamageEffect( const trace_t& collision, const idVec3& velocity, const char* damageDefName );
+
 	// callback function for when another entity received damage from this entity.  damage can be adjusted and returned to the caller.
 	virtual void			DamageFeedback( idEntity* victim, idEntity* inflictor, int& damage );
+
 	// notifies this entity that it is in pain
 	virtual bool			Pain( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
+
 	// notifies this entity that is has been killed
 	virtual void			Killed( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
 
@@ -557,8 +582,10 @@ private:
 	// physics
 	// initialize the default physics
 	void					InitDefaultPhysics( const idVec3& origin, const idMat3& axis, const idDeclEntityDef* def );
+
 	// update visual position from the physics
 	void					UpdateFromPhysics( bool moveBack );
+
 	// get physics timestep
 	virtual int				GetPhysicsTimeStep() const;
 
@@ -573,13 +600,14 @@ private:
 	// events
 public:
 // jmarshall
-	idVec3					GetOrigin();
+	idVec3					GetOrigin() const;
 	float					DistanceTo( idEntity* ent );
 	float					DistanceTo( const idVec3& pos ) const;
 	idStr					GetNextKey( const char* prefix, const char* lastMatch );
 // jmarshall end
 
 	idVec3					GetOriginBrushOffset() const;
+	virtual idVec3			GetEditOrigin() const;			// RB: used by idEditEntities
 
 	void					Event_GetName();
 	void					Event_SetName( const char* name );

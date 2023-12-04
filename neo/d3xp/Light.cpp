@@ -131,10 +131,19 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 	{
 		if( !args->GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", mat ) )
 		{
+			// RB: light_angles is specific for lights that have been modified by the editLights command
+			// these lights have a static model and are not proper grouped using func_group
+			if( args->GetAngles( "light_angles", "0 0 0", angles ) )
+			{
+				angles[ 0 ] = idMath::AngleNormalize360( angles[ 0 ] );
+				angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
+				angles[ 2 ] = idMath::AngleNormalize360( angles[ 2 ] );
+
+				mat = angles.ToMat3();
+			}
 			// RB: TrenchBroom interop
 			// support "angles" like in Quake 3
-
-			if( args->GetAngles( "angles", "0 0 0", angles ) )
+			else if( args->GetAngles( "angles", "0 0 0", angles ) )
 			{
 				angles[ 0 ] = idMath::AngleNormalize360( angles[ 0 ] );
 				angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
@@ -1052,7 +1061,6 @@ idLight::ClientThink
 */
 void idLight::ClientThink( const int curTime, const float fraction, const bool predict )
 {
-
 	InterpolatePhysics( fraction );
 
 	if( baseColor != nextBaseColor )
@@ -1075,6 +1083,12 @@ bool idLight::GetPhysicsToSoundTransform( idVec3& origin, idMat3& axis )
 	origin = localLightOrigin + renderLight.lightCenter;
 	axis = localLightAxis * GetPhysics()->GetAxis();
 	return true;
+}
+
+// RB
+idVec3 idLight::GetEditOrigin() const
+{
+	return ( GetPhysics()->GetOrigin() + GetPhysics()->GetAxis() * localLightOrigin );
 }
 
 /*

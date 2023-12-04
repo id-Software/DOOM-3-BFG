@@ -82,10 +82,7 @@ void idGameEdit::ParseSpawnArgsToRenderEnvprobe( const idDict* args, renderEnvir
 
 	memset( renderEnvprobe, 0, sizeof( *renderEnvprobe ) );
 
-	if( !args->GetVector( "light_origin", "", renderEnvprobe->origin ) )
-	{
-		args->GetVector( "origin", "", renderEnvprobe->origin );
-	}
+	args->GetVector( "origin", "", renderEnvprobe->origin );
 
 	// check for other attributes
 	args->GetVector( "_color", "1 1 1", color );
@@ -554,7 +551,6 @@ EnvironmentProbe::ClientThink
 */
 void EnvironmentProbe::ClientThink( const int curTime, const float fraction, const bool predict )
 {
-
 	InterpolatePhysics( fraction );
 
 	if( baseColor != nextBaseColor )
@@ -565,20 +561,6 @@ void EnvironmentProbe::ClientThink( const int curTime, const float fraction, con
 	}
 
 	Present();
-}
-
-/*
-================
-EnvironmentProbe::GetPhysicsToSoundTransform
-================
-*/
-bool EnvironmentProbe::GetPhysicsToSoundTransform( idVec3& origin, idMat3& axis )
-{
-	//origin = localEnvprobeOrigin + renderEnvprobe.lightCenter;
-	//axis = localLightAxis * GetPhysics()->GetAxis();
-	//return true;
-
-	return false;
 }
 
 /*

@@ -104,6 +104,7 @@ public:
 	{
 		return baseColor;
 	}
+	virtual idVec3	GetEditOrigin() const;
 	void			SetShader( const char* shadername );
 	void			SetLightParm( int parmnum, float value );
 	void			SetLightParms( float parm0, float parm1, float parm2, float parm3 );
