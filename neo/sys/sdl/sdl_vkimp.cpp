@@ -550,6 +550,8 @@ void VKimp_Shutdown()
 	if( deviceManager )
 	{
 		deviceManager->Shutdown();
+		delete deviceManager;
+		deviceManager = NULL;
 	}
 
 	if( window )

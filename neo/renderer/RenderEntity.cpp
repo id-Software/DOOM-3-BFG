@@ -165,7 +165,7 @@ int RenderEnvprobeLocal::GetIndex()
 void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 {
 	int i;
-	renderEntity_t ent;
+	renderEntity_t ent = {};
 	/* Initialize Pointers */
 	decals = NULL;
 	overlays = NULL;

@@ -721,7 +721,7 @@ ReadRenderLight
 */
 void	idRenderWorldLocal::ReadRenderLight()
 {
-	renderLight_t	light;
+	renderLight_t	light = {};
 	int				index, i;
 
 	common->ReadDemo()->ReadInt( index );

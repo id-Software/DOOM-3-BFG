@@ -69,6 +69,7 @@ idLobby::idLobby()
 
 	localReadSS				= NULL;
 	objMemory				= NULL;
+	lzwData                 = NULL;
 	haveSubmittedSnaps		= false;
 
 	state					= STATE_IDLE;
@@ -284,51 +285,58 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye )
 		{
 			assert( peers[p].GetConnectionState() == CONNECTION_FREE );
 		}
-
-		state = STATE_IDLE;
-
-		return;
 	}
+	else
+    {
+		NET_VERBOSE_PRINT( "NET: ShutdownLobby (%s)\n", GetLobbyName() );
 
-	NET_VERBOSE_PRINT( "NET: ShutdownLobby (%s)\n", GetLobbyName() );
-
-	for( int p = 0; p < peers.Num(); p++ )
-	{
-		if( peers[p].GetConnectionState() != CONNECTION_FREE )
+		for( int p = 0; p < peers.Num(); p++ )
 		{
-			SetPeerConnectionState( p, CONNECTION_FREE, skipGoodbye );		// This will send goodbye's
+			if( peers[p].GetConnectionState() != CONNECTION_FREE )
+			{
+				SetPeerConnectionState( p, CONNECTION_FREE, skipGoodbye );		// This will send goodbye's
+			}
 		}
-	}
 
-	// Remove any users that weren't handled in ResetPeers
-	// (this will happen as a client, because we won't get the reliable msg from the server since we are severing the connection)
-	for( int i = 0; i < GetNumLobbyUsers(); i++ )
-	{
-		lobbyUser_t* user = GetLobbyUser( i );
-		UnregisterUser( user );
-	}
+		// Remove any users that weren't handled in ResetPeers
+		// (this will happen as a client, because we won't get the reliable msg from the server since we are severing the connection)
+		for( int i = 0; i < GetNumLobbyUsers(); i++ )
+		{
+			lobbyUser_t* user = GetLobbyUser( i );
+			UnregisterUser( user );
+		}
 
-	FreeAllUsers();
+		FreeAllUsers();
 
-	host					= -1;
-	peerIndexOnHost			= -1;
-	isHost					= false;
-	needToDisplayMigrateMsg	= false;
-	migrationDlg			= GDM_INVALID;
+		host					= -1;
+		peerIndexOnHost			= -1;
+		isHost					= false;
+		needToDisplayMigrateMsg	= false;
+		migrationDlg			= GDM_INVALID;
 
-	partyToken				= 0;		// Reset our party token so we recompute
-	loaded					= false;
-	respondToArbitrate		= false;
-	waitForPartyOk			= false;
-	startLoadingFromHost	= false;
+		partyToken				= 0;		// Reset our party token so we recompute
+		loaded					= false;
+		respondToArbitrate		= false;
+		waitForPartyOk			= false;
+		startLoadingFromHost	= false;
 
-	snapDeltaAckQueue.Clear();
+		snapDeltaAckQueue.Clear();
 
-	// Shutdown the lobbyBackend
-	if( !retainMigrationInfo )
-	{
-		sessionCB->DestroyLobbyBackend( lobbyBackend );
-		lobbyBackend = NULL;
+		// Shutdown the lobbyBackend
+		if( !retainMigrationInfo )
+		{
+			sessionCB->DestroyLobbyBackend( lobbyBackend );
+			lobbyBackend = NULL;
+        }
+    }
+
+    // SRS - cleanup any allocations made for multiplayer networking support
+	if( objMemory )
+    {
+        Mem_Free( objMemory );
+        objMemory = NULL;
+        Mem_Free( lzwData );
+        lzwData = NULL;
 	}
 
 	state = STATE_IDLE;

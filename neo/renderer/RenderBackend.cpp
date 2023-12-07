@@ -64,7 +64,7 @@ bool drawView3D;
 SetVertexParm
 ================
 */
-static ID_INLINE void SetVertexParm( renderParm_t rp, const float* value )
+static ID_INLINE void SetVertexParm( renderParm_t rp, const float value[4] )
 {
 	renderProgManager.SetUniformValue( rp, value );
 }
@@ -74,11 +74,11 @@ static ID_INLINE void SetVertexParm( renderParm_t rp, const float* value )
 SetVertexParms
 ================
 */
-static ID_INLINE void SetVertexParms( renderParm_t rp, const float* value, int num )
+static ID_INLINE void SetVertexParms( renderParm_t rp, const float values[], int num )
 {
 	for( int i = 0; i < num; i++ )
 	{
-		renderProgManager.SetUniformValue( ( renderParm_t )( rp + i ), value + ( i * 4 ) );
+		renderProgManager.SetUniformValue( ( renderParm_t )( rp + i ), values + ( i * 4 ) );
 	}
 }
 
@@ -87,7 +87,7 @@ static ID_INLINE void SetVertexParms( renderParm_t rp, const float* value, int n
 SetFragmentParm
 ================
 */
-static ID_INLINE void SetFragmentParm( renderParm_t rp, const float* value )
+static ID_INLINE void SetFragmentParm( renderParm_t rp, const float value[4] )
 {
 	renderProgManager.SetUniformValue( rp, value );
 }
@@ -1657,6 +1657,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			{
 				shadowOffsets[ i ].x = vLight->imageAtlasOffset[ i ].x * ( 1.0f / r_shadowMapAtlasSize.GetInteger() );
 				shadowOffsets[ i ].y = vLight->imageAtlasOffset[ i ].y * ( 1.0f / r_shadowMapAtlasSize.GetInteger() );
+				shadowOffsets[ i ].z = 0.0f;
+				shadowOffsets[ i ].w = 0.0f;
 			}
 
 			SetVertexParms( RENDERPARM_SHADOW_ATLAS_OFFSET_0, &shadowOffsets[0][0], 6 );

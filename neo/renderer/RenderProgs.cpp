@@ -831,11 +831,11 @@ bool idRenderProgManager::IsShaderBound() const
 idRenderProgManager::SetRenderParms
 ================================================================================================
 */
-void idRenderProgManager::SetRenderParms( renderParm_t rp, const float* value, int num )
+void idRenderProgManager::SetRenderParms( renderParm_t rp, const float values[], int num )
 {
 	for( int i = 0; i < num; i++ )
 	{
-		SetRenderParm( ( renderParm_t )( rp + i ), value + ( i * 4 ) );
+		SetRenderParm( ( renderParm_t )( rp + i ), values + ( i * 4 ) );
 	}
 }
 
@@ -844,7 +844,7 @@ void idRenderProgManager::SetRenderParms( renderParm_t rp, const float* value, i
 idRenderProgManager::SetRenderParm
 ================================================================================================
 */
-void idRenderProgManager::SetRenderParm( renderParm_t rp, const float* value )
+void idRenderProgManager::SetRenderParm( renderParm_t rp, const float value[4] )
 {
 	SetUniformValue( rp, value );
 }

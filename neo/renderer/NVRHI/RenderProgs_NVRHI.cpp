@@ -287,7 +287,7 @@ void idRenderProgManager::KillAllShaders()
 idRenderProgManager::SetUniformValue
 ================================================================================================
 */
-void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float* value )
+void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float value[4] )
 {
 	for( int i = 0; i < 4; i++ )
 	{
