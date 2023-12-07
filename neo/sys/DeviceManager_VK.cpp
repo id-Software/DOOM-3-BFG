@@ -1243,7 +1243,10 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 {
 	OPTICK_SHUTDOWN();
 
-	m_VulkanDevice.waitIdle();
+	if( m_VulkanDevice )
+	{
+		m_VulkanDevice.waitIdle();
+	}
 
 	m_FrameWaitQuery = nullptr;
 

@@ -1387,8 +1387,8 @@ bool		VKimp_Init( glimpParms_t parms );
 bool		VKimp_SetScreenParms( glimpParms_t parms );
 
 // Destroys the rendering context, closes the window, resets the resolution,
-// and resets the gamma ramps.
-void		VKimp_Shutdown();
+// and resets the gamma ramps.  SRS - Optionally shuts down SDL for quit.
+void		VKimp_Shutdown( bool shutdownSDL );
 
 // Sets the hardware gamma ramps for gamma and brightness adjustment.
 // These are now taken as 16 bit values, so we can take full advantage

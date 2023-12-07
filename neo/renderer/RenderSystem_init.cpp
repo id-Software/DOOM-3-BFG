@@ -308,7 +308,7 @@ const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
 const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
 
-DeviceManager* deviceManager;
+DeviceManager* deviceManager = NULL;
 
 
 bool R_UseTemporalAA()
@@ -473,17 +473,6 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-
-			nvrhi::GraphicsAPI api = nvrhi::GraphicsAPI::D3D12;
-			if( !idStr::Icmp( r_graphicsAPI.GetString(), "vulkan" ) )
-			{
-				api = nvrhi::GraphicsAPI::VULKAN;
-			}
-			else if( !idStr::Icmp( r_graphicsAPI.GetString(), "dx12" ) )
-			{
-				api = nvrhi::GraphicsAPI::D3D12;
-			}
-			deviceManager = DeviceManager::Create( api );
 
 #if defined( VULKAN_USE_PLATFORM_SDL )
 			if( VKimp_Init( parms ) )
