@@ -2144,7 +2144,7 @@ bool idProgram::CompileText( const char* source, const char* text, bool console 
 	try
 #endif
 	{
-		compiler.CompileFile( text, source, console );
+		compiler.CompileFile( text, ospath.c_str(), console );
 
 		// check to make sure all functions prototyped have code
 		for( i = 0; i < varDefs.Num(); i++ )
