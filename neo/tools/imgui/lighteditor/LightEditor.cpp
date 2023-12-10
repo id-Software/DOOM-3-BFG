@@ -459,6 +459,9 @@ void LightEditor::Reset()
 	//boundsSnap[] = { 0.1f, 0.1f, 0.1f };
 	boundSizing = false;
 	boundSizingSnap = false;
+
+	shortcutSaveMapEnabled = true;
+	shortcutDuplicateLightEnabled = true;
 }
 
 namespace
@@ -642,6 +645,8 @@ void LightEditor::SaveChanges( bool saveMap )
 		gameEdit->MapCopyDictToEntityAtOrigin( entityPos, &d );
 	}
 
+	original = cur;
+
 	if( saveMap )
 	{
 		gameEdit->MapSave();
@@ -670,6 +675,7 @@ void LightEditor::DuplicateLight()
 		// spawn the new light
 		idDict d;
 		cur.ToDict( &d );
+		d.DeleteEmptyKeys();
 
 		entityName = gameEdit->GetUniqueEntityName( "light" );
 		d.Set( "name", entityName );
@@ -681,6 +687,9 @@ void LightEditor::DuplicateLight()
 		if( light )
 		{
 			gameEdit->MapAddEntity( &d );
+			gameEdit->ClearEntitySelection();
+			gameEdit->AddSelectedEntity( light );
+
 			Init( &d, light );
 		}
 	}
@@ -715,13 +724,15 @@ void LightEditor::Draw()
 		// TODO use view direction like just global values
 		if( io.KeyCtrl )
 		{
-			if( io.KeysDown[K_S] )
+			if( io.KeysDown[K_S] && shortcutSaveMapEnabled )
 			{
 				SaveChanges( true );
+				shortcutSaveMapEnabled = false;
 			}
-			else if( io.KeysDown[K_D] )
+			else if( io.KeysDown[K_D] && shortcutDuplicateLightEnabled )
 			{
 				DuplicateLight();
+				shortcutDuplicateLightEnabled = false;
 			}
 		}
 		else if( io.KeyAlt )
@@ -762,6 +773,17 @@ void LightEditor::Draw()
 		{
 			cur.origin.y -= 1;
 			changes = true;
+		}
+
+		// reenable commands if keys were released
+		if( ( !io.KeyCtrl || !io.KeysDown[K_S] ) && !shortcutSaveMapEnabled )
+		{
+			shortcutSaveMapEnabled = true;
+		}
+
+		if( ( !io.KeyCtrl || !io.KeysDown[K_D] ) && !shortcutDuplicateLightEnabled )
+		{
+			shortcutDuplicateLightEnabled = true;
 		}
 
 		if( !entityName.IsEmpty() )
@@ -1067,11 +1089,11 @@ void LightEditor::Draw()
 						DuplicateLight();
 					}
 
-					if( ImGui::MenuItem( "Delete", "Backspace" ) )
-					{
-						// TODO
-						goto exitLightEditor;
-					}
+					//if( ImGui::MenuItem( "Delete", "Backspace" ) )
+					//{
+					// TODO
+					//	goto exitLightEditor;
+					//}
 					ImGui::EndMenu();
 				}
 				ImGui::EndMainMenuBar();

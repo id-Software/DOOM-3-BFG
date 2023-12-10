@@ -123,6 +123,9 @@ private:
 	bool				boundSizing = false;
 	bool				boundSizingSnap = false;
 
+	bool				shortcutSaveMapEnabled;
+	bool				shortcutDuplicateLightEnabled;
+
 	void				LoadLightStyles();
 	static bool			StyleItemsGetter( void* data, int idx, const char** out_text );
 

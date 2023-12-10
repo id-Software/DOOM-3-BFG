@@ -104,20 +104,28 @@ public:
 
 	// set the granularity for the index
 	void				SetGranularity( int granularity );
+
 	// set hash size
 	void				SetHashSize( int hashSize );
+
 	// clear existing key/value pairs and copy all key/value pairs from other
 	idDict& 			operator=( const idDict& other );
+
 	// copy from other while leaving existing key/value pairs in place
 	void				Copy( const idDict& other );
+
 	// clear existing key/value pairs and transfer key/value pairs from other
 	void				TransferKeyValues( idDict& other );
+
 	// parse dict from parser
 	bool				Parse( idParser& parser );
+
 	// copy key/value pairs from other dict not present in this dict
 	void				SetDefaults( const idDict* dict );
+
 	// clear dict freeing up memory
 	void				Clear();
+
 	// print the dict
 	void				Print() const;
 
@@ -167,17 +175,25 @@ public:
 
 	int					GetNumKeyVals() const;
 	const idKeyValue* 	GetKeyVal( int index ) const;
+
 	// returns the key/value pair with the given key
 	// returns NULL if the key/value pair does not exist
 	const idKeyValue* 	FindKey( const char* key ) const;
+
 	// returns the index to the key/value pair with the given key
 	// returns -1 if the key/value pair does not exist
 	int					FindKeyIndex( const char* key ) const;
+
 	// delete the key/value pair with the given key
 	void				Delete( const char* key );
+
+	// RB: delete all keys with a "" value
+	void				DeleteEmptyKeys();
+
 	// finds the next key/value pair with the given key prefix.
 	// lastMatch can be used to do additional searches past the first match.
 	const idKeyValue* 	MatchPrefix( const char* prefix, const idKeyValue* lastMatch = NULL ) const;
+
 	// randomly chooses one of the key/value pairs with the given key prefix and returns it's value
 	const char* 		RandomPrefix( const char* prefix, idRandom& random ) const;
 
