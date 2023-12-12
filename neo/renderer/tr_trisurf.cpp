@@ -1819,8 +1819,8 @@ Uploads static vertices to the vertex cache.
 */
 void R_CreateDeformStaticVertices( deformInfo_t* deform, nvrhi::ICommandList* commandList )
 {
-	deform->staticAmbientCache = vertexCache.AllocStaticVertex( deform->verts, ALIGN( deform->numOutputVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ), commandList );
-	deform->staticIndexCache = vertexCache.AllocStaticIndex( deform->indexes, ALIGN( deform->numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ), commandList );
+	deform->staticAmbientCache = vertexCache.AllocStaticVertex( deform->verts, deform->numOutputVerts * sizeof( idDrawVert ), commandList );
+	deform->staticIndexCache = vertexCache.AllocStaticIndex( deform->indexes, deform->numIndexes * sizeof( triIndex_t ), commandList );
 }
 
 /*
@@ -1948,13 +1948,13 @@ void R_CreateStaticBuffersForTri( srfTriangles_t& tri, nvrhi::ICommandList* comm
 	// index cache
 	if( tri.indexes != NULL )
 	{
-		tri.indexCache = vertexCache.AllocStaticIndex( tri.indexes, ALIGN( tri.numIndexes * sizeof( tri.indexes[0] ), INDEX_CACHE_ALIGN ), commandList );
+		tri.indexCache = vertexCache.AllocStaticIndex( tri.indexes, tri.numIndexes * sizeof( tri.indexes[0] ), commandList );
 	}
 
 	// vertex cache
 	if( tri.verts != NULL )
 	{
-		tri.ambientCache = vertexCache.AllocStaticVertex( tri.verts, ALIGN( tri.numVerts * sizeof( tri.verts[0] ), VERTEX_CACHE_ALIGN ), commandList );
+		tri.ambientCache = vertexCache.AllocStaticVertex( tri.verts, tri.numVerts * sizeof( tri.verts[0] ), commandList );
 	}
 }
 

@@ -30,6 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 #include "../RenderCommon.h"
+#include "../VertexCache.h"
+
+extern idVertexCache vertexCache;
 
 #include "sys/DeviceManager.h"
 
@@ -185,24 +188,23 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 		idLib::Error( "idVertexBuffer::AllocBufferObject: allocSize = %i", allocSize );
 	}
 
-	size = allocSize;
+	size = ALIGN( allocSize, VERTEX_CACHE_ALIGN );
 	usage = _usage;
 
-	int numBytes = GetAllocedSize();
+	const int numBytes = GetAllocedSize();
 
 	nvrhi::BufferDesc vertexBufferDesc;
 	vertexBufferDesc.byteSize = numBytes;
 	vertexBufferDesc.isVertexBuffer = true;
+	vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 
 	if( usage == BU_DYNAMIC )
 	{
-		vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		vertexBufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
 		vertexBufferDesc.debugName = "Mapped idDrawVert vertex buffer";
 	}
 	else
 	{
-		vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		vertexBufferDesc.keepInitialState = true;
 		vertexBufferDesc.debugName = "Static idDrawVert vertex buffer";
 	}
@@ -307,13 +309,14 @@ void idVertexBuffer::Update( const void* data, int updateSize, int offset, bool 
 	assert( bufferHandle );
 	assert_16_byte_aligned( data );
 	assert( ( GetOffset() & 15 ) == 0 );
+	assert( ( offset & VERTEX_CACHE_ALIGN - 1 ) == 0 );
 
-	if( updateSize > GetSize() )
+	const int numBytes = ( updateSize + 15 ) & ~15;
+
+	if( offset + numBytes > GetSize() )
 	{
-		idLib::FatalError( "idVertexBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
+		idLib::FatalError( "idVertexBuffer::Update: size overrun, %i + %i > %i\n", offset, numBytes, GetSize() );
 	}
-
-	int numBytes = ( updateSize + 15 ) & ~15;
 
 	if( usage == BU_DYNAMIC )
 	{
@@ -450,10 +453,10 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 		idLib::Error( "idIndexBuffer::AllocBufferObject: allocSize = %i", allocSize );
 	}
 
-	size = allocSize;
+	size = ALIGN( allocSize, INDEX_CACHE_ALIGN );
 	usage = _usage;
 
-	int numBytes = GetAllocedSize();
+	const int numBytes = GetAllocedSize();
 
 	nvrhi::BufferDesc indexBufferDesc;
 	indexBufferDesc.byteSize = numBytes;
@@ -573,13 +576,14 @@ void idIndexBuffer::Update( const void* data, int updateSize, int offset, bool i
 	assert( bufferHandle );
 	assert_16_byte_aligned( data );
 	assert( ( GetOffset() & 15 ) == 0 );
-
-	if( updateSize > GetSize() )
-	{
-		idLib::FatalError( "idIndexBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
-	}
+	assert( ( offset & INDEX_CACHE_ALIGN - 1 ) == 0 );
 
 	const int numBytes = ( updateSize + 15 ) & ~15;
+
+	if( offset + numBytes > GetSize() )
+	{
+		idLib::FatalError( "idIndexBuffer::Update: size overrun, %i + %i > %i\n", offset, numBytes, GetSize() );
+	}
 
 	if( usage == BU_DYNAMIC )
 	{
@@ -717,7 +721,7 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 		idLib::Error( "idUniformBuffer::AllocBufferObject: allocSize = %i", allocSize );
 	}
 
-	size = allocSize;
+	size = ALIGN( allocSize, vertexCache.uniformBufferOffsetAlignment );
 	usage = allocatedUsage;
 
 	const int numBytes = GetAllocedSize();
@@ -725,14 +729,9 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	// This buffer is a shader resource as opposed to a constant buffer due to
 	// constant buffers not being able to be sub-ranged.
 	nvrhi::BufferDesc bufferDesc;
-	//bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;		// SRS - shouldn't this be initialized to CopyDest?
-	bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
-	//bufferDesc.keepInitialState = true;									// SRS - shouldn't this be set for BU_STATIC only?
-	bufferDesc.canHaveTypedViews = true;
-	bufferDesc.canHaveRawViews = true;
 	bufferDesc.byteSize = numBytes;
-	bufferDesc.structStride = sizeof( idVec4 );
-	bufferDesc.isConstantBuffer = true;
+	bufferDesc.structStride = sizeof( idVec4 );						// SRS - this defines a structured storage buffer vs. a constant buffer
+	bufferDesc.initialState = nvrhi::ResourceStates::Common;
 
 	if( usage == BU_DYNAMIC )
 	{
@@ -845,13 +844,14 @@ void idUniformBuffer::Update( const void* data, int updateSize, int offset, bool
 	assert( bufferHandle );
 	assert_16_byte_aligned( data );
 	assert( ( GetOffset() & 15 ) == 0 );
+	assert( ( offset & vertexCache.uniformBufferOffsetAlignment - 1 ) == 0 );
 
-	if( updateSize > GetSize() )
+	const int numBytes = ( updateSize + 15 ) & ~15;
+
+	if( offset + numBytes > GetSize() )
 	{
-		idLib::FatalError( "idUniformBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
+		idLib::FatalError( "idUniformBuffer::Update: size overrun, %i + %i > %i\n", offset, numBytes, GetSize() );
 	}
-
-	int numBytes = ( updateSize + 15 ) & ~15;
 
 	if( usage == BU_DYNAMIC )
 	{

@@ -215,7 +215,8 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 	assert( ( ( ( uintptr_t )( data ) ) & 15 ) == 0 );
 	// RB end
 
-	assert( ( bytes & 15 ) == 0 );
+	// SRS - enforce cache alignment without read beyond boundary for each cache type below
+	//assert( ( bytes & 15 ) == 0 );
 
 	int	endPos = 0;
 	int offset = 0;
@@ -224,13 +225,15 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 	{
 		case CACHE_INDEX:
 		{
-			endPos = vcs.indexMemUsed.Add( bytes );
+			// SRS - calculate alignedBytes retaining original to prevent read beyond data boundary during update
+			int alignedBytes = ALIGN( bytes, INDEX_CACHE_ALIGN );
+			endPos = vcs.indexMemUsed.Add( alignedBytes );
 			if( endPos > vcs.indexBuffer.GetAllocedSize() )
 			{
 				idLib::Error( "Out of index cache" );
 			}
 
-			offset = endPos - bytes;
+			offset = endPos - alignedBytes;
 
 			if( data != NULL )
 			{
@@ -245,13 +248,15 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 		}
 		case CACHE_VERTEX:
 		{
-			endPos = vcs.vertexMemUsed.Add( bytes );
+			// SRS - calculate alignedBytes retaining original to prevent read beyond data boundary during update
+			int alignedBytes = ALIGN( bytes, VERTEX_CACHE_ALIGN );
+			endPos = vcs.vertexMemUsed.Add( alignedBytes );
 			if( endPos > vcs.vertexBuffer.GetAllocedSize() )
 			{
 				idLib::Error( "Out of vertex cache" );
 			}
 
-			offset = endPos - bytes;
+			offset = endPos - alignedBytes;
 
 			if( data != NULL )
 			{
@@ -266,13 +271,15 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 		}
 		case CACHE_JOINT:
 		{
-			endPos = vcs.jointMemUsed.Add( bytes );
+			// SRS - calculate alignedBytes retaining original to prevent read beyond data boundary during update
+			int alignedBytes = ALIGN( bytes, uniformBufferOffsetAlignment );
+			endPos = vcs.jointMemUsed.Add( alignedBytes );
 			if( endPos > vcs.jointBuffer.GetAllocedSize() )
 			{
 				idLib::Error( "Out of joint buffer cache" );
 			}
 
-			offset = endPos - bytes;
+			offset = endPos - alignedBytes;
 
 			if( data != NULL )
 			{
@@ -308,7 +315,7 @@ idVertexCache::AllocVertex
 */
 vertCacheHandle_t idVertexCache::AllocVertex( const void* data, int num, size_t size /*= sizeof( idDrawVert ) */, nvrhi::ICommandList* commandList )
 {
-	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, VERTEX_CACHE_ALIGN ), CACHE_VERTEX, commandList );
+	return ActuallyAlloc( frameData[ listNum ], data, num * size, CACHE_VERTEX, commandList );
 }
 
 /*
@@ -318,7 +325,7 @@ idVertexCache::AllocIndex
 */
 vertCacheHandle_t idVertexCache::AllocIndex( const void* data, int num, size_t size /*= sizeof( triIndex_t ) */, nvrhi::ICommandList* commandList )
 {
-	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, INDEX_CACHE_ALIGN ), CACHE_INDEX, commandList );
+	return ActuallyAlloc( frameData[ listNum ], data, num * size, CACHE_INDEX, commandList );
 }
 
 /*
@@ -328,7 +335,7 @@ idVertexCache::AllocJoint
 */
 vertCacheHandle_t idVertexCache::AllocJoint( const void* data, int num, size_t size /*= sizeof( idJointMat ) */, nvrhi::ICommandList* commandList )
 {
-	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, uniformBufferOffsetAlignment ), CACHE_JOINT, commandList );
+	return ActuallyAlloc( frameData[ listNum ], data, num * size, CACHE_JOINT, commandList );
 }
 
 /*

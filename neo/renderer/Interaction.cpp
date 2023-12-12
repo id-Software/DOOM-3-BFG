@@ -661,7 +661,7 @@ void idInteraction::CreateStaticInteraction( nvrhi::ICommandList* commandList )
 			{
 				// make a static index cache
 				sint->numLightTrisIndexes = lightTris->numIndexes;
-				sint->lightTrisIndexCache = vertexCache.AllocStaticIndex( lightTris->indexes, ALIGN( lightTris->numIndexes * sizeof( lightTris->indexes[0] ), INDEX_CACHE_ALIGN ), commandList );
+				sint->lightTrisIndexCache = vertexCache.AllocStaticIndex( lightTris->indexes, lightTris->numIndexes * sizeof( lightTris->indexes[0] ), commandList );
 
 				interactionGenerated = true;
 				R_FreeStaticTriSurf( lightTris );
