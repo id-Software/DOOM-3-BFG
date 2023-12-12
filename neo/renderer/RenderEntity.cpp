@@ -165,7 +165,9 @@ int RenderEnvprobeLocal::GetIndex()
 void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 {
 	int i;
-	renderEntity_t ent = {};
+	renderEntity_t ent;
+	// SRS - fully initialize ent so that memcmp() in UpdateEntityDef() works properly
+	memset( &ent, 0, sizeof( renderEntity_t ) );
 	/* Initialize Pointers */
 	decals = NULL;
 	overlays = NULL;

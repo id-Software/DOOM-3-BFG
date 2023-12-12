@@ -903,6 +903,13 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceTimeSt
 		{
 			img.Alloc( img.dataSize * 2 );
 		}
+		// SRS - For compressed formats, match allocation to what nvrhi expects for the texture's mip variants
+		else if( ( textureFormat_t )fileData.format == FMT_DXT1 || ( textureFormat_t )fileData.format == FMT_DXT5 )
+		{
+		    int mipCols = ( ( ( ( fileData.width + 3 ) & ~3 ) >> img.level ) + 3 ) / 4;
+            int mipRows = ( ( ( ( fileData.height + 3 ) & ~3 ) >> img.level ) + 3 ) / 4;
+		    img.Alloc( Max( img.dataSize, mipCols * mipRows * BlockSizeForFormat( ( textureFormat_t )fileData.format ) ) );
+		}
 		else
 		{
 			img.Alloc( img.dataSize );

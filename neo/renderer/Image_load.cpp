@@ -718,7 +718,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 				bufferW = ( img.width + 3 ) & ~3;
 			}
 
-			commandList->writeTexture( texture, img.destZ, img.level, pic, GetRowPitch( opts.format, img.width ) );
+			commandList->writeTexture( texture, img.destZ, img.level, pic, GetRowPitch( opts.format, bufferW ) );
 		}
 	}
 	commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
