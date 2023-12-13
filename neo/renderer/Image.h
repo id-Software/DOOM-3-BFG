@@ -114,7 +114,7 @@ enum textureFormat_t
 };
 
 int BitsForFormat( textureFormat_t format );
-int BlockSizeForFormat( const textureFormat_t& format );
+int GetRowPitch( const textureFormat_t& format, int width );
 
 /*
 ================================================

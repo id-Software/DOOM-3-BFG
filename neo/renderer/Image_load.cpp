@@ -120,7 +120,7 @@ GetRowBytes
 Returns the row bytes for the given image.
 =========================
 */
-static int GetRowPitch( const textureFormat_t& format, int width )
+int GetRowPitch( const textureFormat_t& format, int width )
 {
 	bool bc = ( format == FMT_DXT1 || format == FMT_DXT5 );
 
@@ -718,7 +718,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 				bufferW = ( img.width + 3 ) & ~3;
 			}
 
-			commandList->writeTexture( texture, img.destZ, img.level, pic, GetRowPitch( opts.format, bufferW ) );
+			commandList->writeTexture( texture, img.destZ, img.level, pic, GetRowPitch( opts.format, img.width ) );
 		}
 	}
 	commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
