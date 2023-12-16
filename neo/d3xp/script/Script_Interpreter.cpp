@@ -214,9 +214,9 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 	idVarDef*		d;
 	char			funcObject[ 1024 ];
 	char*			funcName;
-	const idVarDef*	scope;
+	const idVarDef*	scope = NULL;
+	const idVarDef*	scopeObj;
 	const idTypeDef*	field;
-	const idScriptObject* obj;
 	const function_t* func;
 
 	out.Empty();
@@ -244,40 +244,44 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 	if( funcName )
 	{
 		*funcName = '\0';
-		scope = gameLocal.program.GetDef( NULL, funcObject, &def_namespace );
+		scopeObj = gameLocal.program.GetDef( NULL, funcObject, &def_namespace );
 		funcName += 2;
+		if( scopeObj )
+		{
+			scope = gameLocal.program.GetDef( NULL, funcName, scopeObj );
+		}
 	}
 	else
 	{
 		funcName = funcObject;
-		scope = &def_namespace;
+		scope = gameLocal.program.GetDef( NULL, func->Name(), &def_namespace );
+		scopeObj = NULL;
 	}
 
-	// Get the function from the object
-	d = gameLocal.program.GetDef( NULL, funcName, scope );
-	if( !d )
+	if( !scope )
 	{
 		return false;
 	}
 
-	// Get the variable itself and check various namespaces
-	d = gameLocal.program.GetDef( NULL, name, d );
+	d = gameLocal.program.GetDef( NULL, name, scope );
+
+	// Check the objects for it if it wasnt local to the function
 	if( !d )
 	{
-		if( scope == &def_namespace )
+		for( ; scopeObj && scopeObj->TypeDef()->SuperClass(); scopeObj = scopeObj->TypeDef()->SuperClass()->def )
 		{
-			return false;
-		}
-
-		d = gameLocal.program.GetDef( NULL, name, scope );
-		if( !d )
-		{
-			d = gameLocal.program.GetDef( NULL, name, &def_namespace );
-			if( !d )
+			d = gameLocal.program.GetDef( NULL, name, scopeObj );
+			if( d )
 			{
-				return false;
+				break;
 			}
 		}
+	}
+
+	if( !d )
+	{
+		out = "???";
+		return false;
 	}
 
 	reg = GetVariable( d );
@@ -320,15 +324,25 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 			break;
 
 		case ev_field:
+		{
+			idEntity*		entity;
+			idScriptObject*	obj;
+
 			if( scope == &def_namespace )
 			{
 				// should never happen, but handle it safely anyway
 				return false;
 			}
 
-			field = scope->TypeDef()->GetParmType( reg.ptrOffset )->FieldType();
-			obj   = *reinterpret_cast<const idScriptObject**>( &localstack[ callStack[ callStackDepth ].stackbase ] );
-			if( !field || !obj )
+			field  = d->TypeDef()->FieldType();
+			entity = GetEntity( *( ( int* )&localstack[ localstackBase ] ) );
+			if( !entity || !field )
+			{
+				return false;
+			}
+
+			obj = &entity->scriptObject;
+			if( !obj )
 			{
 				return false;
 			}
@@ -343,10 +357,29 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 					out = va( "%g", *( reinterpret_cast<float*>( &obj->data[ reg.ptrOffset ] ) ) );
 					return true;
 
+				case ev_string:
+				{
+					const char* str;
+					str = reinterpret_cast<const char*>( &obj->data[ reg.ptrOffset ] );
+					if( !str )
+					{
+						out = "\"\"";
+					}
+					else
+					{
+						out  = "\"";
+						out += str;
+						out += "\"";
+					}
+					return true;
+				}
+
 				default:
 					return false;
 			}
+
 			break;
+		}
 
 		case ev_string:
 			if( reg.stringPtr )

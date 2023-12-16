@@ -42,9 +42,7 @@ class idRestoreGame;
 #define MAX_STRING_LEN		128
 #define MAX_GLOBALS			296608			// in bytes
 #define MAX_STRINGS			1024
-
 #define MAX_FUNCS			3584
-
 #define MAX_STATEMENTS		131072			// statement_t - 18 bytes last I checked
 
 typedef enum
@@ -317,9 +315,9 @@ typedef union varEval_s
 	float*					floatPtr;
 	idVec3*					vectorPtr;
 	function_t*				functionPtr;
-	int*					 intPtr;
+	int*					intPtr;
 	byte*					bytePtr;
-	int*					 entityNumberPtr;
+	int*					entityNumberPtr;
 	int						virtualFunction;
 	int						jumpOffset;
 	int						stackOffset;		// offset in stack for local variables
@@ -335,9 +333,9 @@ class idVarDef
 	friend class idVarDefName;
 
 public:
-	int						num;
+	int						num;			// global index/ID of variable
 	varEval_t				value;
-	idVarDef* 				scope; 			// function, namespace, or object the var was defined in
+	idVarDef* 				scope;			// function, namespace, or object the var was defined in
 	int						numUsers;		// number of users if this is a constant
 
 	typedef enum
@@ -464,11 +462,20 @@ extern	idVarDef	def_boolean;
 typedef struct statement_s
 {
 	unsigned short	op;
+	unsigned short	flags; // DG: added this for ugly hacks
+	enum
+	{
+		// op is OP_OBJECTCALL and when the statement was created the function/method
+		// implementation hasn't been parsed yet (only the declaration/prototype)
+		// see idCompiler::EmitFunctionParms() and idProgram::CalculateChecksum()
+		FLAG_OBJECTCALL_IMPL_NOT_PARSED_YET = 1,
+	};
+	// DG: moved linenumber and file up here to prevent wasting 8 bytes of padding on 64bit
+	unsigned short	linenumber;
+	unsigned short	file;
 	idVarDef*		a;
 	idVarDef*		b;
 	idVarDef*		c;
-	unsigned short	linenumber;
-	unsigned short	file;
 } statement_t;
 
 /***********************************************************************
@@ -509,6 +516,8 @@ private:
 	int											top_files;
 
 	void										CompileStats();
+	byte*										ReserveDefMemory( int size );
+	idVarDef*									AllocVarDef( idTypeDef* type, const char* name, idVarDef* scope );
 
 public:
 	idVarDef*									returnDef;
@@ -520,7 +529,7 @@ public:
 	// save games
 	void										Save( idSaveGame* savefile ) const;
 	bool										Restore( idRestoreGame* savefile );
-	int											CalculateChecksum() const;		// Used to insure program code has not
+	int											CalculateChecksum( bool forOldSavegame ) const;		// Used to insure program code has not
 	//    changed between savegames
 
 	void										Startup( const char* defaultScript );
@@ -543,13 +552,6 @@ public:
 	idTypeDef*									AllocType( etype_t etype, idVarDef* edef, const char* ename, int esize, idTypeDef* aux );
 	idTypeDef*									GetType( idTypeDef& type, bool allocate );
 	idTypeDef*									FindType( const char* name );
-
-	// RB begin
-private:
-	byte*										ReserveDefMemory( int size );
-	idVarDef*									AllocVarDef( idTypeDef* type, const char* name, idVarDef* scope );
-public:
-	// RB end
 
 	idVarDef*									AllocDef( idTypeDef* type, const char* name, idVarDef* scope, bool constant );
 	idVarDef*									GetDef( const idTypeDef* type, const char* name, const idVarDef* scope ) const;

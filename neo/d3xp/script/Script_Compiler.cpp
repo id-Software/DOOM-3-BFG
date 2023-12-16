@@ -1255,6 +1255,26 @@ idVarDef* idCompiler::EmitFunctionParms( int op, idVarDef* func, int startarg, i
 		// need arg size separate since script object may be NULL
 		statement_t& statement = gameLocal.program.GetStatement( gameLocal.program.NumStatements() - 1 );
 		statement.c = SizeConstant( func->value.functionPtr->parmTotal );
+		// DG: before changes I did to ParseFunctionDef(), func->value.functionPtr->parmTotal was 0
+		//     if the function declaration/prototype has been parsed already, but the
+		//     definition/implementation hadn't been parsed yet. That was wrong and sometimes
+		//     (with debug game DLLs) lead to assertions in custom scripts, because the
+		//     stack space reserved for function parameters was wrong.
+		//     Now func->value.functionPtr->parmTotal is calculated when parsing the prototype,
+		//     but func->value.functionPtr->parmSize[i] is still only calculated when parsing
+		//     the implementation (as it's not needed before and so we can tell the cases apart here).
+		//     However, savegames from before the change have script checksums
+		//     (by idProgram::CalculateChecksum()) from statements with the wrong size, so
+		//     loading them would fail as the checksum doesn't match.
+		//     Setting this flag allows using the parmTotal argSize 0 when calculating the checksum
+		//     so it matches the one from old savegames (unless something else has also changed in
+		//     the script state so they really are incompatible). That's only done when actually
+		//     loading old savegames (detected via BUILD_NUMBER/savegame.GetBuildNumber())
+		if( op == OP_OBJECTCALL && func->value.functionPtr->parmTotal > 0
+				&& func->value.functionPtr->parmSize.Num() == 0 )
+		{
+			statement.flags = statement_t::FLAG_OBJECTCALL_IMPL_NOT_PARSED_YET;
+		}
 	}
 	else
 	{
@@ -2638,16 +2658,38 @@ void idCompiler::ParseFunctionDef( idTypeDef* returnType, const char* name )
 		}
 	}
 
-	// check if this is a prototype or declaration
+	// DG: make sure parmTotal gets calculated when parsing prototype (not just when parsing
+	//     implementation) so calling this function/method before the implementation has been parsed
+	//     works without getting Assertions in IdInterpreter::Execute() and ::LeaveFunction()
+	//     ("st->c->value.argSize == func->parmTotal", "localstackUsed == localstackBase", see #303 and #344)
+
+	// calculate stack space used by parms
+	numParms = type->NumParameters();
 	if( !CheckToken( "{" ) )
 	{
 		// it's just a prototype, so get the ; and move on
 		ExpectToken( ";" );
+		// DG: BUT only after calculating the stack space for the arguments because this
+		// function might be called before the implementation is parsed (see #303 and #344)
+		// which otherwise causes Assertions in IdInterpreter::Execute() and ::LeaveFunction()
+		// ("st->c->value.argSize == func->parmTotal", "localstackUsed == localstackBase")
+		func->parmTotal = 0;
+		for( i = 0; i < numParms; i++ )
+		{
+			parmType = type->GetParmType( i );
+			int size = parmType->Inherits( &type_object ) ? type_object.Size() : parmType->Size();
+			func->parmTotal += size;
+			// NOTE: Don't set func->parmSize[] yet, the workaround to keep compatibility
+			//       with old savegames checks for func->parmSize.Num() == 0
+			//       (see EmitFunctionParms() for more explanation of that workaround)
+			// Also not defining the parms yet, otherwise they're defined in a different order
+			// than before, so their .num is different which breaks compat with old savegames
+		}
 		return;
 	}
 
-	// calculate stack space used by parms
-	numParms = type->NumParameters();
+
+	int totalSize = 0; // DG: totalsize might already have been calculated for the prototype, see a few lines above
 	func->parmSize.SetNum( numParms );
 	for( i = 0; i < numParms; i++ )
 	{
@@ -2660,8 +2702,11 @@ void idCompiler::ParseFunctionDef( idTypeDef* returnType, const char* name )
 		{
 			func->parmSize[ i ] = parmType->Size();
 		}
-		func->parmTotal += func->parmSize[ i ];
+		totalSize += func->parmSize[ i ];
 	}
+	// DG: if parmTotal has been calculated before, it shouldn't have changed
+	assert( ( func->parmTotal == 0 || totalSize == func->parmTotal ) && "function parameter sizes differ between protype vs implementation?!" );
+	func->parmTotal = totalSize;
 
 	// define the parms
 	for( i = 0; i < numParms; i++ )
@@ -3175,6 +3220,8 @@ void idCompiler::CompileFile( const char* text, const char* filename, bool toCon
 
 	compile_time.Start();
 
+	idStr origFileName = filename; // DG: filename pointer might become invalid when calling NextToken() below
+
 	scope				= &def_namespace;
 	basetype			= NULL;
 	callthread			= false;
@@ -3258,6 +3305,11 @@ void idCompiler::CompileFile( const char* text, const char* filename, bool toCon
 	compile_time.Stop();
 	if( !toConsole )
 	{
-		gameLocal.Printf( "Compiled '%s': %.1f ms\n", filename, compile_time.Milliseconds() );
+		// DG: filename can be overwritten by NextToken() (via gameLocal.program.GetFilenum()), so
+		//     use a copy, origFileName, that's still valid here. Furthermore, the path is nonsense,
+		//     as idProgram::CompileText() called fileSystem->RelativePathToOSPath() on it
+		//     which does not return the *actual* full path of that file but invents one,
+		//     so revert that to the relative filename which at least isn't misleading
+		gameLocal.Printf( "Compiled '%s': %u ms\n", fileSystem->OSPathToRelativePath( origFileName ), compile_time.Milliseconds() );
 	}
 }

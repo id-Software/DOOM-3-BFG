@@ -1224,7 +1224,7 @@ void LightEditor::Draw()
 		TempApplyChanges();
 	}
 
-exitLightEditor:
+//exitLightEditor:
 
 	if( isShown && !showTool )
 	{
