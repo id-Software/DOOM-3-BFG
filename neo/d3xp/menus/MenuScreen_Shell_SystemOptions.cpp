@@ -34,7 +34,7 @@ const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
 extern idCVar r_graphicsAPI;
 extern idCVar r_antiAliasing;
-extern idCVar r_useFilmicPostProcessing;
+extern idCVar r_usePostProcessing;
 extern idCVar r_swapInterval;
 extern idCVar s_volume_dB;
 extern idCVar r_exposure; // RB: use this to control HDR exposure or brightness in LDR mode
@@ -421,7 +421,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	//originalShadowMapping = r_useShadowMapping.GetInteger();
 	originalSSAO = r_useSSAO.GetInteger();
 	originalAmbientBrightness = r_forceAmbient.GetFloat();
-	originalPostProcessing = r_useFilmicPostProcessing.GetInteger();
+	originalPostProcessing = r_usePostProcessing.GetInteger();
 	// RB end
 
 	const int fullscreen = r_fullscreen.GetInteger();
@@ -597,7 +597,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		{
 			static const int numValues = 2;
 			static const int values[numValues] = { 0, 1 };
-			r_useFilmicPostProcessing.SetInteger( AdjustOption( r_useFilmicPostProcessing.GetInteger(), values, numValues, adjustAmount ) );
+			r_usePostProcessing.SetInteger( AdjustOption( r_usePostProcessing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		/*
@@ -760,7 +760,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			return values[ r_antiAliasing.GetInteger() ];
 		}
 		case SYSTEM_FIELD_POSTFX:
-			if( r_useFilmicPostProcessing.GetInteger() > 0 )
+			if( r_usePostProcessing.GetInteger() > 0 )
 			{
 				return "#str_swf_enabled";
 			}
@@ -848,7 +848,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 		return true;
 	}
 
-	if( originalPostProcessing != r_useFilmicPostProcessing.GetInteger() )
+	if( originalPostProcessing != r_usePostProcessing.GetInteger() )
 	{
 		return true;
 	}

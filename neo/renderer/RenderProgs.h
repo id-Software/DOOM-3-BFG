@@ -365,6 +365,7 @@ enum
 	BUILTIN_SKYBOX,
 	BUILTIN_WOBBLESKY,
 	BUILTIN_POSTPROCESS,
+	BUILTIN_POSTPROCESS_RETRO_C64,
 	// RB begin
 	BUILTIN_SCREEN,
 	BUILTIN_TONEMAP,
@@ -815,6 +816,11 @@ public:
 	void	BindShader_PostProcess()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS );
+	}
+
+	void	BindShader_PostProcess_RetroC64()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_C64 );
 	}
 
 	void	BindShader_Screen()

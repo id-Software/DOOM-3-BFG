@@ -5979,7 +5979,7 @@ void idRenderBackend::PostProcess( const void* data )
 	// only do the post process step if resolution scaling is enabled. Prevents the unnecessary copying of the framebuffer and
 	// corresponding full screen quad pass.
 	/*
-	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessing.GetBool() && r_antiAliasing.GetInteger() == 0 )
+	if( rs_enable.GetInteger() == 0 && !r_usePostProcessing.GetBool() && r_antiAliasing.GetInteger() == 0 )
 	{
 		return;
 	}
@@ -6102,7 +6102,7 @@ void idRenderBackend::PostProcess( const void* data )
 	}
 #endif
 
-	if( r_useFilmicPostProcessing.GetBool() )
+	if( r_usePostProcessing.GetInteger() > 0 )
 	{
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
@@ -6119,7 +6119,14 @@ void idRenderBackend::PostProcess( const void* data )
 		GL_SelectTexture( 1 );
 		globalImages->blueNoiseImage256->Bind();
 
-		renderProgManager.BindShader_PostProcess();
+		if( r_usePostProcessing.GetInteger() == 2 )
+		{
+			renderProgManager.BindShader_PostProcess_RetroC64();
+		}
+		else
+		{
+			renderProgManager.BindShader_PostProcess();
+		}
 
 		float jitterTexOffset[4];
 		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
