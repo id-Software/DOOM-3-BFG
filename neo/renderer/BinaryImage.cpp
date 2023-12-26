@@ -907,8 +907,8 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceTimeSt
 		else if( ( textureFormat_t )fileData.format == FMT_DXT1 || ( textureFormat_t )fileData.format == FMT_DXT5 )
 		{
 			int rowPitch = GetRowPitch( ( textureFormat_t )fileData.format, img.width );
-            int mipRows = ( ( ( ( fileData.height + 3 ) & ~3 ) >> img.level ) + 3 ) / 4;
-		    img.Alloc( Max( img.dataSize, rowPitch * mipRows ) );
+			int mipRows = ( ( ( ( fileData.height + 3 ) & ~3 ) >> img.level ) + 3 ) / 4;
+			img.Alloc( Max( img.dataSize, rowPitch * mipRows ) );
 		}
 		else
 		{

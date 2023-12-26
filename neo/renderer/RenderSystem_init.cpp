@@ -1738,32 +1738,32 @@ void idRenderSystemLocal::Clear()
 
 	if( unitSquareTriangles != NULL )
 	{
-	    Mem_Free( unitSquareTriangles->verts );
-	    Mem_Free( unitSquareTriangles->indexes );
+		Mem_Free( unitSquareTriangles->verts );
+		Mem_Free( unitSquareTriangles->indexes );
 		Mem_Free( unitSquareTriangles );
 		unitSquareTriangles = NULL;
 	}
 
 	if( zeroOneCubeTriangles != NULL )
 	{
-	    Mem_Free( zeroOneCubeTriangles->verts );
-	    Mem_Free( zeroOneCubeTriangles->indexes );
+		Mem_Free( zeroOneCubeTriangles->verts );
+		Mem_Free( zeroOneCubeTriangles->indexes );
 		Mem_Free( zeroOneCubeTriangles );
 		zeroOneCubeTriangles = NULL;
 	}
 
 	if( zeroOneSphereTriangles != NULL )
 	{
-	    Mem_Free( zeroOneSphereTriangles->verts );
-	    Mem_Free( zeroOneSphereTriangles->indexes );
+		Mem_Free( zeroOneSphereTriangles->verts );
+		Mem_Free( zeroOneSphereTriangles->indexes );
 		Mem_Free( zeroOneSphereTriangles );
 		zeroOneSphereTriangles = NULL;
 	}
 
 	if( testImageTriangles != NULL )
 	{
-	    Mem_Free( testImageTriangles->verts );
-	    Mem_Free( testImageTriangles->indexes );
+		Mem_Free( testImageTriangles->verts );
+		Mem_Free( testImageTriangles->indexes );
 		Mem_Free( testImageTriangles );
 		testImageTriangles = NULL;
 	}

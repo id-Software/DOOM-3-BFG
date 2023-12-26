@@ -734,11 +734,11 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 
 	area->lightGrid.lightGridPoints.SetNum( numLightGridPoints );
 
-	idLib::Printf( "\narea %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
-	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
-	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
+	//common->DPrintf( "\narea %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
+	//common->DPrintf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
+	//common->DPrintf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
 	//idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
-	idLib::Printf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
+	//common->DPrintf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
 
 	if( fileOut != NULL )
 	{
@@ -824,11 +824,11 @@ void idRenderWorldLocal::ReadBinaryLightGridPoints( idFile* file )
 
 	area->lightGrid.lightGridPoints.SetNum( numLightGridPoints );
 
-	idLib::Printf( "\narea %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
-	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
-	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
+	//common->DPrintf( "\narea %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
+	//common->DPrintf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
+	//common->DPrintf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
 	//idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
-	idLib::Printf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
+	//common->DPrintf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
 
 	for( int i = 0; i < numLightGridPoints; i++ )
 	{

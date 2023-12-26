@@ -363,7 +363,8 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 	//
 	//if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) )
 	{
-		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS | GLS_SEPARATE_STENCIL ) ) != 0 )
+		// SRS - Eliminate r/w depth attachment validation warnings when depth-stencil is read-only
+		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS | GLS_SEPARATE_STENCIL ) ) != 0 || ( depthStencilState.depthTestEnable && !depthStencilState.depthWriteEnable ) )
 		{
 			depthStencilState.enableStencil();
 		}

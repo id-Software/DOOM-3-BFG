@@ -287,7 +287,7 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye )
 		}
 	}
 	else
-    {
+	{
 		NET_VERBOSE_PRINT( "NET: ShutdownLobby (%s)\n", GetLobbyName() );
 
 		for( int p = 0; p < peers.Num(); p++ )
@@ -327,16 +327,16 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye )
 		{
 			sessionCB->DestroyLobbyBackend( lobbyBackend );
 			lobbyBackend = NULL;
-        }
-    }
+		}
+	}
 
-    // SRS - cleanup any allocations made for multiplayer networking support
+	// SRS - cleanup any allocations made for multiplayer networking support
 	if( objMemory )
-    {
-        Mem_Free( objMemory );
-        objMemory = NULL;
-        Mem_Free( lzwData );
-        lzwData = NULL;
+	{
+		Mem_Free( objMemory );
+		objMemory = NULL;
+		Mem_Free( lzwData );
+		lzwData = NULL;
 	}
 
 	state = STATE_IDLE;
