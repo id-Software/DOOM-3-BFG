@@ -50,22 +50,12 @@ struct PS_OUT
 // *INDENT-ON*
 
 
-float3 BlueNoise3( float2 n, float x )
-{
-	float2 uv = n.xy * rpJitterTexOffset.xy;
-
-	float3 noise = t_BlueNoise.Sample( samp1, uv ).rgb;
-
-	noise = frac( noise + c_goldenRatioConjugate * rpJitterTexOffset.w * x );
-
-	return noise;
-}
-
 #define RESOLUTION_DIVISOR 4.0
 #define NUM_COLORS 16
 
+
 // find nearest palette color using Euclidean distance
-float4 EuclidDist( float3 c, float3 pal[NUM_COLORS] )
+float4 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 {
 	int idx = 0;
 	float nd = distance( c, pal[0] );
@@ -82,6 +72,71 @@ float4 EuclidDist( float3 c, float3 pal[NUM_COLORS] )
 	}
 
 	return float4( pal[idx], 1.0 );
+}
+
+float3 GetClosest( float3 val1, float3 val2, float3 target )
+{
+	if( distance( target, val1 ) >= distance( val2, target ) )
+	{
+		return val2;
+	}
+	else
+	{
+		return val1;
+	}
+}
+
+// find nearest palette color using Euclidean disntance and binary search
+// this requires an already sorted palette as input
+float3 BinarySearch( float3 target, float3 pal[NUM_COLORS] )
+{
+	float targetY = PhotoLuma( target );
+
+	// left-side case
+	if( targetY <= PhotoLuma( pal[0] ) )
+	{
+		return pal[0];
+	}
+
+	// right-side case
+	if( targetY >= PhotoLuma( pal[NUM_COLORS - 1] ) )
+	{
+		return pal[NUM_COLORS - 1];
+	}
+
+	int i = 0, j = NUM_COLORS, mid = 0;
+	while( i < j )
+	{
+		mid = ( i + j ) / 2;
+
+		if( distance( pal[mid], target ) < 0.01 )
+		{
+			return pal[mid];
+		}
+
+		// if target is less than array element, then search in left
+		if( targetY < PhotoLuma( pal[mid] ) )
+		{
+			// if target is greater than previous
+			// to mid, return closest of two
+			if( mid > 0 && targetY > PhotoLuma( pal[mid - 1] ) )
+			{
+				return GetClosest( pal[mid - 1], pal[mid], target );
+			}
+			j = mid;
+		}
+		else
+		{
+			if( mid < ( NUM_COLORS - 1 ) && targetY < PhotoLuma( pal[mid + 1] ) )
+			{
+				return GetClosest( pal[mid], pal[mid + 1], target );
+			}
+			i = mid + 1;
+		}
+	}
+
+	// only single element left after search
+	return pal[mid];
 }
 
 
@@ -151,7 +206,8 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	// find closest color match from C64 color palette
-	color = EuclidDist( color.rgb, palette );
+	color = LinearSearch( color.rgb, palette );
+	//color = float4( BinarySearch( color.rgb, palette ), 1.0 );
 
 	result.color = color;
 }
