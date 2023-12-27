@@ -411,8 +411,7 @@ This project's GitHub.net Git repository can be checked out through Git with the
 
 Existing repositories can be updated manually:
 
-	> git submodule init
-	> git submodule update --recursive
+	> git submodule update --init --recursive
 
 
 
@@ -428,7 +427,7 @@ Existing repositories can be updated manually:
 You can skip this step if you compile with DX12 only by adding -DUSE_VULKAN=OFF to the CMake options.
 
 4. Generate the VS2022 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2022-64bit-no-ffmpeg.bat`
+Recommended in this case is `cmake-vs2022-win64-no-ffmpeg.bat`
 
 5. Use the VS2022 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
