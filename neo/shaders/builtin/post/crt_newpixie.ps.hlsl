@@ -50,74 +50,205 @@ struct PS_OUT
 // *INDENT-ON*
 
 
-float2 curve( float2 uv )
+float3 tsample( Texture2D tex, vec2 tc, float offs, vec2 resolution )
+{
+#if 1
+	//tc = tc * vec2( 1.025, 0.92 ) + vec2( -0.0125, 0.04 );
+	float3 s = pow( abs( tex.Sample( LinearSampler, vec2( tc.x, 1.0 - tc.y ) ).rgb ), _float3( 2.2 ) );
+	return s * _float3( 1.25 );
+#else
+	float3 s = tex.Sample( LinearSampler, vec2( tc.x, 1.0 - tc.y ) ).rgb;
+	return s;
+#endif
+}
+
+float3 filmic( float3 LinearColor )
+{
+	float3 x = max( _float3( 0.0 ), LinearColor - _float3( 0.004 ) );
+	return ( x * ( 6.2 * x + 0.5 ) ) / ( x * ( 6.2 * x + 1.7 ) + 0.06 );
+}
+
+float2 curve( float2 uv, float curvature )
 {
 	uv = ( uv - 0.5 ) * 2.0;
 	uv *= 1.1;
 	uv.x *= 1.0 + pow( ( abs( uv.y ) / 5.0 ), 2.0 );
 	uv.y *= 1.0 + pow( ( abs( uv.x ) / 4.0 ), 2.0 );
-	uv  = ( uv / 2.0 ) + 0.5;
+	uv  = ( uv / curvature ) + 0.5;
+	uv =  uv * 0.92 + 0.04;
+	return uv;
+}
+
+float2 curve2( float2 uv, float curvature )
+{
+	uv = ( uv - 0.5 ) * 2.0;
+	uv *= 1.1;
+	uv.x *= 1.0 + pow( ( abs( uv.y ) / 4.0 ), 2.0 );
+	uv.y *= 1.0 + pow( ( abs( uv.x ) / 3.0 ), 2.0 );
+	uv  = ( uv / curvature ) + 0.5;
 	uv =  uv * 0.92 + 0.04;
 	return uv;
 }
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	//float2 uv = ( fragment.texcoord0 );
+	// revised version from RetroArch
 
-	//float4 color = t_Screen.Sample( samp0, uv );
+	struct Params
+	{
+		float curvature;
+		float ghosting;
+		float scanroll;
+		float vignette;
+		float wiggle_toggle;
+		int FrameCount;
+	};
 
-	float2 iResolution = rpWindowCoord.zw;
-	float iTime = rpJitterTexOffset.x;
+	Params params;
+	params.curvature = rpWindowCoord.x;
+	params.ghosting = 0.0;
+	params.scanroll = 1.0;
+	params.wiggle_toggle = 0.0;
+	params.vignette = rpWindowCoord.y;
+	params.FrameCount = int( rpJitterTexOffset.w );
 
-	float2 q = fragment.texcoord0.xy;
-	q = saturate( q );
+	// stop time variable so the screen doesn't wiggle
+	float time = params.FrameCount % 849 * 36.0;
+	float2 uv = fragment.texcoord0.xy;
+	uv.y = 1.0 - uv.y;
+	uv = saturate( uv );
 
-	float2 uv = q;
-	uv = curve( uv );
-	float3 oricol = t_CurrentRender.Sample( LinearSampler, float2( q.x, q.y ) ).xyz;
+	/* Curve */
+	//float2 curved_uv = lerp( curve2( uv, params.curvature ), uv, 0.4 );
+	//float scale = -0.101;
+	//float2 scuv = curved_uv * ( 1.0 - scale ) + scale / 2.0 + float2( 0.003, -0.001 );
+
+	//uv = scuv;
+
+	float2 curved_uv = uv;
+
+	if( params.curvature > 0.0 )
+	{
+		curved_uv = curve( uv, 2.0 );
+	}
+	float2 scuv = curved_uv;
+
+	float2 resolution = rpWindowCoord.zw;
+
+	/* Main color, Bleed */
 	float3 col;
-	float x =  sin( 0.3 * iTime + uv.y * 21.0 ) * sin( 0.7 * iTime + uv.y * 29.0 ) * sin( 0.3 + 0.33 * iTime + uv.y * 31.0 ) * 0.0017;
+	float x = params.wiggle_toggle * sin( 0.1 * time + curved_uv.y * 13.0 ) * sin( 0.23 * time + curved_uv.y * 19.0 ) * sin( 0.3 + 0.11 * time + curved_uv.y * 23.0 ) * 0.0012;
 
+	// make time do something again
+	time = float( params.FrameCount % 640 * 1 );
+
+	Texture2D backbuffer = t_CurrentRender;
+#if 1
+	col.r = tsample( backbuffer, vec2( x + scuv.x + 0.0009, scuv.y + 0.0009 ), resolution.y / 800.0, resolution ).x + 0.02;
+	col.g = tsample( backbuffer, vec2( x + scuv.x + 0.0000, scuv.y - 0.0011 ), resolution.y / 800.0, resolution ).y + 0.02;
+	col.b = tsample( backbuffer, vec2( x + scuv.x - 0.0015, scuv.y + 0.0000 ), resolution.y / 800.0, resolution ).z + 0.02;
+#else
 	col.r = t_CurrentRender.Sample( LinearSampler, float2( x + uv.x + 0.001, uv.y + 0.001 ) ).x + 0.05;
 	col.g = t_CurrentRender.Sample( LinearSampler, float2( x + uv.x + 0.000, uv.y - 0.002 ) ).y + 0.05;
 	col.b = t_CurrentRender.Sample( LinearSampler, float2( x + uv.x - 0.002, uv.y + 0.000 ) ).z + 0.05;
-	col.r += 0.08 * t_CurrentRender.Sample( LinearSampler, 0.75 * float2( x + 0.025, -0.027 ) + float2( uv.x + 0.001, uv.y + 0.001 ) ).x;
-	col.g += 0.05 * t_CurrentRender.Sample( LinearSampler, 0.75 * float2( x + -0.022, -0.02 ) + float2( uv.x + 0.000, uv.y - 0.002 ) ).y;
-	col.b += 0.08 * t_CurrentRender.Sample( LinearSampler, 0.75 * float2( x + -0.02, -0.018 ) + float2( uv.x - 0.002, uv.y + 0.000 ) ).z;
+#endif
 
-	col = clamp( col * 0.6 + 0.4 * col * col * 1.0, 0.0, 1.0 );
 
-	float vig = ( 0.0 + 1.0 * 16.0 * uv.x * uv.y * ( 1.0 - uv.x ) * ( 1.0 - uv.y ) );
-	col *= _float3( pow( vig, 0.3 ) );
 
+	/* Ghosting */
+#if 1
+	{
+		float o = sin( -fragment.position.y * 1.5 ) / resolution.x;
+		x += o * 0.25;
+
+		float ghs = 0.15 * params.ghosting;
+		Texture2D blurbuffer = t_CurrentRender; // FIXME
+		float3 r = tsample( blurbuffer, float2( x - 0.014 * 1.0, -0.027 ) * 0.85 + 0.007 * float2( 0.35 * sin( 1.0 / 7.0 + 15.0 * curved_uv.y + 0.9 * time ),
+							0.35 * sin( 2.0 / 7.0 + 10.0 * curved_uv.y + 1.37 * time ) ) + float2( scuv.x + 0.001, scuv.y + 0.001 ),
+							5.5 + 1.3 * sin( 3.0 / 9.0 + 31.0 * curved_uv.x + 1.70 * time ), resolution ).xyz * float3( 0.5, 0.25, 0.25 );
+		float3 g = tsample( blurbuffer, float2( x - 0.019 * 1.0, -0.020 ) * 0.85 + 0.007 * float2( 0.35 * cos( 1.0 / 9.0 + 15.0 * curved_uv.y + 0.5 * time ),
+							0.35 * sin( 2.0 / 9.0 + 10.0 * curved_uv.y + 1.50 * time ) ) + float2( scuv.x + 0.000, scuv.y - 0.002 ),
+							5.4 + 1.3 * sin( 3.0 / 3.0 + 71.0 * curved_uv.x + 1.90 * time ), resolution ).xyz * float3( 0.25, 0.5, 0.25 );
+		float3 b = tsample( blurbuffer, float2( x - 0.017 * 1.0, -0.003 ) * 0.85 + 0.007 * float2( 0.35 * sin( 2.0 / 3.0 + 15.0 * curved_uv.y + 0.7 * time ),
+							0.35 * cos( 2.0 / 3.0 + 10.0 * curved_uv.y + 1.63 * time ) ) + float2( scuv.x - 0.002, scuv.y + 0.000 ),
+							5.3 + 1.3 * sin( 3.0 / 7.0 + 91.0 * curved_uv.x + 1.65 * time ), resolution ).xyz * float3( 0.25, 0.25, 0.5 );
+
+		float i = clamp( col.r * 0.299 + col.g * 0.587 + col.b * 0.114, 0.0, 1.0 );
+		i = pow( 1.0 - pow( i, 2.0 ), 1.0 );
+		i = ( 1.0 - i ) * 0.85 + 0.15;
+
+		col += _float3( ghs * ( 1.0 - 0.299 ) ) * pow( clamp( _float3( 3.0 ) * r, _float3( 0.0 ), _float3( 1.0 ) ), _float3( 2.0 ) ) * _float3( i );
+		col += _float3( ghs * ( 1.0 - 0.587 ) ) * pow( clamp( _float3( 3.0 ) * g, _float3( 0.0 ), _float3( 1.0 ) ), _float3( 2.0 ) ) * _float3( i );
+		col += _float3( ghs * ( 1.0 - 0.114 ) ) * pow( clamp( _float3( 3.0 ) * b, _float3( 0.0 ), _float3( 1.0 ) ), _float3( 2.0 ) ) * _float3( i );
+	}
+#endif
+
+	/* Level adjustment (curves) */
+#if 1
 	col *= float3( 0.95, 1.05, 0.95 );
-	col *= 2.8;
+	col = clamp( col * 1.3 + 0.75 * col * col + 1.25 * col * col * col * col * col, _float3( 0.0 ), _float3( 10.0 ) );
+#endif
 
-	float scans = clamp( 0.35 + 0.35 * sin( 3.5 * iTime + uv.y * iResolution.y * 1.5 ), 0.0, 1.0 );
+	/* Vignette */
+#if 1
+	float vig = ( ( 1.0 - 0.99 * params.vignette ) + 1.0 * 16.0 * curved_uv.x * curved_uv.y * ( 1.0 - curved_uv.x ) * ( 1.0 - curved_uv.y ) );
+	vig = 1.3 * pow( vig, 0.5 );
+	col *= vig;
+#endif
 
-	float s = pow( scans, 1.7 );
-	col = col * _float3( 0.4 + 0.7 * s ) ;
+	time *= params.scanroll;
 
-	col *= 1.0 + 0.01 * sin( 110.0 * iTime );
-	if( uv.x < 0.0 || uv.x > 1.0 )
+	/* Scanlines */
+	float scans = clamp( 0.35 + 0.18 * sin( 6.0 * time - curved_uv.y * resolution.y * 1.5 ), 0.0, 1.0 );
+	float s = pow( scans, 0.9 );
+	col = col * _float3( s );
+
+	/* Vertical lines (shadow mask) */
+	col *= 1.0 - 0.23 * ( clamp( ( fragment.position.xy.x % 3.0 ) / 2.0, 0.0, 1.0 ) );
+
+	/* Tone map */
+	col = filmic( col );
+
+	/* Noise */
+#if 1
+	/*float2 seed = floor(curved_uv*resolution.xy*float2(0.5))/resolution.xy;*/
+	float2 seed = curved_uv * resolution.xy;
+	/* seed = curved_uv; */
+	col -= 0.015 * pow( float3( rand( seed + time ), rand( seed + time * 2.0 ), rand( seed + time * 3.0 ) ), _float3( 1.5 ) );
+#endif
+
+	/* Flicker */
+	col *= ( 1.0 - 0.004 * ( sin( 50.0 * time + curved_uv.y * 2.0 ) * 0.5 + 0.5 ) );
+
+	/* Clamp */
+#if 1
+	if( curved_uv.x < 0.0 || curved_uv.x > 1.0 )
 	{
 		col *= 0.0;
 	}
-	if( uv.y < 0.0 || uv.y > 1.0 )
+	if( curved_uv.y < 0.0 || curved_uv.y > 1.0 )
 	{
 		col *= 0.0;
 	}
+#endif
 
-	col *= 1.0 - 0.65 * _float3( clamp( ( fmod( fragment.texcoord0.x, 2.0 ) - 1.0 ) * 2.0, 0.0, 1.0 ) );
+	uv = curved_uv;
 
-	float comp = smoothstep( 0.1, 0.9, sin( iTime ) );
+#if 1
+	/* Frame */
+	float2 fscale = float2( 0.026, -0.018 ); //float2( -0.018, -0.013 );
+	//uv = float2( uv.x, 1.0 - uv.y );
 
-	// Remove the next line to stop cross-fade between original and postprocess
-	//col = mix( col, oricol, comp );
+	//float4 f = texture( frametexture, vTexCoord.xy ); //*((1.0)+2.0*fscale)-fscale-float2(-0.0, 0.005));
+	//f.xyz = mix( f.xyz, float3( 0.5, 0.5, 0.5 ), 0.5 );
+	float4 f = _float4( 0.5 );
+	float fvig = clamp( -0.00 + 512.0 * uv.x * uv.y * ( 1.0 - uv.x ) * ( 1.0 - uv.y ), 0.2, 0.8 );
+	//col = lerp( col, lerp( max( col, 0.0 ), pow( abs( f.xyz ), _float3( 1.4 ) ) * fvig, f.w * f.w ), _float3( use_frame ) );
+	//col = lerp( col, lerp( max( col, 0.0 ), pow( abs( f.xyz ), _float3( 1.4 ) ) * fvig, f.w * f.w ), _float3( 1.0 ) );
 
-	result.color = float4( col.x, col.y, col.z, 1.0 );
+	// Gamma correction since we are not rendering to an sRGB render target.
+	col = pow( col, _float3( 1.0 / 1.1 ) );
+#endif
 
-	//result.color = tex2D(samp0, fragment.texcoord0.xy );
-	//result.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	result.color = float4( col, 1.0 );
 }
