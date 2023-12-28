@@ -306,6 +306,8 @@ public:
 	virtual void				DrawBigChar( int x, int y, int ch ) = 0;
 	virtual void				DrawBigStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor ) = 0;
 
+	virtual void			DrawCRTPostFX() = 0; // RB
+
 	// dump all 2D drawing so far this frame to the demo file
 	virtual void			WriteDemoPics() = 0;
 	virtual void			WriteEndFrame() = 0;
@@ -359,9 +361,6 @@ public:
 	virtual void			CropRenderSize( int width, int height ) = 0;
 	virtual void            CropRenderSize( int x, int y, int width, int height, bool topLeftAncor ) = 0;
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false ) = 0;
-	// fixAlpha will set all the alpha channel values to 0xff, which allows screen captures
-	// to use the default tga loading code without having dimmed down areas in many places
-	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha = false ) = 0;
 	virtual void			UnCrop() = 0;
 
 	// the image has to be already loaded ( most straightforward way would be through a FindMaterial )

@@ -699,11 +699,12 @@ TR_CMDS
 enum renderCommand_t
 {
 	RC_NOP,
-	RC_DRAW_VIEW_3D,	// may be at a reduced resolution, will be upsampled before 2D GUIs
-	RC_DRAW_VIEW_GUI,	// not resolution scaled
+	RC_DRAW_VIEW_3D,		// may be at a reduced resolution, will be upsampled before 2D GUIs
+	RC_DRAW_VIEW_GUI,		// not resolution scaled
 	RC_SET_BUFFER,
 	RC_COPY_RENDER,
-	RC_POST_PROCESS,
+	RC_POST_PROCESS,		// postfx after scene rendering is done but before GUI rendering
+	RC_CRT_POST_PROCESS,	// CRT simulation after everything has been rendered on the final swapchain image
 };
 
 struct emptyCommand_t
@@ -744,6 +745,12 @@ struct postProcessCommand_t
 	renderCommand_t		commandId;
 	renderCommand_t* 	next;
 	viewDef_t* 			viewDef;
+};
+
+struct crtPostProcessCommand_t
+{
+	renderCommand_t		commandId;
+	renderCommand_t* 	next;
 };
 
 //=======================================================================
@@ -932,6 +939,8 @@ public:
 	virtual void			DrawBigChar( int x, int y, int ch );
 	virtual void			DrawBigStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor );
 
+	virtual void			DrawCRTPostFX(); // RB
+
 	virtual void			WriteDemoPics();
 	virtual void			WriteEndFrame();
 	virtual void			DrawDemoPics();
@@ -950,7 +959,6 @@ public:
 	virtual void			CropRenderSize( int width, int height );
 	virtual void            CropRenderSize( int x, int y, int width, int height, bool topLeftAncor );
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false );
-	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha );
 	virtual void			UnCrop();
 	virtual bool			UploadImage( const char* imageName, const byte* data, int width, int height );
 
@@ -1283,6 +1291,8 @@ extern idCVar r_taaClampingFactor;
 extern idCVar r_taaNewFrameWeight;
 extern idCVar r_taaMaxRadiance;
 extern idCVar r_taaMotionVectors;
+
+extern idCVar r_useCRTPostFX;
 // RB end
 
 /*

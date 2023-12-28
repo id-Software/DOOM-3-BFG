@@ -404,6 +404,8 @@ void idCommonLocal::Draw()
 
 		// draw the half console / notify console on top of everything
 		console->Draw( false );
+
+		renderSystem->DrawCRTPostFX();
 	}
 }
 

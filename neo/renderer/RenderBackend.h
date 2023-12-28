@@ -208,7 +208,9 @@ private:
 
 	// Experimental feature
 	void				MotionBlur();
+
 	void				PostProcess( const void* data );
+	void				CRTPostProcess();
 
 private:
 	void				GL_StartFrame();

@@ -5374,6 +5374,10 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 			}
 
+			case RC_CRT_POST_PROCESS:
+				CRTPostProcess();
+				break;
+
 			default:
 				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
 				break;
@@ -6170,4 +6174,75 @@ void idRenderBackend::PostProcess( const void* data )
 
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
+}
+
+void idRenderBackend::CRTPostProcess()
+{
+	//renderLog.OpenMainBlock( MRB_POSTPROCESS );
+	renderLog.OpenBlock( "Render_CRTPostFX", colorBlue );
+
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS |  GLS_CULL_TWOSIDED );
+
+	int screenWidth = renderSystem->GetWidth();
+	int screenHeight = renderSystem->GetHeight();
+
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+
+	if( r_useCRTPostFX.GetInteger() > 0 )
+	{
+		BlitParameters blitParms;
+		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
+		blitParms.targetFramebuffer = globalFramebuffers.smaaBlendFBO->GetApiObject();
+
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+
+		GL_SelectTexture( 0 );
+		globalImages->smaaBlendImage->Bind();
+
+		globalFramebuffers.ldrFBO->Bind();
+
+		GL_SelectTexture( 1 );
+		globalImages->blueNoiseImage256->Bind();
+
+		renderProgManager.BindShader_CrtNewPixie();
+
+		float jitterTexOffset[4];
+		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
+		jitterTexOffset[1] = 1.0f / globalImages->blueNoiseImage256->GetUploadHeight();
+
+		if( r_shadowMapRandomizeJitter.GetBool() )
+		{
+			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
+			jitterTexOffset[3] = tr.frameCount % 64;
+		}
+		else
+		{
+			jitterTexOffset[2] = 0.0f;
+			jitterTexOffset[3] = 0.0f;
+		}
+
+		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
+
+		// Draw
+		DrawElementsWithCounters( &unitSquareSurface );
+	}
+
+	GL_SelectTexture( 0 );
+	renderProgManager.Unbind();
+
+	// copy LDR result to DX12 / Vulkan swapchain image
+	BlitParameters blitParms;
+	blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
+	blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
+	blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+	commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+
+	GL_SelectTexture( 0 );
+	globalImages->currentRenderImage->Bind();
+
+	renderLog.CloseBlock();
+	//renderLog.CloseMainBlock();
 }

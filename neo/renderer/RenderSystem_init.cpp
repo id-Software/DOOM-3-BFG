@@ -302,6 +302,8 @@ idCVar r_taaClampingFactor( "r_taaClampingFactor", "1.0", CVAR_RENDERER | CVAR_F
 idCVar r_taaNewFrameWeight( "r_taaNewFrameWeight", "0.1", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_taaMaxRadiance( "r_taaMaxRadiance", "10000", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_taaMotionVectors( "r_taaMotionVectors", "1", CVAR_RENDERER | CVAR_BOOL, "" );
+
+idCVar r_useCRTPostFX( "r_useCRTPostFX", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "CRT simulation: 1 = New Pixie", 0, 1 );
 // RB end
 
 const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
