@@ -254,8 +254,8 @@ void SsaoPass::Render(
 		quarterResExtent.maxY = ( quarterResExtent.maxY + 3 ) / 4;
 
 		// TODO required and remove this by fixing the shaders
+		// because they include #include <global_inc.hlsl>
 		renderProgManager.BindShader_TextureVertexColor();
-
 		renderProgManager.CommitConstantBuffer( commandList, true );
 
 		SsaoConstants ssaoConstants = {};

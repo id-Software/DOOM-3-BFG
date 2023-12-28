@@ -316,7 +316,7 @@ bool idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList
 	// The vkDoom3 backend even didn't bother with this and always fired the uniforms for each draw call.
 	if( uniformsChanged || bindingLayoutTypeChanged )
 	{
-		commandList->writeBuffer( constantBuffer[BindingLayoutType()], uniforms.Ptr(), uniforms.Allocated() );
+		commandList->writeBuffer( constantBuffer /*[BindingLayoutType()]*/, uniforms.Ptr(), uniforms.Allocated() );
 
 		uniformsChanged = false;
 

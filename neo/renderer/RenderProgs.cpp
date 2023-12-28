@@ -88,10 +88,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	uniformsChanged = false;
 
-	for( int i = 0; i < NUM_BINDING_LAYOUTS; i++ )
+	//for( int i = 0; i < NUM_BINDING_LAYOUTS; i++ )
 	{
-		auto constantBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(), va( "RenderParams_%d", i ), 16384 );
-		constantBuffer[i] = device->createBuffer( constantBufferDesc );
+		auto constantBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(), va( "RenderParams_%d", 1 ), 16384 );
+		constantBuffer = device->createBuffer( constantBufferDesc );
 	}
 
 	// === Main draw vertex layout ===
@@ -722,9 +722,9 @@ void idRenderProgManager::Shutdown()
 	}
 
 	// SRS - Unmap buffer memory using overloaded = operator
-	for( int i = 0; i < constantBuffer.Num(); i++ )
+	//for( int i = 0; i < constantBuffer.Num(); i++ )
 	{
-		constantBuffer[i] = nullptr;
+		constantBuffer = nullptr;
 	}
 }
 

@@ -27,7 +27,7 @@ SOFTWARE.
 ===========================================================================
 */
 
-#include "global_inc.hlsl"
+#include <global_inc.hlsl>
 
 
 // *INDENT-OFF*

@@ -6238,7 +6238,7 @@ void idRenderBackend::CRTPostProcess()
 		DrawElementsWithCounters( &unitSquareSurface );
 	}
 
-	GL_SelectTexture( 0 );
+	//GL_SelectTexture( 0 );
 	//renderProgManager.Unbind();
 
 	// copy LDR result to DX12 / Vulkan swapchain image

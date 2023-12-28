@@ -729,9 +729,13 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	// This buffer is a shader resource as opposed to a constant buffer due to
 	// constant buffers not being able to be sub-ranged.
 	nvrhi::BufferDesc bufferDesc;
+	//bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;		// SRS - shouldn't this be initialized to CopyDest?
+	bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+	bufferDesc.canHaveTypedViews = true;
+	bufferDesc.canHaveRawViews = true;
 	bufferDesc.byteSize = numBytes;
-	bufferDesc.structStride = sizeof( idVec4 );						// SRS - this defines a structured storage buffer vs. a constant buffer
-	bufferDesc.initialState = nvrhi::ResourceStates::Common;
+	bufferDesc.structStride = sizeof( idVec4 );
+	bufferDesc.isConstantBuffer = true;
 
 	if( usage == BU_DYNAMIC )
 	{

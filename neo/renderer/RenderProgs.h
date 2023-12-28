@@ -976,7 +976,7 @@ public:
 
 	ID_INLINE nvrhi::IBuffer*				ConstantBuffer()
 	{
-		return constantBuffer[BindingLayoutType()];
+		return constantBuffer;//[BindingLayoutType()];
 	}
 	ID_INLINE idUniformBuffer&				BindingParamUbo()
 	{
@@ -1082,7 +1082,8 @@ private:
 
 	idStaticList< idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>, NUM_BINDING_LAYOUTS > bindingLayouts;
 
-	idArray<nvrhi::BufferHandle, NUM_BINDING_LAYOUTS>	constantBuffer;
+	//idArray<nvrhi::BufferHandle, NUM_BINDING_LAYOUTS>	constantBuffer;
+	nvrhi::BufferHandle							constantBuffer;
 };
 
 extern idRenderProgManager renderProgManager;
