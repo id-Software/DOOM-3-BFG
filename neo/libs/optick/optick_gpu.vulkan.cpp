@@ -150,6 +150,7 @@ namespace Optick
 		queryPoolCreateInfo.flags = 0;
 		queryPoolCreateInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
 		queryPoolCreateInfo.queryCount = MAX_QUERIES_COUNT + 1;
+		queryPoolCreateInfo.pipelineStatistics = 0;
 
 		VkCommandPoolCreateInfo commandPoolCreateInfo;
 		commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
