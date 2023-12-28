@@ -146,7 +146,6 @@ void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 uv = ( fragment.texcoord0 );
 	float2 uvPixellated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
-	//float2 uvPixellated = fragment.position.xy;
 
 	float4 color = t_BaseColor.Sample( samp0, uv );
 
@@ -157,8 +156,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	color.rgb = dc;
 
 	// add Bayer 8x8 dithering
-	float dither = DitherArray8x8( uvPixellated );
-	color.rgb += ( float3( dither, dither, dither ) * quantizationPeriod );
+	//float2 psxDitherScale = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
+	float dither = DitherArray8x8( uvPixellated ) - 0.5;
+	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
 
 
 	// C64 colors http://unusedino.de/ec64/technical/misc/vic656x/colors/
@@ -204,6 +204,9 @@ void main( PS_IN fragment, out PS_OUT result )
 		RGB( 149, 149, 149 ),	// light grey
 	};
 #endif
+
+	// PSX color quantization
+	//color = floor( color * 32.0 ) / 32.0;
 
 	// find closest color match from C64 color palette
 	color = LinearSearch( color.rgb, palette );
