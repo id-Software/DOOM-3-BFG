@@ -751,6 +751,7 @@ struct crtPostProcessCommand_t
 {
 	renderCommand_t		commandId;
 	renderCommand_t* 	next;
+	int					padding;
 };
 
 //=======================================================================

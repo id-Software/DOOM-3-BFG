@@ -6178,6 +6178,7 @@ void idRenderBackend::PostProcess( const void* data )
 
 void idRenderBackend::CRTPostProcess()
 {
+#if 1
 	//renderLog.OpenMainBlock( MRB_POSTPROCESS );
 	renderLog.OpenBlock( "Render_CRTPostFX", colorBlue );
 
@@ -6209,6 +6210,13 @@ void idRenderBackend::CRTPostProcess()
 
 		renderProgManager.BindShader_CrtNewPixie();
 
+		float windowCoordParm[4];
+		windowCoordParm[0] = 1.0f / screenWidth;
+		windowCoordParm[1] = 1.0f / screenHeight;
+		windowCoordParm[2] = screenWidth;
+		windowCoordParm[3] = screenHeight;
+		SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
+
 		float jitterTexOffset[4];
 		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
 		jitterTexOffset[1] = 1.0f / globalImages->blueNoiseImage256->GetUploadHeight();
@@ -6231,7 +6239,7 @@ void idRenderBackend::CRTPostProcess()
 	}
 
 	GL_SelectTexture( 0 );
-	renderProgManager.Unbind();
+	//renderProgManager.Unbind();
 
 	// copy LDR result to DX12 / Vulkan swapchain image
 	BlitParameters blitParms;
@@ -6245,4 +6253,5 @@ void idRenderBackend::CRTPostProcess()
 
 	renderLog.CloseBlock();
 	//renderLog.CloseMainBlock();
+#endif
 }
