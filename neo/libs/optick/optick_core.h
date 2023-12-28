@@ -342,6 +342,9 @@ struct ThreadEntry
 		{
 			*threadTLS = nullptr;
         }
+
+		// SRS - make sure thread storage is empty before thread entry terminates
+		storage.Clear(false);
     }
 	void Activate(Mode::Type mode);
 	void Sort();
