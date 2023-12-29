@@ -6208,11 +6208,18 @@ void idRenderBackend::CRTPostProcess()
 		GL_SelectTexture( 1 );
 		globalImages->blueNoiseImage256->Bind();
 
-		renderProgManager.BindShader_CrtNewPixie();
+		if( r_useCRTPostFX.GetInteger() == 1 )
+		{
+			renderProgManager.BindShader_CrtMattias();
+		}
+		else
+		{
+			renderProgManager.BindShader_CrtNewPixie();
+		}
 
 		float windowCoordParm[4];
-		windowCoordParm[0] = 1.0f / screenWidth;
-		windowCoordParm[1] = 1.0f / screenHeight;
+		windowCoordParm[0] = r_crtCurvature.GetFloat();
+		windowCoordParm[1] = r_crtVignette.GetFloat();
 		windowCoordParm[2] = screenWidth;
 		windowCoordParm[3] = screenHeight;
 		SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord

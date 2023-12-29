@@ -367,6 +367,7 @@ enum
 	BUILTIN_POSTPROCESS,
 	// RB begin
 	BUILTIN_POSTPROCESS_RETRO_C64,
+	BUILTIN_CRT_MATTIAS,
 	BUILTIN_CRT_NUPIXIE,
 	BUILTIN_SCREEN,
 	BUILTIN_TONEMAP,
@@ -822,6 +823,11 @@ public:
 	void	BindShader_PostProcess_RetroC64()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_C64 );
+	}
+
+	void	BindShader_CrtMattias()
+	{
+		BindShader_Builtin( BUILTIN_CRT_MATTIAS );
 	}
 
 	void	BindShader_CrtNewPixie()
