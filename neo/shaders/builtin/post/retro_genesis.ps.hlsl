@@ -50,8 +50,16 @@ struct PS_OUT
 // *INDENT-ON*
 
 
-#define RESOLUTION_DIVISOR 4.0
-#define NUM_COLORS 64
+#define RESOLUTION_DIVISOR				4.0
+#define NUM_COLORS 						64
+#define Dithering_QuantizationSteps     8.0 // 8.0 = 2 ^ 3 quantization bits
+
+float3 Quantize( float3 color, float3 period )
+{
+	return floor( color * Dithering_QuantizationSteps ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
+
+	//return floor( ( color + period / 2.0 ) / period ) * period;
+}
 
 
 // find nearest palette color using Euclidean distance
@@ -74,11 +82,6 @@ float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 	return pal[idx];
 }
 
-float Quantize( float inp, float period )
-{
-	return floor( ( inp + period / 2.0 ) / period ) * period;
-}
-
 #define RGB(r, g, b) float3(float(r)/255.0, float(g)/255.0, float(b)/255.0)
 
 void main( PS_IN fragment, out PS_OUT result )
@@ -92,23 +95,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	// 8 * 8 * 8 = 512 colors
 	// although only 61 colors were available on the screen at the same time but we ignore this for now
 
-	const int quantizationSteps = 8;
+	const int quantizationSteps = Dithering_QuantizationSteps;
 	float3 quantizationPeriod = _float3( 1.0 / ( quantizationSteps - 1 ) );
 
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
-	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 1.0 );
+	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
 	float dither = DitherArray8x8( uvPixellated ) - 0.5;
 	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
 
 	// find closest color match from Sega Mega Drive color palette
-	color = float3(
-				Quantize( color.r, quantizationPeriod.r ),
-				Quantize( color.g, quantizationPeriod.g ),
-				Quantize( color.b, quantizationPeriod.b )
-			);
+	color = Quantize( color, quantizationPeriod );
 
 	//color = LinearSearch( color.rgb, palette );
 	//color = float4( BinarySearch( color.rgb, palette ), 1.0 );

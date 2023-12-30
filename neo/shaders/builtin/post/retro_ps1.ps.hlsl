@@ -51,12 +51,16 @@ struct PS_OUT
 
 
 #define RESOLUTION_DIVISOR 4.0
+#define Dithering_QuantizationSteps        32.0 // 8.0 = 2 ^ 3 quantization bits
 
-
-float Quantize( float inp, float period )
+float3 Quantize( float3 color, float3 period )
 {
-	return floor( ( inp + period / 2.0 ) / period ) * period;
+	return floor( color * Dithering_QuantizationSteps ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
+
+	//return floor( ( color + period / 2.0 ) / period ) * period;
 }
+
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 uv = ( fragment.texcoord0 );
@@ -66,23 +70,56 @@ void main( PS_IN fragment, out PS_OUT result )
 	// 2^5 = 32
 	// 32 * 32 * 32 = 32768 colors
 
-	const int quantizationSteps = 32;
+	const int quantizationSteps = Dithering_QuantizationSteps;
 	float3 quantizationPeriod = _float3( 1.0 / ( quantizationSteps - 1 ) );
 
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
-	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 1.0 );
-	float dither = DitherArray8x8( uvDither ) - 0.5;
-	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+#if 0
+	// this looks awesome with 3 bits per color channel
+	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
+#else
+	// more faithful to the PSX look
+	float2 uvDither = fragment.position.xy / RESOLUTION_DIVISOR;
+#endif
 
-	// PSX color quantization
-	color = float3(
-				Quantize( color.r, quantizationPeriod.r ),
-				Quantize( color.g, quantizationPeriod.g ),
-				Quantize( color.b, quantizationPeriod.b )
-			);
+	float dither = DitherArray8x8( uvDither ) - 0.5;
+
+#if 0
+	if( uv.y < 0.05 )
+	{
+		color = _float3( uv.x );
+	}
+	else if( uv.y < 0.1 )
+	{
+		// quantized signal
+		color = _float3( uv.x );
+		color = Quantize( color, quantizationPeriod );
+	}
+	else if( uv.y < 0.15 )
+	{
+		// quantized signal dithered
+		color = _float3( uv.x );
+		color = Quantize( color, quantizationPeriod );
+
+		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+	}
+	else if( uv.y < 0.2 )
+	{
+		color.rgb = float3( dither, dither, dither ) * quantizationPeriod;
+	}
+	else
+#endif
+	{
+		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+
+		// PSX color quantization
+		color = Quantize( color, quantizationPeriod );
+	}
+
+
 
 	//color = t_BaseColor.Sample( samp0, uv ).rgb;
 

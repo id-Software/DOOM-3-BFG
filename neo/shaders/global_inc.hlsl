@@ -366,6 +366,7 @@ float rand( float2 co )
 #define _float3( x )	float3( x, x, x )
 #define _float4( x )	float4( x, x, x, x )
 #define _int2( x )		int2( x, x )
+#define _int3( x )		int3( x, x, x )
 #define vec2			float2
 #define vec3			float3
 #define vec4			float4
