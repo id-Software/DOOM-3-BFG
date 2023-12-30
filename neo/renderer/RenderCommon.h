@@ -1297,6 +1297,14 @@ extern idCVar r_useCRTPostFX;
 extern idCVar r_crtCurvature;
 extern idCVar r_crtVignette;
 
+enum RenderMode
+{
+	RENDERMODE_DOOM,
+	RENDERMODE_C64,
+	RENDERMODE_MEGADRIVE,
+	RENDERMODE_PSX,
+};
+
 extern idCVar r_renderMode;
 // RB end
 

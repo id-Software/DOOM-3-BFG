@@ -84,5 +84,7 @@ void main( PS_IN fragment, out PS_OUT result )
 				Quantize( color.b, quantizationPeriod.b )
 			);
 
+	//color = t_BaseColor.Sample( samp0, uv ).rgb;
+
 	result.color = float4( color, 1.0 );
 }
