@@ -51,7 +51,7 @@ struct PS_OUT
 
 
 #define RESOLUTION_DIVISOR 4.0
-#define NUM_COLORS 16
+#define NUM_COLORS 64
 
 
 // find nearest palette color using Euclidean distance
@@ -74,71 +74,10 @@ float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 	return pal[idx];
 }
 
-float3 GetClosest( float3 val1, float3 val2, float3 target )
+float Quantize( float inp, float period )
 {
-	if( distance( target, val1 ) >= distance( val2, target ) )
-	{
-		return val2;
-	}
-	else
-	{
-		return val1;
-	}
+	return floor( ( inp + period / 2.0 ) / period ) * period;
 }
-
-// find nearest palette color using Euclidean disntance and binary search
-// this requires an already sorted palette as input
-float3 BinarySearch( float3 target, float3 pal[NUM_COLORS] )
-{
-	float targetY = PhotoLuma( target );
-
-	// left-side case
-	if( targetY <= PhotoLuma( pal[0] ) )
-	{
-		return pal[0];
-	}
-
-	// right-side case
-	if( targetY >= PhotoLuma( pal[NUM_COLORS - 1] ) )
-	{
-		return pal[NUM_COLORS - 1];
-	}
-
-	int i = 0, j = NUM_COLORS, mid = 0;
-	while( i < j )
-	{
-		mid = ( i + j ) / 2;
-
-		if( distance( pal[mid], target ) < 0.01 )
-		{
-			return pal[mid];
-		}
-
-		// if target is less than array element, then search in left
-		if( targetY < PhotoLuma( pal[mid] ) )
-		{
-			// if target is greater than previous
-			// to mid, return closest of two
-			if( mid > 0 && targetY > PhotoLuma( pal[mid - 1] ) )
-			{
-				return GetClosest( pal[mid - 1], pal[mid], target );
-			}
-			j = mid;
-		}
-		else
-		{
-			if( mid < ( NUM_COLORS - 1 ) && targetY < PhotoLuma( pal[mid + 1] ) )
-			{
-				return GetClosest( pal[mid], pal[mid + 1], target );
-			}
-			i = mid + 1;
-		}
-	}
-
-	// only single element left after search
-	return pal[mid];
-}
-
 
 #define RGB(r, g, b) float3(float(r)/255.0, float(g)/255.0, float(b)/255.0)
 
@@ -147,63 +86,31 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 uv = ( fragment.texcoord0 );
 	float2 uvPixellated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
 
-	float3 quantizationPeriod = _float3( 1.0 / NUM_COLORS );
+	// the Sega Mega Drive has a 9 bit HW palette making a total of 512 available colors
+	// that is 3 bit per RGB channel
+	// 2^3 = 8
+	// 8 * 8 * 8 = 512 colors
+	// although only 61 colors were available on the screen at the same time but we ignore this for now
+
+	const int quantizationSteps = 8;
+	float3 quantizationPeriod = _float3( 1.0 / ( quantizationSteps - 1 ) );
 
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
-	//float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
+	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 1.0 );
 	float dither = DitherArray8x8( uvPixellated ) - 0.5;
 	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
 
+	// find closest color match from Sega Mega Drive color palette
+	color = float3(
+				Quantize( color.r, quantizationPeriod.r ),
+				Quantize( color.g, quantizationPeriod.g ),
+				Quantize( color.b, quantizationPeriod.b )
+			);
 
-	// C64 colors http://unusedino.de/ec64/technical/misc/vic656x/colors/
-#if 0
-	const float3 palette[NUM_COLORS] =
-	{
-		RGB( 0, 0, 0 ),
-		RGB( 255, 255, 255 ),
-		RGB( 116, 67, 53 ),
-		RGB( 124, 172, 186 ),
-		RGB( 123, 72, 144 ),
-		RGB( 100, 151, 79 ),
-		RGB( 64, 50, 133 ),
-		RGB( 191, 205, 122 ),
-		RGB( 123, 91, 47 ),
-		RGB( 79, 69, 0 ),
-		RGB( 163, 114, 101 ),
-		RGB( 80, 80, 80 ),
-		RGB( 120, 120, 120 ),
-		RGB( 164, 215, 142 ),
-		RGB( 120, 106, 189 ),
-		RGB( 159, 159, 150 ),
-	};
-#else
-	// gamma corrected version
-	const float3 palette[NUM_COLORS] =
-	{
-		RGB( 0, 0, 0 ),			// black
-		RGB( 255, 255, 255 ),	// white
-		RGB( 104, 55,  43 ),	// red
-		RGB( 112, 164, 178 ),	// cyan
-		RGB( 111, 61,  134 ),	// purple
-		RGB( 88,  141, 67 ),	// green
-		RGB( 53,  40,  121 ),	// blue
-		RGB( 184, 199, 111 ),	// yellow
-		RGB( 111, 79,  37 ),	// orange
-		RGB( 67,  57,  0 ),		// brown
-		RGB( 154, 103, 89 ),	// light red
-		RGB( 68,  68,  68 ),	// dark grey
-		RGB( 108, 108, 108 ),	// grey
-		RGB( 154, 210, 132 ),	// light green
-		RGB( 108, 94,  181 ),	// light blue
-		RGB( 149, 149, 149 ),	// light grey
-	};
-#endif
-
-	// find closest color match from C64 color palette
-	color = LinearSearch( color.rgb, palette );
+	//color = LinearSearch( color.rgb, palette );
 	//color = float4( BinarySearch( color.rgb, palette ), 1.0 );
 
 	result.color = float4( color, 1.0 );

@@ -366,7 +366,9 @@ enum
 	BUILTIN_WOBBLESKY,
 	BUILTIN_POSTPROCESS,
 	// RB begin
-	BUILTIN_POSTPROCESS_RETRO_C64,
+	BUILTIN_POSTPROCESS_RETRO_C64,		// Commodore 64
+	BUILTIN_POSTPROCESS_RETRO_GENESIS,	// Sega Genesis / Megadrive
+	BUILTIN_POSTPROCESS_RETRO_PSX,		// Sony Playstation 1
 	BUILTIN_CRT_MATTIAS,
 	BUILTIN_CRT_NUPIXIE,
 	BUILTIN_SCREEN,
@@ -823,6 +825,16 @@ public:
 	void	BindShader_PostProcess_RetroC64()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_C64 );
+	}
+
+	void	BindShader_PostProcess_RetroGenesis()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_GENESIS );
+	}
+
+	void	BindShader_PostProcess_RetroPSX()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_PSX );
 	}
 
 	void	BindShader_CrtMattias()

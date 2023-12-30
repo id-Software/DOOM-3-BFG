@@ -1268,7 +1268,7 @@ extern idCVar r_hdrDebug;
 extern idCVar r_ldrContrastThreshold;
 extern idCVar r_ldrContrastOffset;
 
-extern idCVar r_usePostProcessing;
+extern idCVar r_useFilmicPostFX;
 extern idCVar r_forceAmbient;
 
 extern idCVar r_useSSAO;
@@ -1296,6 +1296,8 @@ extern idCVar r_taaMotionVectors;
 extern idCVar r_useCRTPostFX;
 extern idCVar r_crtCurvature;
 extern idCVar r_crtVignette;
+
+extern idCVar r_renderMode;
 // RB end
 
 /*

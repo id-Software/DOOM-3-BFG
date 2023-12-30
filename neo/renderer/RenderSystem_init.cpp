@@ -276,7 +276,7 @@ idCVar r_hdrDebug( "r_hdrDebug", "0", CVAR_RENDERER | CVAR_FLOAT, "show scene lu
 idCVar r_ldrContrastThreshold( "r_ldrContrastThreshold", "1.1", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLOAT, "" );
 
-idCVar r_usePostProcessing( "r_usePostProcessing", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "1 = Filmic Look, 2 = Retro C64", 0, 2 );
+idCVar r_useFilmicPostFX( "r_useFilmicPostFX", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "filmic look with chromatic abberation and film grain" );
 
 idCVar r_forceAmbient( "r_forceAmbient", "0.5", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 1.0f );
 
@@ -306,6 +306,8 @@ idCVar r_taaMotionVectors( "r_taaMotionVectors", "1", CVAR_RENDERER | CVAR_BOOL,
 idCVar r_useCRTPostFX( "r_useCRTPostFX", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "RetroArch CRT shader: 1 = Matthias CRT, 1 = New Pixie", 0, 2 );
 idCVar r_crtCurvature( "r_crtCurvature", "2", CVAR_RENDERER | CVAR_FLOAT, "rounded borders" );
 idCVar r_crtVignette( "r_crtVignette", "0.8", CVAR_RENDERER | CVAR_FLOAT, "fading into the borders" );
+
+idCVar r_renderMode( "r_renderMode", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "0 = Doom, 1 = Commodore 64, 3 = Sega Genesis, 4 = Sony PSX", 0, 4 );
 // RB end
 
 const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
