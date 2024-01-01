@@ -6114,15 +6114,21 @@ void idRenderBackend::PostProcess( const void* data )
 		GL_SelectTexture( 1 );
 		globalImages->blueNoiseImage256->Bind();
 
-		if( r_renderMode.GetInteger() == 1 )
+		float jitterTexScale[4] = {};
+
+		if( r_renderMode.GetInteger() == RENDERMODE_C64 || r_renderMode.GetInteger() == RENDERMODE_C64_HIGHRES )
 		{
+			jitterTexScale[0] = r_renderMode.GetInteger() == RENDERMODE_C64_HIGHRES ? 2.0 : 1.0;
+
 			renderProgManager.BindShader_PostProcess_RetroC64();
 		}
-		else if( r_renderMode.GetInteger() == 2 )
+		else if( r_renderMode.GetInteger() == RENDERMODE_GENESIS || r_renderMode.GetInteger() == RENDERMODE_GENESIS_HIGHRES )
 		{
+			jitterTexScale[0] = r_renderMode.GetInteger() == RENDERMODE_GENESIS_HIGHRES ? 2.0 : 1.0;
+
 			renderProgManager.BindShader_PostProcess_RetroGenesis();
 		}
-		else if( r_renderMode.GetInteger() == 3 )
+		else if( r_renderMode.GetInteger() == RENDERMODE_PSX )
 		{
 			renderProgManager.BindShader_PostProcess_RetroPSX();
 		}
@@ -6130,6 +6136,8 @@ void idRenderBackend::PostProcess( const void* data )
 		{
 			renderProgManager.BindShader_PostProcess();
 		}
+
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpWindowCoord
 
 		float jitterTexOffset[4];
 		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();

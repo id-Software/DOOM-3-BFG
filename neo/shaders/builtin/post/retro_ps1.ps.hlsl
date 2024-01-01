@@ -77,13 +77,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
-#if 0
-	// this looks awesome with 3 bits per color channel
-	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
-#else
-	// more faithful to the PSX look
 	float2 uvDither = fragment.position.xy / RESOLUTION_DIVISOR;
-#endif
 
 	float dither = DitherArray8x8( uvDither ) - 0.5;
 

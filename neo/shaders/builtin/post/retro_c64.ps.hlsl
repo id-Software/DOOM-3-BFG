@@ -153,8 +153,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
-	//float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
-	float dither = DitherArray8x8( uvPixellated ) - 0.5;
+	float2 uvDither = uvPixellated;
+	//if( rpJitterTexScale.x > 1.0 )
+	{
+		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );
+	}
+	float dither = DitherArray8x8( uvDither ) - 0.5;
+
 	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
 
 

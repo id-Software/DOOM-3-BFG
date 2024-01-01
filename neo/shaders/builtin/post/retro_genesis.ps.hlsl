@@ -62,6 +62,23 @@ float3 Quantize( float3 color, float3 period )
 }
 
 
+float3 BlueNoise3( float2 n, float x )
+{
+	float2 uv = n.xy * rpJitterTexOffset.xy;
+
+	float3 noise = t_BlueNoise.Sample( samp1, uv ).rgb;
+
+	noise = frac( noise + c_goldenRatioConjugate * rpJitterTexOffset.w * x );
+
+	noise.x = RemapNoiseTriErp( noise.x );
+	noise.y = RemapNoiseTriErp( noise.y );
+	noise.z = RemapNoiseTriErp( noise.z );
+
+	noise = noise * 2.0 - 1.0;
+
+	return noise;
+}
+
 // find nearest palette color using Euclidean distance
 float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 {
@@ -101,9 +118,17 @@ void main( PS_IN fragment, out PS_OUT result )
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
 
+	//color = _float3( uv.x );
+	//color = Quantize( color, quantizationPeriod );
+
 	// add Bayer 8x8 dithering
-	float2 uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / 2.0 );
-	float dither = DitherArray8x8( uvPixellated ) - 0.5;
+	float2 uvDither = uvPixellated;
+	//if( rpJitterTexScale.x > 1.0 )
+	{
+		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );
+	}
+	float dither = DitherArray8x8( uvDither ) - 0.5;
+
 	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
 
 	// find closest color match from Sega Mega Drive color palette
