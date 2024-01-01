@@ -237,12 +237,18 @@ int idSysThread::ThreadProc( idSysThread* thread )
 					break;
 				}
 
+				// SRS - generalize thread instrumentation with correct Run() scope
+				OPTICK_THREAD( thread->GetName() );
+
 				retVal = thread->Run();
 			}
 			thread->signalWorkerDone.Raise();
 		}
 		else
 		{
+			// SRS - generalize thread instrumentation with correct Run() scope
+			OPTICK_THREAD( thread->GetName() );
+
 			retVal = thread->Run();
 		}
 	}

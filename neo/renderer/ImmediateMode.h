@@ -86,7 +86,7 @@ private:
 	static idIndexBuffer			indexBuffer;
 
 	bool		geometryOnly;
-	float		currentTexCoord[2];
+	float		currentTexCoord[2] = {};
 	GFXenum		currentMode;
 	byte		currentColor[4];
 	idImage*	currentTexture;

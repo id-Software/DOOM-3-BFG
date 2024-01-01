@@ -395,9 +395,9 @@ void idGuiModel::EmitImGui( ImDrawData* drawData )
 			idScreenRect clipRect =
 			{
 				static_cast<short>( pcmd->ClipRect.x ),
-				io.DisplaySize.y - static_cast<short>( pcmd->ClipRect.w ),
+				static_cast<short>( io.DisplaySize.y - pcmd->ClipRect.w ),
 				static_cast<short>( pcmd->ClipRect.z ),
-				io.DisplaySize.y - static_cast<short>( pcmd->ClipRect.y ),
+				static_cast<short>( io.DisplaySize.y - pcmd->ClipRect.y ),
 				0.0f,
 				1.0f
 			};

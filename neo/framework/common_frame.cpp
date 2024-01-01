@@ -90,12 +90,6 @@ be called directly in the foreground thread for comparison.
 */
 int idGameThread::Run()
 {
-	if( com_smp.GetBool() )
-	{
-		// SRS - label thread in smp mode only, otherwise CPU frame number is missing
-		OPTICK_THREAD( "idGameThread" );
-	}
-
 	commonLocal.frameTiming.startGameTime = Sys_Microseconds();
 
 	// debugging tool to test frame dropping behavior
