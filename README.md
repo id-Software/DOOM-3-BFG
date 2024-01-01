@@ -411,8 +411,7 @@ This project's GitHub.net Git repository can be checked out through Git with the
 
 Existing repositories can be updated manually:
 
-	> git submodule init
-	> git submodule update --recursive
+	> git submodule update --init --recursive
 
 
 
@@ -424,16 +423,19 @@ Existing repositories can be updated manually:
 
 2. Download and install the latest CMake and make sure cmake.exe is added to your global or user PATH.
 
-3. Generate the VS2022 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
-Recommended in this case is `cmake-vs2022-64bit-no-ffmpeg.bat`
+3. Download and install the latest Vulkan SDK from LunarG: https://www.lunarg.com/vulkan-sdk/
+You can skip this step if you compile with DX12 only by adding -DUSE_VULKAN=OFF to the CMake options.
 
-4. Use the VS2022 solution to compile what you need:
+4. Generate the VS2022 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+Recommended in this case is `cmake-vs2022-win64-no-ffmpeg.bat`
+
+5. Use the VS2022 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
 
 ## Optional if you want to use FFmpeg
 
-6. Download ffmpeg-4.2.2-win64-shared.zip from ffmpeg.zeranoe.com/builds/win64/shared
+6. Download ffmpeg-4.2.2-win64-shared.zip from https://github.com/advancedfx/ffmpeg.zeranoe.com-builds-mirror/releases
 
 7. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
 
