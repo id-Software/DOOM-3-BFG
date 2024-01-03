@@ -145,15 +145,15 @@ float3 BinarySearch( float3 target, float3 pal[NUM_COLORS] )
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 uv = ( fragment.texcoord0 );
-	float2 uvPixellated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
+	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
 
 	float3 quantizationPeriod = _float3( 1.0 / NUM_COLORS );
 
 	// get pixellated base color
-	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
+	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
-	float2 uvDither = uvPixellated;
+	float2 uvDither = uvPixelated;
 	//if( rpJitterTexScale.x > 1.0 )
 	{
 		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );

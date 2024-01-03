@@ -1268,7 +1268,6 @@ extern idCVar r_hdrDebug;
 extern idCVar r_ldrContrastThreshold;
 extern idCVar r_ldrContrastOffset;
 
-extern idCVar r_useFilmicPostFX;
 extern idCVar r_forceAmbient;
 
 extern idCVar r_useSSAO;
@@ -1276,7 +1275,6 @@ extern idCVar r_ssaoDebug;
 extern idCVar r_ssaoFiltering;
 extern idCVar r_useHierarchicalDepthBuffer;
 
-extern idCVar r_usePBR;
 extern idCVar r_pbrDebug;
 extern idCVar r_showViewEnvprobes;
 extern idCVar r_showLightGrid;				// show Quake 3 style light grid points
@@ -1293,6 +1291,7 @@ extern idCVar r_taaNewFrameWeight;
 extern idCVar r_taaMaxRadiance;
 extern idCVar r_taaMotionVectors;
 
+extern idCVar r_useFilmicPostFX;
 extern idCVar r_useCRTPostFX;
 extern idCVar r_crtCurvature;
 extern idCVar r_crtVignette;
@@ -1308,6 +1307,7 @@ enum RenderMode
 };
 
 extern idCVar r_renderMode;
+extern idCVar image_pixelLook;
 // RB end
 
 /*
@@ -1317,6 +1317,8 @@ INITIALIZATION
 
 ====================================================================
 */
+
+bool R_UsePixelatedLook();
 
 bool R_UseTemporalAA();
 

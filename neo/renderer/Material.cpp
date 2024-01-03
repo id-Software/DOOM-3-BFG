@@ -73,8 +73,6 @@ typedef struct mtrParsingData_s
 	bool			forceOverlays;
 } mtrParsingData_t;
 
-extern idCVar r_useHighQualitySky;
-
 idCVar r_forceSoundOpAmplitude( "r_forceSoundOpAmplitude", "0", CVAR_FLOAT, "Don't call into the sound system for amplitudes" );
 
 /*
@@ -1870,14 +1868,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		}
 		if( !token.Icmp( "uncompressedCubeMap" ) )
 		{
-			if( r_useHighQualitySky.GetBool() )
-			{
-				td = TD_HIGHQUALITY_CUBE;	// motorsep 05-17-2015; token to mark cubemap/skybox to be uncompressed texture
-			}
-			else
-			{
-				td = TD_LOWQUALITY_CUBE;
-			}
+			td = TD_HIGHQUALITY_CUBE;	// motorsep 05-17-2015; token to mark cubemap/skybox to be uncompressed texture
 			continue;
 		}
 		if( !token.Icmp( "nopicmip" ) )

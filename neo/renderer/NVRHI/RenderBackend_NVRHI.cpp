@@ -733,7 +733,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[2].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID();
 		}
 
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[3].bindings.empty() )
 			{
@@ -823,7 +823,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[2].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID();
 		}
 
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[3].bindings.empty() )
 			{
@@ -938,7 +938,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[3].bindings.empty() )
 			{
@@ -1024,7 +1024,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[3].bindings.empty() )
 			{
@@ -1113,7 +1113,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[3].bindings.empty() )
 			{
@@ -1218,7 +1218,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[3].bindings.empty() )
 			{
@@ -1466,7 +1466,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
 		}
 
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[1].bindings.empty() )
 			{
@@ -1558,7 +1558,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
 		}
 
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[2].bindings.empty() )
 			{
@@ -1622,7 +1622,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
 		}
 
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[2].bindings.empty() )
 			{
@@ -1672,7 +1672,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
 		}
 
-		if( r_renderMode.GetInteger() == RENDERMODE_PSX )
+		if( R_UsePixelatedLook() )
 		{
 			if( desc[1].bindings.empty() )
 			{

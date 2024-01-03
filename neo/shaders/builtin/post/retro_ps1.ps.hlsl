@@ -64,7 +64,7 @@ float3 Quantize( float3 color, float3 period )
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 uv = ( fragment.texcoord0 );
-	float2 uvPixellated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
+	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
 
 	// most Sony Playstation 1 titles used 5 bit per RGB channel
 	// 2^5 = 32
@@ -74,7 +74,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 quantizationPeriod = _float3( 1.0 / ( quantizationSteps - 1 ) );
 
 	// get pixellated base color
-	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
+	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
 
 	// add Bayer 8x8 dithering
 	float2 uvDither = fragment.position.xy / RESOLUTION_DIVISOR;

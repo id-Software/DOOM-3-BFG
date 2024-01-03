@@ -2172,11 +2172,11 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		specularColor = lightColor;// * 0.5f;
 
 		float ambientBoost = 1.0f;
-		if( !r_usePBR.GetBool() )
-		{
-			ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
-			ambientBoost *= 1.1f;
-		}
+		//if( !r_usePBR.GetBool() )
+		//{
+		//	ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
+		//	ambientBoost *= 1.1f;
+		//}
 
 		ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
 		ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
@@ -2186,7 +2186,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
 
-	bool useIBL = r_usePBR.GetBool() && !fillGbuffer;
+	bool useIBL = !fillGbuffer;
 
 	// setup renderparms assuming we will be drawing trivial surfaces first
 	RB_SetupForFastPathInteractions( diffuseColor, specularColor );

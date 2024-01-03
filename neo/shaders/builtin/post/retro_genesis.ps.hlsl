@@ -104,7 +104,7 @@ float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 uv = ( fragment.texcoord0 );
-	float2 uvPixellated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
+	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
 
 	// the Sega Mega Drive has a 9 bit HW palette making a total of 512 available colors
 	// that is 3 bit per RGB channel
@@ -116,13 +116,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 quantizationPeriod = _float3( 1.0 / ( quantizationSteps - 1 ) );
 
 	// get pixellated base color
-	float3 color = t_BaseColor.Sample( samp0, uvPixellated * rpWindowCoord.xy ).rgb;
+	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
 
 	//color = _float3( uv.x );
 	//color = Quantize( color, quantizationPeriod );
 
 	// add Bayer 8x8 dithering
-	float2 uvDither = uvPixellated;
+	float2 uvDither = uvPixelated;
 	//if( rpJitterTexScale.x > 1.0 )
 	{
 		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );

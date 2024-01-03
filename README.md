@@ -639,8 +639,10 @@ r_graphicsAPI                          | Default DX12, can be either DX12 or Vul
 r_antiAliasing                         | Different Anti-Aliasing modes
 r_exposure [0 .. 1]                    | Default 0.5, controls brightness and affects HDR -> sRGB Rec. 709 exposure key. This is what you change in the video brightness options
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene and give it more depth
-r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to mimic a filmic look
 r_forceAmbient                         | Default 0.5, controls additional brightness by Global Illumination 
+r_useFilmicPostFX [0, 1]               | Apply several post process effects to mimic a filmic look
+r_useCRTPostFX [0, 1]                  | CRT monitor/TV filter
+r_renderMode [0 .. 5]				   | Default 0 = Doom 3, 1 = Commodore 64, 2 = Commodore 64 Highres, 3 = Sega Genesis, 4 = Sega Genesis Highres, 5 = Sony PSX
 
 ## Modding Support
 Name                              | Description

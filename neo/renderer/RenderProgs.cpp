@@ -623,7 +623,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		}
 	}
 
-	r_usePBR.ClearModified();
 	r_pbrDebug.ClearModified();
 
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
