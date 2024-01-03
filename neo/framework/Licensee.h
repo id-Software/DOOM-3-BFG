@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 // RB end
 
 // jmarshall
-#define ENGINE_BRANCH					"Imgui docking"
+#define ENGINE_BRANCH					"Retro 80s/90s"
 // jmarshall end
 
 #ifdef STANDALONE
