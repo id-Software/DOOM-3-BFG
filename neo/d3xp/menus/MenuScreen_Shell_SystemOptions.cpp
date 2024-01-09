@@ -791,12 +791,14 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 		}
 		case SYSTEM_FIELD_RENDERMODE:
 		{
-			static const int numValues = 6;
+			static const int numValues = 8;
 			static const char* values[numValues] =
 			{
 				"Doom 3",
 				"Commodore 64",
 				"Commodore 64 Highres",
+				"Amstrad CPC 6128",
+				"Amstrad CPC 6128 Highres",
 				"Sega Genesis",
 				"Sega Genesis Highres",
 				"Sony PSX",

@@ -244,6 +244,43 @@ float4 LinearRGBToSRGB( float4 c )
 #endif
 }
 
+float3 HSVToRGB( float3 HSV )
+{
+	float3 RGB = HSV.z;
+
+	float var_h = HSV.x * 6;
+	float var_i = floor( var_h ); // Or ... var_i = floor( var_h )
+	float var_1 = HSV.z * ( 1.0 - HSV.y );
+	float var_2 = HSV.z * ( 1.0 - HSV.y * ( var_h - var_i ) );
+	float var_3 = HSV.z * ( 1.0 - HSV.y * ( 1 - ( var_h - var_i ) ) );
+	if( var_i == 0 )
+	{
+		RGB = float3( HSV.z, var_3, var_1 );
+	}
+	else if( var_i == 1 )
+	{
+		RGB = float3( var_2, HSV.z, var_1 );
+	}
+	else if( var_i == 2 )
+	{
+		RGB = float3( var_1, HSV.z, var_3 );
+	}
+	else if( var_i == 3 )
+	{
+		RGB = float3( var_1, var_2, HSV.z );
+	}
+	else if( var_i == 4 )
+	{
+		RGB = float3( var_3, var_1, HSV.z );
+	}
+	else
+	{
+		RGB = float3( HSV.z, var_1, var_2 );
+	}
+
+	return ( RGB );
+}
+
 /** Efficient GPU implementation of the octahedral unit vector encoding from
 
     Cigolle, Donow, Evangelakos, Mara, McGuire, Meyer,

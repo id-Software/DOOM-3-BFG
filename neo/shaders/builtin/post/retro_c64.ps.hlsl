@@ -152,6 +152,22 @@ void main( PS_IN fragment, out PS_OUT result )
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
 
+#if 0
+	if( uv.y < 0.125 )
+	{
+		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 8.0 ) );
+		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
+
+		//result.color = float4( color, 1.0 );
+		//return;
+	}
+	else if( uv.y < 0.1875 )
+	{
+		color = _float3( uv.x );
+		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
+	}
+#endif
+
 	// add Bayer 8x8 dithering
 	float2 uvDither = uvPixelated;
 	//if( rpJitterTexScale.x > 1.0 )

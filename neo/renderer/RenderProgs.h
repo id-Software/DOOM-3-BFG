@@ -367,6 +367,7 @@ enum
 	BUILTIN_POSTPROCESS,
 	// RB begin
 	BUILTIN_POSTPROCESS_RETRO_C64,		// Commodore 64
+	BUILTIN_POSTPROCESS_RETRO_CPC,		// Amstrad 6128
 	BUILTIN_POSTPROCESS_RETRO_GENESIS,	// Sega Genesis / Megadrive
 	BUILTIN_POSTPROCESS_RETRO_PSX,		// Sony Playstation 1
 	BUILTIN_CRT_MATTIAS,
@@ -825,6 +826,11 @@ public:
 	void	BindShader_PostProcess_RetroC64()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_C64 );
+	}
+
+	void	BindShader_PostProcess_RetroCPC()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_CPC );
 	}
 
 	void	BindShader_PostProcess_RetroGenesis()

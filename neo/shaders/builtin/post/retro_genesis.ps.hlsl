@@ -118,8 +118,21 @@ void main( PS_IN fragment, out PS_OUT result )
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
 
-	//color = _float3( uv.x );
-	//color = Quantize( color, quantizationPeriod );
+#if 0
+	if( uv.y < 0.125 )
+	{
+		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 8.0 ) );
+		color = Quantize( color, quantizationPeriod );
+
+		//result.color = float4( color, 1.0 );
+		//return;
+	}
+	else if( uv.y < 0.1875 )
+	{
+		color = _float3( uv.x );
+		color = Quantize( color, quantizationPeriod );
+	}
+#endif
 
 	// add Bayer 8x8 dithering
 	float2 uvDither = uvPixelated;
@@ -133,9 +146,6 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// find closest color match from Sega Mega Drive color palette
 	color = Quantize( color, quantizationPeriod );
-
-	//color = LinearSearch( color.rgb, palette );
-	//color = float4( BinarySearch( color.rgb, palette ), 1.0 );
 
 	result.color = float4( color, 1.0 );
 }
