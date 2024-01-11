@@ -1308,6 +1308,8 @@ enum RenderMode
 	RENDERMODE_PSX,
 };
 
+extern idCVar r_retroDitherScale;
+
 extern idCVar r_renderMode;
 extern idCVar image_pixelLook;
 // RB end

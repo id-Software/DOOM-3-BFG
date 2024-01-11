@@ -53,7 +53,7 @@ struct PS_OUT
 #define RESOLUTION_DIVISOR 4.0
 #define NUM_COLORS 32 // original 27
 
-
+/*
 float LinearTweak1( float c )
 {
 	return ( c <= 0.04045 ) ? c / 12.92 : pow( ( c + 0.055 ) / 1.055, 1.4 );
@@ -63,26 +63,58 @@ float3 LinearTweak3( float3 c )
 {
 	return float3( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ) );
 }
+*/
+
+float3 Average( float3 pal[NUM_COLORS] )
+{
+	float3 sum = _float3( 0 );
+
+	for( int i = 0; i < NUM_COLORS; i++ )
+	{
+		sum += pal[i];
+	}
+
+	return sum / float( NUM_COLORS );
+}
+
+float3 Deviation( float3 pal[NUM_COLORS] )
+{
+	float3 sum = _float3( 0 );
+	float3 avg = Average( pal );
+
+	for( int i = 0; i < NUM_COLORS; i++ )
+	{
+		sum += abs( pal[i] - avg );
+	}
+
+	return sum / float( NUM_COLORS );
+}
+
+// squared distance to avoid the sqrt of distance function
+float ColorCompare( float3 a, float3 b )
+{
+	float3 diff = b - a;
+	return dot( diff, diff );
+}
 
 // find nearest palette color using Euclidean distance
 float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 {
-	int idx = 0;
-	float nd = distance( c, pal[0] );
+	int index = 0;
+	float minDist = ColorCompare( c, pal[0] );
 
 	for( int i = 1; i <	NUM_COLORS; i++ )
 	{
-		//float d = distance( c, pal[i] );
-		float d = distance( c, ( pal[i] ) );
+		float dist = ColorCompare( c, pal[i] );
 
-		if( d < nd )
+		if( dist < minDist )
 		{
-			nd = d;
-			idx = i;
+			minDist = dist;
+			index = i;
 		}
 	}
 
-	return pal[idx];
+	return pal[index];
 }
 
 #define RGB(r, g, b) float3(float(r)/255.0, float(g)/255.0, float(b)/255.0)
@@ -91,42 +123,7 @@ float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	float2 uv = ( fragment.texcoord0 );
-	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
-
-	float3 quantizationPeriod = _float3( 1.0 / NUM_COLORS );
-
-	// get pixellated base color
-	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
-
 #if 0
-	if( uv.y < 0.125 )
-	{
-		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 8.0 ) );
-		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
-
-		//result.color = float4( color, 1.0 );
-		//return;
-	}
-	else if( uv.y < 0.1875 )
-	{
-		color = _float3( uv.x );
-		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
-	}
-#endif
-
-	// add Bayer 8x8 dithering
-	float2 uvDither = uvPixelated;
-	//if( rpJitterTexScale.x > 1.0 )
-	{
-		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );
-	}
-	float dither = ( DitherArray8x8( uvDither ) - 0.5 ) * 1.0;
-
-	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
-
-
-#if 1
 	// Amstrad CPC colors https://www.cpcwiki.eu/index.php/CPC_Palette
 	const float3 palette[NUM_COLORS] =
 	{
@@ -158,29 +155,14 @@ void main( PS_IN fragment, out PS_OUT result )
 		RGB( 255, 255, 128 ),	// pastel yellow
 		RGB( 255, 255, 255 ),	// bright white
 
-		//RGB( 79, 69, 0 ),		// brown
-		//RGB( 120, 120, 120 ),	// dark grey
-		//RGB( 164, 215, 142 ),	// grey
-
-#if 0
-		RGB( 68,  68,  68 ),	// dark grey
-		RGB( 80, 80, 80 ),
-		RGB( 108, 108, 108 ),	// grey
-		RGB( 120, 120, 120 ),
-		RGB( 149, 149, 149 ),	// light grey
-#else
-		//RGB( 4, 4, 4 ),			// black
+#if 1
 		RGB( 16, 16, 16 ),		// black
 		RGB( 0, 28, 28 ),		// dark cyan
-		RGB( 128, 0, 255 ) * 0.9,		// mauve
-		RGB( 111, 79,  37 ) * 1.2,	// orange
-		//RGB( 149, 149, 149 ),	// light grey
-		//RGB( 154, 210, 132 ),	// light green
 		RGB( 112, 164, 178 ) * 1.3,	// cyan
 #endif
 	};
 
-#elif 0
+#elif 1
 	// Tweaked LOSPEC CPC BOY PALETTE which is less saturated by Arne Niklas Jansson
 	// https://lospec.com/palette-list/cpc-boy
 
@@ -220,24 +202,14 @@ void main( PS_IN fragment, out PS_OUT result )
 		RGB( 36, 49, 55 ),
 	};
 
-#elif 1
+#elif 0
 
-	// NES 1 very good
+	// NES 1
 	// https://lospec.com/palette-list/nintendo-entertainment-system
 
 	const float3 palette[NUM_COLORS] = // 55
 	{
 		RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-		//RGB( 0, 0, 0 ),
-
 		RGB( 252, 252, 252 ),
 		RGB( 248, 248, 248 ),
 		RGB( 188, 188, 188 ),
@@ -359,6 +331,60 @@ void main( PS_IN fragment, out PS_OUT result )
 	};
 
 #endif
+
+	float2 uv = ( fragment.texcoord0 );
+	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
+
+	float3 quantizationPeriod = _float3( 1.0 / NUM_COLORS );
+	float3 quantDeviation = Deviation( palette );
+
+	// get pixellated base color
+	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
+
+	float2 uvDither = uvPixelated;
+	//if( rpJitterTexScale.x > 1.0 )
+	{
+		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );
+	}
+	float dither = DitherArray8x8( uvDither ) - 0.5;
+
+#if 0
+	if( uv.y < 0.0625 )
+	{
+		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 16.0 ) );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.125 )
+	{
+		// quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.0625 ) * 16.0 ) );
+		color = LinearSearch( color, palette );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.1875 )
+	{
+		// dithered quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.125 ) * 16.0 ) );
+
+		color.rgb += float3( dither, dither, dither ) * quantDeviation * rpJitterTexScale.y;
+		color = LinearSearch( color, palette );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.25 )
+	{
+		color = _float3( uv.x );
+		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
+	}
+#endif
+
+	//color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+	color.rgb += float3( dither, dither, dither ) * quantDeviation * rpJitterTexScale.y;
 
 	// find closest color match from CPC color palette
 	color = LinearSearch( color.rgb, palette );

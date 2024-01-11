@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2023 Robert Beckebans
+Copyright (C) 2024 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -54,26 +54,59 @@ struct PS_OUT
 #define NUM_COLORS 16
 
 
+float3 Average( float3 pal[NUM_COLORS] )
+{
+	float3 sum = _float3( 0 );
+
+	for( int i = 0; i < NUM_COLORS; i++ )
+	{
+		sum += pal[i];
+	}
+
+	return sum / float( NUM_COLORS );
+}
+
+float3 Deviation( float3 pal[NUM_COLORS] )
+{
+	float3 sum = _float3( 0 );
+	float3 avg = Average( pal );
+
+	for( int i = 0; i < NUM_COLORS; i++ )
+	{
+		sum += abs( pal[i] - avg );
+	}
+
+	return sum / float( NUM_COLORS );
+}
+
+// squared distance to avoid the sqrt of distance function
+float ColorCompare( float3 a, float3 b )
+{
+	float3 diff = b - a;
+	return dot( diff, diff );
+}
+
 // find nearest palette color using Euclidean distance
 float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
 {
-	int idx = 0;
-	float nd = distance( c, pal[0] );
+	int index = 0;
+	float minDist = ColorCompare( c, pal[0] );
 
 	for( int i = 1; i <	NUM_COLORS; i++ )
 	{
-		float d = distance( c, pal[i] );
+		float dist = ColorCompare( c, pal[i] );
 
-		if( d < nd )
+		if( dist < minDist )
 		{
-			nd = d;
-			idx = i;
+			minDist = dist;
+			index = i;
 		}
 	}
 
-	return pal[idx];
+	return pal[index];
 }
 
+/*
 float3 GetClosest( float3 val1, float3 val2, float3 target )
 {
 	if( distance( target, val1 ) >= distance( val2, target ) )
@@ -138,47 +171,13 @@ float3 BinarySearch( float3 target, float3 pal[NUM_COLORS] )
 	// only single element left after search
 	return pal[mid];
 }
+*/
 
 
 #define RGB(r, g, b) float3(float(r)/255.0, float(g)/255.0, float(b)/255.0)
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	float2 uv = ( fragment.texcoord0 );
-	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
-
-	float3 quantizationPeriod = _float3( 1.0 / NUM_COLORS );
-
-	// get pixellated base color
-	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
-
-#if 0
-	if( uv.y < 0.125 )
-	{
-		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 8.0 ) );
-		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
-
-		//result.color = float4( color, 1.0 );
-		//return;
-	}
-	else if( uv.y < 0.1875 )
-	{
-		color = _float3( uv.x );
-		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
-	}
-#endif
-
-	// add Bayer 8x8 dithering
-	float2 uvDither = uvPixelated;
-	//if( rpJitterTexScale.x > 1.0 )
-	{
-		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );
-	}
-	float dither = DitherArray8x8( uvDither ) - 0.5;
-
-	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
-
-
 	// C64 colors http://unusedino.de/ec64/technical/misc/vic656x/colors/
 #if 0
 	const float3 palette[NUM_COLORS] =
@@ -222,6 +221,59 @@ void main( PS_IN fragment, out PS_OUT result )
 		RGB( 149, 149, 149 ),	// light grey
 	};
 #endif
+
+	float2 uv = ( fragment.texcoord0 );
+	float2 uvPixelated = floor( fragment.position.xy / RESOLUTION_DIVISOR ) * RESOLUTION_DIVISOR;
+
+	float3 quantizationPeriod = _float3( 1.0 / NUM_COLORS );
+
+	// get pixellated base color
+	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
+
+	float2 uvDither = uvPixelated;
+	//if( rpJitterTexScale.x > 1.0 )
+	{
+		uvDither = fragment.position.xy / ( RESOLUTION_DIVISOR / rpJitterTexScale.x );
+	}
+	float dither = DitherArray8x8( uvDither ) - 0.5;
+
+#if 0
+	if( uv.y < 0.0625 )
+	{
+		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 16.0 ) );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.125 )
+	{
+		// quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.0625 ) * 16.0 ) );
+		color = LinearSearch( color, palette );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.1875 )
+	{
+		// dithered quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.125 ) * 16.0 ) );
+
+		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+		color = LinearSearch( color, palette );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.25 )
+	{
+		color = _float3( uv.x );
+		color = floor( color * NUM_COLORS ) * ( 1.0 / ( NUM_COLORS - 1.0 ) );
+	}
+#endif
+
+	//color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+	color.rgb += float3( dither, dither, dither ) * Deviation( palette ) * rpJitterTexScale.y;
 
 	// find closest color match from C64 color palette
 	color = LinearSearch( color.rgb, palette );

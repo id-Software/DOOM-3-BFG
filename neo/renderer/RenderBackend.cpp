@@ -6143,7 +6143,8 @@ void idRenderBackend::PostProcess( const void* data )
 			renderProgManager.BindShader_PostProcess();
 		}
 
-		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpWindowCoord
+		jitterTexScale[1] = r_retroDitherScale.GetFloat();
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
 		float jitterTexOffset[4];
 		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();

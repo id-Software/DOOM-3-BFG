@@ -51,7 +51,6 @@ struct PS_OUT
 
 
 #define RESOLUTION_DIVISOR				4.0
-#define NUM_COLORS 						64
 #define Dithering_QuantizationSteps     8.0 // 8.0 = 2 ^ 3 quantization bits
 
 float3 Quantize( float3 color, float3 period )
@@ -79,26 +78,6 @@ float3 BlueNoise3( float2 n, float x )
 	return noise;
 }
 
-// find nearest palette color using Euclidean distance
-float3 LinearSearch( float3 c, float3 pal[NUM_COLORS] )
-{
-	int idx = 0;
-	float nd = distance( c, pal[0] );
-
-	for( int i = 1; i <	NUM_COLORS; i++ )
-	{
-		float d = distance( c, pal[i] );
-
-		if( d < nd )
-		{
-			nd = d;
-			idx = i;
-		}
-	}
-
-	return pal[idx];
-}
-
 #define RGB(r, g, b) float3(float(r)/255.0, float(g)/255.0, float(b)/255.0)
 
 void main( PS_IN fragment, out PS_OUT result )
@@ -118,23 +97,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	// get pixellated base color
 	float3 color = t_BaseColor.Sample( samp0, uvPixelated * rpWindowCoord.xy ).rgb;
 
-#if 0
-	if( uv.y < 0.125 )
-	{
-		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 8.0 ) );
-		color = Quantize( color, quantizationPeriod );
-
-		//result.color = float4( color, 1.0 );
-		//return;
-	}
-	else if( uv.y < 0.1875 )
-	{
-		color = _float3( uv.x );
-		color = Quantize( color, quantizationPeriod );
-	}
-#endif
-
-	// add Bayer 8x8 dithering
 	float2 uvDither = uvPixelated;
 	//if( rpJitterTexScale.x > 1.0 )
 	{
@@ -142,7 +104,42 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 	float dither = DitherArray8x8( uvDither ) - 0.5;
 
-	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+#if 0
+	if( uv.y < 0.0625 )
+	{
+		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 16.0 ) );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.125 )
+	{
+		// quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.0625 ) * 16.0 ) );
+		color = Quantize( color, quantizationPeriod );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.1875 )
+	{
+		// dithered quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.125 ) * 16.0 ) );
+
+		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+		color = Quantize( color, quantizationPeriod );
+
+		result.color = float4( color, 1.0 );
+		return;
+	}
+	else if( uv.y < 0.25 )
+	{
+		color = _float3( uv.x );
+		color = Quantize( color, quantizationPeriod );
+	}
+#endif
+
+	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;// * rpJitterTexScale.y;
 
 	// find closest color match from Sega Mega Drive color palette
 	color = Quantize( color, quantizationPeriod );

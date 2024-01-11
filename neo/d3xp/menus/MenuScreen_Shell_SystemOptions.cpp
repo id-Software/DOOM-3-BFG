@@ -611,8 +611,8 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		// RB begin
 		case SYSTEM_FIELD_RENDERMODE:
 		{
-			static const int numValues = 6;
-			static const int values[numValues] = { 0, 1, 2, 3, 4, 5 };
+			static const int numValues = 8;
+			static const int values[numValues] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 			r_renderMode.SetInteger( AdjustOption( r_renderMode.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
@@ -796,9 +796,9 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			{
 				"Doom 3",
 				"Commodore 64",
-				"Commodore 64 Highres",
+				"Commodore 64 Hi",
 				"Amstrad CPC 6128",
-				"Amstrad CPC 6128 Highres",
+				"Amstrad CPC 6128 Hi",
 				"Sega Genesis",
 				"Sega Genesis Highres",
 				"Sony PSX",

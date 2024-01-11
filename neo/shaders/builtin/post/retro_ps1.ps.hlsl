@@ -50,8 +50,8 @@ struct PS_OUT
 // *INDENT-ON*
 
 
-#define RESOLUTION_DIVISOR 4.0
-#define Dithering_QuantizationSteps        32.0 // 8.0 = 2 ^ 3 quantization bits
+#define RESOLUTION_DIVISOR				4.0
+#define Dithering_QuantizationSteps		32.0 // 8.0 = 2 ^ 3 quantization bits
 
 float3 Quantize( float3 color, float3 period )
 {
@@ -82,36 +82,44 @@ void main( PS_IN fragment, out PS_OUT result )
 	float dither = DitherArray8x8( uvDither ) - 0.5;
 
 #if 0
-	if( uv.y < 0.05 )
+	if( uv.y < 0.0625 )
 	{
-		color = _float3( uv.x );
+		color = HSVToRGB( float3( uv.x, 1.0, uv.y * 16.0 ) );
+
+		result.color = float4( color, 1.0 );
+		return;
 	}
-	else if( uv.y < 0.1 )
+	else if( uv.y < 0.125 )
 	{
-		// quantized signal
-		color = _float3( uv.x );
-		color = Quantize( color, quantizationPeriod );
-	}
-	else if( uv.y < 0.15 )
-	{
-		// quantized signal dithered
-		color = _float3( uv.x );
+		// quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.0625 ) * 16.0 ) );
 		color = Quantize( color, quantizationPeriod );
 
-		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+		result.color = float4( color, 1.0 );
+		return;
 	}
-	else if( uv.y < 0.2 )
+	else if( uv.y < 0.1875 )
 	{
-		color.rgb = float3( dither, dither, dither ) * quantizationPeriod;
+		// dithered quantized
+		color = HSVToRGB( float3( uv.x, 1.0, ( uv.y - 0.125 ) * 16.0 ) );
+
+		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+		color = Quantize( color, quantizationPeriod );
+
+		result.color = float4( color, 1.0 );
+		return;
 	}
-	else
+	else if( uv.y < 0.25 )
+	{
+		color = _float3( uv.x );
+		color = Quantize( color, quantizationPeriod );
+	}
 #endif
-	{
-		color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
 
-		// PSX color quantization
-		color = Quantize( color, quantizationPeriod );
-	}
+	color.rgb += float3( dither, dither, dither ) * quantizationPeriod;
+
+	// PSX color quantization with 15-bit
+	color = Quantize( color, quantizationPeriod );
 
 
 
