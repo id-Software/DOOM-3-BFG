@@ -289,7 +289,7 @@ Server::Server(short port) : socket(Memory::New<Socket>()), saveCb(nullptr)
 {
 	if (!socket->Bind(port, 4))
 	{
-		OPTICK_FAILED("Failed to bind a socket! Most probably the port is blocked by anti-virus! Change the port and verify that your game has enough permissions to communicate over the TCP\IP.");
+		OPTICK_FAILED("Failed to bind a socket! Most probably the port is blocked by anti-virus! Change the port and verify that your game has enough permissions to communicate over the TCP/IP.");
 	}
 	else
 	{
