@@ -40,13 +40,14 @@
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 #if 0
 	#include <MoltenVK/mvk_vulkan.h>
-	#include <MoltenVK/mvk_config.h>			// SRS - will eventually move to these mvk include files for MoltenVK >= 1.2.7 / SDK >= 1.3.272.0
+	#include <MoltenVK/mvk_config.h>			// SRS - will eventually move to these mvk include files for MoltenVK >= 1.2.7 / SDK >= 1.3.275.0
 #else
-	#include <MoltenVK/vk_mvk_moltenvk.h>		// SRS - now deprecated, but provides backwards compatibility for MoltenVK < 1.2.7 / SDK < 1.3.272.0
+	#include <MoltenVK/vk_mvk_moltenvk.h>		// SRS - now deprecated, but provides backwards compatibility for MoltenVK < 1.2.7 / SDK < 1.3.275.0
 #endif
 	idCVar r_mvkSynchronousQueueSubmits( "r_mvkSynchronousQueueSubmits", "0", CVAR_BOOL | CVAR_INIT, "Use MoltenVK's synchronous queue submit option." );
 #endif
 #include <nvrhi/validation.h>
+#include <libs/optick/optick.h>
 
 #if defined( USE_AMD_ALLOCATOR )
 	#define VMA_IMPLEMENTATION
@@ -212,7 +213,7 @@ private:
 			VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
 #endif
 #if defined( VK_EXT_layer_settings )
-			// SRS - This is optional since implemented only for MoltenVK 1.2.7 / SDK 1.3.272.0 or later
+			// SRS - This is optional since implemented only for MoltenVK 1.2.7 / SDK 1.3.275.0 or later
 			VK_EXT_LAYER_SETTINGS_EXTENSION_NAME,
 #endif
 #endif
@@ -298,6 +299,16 @@ private:
 
 	// SRS - slot for Vulkan device API version at runtime (initialize to Vulkan build version)
 	uint32_t m_DeviceApiVersion = VK_HEADER_VERSION_COMPLETE;
+
+	// SRS - function pointer for initing Vulkan DynamicLoader, VMA, Optick, and MoltenVK functions
+	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = nullptr;
+
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+#if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
+	// SRS - function pointer for retrieving MoltenVK advanced performance statistics
+	PFN_vkGetPerformanceStatisticsMVK vkGetPerformanceStatisticsMVK = nullptr;
+#endif
+#endif
 
 private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL vulkanDebugCallback(
@@ -1018,8 +1029,8 @@ bool DeviceManager_VK::createDevice()
 #if defined( USE_AMD_ALLOCATOR )
 	// SRS - initialize the vma allocator
 	VmaVulkanFunctions vulkanFunctions = {};
-	vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-	vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+	vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+	vulkanFunctions.vkGetDeviceProcAddr = (PFN_vkGetDeviceProcAddr)vkGetInstanceProcAddr( m_VulkanInstance, "vkGetDeviceProcAddr" );
 
 	VmaAllocatorCreateInfo allocatorCreateInfo = {};
 	allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_2;
@@ -1200,8 +1211,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	// SRS - make static so ~DynamicLoader() does not prematurely unload vulkan dynamic lib
 	static const vk::DynamicLoader dl;
 #endif
-	const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =   // NOLINT(misc-misplaced-const)
-		dl.getProcAddress<PFN_vkGetInstanceProcAddr>( "vkGetInstanceProcAddr" );
+	vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>( "vkGetInstanceProcAddr" );
 	VULKAN_HPP_DEFAULT_DISPATCHER.init( vkGetInstanceProcAddr );
 
 #define CHECK(a) if (!(a)) { return false; }
@@ -1238,7 +1248,11 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	// SRS - when USE_MoltenVK defined, set MoltenVK runtime configuration parameters on macOS (deprecated version)
 #if defined(__APPLE__) && defined( USE_MoltenVK )
-	// SRS - deprecated by VK_EXT_layer_settings, but retained for older versions of MoltenVK < 1.2.7 / SDK < 1.3.272.0
+	// SRS - deprecated by VK_EXT_layer_settings, but retained for older versions of MoltenVK < 1.2.7 / SDK < 1.3.275.0
+	const PFN_vkGetMoltenVKConfigurationMVK vkGetMoltenVKConfigurationMVK =   // NOLINT(misc-misplaced-const)
+		(PFN_vkGetMoltenVKConfigurationMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkGetMoltenVKConfigurationMVK" );
+	const PFN_vkSetMoltenVKConfigurationMVK vkSetMoltenVKConfigurationMVK =   // NOLINT(misc-misplaced-const)
+		(PFN_vkSetMoltenVKConfigurationMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkSetMoltenVKConfigurationMVK" );
 #if defined( VK_EXT_layer_settings )
 	// SRS - for backwards compatibility at runtime: execute only if we can't find the VK_EXT_layer_settings extension
 	if( enabledExtensions.instance.find( VK_EXT_LAYER_SETTINGS_EXTENSION_NAME ) == enabledExtensions.instance.end() )
@@ -1287,6 +1301,11 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 		vkSetMoltenVKConfigurationMVK( m_VulkanInstance, &mvkConfig, &mvkConfigSize );
 	}
+
+#if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
+	// SRS - Get function pointer for retrieving MoltenVK advanced performance statistics in DeviceManager_VK::BeginFrame()
+	vkGetPerformanceStatisticsMVK = (PFN_vkGetPerformanceStatisticsMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkGetPerformanceStatisticsMVK" );
+#endif
 #endif
 
 	CHECK( createDevice() );
@@ -1340,7 +1359,9 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 #undef CHECK
 
-	OPTICK_GPU_INIT_VULKAN( ( VkDevice* )&m_VulkanDevice, ( VkPhysicalDevice* )&m_VulkanPhysicalDevice, ( VkQueue* )&m_GraphicsQueue, ( uint32_t* )&m_GraphicsQueueFamily, 1, nullptr );
+	const Optick::VulkanFunctions optickVulkanFunctions = { (PFN_vkGetInstanceProcAddr_)vkGetInstanceProcAddr };
+
+	OPTICK_GPU_INIT_VULKAN( ( VkInstance )m_VulkanInstance, ( VkDevice* )&m_VulkanDevice, ( VkPhysicalDevice* )&m_VulkanPhysicalDevice, ( VkQueue* )&m_GraphicsQueue, ( uint32_t* )&m_GraphicsQueueFamily, 1, &optickVulkanFunctions );
 
 	return true;
 }
