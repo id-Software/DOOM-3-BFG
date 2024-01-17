@@ -39,6 +39,7 @@ base/video/
 base/wads/
 base/renderprogs2/
 base/generated/
+base/env/
 
 GPATH
 GRTAGS
