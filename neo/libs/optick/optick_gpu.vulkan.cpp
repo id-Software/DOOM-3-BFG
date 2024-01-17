@@ -71,7 +71,7 @@ namespace Optick
 		GPUProfilerVulkan();
 		~GPUProfilerVulkan();
 
-		void InitDevice(VkDevice* devices, VkPhysicalDevice* physicalDevices, VkQueue* cmdQueues, uint32_t* cmdQueuesFamily, uint32_t nodeCount, const VulkanFunctions* functions);
+		void InitDevice(VkInstance instance, VkDevice* devices, VkPhysicalDevice* physicalDevices, VkQueue* cmdQueues, uint32_t* cmdQueuesFamily, uint32_t nodeCount, const VulkanFunctions* functions);
 		void QueryTimestamp(VkCommandBuffer commandBuffer, int64_t* outCpuTimestamp);
 		void Flip(VkSwapchainKHR swapChain);
 
@@ -94,10 +94,10 @@ namespace Optick
 		}
 	};
 
-	void InitGpuVulkan(VkDevice* vkDevices, VkPhysicalDevice* vkPhysicalDevices, VkQueue* vkQueues, uint32_t* cmdQueuesFamily, uint32_t numQueues, const VulkanFunctions* functions)
+	void InitGpuVulkan(VkInstance vkInstance, VkDevice* vkDevices, VkPhysicalDevice* vkPhysicalDevices, VkQueue* vkQueues, uint32_t* cmdQueuesFamily, uint32_t numQueues, const VulkanFunctions* functions)
 	{
 		GPUProfilerVulkan* gpuProfiler = Memory::New<GPUProfilerVulkan>();
-		gpuProfiler->InitDevice(vkDevices, vkPhysicalDevices, vkQueues, cmdQueuesFamily, numQueues, functions);
+		gpuProfiler->InitDevice(vkInstance, vkDevices, vkPhysicalDevices, vkQueues, cmdQueuesFamily, numQueues, functions);
 		Core::Get().InitGPUProfiler(gpuProfiler);
 	}
 
@@ -107,15 +107,17 @@ namespace Optick
 		prevPresentID = 0;
 	}
 
-	void GPUProfilerVulkan::InitDevice(VkDevice* devices, VkPhysicalDevice* physicalDevices, VkQueue* cmdQueues, uint32_t* cmdQueuesFamily, uint32_t nodeCount, const VulkanFunctions* functions)
+	void GPUProfilerVulkan::InitDevice(VkInstance instance, VkDevice* devices, VkPhysicalDevice* physicalDevices, VkQueue* cmdQueues, uint32_t* cmdQueuesFamily, uint32_t nodeCount, const VulkanFunctions* functions)
 	{
 		if (functions != nullptr)
 		{
 			vulkanFunctions = *functions;
 		}
-		else 
+		else
 		{
+#if OPTICK_STATIC_VULKAN_FUNCTIONS
 			vulkanFunctions = {
+				nullptr, // don't define vkGetInstanceProcAddr if vulkan functions are static
 				vkGetPhysicalDeviceProperties,
 				(PFN_vkCreateQueryPool_)vkCreateQueryPool,
 				(PFN_vkCreateCommandPool_)vkCreateCommandPool,
@@ -142,6 +144,23 @@ namespace Optick
 				vkFreeCommandBuffers,
 				nullptr, // dynamically define vkGetPastPresentationTimingGOOGLE if VK_GOOGLE_display_timing extension available
 			};
+#else
+			OPTICK_FAILED("Either set OPTICK_STATIC_VULKAN_FUNCTIONS = 1 or VulkanFunctions must be defined! Can't initialize GPU Profiler!");
+#endif
+		}
+
+		PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr_ = nullptr;
+		if (vulkanFunctions.vkGetInstanceProcAddr)
+		{
+			if (instance)
+			{
+				vkGetDeviceProcAddr_ = (PFN_vkGetDeviceProcAddr)(*vulkanFunctions.vkGetInstanceProcAddr)(instance, "vkGetDeviceProcAddr");
+				vulkanFunctions.vkGetPhysicalDeviceProperties = (PFN_vkGetPhysicalDeviceProperties_)(*vulkanFunctions.vkGetInstanceProcAddr)(instance, "vkGetPhysicalDeviceProperties");
+			}
+			else
+			{
+				OPTICK_FAILED("VkInstance must be defined if VulkanFunctions::vkGetInstanceProcAddr is defined! Can't initialize GPU Profiler!");
+			}
 		}
 
 		VkQueryPoolCreateInfo queryPoolCreateInfo;
@@ -168,6 +187,40 @@ namespace Optick
 		VkResult r;
 		for (uint32_t i = 0; i < nodeCount; ++i)
 		{
+			if (vkGetDeviceProcAddr_)
+			{
+				vulkanFunctions.vkCreateQueryPool = (PFN_vkCreateQueryPool_)vkGetDeviceProcAddr_(devices[i], "vkCreateQueryPool");
+				vulkanFunctions.vkCreateCommandPool = (PFN_vkCreateCommandPool_)vkGetDeviceProcAddr_(devices[i], "vkCreateCommandPool");
+				vulkanFunctions.vkCreateEvent = (PFN_vkCreateEvent_)vkGetDeviceProcAddr_(devices[i], "vkCreateEvent");
+				vulkanFunctions.vkAllocateCommandBuffers = (PFN_vkAllocateCommandBuffers_)vkGetDeviceProcAddr_(devices[i], "vkAllocateCommandBuffers");
+				vulkanFunctions.vkCreateFence = (PFN_vkCreateFence_)vkGetDeviceProcAddr_(devices[i], "vkCreateFence");
+				vulkanFunctions.vkCmdResetQueryPool = (PFN_vkCmdResetQueryPool_)vkGetDeviceProcAddr_(devices[i], "vkCmdResetQueryPool");
+				vulkanFunctions.vkResetQueryPool = (PFN_vkResetQueryPool_)vkGetDeviceProcAddr_(devices[i], "vkResetQueryPool");
+				vulkanFunctions.vkCmdWaitEvents = (PFN_vkCmdWaitEvents_)vkGetDeviceProcAddr_(devices[i], "vkCmdWaitEvents");
+				vulkanFunctions.vkResetEvent = (PFN_vkResetEvent_)vkGetDeviceProcAddr_(devices[i], "vkResetEvent");
+				vulkanFunctions.vkSetEvent = (PFN_vkSetEvent_)vkGetDeviceProcAddr_(devices[i], "vkSetEvent");
+				vulkanFunctions.vkQueueSubmit = (PFN_vkQueueSubmit_)vkGetDeviceProcAddr_(devices[i], "vkQueueSubmit");
+				vulkanFunctions.vkWaitForFences = (PFN_vkWaitForFences_)vkGetDeviceProcAddr_(devices[i], "vkWaitForFences");
+				vulkanFunctions.vkResetCommandBuffer = (PFN_vkResetCommandBuffer_)vkGetDeviceProcAddr_(devices[i], "vkResetCommandBuffer");
+				vulkanFunctions.vkCmdWriteTimestamp = (PFN_vkCmdWriteTimestamp_)vkGetDeviceProcAddr_(devices[i], "vkCmdWriteTimestamp");
+				vulkanFunctions.vkGetQueryPoolResults = (PFN_vkGetQueryPoolResults_)vkGetDeviceProcAddr_(devices[i], "vkGetQueryPoolResults");
+				vulkanFunctions.vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer_)vkGetDeviceProcAddr_(devices[i], "vkBeginCommandBuffer");
+				vulkanFunctions.vkEndCommandBuffer = (PFN_vkEndCommandBuffer_)vkGetDeviceProcAddr_(devices[i], "vkEndCommandBuffer");
+				vulkanFunctions.vkResetFences = (PFN_vkResetFences_)vkGetDeviceProcAddr_(devices[i], "vkResetFences");
+				vulkanFunctions.vkDestroyCommandPool = (PFN_vkDestroyCommandPool_)vkGetDeviceProcAddr_(devices[i], "vkDestroyCommandPool");
+				vulkanFunctions.vkDestroyQueryPool = (PFN_vkDestroyQueryPool_)vkGetDeviceProcAddr_(devices[i], "vkDestroyQueryPool");
+				vulkanFunctions.vkDestroyEvent = (PFN_vkDestroyEvent_)vkGetDeviceProcAddr_(devices[i], "vkDestroyEvent");
+				vulkanFunctions.vkDestroyFence = (PFN_vkDestroyFence_)vkGetDeviceProcAddr_(devices[i], "vkDestroyFence");
+				vulkanFunctions.vkFreeCommandBuffers = (PFN_vkFreeCommandBuffers_)vkGetDeviceProcAddr_(devices[i], "vkFreeCommandBuffers");
+				vulkanFunctions.vkGetPastPresentationTimingGOOGLE = (PFN_vkGetPastPresentationTimingGOOGLE_)vkGetDeviceProcAddr_(devices[i], "vkGetPastPresentationTimingGOOGLE");
+			}
+#if OPTICK_STATIC_VULKAN_FUNCTIONS
+			else if (!vulkanFunctions.vkGetPastPresentationTimingGOOGLE)
+			{
+				vulkanFunctions.vkGetPastPresentationTimingGOOGLE = (PFN_vkGetPastPresentationTimingGOOGLE_)vkGetDeviceProcAddr(devices[i], "vkGetPastPresentationTimingGOOGLE");
+			}
+#endif
+
 			VkPhysicalDeviceProperties properties = { 0 };
 			(*vulkanFunctions.vkGetPhysicalDeviceProperties)(physicalDevices[i], &properties);
 			GPUProfiler::InitNode(properties.deviceName, i);
@@ -175,7 +228,6 @@ namespace Optick
 			NodePayload* nodePayload = Memory::New<NodePayload>();
 			nodePayloads[i] = nodePayload;
 			nodePayload->vulkanFunctions = &vulkanFunctions;
-			nodePayload->vulkanFunctions->vkGetPastPresentationTimingGOOGLE = (PFN_vkGetPastPresentationTimingGOOGLE_)vkGetDeviceProcAddr(devices[i], "vkGetPastPresentationTimingGOOGLE");
 			nodePayload->device = devices[i];
 			nodePayload->physicalDevice = physicalDevices[i];
 			nodePayload->queue = cmdQueues[i];
@@ -498,7 +550,7 @@ namespace Optick
 #include "optick_common.h"
 namespace Optick
 {
-	void InitGpuVulkan(VkDevice* /*vkDevices*/, VkPhysicalDevice* /*vkPhysicalDevices*/, VkQueue* /*vkQueues*/, uint32_t* /*cmdQueuesFamily*/, uint32_t /*numQueues*/, const VulkanFunctions* /*functions*/)
+	void InitGpuVulkan(VkInstance /*vkInstance*/, VkDevice* /*vkDevices*/, VkPhysicalDevice* /*vkPhysicalDevices*/, VkQueue* /*vkQueues*/, uint32_t* /*cmdQueuesFamily*/, uint32_t /*numQueues*/, const VulkanFunctions* /*functions*/)
 	{
 		OPTICK_FAILED("OPTICK_ENABLE_GPU_VULKAN is disabled! Can't initialize GPU Profiler!");
 	}
