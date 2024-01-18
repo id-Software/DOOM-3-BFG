@@ -1359,7 +1359,9 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 #undef CHECK
 
+#if USE_OPTICK
 	const Optick::VulkanFunctions optickVulkanFunctions = { (PFN_vkGetInstanceProcAddr_)vkGetInstanceProcAddr };
+#endif
 
 	OPTICK_GPU_INIT_VULKAN( ( VkInstance )m_VulkanInstance, ( VkDevice* )&m_VulkanDevice, ( VkPhysicalDevice* )&m_VulkanPhysicalDevice, ( VkQueue* )&m_GraphicsQueue, ( uint32_t* )&m_GraphicsQueueFamily, 1, &optickVulkanFunctions );
 
