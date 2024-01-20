@@ -983,8 +983,8 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot& ss )
 
 			ent->FlagNewSnapshot();
 
-			// read the class specific data from the snapshot
-			if( msg.GetRemainingReadBits() > 0 )
+			// read the class specific data from the snapshot; SRS - only if network-synced
+			if( msg.GetRemainingReadBits() > 0 && ent->fl.networkSync )
 			{
 				ent->ReadFromSnapshot_Ex( msg );
 				ent->snapshotBits = msg.GetSize();
