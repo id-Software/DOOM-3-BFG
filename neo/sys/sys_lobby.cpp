@@ -120,6 +120,20 @@ idLobby::idLobby()
 
 /*
 ========================
+idLobby::~idLobby
+========================
+*/
+idLobby::~idLobby()
+{
+	// SRS - cleanup any allocations made for multiplayer networking support
+	Mem_Free( objMemory );
+	objMemory = NULL;
+	Mem_Free( lzwData );
+	lzwData = NULL;
+}
+
+/*
+========================
 idLobby::Initialize
 ========================
 */
@@ -328,15 +342,6 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye )
 			sessionCB->DestroyLobbyBackend( lobbyBackend );
 			lobbyBackend = NULL;
 		}
-	}
-
-	// SRS - cleanup any allocations made for multiplayer networking support
-	if( objMemory )
-	{
-		Mem_Free( objMemory );
-		objMemory = NULL;
-		Mem_Free( lzwData );
-		lzwData = NULL;
 	}
 
 	state = STATE_IDLE;

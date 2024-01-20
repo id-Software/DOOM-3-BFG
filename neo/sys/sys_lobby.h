@@ -41,6 +41,7 @@ class idLobby : public idLobbyBase
 {
 public:
 	idLobby();
+	~idLobby();
 
 	enum lobbyType_t
 	{
