@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
@@ -1148,7 +1148,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 	idLib::Printf( "----------------------------------\n" );
 	idLib::Printf( "Processed %i light probes\n", totalProcessedProbes );
-	common->Printf( "Baked SH irradiance and GGX mip maps in %5.1f seconds\n\n", ( totalEnd - totalStart ) / ( 1000.0f ) );
+	common->Printf( "Baked SH irradiance and GGX mip maps in %5.1f minutes\n\n", ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
 }
 
 CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )

@@ -48,7 +48,11 @@ void idVoiceChatMgr::Shutdown()
 
 	// We shouldn't have voice users if everything shutdown correctly
 	assert( talkers.Num() == 0 );
-	assert( remoteMachines.Num() == 0 );
+	for( int i = remoteMachines.Num() - 1; i >= 0; i-- )
+	{
+		assert( remoteMachines[i].refCount == 0 );
+		remoteMachines.RemoveIndex( i );
+	}
 }
 
 /*
