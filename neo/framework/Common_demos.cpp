@@ -315,6 +315,7 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 		while( readDemo )
 		{
 			BusyWait();                         // SRS - BusyWait() calls UpdateScreen() which draws and renders out-of-sequence but still supports frame timing
+			commonLocal.frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
 			commonLocal.mainFrameTiming = commonLocal.frameTiming;
 			// ** End of current logical frame **
 

@@ -1020,12 +1020,6 @@ bool DeviceManager_VK::createDevice()
 	m_RendererString = std::string( prop.deviceName.data() );
 	m_DeviceApiVersion = prop.apiVersion;
 
-	// SRS - Determine maxPushConstantSize for Vulkan device
-	if( r_useVulkanPushConstants.GetBool() )
-	{
-		m_DeviceParams.maxPushConstantSize = Min( prop.limits.maxPushConstantsSize, nvrhi::c_MaxPushConstantSize );
-	}
-
 #if defined( USE_AMD_ALLOCATOR )
 	// SRS - initialize the vma allocator
 	VmaVulkanFunctions vulkanFunctions = {};

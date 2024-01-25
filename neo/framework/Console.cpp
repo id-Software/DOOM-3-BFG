@@ -298,7 +298,6 @@ float idConsoleLocal::DrawFPS( float y )
 
 	const uint64 rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
 	const uint64 rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
-	const uint64 rendererMvkEncodeTime = commonLocal.GetRendererMvkEncodeMicroseconds();
 	const uint64 rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
 	const uint64 rendererGPUEarlyZTime = commonLocal.GetRendererGpuEarlyZMicroseconds();
 	const uint64 rendererGPU_SSAOTime = commonLocal.GetRendererGpuSSAOMicroseconds();
@@ -318,14 +317,24 @@ float idConsoleLocal::DrawFPS( float y )
 	const int64 frameIdleTime = int64( commonLocal.mainFrameTiming.startGameTime ) - int64( commonLocal.mainFrameTiming.finishSyncTime );
 	const int64 frameBusyTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startGameTime );
 
-	// SRS - Frame sync time represents swap buffer synchronization + game thread wait + other time spent outside of rendering
-	const int64 frameSyncTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startRenderTime ) - int64( rendererBackEndTime );
+	// SRS - Frame sync time represents swap buffer synchronization + other frame time spent outside of game thread and renderer backend
+	const int64 gameThreadWaitTime = int64( commonLocal.mainFrameTiming.finishSyncTime_EndFrame ) - int64( commonLocal.mainFrameTiming.finishRenderTime );
+	const int64 frameSyncTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startRenderTime + rendererBackEndTime ) - gameThreadWaitTime;
 
 	// SRS - GPU idle time is simply the difference between measured frame-over-frame time and GPU busy time (directly from GPU timers)
 	const int64 rendererGPUIdleTime = frameBusyTime + frameIdleTime - rendererGPUTime;
 
+	// SRS - Estimate CPU busy time measured from start of game thread until completion of game thread and renderer backend (including excess MoltenVK encoding time if applicable)
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+	const int64 rendererMvkEncodeTime = commonLocal.GetRendererMvkEncodeMicroseconds();
+	const int64 rendererQueueSubmitTime = int64( commonLocal.mainFrameTiming.finishRenderTime - commonLocal.mainFrameTiming.startRenderTime ) - int64( rendererBackEndTime );
+	const int64 rendererCPUBusyTime = int64( commonLocal.mainFrameTiming.finishSyncTime_EndFrame - commonLocal.mainFrameTiming.startGameTime ) + Min( Max( int64( 0 ), rendererMvkEncodeTime - rendererQueueSubmitTime - gameThreadWaitTime ), frameSyncTime - rendererQueueSubmitTime );
+#else
+	const int64 rendererCPUBusyTime = int64( commonLocal.mainFrameTiming.finishSyncTime_EndFrame - commonLocal.mainFrameTiming.startGameTime );
+#endif
+
 	// SRS - Save current CPU and GPU usage factors in ring buffer to calculate smoothed averages for future frames
-	previousCpuUsage[(index - 1) % FPS_FRAMES] = float( frameBusyTime - frameSyncTime ) / float( frameBusyTime + frameIdleTime ) * 100.0;
+	previousCpuUsage[(index - 1) % FPS_FRAMES] = float( rendererCPUBusyTime ) / float( frameBusyTime + frameIdleTime ) * 100.0;
 	previousGpuUsage[(index - 1) % FPS_FRAMES] = float( rendererGPUTime ) / float( rendererGPUTime + rendererGPUIdleTime ) * 100.0;
 
 #if 1
