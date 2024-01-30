@@ -37,14 +37,19 @@
 
 #include <nvrhi/vulkan.h>
 // SRS - optionally needed for MoltenVK runtime config visibility
-#if defined(__APPLE__) && defined( USE_MoltenVK )
+#if defined(__APPLE__)
+#if defined( USE_MoltenVK )
 #if 0
 	#include <MoltenVK/mvk_vulkan.h>
 	#include <MoltenVK/mvk_config.h>			// SRS - will eventually move to these mvk include files for MoltenVK >= 1.2.7 / SDK >= 1.3.275.0
 #else
 	#include <MoltenVK/vk_mvk_moltenvk.h>		// SRS - now deprecated, but provides backwards compatibility for MoltenVK < 1.2.7 / SDK < 1.3.275.0
 #endif
+#endif
+#if defined( VK_EXT_layer_settings ) || defined( USE_MoltenVK )
 	idCVar r_mvkSynchronousQueueSubmits( "r_mvkSynchronousQueueSubmits", "0", CVAR_BOOL | CVAR_INIT, "Use MoltenVK's synchronous queue submit option." );
+	idCVar r_mvkUseMetalArgumentBuffers( "r_mvkUseMetalArgumentBuffers", "2", CVAR_INTEGER | CVAR_INIT, "Use MoltenVK's Metal argument buffers option (0=Off, 1=Always On, 2=On when VK_EXT_descriptor_indexing enabled)", 0, 2 );
+#endif
 #endif
 #include <nvrhi/validation.h>
 #include <libs/optick/optick.h>
@@ -509,19 +514,19 @@ bool DeviceManager_VK::createInstance()
 		info.setFlags( vk::InstanceCreateFlagBits( VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR ) );
 	}
 #endif
-#if defined( USE_MoltenVK ) && defined( VK_EXT_layer_settings )
-	// SRS - when USE_MoltenVK defined, set MoltenVK runtime configuration parameters on macOS via VK_EXT_layer_settings
+#if defined( VK_EXT_layer_settings )
+	// SRS - set MoltenVK runtime configuration parameters on macOS via standardized VK_EXT_layer_settings extension
 	std::vector<vk::LayerSettingEXT> layerSettings;
 	vk::LayerSettingsCreateInfoEXT layerSettingsCreateInfo;
 
 	const vk::Bool32 valueTrue = vk::True, valueFalse = vk::False;
-	const int32_t useMetalArgumentBuffers = int32_t( MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_DESCRIPTOR_INDEXING );
-	const Float32 timestampPeriodLowPassAlpha = 1.0;
+	const int32_t useMetalArgumentBuffers = r_mvkUseMetalArgumentBuffers.GetInteger();
+	const float timestampPeriodLowPassAlpha = 1.0;
 
 	if( enabledExtensions.instance.find( VK_EXT_LAYER_SETTINGS_EXTENSION_NAME ) != enabledExtensions.instance.end() )
 	{
 		// SRS - use MoltenVK layer for configuration via VK_EXT_layer_settings extension
-		vk::LayerSettingEXT layerSetting = { kMVKMoltenVKDriverLayerName, "", vk::LayerSettingTypeEXT( 0 ), 1, nullptr };
+		vk::LayerSettingEXT layerSetting = { "MoltenVK", "", vk::LayerSettingTypeEXT( 0 ), 1, nullptr };
 
 		// SRS - Set MoltenVK's synchronous queue submit option for vkQueueSubmit() & vkQueuePresentKHR()
 		layerSetting.pSettingName = "MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS";
@@ -547,11 +552,16 @@ bool DeviceManager_VK::createInstance()
 		layerSetting.pValues = &timestampPeriodLowPassAlpha;
 		layerSettings.push_back( layerSetting );
 
+		// SRS - Only enable MoltenVK performance tracking if using API and available based on version
+#if defined( USE_MoltenVK )
+#if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
 		// SRS - Enable MoltenVK's performance tracking for display of Metal encoding timer on macOS
 		layerSetting.pSettingName = "MVK_CONFIG_PERFORMANCE_TRACKING";
 		layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
 		layerSetting.pValues = &valueTrue;
 		layerSettings.push_back( layerSetting );
+#endif
+#endif
 
 		layerSettingsCreateInfo.settingCount = uint32_t( layerSettings.size() );
 		layerSettingsCreateInfo.pSettings = layerSettings.data();
@@ -1242,16 +1252,17 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 
 	// SRS - when USE_MoltenVK defined, set MoltenVK runtime configuration parameters on macOS (deprecated version)
 #if defined(__APPLE__) && defined( USE_MoltenVK )
-	// SRS - deprecated by VK_EXT_layer_settings, but retained for older versions of MoltenVK < 1.2.7 / SDK < 1.3.275.0
-	const PFN_vkGetMoltenVKConfigurationMVK vkGetMoltenVKConfigurationMVK =   // NOLINT(misc-misplaced-const)
-		(PFN_vkGetMoltenVKConfigurationMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkGetMoltenVKConfigurationMVK" );
-	const PFN_vkSetMoltenVKConfigurationMVK vkSetMoltenVKConfigurationMVK =   // NOLINT(misc-misplaced-const)
-		(PFN_vkSetMoltenVKConfigurationMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkSetMoltenVKConfigurationMVK" );
 #if defined( VK_EXT_layer_settings )
 	// SRS - for backwards compatibility at runtime: execute only if we can't find the VK_EXT_layer_settings extension
 	if( enabledExtensions.instance.find( VK_EXT_LAYER_SETTINGS_EXTENSION_NAME ) == enabledExtensions.instance.end() )
 #endif
 	{
+		// SRS - vkSetMoltenVKConfigurationMVK() now deprecated, but retained for MoltenVK < 1.2.7 / SDK < 1.3.275.0
+		const PFN_vkGetMoltenVKConfigurationMVK vkGetMoltenVKConfigurationMVK =   // NOLINT(misc-misplaced-const)
+			(PFN_vkGetMoltenVKConfigurationMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkGetMoltenVKConfigurationMVK" );
+		const PFN_vkSetMoltenVKConfigurationMVK vkSetMoltenVKConfigurationMVK =   // NOLINT(misc-misplaced-const)
+			(PFN_vkSetMoltenVKConfigurationMVK)vkGetInstanceProcAddr( m_VulkanInstance, "vkSetMoltenVKConfigurationMVK" );
+
 		vk::PhysicalDeviceFeatures2 deviceFeatures2;
 		vk::PhysicalDevicePortabilitySubsetFeaturesKHR portabilityFeatures;
 		deviceFeatures2.setPNext( &portabilityFeatures );
@@ -1276,11 +1287,14 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 			mvkConfig.fullImageViewSwizzle = VK_TRUE;
 		}
 
-		// SRS - Turn MoltenVK's Metal argument buffer feature on for descriptor indexing only
-		if( mvkConfig.useMetalArgumentBuffers == MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_NEVER )
+		// SRS - Set MoltenVK's Metal argument buffer option for descriptor resource scaling
+		//	   - Also needed for Vulkan SDK 1.3.268.1 to work around SPIRV-Cross issue for Metal conversion.
+		//	   - See https://github.com/KhronosGroup/MoltenVK/issues/2016 and https://github.com/goki/vgpu/issues/9
+		//	   - Issue solved in Vulkan SDK >= 1.3.275.0, but config uses VK_EXT_layer_settings instead of this code.
+		if( mvkConfig.useMetalArgumentBuffers == MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_NEVER && r_mvkUseMetalArgumentBuffers.GetInteger() )
 		{
-			idLib::Printf( "Enabled MoltenVK's Metal argument buffers for descriptor indexing...\n" );
-			mvkConfig.useMetalArgumentBuffers = MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS_DESCRIPTOR_INDEXING;
+			idLib::Printf( "Enabled MoltenVK's Metal argument buffers...\n" );
+			mvkConfig.useMetalArgumentBuffers = MVKUseMetalArgumentBuffers( r_mvkUseMetalArgumentBuffers.GetInteger() );
 		}
 
 	#if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
@@ -1432,7 +1446,7 @@ void DeviceManager_VK::BeginFrame()
 
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 #if MVK_VERSION >= MVK_MAKE_VERSION( 1, 2, 6 )
-	if( m_DeviceApiVersion >= VK_MAKE_API_VERSION( 0, 1, 2, 268 ) )
+	if( vkGetPerformanceStatisticsMVK && m_DeviceApiVersion >= VK_MAKE_API_VERSION( 0, 1, 2, 268 ) )
 	{
 		// SRS - get MoltenVK's Metal encoding time and GPU memory usage for display in statistics overlay HUD
 		MVKPerformanceStatistics mvkPerfStats;
