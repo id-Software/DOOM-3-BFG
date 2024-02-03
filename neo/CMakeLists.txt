@@ -441,6 +441,9 @@ set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
 add_subdirectory(${NVRHI_DIR})
 add_definitions(-DUSE_NVRHI)
 
+set(SHADERMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/ShaderMake)
+add_subdirectory(${SHADERMAKE_DIR})
+
 if(USE_DX11)
 	find_package(FXC REQUIRED)
 endif()
@@ -455,6 +458,7 @@ if(USE_VULKAN)
 endif()
 
 include_directories(${NVRHI_DIR}/include)
+include_directories(${SHADERMAKE_DIR}/include)
 
 include_directories("libs/optick")
 
@@ -1827,7 +1831,9 @@ endif()
 
 # needs to come after nvrhi_d3d11 etc. for link order
 target_link_libraries(RBDoom3BFG nvrhi)
+target_link_libraries(RBDoom3BFG ShaderMakeBlob)
 
 add_subdirectory(shaders)
+add_dependencies(Shaders ShaderMake)
 add_dependencies(RBDoom3BFG Shaders)
 

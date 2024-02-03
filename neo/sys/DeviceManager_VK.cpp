@@ -480,7 +480,7 @@ bool DeviceManager_VK::createInstance()
 	const vk::Result res = vk::createInstance( &info, nullptr, &m_VulkanInstance );
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan instance, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan instance, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 
@@ -505,7 +505,7 @@ void DeviceManager_VK::installDebugCallback()
 
 bool DeviceManager_VK::pickPhysicalDevice()
 {
-	vk::Format requestedFormat = nvrhi::vulkan::convertFormat( m_DeviceParams.swapChainFormat );
+	vk::Format requestedFormat = vk::Format( nvrhi::vulkan::convertFormat( m_DeviceParams.swapChainFormat ) );
 	vk::Extent2D requestedExtent( m_DeviceParams.backBufferWidth, m_DeviceParams.backBufferHeight );
 
 	auto devices = m_VulkanInstance.enumeratePhysicalDevices();
@@ -891,7 +891,7 @@ bool DeviceManager_VK::createDevice()
 	const vk::Result res = m_VulkanPhysicalDevice.createDevice( &deviceDesc, nullptr, &m_VulkanDevice );
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan physical device, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan physical device, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 
@@ -974,7 +974,7 @@ bool DeviceManager_VK::createWindowSurface()
 
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 
@@ -1063,7 +1063,7 @@ bool DeviceManager_VK::createSwapChain()
 	const vk::Result res = m_VulkanDevice.createSwapchainKHR( &desc, nullptr, &m_SwapChain );
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 

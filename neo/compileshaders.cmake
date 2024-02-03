@@ -53,7 +53,7 @@ function(compile_shaders)
     set_source_files_properties(${params_SOURCES} PROPERTIES VS_TOOL_OVERRIDE "None") 
 
     add_custom_target(${params_TARGET}
-        DEPENDS shaderCompiler
+        DEPENDS ShaderMake
         SOURCES ${params_SOURCES})
 
     if (params_DXIL AND (USE_DX12 AND USE_DXIL_ON_DX12))
@@ -62,20 +62,21 @@ function(compile_shaders)
         endif()
 
         if (NOT params_CFLAGS)
-            set(CFLAGS "$<IF:$<CONFIG:Debug>,-Zi -Qembed_debug,-Qstrip_debug -Qstrip_reflect> -O3 -WX -Zpr")
+            set(CFLAGS $<IF:$<CONFIG:Debug>,--embedPDB,--stripReflection> --shaderModel=6_0 -O3 --WX --matrixRowMajor)
         else()
             set(CFLAGS ${params_CFLAGS})
         endif()
 
         add_custom_command(TARGET ${params_TARGET} PRE_BUILD
-                          COMMAND shaderCompiler
-                                   --infile ${params_CONFIG}
-                                   --parallel
-                                   --out ${params_DXIL}
-                                   --platform dxil
-                                   --cflags "${CFLAGS}"
+                          COMMAND ShaderMake
+								   --config=${params_CONFIG}
+                                   --out=${params_DXIL}
+                                   --platform=DXIL
+                                   --binaryBlob
+                                   --outputExt=.bin
                                    -I ${SHADER_INCLUDE_DIR}
-                                   --compiler ${DXC_DXIL_EXECUTABLE})
+                                   ${CFLAGS}
+                                   --compiler=${DXC_DXIL_EXECUTABLE})
     endif()
 
     if (params_DXBC AND (USE_DX11 OR (USE_DX12 AND NOT USE_DXIL_ON_DX12)))
@@ -84,20 +85,21 @@ function(compile_shaders)
         endif()
 
         if (NOT params_CFLAGS)
-            set(CFLAGS "$<IF:$<CONFIG:Debug>,-Zi,-Qstrip_priv -Qstrip_debug -Qstrip_reflect> -O3 -WX -Zpr")
+            set(CFLAGS $<IF:$<CONFIG:Debug>,--PDB,--stripReflection> --shaderModel=6_0 -O3 --WX --matrixRowMajor)
         else()
             set(CFLAGS ${params_CFLAGS})
         endif()
 
         add_custom_command(TARGET ${params_TARGET} PRE_BUILD
-                          COMMAND shaderCompiler
-                                   --infile ${params_CONFIG}
-                                   --parallel
-                                   --out ${params_DXBC}
-                                   --platform dxbc
-                                   --cflags "${CFLAGS}"
+                          COMMAND ShaderMake
+								   --config=${params_CONFIG}
+                                   --out=${params_DXBC}
+                                   --platform=DXBC
+                                   --binaryBlob
+                                   --outputExt=.bin
                                    -I ${SHADER_INCLUDE_DIR}
-                                   --compiler ${FXC_EXECUTABLE})
+                                   ${CFLAGS}
+                                   --compiler=${FXC_EXECUTABLE})
     endif()
 
     if (params_SPIRV_DXC AND USE_VULKAN)
@@ -106,28 +108,22 @@ function(compile_shaders)
         endif()
 
         if (NOT params_CFLAGS)
-			set(CFLAGS "$<IF:$<CONFIG:Debug>,-Zi,> -fspv-target-env=vulkan1.2 -O3 -WX -Zpr")
+			set(CFLAGS $<IF:$<CONFIG:Debug>,--PDB,> --vulkanVersion=1.2 --shaderModel=6_0 -O3 --WX --matrixRowMajor --tRegShift=0 --sRegShift=128 --bRegShift=256 --uRegShift=384)
         else()
             set(CFLAGS ${params_CFLAGS})
         endif()
 
-        # SRS - Parallel shader compilation sometimes fails, disable for now until issue is resolved
-        if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-            set(PARALLEL_SHADERS "")
-        else()
-            set(PARALLEL_SHADERS "--parallel")
-        endif()
-
         add_custom_command(TARGET ${params_TARGET} PRE_BUILD
-                          COMMAND shaderCompiler
-                                   --infile ${params_CONFIG}
-                                    ${PARALLEL_SHADERS}
-                                   --out ${params_SPIRV_DXC}
-                                   --platform spirv
+                          COMMAND ShaderMake
+                                   --config=${params_CONFIG}
+                                   --out=${params_SPIRV_DXC}
+                                   --platform=SPIRV
+                                   --binaryBlob
+                                   --outputExt=.bin
                                    -I ${SHADER_INCLUDE_DIR}
                                    -D SPIRV
-                                   --cflags "${CFLAGS}"
-                                   --compiler ${DXC_SPIRV_EXECUTABLE})
+                                   ${CFLAGS}
+                                   --compiler=${DXC_SPIRV_EXECUTABLE})
     endif()
 
     if(params_FOLDER)
