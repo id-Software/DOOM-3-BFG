@@ -40,6 +40,7 @@ base/wads/
 base/renderprogs2/
 base/generated/
 base/env/
+base/screenshots/
 
 GPATH
 GRTAGS
@@ -50,3 +51,4 @@ neo/.kdev4
 neo/neo.kdev4
 neo/.idea/
 neo/cmake-build-*/
+neo/bin/
