@@ -35,6 +35,9 @@
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#include <vulkan/vulkan.hpp>
+
 // SRS - optionally needed for MoltenVK runtime config visibility
 #if defined(__APPLE__) && defined( USE_MoltenVK )
 	#include <MoltenVK/vk_mvk_moltenvk.h>
@@ -962,14 +965,14 @@ bool DeviceManager_VK::createWindowSurface()
 	// Create the platform-specific surface
 #if defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Support generic SDL platform for linux and macOS
-	const vk::Result res = CreateSDLWindowSurface( m_VulkanInstance, &m_WindowSurface );
+	auto res = vk::Result( CreateSDLWindowSurface( ( VkInstance )m_VulkanInstance, ( VkSurfaceKHR* )&m_WindowSurface ) );
 
 #elif defined( VK_USE_PLATFORM_WIN32_KHR )
 	auto surfaceCreateInfo = vk::Win32SurfaceCreateInfoKHR()
 							 .setHinstance( ( HINSTANCE )windowInstance )
 							 .setHwnd( ( HWND )windowHandle );
 
-	const vk::Result res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
+	auto res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
 #endif
 
 	if( res != vk::Result::eSuccess )

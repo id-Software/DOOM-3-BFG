@@ -73,59 +73,59 @@ pickBufferUsage - copied from nvrhi vulkan-buffer.cpp
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 * DEALINGS IN THE SOFTWARE.
 */
-vk::BufferUsageFlags pickBufferUsage( const nvrhi::BufferDesc& desc )
+VkBufferUsageFlags pickBufferUsage( const nvrhi::BufferDesc& desc )
 {
-	vk::BufferUsageFlags usageFlags = vk::BufferUsageFlagBits::eTransferSrc |
-									  vk::BufferUsageFlagBits::eTransferDst;
+	VkBufferUsageFlags usageFlags = VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+									VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 	if( desc.isVertexBuffer )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eVertexBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	}
 
 	if( desc.isIndexBuffer )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eIndexBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 	}
 
 	if( desc.isDrawIndirectArgs )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eIndirectBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 	}
 
 	if( desc.isConstantBuffer )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eUniformBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 	}
 
 	if( desc.structStride != 0 || desc.canHaveUAVs || desc.canHaveRawViews )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eStorageBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 	}
 
 	if( desc.canHaveTypedViews )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
 	}
 
 	if( desc.canHaveTypedViews && desc.canHaveUAVs )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
 	}
 
 	if( desc.isAccelStructBuildInput )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
 	}
 
 	if( desc.isAccelStructStorage )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
 	}
 
 	if( deviceManager->IsVulkanDeviceExtensionEnabled( VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME ) )
 	{
-		usageFlags |= vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		usageFlags |= VkBufferUsageFlagBits::VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 	}
 
 	return usageFlags;
@@ -214,7 +214,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	{
 		VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		bufferCreateInfo.size = numBytes;
-		bufferCreateInfo.usage = static_cast< VkBufferUsageFlags >( pickBufferUsage( vertexBufferDesc ) );
+		bufferCreateInfo.usage = pickBufferUsage( vertexBufferDesc );
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocCreateInfo = {};
@@ -482,7 +482,7 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	{
 		VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		bufferCreateInfo.size = numBytes;
-		bufferCreateInfo.usage = static_cast< VkBufferUsageFlags >( pickBufferUsage( indexBufferDesc ) );
+		bufferCreateInfo.usage = pickBufferUsage( indexBufferDesc );
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocCreateInfo = {};
@@ -749,7 +749,7 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	{
 		VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		bufferCreateInfo.size = numBytes;
-		bufferCreateInfo.usage = static_cast< VkBufferUsageFlags >( pickBufferUsage( bufferDesc ) );
+		bufferCreateInfo.usage = pickBufferUsage( bufferDesc );
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocCreateInfo = {};
