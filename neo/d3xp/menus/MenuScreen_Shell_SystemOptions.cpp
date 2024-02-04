@@ -34,7 +34,7 @@ const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
 extern idCVar r_graphicsAPI;
 extern idCVar r_antiAliasing;
-extern idCVar r_useFilmicPostProcessing;
+extern idCVar r_useFilmicPostFX;
 extern idCVar r_swapInterval;
 extern idCVar s_volume_dB;
 extern idCVar r_exposure; // RB: use this to control HDR exposure or brightness in LDR mode
@@ -119,10 +119,19 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	// RB begin
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
-	control->SetLabel( "Filmic VFX" );
-	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
+	control->SetLabel( "Render Mode" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_RENDERMODE );
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
-	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_RENDERMODE );
+	options->AddChild( control );
+
+	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	control->SetOptionType( OPTION_SLIDER_BAR );
+	control->SetLabel( "Ambient Lighting" );
+	control->SetDescription( "Sets the amount of indirect lighting. Needed for modern PBR reflections" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_AMBIENT_BRIGHTNESS );
+	control->SetupEvents( 2, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_AMBIENT_BRIGHTNESS );
 	options->AddChild( control );
 
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
@@ -142,12 +151,19 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	options->AddChild( control );*/
 
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
-	control->SetOptionType( OPTION_SLIDER_BAR );
-	control->SetLabel( "Ambient Lighting" );
-	control->SetDescription( "Sets the amount of indirect lighting. Needed for modern PBR reflections" );
-	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_AMBIENT_BRIGHTNESS );
-	control->SetupEvents( 2, options->GetChildren().Num() );
-	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SSAO );
+	control->SetOptionType( OPTION_SLIDER_TEXT );
+	control->SetLabel( "Filmic Post FX" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_FILMIC_POSTFX );
+	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_FILMIC_POSTFX );
+	options->AddChild( control );
+
+	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	control->SetOptionType( OPTION_SLIDER_TEXT );
+	control->SetLabel( "CRT Filter" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_CRT_POSTFX );
+	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_CRT_POSTFX );
 	options->AddChild( control );
 	// RB end
 
@@ -421,7 +437,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	//originalShadowMapping = r_useShadowMapping.GetInteger();
 	originalSSAO = r_useSSAO.GetInteger();
 	originalAmbientBrightness = r_forceAmbient.GetFloat();
-	originalPostProcessing = r_useFilmicPostProcessing.GetInteger();
+	originalPostProcessing = r_useFilmicPostFX.GetInteger();
 	// RB end
 
 	const int fullscreen = r_fullscreen.GetInteger();
@@ -593,11 +609,25 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			break;
 		}
 		// RB begin
-		case SYSTEM_FIELD_POSTFX:
+		case SYSTEM_FIELD_RENDERMODE:
+		{
+			static const int numValues = 8;
+			static const int values[numValues] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+			r_renderMode.SetInteger( AdjustOption( r_renderMode.GetInteger(), values, numValues, adjustAmount ) );
+			break;
+		}
+		case SYSTEM_FIELD_FILMIC_POSTFX:
 		{
 			static const int numValues = 2;
 			static const int values[numValues] = { 0, 1 };
-			r_useFilmicPostProcessing.SetInteger( AdjustOption( r_useFilmicPostProcessing.GetInteger(), values, numValues, adjustAmount ) );
+			r_useFilmicPostFX.SetInteger( AdjustOption( r_useFilmicPostFX.GetInteger(), values, numValues, adjustAmount ) );
+			break;
+		}
+		case SYSTEM_FIELD_CRT_POSTFX:
+		{
+			static const int numValues = 3;
+			static const int values[numValues] = { 0, 1, 2 };
+			r_useCRTPostFX.SetInteger( AdjustOption( r_useCRTPostFX.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		/*
@@ -759,21 +789,27 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 
 			return values[ r_antiAliasing.GetInteger() ];
 		}
-		case SYSTEM_FIELD_POSTFX:
-			if( r_useFilmicPostProcessing.GetInteger() > 0 )
+		case SYSTEM_FIELD_RENDERMODE:
+		{
+			static const int numValues = 8;
+			static const char* values[numValues] =
 			{
-				return "#str_swf_enabled";
-			}
-			else
-			{
-				return "#str_swf_disabled";
-			}
-		//return va( "%dx", idMath::IPow( 2, r_motionBlur.GetInteger() ) );
-		// RB begin
+				"Doom 3",
+				"Commodore 64",
+				"Commodore 64 Hi",
+				"Amstrad CPC 6128",
+				"Amstrad CPC 6128 Hi",
+				"Sega Genesis",
+				"Sega Genesis Highres",
+				"Sony PSX",
+			};
 
-		/*
-		case SYSTEM_FIELD_SHADOWMAPPING:
-			if( r_useShadowMapping.GetInteger() == 1 )
+			compile_time_assert( numValues == ( RENDERMODE_PSX + 1 ) );
+
+			return values[ r_renderMode.GetInteger() ];
+		}
+		case SYSTEM_FIELD_FILMIC_POSTFX:
+			if( r_useFilmicPostFX.GetInteger() > 0 )
 			{
 				return "#str_swf_enabled";
 			}
@@ -781,7 +817,19 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			{
 				return "#str_swf_disabled";
 			}
-		*/
+
+		case SYSTEM_FIELD_CRT_POSTFX:
+		{
+			static const int numValues = 3;
+			static const char* values[numValues] =
+			{
+				"#str_swf_disabled",
+				"Mattias CRT",
+				"Newpixie CRT",
+			};
+
+			return values[ r_useCRTPostFX.GetInteger() ];
+		}
 
 		//case SYSTEM_FIELD_LODBIAS:
 		//	return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
@@ -798,7 +846,6 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 
 		case SYSTEM_FIELD_AMBIENT_BRIGHTNESS:
 			return LinearAdjust( r_forceAmbient.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
-		// RB end
 
 		case SYSTEM_FIELD_BRIGHTNESS:
 			return LinearAdjust( r_exposure.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
@@ -848,7 +895,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 		return true;
 	}
 
-	if( originalPostProcessing != r_useFilmicPostProcessing.GetInteger() )
+	if( originalPostProcessing != r_useFilmicPostFX.GetInteger() )
 	{
 		return true;
 	}

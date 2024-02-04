@@ -733,18 +733,37 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[2].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID();
 		}
 
-		if( desc[3].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[3].bindings =
+			if( desc[3].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
-			};
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			}
 		}
 		else
 		{
-			desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			desc[3].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			if( desc[3].bindings.empty() )
+			{
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_AMBIENT_LIGHTING_IBL_SKINNED )
@@ -804,18 +823,37 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[2].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID();
 		}
 
-		if( desc[3].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[3].bindings =
+			if( desc[3].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
-			};
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			}
 		}
 		else
 		{
-			desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			desc[3].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			if( desc[3].bindings.empty() )
+			{
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_AO )
@@ -900,18 +938,37 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( desc[3].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[3].bindings =
+			if( desc[3].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
-			};
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+			}
 		}
 		else
 		{
-			desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			desc[3].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+			if( desc[3].bindings.empty() )
+			{
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION_SKINNED )
@@ -967,18 +1024,37 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( desc[3].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[3].bindings =
+			if( desc[3].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
-			};
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+			}
 		}
 		else
 		{
-			desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			desc[3].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+			if( desc[3].bindings.empty() )
+			{
+				desc[3].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
+				};
+			}
+			else
+			{
+				desc[3].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+				desc[3].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION_SM )
@@ -1037,24 +1113,49 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( desc[3].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			auto& bindings = desc[3].bindings;
-			bindings =
+			if( desc[3].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
-				nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
-				nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
-			};
+				auto& bindings = desc[3].bindings;
+				bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
+					nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
+					nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
+				};
+			}
+			else
+			{
+				auto& bindings = desc[3].bindings;
+				bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+				bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+				bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
+				bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 		else
 		{
-			auto& bindings = desc[3].bindings;
-			bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
-			bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
-			bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+			if( desc[3].bindings.empty() )
+			{
+				auto& bindings = desc[3].bindings;
+				bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
+					nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
+					nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
+				};
+			}
+			else
+			{
+				auto& bindings = desc[3].bindings;
+				bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+				bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+				bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
+				bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION_SM_SKINNED )
@@ -1117,24 +1218,49 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 
 		// samplers: 3
-		if( desc[3].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			auto& bindings = desc[3].bindings;
-			bindings =
+			if( desc[3].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
-				nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
-				nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
-			};
+				auto& bindings = desc[3].bindings;
+				bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
+					nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
+					nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
+				};
+			}
+			else
+			{
+				auto& bindings = desc[3].bindings;
+				bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+				bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+				bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
+				bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 		else
 		{
-			auto& bindings = desc[3].bindings;
-			bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
-			bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
-			bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+			if( desc[3].bindings.empty() )
+			{
+				auto& bindings = desc[3].bindings;
+				bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+					nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
+					nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
+					nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
+				};
+			}
+			else
+			{
+				auto& bindings = desc[3].bindings;
+				bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+				bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
+				bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
+				bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_FOG )
@@ -1340,16 +1466,33 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
 		}
 
-		if( desc[1].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[1].bindings =
+			if( desc[1].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler )
-			};
+				desc[1].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointClampSampler )
+				};
+			}
+			else
+			{
+				desc[1].bindings[0].resourceHandle = commonPasses.m_PointClampSampler;
+			}
 		}
 		else
 		{
-			desc[1].bindings[0].resourceHandle = commonPasses.m_LinearClampSampler;
+			if( desc[1].bindings.empty() )
+			{
+				desc[1].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler )
+				};
+			}
+			else
+			{
+				desc[1].bindings[0].resourceHandle = commonPasses.m_LinearClampSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_POST_PROCESS_FINAL )
@@ -1415,16 +1558,33 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
 		}
 
-		if( desc[2].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[2].bindings =
+			if( desc[2].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
-			};
+				desc[2].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )
+				};
+			}
+			else
+			{
+				desc[2].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 		else
 		{
-			desc[2].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+			if( desc[2].bindings.empty() )
+			{
+				desc[2].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
+				};
+			}
+			else
+			{
+				desc[2].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_NORMAL_CUBE_SKINNED )
@@ -1462,16 +1622,33 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
 		}
 
-		if( desc[2].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[2].bindings =
+			if( desc[2].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
-			};
+				desc[2].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )
+				};
+			}
+			else
+			{
+				desc[2].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 		else
 		{
-			desc[2].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+			if( desc[2].bindings.empty() )
+			{
+				desc[2].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
+				};
+			}
+			else
+			{
+				desc[2].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_BINK_VIDEO )
@@ -1495,16 +1672,33 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
 		}
 
-		if( desc[1].bindings.empty() )
+		if( R_UsePixelatedLook() )
 		{
-			desc[1].bindings =
+			if( desc[1].bindings.empty() )
 			{
-				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
-			};
+				desc[1].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )
+				};
+			}
+			else
+			{
+				desc[1].bindings[0].resourceHandle = commonPasses.m_PointWrapSampler;
+			}
 		}
 		else
 		{
-			desc[1].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+			if( desc[1].bindings.empty() )
+			{
+				desc[1].bindings =
+				{
+					nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
+				};
+			}
+			else
+			{
+				desc[1].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+			}
 		}
 	}
 	else if( type == BINDING_LAYOUT_TAA_MOTION_VECTORS )
@@ -1597,10 +1791,11 @@ void idRenderBackend::GL_EndFrame()
 
 	commandList->close();
 
-	deviceManager->GetDevice()->executeCommandList( commandList );
-
 	// required for Vulkan: transition our swap image to present
 	deviceManager->EndFrame();
+
+	// SRS - execute after EndFrame() to avoid need for barrier command list on Vulkan
+	deviceManager->GetDevice()->executeCommandList( commandList );
 
 	// update jitter for perspective matrix
 	taaPass->AdvanceFrame();
@@ -1830,7 +2025,7 @@ See if some cvars that we watch have changed
 */
 void idRenderBackend::CheckCVars()
 {
-	// gamma stuff
+	// TODO remove, gamma stuff doesn't work and isn't used using the latest Nvidia drivers
 	if( r_gamma.IsModified() || r_brightness.IsModified() )
 	{
 		r_gamma.ClearModified();
@@ -1845,56 +2040,14 @@ void idRenderBackend::CheckCVars()
 		deviceManager->SetVsyncEnabled( r_swapInterval.GetInteger() );
 	}
 
-	// filtering
-	/*if( r_maxAnisotropicFiltering.IsModified() || r_useTrilinearFiltering.IsModified() || r_lodBias.IsModified() )
+	// retro rendering
+	if( r_renderMode.IsModified() )
 	{
-		idLib::Printf( "Updating texture filter parameters.\n" );
-		r_maxAnisotropicFiltering.ClearModified();
-		r_useTrilinearFiltering.ClearModified();
-		r_lodBias.ClearModified();
+		r_renderMode.ClearModified();
 
-		for( int i = 0; i < globalImages->images.Num(); i++ )
-		{
-			if( globalImages->images[i] )
-			{
-				globalImages->images[i]->Bind();
-				globalImages->images[i]->SetTexParameters();
-			}
-		}
-	}*/
-
-#if 0
-	if( r_antiAliasing.IsModified() )
-	{
-		switch( r_antiAliasing.GetInteger() )
-		{
-			case ANTI_ALIASING_MSAA_2X:
-			case ANTI_ALIASING_MSAA_4X:
-				if( r_antiAliasing.GetInteger() > 0 )
-				{
-					//glEnable( GL_MULTISAMPLE );
-				}
-				break;
-
-			default:
-				//glDisable( GL_MULTISAMPLE );
-				break;
-		}
-
-		if( tr.IsInitialized() )
-		{
-			Framebuffer::ResizeFramebuffers();
-		}
-
-		if( taaPass )
-		{
-			delete taaPass;
-			taaPass = NULL;
-		}
-
-		r_antiAliasing.ClearModified();
+		// clear caches because PSX rendering will use nearest texture filtering instead of linear
+		ClearCaches();
 	}
-#endif
 }
 
 /*

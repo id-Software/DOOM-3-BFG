@@ -225,8 +225,10 @@ float idConsoleLocal::DrawFPS( float y )
 	extern idCVar r_swapInterval;
 
 	static float previousTimes[FPS_FRAMES];
+	static float previousCpuUsage[FPS_FRAMES] = {};
+	static float previousGpuUsage[FPS_FRAMES] = {};
 	static float previousTimesNormalized[FPS_FRAMES_HISTORY];
-	static int index;
+	static int index = 0;
 	static int previous;
 	static int valuesOffset = 0;
 
@@ -239,6 +241,8 @@ float idConsoleLocal::DrawFPS( float y )
 	previous = t;
 
 	int fps = 0;
+	float cpuUsage = 0.0;
+	float gpuUsage = 0.0;
 
 	const float milliSecondsPerFrame = 1000.0f / com_engineHz_latched;
 
@@ -253,6 +257,8 @@ float idConsoleLocal::DrawFPS( float y )
 		for( int i = 0 ; i < FPS_FRAMES ; i++ )
 		{
 			total += previousTimes[i];
+			cpuUsage += previousCpuUsage[i];
+			gpuUsage += previousGpuUsage[i];
 		}
 		if( !total )
 		{
@@ -260,6 +266,8 @@ float idConsoleLocal::DrawFPS( float y )
 		}
 		fps = 1000000 * FPS_FRAMES / total;
 		fps = ( fps + 500 ) / 1000;
+		cpuUsage /= FPS_FRAMES;
+		gpuUsage /= FPS_FRAMES;
 
 		const char* s = va( "%ifps", fps );
 		int w = strlen( s ) * BIGCHAR_WIDTH;
@@ -309,11 +317,25 @@ float idConsoleLocal::DrawFPS( float y )
 	const int64 frameIdleTime = int64( commonLocal.mainFrameTiming.startGameTime ) - int64( commonLocal.mainFrameTiming.finishSyncTime );
 	const int64 frameBusyTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startGameTime );
 
-	// SRS - Frame sync time represents swap buffer synchronization + game thread wait + other time spent outside of rendering
-	const int64 frameSyncTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startRenderTime ) - int64( rendererBackEndTime );
+	// SRS - Frame sync time represents swap buffer synchronization + other frame time spent outside of game thread and renderer backend
+	const int64 gameThreadWaitTime = int64( commonLocal.mainFrameTiming.finishSyncTime_EndFrame ) - int64( commonLocal.mainFrameTiming.finishRenderTime );
+	const int64 frameSyncTime = int64( commonLocal.frameTiming.finishSyncTime ) - int64( commonLocal.mainFrameTiming.startRenderTime + rendererBackEndTime ) - gameThreadWaitTime;
 
 	// SRS - GPU idle time is simply the difference between measured frame-over-frame time and GPU busy time (directly from GPU timers)
 	const int64 rendererGPUIdleTime = frameBusyTime + frameIdleTime - rendererGPUTime;
+
+	// SRS - Estimate CPU busy time measured from start of game thread until completion of game thread and renderer backend (including excess MoltenVK encoding time if applicable)
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+	const int64 rendererMvkEncodeTime = commonLocal.GetRendererMvkEncodeMicroseconds();
+	const int64 rendererQueueSubmitTime = int64( commonLocal.mainFrameTiming.finishRenderTime - commonLocal.mainFrameTiming.startRenderTime ) - int64( rendererBackEndTime );
+	const int64 rendererCPUBusyTime = int64( commonLocal.mainFrameTiming.finishSyncTime_EndFrame - commonLocal.mainFrameTiming.startGameTime ) + Min( Max( int64( 0 ), rendererMvkEncodeTime - rendererQueueSubmitTime - gameThreadWaitTime ), frameSyncTime - rendererQueueSubmitTime );
+#else
+	const int64 rendererCPUBusyTime = int64( commonLocal.mainFrameTiming.finishSyncTime_EndFrame - commonLocal.mainFrameTiming.startGameTime );
+#endif
+
+	// SRS - Save current CPU and GPU usage factors in ring buffer to calculate smoothed averages for future frames
+	previousCpuUsage[( index - 1 ) % FPS_FRAMES] = float( rendererCPUBusyTime ) / float( frameBusyTime + frameIdleTime ) * 100.0;
+	previousGpuUsage[( index - 1 ) % FPS_FRAMES] = float( rendererGPUTime ) / float( rendererGPUTime + rendererGPUIdleTime ) * 100.0;
 
 #if 1
 
@@ -427,7 +449,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::TextColored( colorCyan, "API: %s, AA[%i, %i]: %s, %s", API, width, height, aaMode, resolutionText.c_str() );
 
-		ImGui::TextColored( colorGold, "Device: %s", deviceManager->GetRendererString() );
+		ImGui::TextColored( colorGold, "Device: %s, Memory: %i MB", deviceManager->GetRendererString(), commonLocal.GetRendererGpuMemoryMB() );
 
 		ImGui::TextColored( colorLtGrey, "GENERAL: views:%i draws:%i tris:%i",
 							commonLocal.stats_frontend.c_numViews,
@@ -477,7 +499,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
-			const char* overlay = va( "Average FPS %i", fps );
+			const char* overlay = va( "Average FPS %-4i", fps );
 
 			ImGui::PlotLines( "Relative\nFrametime ms", previousTimesNormalized, FPS_FRAMES_HISTORY, valuesOffset, overlay, -10.0f, 10.0f, ImVec2( 0, 50 ) );
 		}
@@ -494,12 +516,20 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( gameThreadRenderTime > maxTime ? colorRed : colorWhite,			"RF:      %5llu us   SSR:          %5llu us", gameThreadRenderTime, rendererGPU_SSRTime );
 		ImGui::TextColored( rendererBackEndTime > maxTime ? colorRed : colorWhite,			"RB:      %5llu us   Ambient Pass: %5llu us", rendererBackEndTime, rendererGPUAmbientPassTime );
 		ImGui::TextColored( rendererGPUShadowAtlasTime > maxTime ? colorRed : colorWhite,	"Shadows: %5llu us   Shadow Atlas: %5llu us", rendererShadowsTime, rendererGPUShadowAtlasTime );
+#if defined(__APPLE__) && defined( USE_MoltenVK )
+		// SRS - For more recent versions of MoltenVK with enhanced performance statistics (v1.2.6 and later), display the Vulkan to Metal encoding thread time on macOS
+		ImGui::TextColored( rendererMvkEncodeTime > maxTime || rendererGPUInteractionsTime > maxTime ? colorRed : colorWhite,	"Encode:  %5lld us   Interactions: %5llu us", rendererMvkEncodeTime, rendererGPUInteractionsTime );
+		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"Sync:    %5lld us   Shader Pass:  %5llu us", frameSyncTime, rendererGPUShaderPassesTime );
+#else
 		ImGui::TextColored( rendererGPUInteractionsTime > maxTime ? colorRed : colorWhite,	"Sync:    %5lld us   Interactions: %5llu us", frameSyncTime, rendererGPUInteractionsTime );
 		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    Shader Pass:  %5llu us", rendererGPUShaderPassesTime );
+#endif
 		ImGui::TextColored( rendererGPU_TAATime > maxTime ? colorRed : colorWhite,			"                    TAA:          %5llu us", rendererGPU_TAATime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
 		ImGui::TextColored( frameBusyTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite, "Total:   %5lld us   Total:        %5lld us", frameBusyTime, rendererGPUTime );
 		ImGui::TextColored( colorWhite,														"Idle:    %5lld us   Idle:         %5lld us", frameIdleTime, rendererGPUIdleTime );
+		// SRS - Show CPU and GPU overall usage statistics
+		//ImGui::TextColored( colorWhite,														"Usage:     %3.0f %%    Usage:          %3.0f %%", cpuUsage, gpuUsage );
 
 		ImGui::End();
 	}

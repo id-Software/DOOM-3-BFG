@@ -2,6 +2,15 @@ cd ..
 rm -rf xcode-universal
 mkdir xcode-universal
 cd xcode-universal
+
+# SRS - Determine if openal-soft universal variant is installed via MacPorts
+OPENAL_VARIANTS=$(port info --variants openal-soft 2>/dev/null)
+if [[ $OPENAL_VARIANTS != *universal* ]]; then
+  echo "Error: openal-soft universal variant is not installed via MacPorts."
+  echo "Please install it using 'sudo port install openal-soft +universal'"
+  exit 1
+fi
+
 # note 1: remove or set -DCMAKE_SUPPRESS_REGENERATION=OFF to reenable ZERO_CHECK target which checks for CMakeLists.txt changes and re-runs CMake before builds
 #         however, if ZERO_CHECK is reenabled **must** add VULKAN_SDK location to Xcode Custom Paths (under Prefs/Locations) otherwise build failures may occur
 # note 2: policy CMAKE_POLICY_DEFAULT_CMP0142=NEW suppresses non-existant per-config suffixes on Xcode library search paths, works for cmake version 3.25 and later

@@ -398,6 +398,8 @@ void idCommonLocal::Draw()
 
 		// draw the half console / notify console on top of everything
 		console->Draw( false );
+
+		renderSystem->DrawCRTPostFX();
 	}
 }
 
@@ -880,12 +882,12 @@ void idCommonLocal::Frame()
 		}
 		frameTiming.finishRenderTime = Sys_Microseconds();
 
-		// SRS - Use finishSyncTime_EndFrame to record timing just before gameThread.WaitForThread() for com_smp = 1
-		frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
-
 		// make sure the game / draw thread has completed
 		// This may block if the game is taking longer than the render back end
 		gameThread.WaitForThread();
+
+		// SRS - Use finishSyncTime_EndFrame to record timing just after gameThread.WaitForThread()
+		frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
 
 		// Send local usermds to the server.
 		// This happens after the game frame has run so that prediction data is up to date.

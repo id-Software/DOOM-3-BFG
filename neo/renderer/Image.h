@@ -459,15 +459,7 @@ public:
 		return ( void* )texture.Get();
 	}
 
-	void* GetSampler( SamplerCache& samplerCache )
-	{
-		if( !sampler )
-		{
-			sampler = samplerCache.GetOrCreateSampler( samplerDesc );
-		}
-
-		return ( void* )sampler.Get();
-	}
+	void* GetSampler( SamplerCache& samplerCache );
 
 	void* GetSampler( nvrhi::IDevice* device )
 	{

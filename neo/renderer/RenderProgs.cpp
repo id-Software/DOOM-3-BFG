@@ -88,10 +88,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	uniformsChanged = false;
 
-	for( int i = 0; i < NUM_BINDING_LAYOUTS; i++ )
+	//for( int i = 0; i < NUM_BINDING_LAYOUTS; i++ )
 	{
-		auto constantBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(), va( "RenderParams_%d", i ), 16384 );
-		constantBuffer[i] = device->createBuffer( constantBufferDesc );
+		auto constantBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(), va( "RenderParams_%d", 1 ), 16384 );
+		constantBuffer = device->createBuffer( constantBufferDesc );
 	}
 
 	// === Main draw vertex layout ===
@@ -521,6 +521,12 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_SKYBOX, "builtin/legacy/skybox", "",  {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_WOBBLESKY, "builtin/legacy/wobblesky", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_POSTPROCESS, "builtin/post/postprocess", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
+		{ BUILTIN_POSTPROCESS_RETRO_C64, "builtin/post/retro_c64", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
+		{ BUILTIN_POSTPROCESS_RETRO_CPC, "builtin/post/retro_cpc", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
+		{ BUILTIN_POSTPROCESS_RETRO_GENESIS, "builtin/post/retro_genesis", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
+		{ BUILTIN_POSTPROCESS_RETRO_PSX, "builtin/post/retro_ps1", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
+		{ BUILTIN_CRT_MATTIAS, "builtin/post/crt_mattias", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
+		{ BUILTIN_CRT_NUPIXIE, "builtin/post/crt_newpixie", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
 
 		{ BUILTIN_SCREEN, "builtin/post/screen", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_TONEMAP, "builtin/post/tonemap", "", { { "BRIGHTPASS", "0" }, { "HDR_DEBUG", "0"} }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
@@ -618,7 +624,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		}
 	}
 
-	r_usePBR.ClearModified();
 	r_pbrDebug.ClearModified();
 
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
@@ -720,9 +725,9 @@ void idRenderProgManager::Shutdown()
 	}
 
 	// SRS - Unmap buffer memory using overloaded = operator
-	for( int i = 0; i < constantBuffer.Num(); i++ )
+	//for( int i = 0; i < constantBuffer.Num(); i++ )
 	{
-		constantBuffer[i] = nullptr;
+		constantBuffer = nullptr;
 	}
 }
 

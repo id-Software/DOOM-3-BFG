@@ -429,7 +429,6 @@ idPlayerView::SingleView
 */
 void idPlayerView::SingleView( const renderView_t* view, idMenuHandler_HUD* hudManager )
 {
-
 	// normal rendering
 	if( !view )
 	{

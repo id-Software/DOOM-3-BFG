@@ -366,6 +366,12 @@ enum
 	BUILTIN_WOBBLESKY,
 	BUILTIN_POSTPROCESS,
 	// RB begin
+	BUILTIN_POSTPROCESS_RETRO_C64,		// Commodore 64
+	BUILTIN_POSTPROCESS_RETRO_CPC,		// Amstrad 6128
+	BUILTIN_POSTPROCESS_RETRO_GENESIS,	// Sega Genesis / Megadrive
+	BUILTIN_POSTPROCESS_RETRO_PSX,		// Sony Playstation 1
+	BUILTIN_CRT_MATTIAS,
+	BUILTIN_CRT_NUPIXIE,
 	BUILTIN_SCREEN,
 	BUILTIN_TONEMAP,
 	BUILTIN_BRIGHTPASS,
@@ -817,6 +823,36 @@ public:
 		BindShader_Builtin( BUILTIN_POSTPROCESS );
 	}
 
+	void	BindShader_PostProcess_RetroC64()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_C64 );
+	}
+
+	void	BindShader_PostProcess_RetroCPC()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_CPC );
+	}
+
+	void	BindShader_PostProcess_RetroGenesis()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_GENESIS );
+	}
+
+	void	BindShader_PostProcess_RetroPSX()
+	{
+		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_PSX );
+	}
+
+	void	BindShader_CrtMattias()
+	{
+		BindShader_Builtin( BUILTIN_CRT_MATTIAS );
+	}
+
+	void	BindShader_CrtNewPixie()
+	{
+		BindShader_Builtin( BUILTIN_CRT_NUPIXIE );
+	}
+
 	void	BindShader_Screen()
 	{
 		BindShader_Builtin( BUILTIN_SCREEN );
@@ -964,7 +1000,7 @@ public:
 
 	ID_INLINE nvrhi::IBuffer*				ConstantBuffer()
 	{
-		return constantBuffer[BindingLayoutType()];
+		return constantBuffer;//[BindingLayoutType()];
 	}
 	ID_INLINE idUniformBuffer&				BindingParamUbo()
 	{
@@ -1070,7 +1106,8 @@ private:
 
 	idStaticList< idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>, NUM_BINDING_LAYOUTS > bindingLayouts;
 
-	idArray<nvrhi::BufferHandle, NUM_BINDING_LAYOUTS>	constantBuffer;
+	//idArray<nvrhi::BufferHandle, NUM_BINDING_LAYOUTS>	constantBuffer;
+	nvrhi::BufferHandle							constantBuffer;
 };
 
 extern idRenderProgManager renderProgManager;

@@ -19,6 +19,70 @@ TBD - RBDOOM-3-BFG 1.6.0
 _______________________________
 
 
+## .plan - January 20, 2024
+
+Cudos to Stephen Saunders for this build and to reeFridge for finding the issue.
+This fixes a number of multiplayer issues. Create Private Match with clients now works reliably. The missing functionality of the online game browser and leaderboards hasn't been fixed.
+
+Changelog:
+
+* Fixes regression Multiplayer: Accessing memory after it has been freed #846 caused by an earlier, but broken memory leak fix on my part. The fix is almost identical to PR Free idLobby memory inside destructor #847
+
+* Fixes a critical issue with mis-reading network snapshot data on the client side, which caused no end of problems with mis-rendering, slowdowns, unstable connections, etc. The client was ignoring the entity network-synced flag which tells it whether it should read entity class-specific data. It was trying to read it all the time and sometimes coming up with null data which caused tons of problems with rendering and physics calculations (e.g. operations on NaN numbers). Simple fix was to respect the entity's network-synced flag on the client side but it makes all the difference.
+
+* Fixes an incorrect assert on multiplayer VoiceChat shutdown
+
+* Allows r_useScissor and r_useParallelAdd cvars to be changed in multiplayer mode for use in bake* operations on multiplayer maps
+
+* Fixed a couple of uninitialized variables that showed up in valgrind when in multiplayer mode
+
+* Added Amstrad CPC 6128 Retro rendering mode
+
+
+## .plan - January 03, 2024
+
+This is a preview build of the new Retro 8-bit/16-bit/PSX rendering modes.
+
+The new rendering modes can be set in the menu options but it's controlled mainly r_renderMode.
+The values are 0 = Doom, 1 = Commodore 64, 2 = Commodore 64 Highres, 3 = Sega Genesis, 4 = Sega Genesis Highres, 5 = Sony PSX
+
+The Commodore 64 mode regulates all colors down to the original 16 color palette.
+The Sega mode mimics 9 bit color HW which means 3 bit per color channel resulting in a total of 512 colors.
+The PSX mode only turns off linear filtering for the textures and applies a screen space dithering effect.
+
+All retro rendering modes try to mimic the 320x240 resolution but it is extended to 16:9 so it is 480 x 270.
+Highres modes only apply a higher resolution dithering on the pixelated output.
+
+The PSX mode has no additional artifacts yet like wiggling vertices or textures.
+
+There are also 2 new CRT filters that are drawn on top of everything else (even the console) for more arcade vibes.
+
+Changelog:
+
+* Fixed scissor clipping issues of regular surfaces like light flares #651
+
+* Duplicating lights with Ctrl+D works now
+
+* Merged script interpreter improvements from Dhewm3, especially that fixes https://github.com/dhewm/dhewm3/issues/303
+
+* Doubled MAX_GLOBALS for the Runners 2.6 mod
+
+* Crash fix between level switching and loading of new textures for D3HDP and other mods
+
+* Fixed many small memory leaks (thanks to Steve Saunders)
+
+* Reduced console spam and got rid of the depth-stencil is read-only warnings
+
+* Added image_pixelLook to disable texture filtering on most textures regardless of the render mode
+
+* Changed devtools.cfg so you can easily switch between the new render modes with F7 and F8
+
+
+Changelog TrenchBroomBFG:
+
+* Added Show patches option to View Options
+
+
 ## .plan - October 27, 2023
 
 This is a preview build of the new WIP ingame Light Editor with some important bugfixes in the convertMapToValve220 command.

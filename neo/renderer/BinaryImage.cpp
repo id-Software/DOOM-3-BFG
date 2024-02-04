@@ -46,7 +46,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../libs/mesa/format_r11g11b10f.h"
 
 idCVar image_highQualityCompression( "image_highQualityCompression", "0", CVAR_BOOL, "Use high quality (slow) compression" );
-idCVar r_useHighQualitySky( "r_useHighQualitySky", "1", CVAR_BOOL | CVAR_ARCHIVE, "Use high quality skyboxes" );
 
 /*
 ========================

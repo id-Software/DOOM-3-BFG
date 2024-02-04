@@ -452,6 +452,8 @@ main
 */
 int main( int argc, const char** argv )
 {
+	extern idCVar r_useGPUSkinning;
+
 	// DG: needed for Sys_ReLaunch()
 	cmdargc = argc;
 	cmdargv = argv;
@@ -480,6 +482,21 @@ int main( int argc, const char** argv )
 	{
 		common->Init( 0, NULL, NULL );
 	}
+
+	// SRS - Determine the machine name, e.g. "x86_64" or "arm64"
+	// Might be cleaner in posix Sys_Init(), but only needed on
+	// macOS and all the required sys includes are located here.
+	size_t size;
+	sysctlbyname( "hw.machine", NULL, &size, NULL, 0 );
+	char* machineName = ( char* )Mem_Alloc( size, TAG_SYSTEM );
+	sysctlbyname( "hw.machine", machineName, &size, NULL, 0 );
+
+	// FIXME: On Apple Silicon disable GPU skinning to eliminate rendering artifacts
+	if( strcmp( machineName, "arm64" ) == 0 )
+	{
+		r_useGPUSkinning.SetInteger( 0 );
+	}
+	Mem_Free( machineName );
 
 	Posix_LateInit();
 

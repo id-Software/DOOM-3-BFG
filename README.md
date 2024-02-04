@@ -510,7 +510,7 @@ Recommended in this case is `cmake-vs2022-win64-no-ffmpeg.bat`
 	
 	Xcode release and universal builds now automatically package the executable into a macOS app bundle, defining an Info.plist file and copying the base directory and custom icon into the application bundle's Contents/Resources folder.  This is controlled by adding -DMACOSX_BUNDLE=ON to the CMake options.
 	
-	Depending on which package manager you install (Homebrew or MacPorts) you may need to change the openal-soft library and include paths specified in the cmake shell scripts.  For single architecture builds (debug, release, retail) the default openal-soft paths are set for Homebrew on x86, while for universal builds the default paths are set for MacPorts on x86 or Apple Silicon.  If you want to build using the single architecture shell scripts (debug, release, retail) on Apple Silicon, you will need to change the openal-soft paths from `/usr/local/...` to either `/opt/homebrew/...` (Homebrew) or `/opt/local/...` (MacPorts).
+	For single architecture builds (debug, release, retail) the default openal-soft paths are set for Homebrew, while for universal builds the default paths are set for MacPorts. The single architecture build scripts are now portable and automatically detect Homebrew's openal-soft path prefix for x86 and Apple Silicon.  The universal build script remains portable since MacPorts uses the same openal-soft installation path on x86 and Apple Silicon.
 	
 4. Compile RBDOOM-3-BFG targets:
 
@@ -639,8 +639,10 @@ r_graphicsAPI                          | Default DX12, can be either DX12 or Vul
 r_antiAliasing                         | Different Anti-Aliasing modes
 r_exposure [0 .. 1]                    | Default 0.5, controls brightness and affects HDR -> sRGB Rec. 709 exposure key. This is what you change in the video brightness options
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene and give it more depth
-r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to mimic a filmic look
 r_forceAmbient                         | Default 0.5, controls additional brightness by Global Illumination 
+r_useFilmicPostFX [0, 1]               | Apply several post process effects to mimic a filmic look
+r_useCRTPostFX [0, 1]                  | CRT monitor/TV filter
+r_renderMode [0 .. 5]				   | Default 0 = Doom 3, 1 = Commodore 64, 2 = Commodore 64 Highres, 3 = Sega Genesis, 4 = Sega Genesis Highres, 5 = Sony PSX
 
 ## Modding Support
 Name                              | Description
