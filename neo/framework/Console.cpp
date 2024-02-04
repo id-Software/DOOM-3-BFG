@@ -334,8 +334,8 @@ float idConsoleLocal::DrawFPS( float y )
 #endif
 
 	// SRS - Save current CPU and GPU usage factors in ring buffer to calculate smoothed averages for future frames
-	previousCpuUsage[(index - 1) % FPS_FRAMES] = float( rendererCPUBusyTime ) / float( frameBusyTime + frameIdleTime ) * 100.0;
-	previousGpuUsage[(index - 1) % FPS_FRAMES] = float( rendererGPUTime ) / float( rendererGPUTime + rendererGPUIdleTime ) * 100.0;
+	previousCpuUsage[( index - 1 ) % FPS_FRAMES] = float( rendererCPUBusyTime ) / float( frameBusyTime + frameIdleTime ) * 100.0;
+	previousGpuUsage[( index - 1 ) % FPS_FRAMES] = float( rendererGPUTime ) / float( rendererGPUTime + rendererGPUIdleTime ) * 100.0;
 
 #if 1
 
@@ -344,7 +344,7 @@ float idConsoleLocal::DrawFPS( float y )
 	{
 		// start smaller
 		int32 statsWindowWidth = 320;
-		int32 statsWindowHeight = 330;
+		int32 statsWindowHeight = 315;
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
@@ -529,7 +529,7 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( frameBusyTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite, "Total:   %5lld us   Total:        %5lld us", frameBusyTime, rendererGPUTime );
 		ImGui::TextColored( colorWhite,														"Idle:    %5lld us   Idle:         %5lld us", frameIdleTime, rendererGPUIdleTime );
 		// SRS - Show CPU and GPU overall usage statistics
-		ImGui::TextColored( colorWhite,														"Usage:     %3.0f %%    Usage:          %3.0f %%", cpuUsage, gpuUsage );
+		//ImGui::TextColored( colorWhite,														"Usage:     %3.0f %%    Usage:          %3.0f %%", cpuUsage, gpuUsage );
 
 		ImGui::End();
 	}
