@@ -33,6 +33,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdexcept>
 
 #if defined(OPTICK_MSVC)
 
@@ -143,11 +144,12 @@ static const ProcessID INVALID_PROCESS_ID = (ProcessID)-1;
 #ifdef _DEBUG
 	#define OPTICK_ASSERT(arg, description) if (!(arg)) { OPTICK_DEBUG_BREAK; }
 	#define OPTICK_FAILED(description) { OPTICK_DEBUG_BREAK; }
+	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { OPTICK_DEBUG_BREAK; operation; }
 #else
 	#define OPTICK_ASSERT(arg, description)
-	#define OPTICK_FAILED(description)
+	#define OPTICK_FAILED(description) { throw std::runtime_error(description); }
+	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { OPTICK_FAILED(description); operation; }
 #endif
-#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { OPTICK_DEBUG_BREAK; operation; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
