@@ -1407,9 +1407,11 @@ public:
 		float originalVolume;
 		// RB begin
 		//int originalShadowMapping; // TODO use for quality of shadowmaps?
+		int originalRenderMode;
+		float originalAmbientBrightness;
 		int originalSSAO;
 		int originalPostProcessing;
-		float originalAmbientBrightness;
+		int originalCRTPostFX;
 		// RB end
 
 		idList<vidMode_t>			modeList;

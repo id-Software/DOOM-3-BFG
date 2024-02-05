@@ -435,9 +435,11 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	originalVolume = s_volume_dB.GetFloat();
 	// RB begin
 	//originalShadowMapping = r_useShadowMapping.GetInteger();
-	originalSSAO = r_useSSAO.GetInteger();
+	originalRenderMode = r_renderMode.GetInteger();
 	originalAmbientBrightness = r_forceAmbient.GetFloat();
+	originalSSAO = r_useSSAO.GetInteger();
 	originalPostProcessing = r_useFilmicPostFX.GetInteger();
+	originalCRTPostFX = r_useCRTPostFX.GetInteger();
 	// RB end
 
 	const int fullscreen = r_fullscreen.GetInteger();
@@ -890,6 +892,16 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	//	return true;
 	//}
 
+	if( originalRenderMode != r_renderMode.GetInteger() )
+	{
+		return true;
+	}
+
+	if( originalAmbientBrightness != r_forceAmbient.GetFloat() )
+	{
+		return true;
+	}
+
 	if( originalSSAO != r_useSSAO.GetInteger() )
 	{
 		return true;
@@ -900,7 +912,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 		return true;
 	}
 
-	if( originalAmbientBrightness != r_forceAmbient.GetFloat() )
+	if( originalCRTPostFX != r_useCRTPostFX.GetInteger() )
 	{
 		return true;
 	}
