@@ -2209,14 +2209,8 @@ void idRenderSystemLocal::Shutdown()
 
 	UnbindBufferObjects();
 
-	// SRS - wait for fence to hit before freeing any resources the GPU may be using, otherwise get Vulkan validation layer errors on shutdown
-	// SRS - skip this step if we are in a Doom Classic game
-#if defined(USE_DOOMCLASSIC)
-	if( common->GetCurrentGame() == DOOM3_BFG )
-	{
-		backend.GL_BlockingSwapBuffers();
-	}
-#endif
+	// SRS - wait for device idle before freeing any resources the GPU may be using, otherwise get errors on shutdown
+	deviceManager->GetDevice()->waitForIdle();
 
 	// free the vertex cache, which should have nothing allocated now
 	vertexCache.Shutdown();
