@@ -107,7 +107,7 @@ float3 sampleNormal( Texture2D<float3> normalBuffer, int2 ssC, int mipLevel )
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -16000.0;
+static const float FAR_PLANE_Z = -16000.0;
 
 float CSZToKey( float z )
 {
