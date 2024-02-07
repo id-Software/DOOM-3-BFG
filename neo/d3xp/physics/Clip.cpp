@@ -80,6 +80,8 @@ static idHashIndex				traceModelHash;
 static idHashIndex				traceModelHash_Unsaved;
 const static int				TRACE_MODEL_SAVED = BIT( 16 );
 
+// SRS - statically define the default trace model used for the default clip model
+const static idTraceModel		defaultTraceModel = idBounds( idVec3( 0, 0, 0 ) ).Expand( 8 );
 
 /*
 ===============
@@ -305,6 +307,9 @@ void idClipModel::RestoreTraceModels( idRestoreGame* savefile )
 		traceModelCache[i] = entry;
 		traceModelHash.Add( GetTraceModelHashKey( entry->trm ), i );
 	}
+
+	// SRS - find or allocate default trace model here since it's not referenced by objects
+	gameLocal.clip.DefaultClipModel()->traceModelIndex = AllocTraceModel( defaultTraceModel );
 }
 
 
@@ -900,7 +905,7 @@ void idClip::Init()
 	gameLocal.Printf( "max clip sector is (%1.1f, %1.1f, %1.1f)\n", maxSector[0], maxSector[1], maxSector[2] );
 
 	// initialize a default clip model
-	defaultClipModel.LoadModel( idTraceModel( idBounds( idVec3( 0, 0, 0 ) ).Expand( 8 ) ) );
+	defaultClipModel.LoadModel( defaultTraceModel );
 
 	// set counters to zero
 	numRotations = numTranslations = numMotions = numRenderModelTraces = numContents = numContacts = 0;
