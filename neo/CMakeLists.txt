@@ -1743,8 +1743,8 @@ else()
 
 		# add macOS bundle properties to executable
 		set(MACOSX_BUNDLE_BUNDLE_NAME RBDoom-3-BFG)
-		set(MACOSX_BUNDLE_BUNDLE_VERSION 1.5.0)
-		set(MACOSX_BUNDLE_SHORT_VERSION_STRING 1.5.0)
+		set(MACOSX_BUNDLE_BUNDLE_VERSION 1.6.0)
+		set(MACOSX_BUNDLE_SHORT_VERSION_STRING 1.6.0)
 		set(MACOSX_BUNDLE_ICON_FILE Doom3BFG.icns)
 		set(MACOSX_BUNDLE_INFO_STRING "")					# to be added by author if desired
 		set(MACOSX_BUNDLE_COPYRIGHT "")						# to be added by author if desired
