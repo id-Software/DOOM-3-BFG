@@ -745,6 +745,8 @@ bool SwitchContextCollector::Serialize(OutputDataStream& stream)
 #define CPUID(INFO, ID) __cpuid(INFO, ID)
 #elif (defined(__ANDROID__) || defined(OPTICK_ARM))
 // Nothing
+#elif defined(OPTICK_E2K)
+// Nothing
 #elif defined(OPTICK_GCC)
 #include <cpuid.h>
 #define CPUID(INFO, ID) __cpuid(ID, INFO[0], INFO[1], INFO[2], INFO[3])
@@ -772,6 +774,12 @@ string GetCPUName()
 		return "ARM 32-bit";
 	#else
 		return "ARM 64-bit";
+	#endif
+#elif defined(OPTICK_E2K)
+	#if (defined(__LCC__) && defined(__MCST__)) // MCST LCC (eLbrus Compiler Collection)
+		return __builtin_cpu_name(); // e.g. elbrus-8c
+	#else
+		return "MCST Elbrus CPU";
 	#endif
 #else
 	int cpuInfo[4] = { -1 };

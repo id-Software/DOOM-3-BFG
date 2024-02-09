@@ -56,6 +56,9 @@
 #	elif defined(__arm__) || defined(_M_ARM)
 #		define OPTICK_ARM (1)
 #		define OPTICK_32BIT (1)
+#	elif defined(__e2k__)
+#		define OPTICK_E2K (1)
+#		define OPTICK_64BIT (1)
 #	endif
 #else
 #error Compiler not supported
