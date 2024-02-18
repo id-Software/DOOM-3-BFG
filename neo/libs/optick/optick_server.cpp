@@ -241,7 +241,11 @@ public:
 		return true;
 	}
 
+#if defined(_WIN32)
 	int Receive(char *buf, int len)
+#else
+	ssize_t Receive(char *buf, int len)
+#endif
 	{
 		std::lock_guard<std::recursive_mutex> lock(socketLock);
 
@@ -304,7 +308,11 @@ void Server::Update()
 	if (!InitConnection())
 		return;
 
+#if defined(_WIN32)
 	int length = -1;
+#else
+	ssize_t length = -1;
+#endif
 	while ( (length = socket->Receive( buffer, BIFFER_SIZE ) ) > 0 )
 	{
 		networkStream.Append(buffer, length);

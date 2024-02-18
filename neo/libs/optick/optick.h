@@ -658,8 +658,8 @@ struct OPTICK_API EventDescription
 	uint32_t filter;
 	uint8_t flags;
 
-	static EventDescription* Create(const char* eventName, const char* fileName, const unsigned long fileLine, const unsigned long eventColor = Color::Null, const unsigned long filter = 0, const uint8_t eventFlags = 0);
-	static EventDescription* CreateShared(const char* eventName, const char* fileName = nullptr, const unsigned long fileLine = 0, const unsigned long eventColor = Color::Null, const unsigned long filter = 0);
+	static EventDescription* Create(const char* eventName, const char* fileName, const uint32_t fileLine, const uint32_t eventColor = Color::Null, const uint32_t filter = 0, const uint8_t eventFlags = 0);
+	static EventDescription* CreateShared(const char* eventName, const char* fileName = nullptr, const uint32_t fileLine = 0, const uint32_t eventColor = Color::Null, const uint32_t filter = 0);
 
 	EventDescription();
 private:
@@ -700,11 +700,11 @@ OPTICK_INLINE Optick::EventDescription* CreateDescription(const char* functionNa
 	if (eventName != nullptr)
 		flags |= ::Optick::EventDescription::IS_CUSTOM_NAME;
 
-	return ::Optick::EventDescription::Create(eventName != nullptr ? eventName : functionName, fileName, (unsigned long)fileLine, ::Optick::Category::GetColor(category), ::Optick::Category::GetMask(category), flags);
+	return ::Optick::EventDescription::Create(eventName != nullptr ? eventName : functionName, fileName, (uint32_t)fileLine, ::Optick::Category::GetColor(category), ::Optick::Category::GetMask(category), flags);
 }
 OPTICK_INLINE Optick::EventDescription* CreateDescription(const char* functionName, const char* fileName, int fileLine, const ::Optick::Category::Type category)
 {
-	return ::Optick::EventDescription::Create(functionName, fileName, (unsigned long)fileLine, ::Optick::Category::GetColor(category), ::Optick::Category::GetMask(category));
+	return ::Optick::EventDescription::Create(functionName, fileName, (uint32_t)fileLine, ::Optick::Category::GetColor(category), ::Optick::Category::GetMask(category));
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct OPTICK_API GPUEvent
