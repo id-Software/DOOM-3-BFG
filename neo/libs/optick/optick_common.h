@@ -148,7 +148,7 @@ static const ProcessID INVALID_PROCESS_ID = (ProcessID)-1;
 #else
 	#define OPTICK_ASSERT(arg, description)
 	#define OPTICK_FAILED(description) { throw std::runtime_error(description); }
-	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { OPTICK_FAILED(description); operation; }
+	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { printf("%s\n", description); operation; }
 #endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -240,7 +240,7 @@ EventDescription::EventDescription() : name(""), file(""), line(0), index((uint3
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EventDescription& EventDescription::operator=(const EventDescription&)
 {
-	OPTICK_FAILED("It is pointless to copy EventDescription. Please, check you logic!"); return *this;
+	OPTICK_VERIFY( false, "It is pointless to copy EventDescription. Please, check your logic!", return *this );
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EventData* Event::Start(const EventDescription& description)

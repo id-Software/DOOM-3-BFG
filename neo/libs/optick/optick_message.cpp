@@ -91,11 +91,7 @@ public:
 
 		IMessage* result = factory[messageType](str);
 
-		if (header.length + str.Length() != length)
-		{
-			OPTICK_FAILED("Message Stream is corrupted! Invalid Protocol?")
-			return nullptr;
-		}
+		OPTICK_VERIFY( header.length + str.Length() == length, "Message Stream is corrupted! Invalid Protocol?", return nullptr );
 
 		return result;
 	}
