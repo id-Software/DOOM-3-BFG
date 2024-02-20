@@ -29,6 +29,7 @@
 #include "optick.h"
 
 #include <cstdio>
+#include <iostream>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -134,21 +135,29 @@ static const ProcessID INVALID_PROCESS_ID = (ProcessID)-1;
 // Asserts
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if defined(OPTICK_MSVC)
-#define OPTICK_DEBUG_BREAK __debugbreak()
+#ifdef UNICODE
+	#define OPTICK_DEBUG_BREAK(description) OutputDebugString(L"Optick ERROR: " description L"\n"); __debugbreak()
+#else
+	#define OPTICK_DEBUG_BREAK(description) OutputDebugString("Optick ERROR: " description "\n"); __debugbreak()
+#endif
 #elif defined(OPTICK_GCC)
-#define OPTICK_DEBUG_BREAK __builtin_trap()
+#if __has_builtin(__builtin_debugtrap)
+	#define OPTICK_DEBUG_BREAK(description) std::cerr << "Optick ERROR: " << description << std::endl; __builtin_debugtrap()
+#else
+	#define OPTICK_DEBUG_BREAK(description) std::cerr << "Optick ERROR: " << description << std::endl; __builtin_trap()
+#endif
 #else
 	#error Can not define OPTICK_DEBUG_BREAK. Unknown platform.
 #endif
 #define OPTICK_UNUSED(x) (void)(x)
 #ifdef _DEBUG
-	#define OPTICK_ASSERT(arg, description) if (!(arg)) { OPTICK_DEBUG_BREAK; }
-	#define OPTICK_FAILED(description) { OPTICK_DEBUG_BREAK; }
-	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { OPTICK_DEBUG_BREAK; operation; }
+	#define OPTICK_ASSERT(arg, description) if (!(arg)) { OPTICK_DEBUG_BREAK(description); }
+	#define OPTICK_FAILED(description) { OPTICK_DEBUG_BREAK(description); }
+	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { OPTICK_DEBUG_BREAK(description); operation; }
 #else
 	#define OPTICK_ASSERT(arg, description)
-	#define OPTICK_FAILED(description) { throw std::runtime_error(description); }
-	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { printf("%s\n", description); operation; }
+	#define OPTICK_FAILED(description) { std::cerr << "Optick FATAL ERROR: " << description << std::endl; throw std::runtime_error("Optick FAILED"); }
+	#define OPTICK_VERIFY(arg, description, operation) if (!(arg)) { std::cerr << "Optick ERROR: " << description << std::endl; operation; }
 #endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

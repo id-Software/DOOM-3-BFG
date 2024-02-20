@@ -241,7 +241,7 @@ public:
 		return true;
 	}
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_SOCKETS)
 	int Receive(char *buf, int len)
 #else
 	ssize_t Receive(char *buf, int len)
@@ -308,7 +308,7 @@ void Server::Update()
 	if (!InitConnection())
 		return;
 
-#if defined(_WIN32)
+#if defined(USE_WINDOWS_SOCKETS)
 	int length = -1;
 #else
 	ssize_t length = -1;
