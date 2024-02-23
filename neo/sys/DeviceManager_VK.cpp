@@ -23,9 +23,9 @@
 * DEALINGS IN THE SOFTWARE.
 */
 
-// SRS - Disable PCH here, otherwise get Vulkan header mismatch failures with USE_AMD_ALLOCATOR option
-//#include <precompiled.h>
-//#pragma hdrstop
+// SRS - Can now enable PCH here due to updated nvrhi CMakeLists.txt that makes Vulkan-Headers private
+#include <precompiled.h>
+#pragma hdrstop
 
 #include <string>
 #include <queue>
