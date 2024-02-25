@@ -55,8 +55,8 @@ I started this project in 2012 and focused on making this code being future proo
 * DX12 / Vulkan support through NVRHI (NVIDIA Rendering Hardware Interface) (thanks to Stephen Pridham for major porting effort)
 * Physically Based Rendering using GGX Cook-Torrence as in other modern engines (UE4, Unity) and 3D authoring tools like Blender 3.x or Adobe Substance
 * Baked Global Illumination using Irradiance Volumes and Image Based Lighting that fix the pitch black areas
-* Soft shadows using a fat shadow mapping atlas
-	All 3 light types (point, spot, parallel/sun) are supported which means parallel lights (sun) use
+* Soft shadows using a fat shadow mapping atlas: 
+	* All 3 light types (point, spot, parallel/sun) are supported which means parallel lights (sun) use
 	scene independent cascaded shadow mapping.
 * True internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
 * Temporal Antialiasing (TAA) as a cheap alternative for MSAA and that works well with HDR and also improves PBR lighting
@@ -86,7 +86,6 @@ RBDOOM-3-BFG allows mod editing and has many tiny fixes so custom content can be
 * invertGreen( normalmap.png ) material keyword to allow flipping the Y-Axis for tangent space normal maps 
 * glTF2 .glb model support for static and skinned models (thanks to Harrie van Ginneken)
 * Changed dmap to support compiling maps straight from glTF2 .glb models instead of .map files using a new polygon based workflow
-* Collada .DAE model support in addition to .ase and .lwo for static map models
 * Wavefront OBJ model support to make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom
 * Added back dmap and aas compilers (mapping tools, thanks to Pat Raynor) and improved them to work with TrenchBroom and Blender
 * Added in-engine Flash debugging tools and new console variables
@@ -110,17 +109,16 @@ You can fork RBDOOM-3-BFG and create a new renamed binary that includes all requ
 If you want to see what is planned or in progress in a Trello/Kanban style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
 
 Short term goals:
-* Finish last remaining bugs of the DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi)
-* Optional RmlUI support as an alternative to Flash
-* Add Raytracing for accelerating the probe baking and optionally adding realtime global illumination
+* Node based Imgui particle editor
+* Flash support through Adobe Animate or Blender
+* Raytracing for accelerating the probe baking and optionally adding realtime global illumination
 
 ---
 # May or may not ".plan" <a name="plan2"></a>
-* Scrap expensive multipass forward shading with a faster forward+ solution
-* Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
-* Explore Screen Space Global Illumination with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
-* Update texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
-* Replace collision detection and physics with PhysX 5
+* Replace expensive multipass forward shading with a faster forward+ solution
+* [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
+* ReSTIR or some other realtime path tracing
+* Optional alternative collision detection and physics with PhysX 5 or Jolt
 
 ---
 # Renderer Features Explained <a name="render"></a>
@@ -291,20 +289,21 @@ Left: No global illumination. Ambient is pitch black like in original Doom 3. Ri
 
 <img src="https://i.imgur.com/LRJBJwV.png" width="384"> <img src="https://i.imgur.com/GPD2aIr.png" width="384">
 
+<!--
 <img src="https://i.imgur.com/PVAXGui.png" width="384"> <img src="https://i.imgur.com/NleLuWY.png" width="384">
 
 <img src="https://i.imgur.com/vxAgY2S.png" width="384"> <img src="https://i.imgur.com/8avH7DY.png" width="384">
 
 <img src="https://i.imgur.com/KESmZld.png" width="384"> <img src="https://i.imgur.com/lHc7Pb9.png" width="384">
-
+-->
 <img src="https://i.imgur.com/qIq1xPi.png" width="384"> <img src="https://i.imgur.com/tGoceNP.png" width="384">
 
 <img src="https://i.imgur.com/45YCeSf.png" width="384"> <img src="https://i.imgur.com/GBDbml1.png" width="384">
 
+<!--
 Some examples that show additional environment lighting on all assets.
 
 <img src="https://i.imgur.com/xBPa2Y8.png" width="384"> <img src="https://i.imgur.com/MCjwFE7.png" width="384">
-
 
 
 ## HDR
@@ -319,7 +318,8 @@ Left: Wrong original Blinn-Phong in sRGB gamma space. Right: Gamma correct HDR r
 r_useSSAO 1 darkens the corners of the scene and also removes too much ambient added by the Global Illumination.
 
 <img src="https://i.imgur.com/AP2tBVd.png" width="384"> <img src="https://i.imgur.com/dJ1dY4X.png" width="384">
-
+"""
+-->
 ## Filmic Post Processing
 If you enable it with r_useFilmicPostProcessing 1 then you play DOOM 3 BFG the optics of a Zack Snyder movie.
 
@@ -363,16 +363,16 @@ If the nomodels argument is not given then it will also export all needed models
 
 A short summary of the file layout:
 
-Directory                       | Description
-:-----------------------------  | :------------------------------------------------
-RBDOOM-3-BFG/base/              | Doom 3 BFG media directory ( models, textures, sounds, maps, etc. )
-RBDOOM-3-BFG/neo/               | RBDOOM-3-BFG source code ( renderer, game code for multiple games, OS layer, etc. )
-RBDOOM-3-BFG/build/             | Build folder for CMake
-RBDOOM-3-BFG/tools/blender/     | Blender scripts for level mapping (TBD in release packages)
-RBDOOM-3-BFG/tools/trenchbroom  | TrenchBroomBFG level editor customized for DOOM 3 and RBDOOM-3-BFG
-RBDOOM-3-BFG/tools/darkradiant  | DarkRadiant level editor with an additional config for RBDOOM-3-BFG
-RBDOOM-3-BFG/tools/runtimedeps  | Visual Studio C++ Redistributables if you have problems to start the engine or the tools
-RBDOOM-3-BFG/tools/bfgpakexlorer| BFG Resource File Manager by George Kalampokis aka Mr.GK
+Directory                          | Description
+:--------------------------------- | :------------------------------------------------
+RBDOOM-3-BFG/base/                 | Doom 3 BFG media directory ( models, textures, sounds, maps, etc. )
+RBDOOM-3-BFG/neo/                  | RBDOOM-3-BFG source code ( renderer, game code for multiple games, OS layer, etc. )
+RBDOOM-3-BFG/build/                | Build folder for CMake
+RBDOOM-3-BFG/tools/runtimedeps     | Visual Studio C++ Redistributables if you have problems to start the engine or the tools
+RBDOOM-3-BFG/tools/trenchbroom     | TrenchBroomBFG level editor customized for DOOM 3 and RBDOOM-3-BFG
+RBDOOM-3-BFG/tools/darkradiant     | DarkRadiant level editor with an additional config for RBDOOM-3-BFG
+RBDOOM-3-BFG/tools/bfgpakexlorer   | BFG Resource File Manager by George Kalampokis aka Mr.GK
+RBDOOM-3-BFG/tools/optick-profiler | Optick is a super-lightweight C++ profiler for Games
 
 The GPL release does not contain any game data, the game data is still
 covered by the original EULA and must be obeyed as usual.
@@ -641,8 +641,8 @@ r_exposure [0 .. 1]                    | Default 0.5, controls brightness and af
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene and give it more depth
 r_forceAmbient                         | Default 0.5, controls additional brightness by Global Illumination 
 r_useFilmicPostFX [0, 1]               | Apply several post process effects to mimic a filmic look
-r_useCRTPostFX [0, 1]                  | CRT monitor/TV filter
-r_renderMode [0 .. 5]				   | Default 0 = Doom 3, 1 = Commodore 64, 2 = Commodore 64 Highres, 3 = Sega Genesis, 4 = Sega Genesis Highres, 5 = Sony PSX
+r_useCRTPostFX [0 .. 2]                | CRT monitor/TV filter
+r_renderMode [0 .. 5]				   | Default 0 = Doom 3, 1 = Commodore 64, 2 = Commodore 64 Highres, 3 = Amstrad CPC, 4 = Amstrad CPC Highres, 5 = Sega Genesis, 6 = Sega Genesis Highres, 7 = Sony PSX
 
 ## Modding Support
 Name                              | Description
