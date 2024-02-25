@@ -499,12 +499,6 @@ file(GLOB RENDERER_PASSES_SOURCES renderer/Passes/*.cpp)
 
 file(GLOB RENDERER_SMAA_INCLUDES renderer/SMAA/*.h)
 
-file(GLOB RENDERER_OPENGL_INCLUDES renderer/OpenGL/*.h)
-file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
-
-file(GLOB RENDERER_VULKAN_INCLUDES renderer/Vulkan/*.h)
-file(GLOB RENDERER_VULKAN_SOURCES renderer/Vulkan/*.cpp)
-
 file(GLOB RENDERER_NVRHI_INCLUDES renderer/NVRHI/*.h)
 file(GLOB RENDERER_NVRHI_SOURCES renderer/NVRHI/*.cpp)
 
@@ -1100,14 +1094,8 @@ source_group("renderer\\Passes" FILES ${RENDERER_PASSES_SOURCES})
 source_group("renderer\\DXT" FILES ${RENDERER_DXT_INCLUDES})
 source_group("renderer\\DXT" FILES ${RENDERER_DXT_SOURCES})
 
-source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
-source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
-
 source_group("renderer\\NVRHI" FILES ${RENDERER_NVRHI_INCLUDES})
 source_group("renderer\\NVRHI" FILES ${RENDERER_NVRHI_SOURCES})
-
-source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_INCLUDES})
-source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_SOURCES})
 
 source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
@@ -1434,11 +1422,6 @@ if(MSVC)
 	if(USE_DX12)
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
-
-		# RB: TODO REMOVE
-		set(OpenGL_LIBRARIES
-			opengl32
-			glu32)
 	endif()
 	
 	if(OPENAL)
