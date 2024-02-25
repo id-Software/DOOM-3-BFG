@@ -69,6 +69,7 @@ static nvrhi::TextureHandle createNullTexture( nvrhi::DeviceHandle device )
 	desc.useClearValue = false;
 	desc.sampleCount = 1;
 	desc.dimension = nvrhi::TextureDimension::Texture2D;
+	desc.initialState = nvrhi::ResourceStates::UnorderedAccess;
 	desc.keepInitialState = true;
 	desc.arraySize = 1;
 	desc.isUAV = true;

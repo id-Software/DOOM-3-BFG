@@ -1,3 +1,6 @@
 [submodule "neo/extern/nvrhi"]
 	path = neo/extern/nvrhi
 	url = https://github.com/RobertBeckebans/nvrhi.git
+[submodule "neo/extern/ShaderMake"]
+	path = neo/extern/ShaderMake
+	url = https://github.com/RobertBeckebans/ShaderMake.git

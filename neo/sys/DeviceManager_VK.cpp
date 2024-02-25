@@ -23,9 +23,9 @@
 * DEALINGS IN THE SOFTWARE.
 */
 
-// SRS - Disable PCH here, otherwise get Vulkan header mismatch failures with USE_AMD_ALLOCATOR option
-//#include <precompiled.h>
-//#pragma hdrstop
+// SRS - Can now enable PCH here due to updated nvrhi CMakeLists.txt that makes Vulkan-Headers private
+#include <precompiled.h>
+#pragma hdrstop
 
 #include <string>
 #include <queue>
@@ -36,6 +36,9 @@
 #include <sys/DeviceManager.h>
 
 #include <nvrhi/vulkan.h>
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#include <vulkan/vulkan.hpp>
+
 // SRS - optionally needed for MoltenVK runtime config visibility
 #if defined(__APPLE__)
 	#if defined( USE_MoltenVK )
@@ -574,7 +577,7 @@ bool DeviceManager_VK::createInstance()
 	const vk::Result res = vk::createInstance( &info, nullptr, &m_VulkanInstance );
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan instance, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan instance, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 
@@ -599,7 +602,7 @@ void DeviceManager_VK::installDebugCallback()
 
 bool DeviceManager_VK::pickPhysicalDevice()
 {
-	vk::Format requestedFormat = nvrhi::vulkan::convertFormat( m_DeviceParams.swapChainFormat );
+	vk::Format requestedFormat = vk::Format( nvrhi::vulkan::convertFormat( m_DeviceParams.swapChainFormat ) );
 	vk::Extent2D requestedExtent( m_DeviceParams.backBufferWidth, m_DeviceParams.backBufferHeight );
 
 	auto devices = m_VulkanInstance.enumeratePhysicalDevices();
@@ -992,7 +995,7 @@ bool DeviceManager_VK::createDevice()
 	const vk::Result res = m_VulkanPhysicalDevice.createDevice( &deviceDesc, nullptr, &m_VulkanDevice );
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan physical device, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan physical device, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 
@@ -1064,19 +1067,19 @@ bool DeviceManager_VK::createWindowSurface()
 	// Create the platform-specific surface
 #if defined( VULKAN_USE_PLATFORM_SDL )
 	// SRS - Support generic SDL platform for linux and macOS
-	const vk::Result res = CreateSDLWindowSurface( m_VulkanInstance, &m_WindowSurface );
+	auto res = vk::Result( CreateSDLWindowSurface( ( VkInstance )m_VulkanInstance, ( VkSurfaceKHR* )&m_WindowSurface ) );
 
 #elif defined( VK_USE_PLATFORM_WIN32_KHR )
 	auto surfaceCreateInfo = vk::Win32SurfaceCreateInfoKHR()
 							 .setHinstance( ( HINSTANCE )windowInstance )
 							 .setHwnd( ( HWND )windowHandle );
 
-	const vk::Result res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
+	auto res = m_VulkanInstance.createWin32SurfaceKHR( &surfaceCreateInfo, nullptr, &m_WindowSurface );
 #endif
 
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan window surface, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 
@@ -1165,7 +1168,7 @@ bool DeviceManager_VK::createSwapChain()
 	const vk::Result res = m_VulkanDevice.createSwapchainKHR( &desc, nullptr, &m_SwapChain );
 	if( res != vk::Result::eSuccess )
 	{
-		common->FatalError( "Failed to create a Vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString( res ) );
+		common->FatalError( "Failed to create a Vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString( ( VkResult )res ) );
 		return false;
 	}
 

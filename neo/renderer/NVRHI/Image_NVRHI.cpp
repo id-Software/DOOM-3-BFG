@@ -71,34 +71,34 @@ pickImageUsage - copied from nvrhi vulkan-texture.cpp
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 * DEALINGS IN THE SOFTWARE.
 */
-vk::ImageUsageFlags pickImageUsage( const nvrhi::TextureDesc& desc )
+VkImageUsageFlags pickImageUsage( const nvrhi::TextureDesc& desc )
 {
 	const nvrhi::FormatInfo& formatInfo = nvrhi::getFormatInfo( desc.format );
 
-	vk::ImageUsageFlags usageFlags = vk::ImageUsageFlagBits::eTransferSrc |
-									 vk::ImageUsageFlagBits::eTransferDst |
-									 vk::ImageUsageFlagBits::eSampled;
+	VkImageUsageFlags usageFlags = VkImageUsageFlagBits::VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+								   VkImageUsageFlagBits::VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+								   VkImageUsageFlagBits::VK_IMAGE_USAGE_SAMPLED_BIT;
 
 	if( desc.isRenderTarget )
 	{
 		if( formatInfo.hasDepth || formatInfo.hasStencil )
 		{
-			usageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+			usageFlags |= VkImageUsageFlagBits::VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		}
 		else
 		{
-			usageFlags |= vk::ImageUsageFlagBits::eColorAttachment;
+			usageFlags |= VkImageUsageFlagBits::VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		}
 	}
 
 	if( desc.isUAV )
 	{
-		usageFlags |= vk::ImageUsageFlagBits::eStorage;
+		usageFlags |= VkImageUsageFlagBits::VK_IMAGE_USAGE_STORAGE_BIT;
 	}
 
 	if( desc.isShadingRateSurface )
 	{
-		usageFlags |= vk::ImageUsageFlagBits::eFragmentShadingRateAttachmentKHR;
+		usageFlags |= VkImageUsageFlagBits::VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
 	}
 
 	return usageFlags;
@@ -598,7 +598,7 @@ void idImage::AllocImage()
 		imageCreateInfo.arrayLayers = textureDesc.arraySize;
 		imageCreateInfo.samples = static_cast< VkSampleCountFlagBits >( opts.samples );
 		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageCreateInfo.usage = static_cast< VkImageUsageFlags >( pickImageUsage( textureDesc ) );
+		imageCreateInfo.usage = pickImageUsage( textureDesc );
 		imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 

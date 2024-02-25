@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "../RenderCommon.h"
-#include "nvrhi/common/shader-blob.h"
+#include <ShaderMake/ShaderBlob.h>
 #include <sys/DeviceManager.h>
 
 
@@ -90,6 +90,52 @@ extern DeviceManager* deviceManager;
 
 /*
 ================================================================================================
+ createShaderPermutation
+ 
+ * Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+================================================================================================
+*/
+nvrhi::ShaderHandle createShaderPermutation( nvrhi::IDevice* device, const nvrhi::ShaderDesc& d, const void* blob, size_t blobSize,
+											 const ShaderMake::ShaderConstant* constants, uint32_t numConstants, bool errorIfNotFound = true )
+{
+	const void* binary = nullptr;
+	size_t binarySize = 0;
+
+	if( ShaderMake::FindPermutationInBlob( blob, blobSize, constants, numConstants, &binary, &binarySize ) )
+	{
+		return device->createShader( d, binary, binarySize );
+	}
+
+	if( errorIfNotFound )
+	{
+		std::string message = ShaderMake::FormatShaderNotFoundMessage( blob, blobSize, constants, numConstants );
+		device->getMessageCallback()->message( nvrhi::MessageSeverity::Error, message.c_str() );
+	}
+
+	return nullptr;
+}
+
+/*
+================================================================================================
 idRenderProgManager::LoadGLSLShader
 ================================================================================================
 */
@@ -136,11 +182,11 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 		return;
 	}
 
-	idList<nvrhi::ShaderConstant> constants;
+	idList<ShaderMake::ShaderConstant> constants;
 
 	for( int i = 0; i < shader.macros.Num(); i++ )
 	{
-		constants.Append( nvrhi::ShaderConstant
+		constants.Append( ShaderMake::ShaderConstant
 		{
 			shader.macros[i].name.c_str(),
 			shader.macros[i].definition.c_str()
@@ -154,9 +200,9 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	// TODO(Stephen): Might not want to hard-code this.
 	descCopy.entryName = "main";
 
-	nvrhi::ShaderConstant* shaderConstant( nullptr );
+	ShaderMake::ShaderConstant* shaderConstant( nullptr );
 
-	nvrhi::ShaderHandle shaderHandle = nvrhi::createShaderPermutation( device, descCopy, shaderBlob.data, shaderBlob.size,
+	nvrhi::ShaderHandle shaderHandle = createShaderPermutation( device, descCopy, shaderBlob.data, shaderBlob.size,
 									   ( constants.Num() > 0 ) ? &constants[0] : shaderConstant, uint32_t( constants.Num() ) );
 
 	shader.handle = shaderHandle;
