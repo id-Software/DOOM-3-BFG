@@ -91,7 +91,7 @@ extern DeviceManager* deviceManager;
 /*
 ================================================================================================
  createShaderPermutation
- 
+
  * Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -115,7 +115,7 @@ extern DeviceManager* deviceManager;
 ================================================================================================
 */
 nvrhi::ShaderHandle createShaderPermutation( nvrhi::IDevice* device, const nvrhi::ShaderDesc& d, const void* blob, size_t blobSize,
-											 const ShaderMake::ShaderConstant* constants, uint32_t numConstants, bool errorIfNotFound = true )
+		const ShaderMake::ShaderConstant* constants, uint32_t numConstants, bool errorIfNotFound = true )
 {
 	const void* binary = nullptr;
 	size_t binarySize = 0;
