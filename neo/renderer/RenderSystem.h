@@ -149,15 +149,24 @@ struct backEndCounters_t
 
 	uint64	cpuTotalMicroSec;		// total microseconds for backend run
 	uint64	cpuShadowMicroSec;
+	uint64	gpuBeginDrawingMicroSec;
 	uint64	gpuDepthMicroSec;
+	uint64	gpuGeometryMicroSec;
 	uint64	gpuScreenSpaceAmbientOcclusionMicroSec;
 	uint64	gpuScreenSpaceReflectionsMicroSec;
 	uint64	gpuAmbientPassMicroSec;
 	uint64	gpuShadowAtlasPassMicroSec;
 	uint64	gpuInteractionsMicroSec;
 	uint64	gpuShaderPassMicroSec;
+	uint64	gpuFogAllLightsMicroSec;
+	uint64	gpuBloomMicroSec;
+	uint64	gpuShaderPassPostMicroSec;
+	uint64	gpuMotionVectorsMicroSec;
 	uint64	gpuTemporalAntiAliasingMicroSec;
+	uint64	gpuToneMapPassMicroSec;
 	uint64	gpuPostProcessingMicroSec;
+	uint64	gpuDrawGuiMicroSec;
+	uint64	gpuCrtPostProcessingMicroSec;
 	uint64	gpuMicroSec;
 };
 // RB end

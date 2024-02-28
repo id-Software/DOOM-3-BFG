@@ -2138,6 +2138,15 @@ void idRenderBackend::SetBuffer( const void* data )
 
 	const setBufferCommand_t* cmd = ( const setBufferCommand_t* )data;
 
+	nvrhi::ObjectType commandObject = nvrhi::ObjectTypes::D3D12_GraphicsCommandList;
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		commandObject = nvrhi::ObjectTypes::VK_CommandBuffer;
+	}
+	OPTICK_GPU_CONTEXT( ( void* ) commandList->getNativeObject( commandObject ) );
+	OPTICK_GPU_EVENT( "SetBuffer" );
+
+	renderLog.OpenMainBlock( MRB_BEGIN_DRAWING_VIEW );
 	renderLog.OpenBlock( "Render_SetBuffer" );
 
 	currentScissor.Clear();
@@ -2149,6 +2158,8 @@ void idRenderBackend::SetBuffer( const void* data )
 	// that might leave unrendered portions of the screen
 	if( r_clear.GetFloat() || idStr::Length( r_clear.GetString() ) != 1 || r_singleArea.GetBool() || r_showOverDraw.GetBool() )
 	{
+		OPTICK_GPU_EVENT( "Render_ClearBuffer" );
+
 		float c[3];
 		if( sscanf( r_clear.GetString(), "%f %f %f", &c[0], &c[1], &c[2] ) == 3 )
 		{
@@ -2169,6 +2180,7 @@ void idRenderBackend::SetBuffer( const void* data )
 	}
 
 	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 }
 
 

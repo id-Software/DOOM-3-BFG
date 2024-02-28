@@ -601,7 +601,7 @@ uint32_t DeviceManager_DX12::GetBackBufferCount()
 
 void DeviceManager_DX12::EndFrame()
 {
-
+	OPTICK_CATEGORY( "DX12_EndFrame", Optick::Category::Wait );
 }
 
 void DeviceManager_DX12::Present()

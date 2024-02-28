@@ -1497,6 +1497,8 @@ void DeviceManager_VK::BeginFrame()
 
 void DeviceManager_VK::EndFrame()
 {
+	OPTICK_CATEGORY( "Vulkan_EndFrame", Optick::Category::Wait );
+
 	m_NvrhiDevice->queueSignalSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0 );
 
 	// SRS - Don't need barrier commandlist if EndFrame() is called before executeCommandList() in idRenderBackend::GL_EndFrame()

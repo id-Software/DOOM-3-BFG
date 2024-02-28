@@ -36,6 +36,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../simplex.h"	// line font definition
 #include "../ImmediateMode.h"
 
+#include <sys/DeviceManager.h>
+extern DeviceManager* deviceManager;
+
 idCVar r_showCenterOfProjection( "r_showCenterOfProjection", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a cross to show the center of projection" );
 idCVar r_showLines( "r_showLines", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = draw alternate horizontal lines, 2 = draw alternate vertical lines" );
 
@@ -2432,6 +2435,14 @@ void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawS
 		return;
 	}
 
+	nvrhi::ObjectType commandObject = nvrhi::ObjectTypes::D3D12_GraphicsCommandList;
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		commandObject = nvrhi::ObjectTypes::VK_CommandBuffer;
+	}
+	OPTICK_GPU_CONTEXT( ( void* ) commandList->getNativeObject( commandObject ) );
+	OPTICK_GPU_EVENT( "Render_DebugTools" );
+
 	// don't do much if this was a 2D rendering
 	if( !viewDef->viewEntitys )
 	{
@@ -2440,7 +2451,7 @@ void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawS
 		return;
 	}
 
-	OPTICK_EVENT( "Render_DebugTools" );
+	//OPTICK_EVENT( "Render_DebugTools" );
 
 	renderLog.OpenMainBlock( MRB_DRAW_DEBUG_TOOLS );
 	renderLog.OpenBlock( "Render_DebugTools", colorGreen );

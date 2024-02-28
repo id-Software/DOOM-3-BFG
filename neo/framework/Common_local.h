@@ -333,9 +333,19 @@ public:
 	}
 
 	// RB begin
+	uint64		GetRendererGpuBeginDrawingMicroseconds() const
+	{
+		return stats_backend.gpuBeginDrawingMicroSec;
+	}
+
 	uint64		GetRendererGpuEarlyZMicroseconds() const
 	{
 		return stats_backend.gpuDepthMicroSec;
+	}
+
+	uint64		GetRendererGpuGeometryMicroseconds() const
+	{
+		return stats_backend.gpuGeometryMicroSec;
 	}
 
 	uint64		GetRendererGpuSSAOMicroseconds() const
@@ -368,14 +378,49 @@ public:
 		return stats_backend.gpuShaderPassMicroSec;
 	}
 
+	uint64		GetRendererGpuFogAllLightsMicroseconds() const
+	{
+		return stats_backend.gpuFogAllLightsMicroSec;
+	}
+
+	uint64		GetRendererGpuBloomMicroseconds() const
+	{
+		return stats_backend.gpuBloomMicroSec;
+	}
+
+	uint64		GetRendererGpuShaderPassPostMicroseconds() const
+	{
+		return stats_backend.gpuShaderPassPostMicroSec;
+	}
+
+	uint64		GetRendererGpuMotionVectorsMicroseconds() const
+	{
+		return stats_backend.gpuMotionVectorsMicroSec;
+	}
+
 	uint64		GetRendererGpuTAAMicroseconds() const
 	{
 		return stats_backend.gpuTemporalAntiAliasingMicroSec;
 	}
 
+	uint64		GetRendererGpuToneMapPassMicroseconds() const
+	{
+		return stats_backend.gpuToneMapPassMicroSec;
+	}
+
 	uint64		GetRendererGpuPostProcessingMicroseconds() const
 	{
 		return stats_backend.gpuPostProcessingMicroSec;
+	}
+
+	uint64		GetRendererGpuDrawGuiMicroseconds() const
+	{
+		return stats_backend.gpuDrawGuiMicroSec;
+	}
+
+	uint64		GetRendererGpuCrtPostProcessingMicroseconds() const
+	{
+		return stats_backend.gpuCrtPostProcessingMicroSec;
 	}
 	// RB end
 

@@ -53,10 +53,13 @@ const char* renderLogMainBlockLabels[] =
 	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES_POST,		11 ),
 	ASSERT_ENUM_STRING( MRB_DRAW_DEBUG_TOOLS,				12 ),
 	ASSERT_ENUM_STRING( MRB_CAPTURE_COLORBUFFER,			13 ),
-	ASSERT_ENUM_STRING( MRB_TAA,							14 ),
-	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					15 ),
-	ASSERT_ENUM_STRING( MRB_DRAW_GUI,                       16 ),
-	ASSERT_ENUM_STRING( MRB_TOTAL,							17 )
+	ASSERT_ENUM_STRING( MRB_MOTION_VECTORS,					14 ),
+	ASSERT_ENUM_STRING( MRB_TAA,							15 ),
+	ASSERT_ENUM_STRING( MRB_TONE_MAP_PASS,					16 ),
+	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					17 ),
+	ASSERT_ENUM_STRING( MRB_DRAW_GUI,                       18 ),
+	ASSERT_ENUM_STRING( MRB_CRT_POSTPROCESS,                19 ),
+	ASSERT_ENUM_STRING( MRB_TOTAL,							20 )
 };
 
 extern uint64 Sys_Microseconds();
@@ -216,41 +219,82 @@ void idRenderLog::FetchGPUTimers( backEndCounters_t& pc )
 			double time = deviceManager->GetDevice()->getTimerQueryTime( timerQueries[ timerIndex ] );
 			time *= 1000000.0; // seconds -> microseconds
 
-			if( i == MRB_GPU_TIME )
+			switch( i )
 			{
-				pc.gpuMicroSec = time;
-			}
-			else if( i == MRB_FILL_DEPTH_BUFFER )
-			{
-				pc.gpuDepthMicroSec = time;
-			}
-			else if( i == MRB_SSAO_PASS )
-			{
-				pc.gpuScreenSpaceAmbientOcclusionMicroSec = time;
-			}
-			else if( i == MRB_AMBIENT_PASS )
-			{
-				pc.gpuAmbientPassMicroSec = time;
-			}
-			else if( i == MRB_SHADOW_ATLAS_PASS )
-			{
-				pc.gpuShadowAtlasPassMicroSec = time;
-			}
-			else if( i == MRB_DRAW_INTERACTIONS )
-			{
-				pc.gpuInteractionsMicroSec = time;
-			}
-			else if( i == MRB_DRAW_SHADER_PASSES )
-			{
-				pc.gpuShaderPassMicroSec = time;
-			}
-			else if( i == MRB_TAA )
-			{
-				pc.gpuTemporalAntiAliasingMicroSec = time;
-			}
-			else if( i == MRB_POSTPROCESS )
-			{
-				pc.gpuPostProcessingMicroSec = time;
+				case MRB_GPU_TIME:
+					pc.gpuMicroSec = time;
+					break;
+
+				case MRB_BEGIN_DRAWING_VIEW:
+					pc.gpuBeginDrawingMicroSec = time;
+					break;
+
+				case MRB_FILL_DEPTH_BUFFER:
+					pc.gpuDepthMicroSec = time;
+					break;
+
+				case MRB_FILL_GEOMETRY_BUFFER:
+					pc.gpuGeometryMicroSec = time;
+					break;
+
+				case MRB_SSAO_PASS:
+					pc.gpuScreenSpaceAmbientOcclusionMicroSec = time;
+					break;
+
+				case MRB_AMBIENT_PASS:
+					pc.gpuAmbientPassMicroSec = time;
+					break;
+
+				case MRB_SHADOW_ATLAS_PASS:
+					pc.gpuShadowAtlasPassMicroSec = time;
+					break;
+
+				case MRB_DRAW_INTERACTIONS:
+					pc.gpuInteractionsMicroSec = time;
+					break;
+
+				case MRB_DRAW_SHADER_PASSES:
+					pc.gpuShaderPassMicroSec = time;
+					break;
+
+				case MRB_FOG_ALL_LIGHTS:
+					pc.gpuFogAllLightsMicroSec = time;
+					break;
+
+				case MRB_BLOOM:
+					pc.gpuBloomMicroSec = time;
+					break;
+
+				case MRB_DRAW_SHADER_PASSES_POST:
+					pc.gpuShaderPassPostMicroSec = time;
+					break;
+
+				case MRB_MOTION_VECTORS:
+					pc.gpuMotionVectorsMicroSec = time;
+					break;
+
+				case MRB_TAA:
+					pc.gpuTemporalAntiAliasingMicroSec = time;
+					break;
+
+				case MRB_TONE_MAP_PASS:
+					pc.gpuToneMapPassMicroSec = time;
+					break;
+
+				case MRB_POSTPROCESS:
+					pc.gpuPostProcessingMicroSec = time;
+					break;
+
+				case MRB_DRAW_GUI:
+					pc.gpuDrawGuiMicroSec = time;
+					break;
+
+				case MRB_CRT_POSTPROCESS:
+					pc.gpuCrtPostProcessingMicroSec = time;
+					break;
+
+				default:
+					break;
 			}
 		}
 
