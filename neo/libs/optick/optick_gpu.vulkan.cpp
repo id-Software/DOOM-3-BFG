@@ -500,7 +500,6 @@ namespace Optick
 
 		// SRS - Improve GPU to CPU clock offset calibration by using Vulkan events
 		// thanks to cdwfs for concept at https://gist.github.com/cdwfs/4222ca09cb259f8dd50f7f2cf7d09179
-		std::this_thread::sleep_for(std::chrono::seconds(1));
 		(*vulkanFunctions.vkSetEvent)(Device, nodePayloads[nodeIndex]->event);
 		clock.timestampCPU = GetHighPrecisionTime();
 		(*vulkanFunctions.vkWaitForFences)(Device, 1, &Fence, 1, (uint64_t)-1);
