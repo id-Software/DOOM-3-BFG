@@ -153,7 +153,7 @@ void fhImmediateMode::End()
 		}
 	}
 
-	uint64_t stateBits = tr.backend.glStateBits;
+	uint64 stateBits = tr.backend.glStateBits;
 
 	int program = renderProgManager.CurrentProgram();
 	PipelineKey key{ stateBits, program, static_cast<int>( tr.backend.depthBias ), tr.backend.slopeScaleBias, tr.backend.currentFrameBuffer };

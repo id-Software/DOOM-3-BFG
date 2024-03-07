@@ -572,7 +572,7 @@ void DeviceManager_DX12::BeginFrame()
 	DXGI_QUERY_VIDEO_MEMORY_INFO memoryInfoLocal = {}, memoryInfoNonLocal = {};
 	m_DxgiAdapter->QueryVideoMemoryInfo( 0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &memoryInfoLocal );
 	m_DxgiAdapter->QueryVideoMemoryInfo( 0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &memoryInfoNonLocal );
-	commonLocal.SetRendererGpuMemoryMB( int( ( memoryInfoLocal.CurrentUsage + memoryInfoNonLocal.CurrentUsage ) / 1024 / 1024 ) );
+	commonLocal.SetRendererGpuMemoryMB( ( memoryInfoLocal.CurrentUsage + memoryInfoNonLocal.CurrentUsage ) / 1024 / 1024 );
 }
 
 nvrhi::ITexture* DeviceManager_DX12::GetCurrentBackBuffer()
@@ -621,6 +621,7 @@ void DeviceManager_DX12::Present()
 
 	OPTICK_GPU_FLIP( m_SwapChain.Get(), idLib::frameNumber - 1 );
 	OPTICK_CATEGORY( "DX12_Present", Optick::Category::Wait );
+	OPTICK_TAG( "Frame", idLib::frameNumber - 1 );
 
 	// SRS - Don't change m_DeviceParams.vsyncEnabled here, simply test for vsync mode 2 to set DXGI SyncInterval
 	m_SwapChain->Present( m_DeviceParams.vsyncEnabled == 2 ? 1 : 0, presentFlags );

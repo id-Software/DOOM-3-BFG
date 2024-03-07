@@ -436,13 +436,13 @@ public:
 		return metal_encode;
 	}
 
-	void		SetRendererGpuMemoryMB( int gpuMemoryMB )
+	void		SetRendererGpuMemoryMB( uint64 gpuMemoryMB )
 	{
 		gpu_memory = gpuMemoryMB;
 		return;
 	}
 
-	int			GetRendererGpuMemoryMB() const
+	uint64		GetRendererGpuMemoryMB() const
 	{
 		return gpu_memory;
 	}
@@ -664,7 +664,7 @@ private:
 	// SRS - MoltenVK's Vulkan to Metal command buffer encoding time, set default to 0 for non-macOS platforms (Windows and Linux)
 	uint64					metal_encode = 0;
 	// SRS - Cross-platform GPU Memory usage counter, set default to 0 in case platform or graphics API does not support queries
-	int						gpu_memory = 0;
+	uint64					gpu_memory = 0;
 
 	// Used during loading screens
 	int					lastPacifierSessionTime;

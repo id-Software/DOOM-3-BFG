@@ -450,7 +450,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::TextColored( colorCyan, "API: %s, AA[%i, %i]: %s, %s", API, width, height, aaMode, resolutionText.c_str() );
 
-		ImGui::TextColored( colorGold, "Device: %s, Memory: %i MB", deviceManager->GetRendererString(), commonLocal.GetRendererGpuMemoryMB() );
+		ImGui::TextColored( colorGold, "Device: %s, Memory: %llu MB", deviceManager->GetRendererString(), commonLocal.GetRendererGpuMemoryMB() );
 
 		ImGui::TextColored( colorLtGrey, "GENERAL: views:%i draws:%i tris:%i",
 							commonLocal.stats_frontend.c_numViews,

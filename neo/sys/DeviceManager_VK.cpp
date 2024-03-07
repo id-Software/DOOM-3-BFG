@@ -1456,33 +1456,30 @@ void DeviceManager_VK::BeginFrame()
 		size_t mvkPerfStatsSize = sizeof( mvkPerfStats );
 		vkGetPerformanceStatisticsMVK( m_VulkanDevice, &mvkPerfStats, &mvkPerfStatsSize );
 		commonLocal.SetRendererMvkEncodeMicroseconds( uint64( Max( 0.0, mvkPerfStats.queue.submitCommandBuffers.latest - mvkPerfStats.queue.retrieveCAMetalDrawable.latest ) * 1000.0 ) );
-		commonLocal.SetRendererGpuMemoryMB( int( mvkPerfStats.device.gpuMemoryAllocated.latest / 1024.0 ) );
 	}
-	else
 #endif
 #endif
-	{
-		// SRS - get Vulkan GPU memory usage for display in statistics overlay HUD
-		vk::PhysicalDeviceMemoryProperties2 memoryProperties2;
-		vk::PhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
-		memoryProperties2.pNext = &memoryBudget;
-		m_VulkanPhysicalDevice.getMemoryProperties2( &memoryProperties2 );
 
-		VkDeviceSize gpuMemoryAllocated = 0;
-		for( uint32_t i = 0; i < memoryProperties2.memoryProperties.memoryHeapCount; i++ )
-		{
-			gpuMemoryAllocated += memoryBudget.heapUsage[i];
+	// SRS - get Vulkan GPU memory usage for display in statistics overlay HUD
+	vk::PhysicalDeviceMemoryProperties2 memoryProperties2;
+	vk::PhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
+	memoryProperties2.pNext = &memoryBudget;
+	m_VulkanPhysicalDevice.getMemoryProperties2( &memoryProperties2 );
+
+	VkDeviceSize gpuMemoryAllocated = 0;
+	for( uint32_t i = 0; i < memoryProperties2.memoryProperties.memoryHeapCount; i++ )
+	{
+		gpuMemoryAllocated += memoryBudget.heapUsage[i];
 
 #if defined(__APPLE__)
-			// SRS - macOS Vulkan API <= 1.2.268 has heap reporting defect, use heapUsage[0] only
-			if( m_DeviceApiVersion <= VK_MAKE_API_VERSION( 0, 1, 2, 268 ) )
-			{
-				break;
-			}
-#endif
+		// SRS - macOS Vulkan API <= 1.2.268 has heap reporting defect, use heapUsage[0] only
+		if( m_DeviceApiVersion <= VK_MAKE_API_VERSION( 0, 1, 2, 268 ) )
+		{
+			break;
 		}
-		commonLocal.SetRendererGpuMemoryMB( int( gpuMemoryAllocated / 1024 / 1024 ) );
+#endif
 	}
+	commonLocal.SetRendererGpuMemoryMB( gpuMemoryAllocated / 1024 / 1024 );
 
 	const vk::Result res = m_VulkanDevice.acquireNextImageKHR( m_SwapChain,
 						   std::numeric_limits<uint64_t>::max(), // timeout
@@ -1511,6 +1508,7 @@ void DeviceManager_VK::Present()
 {
 	OPTICK_GPU_FLIP( m_SwapChain );
 	OPTICK_CATEGORY( "Vulkan_Present", Optick::Category::Wait );
+	OPTICK_TAG( "Frame", idLib::frameNumber - 1 );
 
 	void* pNext = nullptr;
 #if USE_OPTICK
