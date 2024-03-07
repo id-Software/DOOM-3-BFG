@@ -477,14 +477,11 @@ namespace Optick
 		VkDevice Device = node.device;
 		VkFence Fence = currentFrame.fence;
 
+		// SRS - Prepare and submit an empty command buffer to wait on app buffer completion
 		(*vulkanFunctions.vkWaitForFences)(Device, 1, &Fence, 1, (uint64_t)-1);
 		(*vulkanFunctions.vkResetFences)(Device, 1, &Fence);
-		(*vulkanFunctions.vkResetEvent)(Device, nodePayloads[nodeIndex]->event);
 		(*vulkanFunctions.vkResetCommandBuffer)(CB, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 		(*vulkanFunctions.vkBeginCommandBuffer)(CB, &commandBufferBeginInfo);
-		(*vulkanFunctions.vkCmdResetQueryPool)(CB, nodePayloads[nodeIndex]->queryPool, 0, 1);
-		(*vulkanFunctions.vkCmdWaitEvents)(CB, 1, &nodePayloads[nodeIndex]->event, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_HOST_BIT | VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, nullptr, 0, nullptr, 0, nullptr);
-		(*vulkanFunctions.vkCmdWriteTimestamp)(CB, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, nodePayloads[nodeIndex]->queryPool, 0);
 		(*vulkanFunctions.vkEndCommandBuffer)(CB);
 
 		VkSubmitInfo submitInfo = {};
@@ -498,9 +495,19 @@ namespace Optick
 		submitInfo.pSignalSemaphores = nullptr;
 		(*vulkanFunctions.vkQueueSubmit)(nodePayloads[nodeIndex]->queue, 1, &submitInfo, Fence);
 
+		// SRS - Prepare and submit the actual command buffer used for clock synchronization
+		(*vulkanFunctions.vkWaitForFences)(Device, 1, &Fence, 1, (uint64_t)-1);
+		(*vulkanFunctions.vkResetFences)(Device, 1, &Fence);
+		(*vulkanFunctions.vkResetEvent)(Device, nodePayloads[nodeIndex]->event);
+		(*vulkanFunctions.vkBeginCommandBuffer)(CB, &commandBufferBeginInfo);
+		(*vulkanFunctions.vkCmdResetQueryPool)(CB, nodePayloads[nodeIndex]->queryPool, 0, 1);
+		(*vulkanFunctions.vkCmdWaitEvents)(CB, 1, &nodePayloads[nodeIndex]->event, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_HOST_BIT | VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, nullptr, 0, nullptr, 0, nullptr);
+		(*vulkanFunctions.vkCmdWriteTimestamp)(CB, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, nodePayloads[nodeIndex]->queryPool, 0);
+		(*vulkanFunctions.vkEndCommandBuffer)(CB);
+		(*vulkanFunctions.vkQueueSubmit)(nodePayloads[nodeIndex]->queue, 1, &submitInfo, Fence);
+
 		// SRS - Improve GPU to CPU clock offset calibration by using Vulkan events
 		// thanks to cdwfs for concept at https://gist.github.com/cdwfs/4222ca09cb259f8dd50f7f2cf7d09179
-		std::this_thread::sleep_for(std::chrono::seconds(1));
 		(*vulkanFunctions.vkSetEvent)(Device, nodePayloads[nodeIndex]->event);
 		clock.timestampCPU = GetHighPrecisionTime();
 		(*vulkanFunctions.vkWaitForFences)(Device, 1, &Fence, 1, (uint64_t)-1);
