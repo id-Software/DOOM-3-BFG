@@ -376,6 +376,7 @@ float idConsoleLocal::DrawFPS( float y )
 		static ImVec4 colorMdGrey	= ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
 		static ImVec4 colorDkGrey	= ImVec4( 0.25f, 0.25f, 0.25f, 1.00f );
 		static ImVec4 colorGold		= ImVec4( 0.68f, 0.63f, 0.36f, 1.00f );
+		static ImVec4 colorPastelMagenta = ImVec4( 1.0f, 0.5f, 1.0f, 1.00f );
 
 		ImGui::Begin( "Performance Stats" );
 
@@ -450,7 +451,8 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::TextColored( colorCyan, "API: %s, AA[%i, %i]: %s, %s", API, width, height, aaMode, resolutionText.c_str() );
 
-		ImGui::TextColored( colorGold, "Device: %s, Memory: %llu MB", deviceManager->GetRendererString(), commonLocal.GetRendererGpuMemoryMB() );
+		ImGui::TextColored( colorGold, "Device: %s", deviceManager->GetRendererString() );
+		ImGui::TextColored( colorPastelMagenta, "VRAM Usage: %llu MB", commonLocal.GetRendererGpuMemoryMB() );
 
 		ImGui::TextColored( colorLtGrey, "GENERAL: views:%i draws:%i tris:%i",
 							commonLocal.stats_frontend.c_numViews,
@@ -526,7 +528,7 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    Shader Pass:  %5llu us", rendererGPUShaderPassesTime );
 #endif
 		ImGui::TextColored( rendererGPU_TAATime > maxTime ? colorRed : colorWhite,			"                    TAA:          %5llu us", rendererGPU_TAATime );
-		ImGui::TextColored( rendererGPUToneMapPassTime > maxTime ? colorRed : colorWhite,	"                    ToneMap:      %5llu us", rendererGPUToneMapPassTime );
+		//ImGui::TextColored( rendererGPUToneMapPassTime > maxTime ? colorRed : colorWhite,	"                    ToneMap:      %5llu us", rendererGPUToneMapPassTime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
 		ImGui::TextColored( frameBusyTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite, "Total:   %5lld us   Total:        %5lld us", frameBusyTime, rendererGPUTime );
 		ImGui::TextColored( colorWhite,														"Idle:    %5lld us   Idle:         %5lld us", frameIdleTime, rendererGPUIdleTime );

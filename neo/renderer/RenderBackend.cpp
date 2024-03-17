@@ -6296,7 +6296,7 @@ void idRenderBackend::PostProcess( const void* data )
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
 		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
-		
+
 		// copy LDR result to postProcFBO which is HDR but also used by postFX
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject();
