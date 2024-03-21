@@ -41,7 +41,6 @@ idRenderEntityLocal::idRenderEntityLocal()
 	world					= NULL;
 	index					= 0;
 	lastModifiedFrameNum	= 0;
-	archived				= false;
 	dynamicModel			= NULL;
 	dynamicModelFrameCount	= 0;
 	cachedDynamicModel		= NULL;

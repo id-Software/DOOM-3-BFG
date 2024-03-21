@@ -3,8 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2016 Robert Beckebans
-Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -46,10 +45,7 @@ idRenderModelOverlay::idRenderModelOverlay() :
 	nextOverlay( 0 ),
 	firstDeferredOverlay( 0 ),
 	nextDeferredOverlay( 0 ),
-	numOverlayMaterials( 0 ),
-	index( -1 ),
-	demoSerialWrite( 0 ),
-	demoSerialCurrent( 0 )
+	numOverlayMaterials( 0 )
 {
 	memset( overlays, 0, sizeof( overlays ) );
 }
@@ -79,7 +75,6 @@ void idRenderModelOverlay::ReUse()
 	firstDeferredOverlay = 0;
 	nextDeferredOverlay = 0;
 	numOverlayMaterials = 0;
-	demoSerialCurrent++;
 
 	for( unsigned int i = 0; i < MAX_OVERLAYS; i++ )
 	{
@@ -496,8 +491,6 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 			overlayIndexes[numIndexes + 2] = 0;
 		}
 
-		demoSerialCurrent++;
-
 		// allocate a new overlay
 		overlay_t& overlay = overlays[nextOverlay++ & ( MAX_OVERLAYS - 1 )];
 		FreeOverlay( overlay );
@@ -511,7 +504,6 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 		overlay.verts = ( overlayVertex_t* )Mem_Alloc( numVerts * sizeof( overlay.verts[0] ), TAG_MODEL );
 		memcpy( overlay.verts, overlayVerts.Ptr(), numVerts * sizeof( overlay.verts[0] ) );
 		overlay.maxReferencedVertex = maxReferencedVertex;
-		overlay.writtenToDemo = false;
 
 		if( nextOverlay - firstOverlay > MAX_OVERLAYS )
 		{

@@ -4,7 +4,6 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
-Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -55,10 +54,7 @@ idRenderModelDecal::idRenderModelDecal() :
 	nextDecal( 0 ),
 	firstDeferredDecal( 0 ),
 	nextDeferredDecal( 0 ),
-	numDecalMaterials( 0 ),
-	index( -1 ),
-	demoSerialWrite( 0 ),
-	demoSerialCurrent( 0 )
+	numDecalMaterials( 0 )
 {
 	// SRS - initialize decals so members are defined for logical tests in CreateDecalFromWinding()
 	memset( decals, 0, sizeof( decals ) );
@@ -218,7 +214,6 @@ void idRenderModelDecal::ReUse()
 	firstDeferredDecal = 0;
 	nextDeferredDecal = 0;
 	numDecalMaterials = 0;
-	demoSerialCurrent++;
 }
 
 /*
@@ -250,8 +245,6 @@ void idRenderModelDecal::CreateDecalFromWinding( const idWinding& w, const idMat
 			firstDecal = nextDecal - MAX_DECALS;
 		}
 	}
-
-	demoSerialCurrent++;
 
 	decal_t& decal = decals[decalIndex];
 
@@ -300,8 +293,6 @@ void idRenderModelDecal::CreateDecalFromWinding( const idWinding& w, const idMat
 		decal.indexes[decal.numIndexes + 1] = 0;
 		decal.indexes[decal.numIndexes + 2] = 0;
 	}
-
-	decal.writtenToDemo = false;
 }
 
 /*
