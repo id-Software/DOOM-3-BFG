@@ -1132,14 +1132,6 @@ void idRenderWorldLocal::SetPortalState( qhandle_t portal, int blockTypes )
 			FloodConnectedAreas( &portalAreas[doublePortals[portal - 1].portals[1]->intoArea], i );
 		}
 	}
-
-	if( common->WriteDemo() )
-	{
-		common->WriteDemo()->WriteInt( DS_RENDER );
-		common->WriteDemo()->WriteInt( DC_SET_PORTAL_STATE );
-		common->WriteDemo()->WriteInt( portal );
-		common->WriteDemo()->WriteInt( blockTypes );
-	}
 }
 
 /*

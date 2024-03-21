@@ -630,58 +630,6 @@ void idUserInterfaceLocal::Trigger( int _time )
 	}
 }
 
-void idUserInterfaceLocal::ReadFromDemoFile( class idDemoFile* f )
-{
-	idStr work;
-	f->ReadDict( state );
-	source = state.GetString( "name" );
-
-	if( desktop == NULL )
-	{
-		f->Log( "creating new gui\n" );
-		desktop = new( TAG_OLD_UI ) idWindow( this );
-		desktop->SetFlag( WIN_DESKTOP );
-		desktop->ReadFromDemoFile( f );
-	}
-	else
-	{
-		f->Log( "re-using gui\n" );
-		desktop->ReadFromDemoFile( f, false );
-	}
-
-	f->ReadFloat( cursorX );
-	f->ReadFloat( cursorY );
-
-	bool add = true;
-	int c = uiManagerLocal.demoGuis.Num();
-	for( int i = 0; i < c; i++ )
-	{
-		if( uiManagerLocal.demoGuis[i] == this )
-		{
-			add = false;
-			break;
-		}
-	}
-
-	if( add )
-	{
-		uiManagerLocal.demoGuis.Append( this );
-	}
-}
-
-void idUserInterfaceLocal::WriteToDemoFile( class idDemoFile* f )
-{
-	idStr work;
-	f->WriteDict( state );
-	if( desktop )
-	{
-		desktop->WriteToDemoFile( f );
-	}
-
-	f->WriteFloat( cursorX );
-	f->WriteFloat( cursorY );
-}
-
 bool idUserInterfaceLocal::WriteToSaveGame( idFile* savefile ) const
 {
 	int len;

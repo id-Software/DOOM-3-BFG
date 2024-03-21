@@ -344,13 +344,8 @@ void idCommonLocal::Draw()
 		}
 		game->Shell_Render();
 	}
-	else if( readDemo )
-	{
 		// SRS - Advance demo inside Frame() instead of Draw() to support smp mode playback
 		// AdvanceRenderDemo( true );
-		renderWorld->RenderScene( &currentDemoRenderView );
-		renderSystem->DrawDemoPics();
-	}
 	else if( mapSpawned )
 	{
 		bool gameDraw = false;
@@ -370,13 +365,6 @@ void idCommonLocal::Draw()
 		{
 			renderSystem->SetColor( colorBlack );
 			renderSystem->DrawStretchPic( 0, 0, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), 0, 0, 1, 1, whiteMaterial );
-		}
-
-		// save off the 2D drawing from the game
-		if( writeDemo )
-		{
-			renderSystem->WriteDemoPics();
-			renderSystem->WriteEndFrame();
 		}
 	}
 	else
@@ -674,9 +662,7 @@ void idCommonLocal::Frame()
 				gameTimeResidual += clampedDeltaMilliseconds * timescale.GetFloat();
 
 				// don't run any frames when paused
-				// jpcy: the game is paused when playing a demo, but playDemo should wait like the game does
-				// SRS - don't wait if window not in focus and playDemo itself paused
-				if( pauseGame && ( !( readDemo && !timeDemo ) || session->IsSystemUIShowing() || com_pause.GetInteger() ) )
+				if( pauseGame )
 				{
 					gameFrame++;
 					gameTimeResidual = 0;
@@ -741,12 +727,6 @@ void idCommonLocal::Frame()
 			}
 		}
 
-		// jpcy: playDemo uses the game frame wait logic, but shouldn't run any game frames
-		if( readDemo && !timeDemo )
-		{
-			numGameFrames = 0;
-		}
-
 		//--------------------------------------------
 		// It would be better to push as much of this as possible
 		// either before or after the renderSystem->SwapCommandBuffers(),
@@ -786,18 +766,6 @@ void idCommonLocal::Frame()
 
 		// send frame and mouse events to active guis
 		GuiFrameEvents();
-
-		// SRS - Advance demos inside Frame() vs. Draw() to support smp mode playback
-		// SRS - Pause playDemo (but not timeDemo) when window not in focus
-		if( readDemo && ( !( session->IsSystemUIShowing() || com_pause.GetInteger() ) || timeDemo ) )
-		{
-			AdvanceRenderDemo( true );
-			if( !readDemo )
-			{
-				// SRS - Important to return after demo playback is finished to avoid command buffer sync issues
-				return;
-			}
-		}
 
 		//--------------------------------------------
 		// Prepare usercmds and kick off the game processing
@@ -898,8 +866,7 @@ void idCommonLocal::Frame()
 		SendSnapshots();
 
 		// Render the sound system using the latest commands from the game thread
-		// SRS - Enable sound during normal playDemo playback but not during timeDemo
-		if( pauseGame && !( readDemo && !timeDemo ) )
+		if( pauseGame )
 		{
 			soundWorld->Pause();
 			soundSystem->SetPlayingSoundWorld( menuSoundWorld );

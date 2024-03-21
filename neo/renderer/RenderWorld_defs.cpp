@@ -68,30 +68,6 @@ Does not actually free the entityDef.
 */
 void R_FreeEntityDefDerivedData( idRenderEntityLocal* def, bool keepDecals, bool keepCachedDynamicModel )
 {
-	// demo playback needs to free the joints, while normal play
-	// leaves them in the control of the game
-	if( common->ReadDemo() )
-	{
-		if( def->parms.joints )
-		{
-			Mem_Free16( def->parms.joints );
-			def->parms.joints = NULL;
-		}
-		if( def->parms.callbackData )
-		{
-			Mem_Free( def->parms.callbackData );
-			def->parms.callbackData = NULL;
-		}
-		for( int i = 0; i < MAX_RENDERENTITY_GUI; i++ )
-		{
-			if( def->parms.gui[ i ] )
-			{
-				delete def->parms.gui[ i ];
-				def->parms.gui[ i ] = NULL;
-			}
-		}
-	}
-
 	// free all the interactions
 	while( def->firstInteraction != NULL )
 	{

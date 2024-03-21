@@ -126,9 +126,6 @@ public:
 	unsigned int				GetNumDecalDrawSurfs();
 	struct drawSurf_t* 			CreateDecalDrawSurf( const struct viewEntity_t* space, unsigned int index );
 
-	void						ReadFromDemoFile( class idDemoFile* f );
-	void						WriteToDemoFile( class idDemoFile* f ) const;
-
 	qhandle_t 					index; // Used for Demo files.
 	int							demoSerialWrite;
 	int							demoSerialCurrent;

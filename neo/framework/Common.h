@@ -71,7 +71,6 @@ class idRenderWorld;
 class idSoundWorld;
 class idSession;
 class idCommonDialog;
-class idDemoFile;
 class idUserInterface;
 class idSaveLoadParms;
 class idMatchParameters;
@@ -314,9 +313,6 @@ public:
 
 	virtual bool				LoadGame( const char* saveName ) = 0;
 	virtual bool				SaveGame( const char* saveName ) = 0;
-
-	virtual idDemoFile* 		ReadDemo() = 0;
-	virtual idDemoFile* 		WriteDemo() = 0;
 
 	virtual idGame* 			Game() = 0;
 	virtual idRenderWorld* 		RW() = 0;

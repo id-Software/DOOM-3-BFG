@@ -294,8 +294,6 @@ public:
 	virtual void SetBuddy( idWindow* buddy ) {};
 	virtual void HandleBuddyUpdate( idWindow* buddy ) {};
 	virtual void StateChanged( bool redraw );
-	virtual void ReadFromDemoFile( class idDemoFile* f, bool rebuild = true );
-	virtual void WriteToDemoFile( class idDemoFile* f );
 
 	// SaveGame support
 	void			WriteSaveGameString( const char* string, idFile* savefile );

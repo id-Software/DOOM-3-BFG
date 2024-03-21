@@ -317,13 +317,6 @@ public:
 
 	virtual void			DrawCRTPostFX() = 0; // RB
 
-	// dump all 2D drawing so far this frame to the demo file
-	virtual void			WriteDemoPics() = 0;
-	virtual void			WriteEndFrame() = 0;
-
-	// draw the 2D pics that were saved out with the current demo frame
-	virtual void			DrawDemoPics() = 0;
-
 	// Performs final closeout of any gui models being defined.
 	//
 	// Waits for the previous GPU rendering to complete and vsync.

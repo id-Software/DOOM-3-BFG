@@ -400,11 +400,6 @@ void idRenderWorldLocal::FreeEntityDef( qhandle_t entityHandle )
 
 	R_FreeEntityDefDerivedData( def, false, false );
 
-	if( common->WriteDemo() && def->archived )
-	{
-		WriteFreeEntity( entityHandle );
-	}
-
 	// if we are playing a demo, these will have been freed
 	// in R_FreeEntityDefDerivedData(), otherwise the gui
 	// object still exists in the game
@@ -529,11 +524,6 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 
 	light->parms = *rlight;
 	light->lastModifiedFrameNum = tr.frameCount;
-	if( common->WriteDemo() && light->archived )
-	{
-		WriteFreeLight( lightHandle );
-		light->archived = false;
-	}
 
 	// new for BFG edition: force noShadows on spectrum lights so teleport spawns
 	// don't cause such a slowdown.  Hell writing shouldn't be shadowed anyway...
@@ -579,11 +569,6 @@ void idRenderWorldLocal::FreeLightDef( qhandle_t lightHandle )
 	}
 
 	R_FreeLightDefDerivedData( light );
-
-	if( common->WriteDemo() && light->archived )
-	{
-		WriteFreeLight( lightHandle );
-	}
 
 	delete light;
 	lightDefs[lightHandle] = NULL;
@@ -695,11 +680,6 @@ void idRenderWorldLocal::UpdateEnvprobeDef( qhandle_t envprobeHandle, const rend
 
 	probe->parms = *ep;
 	probe->lastModifiedFrameNum = tr.frameCount;
-	if( common->WriteDemo() && probe->archived )
-	{
-		WriteFreeEnvprobe( envprobeHandle );
-		probe->archived = false;
-	}
 
 	if( !justUpdate )
 	{
@@ -733,11 +713,6 @@ void idRenderWorldLocal::FreeEnvprobeDef( qhandle_t envprobeHandle )
 	}
 
 	R_FreeEnvprobeDefDerivedData( probe );
-
-	if( common->WriteDemo() && probe->archived )
-	{
-		WriteFreeEnvprobe( envprobeHandle );
-	}
 
 	delete probe;
 	envprobeDefs[envprobeHandle] = NULL;
@@ -958,10 +933,7 @@ idRenderModelDecal* idRenderWorldLocal::AllocDecal( qhandle_t newEntityHandle, i
 	decals[oldest].entityHandle = newEntityHandle;
 	decals[oldest].lastStartTime = startTime;
 	decals[oldest].decals->ReUse();
-	if( common->WriteDemo() )
-	{
-		WriteFreeDecal( common->WriteDemo(), oldest );
-	}
+
 	return decals[oldest].decals;
 }
 
@@ -1149,13 +1121,6 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 
 	// render any post processing after the view and all its subviews has been draw
 	R_RenderPostProcess( parms );
-
-	// now write delete commands for any modified-but-not-visible entities, and
-	// add the renderView command to the demo
-	if( common->WriteDemo() )
-	{
-		WriteRenderView( renderView );
-	}
 
 #if 0
 	for( int i = 0; i < entityDefs.Num(); i++ )

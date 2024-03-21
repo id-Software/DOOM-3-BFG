@@ -150,12 +150,6 @@ void idCommonLocal::StartMenu( bool playIntro )
 		return;
 	}
 
-	if( readDemo )
-	{
-		// if we're playing a demo, esc kills it
-		UnloadMap();
-	}
-
 	if( game )
 	{
 		game->Shell_Show( true );

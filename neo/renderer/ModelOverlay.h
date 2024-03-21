@@ -95,9 +95,6 @@ public:
 	unsigned int				GetNumOverlayDrawSurfs();
 	struct drawSurf_t* 			CreateOverlayDrawSurf( const struct viewEntity_t* space, const idRenderModel* baseModel, unsigned int index );
 
-	void						ReadFromDemoFile( class idDemoFile* f );
-	void						WriteToDemoFile( class idDemoFile* f ) const;
-
 	int							index;
 	int							demoSerialWrite;
 	int							demoSerialCurrent;

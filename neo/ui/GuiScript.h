@@ -112,8 +112,6 @@ public:
 		return sz;
 	}
 	void FixupParms( idWindow* win );
-	void ReadFromDemoFile( class idDemoFile* f ) {};
-	void WriteToDemoFile( class idDemoFile* f ) {};
 
 	void WriteToSaveGame( idFile* savefile );
 	void ReadFromSaveGame( idFile* savefile );

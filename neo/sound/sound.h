@@ -218,13 +218,6 @@ public:
 	// menu sounds
 	virtual	int				PlayShaderDirectly( const char* name, int channel = -1 ) = 0;
 
-	// dumps the current state and begins archiving commands
-	virtual void			StartWritingDemo( idDemoFile* demo ) = 0;
-	virtual void			StopWritingDemo() = 0;
-
-	// read a sound command from a demo file
-	virtual void			ProcessDemoCommand( idDemoFile* demo ) = 0;
-
 	// when cinematics are skipped, we need to advance sound time this much
 	virtual void			Skip( int time ) = 0;
 

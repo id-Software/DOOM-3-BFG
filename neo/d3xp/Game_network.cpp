@@ -1233,8 +1233,6 @@ void idGameLocal::ClientRunFrame( idUserCmdMgr& cmdMgr, bool lastPredictFrame, g
 	slow.Set( time, previousTime, realClientTime );
 	fast.Set( time, previousTime, realClientTime );
 
-	DemoWriteGameInfo();
-
 	// run prediction on all active entities
 	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
 	{

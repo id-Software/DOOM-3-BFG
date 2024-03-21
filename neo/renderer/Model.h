@@ -291,10 +291,6 @@ public:
 	// Returns number of the joint nearest to the given triangle.
 	virtual int					NearestJoint( int surfaceNum, int a, int c, int b ) const = 0;
 
-	// Writing to and reading from a demo file.
-	virtual void				ReadFromDemoFile( class idDemoFile* f ) = 0;
-	virtual void				WriteToDemoFile( class idDemoFile* f ) = 0;
-
 	// if false, the model doesn't need to be linked into the world, because it
 	// can't contribute visually -- triggers, etc
 	virtual bool				ModelHasDrawingSurfaces() const
