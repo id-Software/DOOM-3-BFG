@@ -219,7 +219,6 @@ idCommonLocal::Quit
 */
 void idCommonLocal::Quit()
 {
-
 	// don't try to shutdown if we are in a recursive error
 	if( !com_errorEntered )
 	{

@@ -65,8 +65,6 @@ idCVar com_deltaTimeClamp( "com_deltaTimeClamp", "50", CVAR_INTEGER, "don't proc
 idCVar com_fixedTic( "com_fixedTic", DEFAULT_FIXED_TIC, CVAR_BOOL, "run a single game frame per render frame" );
 idCVar com_noSleep( "com_noSleep", DEFAULT_NO_SLEEP, CVAR_BOOL, "don't sleep if the game is running too fast" );
 idCVar com_smp( "com_smp", "1", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "run the game and draw code in a separate thread" );
-idCVar com_aviDemoWidth( "com_aviDemoWidth", "256", CVAR_SYSTEM, "" );
-idCVar com_aviDemoHeight( "com_aviDemoHeight", "256", CVAR_SYSTEM, "" );
 idCVar com_skipGameDraw( "com_skipGameDraw", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
 
 idCVar com_sleepGame( "com_sleepGame", "0", CVAR_SYSTEM | CVAR_INTEGER, "intentionally add a sleep in the game time" );
@@ -344,11 +342,10 @@ void idCommonLocal::Draw()
 		}
 		game->Shell_Render();
 	}
-		// SRS - Advance demo inside Frame() instead of Draw() to support smp mode playback
-		// AdvanceRenderDemo( true );
 	else if( mapSpawned )
 	{
 		bool gameDraw = false;
+
 		// normal drawing for both single and multi player
 		if( !com_skipGameDraw.GetBool() && Game()->GetLocalClientNum() >= 0 )
 		{
@@ -387,6 +384,7 @@ void idCommonLocal::Draw()
 		// draw the half console / notify console on top of everything
 		console->Draw( false );
 
+		// old CRT TV simulation has to be last or it breaks the immersion
 		renderSystem->DrawCRTPostFX();
 	}
 }

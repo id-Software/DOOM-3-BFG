@@ -878,19 +878,6 @@ void idRenderSystemLocal::CropRenderSize( int x, int y, int width, int height, b
 		common->Error( "CropRenderSize: bad sizes" );
 	}
 
-	if( common->WriteDemo() )
-	{
-		common->WriteDemo()->WriteInt( DS_RENDER );
-		common->WriteDemo()->WriteInt( DC_CROP_RENDER );
-		common->WriteDemo()->WriteInt( width );
-		common->WriteDemo()->WriteInt( height );
-
-		if( r_showDemo.GetBool() )
-		{
-			common->Printf( "write DC_CROP_RENDER\n" );
-		}
-	}
-
 	idScreenRect& previous = renderCrops[currentRenderCrop];
 
 	currentRenderCrop++;

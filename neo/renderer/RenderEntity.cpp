@@ -160,7 +160,3 @@ int RenderEnvprobeLocal::GetIndex()
 	return index;
 }
 
-
-	// SRS - fully initialize ent so that memcmp() in UpdateEntityDef() works properly
-	memset( &ent, 0, sizeof( renderEntity_t ) );
-
