@@ -1,0 +1,53 @@
+// ============================================================================
+// DOOM: The Dark Ages - Blood/Damage Screen Effect Pixel Shader
+// Red screen flash when taking damage, healing pulse effects
+// ============================================================================
+
+uniform sampler2D samp0 : register(s0); // Scene
+
+uniform float4 rpDarkAgesBlood : register(c0);  // intensity, pulseTime, healthRatio, unused
+
+struct PS_IN {
+	float4 position : VPOS;
+	float2 texcoord0 : TEXCOORD0;
+};
+
+struct PS_OUT {
+	float4 color : COLOR;
+};
+
+void main( PS_IN fragment, out PS_OUT result ) {
+	float4 sceneColor = tex2D( samp0, fragment.texcoord0 );
+	
+	float intensity = rpDarkAgesBlood.x;
+	
+	if ( intensity > 0.01 ) {
+		// Blood overlay - edges glow red
+		float2 uv = fragment.texcoord0 * 2.0 - 1.0;
+		float edgeDist = max( abs(uv.x), abs(uv.y) );
+		float bloodMask = smoothstep( 0.3, 1.0, edgeDist ) * intensity;
+		
+		// Pulsating red
+		float pulse = sin( rpDarkAgesBlood.y * 6.28 ) * 0.3 + 0.7;
+		float3 bloodColor = float3( 0.6, 0.0, 0.0 ) * pulse;
+		
+		sceneColor.rgb = lerp( sceneColor.rgb, bloodColor, bloodMask * 0.6 );
+		
+		// Slight desaturation during damage
+		float lum = dot( sceneColor.rgb, float3( 0.299, 0.587, 0.114 ) );
+		sceneColor.rgb = lerp( sceneColor.rgb, float3( lum, lum, lum ), intensity * 0.3 );
+	}
+	
+	// Low health warning (screen edge pulse)
+	if ( rpDarkAgesBlood.z < 0.25 ) {
+		float2 uv = fragment.texcoord0 * 2.0 - 1.0;
+		float edgeDist = max( abs(uv.x), abs(uv.y) );
+		float warningPulse = sin( rpDarkAgesBlood.y * 3.14 ) * 0.5 + 0.5;
+		float warningMask = smoothstep( 0.5, 1.0, edgeDist ) * warningPulse;
+		warningMask *= ( 0.25 - rpDarkAgesBlood.z ) * 4.0;
+		
+		sceneColor.rgb = lerp( sceneColor.rgb, float3( 0.4, 0.0, 0.0 ), warningMask * 0.4 );
+	}
+	
+	result.color = float4( sceneColor.rgb, 1.0 );
+}

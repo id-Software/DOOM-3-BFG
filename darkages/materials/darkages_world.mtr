@@ -1,0 +1,369 @@
+// ============================================================================
+// DOOM: THE DARK AGES - World Material Definitions
+// Dark medieval textures and surfaces
+// ============================================================================
+
+// ============================================================================
+// STONE MATERIALS
+// ============================================================================
+
+textures/darkages/stone_castle_wall {
+	qer_editorimage	textures/darkages/stone_castle_wall_d
+	bumpmap			textures/darkages/stone_castle_wall_n
+	diffusemap		textures/darkages/stone_castle_wall_d
+	specularmap		textures/darkages/stone_castle_wall_s
+	{
+		blend		bumpmap
+		map			textures/darkages/stone_castle_wall_n
+	}
+	{
+		blend		diffusemap
+		map			textures/darkages/stone_castle_wall_d
+	}
+	{
+		blend		specularmap
+		map			textures/darkages/stone_castle_wall_s
+	}
+}
+
+textures/darkages/stone_dungeon_floor {
+	qer_editorimage	textures/darkages/stone_dungeon_floor_d
+	bumpmap			textures/darkages/stone_dungeon_floor_n
+	diffusemap		textures/darkages/stone_dungeon_floor_d
+	specularmap		textures/darkages/stone_dungeon_floor_s
+}
+
+textures/darkages/stone_crypt_wall {
+	qer_editorimage	textures/darkages/stone_crypt_wall_d
+	bumpmap			textures/darkages/stone_crypt_wall_n
+	diffusemap		textures/darkages/stone_crypt_wall_d
+	specularmap		textures/darkages/stone_crypt_wall_s
+}
+
+textures/darkages/stone_cathedral_pillar {
+	qer_editorimage	textures/darkages/stone_cathedral_pillar_d
+	bumpmap			textures/darkages/stone_cathedral_pillar_n
+	diffusemap		textures/darkages/stone_cathedral_pillar_d
+	specularmap		textures/darkages/stone_cathedral_pillar_s
+}
+
+textures/darkages/stone_cobblestone {
+	qer_editorimage	textures/darkages/stone_cobblestone_d
+	bumpmap			textures/darkages/stone_cobblestone_n
+	diffusemap		textures/darkages/stone_cobblestone_d
+	specularmap		textures/darkages/stone_cobblestone_s
+}
+
+textures/darkages/stone_brick_old {
+	qer_editorimage	textures/darkages/stone_brick_old_d
+	bumpmap			textures/darkages/stone_brick_old_n
+	diffusemap		textures/darkages/stone_brick_old_d
+	specularmap		textures/darkages/stone_brick_old_s
+}
+
+textures/darkages/stone_mossy {
+	qer_editorimage	textures/darkages/stone_mossy_d
+	bumpmap			textures/darkages/stone_mossy_n
+	diffusemap		textures/darkages/stone_mossy_d
+	specularmap		textures/darkages/stone_mossy_s
+}
+
+// ============================================================================
+// METAL MATERIALS
+// ============================================================================
+
+textures/darkages/metal_iron_dark {
+	qer_editorimage	textures/darkages/metal_iron_dark_d
+	bumpmap			textures/darkages/metal_iron_dark_n
+	diffusemap		textures/darkages/metal_iron_dark_d
+	specularmap		textures/darkages/metal_iron_dark_s
+	{
+		blend		specularmap
+		map			textures/darkages/metal_iron_dark_s
+		rgb			0.6
+	}
+}
+
+textures/darkages/metal_rusty_grate {
+	qer_editorimage	textures/darkages/metal_rusty_grate_d
+	bumpmap			textures/darkages/metal_rusty_grate_n
+	diffusemap		textures/darkages/metal_rusty_grate_d
+	specularmap		textures/darkages/metal_rusty_grate_s
+	twoSided
+}
+
+textures/darkages/metal_chain {
+	qer_editorimage	textures/darkages/metal_chain_d
+	bumpmap			textures/darkages/metal_chain_n
+	diffusemap		textures/darkages/metal_chain_d
+	specularmap		textures/darkages/metal_chain_s
+	twoSided
+	alphaTest 0.5
+}
+
+textures/darkages/metal_armor_plate {
+	qer_editorimage	textures/darkages/metal_armor_plate_d
+	bumpmap			textures/darkages/metal_armor_plate_n
+	diffusemap		textures/darkages/metal_armor_plate_d
+	specularmap		textures/darkages/metal_armor_plate_s
+}
+
+textures/darkages/metal_blood_stained {
+	qer_editorimage	textures/darkages/metal_blood_stained_d
+	bumpmap			textures/darkages/metal_blood_stained_n
+	diffusemap		textures/darkages/metal_blood_stained_d
+	specularmap		textures/darkages/metal_blood_stained_s
+}
+
+// ============================================================================
+// WOOD MATERIALS
+// ============================================================================
+
+textures/darkages/wood_dark_planks {
+	qer_editorimage	textures/darkages/wood_dark_planks_d
+	bumpmap			textures/darkages/wood_dark_planks_n
+	diffusemap		textures/darkages/wood_dark_planks_d
+	specularmap		textures/darkages/wood_dark_planks_s
+}
+
+textures/darkages/wood_old_door {
+	qer_editorimage	textures/darkages/wood_old_door_d
+	bumpmap			textures/darkages/wood_old_door_n
+	diffusemap		textures/darkages/wood_old_door_d
+	specularmap		textures/darkages/wood_old_door_s
+}
+
+textures/darkages/wood_charred {
+	qer_editorimage	textures/darkages/wood_charred_d
+	bumpmap			textures/darkages/wood_charred_n
+	diffusemap		textures/darkages/wood_charred_d
+}
+
+textures/darkages/wood_scaffold {
+	qer_editorimage	textures/darkages/wood_scaffold_d
+	bumpmap			textures/darkages/wood_scaffold_n
+	diffusemap		textures/darkages/wood_scaffold_d
+	specularmap		textures/darkages/wood_scaffold_s
+}
+
+// ============================================================================
+// ORGANIC / TERRAIN MATERIALS
+// ============================================================================
+
+textures/darkages/ground_dirt {
+	qer_editorimage	textures/darkages/ground_dirt_d
+	bumpmap			textures/darkages/ground_dirt_n
+	diffusemap		textures/darkages/ground_dirt_d
+}
+
+textures/darkages/ground_mud_blood {
+	qer_editorimage	textures/darkages/ground_mud_blood_d
+	bumpmap			textures/darkages/ground_mud_blood_n
+	diffusemap		textures/darkages/ground_mud_blood_d
+	specularmap		textures/darkages/ground_mud_blood_s
+}
+
+textures/darkages/ground_bone_debris {
+	qer_editorimage	textures/darkages/ground_bone_debris_d
+	bumpmap			textures/darkages/ground_bone_debris_n
+	diffusemap		textures/darkages/ground_bone_debris_d
+}
+
+textures/darkages/ground_snow_bloody {
+	qer_editorimage	textures/darkages/ground_snow_bloody_d
+	bumpmap			textures/darkages/ground_snow_bloody_n
+	diffusemap		textures/darkages/ground_snow_bloody_d
+	specularmap		textures/darkages/ground_snow_bloody_s
+}
+
+textures/darkages/ground_ash {
+	qer_editorimage	textures/darkages/ground_ash_d
+	bumpmap			textures/darkages/ground_ash_n
+	diffusemap		textures/darkages/ground_ash_d
+}
+
+// ============================================================================
+// SPECIAL EFFECTS MATERIALS
+// ============================================================================
+
+textures/darkages/lava_flow {
+	qer_editorimage	textures/darkages/lava_flow_d
+	nonsolid
+	noimpact
+	{
+		blend		add
+		map			textures/darkages/lava_flow_d
+		scroll		time * 0.02 , time * 0.01
+		rgb			2
+	}
+	{
+		blend		add
+		map			textures/darkages/lava_glow
+		scroll		time * -0.01 , time * 0.015
+		rgb			parm0
+	}
+}
+
+textures/darkages/blood_pool {
+	qer_editorimage	textures/darkages/blood_pool_d
+	nonsolid
+	{
+		blend		blend
+		map			textures/darkages/blood_pool_d
+		scroll		time * 0.005 , time * 0.003
+		alpha		0.9
+	}
+}
+
+textures/darkages/water_dark {
+	qer_editorimage	textures/darkages/water_dark_d
+	nonsolid
+	water
+	{
+		blend		blend
+		map			textures/darkages/water_dark_d
+		scroll		time * 0.01 , time * 0.008
+		alpha		0.7
+	}
+}
+
+textures/darkages/portal_hell {
+	qer_editorimage	textures/darkages/portal_hell_d
+	nonsolid
+	{
+		blend		add
+		map			textures/darkages/portal_hell_d
+		rotate		time * 0.1
+		rgb			1.5
+		red			parm0
+	}
+}
+
+textures/darkages/fire_torch {
+	qer_editorimage	textures/darkages/fire_torch_d
+	nonsolid
+	twoSided
+	{
+		blend		add
+		map			textures/darkages/fire_torch_d
+		scroll		0 , time * -2
+		rgb			2
+	}
+}
+
+textures/darkages/crystal_dark {
+	qer_editorimage	textures/darkages/crystal_dark_d
+	translucent
+	{
+		blend		blend
+		map			textures/darkages/crystal_dark_d
+		alpha		0.6
+	}
+	{
+		blend		add
+		map			textures/darkages/crystal_dark_glow
+		rgb			sinTable[ time * 0.5 ] * 0.5 + 0.5
+	}
+}
+
+// ============================================================================
+// SKY MATERIALS
+// ============================================================================
+
+textures/darkages/sky_overcast {
+	qer_editorimage	textures/darkages/sky_overcast_d
+	noShadows
+	forceOpaque
+	{
+		blend		diffusemap
+		map			textures/darkages/sky_overcast_d
+		scroll		time * 0.001 , 0
+	}
+}
+
+textures/darkages/sky_burning {
+	qer_editorimage	textures/darkages/sky_burning_d
+	noShadows
+	forceOpaque
+	{
+		blend		diffusemap
+		map			textures/darkages/sky_burning_d
+	}
+	{
+		blend		add
+		map			textures/darkages/sky_burning_embers
+		scroll		time * 0.005 , time * 0.02
+		rgb			0.5
+	}
+}
+
+textures/darkages/sky_hell {
+	qer_editorimage	textures/darkages/sky_hell_d
+	noShadows
+	forceOpaque
+	{
+		blend		diffusemap
+		map			textures/darkages/sky_hell_d
+	}
+	{
+		blend		add
+		map			textures/darkages/sky_hell_lightning
+		rgb			sinTable[ time * 2 ] > 0.9 ? 2 : 0
+	}
+}
+
+textures/darkages/sky_night {
+	qer_editorimage	textures/darkages/sky_night_d
+	noShadows
+	forceOpaque
+	{
+		blend		diffusemap
+		map			textures/darkages/sky_night_d
+	}
+}
+
+// ============================================================================
+// DECAL MATERIALS
+// ============================================================================
+
+textures/darkages/decal_blood_splatter {
+	qer_editorimage	textures/darkages/decal_blood_splatter_d
+	nonsolid
+	noimpact
+	noShadows
+	polygonOffset
+	{
+		blend		blend
+		map			textures/darkages/decal_blood_splatter_d
+		alphaTest	0.5
+	}
+}
+
+textures/darkages/decal_slash_mark {
+	qer_editorimage	textures/darkages/decal_slash_mark_d
+	nonsolid
+	noimpact
+	noShadows
+	polygonOffset
+	{
+		blend		blend
+		map			textures/darkages/decal_slash_mark_d
+		alphaTest	0.5
+	}
+}
+
+textures/darkages/decal_rune_glow {
+	qer_editorimage	textures/darkages/decal_rune_glow_d
+	nonsolid
+	noimpact
+	noShadows
+	polygonOffset
+	{
+		blend		add
+		map			textures/darkages/decal_rune_glow_d
+		rgb			sinTable[ time * 0.5 ] * 0.5 + 0.5
+		red			1
+		green		0.3
+		blue		0
+	}
+}

@@ -59,13 +59,19 @@ If you have questions concerning this license or the applicable additional terms
 #endif /* !GAME_DLL */
 #endif /* !_D3SDK */
 
+#ifdef _MSC_VER
 #include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
+#else
+#include <x86intrin.h>
+#endif
 
+#ifdef _MSC_VER
 #pragma warning(disable : 4100)				// unreferenced formal parameter
 #pragma warning(disable : 4127)				// conditional expression is constant
 #pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
 #pragma warning(disable : 4714)				// function marked as __forceinline not inlined
 #pragma warning(disable : 4996)				// unsafe string operations
+#endif
 
 #include <malloc.h>							// no malloc.h on mac or unix
 #include <windows.h>						// for qgl.h

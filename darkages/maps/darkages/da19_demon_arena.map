@@ -1,0 +1,594 @@
+Version 2
+// DOOM: The Dark Ages - Level 19: The Demon Arena
+// entity 0 - worldspawn
+{
+"classname" "worldspawn"
+"name" "da19_demon_arena"
+"message" "The Demon Arena"
+"music" "music/darkages/da19_demon_arena"
+"ambientColor" "0.12 0.05 0.03"
+"_color" "0.3 0.1 0.05"
+"darkages_level" "19"
+"darkages_act" "3"
+"darkages_fog_color" "0.3 0.1 0.05"
+"darkages_fog_distance" "3072"
+
+// Floor
+{
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) "textures/darkages/ground_bone_debris" 0 0 0 0.5 0.5 0 0 0
+( 0 0 -16 ) ( 0 1 -16 ) ( 1 0 -16 ) "textures/darkages/ground_bone_debris" 0 0 0 0.5 0.5 0 0 0
+( -3072 0 0 ) ( -3072 0 -16 ) ( -3072 1 0 ) "textures/darkages/ground_bone_debris" 0 0 0 0.5 0.5 0 0 0
+( 3072 0 0 ) ( 3072 1 0 ) ( 3072 0 -16 ) "textures/darkages/ground_bone_debris" 0 0 0 0.5 0.5 0 0 0
+( 0 -3072 0 ) ( 1 -3072 0 ) ( 0 -3072 -16 ) "textures/darkages/ground_bone_debris" 0 0 0 0.5 0.5 0 0 0
+( 0 3072 0 ) ( 0 3072 -16 ) ( 1 3072 0 ) "textures/darkages/ground_bone_debris" 0 0 0 0.5 0.5 0 0 0
+}
+// North wall
+{
+( -3072 3072 0 ) ( 3072 3072 0 ) ( -3072 3072 384 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3088 0 ) ( -3072 3088 384 ) ( 3072 3088 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3072 0 ) ( -3072 3088 0 ) ( 3072 3072 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3072 384 ) ( 3072 3072 384 ) ( -3072 3088 384 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3072 0 ) ( -3072 3072 384 ) ( -3072 3088 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 3072 3072 0 ) ( 3072 3088 0 ) ( 3072 3072 384 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+// South wall
+{
+( -3072 3072 0 ) ( 3072 3072 0 ) ( -3072 3072 384 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3088 0 ) ( -3072 3088 384 ) ( 3072 3088 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3072 0 ) ( -3072 3088 0 ) ( 3072 3072 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3072 384 ) ( 3072 3072 384 ) ( -3072 3088 384 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -3072 3072 0 ) ( -3072 3072 384 ) ( -3072 3088 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 3072 3072 0 ) ( 3072 3088 0 ) ( 3072 3072 384 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+// Ceiling
+{
+( -3072 -3072 640 ) ( 3072 -3072 640 ) ( -3072 3072 640 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3072 -3072 656 ) ( -3072 3072 656 ) ( 3072 -3072 656 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3072 -3072 640 ) ( -3072 3072 640 ) ( -3072 -3072 656 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( 3072 -3072 640 ) ( 3072 -3072 656 ) ( 3072 3072 640 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3072 -3072 640 ) ( -3072 -3072 656 ) ( 3072 -3072 640 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3072 3072 640 ) ( 3072 3072 640 ) ( -3072 3072 656 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+}
+// Structure 1
+{
+( -780 -1198 0 ) ( -637 -1198 0 ) ( -780 -1198 138 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -780 -958 0 ) ( -780 -958 138 ) ( -637 -958 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -780 -1198 0 ) ( -780 -958 0 ) ( -637 -1198 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -780 -1198 138 ) ( -637 -1198 138 ) ( -780 -958 138 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -780 -1198 0 ) ( -780 -1198 138 ) ( -780 -958 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -637 -1198 0 ) ( -637 -958 0 ) ( -637 -1198 138 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 2
+{
+( 101 -616 0 ) ( 376 -616 0 ) ( 101 -616 263 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 101 -402 0 ) ( 101 -402 263 ) ( 376 -402 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 101 -616 0 ) ( 101 -402 0 ) ( 376 -616 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 101 -616 263 ) ( 376 -616 263 ) ( 101 -402 263 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 101 -616 0 ) ( 101 -616 263 ) ( 101 -402 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 376 -616 0 ) ( 376 -402 0 ) ( 376 -616 263 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 3
+{
+( 1907 715 0 ) ( 2296 715 0 ) ( 1907 715 210 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1907 900 0 ) ( 1907 900 210 ) ( 2296 900 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1907 715 0 ) ( 1907 900 0 ) ( 2296 715 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1907 715 210 ) ( 2296 715 210 ) ( 1907 900 210 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1907 715 0 ) ( 1907 715 210 ) ( 1907 900 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 2296 715 0 ) ( 2296 900 0 ) ( 2296 715 210 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 4
+{
+( 44 688 0 ) ( 359 688 0 ) ( 44 688 258 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 44 837 0 ) ( 44 837 258 ) ( 359 837 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 44 688 0 ) ( 44 837 0 ) ( 359 688 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 44 688 258 ) ( 359 688 258 ) ( 44 837 258 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 44 688 0 ) ( 44 688 258 ) ( 44 837 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 359 688 0 ) ( 359 837 0 ) ( 359 688 258 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 5
+{
+( -360 205 0 ) ( -180 205 0 ) ( -360 205 140 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -360 459 0 ) ( -360 459 140 ) ( -180 459 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -360 205 0 ) ( -360 459 0 ) ( -180 205 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -360 205 140 ) ( -180 205 140 ) ( -360 459 140 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -360 205 0 ) ( -360 205 140 ) ( -360 459 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -180 205 0 ) ( -180 459 0 ) ( -180 205 140 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 6
+{
+( 1534 -460 0 ) ( 1840 -460 0 ) ( 1534 -460 176 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1534 -288 0 ) ( 1534 -288 176 ) ( 1840 -288 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1534 -460 0 ) ( 1534 -288 0 ) ( 1840 -460 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1534 -460 176 ) ( 1840 -460 176 ) ( 1534 -288 176 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1534 -460 0 ) ( 1534 -460 176 ) ( 1534 -288 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 1840 -460 0 ) ( 1840 -288 0 ) ( 1840 -460 176 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 7
+{
+( -209 -677 0 ) ( 98 -677 0 ) ( -209 -677 106 ) "textures/darkages/ground_bone_debris" 0 0 0 0.25 0.25 0 0 0
+( -209 -330 0 ) ( -209 -330 106 ) ( 98 -330 0 ) "textures/darkages/ground_bone_debris" 0 0 0 0.25 0.25 0 0 0
+( -209 -677 0 ) ( -209 -330 0 ) ( 98 -677 0 ) "textures/darkages/ground_bone_debris" 0 0 0 0.25 0.25 0 0 0
+( -209 -677 106 ) ( 98 -677 106 ) ( -209 -330 106 ) "textures/darkages/ground_bone_debris" 0 0 0 0.25 0.25 0 0 0
+( -209 -677 0 ) ( -209 -677 106 ) ( -209 -330 0 ) "textures/darkages/ground_bone_debris" 0 0 0 0.25 0.25 0 0 0
+( 98 -677 0 ) ( 98 -330 0 ) ( 98 -677 106 ) "textures/darkages/ground_bone_debris" 0 0 0 0.25 0.25 0 0 0
+}
+}
+
+// entity 1 - Player spawn
+{
+"classname" "info_player_start"
+"name" "info_player_start_1"
+"origin" "0 -2872 24"
+"angle" "90"
+}
+
+// entity 2 - Light
+{
+"classname" "light"
+"name" "light_1"
+"origin" "-765 -762 270"
+"_color" "0.53 0.38 0.08"
+"light" "475"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 3 - Light
+{
+"classname" "light"
+"name" "light_2"
+"origin" "-1078 194 244"
+"_color" "0.65 0.49 0.29"
+"light" "463"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 4 - Light
+{
+"classname" "light"
+"name" "light_3"
+"origin" "-1677 -1347 256"
+"_color" "0.89 0.66 0.3"
+"light" "535"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 5 - Light
+{
+"classname" "light"
+"name" "light_4"
+"origin" "-1418 -1370 127"
+"_color" "0.57 0.36 0.07"
+"light" "546"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 6 - Light
+{
+"classname" "light"
+"name" "light_5"
+"origin" "760 1552 100"
+"_color" "0.79 0.33 0.12"
+"light" "431"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 7 - Light
+{
+"classname" "light"
+"name" "light_6"
+"origin" "-1839 -1695 167"
+"_color" "0.76 0.34 0.28"
+"light" "388"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 8 - Light
+{
+"classname" "light"
+"name" "light_7"
+"origin" "1267 1541 147"
+"_color" "0.79 0.63 0.25"
+"light" "247"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 9 - Light
+{
+"classname" "light"
+"name" "light_8"
+"origin" "1298 477 281"
+"_color" "0.53 0.47 0.07"
+"light" "419"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 10 - Light
+{
+"classname" "light"
+"name" "light_9"
+"origin" "-722 1595 132"
+"_color" "0.66 0.34 0.16"
+"light" "266"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 11 - Light
+{
+"classname" "light"
+"name" "light_10"
+"origin" "2180 1518 265"
+"_color" "0.67 0.54 0.01"
+"light" "250"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 12 - Light
+{
+"classname" "light"
+"name" "light_11"
+"origin" "1307 -2324 95"
+"_color" "0.96 0.28 0.14"
+"light" "419"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 13 - Light
+{
+"classname" "light"
+"name" "light_12"
+"origin" "-800 -1377 289"
+"_color" "0.82 0.28 0.28"
+"light" "340"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 14 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_1_da19_demon_arena"
+"origin" "-1386 1145 0"
+"angle" "184"
+}
+
+// entity 15 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_2_da19_demon_arena"
+"origin" "-99 -1199 0"
+"angle" "190"
+}
+
+// entity 16 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_3_da19_demon_arena"
+"origin" "-795 -1324 0"
+"angle" "202"
+}
+
+// entity 17 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_4_da19_demon_arena"
+"origin" "352 1437 0"
+"angle" "358"
+}
+
+// entity 18 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_5_da19_demon_arena"
+"origin" "-232 222 0"
+"angle" "335"
+}
+
+// entity 19 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_6_da19_demon_arena"
+"origin" "-1403 1346 0"
+"angle" "48"
+}
+
+// entity 20 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_7_da19_demon_arena"
+"origin" "-2142 -662 0"
+"angle" "244"
+}
+
+// entity 21 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_8_da19_demon_arena"
+"origin" "-1512 -993 0"
+"angle" "303"
+}
+
+// entity 22 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_9_da19_demon_arena"
+"origin" "-298 591 0"
+"angle" "348"
+}
+
+// entity 23 - undead_soldier
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_10_da19_demon_arena"
+"origin" "1495 -1498 0"
+"angle" "4"
+}
+
+// entity 24 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_1_da19_demon_arena"
+"origin" "664 1810 0"
+"angle" "61"
+}
+
+// entity 25 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_2_da19_demon_arena"
+"origin" "1309 1306 0"
+"angle" "67"
+}
+
+// entity 26 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_3_da19_demon_arena"
+"origin" "1763 -1246 0"
+"angle" "117"
+}
+
+// entity 27 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_4_da19_demon_arena"
+"origin" "988 -1171 0"
+"angle" "52"
+}
+
+// entity 28 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_5_da19_demon_arena"
+"origin" "-1305 -253 0"
+"angle" "188"
+}
+
+// entity 29 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_6_da19_demon_arena"
+"origin" "301 -975 0"
+"angle" "195"
+}
+
+// entity 30 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_7_da19_demon_arena"
+"origin" "-1060 1091 0"
+"angle" "346"
+}
+
+// entity 31 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_8_da19_demon_arena"
+"origin" "-980 -1256 0"
+"angle" "271"
+}
+
+// entity 32 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_1_da19_demon_arena"
+"origin" "-2081 963 0"
+"angle" "332"
+}
+
+// entity 33 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_2_da19_demon_arena"
+"origin" "-806 266 0"
+"angle" "179"
+}
+
+// entity 34 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_3_da19_demon_arena"
+"origin" "-405 1036 0"
+"angle" "77"
+}
+
+// entity 35 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_4_da19_demon_arena"
+"origin" "1222 987 0"
+"angle" "351"
+}
+
+// entity 36 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_5_da19_demon_arena"
+"origin" "1474 1986 0"
+"angle" "111"
+}
+
+// entity 37 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_6_da19_demon_arena"
+"origin" "-1440 2136 0"
+"angle" "51"
+}
+
+// entity 38 - siege_demon
+{
+"classname" "monster_darkages_siege_demon"
+"name" "siege_demon_1_da19_demon_arena"
+"origin" "-1004 1546 0"
+"angle" "63"
+}
+
+// entity 39 - siege_demon
+{
+"classname" "monster_darkages_siege_demon"
+"name" "siege_demon_2_da19_demon_arena"
+"origin" "995 -97 0"
+"angle" "219"
+}
+
+// entity 40 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_1_da19_demon_arena"
+"origin" "426 1704 0"
+"angle" "71"
+}
+
+// entity 41 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_2_da19_demon_arena"
+"origin" "-121 -402 0"
+"angle" "330"
+}
+
+// entity 42 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_3_da19_demon_arena"
+"origin" "-1460 -520 0"
+"angle" "283"
+}
+
+// entity 43 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_1_da19_demon_arena"
+"origin" "184 1654 0"
+"angle" "353"
+}
+
+// entity 44 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_2_da19_demon_arena"
+"origin" "-1931 1936 0"
+"angle" "337"
+}
+
+// entity 45 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_3_da19_demon_arena"
+"origin" "321 -695 0"
+"angle" "265"
+}
+
+// entity 46 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_4_da19_demon_arena"
+"origin" "2024 -764 0"
+"angle" "200"
+}
+
+// entity 47 - Item
+{
+"classname" "item_darkages_armor_shard"
+"name" "item_1_da19_demon_arena"
+"origin" "-1703 -190 0"
+}
+
+// entity 48 - Item
+{
+"classname" "item_darkages_health_medium"
+"name" "item_2_da19_demon_arena"
+"origin" "1011 -1227 0"
+}
+
+// entity 49 - Item
+{
+"classname" "item_darkages_armor_chainmail"
+"name" "item_3_da19_demon_arena"
+"origin" "1942 -1569 0"
+}
+
+// entity 50 - Item
+{
+"classname" "item_darkages_health_large"
+"name" "item_4_da19_demon_arena"
+"origin" "-2052 808 0"
+}
+
+// entity 51 - Item
+{
+"classname" "item_darkages_throwaxes"
+"name" "item_5_da19_demon_arena"
+"origin" "-1069 1018 0"
+}
+
+// entity 52 - Item
+{
+"classname" "item_darkages_armor_chainmail"
+"name" "item_6_da19_demon_arena"
+"origin" "1297 843 0"
+}
+
+// entity 53 - Item
+{
+"classname" "item_darkages_throwaxes"
+"name" "item_7_da19_demon_arena"
+"origin" "-735 1708 0"
+}
+
+// entity 54 - Item
+{
+"classname" "item_darkages_armor_chainmail"
+"name" "item_8_da19_demon_arena"
+"origin" "-1553 -2014 0"
+}
+
+// entity 55 - Item
+{
+"classname" "item_darkages_health_large"
+"name" "item_9_da19_demon_arena"
+"origin" "-1597 -2038 0"
+}
+
+// entity 56 - Weapon pickup
+{
+"classname" "weapon_darkages_flail"
+"name" "weapon_pickup_da19_demon_arena"
+"origin" "-480 -840 24"
+}
+
+// entity 57 - Level exit
+{
+"classname" "trigger_once"
+"name" "level_exit"
+"origin" "0 3022 32"
+"mins" "-128 -16 0"
+"maxs" "128 16 128"
+"target" "target_endlevel"
+}
+
+// entity 58 - End level target
+{
+"classname" "target_endlevel"
+"name" "target_endlevel"
+"nextMap" "maps/darkages/da20_tower_of_despair"
+}

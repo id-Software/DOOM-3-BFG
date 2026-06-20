@@ -34,14 +34,19 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#ifdef DARKAGES_BUILD
+#define GAME_NAME						"DOOM: The Dark Ages"		// appears on window titles and errors
+#define SAVE_PATH						"\\id Software\\DOOM Dark Ages"
+#define ENGINE_VERSION					"DarkAges 1.0"	// printed in console
+#define	BASE_GAMEDIR					"darkages"
+#define CONFIG_FILE						"DarkAgesConfig.cfg"
+#else
 #define GAME_NAME						"DOOM 3: BFG Edition"		// appears on window titles and errors
 #define SAVE_PATH						"\\id Software\\DOOM 3 BFG"
-
 #define ENGINE_VERSION					"D3BFG 1"	// printed in console
-
 #define	BASE_GAMEDIR					"base"
-
 #define CONFIG_FILE						"D3BFGConfig.cfg"
+#endif
 
 // see ASYNC_PROTOCOL_VERSION
 // use a different major for each game
@@ -53,6 +58,12 @@ If you have questions concerning this license or the applicable additional terms
 #define RENDERDEMO_VERSION				3
 
 // win32 info
+#ifdef DARKAGES_BUILD
+#define WIN32_CONSOLE_CLASS				"DarkAges_WinConsole"
+#define	WIN32_WINDOW_CLASS_NAME			"DarkAges"
+#define	WIN32_FAKE_WINDOW_CLASS_NAME	"DarkAges_WGL_FAKE"
+#else
 #define WIN32_CONSOLE_CLASS				"D3BFG_WinConsole"
 #define	WIN32_WINDOW_CLASS_NAME			"D3BFG"
 #define	WIN32_FAKE_WINDOW_CLASS_NAME	"D3BFG_WGL_FAKE"
+#endif

@@ -1,0 +1,493 @@
+Version 2
+// DOOM: The Dark Ages - Level 23: Fortress of Doom
+// entity 0 - worldspawn
+{
+"classname" "worldspawn"
+"name" "da23_fortress_of_doom"
+"message" "Fortress of Doom"
+"music" "music/darkages/da23_fortress_of_doom"
+"ambientColor" "0.15 0.04 0.02"
+"_color" "0.4 0.08 0.02"
+"darkages_level" "23"
+"darkages_act" "4"
+"darkages_fog_color" "0.4 0.08 0.02"
+"darkages_fog_distance" "3584"
+
+// Floor
+{
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) "textures/darkages/ground_ash" 0 0 0 0.5 0.5 0 0 0
+( 0 0 -16 ) ( 0 1 -16 ) ( 1 0 -16 ) "textures/darkages/ground_ash" 0 0 0 0.5 0.5 0 0 0
+( -3584 0 0 ) ( -3584 0 -16 ) ( -3584 1 0 ) "textures/darkages/ground_ash" 0 0 0 0.5 0.5 0 0 0
+( 3584 0 0 ) ( 3584 1 0 ) ( 3584 0 -16 ) "textures/darkages/ground_ash" 0 0 0 0.5 0.5 0 0 0
+( 0 -3584 0 ) ( 1 -3584 0 ) ( 0 -3584 -16 ) "textures/darkages/ground_ash" 0 0 0 0.5 0.5 0 0 0
+( 0 3584 0 ) ( 0 3584 -16 ) ( 1 3584 0 ) "textures/darkages/ground_ash" 0 0 0 0.5 0.5 0 0 0
+}
+// North wall
+{
+( -3584 3584 0 ) ( 3584 3584 0 ) ( -3584 3584 512 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3600 0 ) ( -3584 3600 512 ) ( 3584 3600 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3584 0 ) ( -3584 3600 0 ) ( 3584 3584 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3584 512 ) ( 3584 3584 512 ) ( -3584 3600 512 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3584 0 ) ( -3584 3584 512 ) ( -3584 3600 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( 3584 3584 0 ) ( 3584 3600 0 ) ( 3584 3584 512 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+}
+// South wall
+{
+( -3584 3584 0 ) ( 3584 3584 0 ) ( -3584 3584 512 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3600 0 ) ( -3584 3600 512 ) ( 3584 3600 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3584 0 ) ( -3584 3600 0 ) ( 3584 3584 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3584 512 ) ( 3584 3584 512 ) ( -3584 3600 512 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -3584 3584 0 ) ( -3584 3584 512 ) ( -3584 3600 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( 3584 3584 0 ) ( 3584 3600 0 ) ( 3584 3584 512 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+}
+// Ceiling
+{
+( -3584 -3584 768 ) ( 3584 -3584 768 ) ( -3584 3584 768 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3584 -3584 784 ) ( -3584 3584 784 ) ( 3584 -3584 784 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3584 -3584 768 ) ( -3584 3584 768 ) ( -3584 -3584 784 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( 3584 -3584 768 ) ( 3584 -3584 784 ) ( 3584 3584 768 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3584 -3584 768 ) ( -3584 -3584 784 ) ( 3584 -3584 768 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+( -3584 3584 768 ) ( 3584 3584 768 ) ( -3584 3584 784 ) "textures/darkages/sky_hell" 0 0 0 0.5 0.5 0 0 0
+}
+// Structure 1
+{
+( 2478 996 0 ) ( 2811 996 0 ) ( 2478 996 266 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 2478 1143 0 ) ( 2478 1143 266 ) ( 2811 1143 0 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 2478 996 0 ) ( 2478 1143 0 ) ( 2811 996 0 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 2478 996 266 ) ( 2811 996 266 ) ( 2478 1143 266 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 2478 996 0 ) ( 2478 996 266 ) ( 2478 1143 0 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 2811 996 0 ) ( 2811 1143 0 ) ( 2811 996 266 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 2
+{
+( -562 -1591 0 ) ( -191 -1591 0 ) ( -562 -1591 254 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -562 -1326 0 ) ( -562 -1326 254 ) ( -191 -1326 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -562 -1591 0 ) ( -562 -1326 0 ) ( -191 -1591 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -562 -1591 254 ) ( -191 -1591 254 ) ( -562 -1326 254 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -562 -1591 0 ) ( -562 -1591 254 ) ( -562 -1326 0 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+( -191 -1591 0 ) ( -191 -1326 0 ) ( -191 -1591 254 ) "textures/darkages/metal_iron_dark" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 3
+{
+( 259 1556 0 ) ( 542 1556 0 ) ( 259 1556 207 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 259 1843 0 ) ( 259 1843 207 ) ( 542 1843 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 259 1556 0 ) ( 259 1843 0 ) ( 542 1556 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 259 1556 207 ) ( 542 1556 207 ) ( 259 1843 207 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 259 1556 0 ) ( 259 1556 207 ) ( 259 1843 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 542 1556 0 ) ( 542 1843 0 ) ( 542 1556 207 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 4
+{
+( -1704 1767 0 ) ( -1460 1767 0 ) ( -1704 1767 217 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( -1704 1963 0 ) ( -1704 1963 217 ) ( -1460 1963 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( -1704 1767 0 ) ( -1704 1963 0 ) ( -1460 1767 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( -1704 1767 217 ) ( -1460 1767 217 ) ( -1704 1963 217 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( -1704 1767 0 ) ( -1704 1767 217 ) ( -1704 1963 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( -1460 1767 0 ) ( -1460 1963 0 ) ( -1460 1767 217 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+}
+// Structure 5
+{
+( 120 -689 0 ) ( 461 -689 0 ) ( 120 -689 160 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 120 -516 0 ) ( 120 -516 160 ) ( 461 -516 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 120 -689 0 ) ( 120 -516 0 ) ( 461 -689 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 120 -689 160 ) ( 461 -689 160 ) ( 120 -516 160 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 120 -689 0 ) ( 120 -689 160 ) ( 120 -516 0 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 461 -689 0 ) ( 461 -516 0 ) ( 461 -689 160 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+}
+}
+
+// entity 1 - Player spawn
+{
+"classname" "info_player_start"
+"name" "info_player_start_1"
+"origin" "0 -3384 24"
+"angle" "90"
+}
+
+// entity 2 - Light
+{
+"classname" "light"
+"name" "light_1"
+"origin" "468 1101 328"
+"_color" "0.93 0.61 0.15"
+"light" "281"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 3 - Light
+{
+"classname" "light"
+"name" "light_2"
+"origin" "-2330 -319 323"
+"_color" "0.7 0.59 0.16"
+"light" "491"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 4 - Light
+{
+"classname" "light"
+"name" "light_3"
+"origin" "-2630 -1444 162"
+"_color" "0.94 0.3 0.02"
+"light" "216"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 5 - Light
+{
+"classname" "light"
+"name" "light_4"
+"origin" "872 -2453 248"
+"_color" "0.85 0.34 0.25"
+"light" "458"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 6 - Light
+{
+"classname" "light"
+"name" "light_5"
+"origin" "384 2338 127"
+"_color" "0.84 0.32 0.15"
+"light" "428"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 7 - Light
+{
+"classname" "light"
+"name" "light_6"
+"origin" "-1413 1020 364"
+"_color" "0.78 0.37 0.25"
+"light" "332"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 8 - Light
+{
+"classname" "light"
+"name" "light_7"
+"origin" "2776 -2127 209"
+"_color" "0.51 0.22 0.26"
+"light" "599"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 9 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_1_da23_fortress_of_doom"
+"origin" "-753 21 0"
+"angle" "331"
+}
+
+// entity 10 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_2_da23_fortress_of_doom"
+"origin" "-664 -99 0"
+"angle" "137"
+}
+
+// entity 11 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_3_da23_fortress_of_doom"
+"origin" "846 2412 0"
+"angle" "10"
+}
+
+// entity 12 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_4_da23_fortress_of_doom"
+"origin" "-2436 2091 0"
+"angle" "67"
+}
+
+// entity 13 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_5_da23_fortress_of_doom"
+"origin" "-1090 -1723 0"
+"angle" "114"
+}
+
+// entity 14 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_6_da23_fortress_of_doom"
+"origin" "-441 710 0"
+"angle" "329"
+}
+
+// entity 15 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_7_da23_fortress_of_doom"
+"origin" "-253 1679 0"
+"angle" "192"
+}
+
+// entity 16 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_8_da23_fortress_of_doom"
+"origin" "348 1968 0"
+"angle" "129"
+}
+
+// entity 17 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_9_da23_fortress_of_doom"
+"origin" "-721 2031 0"
+"angle" "154"
+}
+
+// entity 18 - dark_knight
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_10_da23_fortress_of_doom"
+"origin" "1757 1461 0"
+"angle" "299"
+}
+
+// entity 19 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_1_da23_fortress_of_doom"
+"origin" "-1670 -1732 0"
+"angle" "261"
+}
+
+// entity 20 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_2_da23_fortress_of_doom"
+"origin" "557 523 0"
+"angle" "152"
+}
+
+// entity 21 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_3_da23_fortress_of_doom"
+"origin" "-1623 2154 0"
+"angle" "32"
+}
+
+// entity 22 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_4_da23_fortress_of_doom"
+"origin" "246 472 0"
+"angle" "327"
+}
+
+// entity 23 - irongolem
+{
+"classname" "monster_darkages_irongolem"
+"name" "irongolem_5_da23_fortress_of_doom"
+"origin" "155 476 0"
+"angle" "133"
+}
+
+// entity 24 - siege_demon
+{
+"classname" "monster_darkages_siege_demon"
+"name" "siege_demon_1_da23_fortress_of_doom"
+"origin" "-61 -249 0"
+"angle" "76"
+}
+
+// entity 25 - siege_demon
+{
+"classname" "monster_darkages_siege_demon"
+"name" "siege_demon_2_da23_fortress_of_doom"
+"origin" "1729 176 0"
+"angle" "29"
+}
+
+// entity 26 - siege_demon
+{
+"classname" "monster_darkages_siege_demon"
+"name" "siege_demon_3_da23_fortress_of_doom"
+"origin" "2407 1518 0"
+"angle" "338"
+}
+
+// entity 27 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_1_da23_fortress_of_doom"
+"origin" "110 -646 0"
+"angle" "13"
+}
+
+// entity 28 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_2_da23_fortress_of_doom"
+"origin" "1566 629 0"
+"angle" "132"
+}
+
+// entity 29 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_3_da23_fortress_of_doom"
+"origin" "920 1522 0"
+"angle" "198"
+}
+
+// entity 30 - sorcerer
+{
+"classname" "monster_darkages_sorcerer"
+"name" "sorcerer_4_da23_fortress_of_doom"
+"origin" "-2219 -237 0"
+"angle" "175"
+}
+
+// entity 31 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_1_da23_fortress_of_doom"
+"origin" "-687 2105 0"
+"angle" "343"
+}
+
+// entity 32 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_2_da23_fortress_of_doom"
+"origin" "428 2363 0"
+"angle" "153"
+}
+
+// entity 33 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_3_da23_fortress_of_doom"
+"origin" "-1116 -309 0"
+"angle" "150"
+}
+
+// entity 34 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_4_da23_fortress_of_doom"
+"origin" "-1709 2064 0"
+"angle" "65"
+}
+
+// entity 35 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_5_da23_fortress_of_doom"
+"origin" "-390 -293 0"
+"angle" "348"
+}
+
+// entity 36 - hellhound
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_6_da23_fortress_of_doom"
+"origin" "241 -1061 0"
+"angle" "113"
+}
+
+// entity 37 - Item
+{
+"classname" "item_darkages_armor_shard"
+"name" "item_1_da23_fortress_of_doom"
+"origin" "-679 7 0"
+}
+
+// entity 38 - Item
+{
+"classname" "item_darkages_health_large"
+"name" "item_2_da23_fortress_of_doom"
+"origin" "206 536 0"
+}
+
+// entity 39 - Item
+{
+"classname" "item_darkages_armor_shard"
+"name" "item_3_da23_fortress_of_doom"
+"origin" "2288 -100 0"
+}
+
+// entity 40 - Item
+{
+"classname" "item_darkages_health_small"
+"name" "item_4_da23_fortress_of_doom"
+"origin" "-1544 1346 0"
+}
+
+// entity 41 - Item
+{
+"classname" "item_darkages_armor_chainmail"
+"name" "item_5_da23_fortress_of_doom"
+"origin" "2272 2245 0"
+}
+
+// entity 42 - Item
+{
+"classname" "item_darkages_health_medium"
+"name" "item_6_da23_fortress_of_doom"
+"origin" "-1925 1360 0"
+}
+
+// entity 43 - Item
+{
+"classname" "item_darkages_throwaxes"
+"name" "item_7_da23_fortress_of_doom"
+"origin" "1591 -1527 0"
+}
+
+// entity 44 - Item
+{
+"classname" "item_darkages_health_large"
+"name" "item_8_da23_fortress_of_doom"
+"origin" "618 1832 0"
+}
+
+// entity 45 - Item
+{
+"classname" "item_darkages_throwaxes"
+"name" "item_9_da23_fortress_of_doom"
+"origin" "876 -2066 0"
+}
+
+// entity 46 - Item
+{
+"classname" "item_darkages_health_medium"
+"name" "item_10_da23_fortress_of_doom"
+"origin" "-1273 -1383 0"
+}
+
+// entity 47 - Weapon pickup
+{
+"classname" "weapon_darkages_axe"
+"name" "weapon_pickup_da23_fortress_of_doom"
+"origin" "328 601 24"
+}
+
+// entity 48 - Level exit
+{
+"classname" "trigger_once"
+"name" "level_exit"
+"origin" "0 3534 32"
+"mins" "-128 -16 0"
+"maxs" "128 16 128"
+"target" "target_endlevel"
+}
+
+// entity 49 - End level target
+{
+"classname" "target_endlevel"
+"name" "target_endlevel"
+"nextMap" "maps/darkages/da24_throne_of_darkness"
+}

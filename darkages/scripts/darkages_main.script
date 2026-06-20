@@ -1,0 +1,730 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Main Game Script
+// Core game logic, weapon behaviors, enemy AI scripts
+// ============================================================================
+
+// ============================================================================
+// GLOBAL VARIABLES
+// ============================================================================
+
+float darkages_combo_count;
+float darkages_combo_timer;
+float darkages_stamina;
+float darkages_shield_active;
+float darkages_glory_kill_available;
+float darkages_current_level;
+float darkages_secrets_found;
+float darkages_total_kills;
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+void darkages_init() {
+	darkages_combo_count = 0;
+	darkages_combo_timer = 0;
+	darkages_stamina = 100;
+	darkages_shield_active = 0;
+	darkages_glory_kill_available = 0;
+	darkages_current_level = 0;
+	darkages_secrets_found = 0;
+	darkages_total_kills = 0;
+	
+	sys.println("DOOM: The Dark Ages initialized");
+	sys.println("=================================");
+}
+
+// ============================================================================
+// WEAPON SCRIPTS
+// ============================================================================
+
+// --- DARK BROADSWORD ---
+object weapon_darkages_sword : weapon_base {
+	float next_attack;
+	float combo_count;
+	float combo_timer;
+	float charge_time;
+	float is_charging;
+	
+	void init();
+	void Lower();
+	void Raise();
+	void Idle();
+	void Fire();
+	void HeavyAttack();
+	void Reload();
+};
+
+void weapon_darkages_sword::init() {
+	next_attack = 0;
+	combo_count = 0;
+	combo_timer = 0;
+	charge_time = 0;
+	is_charging = 0;
+	
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_sword::Lower() {
+	weaponState("Lower", 4);
+	playAnim(ANIMCHANNEL_ALL, "putaway");
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	weaponReady();
+}
+
+void weapon_darkages_sword::Raise() {
+	weaponState("Raise", 0);
+	playAnim(ANIMCHANNEL_ALL, "raise");
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	weaponState("Idle", 4);
+}
+
+void weapon_darkages_sword::Idle() {
+	weaponState("Idle", 0);
+	
+	// Combo timer decay
+	if (combo_count > 0) {
+		combo_timer = combo_timer - 0.016;
+		if (combo_timer <= 0) {
+			combo_count = 0;
+		}
+	}
+	
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	
+	while (1) {
+		if (WEAPON_ATTACK) {
+			weaponState("Fire", 0);
+		}
+		if (WEAPON_RELOAD) {
+			weaponState("HeavyAttack", 0);
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_sword::Fire() {
+	weaponState("Fire", 0);
+	
+	next_attack = sys.getTime() + 0.4;
+	
+	// Combo system
+	if (combo_timer > 0 && combo_count < 5) {
+		combo_count = combo_count + 1;
+	} else {
+		combo_count = 1;
+	}
+	combo_timer = 0.8;  // Combo window
+	
+	// Different attack animations based on combo count
+	if (combo_count == 1) {
+		playAnim(ANIMCHANNEL_ALL, "slash_right");
+	} else if (combo_count == 2) {
+		playAnim(ANIMCHANNEL_ALL, "slash_left");
+	} else if (combo_count == 3) {
+		playAnim(ANIMCHANNEL_ALL, "overhead");
+	} else if (combo_count == 4) {
+		playAnim(ANIMCHANNEL_ALL, "thrust");
+	} else {
+		playAnim(ANIMCHANNEL_ALL, "finisher");
+		combo_count = 0;  // Reset after finisher
+	}
+	
+	// Deal damage with combo multiplier
+	float damage_mult;
+	damage_mult = 1.0 + (combo_count - 1) * 0.25;
+	melee(getFloatKey("melee_distance"), damage_mult, MASK_SHOT_RENDERMODEL);
+	
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	weaponState("Idle", 4);
+}
+
+void weapon_darkages_sword::HeavyAttack() {
+	weaponState("HeavyAttack", 0);
+	
+	// Charge attack
+	charge_time = 0;
+	is_charging = 1;
+	
+	playAnim(ANIMCHANNEL_ALL, "charge_start");
+	
+	while (WEAPON_RELOAD && charge_time < 2.0) {
+		charge_time = charge_time + 0.016;
+		waitFrame();
+	}
+	
+	is_charging = 0;
+	
+	// Heavy strike
+	float heavy_mult;
+	heavy_mult = 1.5 + charge_time;
+	
+	playAnim(ANIMCHANNEL_ALL, "heavy_strike");
+	melee(getFloatKey("melee_distance") + 16, heavy_mult, MASK_SHOT_RENDERMODEL);
+	
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	combo_count = 0;
+	weaponState("Idle", 4);
+}
+
+void weapon_darkages_sword::Reload() {
+	// Sword doesn't reload
+	weaponState("Idle", 0);
+}
+
+// --- WAR MACE ---
+object weapon_darkages_mace : weapon_base {
+	void init();
+	void Idle();
+	void Fire();
+};
+
+void weapon_darkages_mace::init() {
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_mace::Idle() {
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	while (1) {
+		if (WEAPON_ATTACK) {
+			weaponState("Fire", 0);
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_mace::Fire() {
+	playAnim(ANIMCHANNEL_ALL, "smash");
+	melee(getFloatKey("melee_distance"), 1.0, MASK_SHOT_RENDERMODEL);
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	weaponState("Idle", 4);
+}
+
+// --- BATTLE AXE ---
+object weapon_darkages_axe : weapon_base {
+	float combo;
+	
+	void init();
+	void Idle();
+	void Fire();
+};
+
+void weapon_darkages_axe::init() {
+	combo = 0;
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_axe::Idle() {
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	while (1) {
+		if (WEAPON_ATTACK) {
+			weaponState("Fire", 0);
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_axe::Fire() {
+	combo = combo + 1;
+	if (combo > 4) {
+		combo = 1;
+	}
+	
+	if (combo == 1) {
+		playAnim(ANIMCHANNEL_ALL, "chop_right");
+	} else if (combo == 2) {
+		playAnim(ANIMCHANNEL_ALL, "chop_left");
+	} else if (combo == 3) {
+		playAnim(ANIMCHANNEL_ALL, "heavy_chop");
+	} else {
+		playAnim(ANIMCHANNEL_ALL, "cleave");
+		combo = 0;
+	}
+	
+	melee(getFloatKey("melee_distance"), 1.0 + combo * 0.15, MASK_SHOT_RENDERMODEL);
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	weaponState("Idle", 4);
+}
+
+// --- CROSSBOW ---
+object weapon_darkages_crossbow : weapon_base {
+	float is_loaded;
+	
+	void init();
+	void Idle();
+	void Fire();
+	void Reload();
+};
+
+void weapon_darkages_crossbow::init() {
+	is_loaded = 1;
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_crossbow::Idle() {
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	while (1) {
+		if (WEAPON_ATTACK && is_loaded) {
+			weaponState("Fire", 0);
+		}
+		if (WEAPON_RELOAD || (!is_loaded && ammoAvailable())) {
+			weaponState("Reload", 0);
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_crossbow::Fire() {
+	playAnim(ANIMCHANNEL_ALL, "fire");
+	launchProjectiles(1, 0, 0, 1.0, 1.0);
+	is_loaded = 0;
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	
+	if (ammoAvailable()) {
+		weaponState("Reload", 4);
+	} else {
+		weaponState("Idle", 4);
+	}
+}
+
+void weapon_darkages_crossbow::Reload() {
+	playAnim(ANIMCHANNEL_ALL, "reload");
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	is_loaded = 1;
+	addToClip(1);
+	weaponState("Idle", 4);
+}
+
+// --- TOWER SHIELD ---
+object weapon_darkages_shield : weapon_base {
+	float is_blocking;
+	float block_timer;
+	
+	void init();
+	void Idle();
+	void Fire();
+	void Block();
+};
+
+void weapon_darkages_shield::init() {
+	is_blocking = 0;
+	block_timer = 0;
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_shield::Idle() {
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	while (1) {
+		if (WEAPON_ATTACK) {
+			weaponState("Fire", 0);  // Shield bash
+		}
+		if (WEAPON_RELOAD) {
+			weaponState("Block", 0);  // Block
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_shield::Fire() {
+	// Shield bash - stuns enemies
+	playAnim(ANIMCHANNEL_ALL, "bash");
+	melee(getFloatKey("melee_distance"), 1.0, MASK_SHOT_RENDERMODEL);
+	waitUntil(animDone(ANIMCHANNEL_ALL, 4));
+	weaponState("Idle", 4);
+}
+
+void weapon_darkages_shield::Block() {
+	is_blocking = 1;
+	block_timer = 0;
+	playAnim(ANIMCHANNEL_ALL, "block_start");
+	
+	// Block until button released
+	while (WEAPON_RELOAD) {
+		block_timer = block_timer + 0.016;
+		
+		// Parry window (first 0.3 seconds)
+		if (block_timer <= 0.3) {
+			// Perfect parry - reflected damage
+		}
+		
+		waitFrame();
+	}
+	
+	is_blocking = 0;
+	playAnim(ANIMCHANNEL_ALL, "block_end");
+	waitUntil(animDone(ANIMCHANNEL_ALL, 2));
+	weaponState("Idle", 2);
+}
+
+// --- HELLFIRE STAFF ---
+object weapon_darkages_hellstaff : weapon_base {
+	void init();
+	void Idle();
+	void Fire();
+	void Reload();
+};
+
+void weapon_darkages_hellstaff::init() {
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_hellstaff::Idle() {
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	while (1) {
+		if (WEAPON_ATTACK) {
+			weaponState("Fire", 0);
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_hellstaff::Fire() {
+	playAnim(ANIMCHANNEL_ALL, "fire");
+	launchProjectiles(1, 2, 0, 1.0, 1.0);
+	waitUntil(animDone(ANIMCHANNEL_ALL, 2));
+	weaponState("Idle", 2);
+}
+
+void weapon_darkages_hellstaff::Reload() {
+	weaponState("Idle", 0);
+}
+
+// --- GREAT HAMMER ---
+object weapon_darkages_greathammer : weapon_base {
+	float charge;
+	
+	void init();
+	void Idle();
+	void Fire();
+	void GroundPound();
+};
+
+void weapon_darkages_greathammer::init() {
+	charge = 0;
+	weaponState("Raise", 0);
+}
+
+void weapon_darkages_greathammer::Idle() {
+	playCycle(ANIMCHANNEL_ALL, "idle");
+	while (1) {
+		if (WEAPON_ATTACK) {
+			weaponState("Fire", 0);
+		}
+		if (WEAPON_RELOAD) {
+			weaponState("GroundPound", 0);
+		}
+		waitFrame();
+	}
+}
+
+void weapon_darkages_greathammer::Fire() {
+	playAnim(ANIMCHANNEL_ALL, "smash");
+	melee(getFloatKey("melee_distance"), 1.0, MASK_SHOT_RENDERMODEL);
+	waitUntil(animDone(ANIMCHANNEL_ALL, 6));
+	weaponState("Idle", 6);
+}
+
+void weapon_darkages_greathammer::GroundPound() {
+	// Wind up
+	playAnim(ANIMCHANNEL_ALL, "windup");
+	charge = 0;
+	
+	while (WEAPON_RELOAD && charge < 2.0) {
+		charge = charge + 0.016;
+		waitFrame();
+	}
+	
+	// Ground pound - area damage
+	playAnim(ANIMCHANNEL_ALL, "groundpound");
+	
+	// Apply radial damage based on charge
+	float radius;
+	radius = 150 + charge * 75;
+	// radiusDamage(getOrigin(), self, self, self, "damage_greathammer_groundpound", 1.0 + charge);
+	
+	waitUntil(animDone(ANIMCHANNEL_ALL, 8));
+	weaponState("Idle", 8);
+}
+
+// ============================================================================
+// ENEMY AI SCRIPTS
+// ============================================================================
+
+// --- UNDEAD SOLDIER AI ---
+object monster_darkages_undead_soldier : monster_base {
+	float attack_timer;
+	
+	void init();
+	void state_Begin();
+	void state_Idle();
+	void state_Combat();
+	void do_attack();
+};
+
+void monster_darkages_undead_soldier::init() {
+	attack_timer = 0;
+	setState("state_Begin");
+}
+
+void monster_darkages_undead_soldier::state_Begin() {
+	setMoveType(MOVETYPE_ANIM);
+	setState("state_Idle");
+}
+
+void monster_darkages_undead_soldier::state_Idle() {
+	wait_for_enemy();
+	setState("state_Combat");
+}
+
+void monster_darkages_undead_soldier::state_Combat() {
+	while (getEnemy()) {
+		if (canReachEnemy()) {
+			if (enemyRange() < getFloatKey("melee_range")) {
+				do_attack();
+			} else {
+				moveToEnemy();
+			}
+		} else {
+			moveToEnemy();
+		}
+		waitFrame();
+	}
+	setState("state_Idle");
+}
+
+void monster_darkages_undead_soldier::do_attack() {
+	faceEnemy();
+	
+	float roll;
+	roll = sys.random(100);
+	
+	if (roll < 50) {
+		animState(ANIMCHANNEL_TORSO, "melee_slash", 4);
+	} else if (roll < 80) {
+		animState(ANIMCHANNEL_TORSO, "melee_overhead", 4);
+	} else {
+		animState(ANIMCHANNEL_TORSO, "melee_thrust", 4);
+	}
+	
+	combat_melee();
+}
+
+// --- DARK KNIGHT AI ---
+object monster_darkages_dark_knight : monster_base {
+	float block_chance;
+	float was_hit;
+	
+	void init();
+	void state_Begin();
+	void state_Idle();
+	void state_Combat();
+	void do_attack();
+	void do_block();
+};
+
+void monster_darkages_dark_knight::init() {
+	block_chance = 40;
+	was_hit = 0;
+	setState("state_Begin");
+}
+
+void monster_darkages_dark_knight::state_Begin() {
+	setMoveType(MOVETYPE_ANIM);
+	setState("state_Idle");
+}
+
+void monster_darkages_dark_knight::state_Idle() {
+	wait_for_enemy();
+	setState("state_Combat");
+}
+
+void monster_darkages_dark_knight::state_Combat() {
+	while (getEnemy()) {
+		if (enemyRange() < getFloatKey("melee_range")) {
+			// Decide: attack or block
+			float roll;
+			roll = sys.random(100);
+			
+			if (roll < block_chance && was_hit) {
+				do_block();
+				was_hit = 0;
+			} else {
+				do_attack();
+			}
+		} else {
+			// Close distance, circling
+			if (sys.random(100) < 30) {
+				// Strafe
+				moveToEnemy();
+			} else {
+				moveToEnemy();
+			}
+		}
+		waitFrame();
+	}
+	setState("state_Idle");
+}
+
+void monster_darkages_dark_knight::do_attack() {
+	faceEnemy();
+	
+	float roll;
+	roll = sys.random(100);
+	
+	if (roll < 30) {
+		// 2-hit combo
+		animState(ANIMCHANNEL_TORSO, "melee_combo_1", 4);
+		combat_melee();
+		animState(ANIMCHANNEL_TORSO, "melee_combo_2", 4);
+		combat_melee();
+	} else if (roll < 60) {
+		animState(ANIMCHANNEL_TORSO, "melee_overhead", 4);
+		combat_melee();
+	} else if (roll < 80) {
+		// Shield bash
+		animState(ANIMCHANNEL_TORSO, "shield_bash", 4);
+		combat_melee();
+	} else {
+		animState(ANIMCHANNEL_TORSO, "melee_thrust", 4);
+		combat_melee();
+	}
+}
+
+void monster_darkages_dark_knight::do_block() {
+	faceEnemy();
+	animState(ANIMCHANNEL_TORSO, "block", 2);
+	sys.wait(0.5 + sys.random(0.5));
+}
+
+// --- HELLHOUND AI ---
+object monster_darkages_hellhound : monster_base {
+	void init();
+	void state_Begin();
+	void state_Idle();
+	void state_Combat();
+};
+
+void monster_darkages_hellhound::init() {
+	setState("state_Begin");
+}
+
+void monster_darkages_hellhound::state_Begin() {
+	setMoveType(MOVETYPE_ANIM);
+	setState("state_Idle");
+}
+
+void monster_darkages_hellhound::state_Idle() {
+	wait_for_enemy();
+	setState("state_Combat");
+}
+
+void monster_darkages_hellhound::state_Combat() {
+	while (getEnemy()) {
+		if (enemyRange() < getFloatKey("melee_range")) {
+			faceEnemy();
+			animState(ANIMCHANNEL_TORSO, "bite", 2);
+			combat_melee();
+		} else {
+			// Sprint toward enemy
+			moveToEnemy();
+		}
+		waitFrame();
+	}
+	setState("state_Idle");
+}
+
+// --- PLAGUE SORCERER AI ---
+object monster_darkages_sorcerer : monster_base {
+	float summon_count;
+	float summon_timer;
+	
+	void init();
+	void state_Begin();
+	void state_Idle();
+	void state_Combat();
+	void do_ranged_attack();
+	void do_summon();
+};
+
+void monster_darkages_sorcerer::init() {
+	summon_count = 0;
+	summon_timer = 0;
+	setState("state_Begin");
+}
+
+void monster_darkages_sorcerer::state_Begin() {
+	setMoveType(MOVETYPE_ANIM);
+	setState("state_Idle");
+}
+
+void monster_darkages_sorcerer::state_Idle() {
+	wait_for_enemy();
+	setState("state_Combat");
+}
+
+void monster_darkages_sorcerer::state_Combat() {
+	while (getEnemy()) {
+		if (enemyRange() < 128) {
+			// Too close - retreat
+			moveAwayFromEnemy();
+		} else if (enemyRange() < getFloatKey("attack_ranged_range")) {
+			float roll;
+			roll = sys.random(100);
+			
+			if (roll < 20 && summon_count < 3 && summon_timer <= 0) {
+				do_summon();
+			} else {
+				do_ranged_attack();
+			}
+		} else {
+			moveToEnemy();
+		}
+		
+		summon_timer = summon_timer - 0.016;
+		waitFrame();
+	}
+	setState("state_Idle");
+}
+
+void monster_darkages_sorcerer::do_ranged_attack() {
+	faceEnemy();
+	animState(ANIMCHANNEL_TORSO, "cast_attack", 4);
+	attack_ranged();
+}
+
+void monster_darkages_sorcerer::do_summon() {
+	animState(ANIMCHANNEL_TORSO, "cast_summon", 4);
+	// Spawn an undead soldier near the sorcerer
+	summon_count = summon_count + 1;
+	summon_timer = 15;
+}
+
+// ============================================================================
+// LEVEL SCRIPTS
+// ============================================================================
+
+void darkages_level_start() {
+	sys.println("Level started: " + sys.getEntity("worldspawn").getKey("message"));
+	darkages_secrets_found = 0;
+}
+
+void darkages_level_complete() {
+	sys.println("Level complete!");
+	// Transition to next level
+	entity ws;
+	ws = sys.getEntity("worldspawn");
+	string next_map;
+	next_map = ws.getKey("nextMap");
+	if (next_map != "") {
+		sys.sessionCommand("map " + next_map);
+	}
+}
+
+void secret_found(float secret_num) {
+	darkages_secrets_found = darkages_secrets_found + 1;
+	sys.println("Secret found! (" + darkages_secrets_found + " total)");
+}
+
+void enemy_killed() {
+	darkages_total_kills = darkages_total_kills + 1;
+}

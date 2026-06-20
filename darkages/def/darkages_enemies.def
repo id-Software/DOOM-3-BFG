@@ -1,0 +1,563 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Enemy Definitions
+// Medieval-themed demons and undead warriors
+// ============================================================================
+
+// ============================================================================
+// ENEMY: UNDEAD SOLDIER
+// Basic skeleton warrior, common throughout all levels
+// ============================================================================
+entityDef monster_darkages_undead_soldier {
+	"inherit"				"monster_base"
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 72"
+	"editor_usage"			"Undead Soldier - basic skeleton warrior"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_undead_soldier"
+	"model"					"models/monsters/undead_soldier/undead_soldier.md5mesh"
+	"anim"					"af_pose"
+	"ragdoll"				"undead_soldier"
+	"size"					"32 32 72"
+	"use_aas"				"aas48"
+	"team"					"1"
+	"rank"					"0"
+	"health"				"80"
+	"melee_range"			"48"
+	
+	"def_attack_melee"		"damage_undead_sword"
+	"attack_melee_rate"		"1.2"
+	
+	"bone_focus"			"Head"
+	"bone_leftEye"			"Head"
+	"bone_rightEye"			"Head"
+	
+	"look_min"				"-90 -125 0"
+	"look_max"				"25 125 0"
+	"look_joint Waist"		"0.4 0.4 0"
+	"look_joint Head"		"0.6 0.6 0"
+	
+	"damage_zone head"		"*neck"
+	"damage_zone chest"		"*waist -*Ruparm -*Luparm -*neck"
+	"damage_zone left_arm"	"*Luparm"
+	"damage_zone right_arm"	"*Ruparm"
+	"damage_zone legs"		"*Hips origin Body"
+	"damage_scale head"		"2"
+	
+	"snd_sight"				"undead_sight"
+	"snd_idle"				"undead_idle"
+	"snd_pain"				"undead_pain"
+	"snd_death"				"undead_death"
+	"snd_footstep"			"undead_footstep"
+	"snd_melee"				"undead_melee"
+}
+
+entityDef damage_undead_sword {
+	"damage"				"15"
+	"kickDir"				"1 0 0"
+	"mtr_blob"				"genericDamage"
+	"push"					"2000"
+}
+
+// ============================================================================
+// ENEMY: DARK KNIGHT
+// Armored knight demon, mid-tier enemy with shield
+// ============================================================================
+entityDef monster_darkages_dark_knight {
+	"inherit"				"monster_base"
+	"editor_color"			".6 .2 .2"
+	"editor_mins"			"-20 -20 0"
+	"editor_maxs"			"20 20 80"
+	"editor_usage"			"Dark Knight - armored demon knight with shield"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_dark_knight"
+	"size"					"40 40 80"
+	"use_aas"				"aas48"
+	"team"					"1"
+	"rank"					"1"
+	"health"				"300"
+	"armor"					"100"
+	"melee_range"			"56"
+	
+	"def_attack_melee"		"damage_darkknight_sword"
+	"def_attack_shield"		"damage_darkknight_shield"
+	"attack_melee_rate"		"1.5"
+	"block_chance"			"0.4"
+	"block_damage_reduction"	"0.6"
+	
+	"damage_zone head"		"*neck"
+	"damage_scale head"		"1.5"
+	"damage_scale chest"	"0.7"
+	
+	"snd_sight"				"darkknight_sight"
+	"snd_idle"				"darkknight_idle"
+	"snd_pain"				"darkknight_pain"
+	"snd_death"				"darkknight_death"
+	"snd_block"				"darkknight_block"
+	"snd_attack"			"darkknight_attack"
+}
+
+entityDef damage_darkknight_sword {
+	"damage"				"35"
+	"kickDir"				"1 0 0"
+	"push"					"5000"
+}
+
+entityDef damage_darkknight_shield {
+	"damage"				"20"
+	"kickDir"				"1 0 0"
+	"push"					"10000"
+	"stun_duration"			"800"
+}
+
+// ============================================================================
+// ENEMY: HELL HOUND
+// Fast demonic beast, attacks in packs
+// ============================================================================
+entityDef monster_darkages_hellhound {
+	"inherit"				"monster_base"
+	"editor_color"			"1 .3 0"
+	"editor_mins"			"-24 -24 0"
+	"editor_maxs"			"24 24 40"
+	"editor_usage"			"Hell Hound - fast demonic beast"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_hellhound"
+	"size"					"48 48 40"
+	"use_aas"				"aas48"
+	"team"					"1"
+	"rank"					"0"
+	"health"				"60"
+	"melee_range"			"48"
+	
+	"def_attack_melee"		"damage_hellhound_bite"
+	"attack_melee_rate"		"0.6"
+	"fly_speed"				"0"
+	"run_speed"				"320"
+	"walk_speed"			"160"
+	
+	"snd_sight"				"hellhound_sight"
+	"snd_idle"				"hellhound_idle"
+	"snd_pain"				"hellhound_pain"
+	"snd_death"				"hellhound_death"
+	"snd_attack"			"hellhound_bite"
+}
+
+entityDef damage_hellhound_bite {
+	"damage"				"25"
+	"kickDir"				"0 0 1"
+	"push"					"3000"
+}
+
+// ============================================================================
+// ENEMY: PLAGUE SORCERER
+// Ranged magic caster, summons undead
+// ============================================================================
+entityDef monster_darkages_sorcerer {
+	"inherit"				"monster_base"
+	"editor_color"			".5 0 .5"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 72"
+	"editor_usage"			"Plague Sorcerer - ranged magic caster"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_sorcerer"
+	"size"					"32 32 72"
+	"use_aas"				"aas48"
+	"team"					"1"
+	"rank"					"1"
+	"health"				"150"
+	"melee_range"			"32"
+	
+	"def_attack_ranged"		"projectile_plague_bolt"
+	"attack_ranged_rate"	"2.0"
+	"attack_ranged_range"	"1024"
+	"def_summon"			"monster_darkages_undead_soldier"
+	"summon_max"			"3"
+	"summon_cooldown"		"15000"
+	
+	"snd_sight"				"sorcerer_sight"
+	"snd_cast"				"sorcerer_cast"
+	"snd_death"				"sorcerer_death"
+	"snd_summon"			"sorcerer_summon"
+}
+
+entityDef projectile_plague_bolt {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_plague_bolt"
+	"velocity"				"800 0 0"
+	"fuse"					"5"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	"light_color"			"0.3 1 0"
+	"light_radius"			"120"
+}
+
+entityDef damage_plague_bolt {
+	"damage"				"20"
+	"push"					"2000"
+	"dot_damage"			"5"
+	"dot_duration"			"3000"
+	"dot_interval"			"500"
+}
+
+// ============================================================================
+// ENEMY: SIEGE DEMON
+// Large demon, mini-boss tier
+// ============================================================================
+entityDef monster_darkages_siege_demon {
+	"inherit"				"monster_base"
+	"editor_color"			".8 0 0"
+	"editor_mins"			"-48 -48 0"
+	"editor_maxs"			"48 48 120"
+	"editor_usage"			"Siege Demon - large demon mini-boss"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_siege_demon"
+	"size"					"96 96 120"
+	"use_aas"				"aas96"
+	"team"					"1"
+	"rank"					"2"
+	"health"				"1500"
+	"armor"					"200"
+	"melee_range"			"96"
+	
+	"def_attack_melee"		"damage_siege_smash"
+	"def_attack_ranged"		"projectile_siege_boulder"
+	"attack_melee_rate"		"2.5"
+	"attack_ranged_rate"	"4.0"
+	
+	"snd_sight"				"siege_demon_sight"
+	"snd_pain"				"siege_demon_pain"
+	"snd_death"				"siege_demon_death"
+	"snd_footstep"			"siege_demon_footstep"
+	"snd_attack"			"siege_demon_attack"
+}
+
+entityDef damage_siege_smash {
+	"damage"				"80"
+	"kickDir"				"0 0 1"
+	"push"					"20000"
+	"radius"				"128"
+}
+
+entityDef projectile_siege_boulder {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_siege_boulder"
+	"def_splash_damage"		"damage_siege_boulder_splash"
+	"velocity"				"600 0 0"
+	"gravity"				"500"
+	"fuse"					"8"
+	"mass"					"500"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+}
+
+entityDef damage_siege_boulder {
+	"damage"				"100"
+	"push"					"15000"
+}
+
+entityDef damage_siege_boulder_splash {
+	"damage"				"40"
+	"radius"				"160"
+	"push"					"8000"
+}
+
+// ============================================================================
+// ENEMY: WRAITH
+// Flying ghost enemy, hard to hit
+// ============================================================================
+entityDef monster_darkages_wraith {
+	"inherit"				"monster_base"
+	"editor_color"			".3 .3 .8"
+	"editor_mins"			"-16 -16 -16"
+	"editor_maxs"			"16 16 72"
+	"editor_usage"			"Wraith - flying undead spirit"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_wraith"
+	"size"					"32 32 72"
+	"use_aas"				"aas48"
+	"team"					"1"
+	"rank"					"1"
+	"health"				"100"
+	"fly_speed"				"200"
+	"fly_bob_strength"		"40"
+	"fly_bob_vert"			"2"
+	"fly_bob_horz"			"4"
+	
+	"def_attack_melee"		"damage_wraith_touch"
+	"melee_range"			"32"
+	
+	"snd_sight"				"wraith_sight"
+	"snd_idle"				"wraith_idle"
+	"snd_death"				"wraith_death"
+	"snd_attack"			"wraith_attack"
+}
+
+entityDef damage_wraith_touch {
+	"damage"				"30"
+	"push"					"1000"
+	"drain_health"			"10"
+}
+
+// ============================================================================
+// ENEMY: FIRE DRAKE (Dragon)
+// Flying fire-breathing dragon, rare powerful enemy
+// ============================================================================
+entityDef monster_darkages_firedrake {
+	"inherit"				"monster_base"
+	"editor_color"			"1 .5 0"
+	"editor_mins"			"-64 -64 0"
+	"editor_maxs"			"64 64 80"
+	"editor_usage"			"Fire Drake - flying fire dragon"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_firedrake"
+	"size"					"128 128 80"
+	"use_aas"				"aas96"
+	"team"					"1"
+	"rank"					"2"
+	"health"				"2000"
+	"fly_speed"				"300"
+	
+	"def_attack_ranged"		"projectile_drakefire"
+	"def_attack_melee"		"damage_drake_claw"
+	"attack_ranged_rate"	"3.0"
+	"melee_range"			"80"
+	
+	"snd_sight"				"firedrake_sight"
+	"snd_pain"				"firedrake_pain"
+	"snd_death"				"firedrake_death"
+	"snd_breath"			"firedrake_breath"
+}
+
+entityDef projectile_drakefire {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_drakefire"
+	"def_splash_damage"		"damage_drakefire_splash"
+	"velocity"				"900 0 0"
+	"fuse"					"4"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	"light_color"			"1 0.5 0"
+	"light_radius"			"256"
+	"model_fly"				"drakefire_projectile.prt"
+}
+
+entityDef damage_drakefire {
+	"damage"				"60"
+	"push"					"5000"
+	"dot_damage"			"10"
+	"dot_duration"			"5000"
+	"dot_interval"			"500"
+}
+
+entityDef damage_drakefire_splash {
+	"damage"				"30"
+	"radius"				"200"
+	"push"					"3000"
+}
+
+entityDef damage_drake_claw {
+	"damage"				"50"
+	"push"					"12000"
+}
+
+// ============================================================================
+// BOSS: THE DARK LORD
+// Final boss of the game
+// ============================================================================
+entityDef monster_darkages_darklord {
+	"inherit"				"monster_base"
+	"editor_color"			"1 0 0"
+	"editor_mins"			"-64 -64 0"
+	"editor_maxs"			"64 64 160"
+	"editor_usage"			"The Dark Lord - final boss"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_darklord"
+	"size"					"128 128 160"
+	"use_aas"				"aas96"
+	"team"					"1"
+	"rank"					"3"
+	"health"				"10000"
+	"armor"					"500"
+	"melee_range"			"96"
+	
+	"def_attack_melee"		"damage_darklord_sword"
+	"def_attack_ranged"		"projectile_darklord_hellfire"
+	"def_attack_ground"		"damage_darklord_groundpound"
+	"attack_melee_rate"		"1.8"
+	"attack_ranged_rate"	"3.0"
+	
+	"phase2_health_threshold"	"0.5"
+	"phase3_health_threshold"	"0.2"
+	
+	"snd_sight"				"darklord_sight"
+	"snd_pain"				"darklord_pain"
+	"snd_death"				"darklord_death"
+	"snd_taunt"				"darklord_taunt"
+	"snd_phase_change"		"darklord_phase"
+}
+
+entityDef damage_darklord_sword {
+	"damage"				"60"
+	"push"					"15000"
+}
+
+entityDef projectile_darklord_hellfire {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_darklord_hellfire"
+	"def_splash_damage"		"damage_darklord_hellfire_splash"
+	"velocity"				"1000 0 0"
+	"fuse"					"6"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	"light_color"			"1 0 0"
+	"light_radius"			"320"
+}
+
+entityDef damage_darklord_hellfire {
+	"damage"				"80"
+	"push"					"10000"
+}
+
+entityDef damage_darklord_hellfire_splash {
+	"damage"				"40"
+	"radius"				"256"
+	"push"					"6000"
+}
+
+entityDef damage_darklord_groundpound {
+	"damage"				"100"
+	"radius"				"300"
+	"push"					"20000"
+	"stun_duration"			"2000"
+}
+
+// ============================================================================
+// BOSS: THE DRAGON KING
+// Mid-game boss - massive dragon
+// ============================================================================
+entityDef monster_darkages_dragonking {
+	"inherit"				"monster_base"
+	"editor_usage"			"Dragon King - mid-game boss"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_dragonking"
+	"size"					"192 192 128"
+	"use_aas"				"aas96"
+	"team"					"1"
+	"rank"					"3"
+	"health"				"8000"
+	"armor"					"300"
+	"fly_speed"				"250"
+	
+	"def_attack_breath"		"projectile_dragonking_breath"
+	"def_attack_melee"		"damage_dragonking_claw"
+	"def_attack_tail"		"damage_dragonking_tail"
+	
+	"snd_sight"				"dragonking_sight"
+	"snd_roar"				"dragonking_roar"
+	"snd_death"				"dragonking_death"
+}
+
+entityDef damage_dragonking_claw {
+	"damage"				"75"
+	"push"					"18000"
+}
+
+entityDef damage_dragonking_tail {
+	"damage"				"50"
+	"radius"				"200"
+	"push"					"25000"
+}
+
+entityDef projectile_dragonking_breath {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_dragonking_breath"
+	"velocity"				"800 0 0"
+	"fuse"					"3"
+	"spread"				"15"
+}
+
+entityDef damage_dragonking_breath {
+	"damage"				"40"
+	"radius"				"160"
+	"dot_damage"			"15"
+	"dot_duration"			"4000"
+}
+
+// ============================================================================
+// ENEMY: CULTIST (Human ranged)
+// Cult members serving the Dark Lord
+// ============================================================================
+entityDef monster_darkages_cultist {
+	"inherit"				"monster_base"
+	"editor_usage"			"Dark Cultist - human servant of darkness"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_cultist"
+	"size"					"32 32 72"
+	"use_aas"				"aas48"
+	"team"					"1"
+	"rank"					"0"
+	"health"				"40"
+	
+	"def_attack_ranged"		"projectile_cult_bolt"
+	"attack_ranged_rate"	"1.5"
+	"attack_ranged_range"	"768"
+	
+	"snd_sight"				"cultist_sight"
+	"snd_death"				"cultist_death"
+}
+
+entityDef projectile_cult_bolt {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_cult_bolt"
+	"velocity"				"600 0 0"
+	"fuse"					"4"
+}
+
+entityDef damage_cult_bolt {
+	"damage"				"12"
+	"push"					"1500"
+}
+
+// ============================================================================
+// ENEMY: IRON GOLEM
+// Animated armor construct
+// ============================================================================
+entityDef monster_darkages_irongolem {
+	"inherit"				"monster_base"
+	"editor_usage"			"Iron Golem - animated armor construct"
+	
+	"spawnclass"			"idAI"
+	"scriptobject"			"monster_darkages_irongolem"
+	"size"					"64 64 96"
+	"use_aas"				"aas96"
+	"team"					"1"
+	"rank"					"2"
+	"health"				"800"
+	"armor"					"400"
+	"melee_range"			"72"
+	
+	"def_attack_melee"		"damage_golem_fist"
+	"attack_melee_rate"		"2.0"
+	"resistance_projectile"	"0.5"
+	
+	"snd_sight"				"golem_sight"
+	"snd_pain"				"golem_pain"
+	"snd_death"				"golem_death"
+	"snd_footstep"			"golem_footstep"
+}
+
+entityDef damage_golem_fist {
+	"damage"				"55"
+	"push"					"15000"
+	"stun_duration"			"500"
+}

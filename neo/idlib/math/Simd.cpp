@@ -128,6 +128,20 @@ long baseClocks = 0;
 
 #define TIME_TYPE int
 
+#ifdef __GNUC__
+
+#define StartRecordTime( start )			\
+	{ unsigned int lo, hi;					\
+	  __asm__ __volatile__ ("cpuid\n\trdtsc" : "=a"(lo), "=d"(hi) :: "ebx", "ecx"); \
+	  start = (int)lo; }
+
+#define StopRecordTime( end )				\
+	{ unsigned int lo, hi;					\
+	  __asm__ __volatile__ ("cpuid\n\trdtsc" : "=a"(lo), "=d"(hi) :: "ebx", "ecx"); \
+	  end = (int)lo; }
+
+#else // _MSC_VER
+
 #pragma warning(disable : 4731)     // frame pointer register 'ebx' modified by inline assembly code
 
 long saved_ebx = 0;
@@ -149,6 +163,8 @@ long saved_ebx = 0;
 	__asm mov ebx, saved_ebx				\
 	__asm xor eax, eax						\
 	__asm cpuid
+
+#endif
 
 
 #define GetBest( start, end, best )			\

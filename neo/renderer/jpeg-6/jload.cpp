@@ -1,6 +1,6 @@
 
 #include "../Shared/Shared.h"
-#include "..\Common\Common.h"
+#include "../Common/Common.h"
 
 /*
  * Include file for users of JPEG library.

@@ -33,7 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 #define __QGL_H__
 
 
+#ifdef __GNUC__
+#include <GL/gl.h>
+#else
 #include <gl/gl.h>
+#endif
 
 
 #ifndef APIENTRY

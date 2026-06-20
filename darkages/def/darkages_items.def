@@ -1,0 +1,264 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Item and Pickup Definitions
+// ============================================================================
+
+// ============================================================================
+// HEALTH ITEMS
+// ============================================================================
+entityDef item_darkages_health_small {
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-8 -8 0"
+	"editor_maxs"			"8 8 16"
+	"editor_usage"			"Minor Healing Potion (+15 health)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/health_potion_small.lwo"
+	"size"					"16 16 16"
+	"inv_name"				"Minor Healing Potion"
+	"inv_health"			"15"
+	"snd_acquire"			"potion_pickup"
+}
+
+entityDef item_darkages_health_medium {
+	"editor_usage"			"Healing Potion (+50 health)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/health_potion_medium.lwo"
+	"size"					"16 16 24"
+	"inv_name"				"Healing Potion"
+	"inv_health"			"50"
+	"snd_acquire"			"potion_pickup"
+}
+
+entityDef item_darkages_health_large {
+	"editor_usage"			"Greater Healing Potion (+100 health)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/health_potion_large.lwo"
+	"size"					"16 16 32"
+	"inv_name"				"Greater Healing Potion"
+	"inv_health"			"100"
+	"snd_acquire"			"potion_pickup_large"
+}
+
+entityDef item_darkages_health_mega {
+	"editor_usage"			"Elixir of Life (+200 health, exceeds max)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/elixir.lwo"
+	"size"					"16 16 32"
+	"inv_name"				"Elixir of Life"
+	"inv_health"			"200"
+	"inv_health_overflow"	"1"
+	"snd_acquire"			"elixir_pickup"
+}
+
+// ============================================================================
+// ARMOR ITEMS
+// ============================================================================
+entityDef item_darkages_armor_shard {
+	"editor_usage"			"Armor Shard (+5 armor)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/armor_shard.lwo"
+	"size"					"16 16 16"
+	"inv_name"				"Armor Shard"
+	"inv_armor"				"5"
+	"snd_acquire"			"armor_pickup"
+}
+
+entityDef item_darkages_armor_chainmail {
+	"editor_usage"			"Chainmail (+50 armor)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/chainmail.lwo"
+	"size"					"32 32 32"
+	"inv_name"				"Chainmail"
+	"inv_armor"				"50"
+	"snd_acquire"			"armor_pickup_heavy"
+}
+
+entityDef item_darkages_armor_plate {
+	"editor_usage"			"Plate Armor (+100 armor)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/plate_armor.lwo"
+	"size"					"32 32 48"
+	"inv_name"				"Plate Armor"
+	"inv_armor"				"100"
+	"snd_acquire"			"armor_pickup_heavy"
+}
+
+entityDef item_darkages_armor_dragonscale {
+	"editor_usage"			"Dragon Scale Armor (+200 armor)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/dragonscale_armor.lwo"
+	"size"					"32 32 48"
+	"inv_name"				"Dragon Scale Armor"
+	"inv_armor"				"200"
+	"inv_armor_overflow"	"1"
+	"snd_acquire"			"armor_pickup_legendary"
+}
+
+// ============================================================================
+// AMMO ITEMS
+// ============================================================================
+entityDef item_darkages_bolts_small {
+	"editor_usage"			"Crossbow Bolts (x5)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/bolts_small.lwo"
+	"size"					"16 16 16"
+	"inv_name"				"Crossbow Bolts"
+	"inv_ammo_bolts"		"5"
+	"snd_acquire"			"ammo_pickup"
+}
+
+entityDef item_darkages_bolts_large {
+	"editor_usage"			"Crossbow Bolt Quiver (x20)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/bolts_large.lwo"
+	"size"					"16 16 24"
+	"inv_name"				"Bolt Quiver"
+	"inv_ammo_bolts"		"20"
+	"snd_acquire"			"ammo_pickup"
+}
+
+entityDef item_darkages_throwaxes {
+	"editor_usage"			"Throwing Axes (x3)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/throwaxes.lwo"
+	"size"					"16 16 16"
+	"inv_name"				"Throwing Axes"
+	"inv_ammo_throwaxes"	"3"
+	"snd_acquire"			"ammo_pickup"
+}
+
+entityDef item_darkages_hellfire_ammo {
+	"editor_usage"			"Hellfire Essence (x50)"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/hellfire_essence.lwo"
+	"size"					"16 16 24"
+	"inv_name"				"Hellfire Essence"
+	"inv_ammo_hellfire"		"50"
+	"snd_acquire"			"hellfire_pickup"
+}
+
+// ============================================================================
+// POWERUP ITEMS
+// ============================================================================
+entityDef item_darkages_berserk {
+	"editor_usage"			"Blood Rage - temporary berserk mode"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/blood_rage.lwo"
+	"size"					"16 16 32"
+	"inv_name"				"Blood Rage"
+	"inv_powerup"			"berserk"
+	"inv_powerup_time"		"30000"
+	"snd_acquire"			"powerup_berserk"
+}
+
+entityDef item_darkages_invulnerability {
+	"editor_usage"			"Divine Shield - temporary invulnerability"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/divine_shield.lwo"
+	"size"					"16 16 32"
+	"inv_name"				"Divine Shield"
+	"inv_powerup"			"invulnerability"
+	"inv_powerup_time"		"15000"
+	"snd_acquire"			"powerup_divine"
+}
+
+entityDef item_darkages_haste {
+	"editor_usage"			"Speed Rune - temporary speed boost"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/speed_rune.lwo"
+	"size"					"16 16 24"
+	"inv_name"				"Speed Rune"
+	"inv_powerup"			"haste"
+	"inv_powerup_time"		"20000"
+	"snd_acquire"			"powerup_haste"
+}
+
+entityDef item_darkages_strength {
+	"editor_usage"			"Demon Strength - double damage"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/items/demon_strength.lwo"
+	"size"					"16 16 24"
+	"inv_name"				"Demon Strength"
+	"inv_powerup"			"quad"
+	"inv_powerup_time"		"20000"
+	"snd_acquire"			"powerup_strength"
+}
+
+// ============================================================================
+// KEY ITEMS
+// ============================================================================
+entityDef item_darkages_key_red {
+	"editor_usage"			"Blood Key - opens blood-sealed doors"
+	"spawnclass"			"idItem"
+	"size"					"16 16 16"
+	"inv_name"				"Blood Key"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/key_red"
+	"snd_acquire"			"key_pickup"
+}
+
+entityDef item_darkages_key_blue {
+	"editor_usage"			"Frost Key - opens ice-sealed doors"
+	"spawnclass"			"idItem"
+	"size"					"16 16 16"
+	"inv_name"				"Frost Key"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/key_blue"
+	"snd_acquire"			"key_pickup"
+}
+
+entityDef item_darkages_key_gold {
+	"editor_usage"			"Royal Key - opens throne room doors"
+	"spawnclass"			"idItem"
+	"size"					"16 16 16"
+	"inv_name"				"Royal Key"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/key_gold"
+	"snd_acquire"			"key_pickup_legendary"
+}
+
+entityDef item_darkages_key_skull {
+	"editor_usage"			"Skull Key - opens underworld gates"
+	"spawnclass"			"idItem"
+	"size"					"16 16 16"
+	"inv_name"				"Skull Key"
+	"inv_item"				"1"
+	"inv_icon"				"guis/assets/hud/key_skull"
+	"snd_acquire"			"key_pickup"
+}
+
+// ============================================================================
+// COLLECTIBLES / SECRETS
+// ============================================================================
+entityDef item_darkages_rune_fragment {
+	"editor_usage"			"Ancient Rune Fragment - collectible"
+	"spawnclass"			"idItem"
+	"size"					"16 16 16"
+	"inv_name"				"Ancient Rune Fragment"
+	"inv_item"				"1"
+	"snd_acquire"			"rune_pickup"
+}
+
+entityDef item_darkages_soul_essence {
+	"editor_usage"			"Soul Essence - upgrade currency"
+	"spawnclass"			"idItem"
+	"size"					"8 8 16"
+	"inv_name"				"Soul Essence"
+	"inv_item"				"1"
+	"snd_acquire"			"soul_pickup"
+}

@@ -47,7 +47,11 @@ extern idRenderWorld *				gameRenderWorld;
 extern idSoundWorld *				gameSoundWorld;
 
 // the "gameversion" client command will print this plus compile date
+#ifdef DARKAGES_BUILD
+#define	GAME_VERSION		"DOOM-TheDarkAges-1.0"
+#else
 #define	GAME_VERSION		"baseDOOM-1"
+#endif
 
 // classes used by idGameLocal
 class idEntity;

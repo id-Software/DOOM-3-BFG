@@ -82,8 +82,8 @@ typedef enum {
 
 #define OPERATION_SET 1
 
+#ifdef _MSC_VER
 #include <dxsdkver.h>
-
 #include <xaudio2.h>
 #include <xaudio2fx.h>
 #include <X3DAudio.h>
@@ -91,6 +91,9 @@ typedef enum {
 #include "XAudio2/XA2_SoundSample.h"
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"
+#else
+// MinGW stub - XAudio2 not available, sound will use OpenAL fallback
+#endif
 
 
 

@@ -1,0 +1,182 @@
+// ============================================================================
+// DOOM: THE DARK AGES - English String Table
+// ============================================================================
+
+// ============================================================================
+// MAIN MENU
+// ============================================================================
+"#str_darkages_title"				"DOOM: THE DARK AGES"
+"#str_darkages_subtitle"			"A Medieval Nightmare"
+"#str_darkages_new_game"			"New Campaign"
+"#str_darkages_continue"			"Continue"
+"#str_darkages_load_game"			"Load Game"
+"#str_darkages_options"				"Options"
+"#str_darkages_upgrades"			"Forge (Upgrades)"
+"#str_darkages_quit"				"Quit"
+
+// ============================================================================
+// DIFFICULTY
+// ============================================================================
+"#str_darkages_diff_squire"			"Squire"
+"#str_darkages_diff_squire_desc"	"For those new to the Dark Ages. Enemies are weaker and items are plentiful."
+"#str_darkages_diff_knight"			"Knight"
+"#str_darkages_diff_knight_desc"	"The true Dark Ages experience. Balanced challenge for seasoned warriors."
+"#str_darkages_diff_champion"		"Champion"
+"#str_darkages_diff_champion_desc"	"For veteran slayers. Enemies are stronger, smarter, and more numerous."
+"#str_darkages_diff_nightmare"		"Nightmare"
+"#str_darkages_diff_nightmare_desc"	"Pure torment. Every encounter is a battle for survival. No mercy."
+
+// ============================================================================
+// ACT TITLES
+// ============================================================================
+"#str_darkages_act1"				"ACT I: THE FALLEN KINGDOM"
+"#str_darkages_act2"				"ACT II: THE DARK LANDS"
+"#str_darkages_act3"				"ACT III: THE UNDERWORLD"
+"#str_darkages_act4"				"ACT IV: THE CURSED REALM"
+"#str_darkages_act5"				"ACT V: HELL'S DOMAIN"
+
+// ============================================================================
+// LEVEL NAMES
+// ============================================================================
+"#str_darkages_l01"					"The Burning Village"
+"#str_darkages_l02"					"Castle Under Siege"
+"#str_darkages_l03"					"The King's Crypt"
+"#str_darkages_l04"					"Forest of Shadows"
+"#str_darkages_l05"					"The Mountain Pass"
+"#str_darkages_l06"					"The Dark Cathedral"
+"#str_darkages_l07"					"Plague Town"
+"#str_darkages_l08"					"The Iron Fortress"
+"#str_darkages_l09"					"The Bone Wastes"
+"#str_darkages_l10"					"Siege Demon's Lair"
+"#str_darkages_l11"					"The Frozen Depths"
+"#str_darkages_l12"					"The Lava Forge"
+"#str_darkages_l13"					"Tomb of Fallen Heroes"
+"#str_darkages_l14"					"Crystal Caverns"
+"#str_darkages_l15"					"The Dragon's Den"
+"#str_darkages_l16"					"The Ruined Abbey"
+"#str_darkages_l17"					"The Blood Swamp"
+"#str_darkages_l18"					"The Shadow Maze"
+"#str_darkages_l19"					"The Demon Arena"
+"#str_darkages_l20"					"Tower of Despair"
+"#str_darkages_l21"					"Gates of Hell"
+"#str_darkages_l22"					"River of Lost Souls"
+"#str_darkages_l23"					"Fortress of Doom"
+"#str_darkages_l24"					"Throne of Darkness"
+"#str_darkages_l25"					"The Final Stand"
+
+// ============================================================================
+// WEAPONS
+// ============================================================================
+"#str_darkages_wpn_fists"			"Fists"
+"#str_darkages_wpn_sword"			"Dark Broadsword"
+"#str_darkages_wpn_mace"			"War Mace"
+"#str_darkages_wpn_axe"				"Battle Axe"
+"#str_darkages_wpn_flail"			"Chain Flail"
+"#str_darkages_wpn_crossbow"		"Heavy Crossbow"
+"#str_darkages_wpn_throwaxe"		"Throwing Axes"
+"#str_darkages_wpn_shield"			"Tower Shield"
+"#str_darkages_wpn_hellstaff"		"Hellfire Staff"
+"#str_darkages_wpn_greathammer"		"Great Hammer of Doom"
+
+// ============================================================================
+// ENEMIES
+// ============================================================================
+"#str_darkages_enemy_undead"		"Undead Soldier"
+"#str_darkages_enemy_knight"		"Dark Knight"
+"#str_darkages_enemy_hound"			"Hell Hound"
+"#str_darkages_enemy_sorcerer"		"Plague Sorcerer"
+"#str_darkages_enemy_siege"			"Siege Demon"
+"#str_darkages_enemy_wraith"		"Wraith"
+"#str_darkages_enemy_drake"			"Fire Drake"
+"#str_darkages_enemy_golem"			"Iron Golem"
+"#str_darkages_enemy_cultist"		"Dark Cultist"
+"#str_darkages_enemy_dragonking"	"Dragon King"
+"#str_darkages_enemy_darklord"		"The Dark Lord"
+
+// ============================================================================
+// HUD
+// ============================================================================
+"#str_darkages_hud_health"			"VITALITY"
+"#str_darkages_hud_armor"			"ARMOR"
+"#str_darkages_hud_stamina"			"STAMINA"
+"#str_darkages_hud_combo"			"COMBO"
+"#str_darkages_hud_souls"			"SOULS"
+"#str_darkages_hud_ammo"			"AMMO"
+"#str_darkages_hud_parry"			"PARRY!"
+"#str_darkages_hud_backstab"		"BACKSTAB!"
+"#str_darkages_hud_glory_kill"		"GLORY KILL!"
+"#str_darkages_hud_secret"			"SECRET FOUND!"
+"#str_darkages_hud_checkpoint"		"CHECKPOINT REACHED"
+"#str_darkages_hud_new_weapon"		"NEW WEAPON ACQUIRED"
+
+// ============================================================================
+// LEVEL COMPLETE SCREEN
+// ============================================================================
+"#str_darkages_complete_title"		"LEVEL COMPLETE"
+"#str_darkages_complete_kills"		"Demons Slain"
+"#str_darkages_complete_secrets"	"Secrets Found"
+"#str_darkages_complete_time"		"Completion Time"
+"#str_darkages_complete_combo"		"Best Combo"
+"#str_darkages_complete_parries"	"Successful Parries"
+"#str_darkages_complete_souls"		"Soul Essences Earned"
+"#str_darkages_complete_rating"		"Rating"
+"#str_darkages_complete_continue"	"Press ENTER to continue"
+
+// ============================================================================
+// DEATH SCREEN
+// ============================================================================
+"#str_darkages_death_title"			"YOU HAVE FALLEN"
+"#str_darkages_death_retry"			"Retry"
+"#str_darkages_death_load"			"Load Save"
+"#str_darkages_death_quit"			"Quit to Menu"
+
+// ============================================================================
+// TUTORIAL
+// ============================================================================
+"#str_darkages_tut_move"			"WASD - Move"
+"#str_darkages_tut_attack"			"Left Click - Attack"
+"#str_darkages_tut_heavy"			"F - Heavy Attack (hold to charge)"
+"#str_darkages_tut_block"			"Right Click - Block with Shield"
+"#str_darkages_tut_parry"			"Time your block just before impact to PARRY"
+"#str_darkages_tut_dodge"			"Q - Dodge Roll"
+"#str_darkages_tut_combo"			"Chain attacks quickly to build COMBOS"
+"#str_darkages_tut_backstab"		"Attack enemies from behind for BACKSTAB damage"
+"#str_darkages_tut_glory_kill"		"Stagger enemies then press E for a GLORY KILL"
+"#str_darkages_tut_stamina"			"All actions consume STAMINA - manage it wisely"
+"#str_darkages_tut_save"			"F5 - Quick Save / F9 - Quick Load"
+
+// ============================================================================
+// STORY / LORE
+// ============================================================================
+"#str_darkages_story_intro"			"In an age of darkness, when the barriers between worlds grow thin, an ancient evil stirs. The Dark Lord has risen, commanding legions of the undead and demonic hordes. As the last Knight of the fallen Order, you must forge your path through five acts of relentless combat, from the burning villages of the mortal realm to the very throne of darkness in Hell itself."
+
+"#str_darkages_story_act1"			"The kingdom burns. The Dark Lord's forces have breached the outer defenses, and the undead march through village streets. You must fight through the carnage, descend into ancient crypts, navigate cursed forests, and cross treacherous mountain passes guarded by dragons. The fallen kingdom cries out for a champion."
+
+"#str_darkages_story_act2"			"Beyond the mountains lie the Dark Lands - territories corrupted by centuries of demonic influence. Massive cathedrals serve as temples to darkness. Plague ravages the towns. Iron fortresses house unstoppable golems. The Bone Wastes stretch endlessly, and somewhere in the depths, Siege Demons prepare for war."
+
+"#str_darkages_story_act3"			"Deep beneath the earth, the Underworld awaits. Frozen caverns and rivers of lava guard the path forward. Ancient heroes lie entombed, their rest disturbed by corruption. Crystal caverns pulse with demonic energy. And at the heart of it all, the Dragon King waits upon its throne of fire and bone."
+
+"#str_darkages_story_act4"			"Reality itself fractures in the Cursed Realm. Ruined abbeys straddle the border between worlds. Blood swamps breed new horrors. The Shadow Maze shifts and changes, trapping the unwary. The Demon Arena demands blood sport. And the Tower of Despair reaches toward the sky, each floor more terrible than the last."
+
+"#str_darkages_story_act5"			"The gates of Hell lie open. A river of lost souls flows between impossible architecture. The Fortress of Doom guards the Dark Lord's throne. This is where it ends - at the Throne of Darkness itself. Defeat the Dark Lord, and close the portal before Hell consumes everything. The Final Stand begins."
+
+// ============================================================================
+// UPGRADE MENU
+// ============================================================================
+"#str_darkages_forge_title"			"THE FORGE"
+"#str_darkages_forge_souls"			"Soul Essences: "
+"#str_darkages_forge_combat"		"COMBAT"
+"#str_darkages_forge_defense"		"DEFENSE"
+"#str_darkages_forge_mobility"		"MOBILITY"
+"#str_darkages_forge_utility"		"UTILITY"
+"#str_darkages_forge_purchase"		"Hold ENTER to purchase"
+"#str_darkages_forge_maxed"			"MAXED OUT"
+"#str_darkages_forge_insufficient"	"Insufficient Soul Essences"
+
+// ============================================================================
+// BOSS INTRODUCTIONS
+// ============================================================================
+"#str_darkages_boss_firedrake"		"THE FIRE DRAKE DESCENDS"
+"#str_darkages_boss_siege"			"THE SIEGE LORD AWAKENS"
+"#str_darkages_boss_dragonking"		"THE DRAGON KING STIRS"
+"#str_darkages_boss_darklord"		"THE DARK LORD RISES"

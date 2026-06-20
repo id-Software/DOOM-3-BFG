@@ -1,0 +1,426 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Medieval Weapon Definitions
+// ============================================================================
+
+// ============================================================================
+// WEAPON: DARK KNIGHT SWORD (Primary Melee)
+// A massive two-handed broadsword forged in hellfire
+// ============================================================================
+entityDef weapon_darkages_sword {
+	"editor_color"			"1 .1 .1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_usage"			"Dark Knight's Broadsword - primary melee weapon"
+	"editor_rotatable"		"1"
+	
+	"spawnclass"			"idItem"
+	"model"					"models/weapons/sword/world_sword.lwo"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_sword"
+	"inv_name"				"Dark Broadsword"
+	"inv_icon"				"guis/assets/hud/wpn_sword"
+	"inv_item"				"5"
+	
+	"snd_acquire"			"sound_weapon_acquire"
+	"snd_respawn"			"sound_weapon_respawn"
+	
+	"weapon_scriptobject"	"weapon_darkages_sword"
+	"def_melee"				"damage_sword_melee"
+	"melee_distance"		"64"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"mtr_flashShader"		""
+	"flashColor"			"0 0 0"
+	"silent_fire"			"0"
+	"model_view"			"viewmodel_sword"
+	"model_world"			"worldmodel_sword"
+	"snd_metal"				"sword_impact_metal"
+	"snd_stone"				"sword_impact_stone"
+	"snd_flesh"				"sword_impact_flesh"
+	"snd_swing"				"sword_swing"
+	"snd_parry"				"sword_parry"
+	"smoke_strike"			"sword_sparks.prt"
+}
+
+entityDef damage_sword_melee {
+	"damage"				"80"
+	"kickDir"				"1 0 0"
+	"mtr_blob"				"genericDamage"
+	"mtr_splash"			"yourbloodsplat"
+	"gib"					"1"
+	"smoke_wound_flesh"		"bloodwound.prt"
+	"mtr_wound_flesh"		"textures/decals/yourbloodsplat"
+	"mtr_wound_metal"		"textures/decals/hitscan_metal"
+	"mtr_wound_stone"		"textures/decals/hitscan_stone"
+	"push"					"5000"
+	"snd_flesh"				"sword_hit_flesh"
+	"snd_metal"				"sword_hit_metal"
+	"snd_stone"				"sword_hit_stone"
+}
+
+// Heavy attack (charged)
+entityDef damage_sword_heavy {
+	"damage"				"200"
+	"kickDir"				"1 0 0"
+	"mtr_blob"				"genericDamage"
+	"mtr_splash"			"yourbloodsplat"
+	"gib"					"1"
+	"smoke_wound_flesh"		"bloodwound.prt"
+	"push"					"12000"
+	"snd_flesh"				"sword_heavy_hit_flesh"
+}
+
+// ============================================================================
+// WEAPON: WAR MACE (Heavy Melee)
+// Crushing blunt weapon effective against armored foes
+// ============================================================================
+entityDef weapon_darkages_mace {
+	"editor_color"			".8 .4 .1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_usage"			"War Mace - heavy crushing weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_mace"
+	"inv_name"				"War Mace"
+	"inv_icon"				"guis/assets/hud/wpn_mace"
+	"inv_item"				"5"
+	
+	"weapon_scriptobject"	"weapon_darkages_mace"
+	"def_melee"				"damage_mace_melee"
+	"melee_distance"		"56"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"model_view"			"viewmodel_mace"
+	"model_world"			"worldmodel_mace"
+	"snd_swing"				"mace_swing"
+	"snd_impact"			"mace_impact"
+	"smoke_strike"			"mace_sparks.prt"
+}
+
+entityDef damage_mace_melee {
+	"damage"				"120"
+	"kickDir"				"0.5 0 0.5"
+	"mtr_blob"				"genericDamage"
+	"mtr_splash"			"yourbloodsplat"
+	"gib"					"1"
+	"push"					"8000"
+	"armor_piercing"		"0.5"
+	"stun_duration"			"500"
+}
+
+// ============================================================================
+// WEAPON: CROSSBOW (Ranged)
+// Medieval ranged weapon with heavy bolts
+// ============================================================================
+entityDef weapon_darkages_crossbow {
+	"editor_color"			".4 .4 .1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_usage"			"Heavy Crossbow - ranged medieval weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_crossbow"
+	"inv_name"				"Heavy Crossbow"
+	"inv_icon"				"guis/assets/hud/wpn_crossbow"
+	"inv_item"				"5"
+	
+	"weapon_scriptobject"	"weapon_darkages_crossbow"
+	"def_projectile"		"projectile_crossbow_bolt"
+	"ammoType"				"ammo_bolts"
+	"ammoRequired"			"1"
+	"clipSize"				"1"
+	"model_view"			"viewmodel_crossbow"
+	"model_world"			"worldmodel_crossbow"
+	"snd_fire"				"crossbow_fire"
+	"snd_reload"			"crossbow_reload"
+	"muzzle_kick_time"		"0.5"
+	"muzzle_kick_maxtime"	"1"
+	"muzzle_kick_angles"	"0 0 0"
+	"muzzle_kick_offset"	"2 0 2"
+	"recoilTime"			"500"
+	"recoilAngles"			"-2 0 0"
+}
+
+entityDef projectile_crossbow_bolt {
+	"spawnclass"			"idProjectile"
+	"mins"					"-1 -1 -1"
+	"maxs"					"1 1 1"
+	"cone"					"3"
+	"noshadows"				"1"
+	"model"					"models/weapons/crossbow/bolt.lwo"
+	
+	"def_damage"			"damage_crossbow_bolt"
+	
+	"launchFromBarrel"		"1"
+	"health"				"0"
+	"velocity"				"2500 0 0"
+	"angular_velocity"		"0 0 0"
+	"thrust"				"0"
+	"thrust_start"			"0"
+	"thrust_end"			"0"
+	"linear_friction"		"0"
+	"angular_friction"		"0"
+	"contact_friction"		"0"
+	"bounce"				"0.1"
+	"mass"					"50"
+	"gravity"				"200"
+	"fuse"					"10"
+	
+	"detonate_on_fuse"		"0"
+	"detonate_on_death"		"0"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	
+	"snd_fly"				"crossbow_bolt_fly"
+	"snd_ricochet"			"crossbow_bolt_ricochet"
+}
+
+entityDef damage_crossbow_bolt {
+	"damage"				"150"
+	"kickDir"				"1 0 0"
+	"mtr_blob"				"genericDamage"
+	"mtr_splash"			"yourbloodsplat"
+	"gib"					"1"
+	"push"					"6000"
+	"snd_flesh"				"bolt_impact_flesh"
+	"snd_metal"				"bolt_impact_metal"
+	"snd_stone"				"bolt_impact_stone"
+}
+
+// ============================================================================
+// WEAPON: BATTLE AXE (Medium Melee)
+// Versatile chopping weapon with arc swings
+// ============================================================================
+entityDef weapon_darkages_axe {
+	"editor_color"			".6 .3 .1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_usage"			"Battle Axe - versatile melee weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_axe"
+	"inv_name"				"Battle Axe"
+	"inv_icon"				"guis/assets/hud/wpn_axe"
+	"inv_item"				"5"
+	
+	"weapon_scriptobject"	"weapon_darkages_axe"
+	"def_melee"				"damage_axe_melee"
+	"melee_distance"		"60"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"model_view"			"viewmodel_axe"
+	"model_world"			"worldmodel_axe"
+	"snd_swing"				"axe_swing"
+	"smoke_strike"			"axe_sparks.prt"
+}
+
+entityDef damage_axe_melee {
+	"damage"				"95"
+	"kickDir"				"0.7 0.3 0"
+	"mtr_blob"				"genericDamage"
+	"gib"					"1"
+	"push"					"7000"
+}
+
+// ============================================================================
+// WEAPON: SHIELD (Defense/Bash)
+// Blocking and bashing weapon
+// ============================================================================
+entityDef weapon_darkages_shield {
+	"editor_color"			".3 .3 .6"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 32"
+	"editor_usage"			"Tower Shield - defensive weapon with bash attack"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_shield"
+	"inv_name"				"Tower Shield"
+	"inv_icon"				"guis/assets/hud/wpn_shield"
+	"inv_item"				"5"
+	
+	"weapon_scriptobject"	"weapon_darkages_shield"
+	"def_melee"				"damage_shield_bash"
+	"melee_distance"		"40"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"model_view"			"viewmodel_shield"
+	"model_world"			"worldmodel_shield"
+	"snd_block"				"shield_block"
+	"snd_bash"				"shield_bash"
+	"block_damage_reduction"	"0.8"
+	"block_angle"			"60"
+}
+
+entityDef damage_shield_bash {
+	"damage"				"40"
+	"kickDir"				"1 0 0"
+	"push"					"15000"
+	"stun_duration"			"1000"
+}
+
+// ============================================================================
+// WEAPON: THROWING AXES (Ranged)
+// Quick ranged option
+// ============================================================================
+entityDef weapon_darkages_throwaxe {
+	"editor_usage"			"Throwing Axes - quick ranged weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_throwaxe"
+	"inv_name"				"Throwing Axes"
+	"inv_icon"				"guis/assets/hud/wpn_throwaxe"
+	
+	"weapon_scriptobject"	"weapon_darkages_throwaxe"
+	"def_projectile"		"projectile_throwaxe"
+	"ammoType"				"ammo_throwaxes"
+	"ammoRequired"			"1"
+	"clipSize"				"5"
+	"model_view"			"viewmodel_throwaxe"
+	"model_world"			"worldmodel_throwaxe"
+	"snd_throw"				"throwaxe_throw"
+}
+
+entityDef projectile_throwaxe {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_throwaxe"
+	"velocity"				"1800 0 0"
+	"angular_velocity"		"0 0 720"
+	"gravity"				"350"
+	"fuse"					"6"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+}
+
+entityDef damage_throwaxe {
+	"damage"				"65"
+	"push"					"3000"
+}
+
+// ============================================================================
+// WEAPON: FLAIL (Area Melee)
+// Chain weapon with wide arc
+// ============================================================================
+entityDef weapon_darkages_flail {
+	"editor_usage"			"Chain Flail - wide arc melee weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_flail"
+	"inv_name"				"Chain Flail"
+	"inv_icon"				"guis/assets/hud/wpn_flail"
+	
+	"weapon_scriptobject"	"weapon_darkages_flail"
+	"def_melee"				"damage_flail_melee"
+	"melee_distance"		"72"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"model_view"			"viewmodel_flail"
+	"snd_swing"				"flail_swing"
+}
+
+entityDef damage_flail_melee {
+	"damage"				"70"
+	"kickDir"				"0.3 0.7 0"
+	"push"					"6000"
+	"area_damage_radius"	"48"
+}
+
+// ============================================================================
+// WEAPON: HELLFIRE STAFF (Magic Ranged)
+// Demonic magic weapon found in deeper levels
+// ============================================================================
+entityDef weapon_darkages_hellstaff {
+	"editor_usage"			"Hellfire Staff - demonic magic weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_hellstaff"
+	"inv_name"				"Hellfire Staff"
+	"inv_icon"				"guis/assets/hud/wpn_hellstaff"
+	
+	"weapon_scriptobject"	"weapon_darkages_hellstaff"
+	"def_projectile"		"projectile_hellfire"
+	"ammoType"				"ammo_hellfire"
+	"ammoRequired"			"10"
+	"clipSize"				"100"
+	"model_view"			"viewmodel_hellstaff"
+	"snd_fire"				"hellstaff_fire"
+	"mtr_flashShader"		"lights/hellfire_flash"
+	"flashColor"			"1 0.3 0"
+}
+
+entityDef projectile_hellfire {
+	"spawnclass"			"idProjectile"
+	"def_damage"			"damage_hellfire"
+	"def_splash_damage"		"damage_hellfire_splash"
+	"velocity"				"1200 0 0"
+	"fuse"					"5"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	"model_fly"				"hellfire_projectile.prt"
+	"light_color"			"1 0.4 0"
+	"light_radius"			"160"
+	"snd_fly"				"hellfire_fly"
+}
+
+entityDef damage_hellfire {
+	"damage"				"100"
+	"push"					"8000"
+}
+
+entityDef damage_hellfire_splash {
+	"damage"				"50"
+	"radius"				"120"
+	"push"					"5000"
+}
+
+// ============================================================================
+// WEAPON: GREAT HAMMER (Super Weapon)
+// Massive warhammer with ground-pound ability
+// ============================================================================
+entityDef weapon_darkages_greathammer {
+	"editor_usage"			"Great Hammer - devastating super weapon"
+	
+	"spawnclass"			"idItem"
+	"size"					"32 32 32"
+	"inv_weapon"			"weapon_darkages_greathammer"
+	"inv_name"				"Great Hammer of Doom"
+	"inv_icon"				"guis/assets/hud/wpn_greathammer"
+	
+	"weapon_scriptobject"	"weapon_darkages_greathammer"
+	"def_melee"				"damage_greathammer_melee"
+	"melee_distance"		"70"
+	"ammoType"				""
+	"ammoRequired"			"0"
+	"clipSize"				"0"
+	"model_view"			"viewmodel_greathammer"
+	"snd_swing"				"greathammer_swing"
+	"snd_impact"			"greathammer_impact"
+}
+
+entityDef damage_greathammer_melee {
+	"damage"				"250"
+	"kickDir"				"0 0 1"
+	"push"					"20000"
+	"stun_duration"			"2000"
+	"gib"					"1"
+}
+
+// Ground pound (special attack)
+entityDef damage_greathammer_groundpound {
+	"damage"				"150"
+	"radius"				"200"
+	"push"					"15000"
+	"stun_duration"			"1500"
+}
