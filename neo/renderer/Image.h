@@ -38,6 +38,9 @@ No texture is ever used that does not have a corresponding idImage.
 ====================================================================
 */
 
+#ifndef __IMAGE_H__
+#define __IMAGE_H__
+
 static const int	MAX_TEXTURE_LEVELS = 14;
 
 // How is this texture used?  Determines the storage and color format
@@ -361,4 +364,6 @@ IMAGEPROGRAM
 
 void R_LoadImageProgram( const char *name, byte **pic, int *width, int *height, ID_TIME_T *timestamp, textureUsage_t * usage = NULL );
 const char *R_ParsePastImageProgram( idLexer &src );
+
+#endif /* !__IMAGE_H__ */
 

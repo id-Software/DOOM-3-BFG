@@ -35,6 +35,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys_lobby_backend.h"
 #include "sys_lobby.h"
+#include "Common_dialog.h"
+#include "sys_session.h"
+#include "sys_savegame.h"
+#include "sys_session_savegames.h"
 
 class idSaveGameProcessorNextMap;
 class idSaveGameProcessorSaveGame;
@@ -185,6 +189,18 @@ public:
 	virtual					~idSessionLocal();
 
 	void					InitBaseState();
+	void					Init();
+	void					InitSteam();
+	void					ConstructSteamObjects();
+	void					DestroySteamObjects();
+
+	saveGameHandle_t			LoadGame( const char * name, const saveFileEntryList_t & files );
+	saveGameHandle_t			SaveGame( const char * name, const saveFileEntryList_t & files, const idSaveGameDetails & description, uint64 skipErrorMask );
+	saveGameHandle_t			EnumerateSaveGames( uint64 skipErrorMask );
+	saveGameHandle_t			DeleteSaveGame( const char * name, uint64 skipErrorMask );
+	idLobby *				GetActiveLobby();
+	const idLobby *			GetActiveLobby() const;
+	idLobbyBase &			GetActiveLobbyBase();
 
 	virtual bool			IsPlatformPartyInLobby();
 
@@ -559,6 +575,8 @@ protected:
 
 	void	SendRawPacket( const lobbyAddress_t & to, const void * data, int size, bool dedicated );
 	bool	ReadRawPacket( lobbyAddress_t & from, void * data, int & size, bool & outDedicated, int maxSize );
+    void    SendRawPacket( const lobbyAddress_t & to, const void * data, int size );
+    bool    ReadRawPacket( lobbyAddress_t & from, void * data, int & size, int maxSize );
 
 	void	ConnectAndMoveToLobby( idLobby & lobby, const lobbyConnectInfo_t & connectInfo, bool fromInvite );
 	void	GoodbyeFromHost( idLobby & lobby, int peerNum, const lobbyAddress_t & remoteAddress, int msgType );

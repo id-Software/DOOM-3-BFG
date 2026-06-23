@@ -29,11 +29,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
-#include "Common_local.h"
-#include "../renderer/Image.h"
-#include "../renderer/ImageOpts.h"
+// Include doomclassic headers FIRST to avoid macro conflicts (DI_NODIR)
 #include "../../doomclassic/doom/doomlib.h"
 #include "../../doomclassic/doom/globaldata.h"
+
+#include "Common_local.h"
+#include "Console.h"
+#include "EventLoop.h"
+#include "../renderer/Image.h"
+#include "../renderer/ImageOpts.h"
 
 /*
 

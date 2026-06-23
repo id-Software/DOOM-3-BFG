@@ -26,8 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "../../idlib/precompiled.h"
 #include "../Game_local.h"
+#include "../../framework/Common_dialog.h"
+#include "../../framework/KeyInput.h"
 #include "../../renderer/tr_local.h"
 
 const static int NUM_SETTING_OPTIONS = 7;

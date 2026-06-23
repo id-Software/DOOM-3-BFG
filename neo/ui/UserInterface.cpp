@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ListGUILocal.h"
 #include "DeviceContext.h"
 #include "Window.h"
+#include "../framework/DemoFile.h"
+#include "../framework/KeyInput.h"
 #include "UserInterfaceLocal.h"
 
 extern idCVar r_skipGuiShaders;		// 1 = don't render any gui elements on surfaces

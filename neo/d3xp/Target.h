@@ -124,9 +124,24 @@ class idTarget_EndLevel : public idTarget {
 public:
 	CLASS_PROTOTYPE( idTarget_EndLevel );
 
+	idTarget_EndLevel();
+	virtual ~idTarget_EndLevel();
+	virtual void			Spawn();
+	virtual void			Draw();
+	void					Event_Trigger( idEntity *activator );
+	void					PlayerCommand( int buttons );
+	const char*				ExitCommand();
+
 private:
 	void				Event_Activate( idEntity *activator );
 
+	idUserInterface *	gui;
+	bool				noGui;
+	bool				buttonsReleased;
+	bool				readyToExit;
+	idStr				exitCommand;
+	idVec3				initialViewOrg;
+	idVec3				initialViewAngles;
 };
 
 

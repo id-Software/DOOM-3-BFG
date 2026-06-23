@@ -1,0 +1,300 @@
+Version 2
+// entity 0 - worldspawn
+{
+"classname" "worldspawn"
+"name" "da01_burning_village"
+"message" "The Burning Village"
+"music" "music/darkages/burning_village"
+"ambientColor" "0.15 0.1 0.08"
+"_color" "0.5 0.3 0.15"
+"darkages_level" "1"
+"darkages_act" "0"
+"darkages_fog_color" "0.6 0.3 0.1"
+"darkages_fog_distance" "2000"
+
+// Main ground plane - village square
+{
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) "textures/darkages/stone_cobblestone" 0 0 0 0.5 0.5 0 0 0
+( 0 0 -16 ) ( 0 1 -16 ) ( 1 0 -16 ) "textures/darkages/stone_cobblestone" 0 0 0 0.5 0.5 0 0 0
+( -2048 0 0 ) ( -2048 0 -16 ) ( -2048 1 0 ) "textures/darkages/stone_cobblestone" 0 0 0 0.5 0.5 0 0 0
+( 2048 0 0 ) ( 2048 1 0 ) ( 2048 0 -16 ) "textures/darkages/stone_cobblestone" 0 0 0 0.5 0.5 0 0 0
+( 0 -2048 0 ) ( 1 -2048 0 ) ( 0 -2048 -16 ) "textures/darkages/stone_cobblestone" 0 0 0 0.5 0.5 0 0 0
+( 0 2048 0 ) ( 0 2048 -16 ) ( 1 2048 0 ) "textures/darkages/stone_cobblestone" 0 0 0 0.5 0.5 0 0 0
+}
+
+// North wall
+{
+( -2048 2048 0 ) ( 2048 2048 0 ) ( -2048 2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 2064 0 ) ( -2048 2064 256 ) ( 2048 2064 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 2048 0 ) ( -2048 2064 0 ) ( 2048 2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 2048 256 ) ( 2048 2048 256 ) ( -2048 2064 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 2048 0 ) ( -2048 2048 256 ) ( -2048 2064 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2048 2048 0 ) ( 2048 2064 0 ) ( 2048 2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+}
+
+// South wall
+{
+( -2048 -2064 0 ) ( -2048 -2064 256 ) ( 2048 -2064 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 -2048 0 ) ( 2048 -2048 0 ) ( -2048 -2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 -2064 0 ) ( 2048 -2064 0 ) ( -2048 -2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 -2064 256 ) ( -2048 -2048 256 ) ( 2048 -2064 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 -2064 0 ) ( -2048 -2048 0 ) ( -2048 -2064 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2048 -2064 0 ) ( 2048 -2064 256 ) ( 2048 -2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+}
+
+// East wall
+{
+( 2048 -2048 0 ) ( 2048 2048 0 ) ( 2048 -2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2064 -2048 0 ) ( 2064 -2048 256 ) ( 2064 2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2048 -2048 0 ) ( 2064 -2048 0 ) ( 2048 2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2048 -2048 256 ) ( 2048 2048 256 ) ( 2064 -2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2048 -2048 0 ) ( 2048 -2048 256 ) ( 2064 -2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( 2048 2048 0 ) ( 2064 2048 0 ) ( 2048 2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+}
+
+// West wall
+{
+( -2064 -2048 0 ) ( -2064 -2048 256 ) ( -2064 2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2048 -2048 0 ) ( -2048 2048 0 ) ( -2048 -2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2064 -2048 0 ) ( -2048 -2048 0 ) ( -2064 2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2064 -2048 256 ) ( -2064 2048 256 ) ( -2048 -2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2064 -2048 0 ) ( -2064 2048 0 ) ( -2064 -2048 256 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+( -2064 2048 0 ) ( -2064 2048 256 ) ( -2048 2048 0 ) "textures/darkages/stone_castle_wall" 0 0 0 0.25 0.25 0 0 0
+}
+
+// Ceiling / Sky
+{
+( -2048 -2048 512 ) ( 2048 -2048 512 ) ( -2048 2048 512 ) "textures/darkages/sky_burning" 0 0 0 0.5 0.5 0 0 0
+( -2048 -2048 528 ) ( -2048 2048 528 ) ( 2048 -2048 528 ) "textures/darkages/sky_burning" 0 0 0 0.5 0.5 0 0 0
+( -2048 -2048 512 ) ( -2048 2048 512 ) ( -2048 -2048 528 ) "textures/darkages/sky_burning" 0 0 0 0.5 0.5 0 0 0
+( 2048 -2048 512 ) ( 2048 -2048 528 ) ( 2048 2048 512 ) "textures/darkages/sky_burning" 0 0 0 0.5 0.5 0 0 0
+( -2048 -2048 512 ) ( -2048 -2048 528 ) ( 2048 -2048 512 ) "textures/darkages/sky_burning" 0 0 0 0.5 0.5 0 0 0
+( -2048 2048 512 ) ( 2048 2048 512 ) ( -2048 2048 528 ) "textures/darkages/sky_burning" 0 0 0 0.5 0.5 0 0 0
+}
+
+// Building 1 - Burning house (NW corner)
+{
+( -1800 1200 0 ) ( -1400 1200 0 ) ( -1800 1200 192 ) "textures/darkages/wood_charred" 0 0 0 0.25 0.25 0 0 0
+( -1800 1600 0 ) ( -1800 1600 192 ) ( -1400 1600 0 ) "textures/darkages/wood_charred" 0 0 0 0.25 0.25 0 0 0
+( -1800 1200 0 ) ( -1800 1600 0 ) ( -1400 1200 0 ) "textures/darkages/stone_dungeon_floor" 0 0 0 0.25 0.25 0 0 0
+( -1800 1200 192 ) ( -1400 1200 192 ) ( -1800 1600 192 ) "textures/darkages/wood_charred" 0 0 0 0.25 0.25 0 0 0
+( -1800 1200 0 ) ( -1800 1200 192 ) ( -1800 1600 0 ) "textures/darkages/wood_charred" 0 0 0 0.25 0.25 0 0 0
+( -1400 1200 0 ) ( -1400 1600 0 ) ( -1400 1200 192 ) "textures/darkages/wood_charred" 0 0 0 0.25 0.25 0 0 0
+}
+
+// Building 2 - Blacksmith shop (NE corner)
+{
+( 1200 1200 0 ) ( 1800 1200 0 ) ( 1200 1200 160 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 1200 1600 0 ) ( 1200 1600 160 ) ( 1800 1600 0 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 1200 1200 0 ) ( 1200 1600 0 ) ( 1800 1200 0 ) "textures/darkages/stone_dungeon_floor" 0 0 0 0.25 0.25 0 0 0
+( 1200 1200 160 ) ( 1800 1200 160 ) ( 1200 1600 160 ) "textures/darkages/wood_dark_planks" 0 0 0 0.25 0.25 0 0 0
+( 1200 1200 0 ) ( 1200 1200 160 ) ( 1200 1600 0 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+( 1800 1200 0 ) ( 1800 1600 0 ) ( 1800 1200 160 ) "textures/darkages/stone_brick_old" 0 0 0 0.25 0.25 0 0 0
+}
+
+// Central well/fountain
+{
+( -64 -64 0 ) ( 64 -64 0 ) ( -64 -64 48 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -64 64 0 ) ( -64 64 48 ) ( 64 64 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -64 -64 0 ) ( -64 64 0 ) ( 64 -64 0 ) "textures/darkages/blood_pool" 0 0 0 0.25 0.25 0 0 0
+( -64 -64 48 ) ( 64 -64 48 ) ( -64 64 48 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( -64 -64 0 ) ( -64 -64 48 ) ( -64 64 0 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+( 64 -64 0 ) ( 64 64 0 ) ( 64 -64 48 ) "textures/darkages/stone_mossy" 0 0 0 0.25 0.25 0 0 0
+}
+}
+
+// entity 1 - Player spawn
+{
+"classname" "info_player_start"
+"name" "info_player_start_1"
+"origin" "0 -1800 24"
+"angle" "90"
+}
+
+// entity 2 - Main fire light (village square)
+{
+"classname" "light"
+"name" "light_village_fire_1"
+"origin" "0 0 128"
+"_color" "1 0.5 0.1"
+"light" "800"
+"texture" "lights/defaultPointLight"
+"noshadows" "0"
+}
+
+// entity 3 - Fire light NW
+{
+"classname" "light"
+"name" "light_fire_nw"
+"origin" "-1600 1400 200"
+"_color" "1 0.4 0.05"
+"light" "600"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 4 - Fire light NE
+{
+"classname" "light"
+"name" "light_fire_ne"
+"origin" "1500 1400 180"
+"_color" "1 0.6 0.1"
+"light" "500"
+"texture" "lights/defaultPointLight"
+}
+
+// entity 5-8 - Undead soldiers patrol
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_1"
+"origin" "400 200 0"
+"angle" "270"
+}
+
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_2"
+"origin" "-500 600 0"
+"angle" "180"
+}
+
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_3"
+"origin" "800 -400 0"
+"angle" "90"
+}
+
+{
+"classname" "monster_darkages_undead_soldier"
+"name" "undead_soldier_4"
+"origin" "-300 -800 0"
+"angle" "45"
+}
+
+// entity 9-10 - Hell Hounds
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_1"
+"origin" "1200 -600 0"
+"angle" "180"
+}
+
+{
+"classname" "monster_darkages_hellhound"
+"name" "hellhound_2"
+"origin" "-1000 800 0"
+"angle" "270"
+}
+
+// entity 11-12 - Dark Knight (ambush)
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_1"
+"origin" "0 1500 0"
+"angle" "180"
+}
+
+{
+"classname" "monster_darkages_dark_knight"
+"name" "dark_knight_2"
+"origin" "1600 0 0"
+"angle" "270"
+}
+
+// entity 13 - Sword pickup
+{
+"classname" "weapon_darkages_sword"
+"name" "sword_pickup_1"
+"origin" "0 -1600 24"
+}
+
+// entity 14-16 - Health pickups
+{
+"classname" "item_darkages_health_small"
+"name" "health_1"
+"origin" "300 -300 0"
+}
+
+{
+"classname" "item_darkages_health_medium"
+"name" "health_2"
+"origin" "-700 -200 0"
+}
+
+{
+"classname" "item_darkages_health_small"
+"name" "health_3"
+"origin" "1000 1000 0"
+}
+
+// entity 17 - Armor pickup
+{
+"classname" "item_darkages_armor_chainmail"
+"name" "armor_1"
+"origin" "-1600 1400 0"
+}
+
+// entity 18 - Secret area trigger
+{
+"classname" "trigger_once"
+"name" "secret_1"
+"origin" "1700 1700 32"
+"mins" "-32 -32 0"
+"maxs" "32 32 64"
+"call" "secret_found_1"
+}
+
+// entity 19 - Level exit trigger
+{
+"classname" "trigger_once"
+"name" "level_exit"
+"origin" "0 1950 32"
+"mins" "-128 -16 0"
+"maxs" "128 16 128"
+"call" "next_level"
+"target" "target_endlevel"
+}
+
+// entity 20 - Target endlevel
+{
+"classname" "target_endlevel"
+"name" "target_endlevel"
+"nextMap" "maps/darkages/da02_castle_siege"
+}
+
+// entity 21-24 - Torch lights along paths
+{
+"classname" "light"
+"name" "torch_light_1"
+"origin" "-800 0 128"
+"_color" "1 0.6 0.2"
+"light" "300"
+"texture" "lights/defaultPointLight"
+}
+
+{
+"classname" "light"
+"name" "torch_light_2"
+"origin" "800 0 128"
+"_color" "1 0.6 0.2"
+"light" "300"
+"texture" "lights/defaultPointLight"
+}
+
+{
+"classname" "light"
+"name" "torch_light_3"
+"origin" "0 800 128"
+"_color" "1 0.6 0.2"
+"light" "300"
+"texture" "lights/defaultPointLight"
+}
+
+{
+"classname" "light"
+"name" "torch_light_4"
+"origin" "0 -800 128"
+"_color" "1 0.6 0.2"
+"light" "300"
+"texture" "lights/defaultPointLight"
+}

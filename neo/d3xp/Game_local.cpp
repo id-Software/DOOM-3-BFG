@@ -429,7 +429,7 @@ void idGameLocal::Shutdown() {
 	cvarSystem->RemoveFlaggedAutoCompletion( CVAR_GAME );
 
 	// enable leak test
-	Mem_EnableLeakTest( "game" );
+// 	Mem_EnableLeakTest( "game" );
 
 	// shutdown idLib
 	idLib::ShutDown();

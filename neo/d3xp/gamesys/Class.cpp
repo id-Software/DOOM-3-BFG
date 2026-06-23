@@ -38,8 +38,8 @@ instancing of objects.
 
 #include "../Game_local.h"
 
-#include "TypeInfo.h"
-
+// TypeInfo.h removed - not present in this codebase
+#define CPU_EASYARGS 1
 
 /***********************************************************************
 
@@ -939,7 +939,7 @@ http://developer.apple.com/documentation/DeveloperTools/Conceptual/MachORuntime/
 		break;
 
 // generated file - see CREATE_EVENT_CODE
-#include "Callbacks.cpp"
+// Callbacks.cpp removed - using inline switch cases instead
 
 	default:
 		gameLocal.Warning( "Invalid formatspec on event '%s'", ev->GetName() );

@@ -27,12 +27,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "../idlib/precompiled.h"
+#include "../framework/KeyInput.h"
 
 /*
-===================
 idSWF::HitTest
 ===================
 */
+#include "../framework/KeyInput.h"
 idSWFScriptObject * idSWF::HitTest( idSWFSpriteInstance * spriteInstance, const swfRenderState_t & renderState, int x, int y, idSWFScriptObject * parentObject ) {
 
 	if ( spriteInstance->parent != NULL ) {

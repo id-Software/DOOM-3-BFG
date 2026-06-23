@@ -510,11 +510,21 @@
     <ClCompile Include="ui\Winvar.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sys\win32\rc\res\doom.ico" />
+    <None Include="sys\win32\rc\res\darkages.ico" />
     <None Include="sys\win32\rc\res\doom3bfg.bin" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="sys\win32\rc\doom.rc" />
+    <ResourceCompile Include="sys\win32\rc\darkages.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="darkages\DarkAgesGame.cpp" />
+    <ClCompile Include="darkages\DarkAgesCombat.cpp" />
+    <ClCompile Include="darkages\DarkAgesRenderer.cpp" />
+    <ClCompile Include="darkages\DarkAgesProgression.cpp" />
+    <ClInclude Include="darkages\DarkAgesGame.h" />
+    <ClInclude Include="darkages\DarkAgesCombat.h" />
+    <ClInclude Include="darkages\DarkAgesRenderer.h" />
+    <ClInclude Include="darkages\DarkAgesProgression.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\doomclassic\doomclassic.vcxproj" Condition="'$(Platform)'=='Win32'">

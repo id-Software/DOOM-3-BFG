@@ -44,8 +44,8 @@ typedef unsigned char byte;
 typedef unsigned int dword;
 
 
-#include <Math.h>
-#include <Assert.h>
+#include <math/Math.h>
+#include <assert.h>
 
 #define ACTUALTEXTUREWIDTH	1024		// should always be equal to or larger
 #define ACTUALTEXTUREHEIGHT	1024

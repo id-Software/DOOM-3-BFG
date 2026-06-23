@@ -1,0 +1,176 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Combat Particle Effects
+// ============================================================================
+
+particle sword_sparks {
+	{
+		count				12
+		material			textures/particles/spark
+		time				0.3
+		cycles				1
+		color				1.00 0.70 0.20 1.00
+		fadeColor			1.00 0.30 0.00 0.00
+		size				1.0 3.0
+		speed				"80" to "200"
+		gravity				200
+		randomDistribution	1
+		boundsExpansion		16
+	}
+}
+
+particle mace_sparks {
+	{
+		count				20
+		material			textures/particles/spark
+		time				0.5
+		cycles				1
+		color				1.00 0.80 0.30 1.00
+		fadeColor			0.80 0.40 0.00 0.00
+		size				2.0 5.0
+		speed				"100" to "300"
+		gravity				300
+		randomDistribution	1
+		boundsExpansion		24
+	}
+}
+
+particle axe_sparks {
+	{
+		count				15
+		material			textures/particles/spark
+		time				0.4
+		cycles				1
+		color				1.00 0.60 0.15 1.00
+		fadeColor			0.90 0.30 0.00 0.00
+		size				1.5 4.0
+		speed				"90" to "250"
+		gravity				250
+		randomDistribution	1
+		boundsExpansion		20
+	}
+}
+
+particle blood_spray {
+	{
+		count				8
+		material			textures/particles/blood_drop
+		time				0.6
+		cycles				1
+		color				0.60 0.00 0.00 1.00
+		fadeColor			0.30 0.00 0.00 0.00
+		size				3.0 8.0
+		speed				"60" to "200"
+		gravity				400
+		randomDistribution	1
+		boundsExpansion		32
+	}
+}
+
+particle blood_mist {
+	{
+		count				4
+		material			textures/particles/blood_mist
+		time				1.0
+		cycles				1
+		color				0.50 0.00 0.00 0.50
+		fadeColor			0.20 0.00 0.00 0.00
+		size				16.0 32.0
+		speed				"10" to "30"
+		gravity				-20
+		randomDistribution	1
+		boundsExpansion		48
+	}
+}
+
+particle glory_kill_burst {
+	{
+		count				30
+		material			textures/particles/blood_drop
+		time				1.0
+		cycles				1
+		color				0.80 0.00 0.00 1.00
+		fadeColor			0.40 0.00 0.00 0.00
+		size				2.0 6.0
+		speed				"150" to "400"
+		gravity				500
+		randomDistribution	1
+		boundsExpansion		64
+	}
+	{
+		count				10
+		material			textures/particles/bone_shard
+		time				1.5
+		cycles				1
+		color				0.90 0.85 0.70 1.00
+		fadeColor			0.50 0.45 0.30 0.00
+		size				1.0 4.0
+		speed				"100" to "300"
+		gravity				600
+		randomDistribution	1
+		boundsExpansion		48
+	}
+}
+
+particle shield_block_spark {
+	{
+		count				8
+		material			textures/particles/spark
+		time				0.2
+		cycles				1
+		color				0.70 0.80 1.00 1.00
+		fadeColor			0.30 0.40 0.80 0.00
+		size				2.0 4.0
+		speed				"100" to "200"
+		gravity				100
+		randomDistribution	1
+		boundsExpansion		16
+	}
+}
+
+particle parry_flash {
+	{
+		count				16
+		material			textures/particles/spark
+		time				0.3
+		cycles				1
+		color				1.00 1.00 0.50 1.00
+		fadeColor			1.00 0.80 0.00 0.00
+		size				3.0 6.0
+		speed				"150" to "350"
+		gravity				50
+		randomDistribution	1
+		boundsExpansion		32
+	}
+}
+
+particle hellfire_projectile {
+	{
+		count				5
+		material			textures/particles/fire
+		time				0.5
+		cycles				0
+		color				1.00 0.40 0.00 1.00
+		fadeColor			0.80 0.20 0.00 0.00
+		size				8.0 16.0
+		speed				"5" to "15"
+		gravity				-30
+		randomDistribution	1
+		boundsExpansion		20
+	}
+}
+
+particle drakefire_projectile {
+	{
+		count				8
+		material			textures/particles/fire
+		time				0.8
+		cycles				0
+		color				1.00 0.50 0.00 1.00
+		fadeColor			1.00 0.20 0.00 0.00
+		size				12.0 24.0
+		speed				"8" to "20"
+		gravity				-40
+		randomDistribution	1
+		boundsExpansion		32
+	}
+}

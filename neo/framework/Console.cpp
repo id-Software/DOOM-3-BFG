@@ -31,6 +31,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "ConsoleHistory.h"
 #include "../renderer/ResolutionScale.h"
 #include "Common_local.h"
+#include "EditField.h"
+#include "KeyInput.h"
+#include "EventLoop.h"
+#include "DebugGraph.h"
+#include "Console.h"
 
 #define	CON_TEXTSIZE			0x30000
 #define	NUM_CON_TIMES			4

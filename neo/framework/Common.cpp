@@ -30,6 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
+#include "KeyInput.h"
+#include "EventLoop.h"
+#include "Common_dialog.h"
+#include "Console.h"
 
 #include "ConsoleHistory.h"
 #include "../renderer/AutoRenderBink.h"
@@ -824,7 +828,7 @@ void idCommonLocal::LoadGameDLL() {
 	gameExport_t	gameExport;
 	GetGameAPI_t	GetGameAPI;
 
-	fileSystem->FindDLL( "game", dllPath, true );
+	fileSystem->FindDLL( "game", dllPath );
 
 	if ( !dllPath[ 0 ] ) {
 		common->FatalError( "couldn't find game dynamic library" );

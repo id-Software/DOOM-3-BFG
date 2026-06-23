@@ -30,6 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
+#include "Console.h"
+#include "EventLoop.h"
+#include "DemoFile.h"
 
 /*
 ================

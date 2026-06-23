@@ -432,10 +432,12 @@ void idSoundWorldLocal::Update() {
 
 		shakeAmp += chan->parms.shakes * chan->hardwareVoice->GetGain() * chan->currentAmplitude;
 	}
+#if 0 // MinGW XAudio2 doesn't have overlay support
 	if ( showVoices ) {
 		static idOverlayHandle handle;
 		console->PrintOverlay( handle, JUSTIFY_LEFT, showVoiceTable.c_str() );
 	}
+#endif
 
 	if ( s_drawSounds.GetBool() && renderWorld != NULL ) {
 		for ( int e = 0; e < emitters.Num(); e++ ) {

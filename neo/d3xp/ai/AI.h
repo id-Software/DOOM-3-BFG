@@ -112,7 +112,7 @@ typedef enum {
 	MOVE_STATUS_BLOCKED_BY_MONSTER
 } moveStatus_t;
 
-#define	DI_NODIR	-1
+#define	AI_NODIR	-1
 
 // obstacle avoidance
 typedef struct obstaclePath_s {

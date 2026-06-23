@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 
 #include "tr_local.h"
+#include "../framework/DemoFile.h"
+#include "../framework/EventLoop.h"
 
 //#define WRITE_GUIS
 

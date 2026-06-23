@@ -1,3 +1,6 @@
+#ifndef __RENDERER_GUIMODEL_H__
+#define __RENDERER_GUIMODEL_H__
+
 /*
 ===========================================================================
 
@@ -85,3 +88,4 @@ private:
 	idList<guiModelSurface_t, TAG_MODEL>	surfaces;
 };
 
+#endif

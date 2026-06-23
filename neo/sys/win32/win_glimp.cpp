@@ -189,7 +189,7 @@ bool R_CheckWinExtension( const char * name ) {
 
 	if ( !strstr( glConfig.wgl_extensions_string, name ) ) {
 		idLib::Printf( "X..%s not found\n", name );
-		return false;
+		return idStr();
 	}
 
 	idLib::Printf( "...using %s\n", name );
@@ -450,7 +450,7 @@ static bool GLW_InitDriver( glimpParms_t parms ) {
 
 		if ( ( win32.hDC = GetDC( win32.hWnd ) ) == NULL ) {
 			common->Printf( "^3failed^0\n" );
-			return false;
+			return idStr();
 		}
 		common->Printf( "succeeded\n" );
 	}
@@ -476,7 +476,7 @@ static bool GLW_InitDriver( glimpParms_t parms ) {
 		//
 		if ( ( win32.pixelformat = ChoosePixelFormat( win32.hDC, &src ) ) == 0 ) {
 			common->Printf( "...^3GLW_ChoosePFD failed^0\n");
-			return false;
+			return idStr();
 		}
 		common->Printf( "...PIXELFORMAT %d selected\n", win32.pixelformat );
 	}
@@ -495,7 +495,7 @@ static bool GLW_InitDriver( glimpParms_t parms ) {
 	// the same SetPixelFormat is used either way
 	if ( SetPixelFormat( win32.hDC, win32.pixelformat, &win32.pfd ) == FALSE ) {
 		common->Printf( "...^3SetPixelFormat failed^0\n", win32.hDC );
-		return false;
+		return idStr();
 	}
 
 	//
@@ -505,7 +505,7 @@ static bool GLW_InitDriver( glimpParms_t parms ) {
 	win32.hGLRC = CreateOpenGLContextOnDC( win32.hDC, r_debugContext.GetBool() );
 	if ( win32.hGLRC == 0 ) {
 		common->Printf( "^3failed^0\n" );
-		return false;
+		return idStr();
 	}
 	common->Printf( "succeeded\n" );
 
@@ -514,7 +514,7 @@ static bool GLW_InitDriver( glimpParms_t parms ) {
 		qwglDeleteContext( win32.hGLRC );
 		win32.hGLRC = NULL;
 		common->Printf( "^3failed^0\n" );
-		return false;
+		return idStr();
 	}
 	common->Printf( "succeeded\n" );
 
@@ -606,12 +606,12 @@ static idStr GetDeviceName( const int deviceNum ) {
 			deviceNum,
 			&device,
 			0 /* dwFlags */ ) ) {
-		return false;
+		return idStr();
 	}
 
 	// get the monitor for this display
 	if ( ! (device.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP ) ) {
-		return false;
+		return idStr();
 	}
 
 	return idStr( device.DeviceName );
@@ -625,7 +625,7 @@ GetDisplayCoordinates
 static bool GetDisplayCoordinates( const int deviceNum, int & x, int & y, int & width, int & height, int & displayHz ) {
 	idStr deviceName = GetDeviceName( deviceNum );
 	if ( deviceName.Length() == 0 ) {
-		return false;
+		return idStr();
 	}
 
 	DISPLAY_DEVICE	device = {};
@@ -635,7 +635,7 @@ static bool GetDisplayCoordinates( const int deviceNum, int & x, int & y, int & 
 			deviceNum,
 			&device,
 			0 /* dwFlags */ ) ) {
-		return false;
+		return idStr();
 	}
 
 	DISPLAY_DEVICE	monitor;
@@ -645,13 +645,13 @@ static bool GetDisplayCoordinates( const int deviceNum, int & x, int & y, int & 
 			0,
 			&monitor,
 			0 /* dwFlags */ ) ) {
-		return false;
+		return idStr();
 	}
 
 	DEVMODE	devmode;
 	devmode.dmSize = sizeof( devmode );
 	if ( !EnumDisplaySettings( deviceName.c_str(),ENUM_CURRENT_SETTINGS, &devmode ) ) {
-		return false;
+		return idStr();
 	}
 
 	common->Printf( "display device: %i\n", deviceNum );
@@ -813,7 +813,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 				displayNum,
 				&device,
 				0 /* dwFlags */ ) ) {
-			return false;
+			return idStr();
 		}
 
 		// get the monitor for this display
@@ -923,7 +923,7 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int &x, int &y, i
 			// any required ChangeDisplaySettings has already been done
 			int displayHz = 0;
 			if ( !GetDisplayCoordinates( parms.fullScreen - 1, x, y, w, h, displayHz ) ) {
-				return false;
+				return idStr();
 			}
 		}
 	} else {
@@ -959,7 +959,7 @@ If fullscreen, it won't have a border
 static bool GLW_CreateWindow( glimpParms_t parms ) {
 	int				x, y, w, h;
 	if ( !GLW_GetWindowDimensions( parms, x, y, w, h ) ) {
-		return false;
+		return idStr();
 	}
 
 	int				stylebits;
@@ -985,7 +985,7 @@ static bool GLW_CreateWindow( glimpParms_t parms ) {
 
 	if ( !win32.hWnd ) {
 		common->Printf( "^3GLW_CreateWindow() - Couldn't create window^0\n" );
-		return false;
+		return idStr();
 	}
 
 	::SetTimer( win32.hWnd, 0, 100, NULL );
@@ -998,7 +998,7 @@ static bool GLW_CreateWindow( glimpParms_t parms ) {
 	win32.hDC = GetDC( win32.hWnd );
 	if ( !win32.hDC ) {
 		common->Printf( "^3GLW_CreateWindow() - GetDC()failed^0\n" );
-		return false;
+		return idStr();
 	}
 
 	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
@@ -1013,7 +1013,7 @@ static bool GLW_CreateWindow( glimpParms_t parms ) {
 		ShowWindow( win32.hWnd, SW_HIDE );
 		DestroyWindow( win32.hWnd );
 		win32.hWnd = NULL;
-		return false;
+		return idStr();
 	}
 
 	SetForegroundWindow( win32.hWnd );
@@ -1081,7 +1081,7 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms ) {
 	int x, y, width, height, displayHz;
 
 	if ( !GetDisplayCoordinates( parms.fullScreen - 1, x, y, width, height, displayHz ) ) {
-		return false;
+		return idStr();
 	}
 	if ( width == parms.width && height == parms.height && ( displayHz == parms.displayHz || parms.displayHz == 0 ) ) {
 		return true;
@@ -1118,7 +1118,7 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms ) {
 
 	common->Printf( "^3failed^0, " );
 	PrintCDSError( cdsRet );
-	return false;
+	return idStr();
 }
 
 /*
@@ -1155,7 +1155,7 @@ bool GLimp_Init( glimpParms_t parms ) {
 	// we can't run in a window unless it is 32 bpp
 	if ( win32.desktopBitsPixel < 32 && parms.fullScreen <= 0 ) {
 		common->Printf("^3Windowed mode requires 32 bit desktop depth^0\n");
-		return false;
+		return idStr();
 	}
 
 	// save the hardware gamma so it can be
@@ -1174,7 +1174,7 @@ bool GLimp_Init( glimpParms_t parms ) {
 	driverName = r_glDriver.GetString()[0] ? r_glDriver.GetString() : "opengl32";
 	if ( !QGL_Init( driverName ) ) {
 		common->Printf( "^3GLimp_Init() could not load r_glDriver \"%s\"^0\n", driverName );
-		return false;
+		return idStr();
 	}
 
 	// getting the wgl extensions involves creating a fake window to get a context,
@@ -1186,14 +1186,14 @@ bool GLimp_Init( glimpParms_t parms ) {
 	// Optionally ChangeDisplaySettings to get a different fullscreen resolution.
 	if ( !GLW_ChangeDislaySettingsIfNeeded( parms ) ) {
 		GLimp_Shutdown();
-		return false;
+		return idStr();
 	}
 
 	// try to create a window with the correct pixel format
 	// and init the renderer context
 	if ( !GLW_CreateWindow( parms ) ) {
 		GLimp_Shutdown();
-		return false;
+		return idStr();
 	}
 
 	glConfig.isFullscreen = parms.fullScreen;
@@ -1240,12 +1240,12 @@ Sets up the screen based on passed parms..
 bool GLimp_SetScreenParms( glimpParms_t parms ) {
 	// Optionally ChangeDisplaySettings to get a different fullscreen resolution.
 	if ( !GLW_ChangeDislaySettingsIfNeeded( parms ) ) {
-		return false;
+		return idStr();
 	}
 
 	int x, y, w, h;
 	if ( !GLW_GetWindowDimensions( parms, x, y, w, h ) ) {
-		return false;
+		return idStr();
 	}
 
 	int exstyle;
@@ -1416,7 +1416,7 @@ bool GLimp_SpawnRenderThread( void (*function)() ) {
 	// check number of processors
 	GetSystemInfo( &info );
 	if ( info.dwNumberOfProcessors < 2 ) {
-		return false;
+		return idStr();
 	}
 	
 	// create the IPC elements

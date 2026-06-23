@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../idlib/precompiled.h"
 #include "sys_lobby.h"
+#include "../framework/DebugGraph.h"
 
 extern idCVar net_connectTimeoutInSeconds;
 extern idCVar net_headlessServer;
@@ -2900,7 +2901,7 @@ void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw ) {
 		for ( int i=0; i < GRAPH_MAX; i++ ) {
 			// Initialize graphs 
 			if ( peer.debugGraphs[i] == NULL ) {
-				peer.debugGraphs[i] = console->CreateGraph( 500 );
+				// peer.debugGraphs[i] = console->CreateGraph( 500 );
 				if ( !verify( peer.debugGraphs[i] != NULL ) ) {
 					continue;
 				}

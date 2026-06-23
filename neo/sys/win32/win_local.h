@@ -30,7 +30,14 @@ If you have questions concerning this license or the applicable additional terms
 #define __WIN_LOCAL_H__
 
 #include <windows.h>
-#include "../../renderer/OpenGL/wglext.h"		// windows OpenGL extensions
+#include <GL/gl.h>
+#include <dinput.h>
+
+// MinGW compatibility: LPDIRECTINPUT8 and LPDIRECTINPUTDEVICE8 are already defined in dinput.h
+// as macro-wrapped types. We use them directly from dinput.h.
+
+// #include "../../renderer/OpenGL/wglext.h" // Use system wglext.h
+#include <GL/wglext.h> // Use system wglext.h		// windows OpenGL extensions
 #include "win_input.h"
 
 // WGL_ARB_extensions_string
@@ -144,9 +151,9 @@ typedef struct {
 
 	HINSTANCE		hInstDI;			// direct input
 
-	LPDIRECTINPUT8			g_pdi;
-	LPDIRECTINPUTDEVICE8	g_pMouse;
-	LPDIRECTINPUTDEVICE8	g_pKeyboard;
+	LPDIRECTINPUT8W			g_pdi;
+	LPDIRECTINPUTDEVICE8W	g_pMouse;
+	LPDIRECTINPUTDEVICE8W	g_pKeyboard;
 	idJoystickWin32			g_Joystick;
 
 	HANDLE			renderCommandsEvent;

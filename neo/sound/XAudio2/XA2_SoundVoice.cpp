@@ -181,6 +181,7 @@ void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags ) {
 		hasVUMeter = flicker;
 
 		if ( flicker ) {
+#if 0 // VU meter not available in MinGW XAudio2
 			IUnknown * vuMeter = NULL;
 			if ( XAudio2CreateVolumeMeter( &vuMeter, 0 ) == S_OK ) {
 
@@ -197,6 +198,7 @@ void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags ) {
 
 				vuMeter->Release();
 			}
+#endif
 		} else {
 			pSourceVoice->SetEffectChain( NULL );
 		}
@@ -401,6 +403,7 @@ float idSoundVoice_XAudio2::GetAmplitude() {
 		return 1.0f;
 	}
 
+#if 0 // VU meter not available in MinGW XAudio2
 	float peakLevels[ MAX_CHANNELS_PER_VOICE ];
 	float rmsLevels[ MAX_CHANNELS_PER_VOICE ];
 
@@ -427,6 +430,9 @@ float idSoundVoice_XAudio2::GetAmplitude() {
 	}
 
 	return rms / (float)levels.ChannelCount;
+#else
+	return 1.0f;
+#endif
 }
 
 /*

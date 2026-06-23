@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
+// Forward declaration (defined in DebugGraph.h)
+class idDebugGraph;
+
 enum justify_t {
 	JUSTIFY_LEFT,
 	JUSTIFY_RIGHT,

@@ -985,6 +985,8 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
+#ifndef __VIDMODE_T_DEFINED__
+#define __VIDMODE_T_DEFINED__
 struct vidMode_t {
     int width;
 	int height;
@@ -994,6 +996,7 @@ struct vidMode_t {
 		return a.width == width && a.height == height && a.displayHz == displayHz;
 	}
 };
+#endif
 
 // the number of displays can be found by itterating this until it returns false
 // displayNum is the 0 based value passed to EnumDisplayDevices(), you must add

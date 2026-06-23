@@ -118,6 +118,11 @@ public:
 		serverInfo.Serialize( serializer );
 	}
 
+	uint8 GetSessionMatchFlags() const { return matchFlags; }
+	uint8 GetGameType() const { return gameMode; }
+	uint8 GetGameMap() const { return gameMap; }
+	uint8 GetNumSlots() const { return numSlots; }
+
 	uint8 	numSlots;
 	int8	gameMode;
 	int8 	gameMap;
@@ -252,6 +257,7 @@ public:
 
 	localUserHandle_t	GetLocalUserHandle() const { return localUserHandle; }
 	byte				GetLobbyType() const { return lobbyType; }
+	uint32				GetID() const { return (uint32)localUserHandle.GetHandle() | ((uint32)lobbyType << 24); }
 
 	bool IsValid() const { return localUserHandle.IsValid() && lobbyType != 0xFF; }
 

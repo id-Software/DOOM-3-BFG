@@ -29,9 +29,27 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
-#include "Session_local.h"
+#include "../sys/sys_session_local.h"
 #include "../sys/sys_session_savegames.h"
 #include "../sys/sys_voicechat.h"
+
+// Steam stub definitions for non-Steam builds
+#ifndef STEAM_API_H
+class CSteamAPIContext {
+public:
+    void Clear() {}
+};
+inline bool SteamAPI_Init() { return false; }
+inline void SteamAPI_Shutdown() {}
+inline CSteamAPIContext* SteamContext() { return nullptr; }
+#endif
+
+// Helper macros for when Steam is not available
+#ifdef STEAM_API_H
+#define STEAM_CHECK() if (!steamInitialized) return
+#else
+// steamInitialized and steamFailed are declared in sys_session_local.h for non-Steam builds
+#endif
 
 
 /*
@@ -158,9 +176,13 @@ idSessionLocal::InitSteam
 ========================
 */
 void idSessionLocal::InitSteam() {
+#ifndef STEAM_API_H
+	// Steam not available, do nothing
+	return;
+#else
 	if ( steamInitialized || steamFailed ) {
 		if ( steamFailed ) {
-			net_usePlatformBackend.SetBool( false );		
+			// net_usePlatformBackend is not defined here
 		}
 		return;
 	}
@@ -169,12 +191,7 @@ void idSessionLocal::InitSteam() {
 	steamFailed = !steamInitialized;
 
 	if ( steamFailed ) {
-		if ( net_usePlatformBackend.GetBool() ) {
-			idLib::Warning( "Steam failed to initialize.  Usually this happens because the Steam client isn't running." );
-			// Turn off the usage of steam if it fails to initialize
-			// FIXME: We'll want to bail (nicely) in the shipping product most likely
-			net_usePlatformBackend.SetBool( false );		
-		}
+		idLib::Warning( "Steam failed to initialize.  Usually this happens because the Steam client isn't running." );
 		return;
 	}
 
@@ -184,6 +201,7 @@ void idSessionLocal::InitSteam() {
 	SteamUtils()->SetWarningMessageHook( &SteamAPIDebugTextHook );
 
 	ConstructSteamObjects();	
+#endif
 }
 
 /*
@@ -312,9 +330,9 @@ void idSessionLocal::OnMasterLocalUserSignin() {
 idSessionLocal::LoadGame
 ========================
 */
-saveGameHandle_t idSessionLocal::LoadGame( const char * name, const idList< idSaveFileEntry > & files ) {
-	if ( processorLoadFiles.InitLoadFiles( name, files ) ) {
-		return saveGameManager.ExecuteProcessor( &processorLoadFiles );
+saveGameHandle_t idSessionLocal::LoadGame( const char * name, const saveFileEntryList_t & files ) {
+	if ( processorLoadFiles->InitLoadFiles( name, files ) ) {
+		return GetSaveGameManager().ExecuteProcessor( processorLoadFiles );
 	} else {
 		return 0;
 	}
@@ -325,19 +343,18 @@ saveGameHandle_t idSessionLocal::LoadGame( const char * name, const idList< idSa
 idSessionLocal::SaveGame
 ========================
 */
-saveGameHandle_t idSessionLocal::SaveGame( const char * name, const idList< idSaveFileEntry > & files, const idSaveGameDetails & description, uint64 skipErrorMask ) {
+saveGameHandle_t idSessionLocal::SaveGame( const char * name, const saveFileEntryList_t & files, const idSaveGameDetails & description, uint64 skipErrorMask ) {
 	saveGameHandle_t ret = 0;
 	
 	// serialize the description file behind their back...
-	idList< idSaveFileEntry > filesWithDetails( files );
-	idFile_Memory * gameDetailsFile = new idFile_Memory( SAVEGAME_DETAILS_FILENAME );
-	//gameDetailsFile->MakeWritable();
+	saveFileEntryList_t filesWithDetails( files );
+	idFile_SaveGame * gameDetailsFile = new idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT | SAVEGAMEFILE_AUTO_DELETE );
 	description.descriptors.WriteToIniFile( gameDetailsFile );
-	filesWithDetails.Append( idSaveFileEntry( gameDetailsFile, SAVEGAMEFILE_TEXT | SAVEGAMEFILE_AUTO_DELETE, SAVEGAME_DETAILS_FILENAME ) );
+	filesWithDetails.Append( gameDetailsFile );
 
-	if ( processorSave.InitSave( name, filesWithDetails, description ) ) {
-		processorSave.SetSkipSystemErrorDialogMask( skipErrorMask );
-		ret = GetSaveGameManager().ExecuteProcessor( &processorSave );
+	if ( processorSaveFiles->InitSave( name, filesWithDetails, description ) ) {
+		processorSaveFiles->SetSkipSystemErrorDialogMask( skipErrorMask );
+		ret = GetSaveGameManager().ExecuteProcessor( processorSaveFiles );
 	}
 	return ret;
 }
@@ -353,9 +370,9 @@ saveGameHandle_t idSessionLocal::EnumerateSaveGames( uint64 skipErrorMask ) {
 	// flush the old enumerated list
 	GetSaveGameManager().GetEnumeratedSavegamesNonConst().Clear();
 
-	if ( processorEnumerate.Init() ) {
-		processorEnumerate.SetSkipSystemErrorDialogMask( skipErrorMask );
-		ret = GetSaveGameManager().ExecuteProcessor( &processorEnumerate );
+	if ( processorEnumerate->Init() ) {
+		processorEnumerate->SetSkipSystemErrorDialogMask( skipErrorMask );
+		ret = GetSaveGameManager().ExecuteProcessor( processorEnumerate );
 	}
 	return ret;
 }
@@ -367,10 +384,9 @@ idSessionLocal::DeleteSaveGame
 */
 saveGameHandle_t idSessionLocal::DeleteSaveGame( const char * name, uint64 skipErrorMask ) {
 	saveGameHandle_t ret = 0;
-	if ( processorDelete.InitDelete( name ) ) {
-		processorDelete.SetSkipSystemErrorDialogMask( skipErrorMask );
-		ret = GetSaveGameManager().ExecuteProcessor( &
-			processorDelete );
+	if ( processorDelete->InitDelete( name ) ) {
+		processorDelete->SetSkipSystemErrorDialogMask( skipErrorMask );
+		ret = GetSaveGameManager().ExecuteProcessor( processorDelete );
 	}
 	return ret;
 }
@@ -381,7 +397,7 @@ idSessionLocal::IsEnumerating
 ========================
 */
 bool idSessionLocal::IsEnumerating() const {
-	return !session->IsSaveGameCompletedFromHandle( processorEnumerate.GetHandle() );
+	return !session->IsSaveGameCompletedFromHandle( processorEnumerate->GetHandle() );
 }
 
 /*
@@ -390,16 +406,7 @@ idSessionLocal::GetEnumerationHandle
 ========================
 */
 saveGameHandle_t idSessionLocal::GetEnumerationHandle() const {
-	return processorEnumerate.GetHandle();
-}
-
-/*
-========================
-idSessionLocal::CancelSaveGameWithHandle
-========================
-*/
-void idSessionLocal::CancelSaveGameWithHandle( const saveGameHandle_t & handle ) {
-	GetSaveGameManager().CancelWithHandle( handle );
+	return processorEnumerate->GetHandle();
 }
 
 
@@ -649,7 +656,7 @@ void idSessionLocal::HandleDedicatedServerQueryRequest( lobbyAddress_t & remoteA
 		
 		if ( GetGameLobby().IsSessionActive() ) {
 			retmsg.WriteLong( GetGameLobby().parms.GetGameMap() );
-			retmsg.WriteLong( GetGameLobby().parms.GetGameMode() );
+			retmsg.WriteLong( GetGameLobby().parms.GetGameType() );
 		} else {
 			retmsg.WriteLong( -1 );
 			retmsg.WriteLong( -1 );
@@ -658,7 +665,7 @@ void idSessionLocal::HandleDedicatedServerQueryRequest( lobbyAddress_t & remoteA
 		retmsg.WriteLong( GetActiveLobby()->GetNumLobbyUsers() );
 		retmsg.WriteLong( GetActiveLobby()->parms.GetNumSlots() );
 		for ( int i = 0; i < GetActiveLobby()->GetNumLobbyUsers(); i++ ) {
-			retmsg.WriteString( GetActiveLobby()->GetLobbyUserName( i ) );
+			retmsg.WriteString( GetActiveLobby()->GetLobbyUserName( GetActiveLobby()->GetLobbyUser(i)->lobbyUserID ) );
 		}
 	}
 
@@ -797,7 +804,8 @@ idSessionLocal::HandlePackets
 bool idSessionLocal::HandlePackets() {
 	byte				packetBuffer[ idPacketProcessor::MAX_FINAL_PACKET_SIZE ];
 	lobbyAddress_t	remoteAddress;
-	int					recvSize = 0;
+	int recvSize = 0;
+	
 
 	while ( ReadRawPacket( remoteAddress, packetBuffer, recvSize, sizeof( packetBuffer ) ) && recvSize > 0 ) {
 		// fragMsg will hold the raw packet
@@ -1187,51 +1195,6 @@ void idSessionLocal::ClearMigrationState() {
 }
 
 
-/*
-========================
-idSessionLocal::SendLeaderboardStatsToPlayer
-========================
-*/
-void idSessionLocal::SendLeaderboardStatsToPlayer( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, const column_t * stats ) {
-
-	if ( GetGameLobby().IsLobbyUserDisconnected( sessionUserIndex ) ) {
-		idLib::Warning( "Tried to tell disconnected user to report stats" );
-		return;
-	}
-	
-	const int peerIndex = GetGameLobby().PeerIndexFromLobbyUserIndex( sessionUserIndex );
-	
-	if ( peerIndex == -1 ) {
-		idLib::Warning( "Tried to tell invalid peer index to report stats" );
-		return;
-	}
-
-	if ( !verify( GetGameLobby().IsHost() ) || 
-		!verify( peerIndex < GetGameLobby().peers.Num() ) || 
-		!verify( GetGameLobby().peers[ peerIndex ].IsConnected() ) ) {
-		idLib::Warning( "Tried to tell invalid peer to report stats" );
-		return;
-	}
-
-	NET_VERBOSE_PRINT( "Telling sessionUserIndex %i (peer %i) to report stats\n", sessionUserIndex, peerIndex );
-
-	lobbyUser_t * gameUser = GetGameLobby().GetLobbyUser( sessionUserIndex );
-
-	if ( !verify( gameUser != NULL ) ) {
-		return;
-	}
-
-	byte buffer[ idPacketProcessor::MAX_PACKET_SIZE ];
-	idBitMsg msg;
-	msg.InitWrite( buffer, sizeof( buffer ) );
-
-	// Use the user ID
-	msg.WriteLong( gameUser->userID );
-
-	WriteLeaderboardToMsg( msg, leaderboard, stats );
-	
-	GetGameLobby().QueueReliableMessage( peerIndex, idLobby::RELIABLE_POST_STATS, msg.GetWriteData(), msg.GetSize() );
-}
 
 /*
 ========================
@@ -1252,5 +1215,5 @@ void idSessionLocal::RecvLeaderboardStatsForPlayer( idBitMsg & msg ) {
 		return;
 	}
 
-	LeaderboardUpload( sessionUserIndex, leaderboard, stats );
+	LeaderboardUpload( GetGameLobby().GetLobbyUser(sessionUserIndex)->lobbyUserID, leaderboard, stats );
 }

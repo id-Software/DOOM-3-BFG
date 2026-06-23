@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 #pragma hdrstop
 
+#include "KeyInput.h"
+
 typedef struct {
 	keyNum_t		keynum;
 	const char *	name;

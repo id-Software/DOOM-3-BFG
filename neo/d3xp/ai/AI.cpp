@@ -2186,7 +2186,7 @@ bool idAI::NewWanderDir( const idVec3 &dest ) {
 	} else if ( deltax < -10 ) {
 		d[ 1 ] = 180;
 	} else {
-		d[ 1 ] = DI_NODIR;
+		d[ 1 ] = AI_NODIR;
 	}
 
 	if ( deltay < -10 ) {
@@ -2194,11 +2194,11 @@ bool idAI::NewWanderDir( const idVec3 &dest ) {
 	} else if ( deltay > 10 ) {
 		d[ 2 ] = 90;
 	} else {
-		d[ 2 ] = DI_NODIR;
+		d[ 2 ] = AI_NODIR;
 	}
 
 	// try direct route
-	if ( d[ 1 ] != DI_NODIR && d[ 2 ] != DI_NODIR ) {
+	if ( d[ 1 ] != AI_NODIR && d[ 2 ] != AI_NODIR ) {
 		if ( d[ 1 ] == 0 ) {
 			tdir = d[ 2 ] == 90 ? 45 : 315;
 		} else {
@@ -2217,16 +2217,16 @@ bool idAI::NewWanderDir( const idVec3 &dest ) {
 		d[ 2 ] = tdir;
 	}
 
-	if ( d[ 1 ] != DI_NODIR && d[ 1 ] != turnaround && StepDirection( d[1] ) ) {
+	if ( d[ 1 ] != AI_NODIR && d[ 1 ] != turnaround && StepDirection( d[1] ) ) {
 		return true;
 	}
 
-	if ( d[ 2 ] != DI_NODIR && d[ 2 ] != turnaround	&& StepDirection( d[ 2 ] ) ) {
+	if ( d[ 2 ] != AI_NODIR && d[ 2 ] != turnaround	&& StepDirection( d[ 2 ] ) ) {
 		return true;
 	}
 
 	// there is no direct path to the player, so pick another direction
-	if ( olddir != DI_NODIR && StepDirection( olddir ) ) {
+	if ( olddir != AI_NODIR && StepDirection( olddir ) ) {
 		return true;
 	}
 
@@ -2245,7 +2245,7 @@ bool idAI::NewWanderDir( const idVec3 &dest ) {
 		}
 	}
 
-	if ( turnaround != DI_NODIR && StepDirection( turnaround ) ) {
+	if ( turnaround != AI_NODIR && StepDirection( turnaround ) ) {
 		return true;
 	}
 

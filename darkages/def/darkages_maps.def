@@ -1,0 +1,403 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Campaign Map Definitions
+// 25 levels across 5 acts for 30+ hours of gameplay
+// ============================================================================
+
+// ============================================================================
+// ACT I: THE FALLEN KINGDOM (Levels 1-5)
+// Medieval castle and village under siege
+// ============================================================================
+
+entityDef map_darkages_01_burning_village {
+	"name"					"The Burning Village"
+	"act"					"Act I: The Fallen Kingdom"
+	"level_number"			"1"
+	"description"			"Your village burns as the Dark Lord's forces attack. Fight through the streets and reach the castle."
+	"map"					"maps/darkages/da01_burning_village"
+	"objectives"			"Survive the attack;Find the castle armory;Escape the village"
+	"music"					"music/darkages/burning_village"
+	"ambient"				"sound/ambient/fire_village"
+	"sky"					"textures/darkages/sky_burning"
+	"fog_color"				"0.6 0.3 0.1"
+	"fog_distance"			"2000"
+	"difficulty_enemies"	"12"
+	"estimated_time"		"45"
+	"secrets"				"3"
+	"next_map"				"maps/darkages/da02_castle_siege"
+}
+
+entityDef map_darkages_02_castle_siege {
+	"name"					"Castle Under Siege"
+	"act"					"Act I: The Fallen Kingdom"
+	"level_number"			"2"
+	"description"			"Defend the castle walls from waves of undead. Man the catapults and hold the gates."
+	"map"					"maps/darkages/da02_castle_siege"
+	"objectives"			"Defend the outer wall;Man the eastern catapult;Seal the breach;Protect the throne room"
+	"music"					"music/darkages/castle_siege"
+	"difficulty_enemies"	"25"
+	"estimated_time"		"60"
+	"secrets"				"4"
+	"boss"					"none"
+	"next_map"				"maps/darkages/da03_kings_crypt"
+}
+
+entityDef map_darkages_03_kings_crypt {
+	"name"					"The King's Crypt"
+	"act"					"Act I: The Fallen Kingdom"
+	"level_number"			"3"
+	"description"			"Descend into the royal crypts beneath the castle. The dead do not rest easily."
+	"map"					"maps/darkages/da03_kings_crypt"
+	"objectives"			"Enter the crypts;Find the Royal Sword;Defeat the Crypt Guardian;Escape the collapsing tomb"
+	"music"					"music/darkages/kings_crypt"
+	"ambient"				"sound/ambient/crypt"
+	"difficulty_enemies"	"20"
+	"estimated_time"		"50"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da04_forest_of_shadows"
+}
+
+entityDef map_darkages_04_forest_of_shadows {
+	"name"					"Forest of Shadows"
+	"act"					"Act I: The Fallen Kingdom"
+	"level_number"			"4"
+	"description"			"A cursed forest where trees whisper and shadows move. Hell Hounds lurk between ancient ruins."
+	"map"					"maps/darkages/da04_forest_of_shadows"
+	"objectives"			"Navigate the cursed forest;Find the Druid's sanctuary;Cleanse the corrupted shrine;Reach the mountain pass"
+	"music"					"music/darkages/forest_shadows"
+	"ambient"				"sound/ambient/forest_cursed"
+	"fog_color"				"0.1 0.15 0.1"
+	"fog_distance"			"800"
+	"difficulty_enemies"	"18"
+	"estimated_time"		"55"
+	"secrets"				"6"
+	"next_map"				"maps/darkages/da05_mountain_pass"
+}
+
+entityDef map_darkages_05_mountain_pass {
+	"name"					"The Mountain Pass"
+	"act"					"Act I: The Fallen Kingdom"
+	"level_number"			"5"
+	"description"			"Cross the treacherous mountain pass. A dragon guards the path to the Dark Lands."
+	"map"					"maps/darkages/da05_mountain_pass"
+	"objectives"			"Climb the mountain;Cross the bridge of bones;Defeat the Fire Drake"
+	"music"					"music/darkages/mountain_pass"
+	"difficulty_enemies"	"15"
+	"estimated_time"		"70"
+	"secrets"				"4"
+	"boss"					"monster_darkages_firedrake"
+	"next_map"				"maps/darkages/da06_dark_cathedral"
+}
+
+// ============================================================================
+// ACT II: THE DARK LANDS (Levels 6-10)
+// Corrupted wasteland and demonic architecture
+// ============================================================================
+
+entityDef map_darkages_06_dark_cathedral {
+	"name"					"The Dark Cathedral"
+	"act"					"Act II: The Dark Lands"
+	"level_number"			"6"
+	"description"			"A massive cathedral corrupted by demonic influence. Cultists perform dark rituals within."
+	"map"					"maps/darkages/da06_dark_cathedral"
+	"objectives"			"Enter the cathedral;Stop the ritual;Find the Blood Key;Descend to the catacombs"
+	"music"					"music/darkages/dark_cathedral"
+	"difficulty_enemies"	"22"
+	"estimated_time"		"65"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da07_plague_town"
+}
+
+entityDef map_darkages_07_plague_town {
+	"name"					"Plague Town"
+	"act"					"Act II: The Dark Lands"
+	"level_number"			"7"
+	"description"			"A town ravaged by demonic plague. The Plague Sorcerers spread death through the streets."
+	"map"					"maps/darkages/da07_plague_town"
+	"objectives"			"Navigate the plagued streets;Destroy the plague sources;Defeat the Plague Lord;Free the survivors"
+	"music"					"music/darkages/plague_town"
+	"fog_color"				"0.2 0.3 0.1"
+	"fog_distance"			"600"
+	"difficulty_enemies"	"28"
+	"estimated_time"		"70"
+	"secrets"				"4"
+	"next_map"				"maps/darkages/da08_iron_fortress"
+}
+
+entityDef map_darkages_08_iron_fortress {
+	"name"					"The Iron Fortress"
+	"act"					"Act II: The Dark Lands"
+	"level_number"			"8"
+	"description"			"A massive fortress of black iron. Iron Golems patrol the corridors."
+	"map"					"maps/darkages/da08_iron_fortress"
+	"objectives"			"Infiltrate the fortress;Disable the forge;Destroy the Golem Master;Claim the War Hammer"
+	"music"					"music/darkages/iron_fortress"
+	"difficulty_enemies"	"20"
+	"estimated_time"		"75"
+	"secrets"				"6"
+	"next_map"				"maps/darkages/da09_bone_wastes"
+}
+
+entityDef map_darkages_09_bone_wastes {
+	"name"					"The Bone Wastes"
+	"act"					"Act II: The Dark Lands"
+	"level_number"			"9"
+	"description"			"A vast desert of bones and ash. Ancient battlefields where armies died long ago."
+	"map"					"maps/darkages/da09_bone_wastes"
+	"objectives"			"Cross the wastelands;Find the buried temple;Defeat the Bone Colossus;Reach the Gate of Sorrow"
+	"music"					"music/darkages/bone_wastes"
+	"difficulty_enemies"	"24"
+	"estimated_time"		"60"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da10_siege_demon_lair"
+}
+
+entityDef map_darkages_10_siege_demon_lair {
+	"name"					"Siege Demon's Lair"
+	"act"					"Act II: The Dark Lands"
+	"level_number"			"10"
+	"description"			"The lair of the massive Siege Demons. Face a gauntlet of these towering monsters."
+	"map"					"maps/darkages/da10_siege_demon_lair"
+	"objectives"			"Enter the demon lair;Survive the gauntlet;Defeat the Siege Lord"
+	"music"					"music/darkages/siege_demon_lair"
+	"difficulty_enemies"	"16"
+	"estimated_time"		"80"
+	"secrets"				"4"
+	"boss"					"monster_darkages_siege_demon"
+	"next_map"				"maps/darkages/da11_frozen_depths"
+}
+
+// ============================================================================
+// ACT III: THE UNDERWORLD (Levels 11-15)
+// Deep underground caverns and demonic realms
+// ============================================================================
+
+entityDef map_darkages_11_frozen_depths {
+	"name"					"The Frozen Depths"
+	"act"					"Act III: The Underworld"
+	"level_number"			"11"
+	"description"			"Ice-covered caverns deep beneath the earth. The cold bites as fiercely as the creatures within."
+	"map"					"maps/darkages/da11_frozen_depths"
+	"objectives"			"Descend into the ice caves;Find the Frost Key;Defeat the Ice Wraiths;Cross the frozen lake"
+	"music"					"music/darkages/frozen_depths"
+	"fog_color"				"0.2 0.25 0.4"
+	"fog_distance"			"1000"
+	"difficulty_enemies"	"20"
+	"estimated_time"		"55"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da12_lava_forge"
+}
+
+entityDef map_darkages_12_lava_forge {
+	"name"					"The Lava Forge"
+	"act"					"Act III: The Underworld"
+	"level_number"			"12"
+	"description"			"An ancient forge built over rivers of lava. Here the Dark Lord forges his armies."
+	"map"					"maps/darkages/da12_lava_forge"
+	"objectives"			"Navigate the forge;Destroy the weapon molds;Claim the Hellfire Staff;Escape the eruption"
+	"music"					"music/darkages/lava_forge"
+	"difficulty_enemies"	"22"
+	"estimated_time"		"65"
+	"secrets"				"4"
+	"next_map"				"maps/darkages/da13_tomb_of_heroes"
+}
+
+entityDef map_darkages_13_tomb_of_heroes {
+	"name"					"Tomb of Fallen Heroes"
+	"act"					"Act III: The Underworld"
+	"level_number"			"13"
+	"description"			"An ancient tomb where legendary warriors were laid to rest. Now corrupted, they rise again."
+	"map"					"maps/darkages/da13_tomb_of_heroes"
+	"objectives"			"Enter the hero's tomb;Defeat the risen champions;Claim the Holy Shield;Seal the corruption"
+	"music"					"music/darkages/tomb_heroes"
+	"difficulty_enemies"	"18"
+	"estimated_time"		"60"
+	"secrets"				"7"
+	"next_map"				"maps/darkages/da14_crystal_caverns"
+}
+
+entityDef map_darkages_14_crystal_caverns {
+	"name"					"Crystal Caverns"
+	"act"					"Act III: The Underworld"
+	"level_number"			"14"
+	"description"			"Vast caverns filled with enormous crystals that pulse with demonic energy."
+	"map"					"maps/darkages/da14_crystal_caverns"
+	"objectives"			"Navigate the crystal maze;Destroy the dark crystals;Find the soul gateway;Activate the portal"
+	"music"					"music/darkages/crystal_caverns"
+	"difficulty_enemies"	"24"
+	"estimated_time"		"70"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da15_dragon_den"
+}
+
+entityDef map_darkages_15_dragon_den {
+	"name"					"The Dragon's Den"
+	"act"					"Act III: The Underworld"
+	"level_number"			"15"
+	"description"			"The lair of the Dragon King. A vast cavern of fire and bone."
+	"map"					"maps/darkages/da15_dragon_den"
+	"objectives"			"Enter the Dragon's den;Survive the drake swarm;Defeat the Dragon King"
+	"music"					"music/darkages/dragon_den"
+	"difficulty_enemies"	"15"
+	"estimated_time"		"90"
+	"secrets"				"4"
+	"boss"					"monster_darkages_dragonking"
+	"next_map"				"maps/darkages/da16_ruined_abbey"
+}
+
+// ============================================================================
+// ACT IV: THE CURSED REALM (Levels 16-20)
+// Alternate dimension corrupted by hell
+// ============================================================================
+
+entityDef map_darkages_16_ruined_abbey {
+	"name"					"The Ruined Abbey"
+	"act"					"Act IV: The Cursed Realm"
+	"level_number"			"16"
+	"description"			"An abbey torn between our world and hell. Reality itself fractures here."
+	"map"					"maps/darkages/da16_ruined_abbey"
+	"objectives"			"Explore the fractured abbey;Close the reality tears;Find the sacred texts;Perform the banishment rite"
+	"music"					"music/darkages/ruined_abbey"
+	"difficulty_enemies"	"22"
+	"estimated_time"		"55"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da17_blood_swamp"
+}
+
+entityDef map_darkages_17_blood_swamp {
+	"name"					"The Blood Swamp"
+	"act"					"Act IV: The Cursed Realm"
+	"level_number"			"17"
+	"description"			"A swamp of blood and corruption. Demons breed in the fetid waters."
+	"map"					"maps/darkages/da17_blood_swamp"
+	"objectives"			"Navigate the blood swamp;Destroy the breeding pools;Kill the Swamp Horror;Drain the corruption"
+	"music"					"music/darkages/blood_swamp"
+	"fog_color"				"0.4 0.1 0.1"
+	"fog_distance"			"500"
+	"difficulty_enemies"	"26"
+	"estimated_time"		"65"
+	"secrets"				"4"
+	"next_map"				"maps/darkages/da18_shadow_maze"
+}
+
+entityDef map_darkages_18_shadow_maze {
+	"name"					"The Shadow Maze"
+	"act"					"Act IV: The Cursed Realm"
+	"level_number"			"18"
+	"description"			"A shifting maze of shadows and darkness. The walls move when you're not looking."
+	"map"					"maps/darkages/da18_shadow_maze"
+	"objectives"			"Enter the shadow maze;Find the three soul keys;Defeat the Maze Keeper;Escape the labyrinth"
+	"music"					"music/darkages/shadow_maze"
+	"difficulty_enemies"	"20"
+	"estimated_time"		"75"
+	"secrets"				"8"
+	"next_map"				"maps/darkages/da19_demon_arena"
+}
+
+entityDef map_darkages_19_demon_arena {
+	"name"					"The Demon Arena"
+	"act"					"Act IV: The Cursed Realm"
+	"level_number"			"19"
+	"description"			"A demonic colosseum where you must fight waves of increasingly powerful foes."
+	"map"					"maps/darkages/da19_demon_arena"
+	"objectives"			"Survive Wave 1-3;Survive Wave 4-6;Survive Wave 7-9;Defeat the Arena Champion"
+	"music"					"music/darkages/demon_arena"
+	"difficulty_enemies"	"50"
+	"estimated_time"		"80"
+	"secrets"				"3"
+	"wave_based"			"1"
+	"next_map"				"maps/darkages/da20_tower_of_despair"
+}
+
+entityDef map_darkages_20_tower_of_despair {
+	"name"					"Tower of Despair"
+	"act"					"Act IV: The Cursed Realm"
+	"level_number"			"20"
+	"description"			"A towering structure reaching into the demonic sky. Each floor holds greater horrors."
+	"map"					"maps/darkages/da20_tower_of_despair"
+	"objectives"			"Climb Floor 1-3;Climb Floor 4-6;Reach the summit;Activate the portal to Hell"
+	"music"					"music/darkages/tower_despair"
+	"difficulty_enemies"	"30"
+	"estimated_time"		"85"
+	"secrets"				"6"
+	"next_map"				"maps/darkages/da21_gates_of_hell"
+}
+
+// ============================================================================
+// ACT V: HELL'S DOMAIN (Levels 21-25)
+// The final assault on the Dark Lord's domain
+// ============================================================================
+
+entityDef map_darkages_21_gates_of_hell {
+	"name"					"Gates of Hell"
+	"act"					"Act V: Hell's Domain"
+	"level_number"			"21"
+	"description"			"The gates of Hell itself. Massive demonic architecture and endless armies."
+	"map"					"maps/darkages/da21_gates_of_hell"
+	"objectives"			"Breach the outer gates;Clear the demon garrison;Destroy the gate guardians;Enter Hell"
+	"music"					"music/darkages/gates_hell"
+	"sky"					"textures/darkages/sky_hell"
+	"fog_color"				"0.5 0.1 0"
+	"fog_distance"			"3000"
+	"difficulty_enemies"	"35"
+	"estimated_time"		"75"
+	"secrets"				"5"
+	"next_map"				"maps/darkages/da22_river_of_souls"
+}
+
+entityDef map_darkages_22_river_of_souls {
+	"name"					"River of Lost Souls"
+	"act"					"Act V: Hell's Domain"
+	"level_number"			"22"
+	"description"			"A river of tormented souls flows through Hell. Cross it to reach the Dark Lord's fortress."
+	"map"					"maps/darkages/da22_river_of_souls"
+	"objectives"			"Navigate the soul river;Survive the soul storm;Find the ferryman;Cross to the fortress shore"
+	"music"					"music/darkages/river_souls"
+	"difficulty_enemies"	"28"
+	"estimated_time"		"65"
+	"secrets"				"4"
+	"next_map"				"maps/darkages/da23_fortress_of_doom"
+}
+
+entityDef map_darkages_23_fortress_of_doom {
+	"name"					"Fortress of Doom"
+	"act"					"Act V: Hell's Domain"
+	"level_number"			"23"
+	"description"			"The Dark Lord's fortress. Every room is a death trap, every corridor hides an ambush."
+	"map"					"maps/darkages/da23_fortress_of_doom"
+	"objectives"			"Enter the fortress;Survive the trap corridor;Destroy the inner sanctum guardians;Reach the throne"
+	"music"					"music/darkages/fortress_doom"
+	"difficulty_enemies"	"40"
+	"estimated_time"		"90"
+	"secrets"				"7"
+	"next_map"				"maps/darkages/da24_throne_of_darkness"
+}
+
+entityDef map_darkages_24_throne_of_darkness {
+	"name"					"Throne of Darkness"
+	"act"					"Act V: Hell's Domain"
+	"level_number"			"24"
+	"description"			"The Dark Lord's throne room. All of hell's power converges here."
+	"map"					"maps/darkages/da24_throne_of_darkness"
+	"objectives"			"Enter the throne room;Defeat the Dark Lord's champions;Face the Dark Lord"
+	"music"					"music/darkages/throne_darkness"
+	"difficulty_enemies"	"25"
+	"estimated_time"		"100"
+	"secrets"				"5"
+	"boss"					"monster_darkages_darklord"
+	"next_map"				"maps/darkages/da25_final_stand"
+}
+
+entityDef map_darkages_25_final_stand {
+	"name"					"The Final Stand"
+	"act"					"Act V: Hell's Domain"
+	"level_number"			"25"
+	"description"			"Hell collapses around you. Fight your way out as reality tears itself apart. The ultimate test."
+	"map"					"maps/darkages/da25_final_stand"
+	"objectives"			"Survive the collapse;Reach the dimensional tear;Close the portal from within;ESCAPE"
+	"music"					"music/darkages/final_stand"
+	"difficulty_enemies"	"60"
+	"estimated_time"		"90"
+	"secrets"				"10"
+	"is_finale"				"1"
+	"next_map"				""
+}

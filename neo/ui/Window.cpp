@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "DeviceContext.h"
 #include "Window.h"
+#include "../framework/KeyInput.h"
 #include "UserInterfaceLocal.h"
 #include "EditWindow.h"
 #include "ChoiceWindow.h"

@@ -1,0 +1,39 @@
+// ============================================================================
+// DOOM: The Dark Ages - Windows Resource File
+// Embeds the game icon and version info into the EXE
+// ============================================================================
+
+#include <winver.h>
+
+// Application Icon
+IDI_ICON1 ICON "..\\..\\..\\darkages\\icon\\darkages.ico"
+
+// Version Information
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       0
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName",      "Dark Ages Team\0"
+            VALUE "FileDescription",  "DOOM: The Dark Ages - Medieval FPS\0"
+            VALUE "FileVersion",      "1.0.0.0\0"
+            VALUE "InternalName",     "DarkAges\0"
+            VALUE "LegalCopyright",   "Based on DOOM 3 BFG Edition GPL Source Code. Copyright (C) id Software LLC.\0"
+            VALUE "OriginalFilename", "DarkAges.exe\0"
+            VALUE "ProductName",      "DOOM: The Dark Ages\0"
+            VALUE "ProductVersion",   "1.0.0.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 0x04B0
+    END
+END

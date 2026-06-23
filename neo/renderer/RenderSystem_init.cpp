@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 
 #include "tr_local.h"
+#include "../framework/DebugGraph.h"
+#include "../framework/Console.h"
 
 // Vista OpenGL wrapper check
 #include "../sys/win32/win_local.h"

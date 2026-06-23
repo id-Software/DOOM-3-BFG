@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 idGameWindowProxy::idGameWindowProxy
 ================
 */
-idGameWindowProxy::idGameWindowProxy( idDeviceContext *d, idUserInterfaceLocal *g ) : idWindow( d, g ) { }
+idGameWindowProxy::idGameWindowProxy( idDeviceContext *d, idUserInterfaceLocal *g ) : idWindow( g ) { }
 
 /*
 ================

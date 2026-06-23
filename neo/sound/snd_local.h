@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __SND_LOCAL_H__
 
 #include "WaveFile.h"
+#include "../framework/DemoFile.h"
 
 // Maximum number of voices we can have allocated
 #define MAX_HARDWARE_VOICES 48
@@ -82,12 +83,9 @@ typedef enum {
 
 #define OPERATION_SET 1
 
-#include <dxsdkver.h>
-
+// Use MinGW's built-in XAudio2 headers (available in mingw-w64)
 #include <xaudio2.h>
 #include <xaudio2fx.h>
-#include <X3DAudio.h>
-#include <xma2defs.h>
 #include "XAudio2/XA2_SoundSample.h"
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"

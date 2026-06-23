@@ -88,35 +88,40 @@ public:
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
-					idStr::operator=( b );
+					idStr tmp( b );
+					idStr::operator=( tmp );
 				}
 
 	ID_INLINE	explicit idStrStatic( const char c ) : 
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
-					idStr::operator=( c );
+					idStr tmp( c );
+					idStr::operator=( tmp );
 				}
 
 	ID_INLINE	explicit idStrStatic( const int i ) : 
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
-					idStr::operator=( i );
+					idStr tmp( i );
+					idStr::operator=( tmp );
 				}
 
 	ID_INLINE	explicit idStrStatic( const unsigned u ) : 
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
-					idStr::operator=( u );
+					idStr tmp( u );
+					idStr::operator=( tmp );
 				}
 
 	ID_INLINE	explicit idStrStatic( const float f ) :
 					idStr() {
 					buffer[ 0 ] = '\0';
 					SetStaticBuffer( buffer, _size_ );
-					idStr::operator=( f );
+					idStr tmp( f );
+					idStr::operator=( tmp );
 				}
 
 private:

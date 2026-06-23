@@ -61,7 +61,8 @@ idSoundHardware_XAudio2::idSoundHardware_XAudio2() {
 }
 
 void listDevices_f( const idCmdArgs & args ) {
-
+	idLib::Printf( "listDevices not available on this platform\n" );
+#if 0
 	IXAudio2 * pXAudio2 = soundSystemLocal.hardware.GetIXAudio2();
 
 	if ( pXAudio2 == NULL ) {
@@ -80,6 +81,7 @@ void listDevices_f( const idCmdArgs & args ) {
 		if ( pXAudio2->GetDeviceDetails( i, &deviceDetails ) != S_OK ) {
 			continue;
 		}
+
 		idStaticList< const char *, 5 > roles;
 		if ( deviceDetails.Role & DefaultConsoleDevice ) {
 			roles.Append( "Console Device" );
@@ -157,6 +159,7 @@ void listDevices_f( const idCmdArgs & args ) {
 			idLib::Printf( ", and %s\n", roles[roles.Num() - 1] );
 		}
 	}
+#endif
 }
 
 /*
@@ -200,6 +203,7 @@ void idSoundHardware_XAudio2::Init() {
 	soundEngineCallback.hardware = this;
 
 	UINT32 deviceCount = 0;
+#if 0 // Device enumeration not available in MinGW XAudio2
 	if ( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 ) {
 		idLib::Warning( "No audio devices found" );
 		pXAudio2->Release();
@@ -246,6 +250,10 @@ void idSoundHardware_XAudio2::Init() {
 	}
 
 	DWORD outputSampleRate = 44100; // Max( (DWORD)XAUDIO2FX_REVERB_MIN_FRAMERATE, Min( (DWORD)XAUDIO2FX_REVERB_MAX_FRAMERATE, deviceDetails.OutputFormat.Format.nSamplesPerSec ) );
+#else
+	int preferredDevice = 0;
+	DWORD outputSampleRate = 44100;
+#endif
 
 	if ( FAILED( pXAudio2->CreateMasteringVoice( &pMasterVoice, XAUDIO2_DEFAULT_CHANNELS, outputSampleRate, 0, preferredDevice, NULL ) ) ) {
 		idLib::Warning( "Failed to create master voice" );
@@ -255,8 +263,13 @@ void idSoundHardware_XAudio2::Init() {
 	}
 	pMasterVoice->SetVolume( DBtoLinear( s_volume_dB.GetFloat() ) );
 
+#if 0 // Device enumeration not available in MinGW XAudio2
 	outputChannels = deviceDetails.OutputFormat.Format.nChannels;
 	channelMask = deviceDetails.OutputFormat.dwChannelMask;
+#else
+	outputChannels = 2; // Stereo by default
+	channelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT;
+#endif
 
 	idSoundVoice::InitSurround( outputChannels, channelMask );
 
@@ -265,6 +278,7 @@ void idSoundHardware_XAudio2::Init() {
 	// ---------------------
 	I_InitSoundHardware( outputChannels, channelMask );
 
+#if 0 // VU meter not available in MinGW XAudio2
 	// ---------------------
 	// Create VU Meter Effect
 	// ---------------------
@@ -310,6 +324,7 @@ void idSoundHardware_XAudio2::Init() {
 		vuMeterRMS->SetLabel( i, channelNames[ ci ] );
 		i++;
 	}
+#endif
 
 	// ---------------------
 	// Create submix buffer
@@ -367,6 +382,7 @@ void idSoundHardware_XAudio2::Shutdown() {
 		pXAudio2->Release();
 		pXAudio2 = NULL;
 	}
+#if 0 // VU meter not available in MinGW XAudio2
 	if ( vuMeterRMS != NULL ) {
 		console->DestroyGraph( vuMeterRMS );
 		vuMeterRMS = NULL;
@@ -375,6 +391,7 @@ void idSoundHardware_XAudio2::Shutdown() {
 		console->DestroyGraph( vuMeterPeak );
 		vuMeterPeak = NULL;
 	}
+#endif
 }
 
 /*
@@ -470,6 +487,7 @@ void idSoundHardware_XAudio2::Update() {
 		idLib::Printf( "Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / (float)perfData.TotalCyclesSinceLastQuery, perfData.MemoryUsageInBytes / 1024 );
 	}
 
+#if 0 // VU meter not available in MinGW XAudio2
 	if ( vuMeterRMS == NULL ) {
 		// Init probably hasn't been called yet
 		return;
@@ -523,6 +541,7 @@ void idSoundHardware_XAudio2::Update() {
 			vuMeterPeakTimes[i] = currentTime + s_meterTopTime.GetInteger();
 		}
 	}
+#endif
 }
 
 

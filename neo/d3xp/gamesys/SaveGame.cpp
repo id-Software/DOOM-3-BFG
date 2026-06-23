@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../Game_local.h"
 
-#include "TypeInfo.h"
+// TypeInfo.h not available in this codebase
 
 /*
 Save game related helper classes.

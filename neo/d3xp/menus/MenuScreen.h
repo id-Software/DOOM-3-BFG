@@ -28,7 +28,24 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MENUSCREEN_H__
 #define __MENUSCREEN_H__
 
+// Include renderer types first
 #include "../../renderer/tr_local.h"
+
+// vidMode_t is defined in tr_local.h, but due to circular dependencies,
+// we need to ensure it's available when this file is parsed standalone
+// The struct definition below is a duplicate that will be ignored if 
+// the real definition is already available (via include guard check)
+#ifndef __VIDMODE_T_DEFINED__
+#define __VIDMODE_T_DEFINED__
+struct vidMode_t {
+    int width;
+    int height;
+    int displayHz;
+    bool operator==( const vidMode_t & a ) {
+        return a.width == width && a.height == height && a.displayHz == displayHz;
+    }
+};
+#endif
 
 enum mainMenuTransition_t {
 	MENU_TRANSITION_INVALID = -1,

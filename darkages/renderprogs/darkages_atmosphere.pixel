@@ -1,0 +1,58 @@
+// ============================================================================
+// DOOM: The Dark Ages - Atmosphere Post-Processing Pixel Shader
+// Creates the dark, gritty medieval atmosphere
+// Optimized for Intel HD 520 (minimal ALU, no complex sampling)
+// ============================================================================
+
+uniform sampler2D samp0 : register(s0); // Current frame
+uniform sampler2D samp1 : register(s1); // Depth buffer
+
+// Atmosphere parameters
+uniform float4 rpDarkAgesAtmosphere : register(c0);  // fogR, fogG, fogB, fogDensity
+uniform float4 rpDarkAgesColor : register(c1);        // tintR, tintG, tintB, saturation
+uniform float4 rpDarkAgesParams : register(c2);       // contrast, brightness, vignetteStrength, filmGrain
+
+struct PS_IN {
+	float4 position : VPOS;
+	float2 texcoord0 : TEXCOORD0;
+};
+
+struct PS_OUT {
+	float4 color : COLOR;
+};
+
+void main( PS_IN fragment, out PS_OUT result ) {
+	// Sample the scene color
+	float4 sceneColor = tex2D( samp0, fragment.texcoord0 );
+	
+	// --- Distance Fog ---
+	float depth = tex2D( samp1, fragment.texcoord0 ).r;
+	float fogFactor = 1.0 - exp( -rpDarkAgesAtmosphere.w * depth * depth );
+	fogFactor = clamp( fogFactor, 0.0, 1.0 );
+	
+	float3 fogColor = rpDarkAgesAtmosphere.rgb;
+	sceneColor.rgb = lerp( sceneColor.rgb, fogColor, fogFactor );
+	
+	// --- Desaturation (medieval grit) ---
+	float luminance = dot( sceneColor.rgb, float3( 0.299, 0.587, 0.114 ) );
+	float saturation = rpDarkAgesColor.w;
+	sceneColor.rgb = lerp( float3( luminance, luminance, luminance ), sceneColor.rgb, saturation );
+	
+	// --- Color Tint ---
+	sceneColor.rgb *= rpDarkAgesColor.rgb;
+	
+	// --- Contrast & Brightness ---
+	float contrast = rpDarkAgesParams.x;
+	float brightness = rpDarkAgesParams.y;
+	sceneColor.rgb = ( sceneColor.rgb - 0.5 ) * contrast + 0.5;
+	sceneColor.rgb *= brightness;
+	
+	// --- Vignette (dark edges) ---
+	float2 vignetteUV = fragment.texcoord0 * 2.0 - 1.0;
+	float vignette = 1.0 - dot( vignetteUV, vignetteUV ) * rpDarkAgesParams.z;
+	vignette = clamp( vignette, 0.0, 1.0 );
+	sceneColor.rgb *= vignette;
+	
+	// --- Clamp output ---
+	result.color = float4( clamp( sceneColor.rgb, 0.0, 1.0 ), 1.0 );
+}

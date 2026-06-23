@@ -27,8 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "../../idlib/precompiled.h"
 #include "../Game_local.h"
+#include "../../framework/Common_dialog.h"
+#include "../../framework/KeyInput.h"
 
 const static int NUM_LOBBY_OPTIONS = 8;
 

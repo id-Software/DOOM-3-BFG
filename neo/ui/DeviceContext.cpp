@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "DeviceContext.h"
 #include "../renderer/GuiModel.h"
+#include "../framework/KeyInput.h"
 
 extern idCVar in_useJoystick;
 

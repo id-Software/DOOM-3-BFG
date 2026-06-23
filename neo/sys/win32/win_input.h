@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 //#if defined( ID_VS2010 )
 //#include "../../../libs/dxsdk_June2010/include/xinput.h"
 //#else
-#include <Xinput.h>
+#include <xinput.h>
 //#endif
 
 static const int MAX_JOYSTICKS = 4;

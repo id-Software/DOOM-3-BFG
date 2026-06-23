@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #define INVALID_LOBBY_USER_NAME " " // Used to be "INVALID" but Sony might not like that.
 
 class idSessionCallbacks;
+#include "Common_dialog.h"
 class idDebugGraph;
 /*
 ========================
@@ -75,6 +76,9 @@ public:
 	lobbyState_t						GetState() { return state; }
 	virtual bool						HasActivePeers() const;
 	virtual bool						IsLobbyFull() const { return NumFreeSlots() == 0; }
+	virtual bool						IsSessionActive() const { return false; }
+	virtual int						FindSessionUserByUserId( int userID ) { return 0; }
+	virtual int						PeerIndexFromLobbyUserIndex( int lobbyUserIndex ) { return 0; }  // Stub for cross-compile
 	int									NumFreeSlots() const;
 
 public:

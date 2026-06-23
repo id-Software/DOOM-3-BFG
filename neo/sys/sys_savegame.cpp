@@ -612,7 +612,7 @@ idSaveGameManager::RetrySave
 ========================
 */
 void idSaveGameManager::RetrySave() {
-	if ( DeviceSelectorWaitingOnSaveRetry() && !common->Dialog().HasDialogMsg( GDM_WARNING_FOR_NEW_DEVICE_ABOUT_TO_LOSE_PROGRESS, false ) ) {
+	if ( DeviceSelectorWaitingOnSaveRetry() && !common->Dialog().HasDialogMsg( GDM_WARNING_FOR_NEW_DEVICE_ABOUT_TO_LOSE_PROGRESS, NULL ) ) {
 		cmdSystem->AppendCommandText( "savegame autosave\n" );
 	}
 }

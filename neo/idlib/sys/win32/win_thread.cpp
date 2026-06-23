@@ -53,6 +53,7 @@ void Sys_SetThreadName( DWORD threadID, const char * name ) {
 	info.dwThreadID = threadID;
 	info.dwFlags = 0;
 
+#ifdef _MSC_VER
 	__try {
 		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(DWORD), (const ULONG_PTR *)&info );
 	}
@@ -60,6 +61,10 @@ void Sys_SetThreadName( DWORD threadID, const char * name ) {
 	__except( GetExceptionCode() == MS_VC_EXCEPTION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH ) {
 		info.dwFlags = 0;
 	}
+#else
+	// MinGW doesn't support SEH, silently ignore
+	(void)info;
+#endif
 }
 
 /*
@@ -82,7 +87,7 @@ uintptr_t Sys_CreateThread( xthread_t function, void *parms, xthreadPriority pri
 	// Without this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Commit Size"
 	// and the "Stack Reserve Size" is set to the value specified at link-time.
 	// With this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Reserve Size"
-	// and the ìStack Commit Sizeî is set to the value specified at link-time.
+	// and the ‚ÄúStack Commit Size‚Äù is set to the value specified at link-time.
 	// For various reasons (some of which historic) we reserve a large amount of stack space in the
 	// project settings. By setting this flag and by specifying 64 kB for the "Stack Commit Size" in
 	// the project settings we can create new threads with a much smaller reserved (and committed)

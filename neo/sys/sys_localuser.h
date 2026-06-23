@@ -64,6 +64,7 @@ public:
 	}
 
 	bool IsValid() const { return handle > 0; }
+	uint32 GetHandle() const { return handle; }
 
 	void WriteToMsg( idBitMsg & msg ) {
 		msg.WriteLong( handle );

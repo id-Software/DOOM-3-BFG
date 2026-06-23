@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <conio.h>
 
 #include "win_local.h"
+#include "../../framework/EditField.h"
 #include "rc/doom_resource.h"
 
 #define COPY_ID			1
@@ -389,7 +390,7 @@ void Sys_CreateConsole() {
 												win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
-	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( long ) InputLineWndProc );
+	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWLP_WNDPROC, ( long ) InputLineWndProc );
 	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
 // don't show it now that we have a splash screen up

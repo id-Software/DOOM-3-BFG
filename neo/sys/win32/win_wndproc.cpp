@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idlib/precompiled.h"
 
 #include "win_local.h"
+#include "../../framework/Console.h"
+#include "../../framework/KeyInput.h"
 #include "../../renderer/tr_local.h"
 
 #include <Windowsx.h>

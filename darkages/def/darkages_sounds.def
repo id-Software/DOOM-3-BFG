@@ -1,0 +1,629 @@
+// ============================================================================
+// DOOM: THE DARK AGES - Sound Definitions
+// All sound shaders for weapons, enemies, environment, and music
+// ============================================================================
+
+// ============================================================================
+// WEAPON SOUNDS
+// ============================================================================
+
+// Sword
+sound darkages_sword_slash_1 {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/weapons/sword_slash_1.ogg
+}
+
+sound darkages_sword_slash_2 {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/weapons/sword_slash_2.ogg
+}
+
+sound darkages_sword_slash_3 {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/weapons/sword_slash_3.ogg
+}
+
+sound darkages_sword_hit_flesh {
+	minDistance	1
+	maxDistance	25
+	volume		3
+	sound/darkages/weapons/sword_hit_flesh.ogg
+}
+
+sound darkages_sword_hit_metal {
+	minDistance	1
+	maxDistance	30
+	volume		3
+	sound/darkages/weapons/sword_hit_metal.ogg
+}
+
+sound darkages_sword_hit_stone {
+	minDistance	1
+	maxDistance	30
+	volume		3
+	sound/darkages/weapons/sword_hit_stone.ogg
+}
+
+// Mace
+sound darkages_mace_swing {
+	minDistance	1
+	maxDistance	25
+	volume		0
+	sound/darkages/weapons/mace_swing.ogg
+}
+
+sound darkages_mace_impact {
+	minDistance	2
+	maxDistance	40
+	volume		5
+	sound/darkages/weapons/mace_impact.ogg
+}
+
+sound darkages_mace_hit_flesh {
+	minDistance	1
+	maxDistance	25
+	volume		5
+	sound/darkages/weapons/mace_hit_flesh.ogg
+}
+
+// Axe
+sound darkages_axe_swing {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/weapons/axe_swing.ogg
+}
+
+sound darkages_axe_hit_flesh {
+	minDistance	1
+	maxDistance	25
+	volume		3
+	sound/darkages/weapons/axe_hit_flesh.ogg
+}
+
+sound darkages_axe_hit_wood {
+	minDistance	1
+	maxDistance	25
+	volume		3
+	sound/darkages/weapons/axe_hit_wood.ogg
+}
+
+// Crossbow
+sound darkages_crossbow_fire {
+	minDistance	2
+	maxDistance	40
+	volume		5
+	sound/darkages/weapons/crossbow_fire.ogg
+}
+
+sound darkages_crossbow_reload {
+	minDistance	1
+	maxDistance	15
+	volume		-3
+	sound/darkages/weapons/crossbow_reload.ogg
+}
+
+sound darkages_crossbow_bolt_hit {
+	minDistance	2
+	maxDistance	30
+	volume		3
+	sound/darkages/weapons/bolt_hit.ogg
+}
+
+// Shield
+sound darkages_shield_block {
+	minDistance	2
+	maxDistance	30
+	volume		5
+	sound/darkages/weapons/shield_block.ogg
+}
+
+sound darkages_shield_bash {
+	minDistance	2
+	maxDistance	25
+	volume		3
+	sound/darkages/weapons/shield_bash.ogg
+}
+
+sound darkages_shield_parry {
+	minDistance	2
+	maxDistance	35
+	volume		8
+	sound/darkages/weapons/shield_parry.ogg
+}
+
+// Flail
+sound darkages_flail_spin {
+	minDistance	1
+	maxDistance	20
+	volume		-2
+	sound/darkages/weapons/flail_spin.ogg
+}
+
+sound darkages_flail_hit {
+	minDistance	2
+	maxDistance	25
+	volume		3
+	sound/darkages/weapons/flail_hit.ogg
+}
+
+// Hellfire Staff
+sound darkages_hellstaff_fire {
+	minDistance	3
+	maxDistance	50
+	volume		8
+	sound/darkages/weapons/hellstaff_fire.ogg
+}
+
+sound darkages_hellstaff_impact {
+	minDistance	5
+	maxDistance	60
+	volume		10
+	sound/darkages/weapons/hellstaff_impact.ogg
+}
+
+// Great Hammer
+sound darkages_hammer_swing {
+	minDistance	2
+	maxDistance	30
+	volume		3
+	sound/darkages/weapons/hammer_swing.ogg
+}
+
+sound darkages_hammer_impact {
+	minDistance	5
+	maxDistance	80
+	volume		12
+	sound/darkages/weapons/hammer_impact.ogg
+}
+
+sound darkages_hammer_groundpound {
+	minDistance	10
+	maxDistance	120
+	volume		15
+	sound/darkages/weapons/hammer_groundpound.ogg
+}
+
+// Throwing Axes
+sound darkages_throwaxe_throw {
+	minDistance	1
+	maxDistance	25
+	volume		3
+	sound/darkages/weapons/throwaxe_throw.ogg
+}
+
+sound darkages_throwaxe_hit {
+	minDistance	2
+	maxDistance	30
+	volume		5
+	sound/darkages/weapons/throwaxe_hit.ogg
+}
+
+// ============================================================================
+// COMBAT SOUNDS
+// ============================================================================
+
+sound darkages_combo_1 {
+	minDistance	3
+	maxDistance	30
+	volume		0
+	sound/darkages/combat/combo_1.ogg
+}
+
+sound darkages_combo_2 {
+	minDistance	3
+	maxDistance	30
+	volume		2
+	sound/darkages/combat/combo_2.ogg
+}
+
+sound darkages_combo_3 {
+	minDistance	3
+	maxDistance	35
+	volume		5
+	sound/darkages/combat/combo_3.ogg
+}
+
+sound darkages_combo_finisher {
+	minDistance	5
+	maxDistance	50
+	volume		10
+	sound/darkages/combat/combo_finisher.ogg
+}
+
+sound darkages_glory_kill {
+	minDistance	3
+	maxDistance	40
+	volume		8
+	sound/darkages/combat/glory_kill.ogg
+}
+
+sound darkages_backstab {
+	minDistance	2
+	maxDistance	30
+	volume		5
+	sound/darkages/combat/backstab.ogg
+}
+
+sound darkages_parry_success {
+	minDistance	3
+	maxDistance	40
+	volume		8
+	sound/darkages/combat/parry_success.ogg
+}
+
+// ============================================================================
+// PLAYER SOUNDS
+// ============================================================================
+
+sound darkages_player_pain_1 {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/player/pain_1.ogg
+}
+
+sound darkages_player_pain_2 {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/player/pain_2.ogg
+}
+
+sound darkages_player_death {
+	minDistance	1
+	maxDistance	30
+	volume		3
+	sound/darkages/player/death.ogg
+}
+
+sound darkages_player_dodge {
+	minDistance	1
+	maxDistance	15
+	volume		-3
+	sound/darkages/player/dodge.ogg
+}
+
+sound darkages_player_grunt_attack {
+	minDistance	1
+	maxDistance	15
+	volume		-2
+	sound/darkages/player/grunt_attack.ogg
+}
+
+sound darkages_player_heavy_attack {
+	minDistance	1
+	maxDistance	20
+	volume		0
+	sound/darkages/player/heavy_attack.ogg
+}
+
+// ============================================================================
+// ENEMY SOUNDS
+// ============================================================================
+
+// Undead Soldier
+sound darkages_undead_sight {
+	minDistance	5
+	maxDistance	60
+	volume		3
+	sound/darkages/enemies/undead_sight.ogg
+}
+
+sound darkages_undead_attack {
+	minDistance	2
+	maxDistance	30
+	volume		0
+	sound/darkages/enemies/undead_attack.ogg
+}
+
+sound darkages_undead_pain {
+	minDistance	2
+	maxDistance	25
+	volume		0
+	sound/darkages/enemies/undead_pain.ogg
+}
+
+sound darkages_undead_death {
+	minDistance	3
+	maxDistance	40
+	volume		3
+	sound/darkages/enemies/undead_death.ogg
+}
+
+// Dark Knight
+sound darkages_knight_sight {
+	minDistance	5
+	maxDistance	60
+	volume		5
+	sound/darkages/enemies/knight_sight.ogg
+}
+
+sound darkages_knight_attack {
+	minDistance	3
+	maxDistance	35
+	volume		3
+	sound/darkages/enemies/knight_attack.ogg
+}
+
+sound darkages_knight_block {
+	minDistance	3
+	maxDistance	30
+	volume		3
+	sound/darkages/enemies/knight_block.ogg
+}
+
+sound darkages_knight_death {
+	minDistance	5
+	maxDistance	50
+	volume		5
+	sound/darkages/enemies/knight_death.ogg
+}
+
+// Hellhound
+sound darkages_hound_growl {
+	minDistance	5
+	maxDistance	50
+	volume		3
+	sound/darkages/enemies/hound_growl.ogg
+}
+
+sound darkages_hound_bark {
+	minDistance	5
+	maxDistance	60
+	volume		5
+	sound/darkages/enemies/hound_bark.ogg
+}
+
+sound darkages_hound_bite {
+	minDistance	2
+	maxDistance	25
+	volume		3
+	sound/darkages/enemies/hound_bite.ogg
+}
+
+sound darkages_hound_death {
+	minDistance	3
+	maxDistance	40
+	volume		3
+	sound/darkages/enemies/hound_death.ogg
+}
+
+// Sorcerer
+sound darkages_sorcerer_chant {
+	minDistance	5
+	maxDistance	60
+	volume		3
+	sound/darkages/enemies/sorcerer_chant.ogg
+}
+
+sound darkages_sorcerer_cast {
+	minDistance	5
+	maxDistance	50
+	volume		5
+	sound/darkages/enemies/sorcerer_cast.ogg
+}
+
+sound darkages_sorcerer_summon {
+	minDistance	8
+	maxDistance	80
+	volume		8
+	sound/darkages/enemies/sorcerer_summon.ogg
+}
+
+// Boss Sounds
+sound darkages_boss_roar {
+	minDistance	20
+	maxDistance	200
+	volume		15
+	sound/darkages/enemies/boss_roar.ogg
+}
+
+sound darkages_boss_attack {
+	minDistance	10
+	maxDistance	100
+	volume		12
+	sound/darkages/enemies/boss_attack.ogg
+}
+
+sound darkages_boss_death {
+	minDistance	20
+	maxDistance	200
+	volume		15
+	sound/darkages/enemies/boss_death.ogg
+}
+
+sound darkages_dragon_breathe {
+	minDistance	15
+	maxDistance	150
+	volume		12
+	sound/darkages/enemies/dragon_breathe.ogg
+}
+
+sound darkages_darklord_laugh {
+	minDistance	20
+	maxDistance	200
+	volume		15
+	sound/darkages/enemies/darklord_laugh.ogg
+}
+
+// ============================================================================
+// ENVIRONMENT SOUNDS
+// ============================================================================
+
+sound darkages_ambient_wind {
+	minDistance	5
+	maxDistance	80
+	volume		-8
+	looping
+	sound/darkages/environment/ambient_wind.ogg
+}
+
+sound darkages_ambient_drip {
+	minDistance	2
+	maxDistance	30
+	volume		-10
+	looping
+	sound/darkages/environment/ambient_drip.ogg
+}
+
+sound darkages_ambient_fire {
+	minDistance	3
+	maxDistance	40
+	volume		-5
+	looping
+	sound/darkages/environment/ambient_fire.ogg
+}
+
+sound darkages_ambient_chains {
+	minDistance	2
+	maxDistance	25
+	volume		-8
+	looping
+	sound/darkages/environment/ambient_chains.ogg
+}
+
+sound darkages_ambient_thunder {
+	minDistance	20
+	maxDistance	200
+	volume		5
+	sound/darkages/environment/ambient_thunder.ogg
+}
+
+sound darkages_door_open {
+	minDistance	3
+	maxDistance	40
+	volume		3
+	sound/darkages/environment/door_open.ogg
+}
+
+sound darkages_door_close {
+	minDistance	3
+	maxDistance	40
+	volume		3
+	sound/darkages/environment/door_close.ogg
+}
+
+sound darkages_chest_open {
+	minDistance	2
+	maxDistance	20
+	volume		0
+	sound/darkages/environment/chest_open.ogg
+}
+
+sound darkages_lava_bubble {
+	minDistance	5
+	maxDistance	50
+	volume		-3
+	looping
+	sound/darkages/environment/lava_bubble.ogg
+}
+
+// ============================================================================
+// UI SOUNDS
+// ============================================================================
+
+sound darkages_ui_menu_select {
+	minDistance	1
+	maxDistance	5
+	volume		-5
+	sound/darkages/ui/menu_select.ogg
+}
+
+sound darkages_ui_menu_confirm {
+	minDistance	1
+	maxDistance	5
+	volume		-3
+	sound/darkages/ui/menu_confirm.ogg
+}
+
+sound darkages_ui_menu_back {
+	minDistance	1
+	maxDistance	5
+	volume		-5
+	sound/darkages/ui/menu_back.ogg
+}
+
+sound darkages_ui_upgrade_purchase {
+	minDistance	1
+	maxDistance	5
+	volume		0
+	sound/darkages/ui/upgrade_purchase.ogg
+}
+
+sound darkages_ui_secret_found {
+	minDistance	1
+	maxDistance	10
+	volume		5
+	sound/darkages/ui/secret_found.ogg
+}
+
+sound darkages_ui_level_complete {
+	minDistance	1
+	maxDistance	10
+	volume		5
+	sound/darkages/ui/level_complete.ogg
+}
+
+sound darkages_ui_new_weapon {
+	minDistance	1
+	maxDistance	10
+	volume		5
+	sound/darkages/ui/new_weapon.ogg
+}
+
+// ============================================================================
+// MUSIC
+// ============================================================================
+
+sound music/darkages/menu {
+	minDistance	1
+	maxDistance	10
+	volume		-5
+	looping
+	music/darkages/menu_theme.ogg
+}
+
+sound music/darkages/da01_burning_village {
+	minDistance	1
+	maxDistance	10
+	volume		-5
+	looping
+	music/darkages/act1_burning.ogg
+}
+
+sound music/darkages/combat_act1 {
+	minDistance	1
+	maxDistance	10
+	volume		-3
+	looping
+	music/darkages/combat_act1.ogg
+}
+
+sound music/darkages/combat_boss {
+	minDistance	1
+	maxDistance	10
+	volume		-2
+	looping
+	music/darkages/combat_boss.ogg
+}
+
+sound music/darkages/victory {
+	minDistance	1
+	maxDistance	10
+	volume		0
+	music/darkages/victory.ogg
+}
+
+sound music/darkages/death {
+	minDistance	1
+	maxDistance	10
+	volume		-3
+	music/darkages/death.ogg
+}
