@@ -63,6 +63,10 @@ typedef struct Rgd3Cvar
 #define RGD3_CVAR(name, value, flags, desc) { name, value, (flags) | RGD3_CVAR_STATIC, desc, 1.0f, -1.0f, NULL, NULL }
 #define RGD3_CVAR_RANGE(name, value, flags, desc, lo, hi) { name, value, (flags) | RGD3_CVAR_STATIC, desc, (float)(lo), (float)(hi), NULL, NULL }
 #define RGD3_CVAR_STRINGS(name, value, flags, desc, strings) { name, value, (flags) | RGD3_CVAR_STATIC, desc, 1.0f, -1.0f, strings, NULL }
+/* with a value completion function for Tab (the original's valueCompletion
+   constructor argument); bool cvars complete 0/1 and string-list cvars their
+   strings without one */
+#define RGD3_CVAR_COMPLETION(name, value, flags, desc, completion) { name, value, (flags) | RGD3_CVAR_STATIC, desc, 1.0f, -1.0f, NULL, completion }
 
 void rgd3_cvar_init(void);
 void rgd3_cvar_shutdown(void);
@@ -90,5 +94,9 @@ void rgd3_cvar_set_modified_flags(int flags);
 void rgd3_cvar_clear_modified_flags(int flags);
 struct Rgd3File;
 void rgd3_cvar_write_flagged(int flags, const char* set_cmd, struct Rgd3File* file);
+
+/* Tab completion (idCVarSystem::CommandCompletion / ArgCompletion) */
+void rgd3_cvar_command_completion(Rgd3ArgCompletionCallback callback);
+void rgd3_cvar_arg_completion(const char* cmd_string, Rgd3ArgCompletionCallback callback);
 
 #endif

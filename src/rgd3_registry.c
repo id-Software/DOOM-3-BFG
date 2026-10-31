@@ -13,11 +13,19 @@ void rgd3_registry_register_all(void)
 	rgd3_mem_register();
 	rgd3_fs_register();
 	rgd3_keys_register();
+	rgd3_usercmd_register();
 	rgd3_dict_register();
 	rgd3_lang_register();
 	rgd3_decl_register();
 	rgd3_decl_basic_register();
 	rgd3_manifest_register();
 	rgd3_mapfile_register();
+	rgd3_savegame_register();
+	rgd3_jobs_register();
+	rgd3_hooks_register();
+	rgd3_session_register();
+	rgd3_common_register();
+	rgd3_console_register();
+	rgd3_screenshot_register();
 	rgd3_app_register();
 }

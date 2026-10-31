@@ -16,7 +16,7 @@ typedef enum Rgd3SysEventType
 	RGD3_SE_MOUSE,			/* value, value2: relative motion */
 	RGD3_SE_MOUSE_ABSOLUTE,	/* value, value2: window position */
 	RGD3_SE_MOUSE_LEAVE,
-	RGD3_SE_JOYSTICK,		/* value: axis, value2: -32767..32767 */
+	RGD3_SE_JOYSTICK,		/* value: axis, value2: stick value * 16 / 16384 (about -32..32) */
 	RGD3_SE_CONSOLE			/* ptr: heap copy of a typed command line */
 } Rgd3SysEventType;
 
@@ -31,6 +31,12 @@ typedef struct Rgd3SysEvent
 } Rgd3SysEvent;
 
 typedef void (*Rgd3ResizeHook)(int pixel_width, int pixel_height);
+typedef void (*Rgd3SdlEventHook)(const SDL_Event* e);
+
+/* SDL gamepad events (added/removed/remapped/axis/button) go to this hook */
+void rgd3_sysevents_set_gamepad_hook(Rgd3SdlEventHook hook);
+void rgd3_sysevents_poll_mouse(int* dx, int* dy);
+void rgd3_sysevents_queue_event(Rgd3SysEventType type, int value, int value2, int input_device);
 
 void rgd3_sysevents_init(void);
 void rgd3_sysevents_shutdown(void);

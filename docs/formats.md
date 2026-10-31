@@ -90,3 +90,36 @@ path names. Parse errors are fatal (no `LEXFL_NOFATALERRORS`). The map is
 inside the per-map container: `maps/mars_city1.resources` holds
 `maps/game/mars_city1.map` (2026 entities, 4133 brushes, 2678 patches,
 149 spawn classes, all with entityDefs; geometry CRC 0x8b89b51c).
+
+## Saves (rgd3's own format, 2026-10-31)
+
+Original savegame compatibility is not a goal. A slot is a folder
+`<fs_savepath>/<fs_game or base>/saves/<slot>/` (the slot name scrubbed as
+`ScrubSaveGameFileName` does) holding:
+
+- `game.details`: INI text, `key="C-style quoted value"`, keys sorted
+  case-insensitively, keys without `/` first, the rest under `[prefix]`
+  sections. The game's descriptors (`expansion`, `mapName`, `mapLocation`,
+  `difficulty`, `playTime`) plus `language`, `saveVersion` and `checksum`
+  (CRC of the dict without the checksum key).
+- `gamedata.save`: game name `"rgd3"`, map name, console-used bool, the
+  server info dict, then the game's own state (idFile encodings: LE ints,
+  one-byte bools, LE-length strings).
+- `gamedata.strings`: the game's string table.
+
+The two binary files use one container, all little-endian:
+
+| Field | Type |
+|---|---|
+| magic | `"RGD3SAVE"` |
+| format version | u32 (1) |
+| engine build | i32 length + bytes (up to 255) |
+| uncompressed size | u64 |
+| block size | u32 (262144) |
+| block count | u32 = ceil(size / block size) |
+| per block | u32 compressed size, u32 uncompressed size, u32 CRC-32 of the uncompressed bytes, zlib stream |
+
+Any inconsistency (magic, sizes, counts, inflate or adler failure, CRC
+mismatch with `saveGame_checksum 1`, short or trailing bytes) loads as
+CORRUPTED, never a crash; a newer format version as INCOMPATIBLE_NEWER_VERSION.
+Writes go to `<name>.tmp`, then everything is renamed, `game.details` last.

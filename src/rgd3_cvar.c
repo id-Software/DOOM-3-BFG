@@ -362,6 +362,38 @@ void rgd3_cvar_write_flagged(int flags, const char* set_cmd, struct Rgd3File* fi
 	rgd3_heap_free(list);
 }
 
+/* idCVarSystemLocal::CommandCompletion: every cvar name. The original walks
+   its registration-ordered list; this walks the hash table. */
+void rgd3_cvar_command_completion(Rgd3ArgCompletionCallback callback)
+{
+	int i;
+	for (i = 0; i < RGD3_CVAR_HASH_SIZE; ++i)
+	{
+		Rgd3Cvar* cv;
+		for (cv = rgd3_cvars.hash[i]; cv; cv = cv->next)
+			callback(cv->name);
+	}
+}
+
+/* idCVarSystemLocal::ArgCompletion: the cvar's value completion. idCVar's
+   constructor gives bool cvars ArgCompletion_Boolean; rgd3 also offers the
+   value strings of a string-list cvar that has no completion function. */
+void rgd3_cvar_arg_completion(const char* cmd_string, Rgd3ArgCompletionCallback callback)
+{
+	Rgd3CmdArgs args;
+	Rgd3Cvar* cv;
+	rgd3_cmdargs_tokenize(&args, cmd_string, 0);
+	cv = rgd3_cvar_find(rgd3_cmdargs_argv(&args, 0));
+	if (!cv)
+		return;
+	if (cv->completion)
+		cv->completion(&args, callback);
+	else if (cv->flags & RGD3_CVAR_BOOL)
+		rgd3_cmd_arg_completion_boolean(&args, callback);
+	else if (cv->value_strings && cv->value_strings[0])
+		rgd3_cmd_arg_completion_string(&args, callback, cv->value_strings);
+}
+
 static void rgd3_cvar_set_with_flags(const Rgd3CmdArgs* args, int flags)
 {
 	if (rgd3_cmdargs_argc(args) < 3)

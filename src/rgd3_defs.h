@@ -7,7 +7,7 @@
 #endif
 
 #define RGD3_ENGINE_NAME "rgd3"
-#define RGD3_ENGINE_VERSION "0.0.2-m1"
+#define RGD3_ENGINE_VERSION "0.0.3-m2"
 #ifndef RGD3_BUILD_MODE
 #define RGD3_BUILD_MODE "unknown"
 #endif

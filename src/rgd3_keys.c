@@ -130,6 +130,9 @@ void rgd3_keys_set_binding(int keynum, const char* binding)
 	Rgd3Key* key;
 	if (keynum <= RGD3_K_NONE || keynum >= RGD3_K_LAST_KEY)
 		return;
+	/* clear the usercmd button states so a key held while its binding
+	   changes doesn't leave the old action down forever */
+	rgd3_usercmd_clear();
 	key = &rgd3_keys.keys[keynum];
 	rgd3_heap_free(key->binding);
 	key->binding = (binding && binding[0]) ? rgd3_heap_strdup(binding, RGD3_TAG_KEYS) : NULL;

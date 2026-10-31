@@ -509,6 +509,504 @@ static void rgd3_selftest_data(void)
 	rgd3_fs_unload_map_resources();
 }
 
+/* ---- jobs (phase A: inline) ---- */
+
+static char rgd3_selftest_job_log[16];
+static int rgd3_selftest_job_log_len;
+
+static void rgd3_selftest_job(void* data)
+{
+	rgd3_selftest_job_log[rgd3_selftest_job_log_len++] = (char)(size_t)data;
+	rgd3_selftest_job_log[rgd3_selftest_job_log_len] = 0;
+}
+
+static void rgd3_selftest_jobs(void)
+{
+	Rgd3JobList* list = rgd3_jobs_alloc_list(RGD3_JOBLIST_UTILITY, RGD3_JOBLIST_PRIORITY_MEDIUM, 8, 2);
+	int round;
+	rgd3_jobs_register_job(rgd3_selftest_job, "selftest_job");
+	RGD3_CHECK(strcmp(rgd3_jobs_job_name(rgd3_selftest_job), "selftest_job") == 0);
+	for (round = 0; round < 2; round++)
+	{
+		rgd3_selftest_job_log_len = 0;
+		rgd3_jobs_add_job(list, rgd3_selftest_job, (void*)(size_t)'a');
+		rgd3_jobs_add_job(list, rgd3_selftest_job, (void*)(size_t)'b');
+		rgd3_jobs_insert_sync_point(list, RGD3_JOB_SYNC_SYNCHRONIZE);
+		rgd3_jobs_add_job(list, rgd3_selftest_job, (void*)(size_t)'c');
+		rgd3_jobs_submit(list, NULL, RGD3_JOBLIST_PARALLELISM_DEFAULT);
+		RGD3_CHECK(rgd3_jobs_is_submitted(list));
+		rgd3_jobs_wait(list);
+		RGD3_CHECK(!rgd3_jobs_is_submitted(list));
+		RGD3_CHECK(strcmp(rgd3_selftest_job_log, "abc") == 0);
+	}
+	RGD3_CHECK(rgd3_jobs_num_executed(list) == 6);
+	rgd3_jobs_free_list(list);
+}
+
+/* ---- session and frame loop (M2) ---- */
+
+/* ExecuteMapChange's calls into the subsystems, Common_load.cpp order */
+#define RGD3_SELFTEST_MAP_CHANGE_ORDER \
+	"game_map_shutdown render_begin_level_load sound_begin_level_load render_preload sound_preload game_preload " \
+	"render_world_init_from_map game_set_persistent_player_info game_set_server_info game_init_from_new_map " \
+	"game_shell_create_menu render_end_level_load sound_end_level_load"
+
+/* blocks per tag; byte counts can differ when pools keep grown capacity */
+static int rgd3_selftest_blocks_equal(const Rgd3SelftestTags* a, const Rgd3SelftestTags* b)
+{
+	int i, same = 1;
+	for (i = 0; i < RGD3_TAG_COUNT; i++)
+	{
+		if (i == RGD3_TAG_EVENTS)
+			continue; /* queued stdin lines come and go */
+		if (a->count[i] != b->count[i])
+		{
+			rgd3_printf("  tag %s: %lld blocks before, %lld after\n", rgd3_mem_tag_name((Rgd3MemTag)i),
+				(long long)a->count[i], (long long)b->count[i]);
+			same = 0;
+		}
+	}
+	return same;
+}
+
+static void rgd3_selftest_session(void)
+{
+	Rgd3SelftestTags before, after;
+	const char* trace;
+	int i, ticks_before, ms_before;
+	volatile int dropped = 0;
+	Rgd3ErrorGuard guard;
+
+	/* keep the map loads below from overwriting a real "autosave" */
+	rgd3_cvar_set_bool("com_disableAutoSaves", 1, 0);
+
+	/* tick arithmetic at 60 Hz (Common.h) */
+	RGD3_CHECK(rgd3_common_frame_to_msec(60) == 1000);
+	RGD3_CHECK(rgd3_common_frame_to_msec(1) == 16 && rgd3_common_frame_to_msec(2) == 33);
+	RGD3_CHECK(rgd3_common_msec_to_frame_ceil(17) == 2 && rgd3_common_msec_to_frame_floor(16) == 1);
+
+	RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_IDLE && !rgd3_common_map_spawned());
+	rgd3_log_clear_warnings("self-test"); /* the warning list is not a leak */
+	rgd3_selftest_tags(&before);
+
+	/* map: the session goes to LOADING, the next frame loads the map */
+	rgd3_hooks_trace_reset();
+	rgd3_cmd_execute_string("map game/mars_city1");
+	RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_LOADING);
+	rgd3_common_frame();
+	RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_INGAME && rgd3_common_map_spawned());
+	trace = rgd3_hooks_trace_get();
+	if (strncmp(trace, RGD3_SELFTEST_MAP_CHANGE_ORDER, strlen(RGD3_SELFTEST_MAP_CHANGE_ORDER)) != 0)
+		rgd3_printf("  map change order: %s\n", trace);
+	RGD3_CHECK(strncmp(trace, RGD3_SELFTEST_MAP_CHANGE_ORDER, strlen(RGD3_SELFTEST_MAP_CHANGE_ORDER)) == 0);
+	RGD3_CHECK(strstr(trace, "render_generate_all_interactions") != NULL);
+
+	/* the game advances in 60 Hz tics with real time: ~250 ms is 15 tics
+	   (one frame first, to absorb the catch-up after the load) */
+	rgd3_common_frame();
+	ticks_before = (int)rgd3_common_game_frame();
+	ms_before = rgd3_time_ms();
+	while (rgd3_time_ms() - ms_before < 250)
+		rgd3_common_frame();
+	i = (int)rgd3_common_game_frame() - ticks_before;
+	if (i < 13 || i > 17)
+		rgd3_printf("  %d game tics in 250 ms\n", i);
+	RGD3_CHECK(i >= 13 && i <= 17);
+	RGD3_CHECK(!rgd3_common_paused());
+
+	/* save, play on, load: the game comes back at the saved time */
+	{
+		int saved_ms, saved_frame_ms;
+		rgd3_cmd_execute_string("saveGame rgd3_selftest_m2");
+		saved_ms = rgd3_game_get_server_game_time_ms();
+		rgd3_savegame_wait();
+		saved_frame_ms = rgd3_time_ms();
+		while (rgd3_time_ms() - saved_frame_ms < 100)
+			rgd3_common_frame();
+		RGD3_CHECK(rgd3_game_get_server_game_time_ms() > saved_ms);
+		rgd3_cmd_execute_string("loadGame rgd3_selftest_m2");
+		RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_LOADING);
+		rgd3_common_frame();
+		RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_INGAME && rgd3_common_map_spawned());
+		if (rgd3_game_get_server_game_time_ms() != saved_ms)
+			rgd3_printf("  loaded game time %d ms, saved %d ms\n", rgd3_game_get_server_game_time_ms(), saved_ms);
+		RGD3_CHECK(rgd3_game_get_server_game_time_ms() == saved_ms);
+		RGD3_CHECK(strstr(rgd3_hooks_trace_get(), "game_init_from_save_game") != NULL);
+		RGD3_CHECK(rgd3_savegame_delete("rgd3_selftest_m2") == 0);
+	}
+
+	/* Escape in a game opens the menu and pauses; Escape again resumes */
+	{
+		Rgd3SysEvent esc = { 0 };
+		esc.type = RGD3_SE_KEY;
+		esc.value = RGD3_K_ESCAPE;
+		esc.value2 = 1;
+		RGD3_CHECK(!rgd3_game_shell_is_active());
+		RGD3_CHECK(rgd3_common_process_event(&esc));
+		rgd3_common_frame();
+		RGD3_CHECK(rgd3_game_shell_is_active() && rgd3_common_paused());
+		ticks_before = (int)rgd3_game_get_server_game_time_ms();
+		rgd3_common_frame();
+		rgd3_common_frame();
+		RGD3_CHECK(rgd3_game_get_server_game_time_ms() == ticks_before); /* no tics while paused */
+		RGD3_CHECK(rgd3_common_process_event(&esc));
+		rgd3_common_frame();
+		RGD3_CHECK(!rgd3_game_shell_is_active() && !rgd3_common_paused());
+	}
+
+	/* disconnect: back to the main menu, memory back to the baseline */
+	rgd3_cmd_execute_string("disconnect");
+	rgd3_common_frame();
+	RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_IDLE && !rgd3_common_map_spawned());
+	rgd3_log_clear_warnings("self-test");
+	rgd3_selftest_tags(&after);
+	RGD3_CHECK(rgd3_selftest_blocks_equal(&before, &after));
+
+	/* an error in a running game drops back to the title, nothing leaks */
+	rgd3_cmd_execute_string("map game/mars_city1");
+	rgd3_common_frame();
+	RGD3_CHECK(rgd3_common_map_spawned());
+	rgd3_error_reset_drop_count();
+	rgd3_error_push(&guard);
+	if (setjmp(guard.jump) == 0)
+	{
+		rgd3_common_frame();
+		rgd3_error_drop("self-test drop in a running game (expected)");
+	}
+	else
+	{
+		dropped = 1;
+	}
+	rgd3_error_pop(&guard);
+	rgd3_error_reset_drop_count();
+	RGD3_CHECK(dropped);
+	rgd3_common_frame();
+	RGD3_CHECK(rgd3_session_state() == RGD3_SESSION_IDLE && !rgd3_common_map_spawned());
+	rgd3_log_clear_warnings("self-test");
+	rgd3_selftest_tags(&after);
+	RGD3_CHECK(rgd3_selftest_blocks_equal(&before, &after));
+
+	/* a map that does not exist drops during the load */
+	rgd3_cmd_execute_string("map game/no_such_map_xyz");
+	dropped = 0;
+	rgd3_error_push(&guard);
+	if (setjmp(guard.jump) == 0)
+		rgd3_common_frame();
+	else
+		dropped = 1;
+	rgd3_error_pop(&guard);
+	rgd3_error_reset_drop_count();
+	RGD3_CHECK(dropped && rgd3_session_state() == RGD3_SESSION_IDLE);
+	rgd3_log_clear_warnings("self-test");
+	rgd3_selftest_tags(&after);
+	RGD3_CHECK(rgd3_selftest_blocks_equal(&before, &after));
+	rgd3_cvar_set_bool("com_disableAutoSaves", 0, 0);
+}
+
+/* ---- regressions from the M2 review ---- */
+
+/* builds a usercmd from the current key state and events */
+static int rgd3_selftest_forwardmove(void)
+{
+	Rgd3Usercmd cmd;
+	rgd3_usercmd_build_current(-1);
+	cmd = rgd3_usercmd_get_current();
+	return cmd.forwardmove;
+}
+
+static void rgd3_selftest_press(int key, int down)
+{
+	rgd3_keys_preliminary_key_event(key, down);
+	rgd3_usercmd_key_event(key, down);
+}
+
+/* a virtual SDL gamepad opened by the gamepad module; returns its slot */
+static int rgd3_selftest_pad_attach(SDL_JoystickID* id, SDL_Joystick** joy)
+{
+	SDL_VirtualJoystickDesc desc;
+	SDL_INIT_INTERFACE(&desc);
+	desc.type = SDL_JOYSTICK_TYPE_GAMEPAD;
+	desc.naxes = SDL_GAMEPAD_AXIS_COUNT;
+	desc.nbuttons = SDL_GAMEPAD_BUTTON_COUNT;
+	desc.name = "rgd3 self-test pad";
+	*joy = NULL;
+	*id = SDL_AttachVirtualJoystick(&desc);
+	if (!*id)
+		return -1;
+	*joy = SDL_OpenJoystick(*id);
+	rgd3_gamepad_open(*id);
+	return rgd3_gamepad_find(*id);
+}
+
+static void rgd3_selftest_pad_detach(SDL_JoystickID id, SDL_Joystick* joy)
+{
+	int slot = rgd3_gamepad_find(id);
+	if (slot >= 0)
+		rgd3_gamepad_close(slot);
+	if (joy)
+		SDL_CloseJoystick(joy);
+	if (id)
+		SDL_DetachVirtualJoystick(id);
+}
+
+/* pumps SDL (pad updates reach the gamepad hook) and runs the event loop */
+static void rgd3_selftest_pump(void)
+{
+	rgd3_sysevents_generate();
+	rgd3_sysevents_run_loop(0);
+}
+
+static void rgd3_selftest_push_window_event(SDL_EventType type)
+{
+	SDL_Event ev = { 0 };
+	ev.type = type;
+	SDL_PushEvent(&ev);
+}
+
+/* review 3: focus loss drops buffered pad input, focus gain and a pad
+   handoff pick up controls that are already held */
+static void rgd3_selftest_pads(void)
+{
+	SDL_JoystickID id_a = 0, id_b = 0;
+	SDL_Joystick* joy_a = NULL;
+	SDL_Joystick* joy_b = NULL;
+	int saved_use = cv_in_useJoystick.integer_value;
+	int a, b, t = rgd3_time_ms();
+
+	rgd3_cvar_set_bool("in_useJoystick", 1, 0);
+	a = rgd3_selftest_pad_attach(&id_a, &joy_a);
+	b = rgd3_selftest_pad_attach(&id_b, &joy_b);
+	RGD3_CHECK(a >= 0 && b >= 0 && a != b);
+	if (a >= 0 && b >= 0)
+	{
+		rgd3_keys_clear_states();
+		rgd3_usercmd_clear();
+		rgd3_selftest_pump();
+		rgd3_usercmd_build_at(a, t += 16); /* pad a is active */
+
+		/* handoff: A and the left stick are held on pad b while pad a is
+		   active (b's events are drained), then b becomes the active pad */
+		SDL_SetJoystickVirtualButton(joy_b, SDL_GAMEPAD_BUTTON_SOUTH, true);
+		SDL_SetJoystickVirtualAxis(joy_b, SDL_GAMEPAD_AXIS_LEFTX, 20000);
+		rgd3_selftest_pump();
+		RGD3_CHECK(rgd3_keys_is_down(RGD3_K_JOY1)); /* the GUI key path saw it */
+		rgd3_usercmd_build_at(a, t += 16);
+		RGD3_CHECK(!rgd3_ucg.key_state[RGD3_K_JOY1] && rgd3_ucg.joystick_axis[0] == 0.0f);
+		rgd3_usercmd_build_at(b, t += 16);
+		RGD3_CHECK(rgd3_ucg.key_state[RGD3_K_JOY1]);
+		RGD3_CHECK(rgd3_ucg.joystick_axis[0] > 0.5f);
+
+		/* releasing on b after the handoff lets go */
+		SDL_SetJoystickVirtualButton(joy_b, SDL_GAMEPAD_BUTTON_SOUTH, false);
+		SDL_SetJoystickVirtualAxis(joy_b, SDL_GAMEPAD_AXIS_LEFTX, 0);
+		rgd3_selftest_pump();
+		rgd3_usercmd_build_at(b, t += 16);
+		RGD3_CHECK(!rgd3_ucg.key_state[RGD3_K_JOY1] && rgd3_ucg.joystick_axis[0] == 0.0f);
+
+		/* focus loss with a press still buffered on the active pad: the
+		   press is dropped, not replayed by the next build */
+		SDL_SetJoystickVirtualButton(joy_b, SDL_GAMEPAD_BUTTON_SOUTH, true);
+		rgd3_sysevents_generate(); /* buffered on b, SE_KEY queued */
+		RGD3_CHECK(rgd3_gamepad.devices[b].num_events > 0);
+		rgd3_selftest_push_window_event(SDL_EVENT_WINDOW_FOCUS_LOST);
+		rgd3_selftest_pump();
+		RGD3_CHECK(rgd3_gamepad.devices[b].num_events == 0);
+		RGD3_CHECK(!rgd3_keys_is_down(RGD3_K_JOY1));
+		rgd3_usercmd_build_at(b, t += 16);
+		RGD3_CHECK(!rgd3_ucg.key_state[RGD3_K_JOY1]);
+
+		/* focus comes back with A still held: it counts again */
+		rgd3_selftest_push_window_event(SDL_EVENT_WINDOW_FOCUS_GAINED);
+		rgd3_selftest_pump();
+		RGD3_CHECK(rgd3_keys_is_down(RGD3_K_JOY1));
+		rgd3_usercmd_build_at(b, t += 16);
+		RGD3_CHECK(rgd3_ucg.key_state[RGD3_K_JOY1]);
+
+		SDL_SetJoystickVirtualButton(joy_b, SDL_GAMEPAD_BUTTON_SOUTH, false);
+		rgd3_selftest_pump();
+		rgd3_usercmd_build_at(b, t += 16);
+		RGD3_CHECK(!rgd3_ucg.key_state[RGD3_K_JOY1]);
+	}
+	rgd3_selftest_pad_detach(id_a, joy_a);
+	rgd3_selftest_pad_detach(id_b, joy_b);
+	rgd3_selftest_pump(); /* the REMOVED events */
+	rgd3_usercmd_build_at(-1, t + 16);
+	rgd3_cvar_set_bool("in_useJoystick", saved_use, 0);
+	rgd3_keys_clear_states();
+	rgd3_usercmd_clear();
+}
+
+/* one memory file holding `text`, saved to `slot`; returns the handle */
+static Rgd3SaveHandle rgd3_selftest_save_text(const char* slot, const char* text)
+{
+	Rgd3SaveGameDetails details = { 0 };
+	Rgd3SaveFile file;
+	Rgd3SaveHandle handle;
+	file.name = RGD3_SAVEGAME_GAMEDATA_FILENAME;
+	file.file = rgd3_fs_open_memory_write("selftest");
+	file.type = RGD3_SAVEGAMEFILE_BINARY | RGD3_SAVEGAMEFILE_COMPRESSED;
+	file.error = 0;
+	rgd3_fs_write_string(file.file, text);
+	rgd3_dict_set(&details.descriptors, "mapName", text);
+	handle = rgd3_savegame_save(slot, &file, 1, &details);
+	rgd3_savegame_details_clear(&details);
+	rgd3_fs_close(file.file);
+	return handle;
+}
+
+static void rgd3_selftest_load_text(const char* slot, Rgd3StrBuf* out, int* damaged, char* details_map, size_t details_map_size)
+{
+	Rgd3SaveGameDetails details = { 0 };
+	Rgd3SaveFile file;
+	file.name = RGD3_SAVEGAME_GAMEDATA_FILENAME;
+	file.file = NULL;
+	file.type = RGD3_SAVEGAMEFILE_BINARY | RGD3_SAVEGAMEFILE_COMPRESSED;
+	file.error = 0;
+	rgd3_strbuf_clear(out);
+	if (rgd3_savegame_load_sync(slot, &file, 1, &details) == 0)
+		rgd3_fs_read_string(file.file, out);
+	*damaged = details.damaged;
+	rgd3_str_copynz(details_map, rgd3_dict_get_string(&details.descriptors, "mapName", ""), details_map_size);
+	rgd3_fs_close(file.file);
+	rgd3_savegame_details_clear(&details);
+}
+
+static void rgd3_selftest_regressions(void)
+{
+	Rgd3StrBuf text = { 0 };
+	int damaged = 0, err = 0;
+
+	/* 1: no game, no save (a stale player dict must not empty a slot) */
+	RGD3_CHECK(!rgd3_common_map_spawned());
+	RGD3_CHECK(!rgd3_common_save_game("rgd3_selftest_title"));
+
+	/* 2: a slot whose files can't be replaced keeps its previous save whole */
+	{
+		char os_path[RGD3_MAX_OSPATH];
+		char details_map[64];
+		SDL_IOStream* held;
+		Rgd3SaveHandle h;
+		RGD3_CHECK(rgd3_selftest_save_text("rgd3_selftest_lock", "first") != 0);
+		rgd3_savegame_wait();
+		rgd3_fs_write_os_path("saves/rgd3_selftest_lock/" RGD3_SAVEGAME_GAMEDATA_FILENAME, os_path, sizeof(os_path));
+		held = SDL_IOFromFile(os_path, "rb"); /* Windows: blocks renaming the file */
+		RGD3_CHECK(held != NULL);
+		h = rgd3_selftest_save_text("rgd3_selftest_lock", "second");
+		rgd3_savegame_wait();
+		if (held)
+			SDL_CloseIO(held);
+		RGD3_CHECK(rgd3_savegame_handle_state(h, &err) == RGD3_SAVE_STATE_DONE && err != 0);
+		rgd3_selftest_load_text("rgd3_selftest_lock", &text, &damaged, details_map, sizeof(details_map));
+		/* all files from the same (first) save, details included */
+		RGD3_CHECK(strcmp(rgd3_strbuf_cstr(&text), "first") == 0 && !damaged);
+		RGD3_CHECK(strcmp(details_map, "first") == 0);
+		RGD3_CHECK(rgd3_savegame_delete("rgd3_selftest_lock") == 0);
+	}
+
+	/* 7: details with quotes, backslashes and tabs survive the INI round trip */
+	{
+		Rgd3Dict a = { 0 }, b = { 0 };
+		Rgd3File* f = rgd3_fs_open_memory_write("ini");
+		rgd3_dict_set(&a, "mapLocation", "say \"hello\" \\ path\tend");
+		rgd3_dict_set(&a, "group/key", "\"quoted\"");
+		/* review 3: UTF-8 bytes (é, ü, the euro sign) are not whitespace */
+		rgd3_dict_set(&a, "utf8", "Caf\xC3\xA9 M\xC3\xBC" "nchen \xE2\x82\xAC" "5");
+		rgd3_dict_set(&a, "spaces", "  padded  ");
+		rgd3_dict_write_ini(&a, f);
+		rgd3_fs_memory_make_read_only(f);
+		RGD3_CHECK(rgd3_dict_read_ini(&b, f));
+		RGD3_CHECK(strcmp(rgd3_dict_get_string(&b, "mapLocation", ""), rgd3_dict_get_string(&a, "mapLocation", "")) == 0);
+		RGD3_CHECK(strcmp(rgd3_dict_get_string(&b, "group/key", ""), "\"quoted\"") == 0);
+		RGD3_CHECK(strcmp(rgd3_dict_get_string(&b, "utf8", ""), "Caf\xC3\xA9 M\xC3\xBC" "nchen \xE2\x82\xAC" "5") == 0);
+		RGD3_CHECK(strcmp(rgd3_dict_get_string(&b, "spaces", ""), "  padded  ") == 0);
+		RGD3_CHECK(rgd3_dict_checksum(&a) == rgd3_dict_checksum(&b));
+		rgd3_dict_clear(&a);
+		rgd3_dict_clear(&b);
+		rgd3_fs_close(f);
+	}
+
+	/* 8: the writer's staging names are reserved */
+	{
+		Rgd3SaveGameDetails details = { 0 };
+		Rgd3SaveFile file;
+		file.name = "game.details.tmp";
+		file.file = rgd3_fs_open_memory_write("tmpname");
+		file.type = RGD3_SAVEGAMEFILE_BINARY;
+		file.error = 0;
+		RGD3_CHECK(rgd3_savegame_save("rgd3_selftest_tmp", &file, 1, &details) == 0);
+		file.name = "x.bak";
+		RGD3_CHECK(rgd3_savegame_save("rgd3_selftest_tmp", &file, 1, &details) == 0);
+		rgd3_fs_close(file.file);
+	}
+
+	/* 3 + 4: focus loss and rebinding never leave movement held */
+	{
+		char old_binding[RGD3_MAX_STRING_CHARS];
+		SDL_Event focus = { 0 };
+		rgd3_str_copynz(old_binding, rgd3_keys_get_binding(RGD3_K_W) ? rgd3_keys_get_binding(RGD3_K_W) : "", sizeof(old_binding));
+		rgd3_keys_set_binding(RGD3_K_W, "_forward");
+		rgd3_usercmd_clear();
+
+		/* a W press still queued when the window loses focus */
+		rgd3_sysevents_queue_event(RGD3_SE_KEY, RGD3_K_W, 1, 0);
+		focus.type = SDL_EVENT_WINDOW_FOCUS_LOST;
+		SDL_PushEvent(&focus);
+		rgd3_sysevents_generate();
+		rgd3_sysevents_run_loop(0);
+		RGD3_CHECK(!rgd3_keys_is_down(RGD3_K_W));
+		RGD3_CHECK(rgd3_selftest_forwardmove() == 0);
+
+		/* W held while _forward is rebound to _back, then released */
+		rgd3_selftest_press(RGD3_K_W, 1);
+		RGD3_CHECK(rgd3_selftest_forwardmove() > 0);
+		rgd3_keys_set_binding(RGD3_K_W, "_back");
+		rgd3_selftest_press(RGD3_K_W, 0);
+		RGD3_CHECK(rgd3_selftest_forwardmove() == 0);
+
+		rgd3_keys_set_binding(RGD3_K_W, old_binding);
+		rgd3_keys_clear_states();
+		rgd3_usercmd_clear();
+	}
+
+	/* review 3: mouse motion and pad input across focus loss and a pad
+	   handoff, driven through SDL virtual gamepads and the real event path */
+	{
+		SDL_Event ev = { 0 };
+		int dx = -1, dy = -1;
+		ev.type = SDL_EVENT_MOUSE_MOTION;
+		ev.motion.xrel = 50.0f;
+		ev.motion.yrel = -20.0f;
+		SDL_PushEvent(&ev);
+		memset(&ev, 0, sizeof(ev));
+		ev.type = SDL_EVENT_WINDOW_FOCUS_LOST;
+		SDL_PushEvent(&ev);
+		rgd3_sysevents_generate();
+		rgd3_sysevents_run_loop(0);
+		rgd3_sysevents_poll_mouse(&dx, &dy);
+		RGD3_CHECK(dx == 0 && dy == 0);
+	}
+	rgd3_selftest_pads();
+
+	/* 6: wait N holds the buffer for N frames however often it runs */
+	{
+		int i;
+		rgd3_cmd_buffer_text(RGD3_CMD_EXEC_APPEND, "set rgd3_selftest_wait 0; wait 3; set rgd3_selftest_wait 1\n");
+		rgd3_cmd_execute_buffer();
+		for (i = 0; i < 10; i++)
+			rgd3_cmd_execute_buffer(); /* ten events in one frame */
+		RGD3_CHECK(!strcmp(rgd3_cvar_get_string("rgd3_selftest_wait"), "0"));
+		rgd3_cmd_begin_frame();
+		rgd3_cmd_execute_buffer();
+		rgd3_cmd_begin_frame();
+		rgd3_cmd_execute_buffer();
+		RGD3_CHECK(!strcmp(rgd3_cvar_get_string("rgd3_selftest_wait"), "0"));
+		rgd3_cmd_begin_frame();
+		rgd3_cmd_execute_buffer();
+		RGD3_CHECK(!strcmp(rgd3_cvar_get_string("rgd3_selftest_wait"), "1"));
+	}
+	rgd3_strbuf_free(&text);
+}
+
 int rgd3_selftest_run(void)
 {
 	int c, f;
@@ -539,8 +1037,13 @@ int rgd3_selftest_run(void)
 	/* modules with their own tests count as one check each */
 	RGD3_CHECK(rgd3_math_self_test());
 	RGD3_CHECK(rgd3_lexer_self_test());
+	RGD3_CHECK(rgd3_usercmd_self_test()); /* prints one expected overflow line */
 	RGD3_CHECK(rgd3_parser_self_test()); /* prints one expected ERROR line */
+	RGD3_CHECK(rgd3_bitmsg_self_test()); /* prints two expected "rgd3_bitmsg: overflow" lines */
+	RGD3_CHECK(rgd3_savegame_self_test()); /* prints one expected INI warning */
 	rgd3_selftest_dict_parse();
+	RGD3_CHECK(rgd3_console_self_test());
+	RGD3_CHECK(rgd3_screenshot_self_test());
 
 	c = rgd3_selftest_checks;
 	f = rgd3_selftest_failures;
@@ -552,6 +1055,17 @@ int rgd3_selftest_run(void)
 	rgd3_selftest_lexer_corpus();
 	rgd3_selftest_data();
 	rgd3_selftest_section("data", c, f);
+
+	c = rgd3_selftest_checks;
+	f = rgd3_selftest_failures;
+	rgd3_selftest_jobs();
+	rgd3_selftest_session();
+	rgd3_selftest_section("session", c, f);
+
+	c = rgd3_selftest_checks;
+	f = rgd3_selftest_failures;
+	rgd3_selftest_regressions();
+	rgd3_selftest_section("review", c, f);
 
 	rgd3_printf("self-test: %d checks, %d failures, %.0f ms\n", rgd3_selftest_checks, rgd3_selftest_failures,
 		(double)(rgd3_time_us() - start) / 1000.0);

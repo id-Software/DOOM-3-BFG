@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later
    rgd3_sysevents.c - replaces the Win32 message pump and DirectInput polling
-   (neo/sys/win32/win_main.cpp, win_wndproc.cpp, win_input.cpp). Gamepads
-   arrive with the usercmd generator in M2. */
+   (neo/sys/win32/win_main.cpp, win_wndproc.cpp, win_input.cpp). Gamepad
+   events go to a hook owned by the usercmd module. */
 
 #define RGD3_MAX_QUED_EVENTS 512
 #define RGD3_MASK_QUED_EVENTS (RGD3_MAX_QUED_EVENTS - 1)
@@ -14,6 +14,14 @@ typedef struct Rgd3SysEventsState
 	int tail;
 	int quit_requested;
 	Rgd3ResizeHook resize_hook;
+	Rgd3SdlEventHook gamepad_hook;
+	/* lines from the text console wait here; one is released per frame,
+	   as Sys_ConsoleInput hands over one line per Sys_GenerateEvents */
+	Rgd3SysEvent console_lines[64];
+	int console_head;
+	int console_tail;
+	int mouse_dx; /* relative motion since the last rgd3_sysevents_poll_mouse */
+	int mouse_dy;
 } Rgd3SysEventsState;
 
 static Rgd3SysEventsState rgd3_sysevents;
@@ -27,6 +35,11 @@ void rgd3_sysevents_init(void)
 void rgd3_sysevents_shutdown(void)
 {
 	rgd3_sysevents_clear();
+	while (rgd3_sysevents.console_head != rgd3_sysevents.console_tail)
+	{
+		rgd3_heap_free(rgd3_sysevents.console_lines[rgd3_sysevents.console_tail & 63].ptr);
+		++rgd3_sysevents.console_tail;
+	}
 	if (rgd3_sysevents.lock)
 		SDL_DestroyMutex(rgd3_sysevents.lock);
 	rgd3_sysevents.lock = NULL;
@@ -42,9 +55,9 @@ int rgd3_sysevents_quit_requested(void)
 	return rgd3_sysevents.quit_requested;
 }
 
-void rgd3_sysevents_push(const Rgd3SysEvent* ev)
+/* the event queue proper; caller holds the lock */
+static void rgd3_sysevents_enqueue_locked(const Rgd3SysEvent* ev)
 {
-	SDL_LockMutex(rgd3_sysevents.lock);
 	if (rgd3_sysevents.head - rgd3_sysevents.tail >= RGD3_MAX_QUED_EVENTS)
 	{
 		/* Overflow drops the oldest event, like Sys_QueEvent. */
@@ -55,6 +68,27 @@ void rgd3_sysevents_push(const Rgd3SysEvent* ev)
 	}
 	rgd3_sysevents.queue[rgd3_sysevents.head & RGD3_MASK_QUED_EVENTS] = *ev;
 	++rgd3_sysevents.head;
+}
+
+/* any thread; text-console lines wait in their own queue */
+void rgd3_sysevents_push(const Rgd3SysEvent* ev)
+{
+	SDL_LockMutex(rgd3_sysevents.lock);
+	if (ev->type == RGD3_SE_CONSOLE)
+	{
+		if (rgd3_sysevents.console_head - rgd3_sysevents.console_tail >= 64)
+		{
+			/* a full line queue drops the oldest line */
+			rgd3_heap_free(rgd3_sysevents.console_lines[rgd3_sysevents.console_tail & 63].ptr);
+			++rgd3_sysevents.console_tail;
+		}
+		rgd3_sysevents.console_lines[rgd3_sysevents.console_head & 63] = *ev;
+		++rgd3_sysevents.console_head;
+	}
+	else
+	{
+		rgd3_sysevents_enqueue_locked(ev);
+	}
 	SDL_UnlockMutex(rgd3_sysevents.lock);
 }
 
@@ -78,6 +112,45 @@ void rgd3_sysevents_free(Rgd3SysEvent* ev)
 	ev->ptr = NULL;
 }
 
+/* Focus loss: key, mouse and pad events still queued are stale (releases
+   never arrive), so drop them and the accumulated mouse motion before
+   clearing the pad, key and usercmd states. */
+static void rgd3_sysevents_focus_lost(void)
+{
+	int read, write;
+	SDL_LockMutex(rgd3_sysevents.lock);
+	rgd3_sysevents.mouse_dx = 0;
+	rgd3_sysevents.mouse_dy = 0;
+	write = rgd3_sysevents.tail;
+	for (read = rgd3_sysevents.tail; read < rgd3_sysevents.head; read++)
+	{
+		Rgd3SysEvent ev = rgd3_sysevents.queue[read & RGD3_MASK_QUED_EVENTS];
+		if (ev.type == RGD3_SE_KEY || ev.type == RGD3_SE_MOUSE || ev.type == RGD3_SE_JOYSTICK)
+			continue;
+		rgd3_sysevents.queue[write & RGD3_MASK_QUED_EVENTS] = ev;
+		write++;
+	}
+	rgd3_sysevents.head = write;
+	SDL_UnlockMutex(rgd3_sysevents.lock);
+	rgd3_gamepad_focus_lost();
+	rgd3_keys_clear_states();
+	rgd3_usercmd_clear(); /* idKeyInput::ClearStates clears the generator too */
+}
+
+/* moves the oldest waiting console line into the event queue */
+static void rgd3_sysevents_release_console_line(void)
+{
+	SDL_LockMutex(rgd3_sysevents.lock);
+	if (rgd3_sysevents.console_head != rgd3_sysevents.console_tail)
+	{
+		rgd3_sysevents_enqueue_locked(&rgd3_sysevents.console_lines[rgd3_sysevents.console_tail & 63]);
+		++rgd3_sysevents.console_tail;
+	}
+	SDL_UnlockMutex(rgd3_sysevents.lock);
+}
+
+/* clears pending events; waiting console lines stay (Sys_ClearEvents
+   does not touch the text console either) */
 void rgd3_sysevents_clear(void)
 {
 	Rgd3SysEvent ev;
@@ -183,6 +256,32 @@ int rgd3_key_from_scancode(SDL_Scancode sc)
 	}
 }
 
+void rgd3_sysevents_set_gamepad_hook(Rgd3SdlEventHook hook)
+{
+	rgd3_sysevents.gamepad_hook = hook;
+}
+
+/* Sys_PollMouseInputEvents: relative motion accumulated since the last
+   call (main thread). Buttons and the wheel arrive as key events. */
+void rgd3_sysevents_poll_mouse(int* dx, int* dy)
+{
+	*dx = rgd3_sysevents.mouse_dx;
+	*dy = rgd3_sysevents.mouse_dy;
+	rgd3_sysevents.mouse_dx = 0;
+	rgd3_sysevents.mouse_dy = 0;
+}
+
+/* queue an event from the main thread (gamepad buttons, synthetic keys) */
+void rgd3_sysevents_queue_event(Rgd3SysEventType type, int value, int value2, int input_device)
+{
+	Rgd3SysEvent ev = { 0 };
+	ev.type = type;
+	ev.value = value;
+	ev.value2 = value2;
+	ev.input_device = input_device;
+	rgd3_sysevents_push(&ev);
+}
+
 static void rgd3_sysevents_text(const char* utf8)
 {
 	const char* p = utf8;
@@ -198,6 +297,7 @@ static void rgd3_sysevents_text(const char* utf8)
 void rgd3_sysevents_generate(void)
 {
 	SDL_Event e;
+	rgd3_sysevents_release_console_line();
 	while (SDL_PollEvent(&e))
 	{
 		switch (e.type)
@@ -217,6 +317,8 @@ void rgd3_sysevents_generate(void)
 				rgd3_sysevents_text(e.text.text);
 				break;
 			case SDL_EVENT_MOUSE_MOTION:
+				rgd3_sysevents.mouse_dx += (int)e.motion.xrel;
+				rgd3_sysevents.mouse_dy += (int)e.motion.yrel;
 				rgd3_sysevents_queue(RGD3_SE_MOUSE, (int)e.motion.xrel, (int)e.motion.yrel);
 				rgd3_sysevents_queue(RGD3_SE_MOUSE_ABSOLUTE, (int)e.motion.x, (int)e.motion.y);
 				break;
@@ -245,11 +347,23 @@ void rgd3_sysevents_generate(void)
 				rgd3_sysevents_queue(RGD3_SE_MOUSE_LEAVE, 0, 0);
 				break;
 			case SDL_EVENT_WINDOW_FOCUS_LOST:
-				rgd3_keys_clear_states();
+				rgd3_sysevents_focus_lost();
+				break;
+			case SDL_EVENT_WINDOW_FOCUS_GAINED:
+				rgd3_gamepad_resync_all(); /* pads held through the switch */
 				break;
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 				if (rgd3_sysevents.resize_hook)
 					rgd3_sysevents.resize_hook(e.window.data1, e.window.data2);
+				break;
+			case SDL_EVENT_GAMEPAD_ADDED:
+			case SDL_EVENT_GAMEPAD_REMOVED:
+			case SDL_EVENT_GAMEPAD_REMAPPED:
+			case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+			case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+			case SDL_EVENT_GAMEPAD_BUTTON_UP:
+				if (rgd3_sysevents.gamepad_hook)
+					rgd3_sysevents.gamepad_hook(&e);
 				break;
 			default:
 				break;
@@ -257,33 +371,37 @@ void rgd3_sysevents_generate(void)
 	}
 }
 
-/* idEventLoop::RunEventLoop: keys update the key state and fire bindings,
-   console lines are buffered, everything else goes to the app. */
+/* idEventLoop::RunEventLoop / ProcessEvent: bound commands run before each
+   event; keys update the key state first; lines from the text console are
+   buffered; everything else goes to rgd3_common_process_event (console,
+   menus, then key bindings). */
 void rgd3_sysevents_run_loop(int execute_commands)
 {
 	Rgd3SysEvent ev;
-	while (rgd3_sysevents_get(&ev))
+	for (;;)
 	{
-		switch (ev.type)
+		if (execute_commands)
+			rgd3_cmd_execute_buffer();
+		if (!rgd3_sysevents_get(&ev))
+			break;
+		if (ev.type == RGD3_SE_KEY)
 		{
-			case RGD3_SE_KEY:
-				rgd3_keys_preliminary_key_event(ev.value, ev.value2);
-				if (ev.value2)
-					rgd3_keys_exec_key_binding(ev.value);
-				break;
-			case RGD3_SE_CONSOLE:
-				if (ev.ptr)
-				{
-					rgd3_cmd_buffer_text(RGD3_CMD_EXEC_APPEND, (const char*)ev.ptr);
-					rgd3_cmd_buffer_text(RGD3_CMD_EXEC_APPEND, "\n");
-				}
-				break;
-			default:
-				rgd3_app_process_event(&ev);
-				break;
+			rgd3_keys_preliminary_key_event(ev.value, ev.value2 != 0);
+			/* replayed by the next usercmd build, so taps inside a frame count */
+			rgd3_usercmd_key_event(ev.value, ev.value2);
+		}
+		if (ev.type == RGD3_SE_CONSOLE)
+		{
+			if (ev.ptr)
+			{
+				rgd3_cmd_buffer_text(RGD3_CMD_EXEC_APPEND, (const char*)ev.ptr);
+				rgd3_cmd_buffer_text(RGD3_CMD_EXEC_APPEND, "\n");
+			}
+		}
+		else
+		{
+			rgd3_common_process_event(&ev);
 		}
 		rgd3_sysevents_free(&ev);
 	}
-	if (execute_commands)
-		rgd3_cmd_execute_buffer();
 }

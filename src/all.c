@@ -61,6 +61,13 @@
 #include "rg_text_gpu.h"
 #include "demo_font.h"
 
+/* rg_image third_party: PNG writing (screenshots) and zlib deflate
+   (stbi_zlib_compress, saves); miniz's tinfl for inflate */
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_STATIC
+#include "stb_image_write.h"
+#include "miniz/miniz_tinfl.c"
+
 /* rgd3 */
 #include "rgd3.h"
 
@@ -72,6 +79,7 @@
 #include "rgd3_math.c"
 #include "rgd3_error.c"
 #include "rgd3_thread.c"
+#include "rgd3_jobs.c"
 #include "rgd3_platform.c"
 #include "rgd3_cmdargs.c"
 #include "rgd3_cvar.c"
@@ -82,19 +90,34 @@
 #include "rgd3_lexer_test.c"
 #include "rgd3_hashindex.c"
 #include "rgd3_dict.c"
+#include "rgd3_bitmsg.c"
 #include "rgd3_lang.c"
 #include "rgd3_decl.c"
 #include "rgd3_decl_basic.c"
 #include "rgd3_bin.c"
+#include "rgd3_savegame.c"
 #include "rgd3_manifest.c"
 #include "rgd3_mapfile.c"
 #include "rgd3_keys.c"
 #include "rgd3_sysevents.c"
+#include "rgd3_gamepad.c"
+#include "rgd3_usercmd.c"
+#include "rgd3_editfield.c"
 #include "rgd3_console.c"
 #include "rgd3_overlay.c"
+#include "rgd3_screenshot.c"
 
 /* --- RENDERER MODULES (M3+) --- */
 /* --- GAME MODULES (M4+) --- */
+
+/* framework: session, frame loop, subsystem stubs (replaced as the real
+   renderer, game and sound modules arrive) */
+#include "rgd3_hooks.c"
+#include "rgd3_session.c"
+#include "rgd3_render_stub.c"
+#include "rgd3_sound_stub.c"
+#include "rgd3_game_stub.c"
+#include "rgd3_common.c"
 
 #include "rgd3_selftest.c"
 #include "rgd3_registry.c"

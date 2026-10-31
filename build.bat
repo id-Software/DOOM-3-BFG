@@ -53,10 +53,10 @@ IF NOT EXIST "%SDL3_DIR%\include\SDL3\SDL.h" (
 	ECHO SDL3 not found at "%SDL3_DIR%". Set SDL3_DIR.
 	GOTO :fail
 )
-CALL "%~dp0setup_rg.bat" core text
+CALL "%~dp0setup_rg.bat" core text image
 IF ERRORLEVEL 1 GOTO :fail
 
-SET INCLUDE_FLAGS=/Isrc /Ithird_party /I"%SDL3_DIR%\include" /I"%RG_CORE_DIR%\src" /I"%RG_TEXT_DIR%\src" /I"%RG_TEXT_DIR%\examples\assets"
+SET INCLUDE_FLAGS=/Isrc /Ithird_party /I"%SDL3_DIR%\include" /I"%RG_CORE_DIR%\src" /I"%RG_TEXT_DIR%\src" /I"%RG_TEXT_DIR%\examples\assets" /I"%RG_IMAGE_DIR%\src" /I"%RG_IMAGE_DIR%\third_party"
 SET LINK_FLAGS=/link /subsystem:console /STACK:8388608 /LIBPATH:"%SDL3_DIR%\lib\x64" SDL3.lib advapi32.lib %LINK_EXTRA%
 
 ECHO Building %OUTPUT_EXE% [%BUILD_MODE%]...

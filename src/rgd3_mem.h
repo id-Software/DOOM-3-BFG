@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later
-   rgd3_mem.h - memory lifetimes: the rg_core pool, a permanent arena and a
-   tagged heap for anything that is freed or replaced. Tags follow the
-   original sys_alloc_tags.h grouping. Level/frame arenas arrive with M2. */
+   rgd3_mem.h - memory lifetimes: the rg_core pool, permanent / level / frame /
+   temp arenas and a tagged heap for anything that is freed or replaced. Tags follow the
+   original sys_alloc_tags.h grouping. */
 #ifndef RGD3_MEM_H
 #define RGD3_MEM_H
 #ifndef RGD3_ALL_C
@@ -29,6 +29,26 @@ void rgd3_mem_register(void);
 RgArena* rgd3_mem_permanent(void);
 void* rgd3_perm_alloc(size_t size);
 char* rgd3_perm_strdup(const char* text);
+
+/* Arenas (bump allocated from the pool, never freed one by one):
+   level: data that lives until the next map change (zeroed);
+   frame: double buffered, valid until the swap after next;
+   temp:  LIFO scratch with mark/release, reset every frame.
+   Exhaustion drops. */
+#define RGD3_LEVEL_ARENA_BYTES MB(768)
+#define RGD3_FRAME_ARENA_BYTES MB(64)
+#define RGD3_TEMP_ARENA_BYTES MB(64)
+void* rgd3_level_alloc(size_t size);
+char* rgd3_level_strdup(const char* text);
+void rgd3_mem_level_reset(void);
+size_t rgd3_mem_level_used(void);
+void* rgd3_frame_alloc(size_t size);
+void rgd3_mem_frame_swap(void);
+size_t rgd3_mem_frame_used(void);
+size_t rgd3_temp_mark(void);
+void* rgd3_temp_alloc(size_t size);
+void rgd3_temp_release(size_t mark);
+void rgd3_mem_temp_reset(void);
 
 void* rgd3_heap_alloc(size_t size, Rgd3MemTag tag);
 void* rgd3_heap_calloc(size_t size, Rgd3MemTag tag);

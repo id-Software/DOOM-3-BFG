@@ -147,8 +147,8 @@ from M2 so M11 adds sync instead of rewriting.
 |---|---|---|---|
 | M0 Skeleton | **done 2026-10-29** | build scripts, `all.c`, mem/str/time/log/error/thread/platform, cmdargs, cvar, cmd, fs with `.resources`, sysevents, keys, stdin console, rg_text overlay, window + SDL GPU clear | see Acceptance M0 |
 | M1 Text and formats | **done 2026-10-31** | lexer, parser (preprocessor), dict, string pool, hash index, decl manager with basic decls, lang, mapfile, manifest, binary reader, math, `--self-test` | every decl in `_ordered` tokenizes with 0 errors; `printEntityDef monster_demon_imp`; `mapinfo game/mars_city1`; lang lookup; self-test passes |
-| M2 Session, input, saves | next | session states, map change calling stub hooks, level/frame arenas, usercmd (keyboard, mouse, gamepad) with a per-player ring, bit message read/write, in-window console, savefile container + async writer, screenshots, jobs phase A | `map game/mars_city1` mounts the map container and calls hooks in order; save/load round trip; Esc to title; `error` leaves tag counters unchanged |
-| M3 GPU and 2D | | gpu device/targets, image (`.bimage`), material, vertex cache, 2D GUI model, font | `.bimage` drawn via DrawStretchPic; console text via `newfonts`; stencil mask; `_currentRender` capture |
+| M2 Session, input, saves | **done 2026-10-31** | session states, map change calling stub hooks, level/frame arenas, usercmd (keyboard, mouse, gamepad) with a per-player ring, bit message read/write, in-window console, savefile container + async writer, screenshots, jobs phase A | `map game/mars_city1` mounts the map container and calls hooks in order; save/load round trip; Esc to title; `error` leaves tag counters unchanged |
+| M3 GPU and 2D | next | gpu device/targets, image (`.bimage`), material, vertex cache, 2D GUI model, font | `.bimage` drawn via DrawStretchPic; console text via `newfonts`; stencil mask; `_currentRender` capture |
 | M4 Static world and lights (+G0) | | world (`.bproc`), portals, frontend, interactions, stencil shadows, fog/blend lights; game spawn without script, collision, clip, PVS | `map game/mars_city1` spawns every entity, renders lit and shadowed static world matching a BFG reference |
 | M5 Models and animation | | MD5 + GPU skinning, particles, deforms, decals, subviews, in-world GUIs | imp animates lit and shadowed; mirror and monitors render |
 | M6 Player, script, weapons | | player physics, movers, triggers, items, SWF HUD, old GUI, script VM, weapons, projectiles | walk through mars_city1 + admin; every `.script` compiles; weapon state machines run; weapon shadows on |
@@ -161,7 +161,19 @@ from M2 so M11 adds sync instead of rewriting.
 
 ## Explicitly unfinished
 
-- Everything after M1 in the table above.
+- Everything after M2 in the table above.
+- The game, renderer and sound system are stubs (`src/rgd3_game_stub.c`,
+  `rgd3_render_stub.c`, `rgd3_sound_stub.c`). The game stub parses the map's
+  entities, keeps a 60 Hz game clock, consumes usercmds, saves and restores a
+  small payload, and has an invisible pause "shell" toggled by Escape. No
+  screen wipes, loading GUI or main-menu graphics yet (renderer and SWF).
+- The console draws with the rg_text demo font on the swapchain; it moves
+  to the renderer's 2D path and the game's own fonts in M3.
+- Saves: no thumbnail yet; save details use only the English date format.
+- Leaving a map releases its resource container and level memory at once;
+  the original keeps them until the next level load.
+- The usercmd mouse path ignores SDL key repeats; the console repeats its
+  own held keys.
 - Decl types without a parser yet use the default "skip the braces" parse:
   material and table lookups in materials (M3), sound (M8), fx / particle /
   articulatedFigure (M5-M7), model (M5). Skin remapping (`RemapShaderBySkin`)
@@ -177,11 +189,8 @@ from M2 so M11 adds sync instead of rewriting.
 - `rgd3_lexer_load_file` records the requested path as the file name, where
   the original records the full path. This only affects messages and the
   parser's include-relative-to-current-file attempt.
-- The console is stdin/stdout only; the in-window console arrives in M2.
-- No gamepad input yet (M2). `_`-prefixed bindings are stored but inert until
-  the usercmd generator exists.
 - `com_showFPS` defaults to 1 during bring-up; it returns to the original 0
-  once the HUD and console exist.
+  once the HUD exists.
 - Out of scope: Bink video, deathmatch and every other competitive mode
   (and their maps, entities and menus), lobbies and matchmaking, Doom Classic,
   non-English sound packs, demos and AVI capture, editors and map tools,
@@ -239,6 +248,49 @@ from M2 so M11 adds sync instead of rewriting.
   `guis/*.gui` and `script/*.script` files with no errors.
 - The M0 console checks still pass with the real lexer; list filters such
   as `listCvars fs_*` and `listResources _common *.mtr` work.
+
+### M2 (verified 2026-10-31)
+
+- `--self-test` exits 0 in all four build modes: 185 checks, 0 failures, no
+  leaked heap tag or unwind entry. New in M2: usercmd 101, console 65,
+  bitmsg 99, savegame 159 (each counted as one check in the total), jobs,
+  and a session section that drives the real frame loop:
+  - `map game/mars_city1` puts the session in LOADING; the next frame runs
+    ExecuteMapChange and the subsystem calls come in `Common_load.cpp`'s
+    order (game_map_shutdown, render/sound begin level load, preload x3,
+    render world init, persistent info, server info, init from new map,
+    shell menu, end level load x2, ..., generate interactions);
+  - 60 Hz tics against real time (13-17 tics in 250 ms);
+  - `saveGame` / play on / `loadGame` returns the game to the saved time
+    through `game_init_from_save_game`;
+  - Escape opens the pause menu and stops tics, Escape again resumes;
+  - `disconnect`, an error drop in a running game and a missing map all
+    return to IDLE with the same heap block counts as before the map.
+- Live, through stdin: `map game/mars_city1`, `saveGame m2check`,
+  `loadGame m2check` restores the game time; `testSavegameEnumerate` lists
+  the slots; `screenshot` writes a PNG of the window (status line, console).
+- `wait N` waits N frames: text-console lines are released one per frame, as
+  `Sys_ConsoleInput` does, and the wait counter drops once per frame (the
+  original drops it on every command-buffer run, i.e. per input event).
+- Review fixes (2026-10-31, each with a regression check in the "review"
+  self-test section): no save without a running game; a slot is replaced
+  all or nothing (old files moved to `.bak`, restored on any failure; the
+  check fails against the old loop); focus loss drops queued key events
+  before clearing input; rebinding clears usercmd state (`SetBinding`);
+  switching or losing the active pad releases its input; INI values are
+  unquoted once, so quotes survive; `.tmp`/`.bak` file names are reserved;
+  the console edit field fits the window width; failed PNG writes are
+  reported.
+- Second review round (2026-10-31; each check confirmed to fail against the
+  previous code): INI values are read as raw bytes after `=`, so UTF-8
+  survives (the lexer's rest-of-line blanks bytes >= 0x80); focus loss also
+  drops queued mouse/pad events, the mouse accumulator and the pads'
+  buffered events; focus gain and a change of active pad post the pad's
+  held buttons and axes (`rgd3_gamepad_resync`), tested with two SDL
+  virtual gamepads; the edit field clamps scroll to the cursor whenever it
+  is drawn (narrowed console, recalled long lines, Ctrl-E); screenshot
+  encoding is tested against a file that rejects writes. 185 checks.
+- Configs run default.cfg, rgd3.cfg, then autoexec.cfg.
 
 ### Later milestones
 

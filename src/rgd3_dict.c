@@ -627,6 +627,253 @@ void rgd3_dict_read_from_file(Rgd3Dict* d, Rgd3File* f)
 	}
 }
 
+/* ---- INI files (idDict::WriteToIniFile / ReadFromIniFile, Dict.cpp) ---- */
+
+/* idStr::CStyleQuote, appending to out (no 16 KB limit) */
+static void rgd3_dict_cstyle_quote(Rgd3StrBuf* out, const char* str)
+{
+	rgd3_strbuf_appendc(out, '"');
+	for (; *str; str++)
+	{
+		switch (*str)
+		{
+		case '\\': rgd3_strbuf_append(out, "\\\\"); break;
+		case '\n': rgd3_strbuf_append(out, "\\n"); break;
+		case '\r': rgd3_strbuf_append(out, "\\r"); break;
+		case '\t': rgd3_strbuf_append(out, "\\t"); break;
+		case '\v': rgd3_strbuf_append(out, "\\v"); break;
+		case '\b': rgd3_strbuf_append(out, "\\b"); break;
+		case '\f': rgd3_strbuf_append(out, "\\f"); break;
+		case '\a': rgd3_strbuf_append(out, "\\a"); break;
+		case '\'': rgd3_strbuf_append(out, "\\'"); break;
+		case '"': rgd3_strbuf_append(out, "\\\""); break;
+		case '?': rgd3_strbuf_append(out, "\\?"); break;
+		default: rgd3_strbuf_appendc(out, *str); break;
+		}
+	}
+	rgd3_strbuf_appendc(out, '"');
+}
+
+/* idStr::CStyleUnQuote in place: text that does not start with '"' is left
+   alone. The lexer has already unquoted string tokens, so for files this
+   writer produced it is a no-op, as in the original. */
+static void rgd3_dict_cstyle_unquote(Rgd3StrBuf* s)
+{
+	int i = 1, o = 0;
+	if (!s->data || s->data[0] != '"')
+		return;
+	while (i < s->len)
+	{
+		char c = s->data[i++];
+		if (c == '\\' && i < s->len)
+		{
+			c = s->data[i++];
+			switch (c)
+			{
+			case 'n': c = '\n'; break;
+			case 'r': c = '\r'; break;
+			case 't': c = '\t'; break;
+			case 'v': c = '\v'; break;
+			case 'b': c = '\b'; break;
+			case 'f': c = '\f'; break;
+			case 'a': c = '\a'; break;
+			default: break; /* \\ \' \" \? map to themselves */
+			}
+		}
+		s->data[o++] = c;
+	}
+	/* drop the closing quote */
+	if (o > 0 && s->data[o - 1] == '"')
+		o--;
+	s->data[o] = 0;
+	s->len = o;
+}
+
+/* The bytes after '=' up to the end of the line, exactly (UTF-8 kept),
+   with surrounding spaces, tabs and the CR of a CRLF trimmed. The lexer's
+   ReadRestOfLine is not used: it turns every byte >= 0x80 into a space. */
+static void rgd3_dict_ini_raw_value(Rgd3Lexer* lex, Rgd3StrBuf* out)
+{
+	const char* start = lex->script_p;
+	const char* end;
+	while (*start == ' ' || *start == '\t')
+		start++;
+	end = start;
+	while (*end && *end != '\n')
+		end++;
+	lex->script_p = end; /* the newline is left for the next token read */
+	while (end > start && (end[-1] == ' ' || end[-1] == '\t' || end[-1] == '\r'))
+		end--;
+	rgd3_strbuf_clear(out);
+	rgd3_strbuf_appendn(out, start, (int)(end - start));
+}
+
+static void rgd3_dict_ini_line(Rgd3File* f, Rgd3StrBuf* line, const char* first, const char* key, const char* value)
+{
+	rgd3_strbuf_clear(line);
+	rgd3_strbuf_append(line, first);
+	rgd3_strbuf_append(line, key);
+	rgd3_strbuf_appendc(line, '=');
+	rgd3_dict_cstyle_quote(line, value);
+	rgd3_strbuf_appendc(line, '\n');
+	rgd3_fs_write(f, line->data, (size_t)line->len);
+}
+
+void rgd3_dict_write_ini(const Rgd3Dict* d, Rgd3File* f)
+{
+	Rgd3KeyValue* sorted;
+	int* prefix_index;      /* per pair: 0 = no prefix, else 1 + index into prefix_key/len */
+	const char** prefix_key; /* a key that starts with the prefix */
+	int* prefix_len;
+	int num_prefixes = 0, i;
+	const char* prev_prefix = "";
+	int prev_prefix_len = 0, prev_prefix_index = 0, prefix_length = 0;
+	const char* skip_first_line = "";
+	Rgd3StrBuf line = { 0 };
+
+	if (!d->num)
+		return;
+	/* sort a copy so the dict's own order is untouched */
+	sorted = (Rgd3KeyValue*)rgd3_heap_alloc((size_t)d->num * sizeof(Rgd3KeyValue), RGD3_TAG_TEMP);
+	memcpy(sorted, d->args, (size_t)d->num * sizeof(Rgd3KeyValue));
+	qsort(sorted, (size_t)d->num, sizeof(Rgd3KeyValue), rgd3_dict_sort_kv);
+	prefix_index = (int*)rgd3_heap_alloc((size_t)d->num * sizeof(int), RGD3_TAG_TEMP);
+	prefix_key = (const char**)rgd3_heap_alloc((size_t)d->num * sizeof(char*), RGD3_TAG_TEMP);
+	prefix_len = (int*)rgd3_heap_alloc((size_t)d->num * sizeof(int), RGD3_TAG_TEMP);
+
+	/* scan the prefixes; write the prefix-less pairs first */
+	for (i = 0; i < d->num; i++)
+	{
+		const char* key = rgd3_kv_key(&sorted[i]);
+		const char* slash = strrchr(key, '/');
+		if (slash)
+		{
+			int len = (int)(slash - key);
+			if (len != prev_prefix_len || strncmp(key, prev_prefix, (size_t)len) != 0)
+			{
+				prev_prefix = key;
+				prev_prefix_len = len;
+				prefix_key[num_prefixes] = key;
+				prefix_len[num_prefixes] = len;
+				num_prefixes++;
+			}
+			prefix_index[i] = num_prefixes;
+		}
+		else
+		{
+			prefix_index[i] = 0;
+			rgd3_dict_ini_line(f, &line, "", key, rgd3_kv_value(&sorted[i]));
+			skip_first_line = "\n";
+		}
+	}
+
+	/* then the rest, under their [prefix] */
+	for (i = 0; i < d->num; i++)
+	{
+		if (prefix_index[i] == 0)
+			continue;
+		if (prefix_index[i] != prev_prefix_index)
+		{
+			prev_prefix_index = prefix_index[i];
+			prefix_length = prefix_len[prev_prefix_index - 1] + 1; /* skip the '/' too */
+			rgd3_strbuf_clear(&line);
+			rgd3_strbuf_append(&line, skip_first_line);
+			rgd3_strbuf_appendc(&line, '[');
+			rgd3_strbuf_appendn(&line, prefix_key[prev_prefix_index - 1], prefix_len[prev_prefix_index - 1]);
+			rgd3_strbuf_append(&line, "]\n");
+			rgd3_fs_write(f, line.data, (size_t)line.len);
+		}
+		rgd3_dict_ini_line(f, &line, "", rgd3_kv_key(&sorted[i]) + prefix_length, rgd3_kv_value(&sorted[i]));
+	}
+
+	rgd3_strbuf_free(&line);
+	rgd3_heap_free(prefix_len);
+	rgd3_heap_free(prefix_key);
+	rgd3_heap_free(prefix_index);
+	rgd3_heap_free(sorted);
+}
+
+/* The original zeroes the last byte of the buffer (the writer's final
+   newline); this reads the whole file and NUL-terminates past it, so a
+   file without a trailing newline keeps its last character. */
+int rgd3_dict_read_ini(Rgd3Dict* d, Rgd3File* f)
+{
+	static const Rgd3Punctuation ini_punctuations[] = {
+		{ "[", P_SQBRACKETOPEN },
+		{ "]", P_SQBRACKETCLOSE },
+		{ "=", P_ASSIGN },
+		{ NULL, 0 }
+	};
+	Rgd3Lexer lex;
+	Rgd3Token token = { 0 };
+	Rgd3Token token2 = { 0 };
+	Rgd3StrBuf prefix = { 0 };
+	Rgd3StrBuf value = { 0 };
+	Rgd3StrBuf key = { 0 };
+	char name[RGD3_MAX_OSPATH];
+	char* buffer;
+	i64 length;
+	int success = 1;
+
+	rgd3_dict_clear(d);
+	length = rgd3_fs_length(f);
+	if (length < 0 || length > 0x7FFFFFFF)
+		return 0;
+	buffer = (char*)rgd3_heap_alloc((size_t)length + 1, RGD3_TAG_TEMP);
+	if ((i64)rgd3_fs_read(f, buffer, (size_t)length) != length)
+	{
+		rgd3_heap_free(buffer);
+		return 0;
+	}
+	buffer[length] = 0;
+
+	rg_snprintf(name, sizeof(name), "%s dictionary INI reader", rgd3_fs_file_name(f));
+	rgd3_lexer_init(&lex, LEXFL_NOFATALERRORS | LEXFL_ALLOWPATHNAMES);
+	rgd3_lexer_load_memory(&lex, buffer, (int)length, name, 1);
+	rgd3_lexer_set_punctuations(&lex, ini_punctuations);
+
+	while (success && !rgd3_lexer_end_of_file(&lex))
+	{
+		if (rgd3_lexer_peek_token_type(&lex, TT_PUNCTUATION, P_SQBRACKETOPEN, &token))
+		{
+			success = success && rgd3_lexer_expect_token_type(&lex, TT_PUNCTUATION, P_SQBRACKETOPEN, &token);
+			success = success && rgd3_lexer_read_token(&lex, &token);
+			if (success)
+			{
+				rgd3_strbuf_set(&prefix, token.data);
+				rgd3_strbuf_appendc(&prefix, '/');
+			}
+			success = success && rgd3_lexer_expect_token_type(&lex, TT_PUNCTUATION, P_SQBRACKETCLOSE, &token);
+		}
+		if (!rgd3_lexer_peek_token_type(&lex, TT_NAME, 0, &token))
+			break; /* end of file most likely */
+		success = success && rgd3_lexer_expect_token_type(&lex, TT_NAME, 0, &token);
+		success = success && rgd3_lexer_expect_token_type(&lex, TT_PUNCTUATION, P_ASSIGN, &token2);
+		if (!success)
+			break;
+		/* the raw text after '=', unquoted once. The original reads the value
+		   with ParseRestOfLine, whose lexer already decodes escapes and strips
+		   the quotes, then CStyleUnQuote decodes again, so values containing
+		   quotes did not survive a write/read round trip. */
+		rgd3_dict_ini_raw_value(&lex, &value);
+		rgd3_dict_cstyle_unquote(&value);
+		rgd3_strbuf_set(&key, rgd3_strbuf_cstr(&prefix));
+		rgd3_strbuf_append(&key, token.data);
+		if (rgd3_dict_find_key(d, rgd3_strbuf_cstr(&key)))
+			rgd3_lexer_warning(&lex, "'%s' already defined", rgd3_strbuf_cstr(&key));
+		rgd3_dict_set(d, rgd3_strbuf_cstr(&key), rgd3_strbuf_cstr(&value));
+	}
+
+	rgd3_strbuf_free(&key);
+	rgd3_strbuf_free(&value);
+	rgd3_strbuf_free(&prefix);
+	rgd3_token_free(&token2);
+	rgd3_token_free(&token);
+	rgd3_lexer_free(&lex);
+	rgd3_heap_free(buffer);
+	return success;
+}
+
 /* ---- module ---- */
 
 void rgd3_dict_init(void)

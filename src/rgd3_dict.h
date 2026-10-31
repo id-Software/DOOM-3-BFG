@@ -163,4 +163,15 @@ int rgd3_dict_parse(Rgd3Dict* d, Rgd3Parser* parser);
 void rgd3_dict_write_to_file(const Rgd3Dict* d, Rgd3File* f);
 void rgd3_dict_read_from_file(Rgd3Dict* d, Rgd3File* f);
 
+/* idDict::WriteToIniFile / ReadFromIniFile (save game details):
+	key="C-style quoted value"
+   one pair per line, keys sorted case-insensitively; prefix-less keys
+   first, then keys containing '/' grouped under a [prefix] line (the part
+   before the last '/') and written without it. The reader tokenizes with
+   the lexer (path names allowed, punctuation only '[', ']' and '='), so
+   keys must be names; it clears d first, warns about repeated keys and
+   returns 0 on a syntax error (d keeps what was read). Neither drops. */
+void rgd3_dict_write_ini(const Rgd3Dict* d, Rgd3File* f);
+int rgd3_dict_read_ini(Rgd3Dict* d, Rgd3File* f);
+
 #endif

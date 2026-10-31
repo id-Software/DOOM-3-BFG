@@ -6,7 +6,7 @@ single-player campaigns, then co-op through them over SDL3_net. The original id
 Software source is kept under `neo/` as reference; see `README.txt` and
 `COPYING.txt` for its license.
 
-Status: milestones M0 (engine skeleton) and M1 (text, decls, maps, math) done. See `PLAN.md`.
+Status: milestones M0 (engine skeleton), M1 (text, decls, maps, math) and M2 (session, map loading, input, console, saves) done. See `PLAN.md`.
 
 ## Requirements
 

@@ -10,7 +10,7 @@
 void rgd3_app_register(void);
 int rgd3_app_run(int argc, char** argv);
 void rgd3_app_quit(void);
-void rgd3_app_process_event(const Rgd3SysEvent* ev);
+void rgd3_app_grab_mouse(int grab);
 void rgd3_app_write_configuration(int force);
 void rgd3_app_stop_map(void);
 SDL_Window* rgd3_app_window(void);

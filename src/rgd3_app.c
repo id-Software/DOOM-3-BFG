@@ -18,6 +18,7 @@ typedef struct Rgd3App
 	SDL_GPUDevice* gpu;
 	SDL_GPUTextureFormat swapchain_format;
 	int overlay_ok;
+	int mouse_grabbed;
 	char shader_root[RGD3_MAX_OSPATH];
 
 	u64 frame_number;
@@ -37,6 +38,7 @@ static Rgd3Cvar cv_r_fullscreen = RGD3_CVAR("r_fullscreen", "0", RGD3_CVAR_RENDE
 static Rgd3Cvar cv_r_swapInterval = RGD3_CVAR_RANGE("r_swapInterval", "1", RGD3_CVAR_RENDERER | RGD3_CVAR_ARCHIVE | RGD3_CVAR_INTEGER, "0 = tear, 1 = swap-locked", 0, 1);
 static Rgd3Cvar cv_r_gpuDriver = RGD3_CVAR("r_gpuDriver", "", RGD3_CVAR_RENDERER | RGD3_CVAR_ARCHIVE | RGD3_CVAR_INIT, "SDL GPU driver: direct3d12, vulkan, or empty for automatic");
 static Rgd3Cvar cv_r_gpuDebug = RGD3_CVAR("r_gpuDebug", "0", RGD3_CVAR_RENDERER | RGD3_CVAR_BOOL | RGD3_CVAR_INIT, "enable the SDL GPU debug layer");
+static Rgd3Cvar cv_in_nograb = RGD3_CVAR("in_nograb", "0", RGD3_CVAR_SYSTEM | RGD3_CVAR_NOCHEAT, "prevents input grabbing");
 static Rgd3Cvar cv_r_shaderRoot = RGD3_CVAR("r_shaderRoot", "", RGD3_CVAR_RENDERER | RGD3_CVAR_INIT, "directory containing Compiled/{DXIL,SPIRV,MSL}; empty = <exe>/shaders");
 
 SDL_Window* rgd3_app_window(void)
@@ -54,14 +56,21 @@ void rgd3_app_quit(void)
 	rgd3_app.quit = 1;
 }
 
-/* No map exists before M2; dropping an error only needs idempotent cleanup. */
+/* the error drop hook: Common.cpp Error() calls Stop() before throwing */
 void rgd3_app_stop_map(void)
 {
+	rgd3_common_stop(1);
 }
 
-void rgd3_app_process_event(const Rgd3SysEvent* ev)
+/* Sys_GrabMouseCursor: relative mouse mode while playing (in_nograb 1
+   keeps the cursor free, for debugging) */
+void rgd3_app_grab_mouse(int grab)
 {
-	RG_UNUSED(ev);
+	int want = grab && !cv_in_nograb.integer_value && rgd3_app.window != NULL;
+	if (!rgd3_app.window || want == rgd3_app.mouse_grabbed)
+		return;
+	SDL_SetWindowRelativeMouseMode(rgd3_app.window, want ? true : false);
+	rgd3_app.mouse_grabbed = want;
 }
 
 /* ---------------------------------------------------------------------------
@@ -322,21 +331,35 @@ static void rgd3_app_render_frame(void)
 		pass = SDL_BeginGPURenderPass(cmd, &color, 1, NULL);
 		if (pass)
 			SDL_EndGPURenderPass(pass);
-		if (rgd3_app.overlay_ok && cv_com_showFPS.integer_value)
+		/* one overlay batch per frame: the console, then the diagnostics */
+		if (rgd3_app.overlay_ok && rgd3_overlay_begin(width, height))
 		{
-			char fps[48], frame[48], mode[64];
-			const char* lines[3];
-			const char* driver = SDL_GetGPUDeviceDriver(rgd3_app.gpu);
-			rg_snprintf(fps, sizeof(fps), "FPS %.1f", rgd3_app.fps);
-			rg_snprintf(frame, sizeof(frame), "FRAME %.2f MS", rgd3_app.frame_ms);
-			rg_snprintf(mode, sizeof(mode), "%s %uX%u %s", driver ? driver : "", width, height, cv_r_swapInterval.integer_value ? "VSYNC" : "NOVSYNC");
-			lines[0] = fps;
-			lines[1] = frame;
-			lines[2] = mode;
-			rgd3_overlay_draw(cmd, swapchain, width, height, lines, 3);
+			rgd3_console_draw(0);
+			if (cv_com_showFPS.integer_value)
+			{
+				char fps[48], frame[48], mode[64], game[RGD3_MAX_OSPATH + 64];
+				const char* lines[4];
+				const char* driver = SDL_GetGPUDeviceDriver(rgd3_app.gpu);
+				rg_snprintf(fps, sizeof(fps), "FPS %.1f", rgd3_app.fps);
+				rg_snprintf(frame, sizeof(frame), "FRAME %.2f MS", rgd3_app.frame_ms);
+				rg_snprintf(mode, sizeof(mode), "%s %uX%u %s", driver ? driver : "", width, height, cv_r_swapInterval.integer_value ? "VSYNC" : "NOVSYNC");
+				/* until the renderer draws the world: what the game loop is doing */
+				if (rgd3_common_map_spawned())
+					rg_snprintf(game, sizeof(game), "%s %s TIME %.2f", rgd3_common_paused() ? "PAUSED" : "IN GAME",
+						rgd3_common_current_map_name(), rgd3_game_get_server_game_time_ms() / 1000.0);
+				else
+					rg_snprintf(game, sizeof(game), "%s - NO MAP", rgd3_session_state_name(rgd3_session_state()));
+				lines[0] = fps;
+				lines[1] = frame;
+				lines[2] = mode;
+				lines[3] = game;
+				rgd3_overlay_right_lines(lines, 4);
+			}
+			rgd3_overlay_end(cmd, swapchain);
 		}
 	}
-	SDL_SubmitGPUCommandBuffer(cmd);
+	/* submits, capturing the finished frame first if a screenshot is pending */
+	rgd3_screenshot_submit(rgd3_app.gpu, cmd, swapchain, width, height, rgd3_app.swapchain_format);
 }
 
 /* ---------------------------------------------------------------------------
@@ -355,7 +378,7 @@ static void rgd3_app_init(int argc, char** argv)
 	rgd3_console_init();
 	rgd3_log_init();
 	rgd3_sysevents_init();
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD))
 		rgd3_error_fatal("SDL_Init failed: %s", SDL_GetError());
 	rgd3_platform_init();
 
@@ -364,6 +387,7 @@ static void rgd3_app_init(int argc, char** argv)
 	rgd3_cvar_init();
 	rgd3_cmd_init();
 	rgd3_keys_init();
+	rgd3_usercmd_init(); /* also opens connected gamepads */
 	rgd3_dict_init();
 	rgd3_registry_register_all();
 
@@ -371,6 +395,7 @@ static void rgd3_app_init(int argc, char** argv)
 	rgd3_app_startup_variable(NULL);
 
 	rgd3_fs_init();
+	rgd3_savegame_init();
 
 	/* default.cfg, then the user config unless "safe", then autoexec.cfg,
 	   appended as Common.cpp does: each exec inserts its file's text at the
@@ -390,6 +415,11 @@ static void rgd3_app_init(int argc, char** argv)
 	rgd3_lang_init();
 	rgd3_decl_init_game();
 
+	rgd3_jobs_init();
+
+	/* game, session, main menu */
+	rgd3_common_init();
+
 	if (rgd3_app.self_test)
 		return;
 
@@ -399,6 +429,7 @@ static void rgd3_app_init(int argc, char** argv)
 	/* The original keeps _ordered.resources only while startup decls load. */
 	rgd3_fs_unmount_container("_ordered.resources");
 
+	rgd3_console_load_history();
 	rgd3_console_start_stdin();
 	rgd3_app_add_startup_commands();
 	rgd3_cvar_set_init_allowed(0);
@@ -412,11 +443,8 @@ static void rgd3_app_init(int argc, char** argv)
 
 static void rgd3_app_frame(void)
 {
-	rgd3_sysevents_generate();
-	if (rgd3_sysevents_quit_requested())
-		rgd3_app_quit();
-	rgd3_sysevents_run_loop(1);
-	rgd3_app_write_configuration(0);
+	/* events, game tics, map changes (common_frame.cpp Frame) */
+	rgd3_common_frame();
 	if (rgd3_app.quit)
 		return;
 	rgd3_app_check_video_cvars();
@@ -430,7 +458,12 @@ static void rgd3_app_shutdown(void)
 	rgd3_printf("--------- Shutting down ----------\n");
 	rgd3_app_write_configuration(0);
 	rgd3_app.fully_initialized = 0;
+	rgd3_screenshot_shutdown();
+	rgd3_console_shutdown();
 	rgd3_app_shutdown_video();
+	rgd3_common_shutdown();
+	rgd3_savegame_shutdown();
+	rgd3_jobs_shutdown();
 	rgd3_decl_shutdown();
 	rgd3_parser_shutdown();
 	rgd3_lang_shutdown();
@@ -439,6 +472,7 @@ static void rgd3_app_shutdown(void)
 	rgd3_keys_shutdown();
 	rgd3_cmd_shutdown();
 	rgd3_cvar_shutdown();
+	rgd3_usercmd_shutdown();
 	rgd3_sysevents_shutdown();
 	rgd3_log_shutdown();
 	SDL_Quit();
@@ -526,7 +560,7 @@ void rgd3_app_register(void)
 {
 	static Rgd3Cvar* const cvars[] = {
 		&cv_com_showFPS, &cv_r_windowWidth, &cv_r_windowHeight, &cv_r_fullscreen, &cv_r_swapInterval,
-		&cv_r_gpuDriver, &cv_r_gpuDebug, &cv_r_shaderRoot
+		&cv_r_gpuDriver, &cv_r_gpuDebug, &cv_r_shaderRoot, &cv_in_nograb
 	};
 	rgd3_cvar_register_table(cvars, (int)RG_ARRAY_COUNT(cvars));
 	rgd3_cmd_add("quit", rgd3_app_cmd_quit, RGD3_CMD_FL_SYSTEM, "quits the game", NULL);

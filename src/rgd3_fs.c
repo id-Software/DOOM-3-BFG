@@ -46,6 +46,8 @@ struct Rgd3File
 	i64 length;
 	i64 pos;
 	int writable;
+	u8* owned;       /* memory files: buffer this file owns (memory == owned) */
+	size_t capacity; /* bytes allocated in owned */
 	char name[RGD3_MAX_OSPATH];
 };
 
@@ -468,14 +470,28 @@ static void rgd3_fs_create_parent_dirs(const char* os_path)
 		SDL_CreateDirectory(dir);
 }
 
+const char* rgd3_fs_game_dir(void)
+{
+	return cv_fs_game.value && cv_fs_game.value[0] ? cv_fs_game.value : RGD3_BASE_GAMEDIR;
+}
+
+int rgd3_fs_write_os_path(const char* relative, char* out, size_t size)
+{
+	if (out && size)
+		out[0] = 0;
+	if (!rgd3_fs.initialized || !relative || !relative[0] || strstr(relative, ".."))
+		return 0;
+	rgd3_fs_build_os_path(rgd3_fs_savepath(), rgd3_fs_game_dir(), relative, out, size);
+	return 1;
+}
+
 Rgd3File* rgd3_fs_open_write(const char* relative)
 {
 	char os_path[RGD3_MAX_OSPATH];
 	SDL_IOStream* io;
 	Rgd3File* f;
-	if (!rgd3_fs.initialized || !relative || !relative[0] || strstr(relative, ".."))
+	if (!rgd3_fs_write_os_path(relative, os_path, sizeof(os_path)))
 		return NULL;
-	rgd3_fs_build_os_path(rgd3_fs_savepath(), cv_fs_game.value[0] ? cv_fs_game.value : RGD3_BASE_GAMEDIR, relative, os_path, sizeof(os_path));
 	rgd3_fs_create_parent_dirs(os_path);
 	io = SDL_IOFromFile(os_path, "wb");
 	if (!io)
@@ -516,10 +532,27 @@ size_t rgd3_fs_read(Rgd3File* f, void* dst, size_t size)
 	return got;
 }
 
+static size_t rgd3_fs_memory_write(Rgd3File* f, const void* src, size_t size)
+{
+	size_t end;
+	if (!size)
+		return 0;
+	end = (size_t)f->pos + size;
+	rgd3_fs_memory_reserve(f, end + 1); /* room for the trailing NUL */
+	memcpy(f->owned + f->pos, src, size);
+	f->pos = (i64)end;
+	if (f->pos > f->length)
+		f->length = f->pos;
+	f->owned[f->length] = 0;
+	return size;
+}
+
 size_t rgd3_fs_write(Rgd3File* f, const void* src, size_t size)
 {
 	if (!f || !f->writable)
 		return 0;
+	if (f->kind == RGD3_FILE_MEMORY)
+		return rgd3_fs_memory_write(f, src, size);
 	return SDL_WriteIO(f->io, src, size);
 }
 
@@ -584,7 +617,406 @@ void rgd3_fs_close(Rgd3File* f)
 		return;
 	if (f->io)
 		SDL_CloseIO(f->io);
+	rgd3_heap_free(f->owned);
 	rgd3_heap_free(f);
+}
+
+/* ---------------------------------------------------------------------------
+   Memory files (idFile_Memory)
+--------------------------------------------------------------------------- */
+
+Rgd3File* rgd3_fs_open_memory_write(const char* name)
+{
+	Rgd3File* f = rgd3_fs_new_file(RGD3_FILE_MEMORY, name ? name : "*unknown*");
+	f->writable = 1;
+	return f;
+}
+
+Rgd3File* rgd3_fs_open_memory_read(const char* name, const void* data, size_t size)
+{
+	Rgd3File* f = rgd3_fs_new_file(RGD3_FILE_MEMORY, name ? name : "*unknown*");
+	f->memory = (const u8*)data;
+	f->length = data ? (i64)size : 0;
+	return f;
+}
+
+int rgd3_fs_is_memory_file(const Rgd3File* f)
+{
+	return f && f->kind == RGD3_FILE_MEMORY && !f->container;
+}
+
+const u8* rgd3_fs_memory_data(const Rgd3File* f)
+{
+	return f && f->kind == RGD3_FILE_MEMORY ? f->memory : NULL;
+}
+
+/* PreAllocate: grows the owned buffer to at least size bytes; a referencing
+   file gets an owned copy of its data first. Growth doubles instead of the
+   original's fixed 16 KB granularity, so large saves are not copied
+   quadratically. */
+void rgd3_fs_memory_reserve(Rgd3File* f, size_t size)
+{
+	size_t cap;
+	if (!rgd3_fs_is_memory_file(f))
+		return;
+	if (!f->owned && f->length > 0)
+	{
+		size_t len = (size_t)f->length;
+		u8* copy = (u8*)rgd3_heap_alloc(len + 1, RGD3_TAG_FILE);
+		memcpy(copy, f->memory, len);
+		copy[len] = 0;
+		f->owned = copy;
+		f->capacity = len + 1;
+		f->memory = copy;
+	}
+	if (size <= f->capacity)
+		return;
+	cap = f->capacity ? f->capacity : 16384;
+	while (cap < size)
+		cap *= 2;
+	f->owned = (u8*)rgd3_heap_realloc(f->owned, cap, RGD3_TAG_FILE);
+	f->capacity = cap;
+	f->memory = f->owned;
+}
+
+int rgd3_fs_memory_make_read_only(Rgd3File* f)
+{
+	if (!rgd3_fs_is_memory_file(f))
+		return 0;
+	f->writable = 0;
+	f->pos = 0;
+	return 1;
+}
+
+int rgd3_fs_memory_make_writable(Rgd3File* f)
+{
+	if (!rgd3_fs_is_memory_file(f))
+		return 0;
+	rgd3_fs_memory_reserve(f, (size_t)f->length + 1);
+	f->writable = 1;
+	f->pos = 0;
+	return 1;
+}
+
+void rgd3_fs_memory_clear(Rgd3File* f, int free_memory)
+{
+	if (!rgd3_fs_is_memory_file(f))
+		return;
+	f->length = 0;
+	f->pos = 0;
+	if (free_memory || !f->owned)
+	{
+		rgd3_heap_free(f->owned);
+		f->owned = NULL;
+		f->capacity = 0;
+		f->memory = NULL;
+	}
+	else
+	{
+		f->owned[0] = 0;
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Typed reads and writes (idFile::WriteInt / ReadInt / ..., WriteBig)
+--------------------------------------------------------------------------- */
+
+static int rgd3_fs_write_le(Rgd3File* f, u64 v, int bytes)
+{
+	u8 b[8];
+	int i;
+	for (i = 0; i < bytes; i++)
+		b[i] = (u8)(v >> (8 * i));
+	return (int)rgd3_fs_write(f, b, (size_t)bytes);
+}
+
+static int rgd3_fs_write_be(Rgd3File* f, u64 v, int bytes)
+{
+	u8 b[8];
+	int i;
+	for (i = 0; i < bytes; i++)
+		b[i] = (u8)(v >> (8 * (bytes - 1 - i)));
+	return (int)rgd3_fs_write(f, b, (size_t)bytes);
+}
+
+static u32 rgd3_fs_f2u(float v)
+{
+	u32 u;
+	memcpy(&u, &v, sizeof(u));
+	return u;
+}
+
+static float rgd3_fs_u2f(u32 u)
+{
+	float v;
+	memcpy(&v, &u, sizeof(v));
+	return v;
+}
+
+/* reads bytes into v (zero on a short read); returns the bytes read */
+static int rgd3_fs_read_le(Rgd3File* f, u64* v, int bytes)
+{
+	u8 b[8];
+	int i, got = (int)rgd3_fs_read(f, b, (size_t)bytes);
+	*v = 0;
+	if (got != bytes)
+		return got;
+	for (i = 0; i < bytes; i++)
+		*v |= (u64)b[i] << (8 * i);
+	return got;
+}
+
+static int rgd3_fs_read_be(Rgd3File* f, u64* v, int bytes)
+{
+	u8 b[8];
+	int i, got = (int)rgd3_fs_read(f, b, (size_t)bytes);
+	*v = 0;
+	if (got != bytes)
+		return got;
+	for (i = 0; i < bytes; i++)
+		*v = (*v << 8) | b[i];
+	return got;
+}
+
+int rgd3_fs_write_int(Rgd3File* f, i32 value)
+{
+	return rgd3_fs_write_le(f, (u32)value, 4);
+}
+
+int rgd3_fs_write_uint(Rgd3File* f, u32 value)
+{
+	return rgd3_fs_write_le(f, value, 4);
+}
+
+int rgd3_fs_write_short(Rgd3File* f, i16 value)
+{
+	return rgd3_fs_write_le(f, (u16)value, 2);
+}
+
+int rgd3_fs_write_ushort(Rgd3File* f, u16 value)
+{
+	return rgd3_fs_write_le(f, value, 2);
+}
+
+int rgd3_fs_write_char(Rgd3File* f, i8 value)
+{
+	return rgd3_fs_write_le(f, (u8)value, 1);
+}
+
+int rgd3_fs_write_uchar(Rgd3File* f, u8 value)
+{
+	return rgd3_fs_write_le(f, value, 1);
+}
+
+int rgd3_fs_write_float(Rgd3File* f, float value)
+{
+	return rgd3_fs_write_le(f, rgd3_fs_f2u(value), 4);
+}
+
+int rgd3_fs_write_bool(Rgd3File* f, int value)
+{
+	return rgd3_fs_write_le(f, value ? 1u : 0u, 1);
+}
+
+int rgd3_fs_write_string(Rgd3File* f, const char* value)
+{
+	int len = value ? (int)strlen(value) : 0;
+	rgd3_fs_write_int(f, len);
+	return len ? (int)rgd3_fs_write(f, value, (size_t)len) : 0;
+}
+
+static int rgd3_fs_write_floats(Rgd3File* f, const float* v, int count)
+{
+	int i, total = 0;
+	for (i = 0; i < count; i++)
+		total += rgd3_fs_write_float(f, v[i]);
+	return total;
+}
+
+int rgd3_fs_write_vec2(Rgd3File* f, Rgd3Vec2 value)
+{
+	return rgd3_fs_write_floats(f, value.v, 2);
+}
+
+int rgd3_fs_write_vec3(Rgd3File* f, Rgd3Vec3 value)
+{
+	return rgd3_fs_write_floats(f, value.v, 3);
+}
+
+int rgd3_fs_write_vec4(Rgd3File* f, Rgd3Vec4 value)
+{
+	return rgd3_fs_write_floats(f, value.v, 4);
+}
+
+int rgd3_fs_write_mat3(Rgd3File* f, const Rgd3Mat3* value)
+{
+	float m[9];
+	memcpy(m, value, sizeof(m));
+	return rgd3_fs_write_floats(f, m, 9);
+}
+
+int rgd3_fs_write_big_short(Rgd3File* f, i16 value)
+{
+	return rgd3_fs_write_be(f, (u16)value, 2);
+}
+
+int rgd3_fs_write_big_int(Rgd3File* f, i32 value)
+{
+	return rgd3_fs_write_be(f, (u32)value, 4);
+}
+
+int rgd3_fs_write_big_int64(Rgd3File* f, i64 value)
+{
+	return rgd3_fs_write_be(f, (u64)value, 8);
+}
+
+int rgd3_fs_write_big_float(Rgd3File* f, float value)
+{
+	return rgd3_fs_write_be(f, rgd3_fs_f2u(value), 4);
+}
+
+int rgd3_fs_read_int(Rgd3File* f, i32* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 4);
+	*value = (i32)(u32)v;
+	return got;
+}
+
+int rgd3_fs_read_uint(Rgd3File* f, u32* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 4);
+	*value = (u32)v;
+	return got;
+}
+
+int rgd3_fs_read_short(Rgd3File* f, i16* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 2);
+	*value = (i16)(u16)v;
+	return got;
+}
+
+int rgd3_fs_read_ushort(Rgd3File* f, u16* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 2);
+	*value = (u16)v;
+	return got;
+}
+
+int rgd3_fs_read_char(Rgd3File* f, i8* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 1);
+	*value = (i8)(u8)v;
+	return got;
+}
+
+int rgd3_fs_read_uchar(Rgd3File* f, u8* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 1);
+	*value = (u8)v;
+	return got;
+}
+
+int rgd3_fs_read_float(Rgd3File* f, float* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 4);
+	*value = rgd3_fs_u2f((u32)v);
+	return got;
+}
+
+int rgd3_fs_read_bool(Rgd3File* f, int* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_le(f, &v, 1);
+	*value = v ? 1 : 0;
+	return got;
+}
+
+int rgd3_fs_read_string(Rgd3File* f, Rgd3StrBuf* out)
+{
+	i32 len = 0;
+	i64 remaining;
+	rgd3_strbuf_clear(out);
+	if (rgd3_fs_read_int(f, &len) != 4 || len <= 0)
+		return 0;
+	remaining = rgd3_fs_length(f) - rgd3_fs_tell(f);
+	if ((i64)len > remaining)
+		return 0;
+	rgd3_strbuf_reserve(out, len + 1);
+	len = (i32)rgd3_fs_read(f, out->data, (size_t)len);
+	out->data[len] = 0;
+	out->len = len;
+	return len;
+}
+
+static int rgd3_fs_read_floats(Rgd3File* f, float* v, int count)
+{
+	int i, total = 0;
+	for (i = 0; i < count; i++)
+		total += rgd3_fs_read_float(f, &v[i]);
+	return total;
+}
+
+int rgd3_fs_read_vec2(Rgd3File* f, Rgd3Vec2* value)
+{
+	return rgd3_fs_read_floats(f, value->v, 2);
+}
+
+int rgd3_fs_read_vec3(Rgd3File* f, Rgd3Vec3* value)
+{
+	return rgd3_fs_read_floats(f, value->v, 3);
+}
+
+int rgd3_fs_read_vec4(Rgd3File* f, Rgd3Vec4* value)
+{
+	return rgd3_fs_read_floats(f, value->v, 4);
+}
+
+int rgd3_fs_read_mat3(Rgd3File* f, Rgd3Mat3* value)
+{
+	float m[9];
+	int got = rgd3_fs_read_floats(f, m, 9);
+	memcpy(value, m, sizeof(m));
+	return got;
+}
+
+int rgd3_fs_read_big_short(Rgd3File* f, i16* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_be(f, &v, 2);
+	*value = (i16)(u16)v;
+	return got;
+}
+
+int rgd3_fs_read_big_int(Rgd3File* f, i32* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_be(f, &v, 4);
+	*value = (i32)(u32)v;
+	return got;
+}
+
+int rgd3_fs_read_big_int64(Rgd3File* f, i64* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_be(f, &v, 8);
+	*value = (i64)v;
+	return got;
+}
+
+int rgd3_fs_read_big_float(Rgd3File* f, float* value)
+{
+	u64 v;
+	int got = rgd3_fs_read_be(f, &v, 4);
+	*value = rgd3_fs_u2f((u32)v);
+	return got;
 }
 
 int rgd3_fs_read_file(const char* relative, void** buffer, Rgd3TimeStamp* timestamp)
