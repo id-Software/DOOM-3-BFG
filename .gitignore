@@ -1,0 +1,13 @@
+# build output
+/obj/
+/rgd3*.exe
+/rgd3*.pdb
+/rgd3*.ilk
+/rgd3*.exp
+/rgd3*.lib
+/SDL3.dll
+*.obj
+
+# local data and generated files
+/base/generated/
+/tmp_*
